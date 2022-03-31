@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -32,7 +31,6 @@ import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -52,7 +50,6 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -165,6 +162,7 @@ public class TestProcessor {
         }
 
         addUtilityFunctions(module, testSuite);
+        populateMockFunctionNamesMap(testSuite);
         processAnnotations(module, testSuite);
         testSuite.sort();
         return testSuite;
@@ -202,27 +200,8 @@ public class TestProcessor {
                 } else if (annotationName.contains(TEST_ANNOTATION_NAME)) {
                     processTestAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName),
                             functionName, suite);
-                } else if (annotationName.contains(MOCK_ANNOTATION_NAME)) {
-                    processFunctionMockAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, functionName),
-                            functionName, suite, module, true);
                 } else {
                     // disregard this annotation
-                }
-            }
-        }
-
-        List<VariableSymbol> variableSymbolList = getVariableSymbolList(syntaxTreeMap, module);
-        for (VariableSymbol variableSymbol : variableSymbolList) {
-            String variableName = variableSymbol.getName().get();
-            List<AnnotationSymbol> varAnnot = variableSymbol.annotations();
-            for (AnnotationSymbol annotationSymbol : varAnnot) {
-                String annotationName = annotationSymbol.getName().get();
-                if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
-                    String type = variableSymbol.typeDescriptor().getName().get();
-                    if (type.equals("MockFunction")) {
-                        processFunctionMockAnnotation(getAnnotationNode(annotationSymbol, syntaxTreeMap, variableName),
-                                variableName, suite, module, false);
-                    }
                 }
             }
         }
@@ -246,29 +225,6 @@ public class TestProcessor {
                         String functionName = ((FunctionDefinitionNode) node).functionName().text();
                         if (functionName.equals(name)) {
                             Optional<MetadataNode> optionalMetadataNode = ((FunctionDefinitionNode) node).metadata();
-                            if (optionalMetadataNode.isPresent()) {
-                                NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
-                                for (AnnotationNode annotation : annotations) {
-                                    Node annotReference = annotation.annotReference();
-                                    if (annotReference.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                                        QualifiedNameReferenceNode qualifiedNameRef =
-                                                (QualifiedNameReferenceNode) annotReference;
-
-                                        String annotSymbolName = annotationSymbol.getName().get();
-                                        if (qualifiedNameRef.modulePrefix().text().equals(TEST_PREFIX) &&
-                                                qualifiedNameRef.identifier().text().equals(annotSymbolName)) {
-                                            return annotation;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
-                        Node varNameNode = ((ModuleVariableDeclarationNode) node).childBuckets[3];
-                        String varName = varNameNode.toString().split("[ \\t\\\\x0B\\f\\r]+|(?=\\n)")[1];
-                        if (varName.equals(name)) {
-                            Optional<MetadataNode> optionalMetadataNode = ((ModuleVariableDeclarationNode) node)
-                                    .metadata();
                             if (optionalMetadataNode.isPresent()) {
                                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
                                 for (AnnotationNode annotation : annotations) {
@@ -319,25 +275,6 @@ public class TestProcessor {
             }
         }
         return functionSymbolList;
-    }
-
-    private List<VariableSymbol> getVariableSymbolList(Map<Document, SyntaxTree> syntaxTreeMap, Module module) {
-        List<VariableSymbol> variableSymbolList = new ArrayList<>();
-        List<String> variableNamesList = new ArrayList<>();
-        for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
-            List<Symbol> symbols = module.getCompilation().getSemanticModel().visibleSymbols(
-                    syntaxTreeEntry.getKey(),
-                    LinePosition.from(syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().line(),
-                            syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().offset()));
-            for (Symbol symbol : symbols) {
-                if (symbol.kind() == SymbolKind.VARIABLE && symbol instanceof VariableSymbol &&
-                        !variableNamesList.contains(symbol.getName().get())) {
-                    variableSymbolList.add((VariableSymbol) symbol);
-                    variableNamesList.add(symbol.getName().get());
-                }
-            }
-        }
-        return variableSymbolList;
     }
 
     /**
@@ -398,6 +335,13 @@ public class TestProcessor {
                         className);
                 testSuite.addTestUtilityFunction(functionName, functionClassName);
             }
+        }
+    }
+
+    private void populateMockFunctionNamesMap(TestSuite testSuite) {
+        Map<String, String> mockFunctionsSourceMap = registry.getMockFunctionSourceMap();
+        for (Map.Entry<String, String> entry : mockFunctionsSourceMap.entrySet()) {
+            testSuite.addMockFunction(entry.getKey(), entry.getValue());
         }
     }
 
@@ -597,35 +541,6 @@ public class TestProcessor {
         }
     }
 
-    private void processFunctionMockAnnotation(AnnotationNode annotationNode, String name, TestSuite suite,
-                                               Module module, boolean isLegacy) {
-        if (annotationNode != null && !annotationNode.annotValue().isEmpty()) {
-            Optional<MappingConstructorExpressionNode> mappingNodes = annotationNode.annotValue();
-            if (!mappingNodes.isEmpty()) {
-                String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
-                annotationValues[0] = getModuleName(module);
-                for (MappingFieldNode mappingFieldNode : mappingNodes.get().fields()) {
-                    if (mappingFieldNode.kind() == SyntaxKind.SPECIFIC_FIELD) {
-                        SpecificFieldNode specificField = (SpecificFieldNode) mappingFieldNode;
-                        ExpressionNode valueExpr = specificField.valueExpr().orElse(null);
-                        String value = valueExpr.toString().split("[ \"\\n\\t\\\\x0B\\f\\r]+")[1];
-                        if (MODULE.equals(getFieldName(specificField))) {
-                            annotationValues[0] = value;
-                        } else if (FUNCTION.equals(getFieldName(specificField))) {
-                            annotationValues[1] = value;
-                        }
-                    }
-                }
-                if (!isLegacy) {
-                    suite.addMockFunction(annotationValues[0] + MOCK_ANNOTATION_DELIMITER +
-                            annotationValues[1], name);
-                } else {
-                    suite.addMockFunction(annotationValues[0] + MOCK_FN_DELIMITER + annotationValues[1], name);
-                }
-            }
-        }
-    }
-
     /**
      * Get the field name string from {@code SpecificFieldNode}.
      *
@@ -641,12 +556,5 @@ public class TestProcessor {
 
         String fieldName = ((BasicLiteralNode) fieldNameNode).literalToken().text();
         return fieldName.substring(1, fieldName.length() - 1);
-    }
-
-    private String getModuleName(Module module) {
-        String orgName = module.descriptor().org().toString();
-        String moduleName = module.moduleName().toString();
-        return orgName + Names.ORG_NAME_SEPARATOR + moduleName + Names.VERSION_SEPARATOR +
-                module.descriptor().version();
     }
 }
