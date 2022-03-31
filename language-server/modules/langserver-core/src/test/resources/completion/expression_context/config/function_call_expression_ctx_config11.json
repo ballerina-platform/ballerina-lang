@@ -660,10 +660,10 @@
     {
       "label": "a = ...",
       "kind": "Snippet",
-      "detail": "a = {a: 0, b: 0}",
+      "detail": "a = {a: 0, b: 0\\}",
       "sortText": "AR",
       "filterText": "a",
-      "insertText": "a = ${1:{a: 0, b: 0}}",
+      "insertText": "a = ${1:{a: 0, b: 0\\}}",
       "insertTextFormat": "Snippet"
     }
   ]

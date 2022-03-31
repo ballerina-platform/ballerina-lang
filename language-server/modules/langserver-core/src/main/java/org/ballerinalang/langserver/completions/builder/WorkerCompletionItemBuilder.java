@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -39,9 +40,9 @@ public final class WorkerCompletionItemBuilder {
      */
     public static CompletionItem build(WorkerSymbol workerSymbol) {
         CompletionItem item = new CompletionItem();
-        String name = workerSymbol.getName().get();
+        String name = workerSymbol.getName().orElse("");
         item.setLabel(name);
-        item.setInsertText(name);
+        item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(name));
         item.setDetail(ItemResolverConstants.WORKER);
         item.setKind(CompletionItemKind.Variable);
         return item;

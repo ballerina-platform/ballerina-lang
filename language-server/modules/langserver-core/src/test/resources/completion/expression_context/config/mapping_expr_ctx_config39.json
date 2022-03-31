@@ -108,7 +108,7 @@
     {
       "label": "anonField2",
       "kind": "Field",
-      "detail": "(record {| int anonField1; string anonField2; anydata...; |}).anonField2",
+      "detail": "(record {|int anonField1; string anonField2; anydata...;|}).anonField2",
       "sortText": "K",
       "insertText": "anonField2: \"${1}\"",
       "insertTextFormat": "Snippet"
@@ -116,15 +116,15 @@
     {
       "label": "anonField1",
       "kind": "Field",
-      "detail": "(record {| int anonField1; string anonField2; anydata...; |}).anonField1",
+      "detail": "(record {|int anonField1; string anonField2; anydata...;|}).anonField1",
       "sortText": "K",
       "insertText": "anonField1: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int anonField1; string anonField2; anydata...; |} Required Fields",
+      "label": "Fill record {|int anonField1; string anonField2; anydata...;|} Required Fields",
       "kind": "Property",
-      "detail": "record {| int anonField1; string anonField2; anydata...; |}",
+      "detail": "record {|int anonField1; string anonField2; anydata...;|}",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "anonField2: \"\",\nanonField1: 0",

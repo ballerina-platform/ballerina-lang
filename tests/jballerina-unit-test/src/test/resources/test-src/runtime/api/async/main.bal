@@ -267,7 +267,7 @@ public function main() {
     ObjectMethodsCallClass objectMethodsCallClass = new ();
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithNoArgs(), 5);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithRequiredArg(10), 15);
-    test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), -1);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedOptionalArgVal("not a field"), -1);
 
     IsolatedClass isolatedClass = new ();
