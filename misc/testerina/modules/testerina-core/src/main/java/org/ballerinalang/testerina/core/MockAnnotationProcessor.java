@@ -132,10 +132,13 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                 functionToMockID + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
                                 mockFnObjectName);
 
-                        String className = getQualifiedClassName(bLangTestablePackage,
-                                functionToMockID.toString(), annotationValues[1]);
-                        registry.addMockFunctionsSourceMap(className + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
-                                mockFnObjectName);
+                        if (functionToMockID != null) {
+                            // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                            String className = getQualifiedClassName(bLangTestablePackage,
+                                    functionToMockID.toString(), annotationValues[1]);
+                            registry.addMockFunctionsSourceMap(className + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
+                                    mockFnObjectName);
+                        }
                     }
                 } else {
                     // Throw an error saying its not a MockFunction object
@@ -227,10 +230,13 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     bLangTestablePackage.addMockFunction(functionToMockID + MOCK_FN_DELIMITER + vals[1],
                             functionName);
 
-                    String className = getQualifiedClassName(bLangTestablePackage,
-                            functionToMockID.toString(), vals[1]);
-                    registry.addMockFunctionsSourceMap(className + MOCK_FN_DELIMITER + vals[1],
-                            functionName);
+                    if (functionToMockID != null) {
+                        // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                        String className = getQualifiedClassName(bLangTestablePackage,
+                                functionToMockID.toString(), vals[1]);
+                        registry.addMockFunctionsSourceMap(className + MOCK_FN_DELIMITER + vals[1],
+                                functionName);
+                    }
                 }
             }
         }
@@ -394,15 +400,15 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
 
     private String getImportFunctionClassName(BLangTestablePackage bLangTestablePackage,
                                                      String pkgId, String functionName) {
-        String className = getInvokableSymbol(bLangTestablePackage.getImports(), pkgId, functionName);
+        String className = getClassName(bLangTestablePackage.getImports(), pkgId, functionName);
 
         if (className == null) {
-            className = getInvokableSymbol(bLangTestablePackage.parent.getImports(), pkgId, functionName);
+            className = getClassName(bLangTestablePackage.parent.getImports(), pkgId, functionName);
         }
         return className;
     }
 
-    private String getInvokableSymbol(List<BLangImportPackage> imports, String pkgId, String functionName) {
+    private String getClassName(List<BLangImportPackage> imports, String pkgId, String functionName) {
         for (BLangImportPackage importPackage : imports) {
             if (importPackage.symbol.pkgID.toString().equals(pkgId)) {
                 BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) importPackage.symbol.scope.entries
