@@ -136,8 +136,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                             // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
                             String className = getQualifiedClassName(bLangTestablePackage,
                                     functionToMockID.toString(), annotationValues[1]);
-                            registry.addMockFunctionsSourceMap(className + MOCK_ANNOTATION_DELIMITER + annotationValues[1],
-                                    mockFnObjectName);
+                            registry.addMockFunctionsSourceMap(className + MOCK_ANNOTATION_DELIMITER +
+                                            annotationValues[1], mockFnObjectName);
                         }
                     }
                 } else {
