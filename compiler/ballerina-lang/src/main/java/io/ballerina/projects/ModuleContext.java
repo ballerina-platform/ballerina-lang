@@ -284,6 +284,7 @@ class ModuleContext {
         // TODO Not sure why we need to do this. It is there in the current implementation
         testablePkg.packageID = pkgId;
         testablePkg.flagSet.add(Flag.TESTABLE);
+        testablePkg.parent = pkgNode;
         // TODO Why we need two different diagnostic positions. This is how it is done in the current compiler.
         //  So I kept this as is for now.
         testablePkg.pos = new BLangDiagnosticLocation(this.moduleName().toString(), 1, 1, 1, 1);
