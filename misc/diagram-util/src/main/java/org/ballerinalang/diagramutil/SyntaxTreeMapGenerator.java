@@ -210,12 +210,15 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         int epStartLine = endpoint.get("position").getAsJsonObject().get("startLine").getAsInt();
                         int epEndLine = endpoint.get("position").getAsJsonObject().get("endLine").getAsInt();
 
-                        if (epStartLine <= node.lineRange().startLine().line()
-                                && epEndLine < node.lineRange().endLine().line()
+                        Optional<Node> parentFunctionBlock = getParentFunctionBlock(node);
+                        if (parentFunctionBlock.isPresent()
+                                && epStartLine >= parentFunctionBlock.get().lineRange().startLine().line()
+                                && epEndLine < node.lineRange().startLine().line()
                                 && !endpoint.has("innerBlock")) {
                             blockEndpoints.add(endpoint);
                         }
-                        if (epStartLine > node.lineRange().startLine().line()
+
+                        if (epStartLine >= node.lineRange().startLine().line()
                                 && epEndLine < node.lineRange().endLine().line()
                                 && !endpoint.has("innerBlock")) {
                             blockEndpoints.add(endpoint);
@@ -229,6 +232,20 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
 
         return nodeJson;
+    }
+
+    private Optional<Node> getParentFunctionBlock(Node node) {
+        try {
+            if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                return Optional.of(node);
+            }
+            if (node.parent().kind() == SyntaxKind.MODULE_PART) {
+                return Optional.empty();
+            }
+            return getParentFunctionBlock(node.parent());
+        } catch (NullPointerException ex) {
+            return Optional.empty();
+        }
     }
 
     private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node) {
@@ -267,7 +284,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 Optional<Token> paramName = requiredParameterNode.paramName();
                 String symbolName = paramName.isPresent() ? paramName.get().text() : "";
                 symbolMetaInfo = getModuleMetaInfo(typeSymbol, symbolName, requiredParameterNode.lineRange(),
-                        false, true);
+                        false, true, true);
                 if (!isAvailableAsEndpoint(symbolName)) {
                     this.visibleEpsForEachBlock.add(symbolMetaInfo);
                 }
@@ -346,6 +363,18 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         position.addProperty("startLine", lineRange.startLine().line());
         position.addProperty("endLine", lineRange.endLine().line());
         metaInfo.add("position", position);
+
+        return metaInfo;
+    }
+
+    private JsonObject getModuleMetaInfo(TypeSymbol typeSymbol, String name, LineRange lineRange,
+                                         Boolean isModuleVar, Boolean isExternal, Boolean isParam) {
+        if (!typeSymbol.getModule().isPresent()) {
+            return new JsonObject();
+        }
+
+        JsonObject metaInfo = getModuleMetaInfo(typeSymbol, name, lineRange, isModuleVar, isExternal);
+        metaInfo.addProperty("isParameter", isParam);
 
         return metaInfo;
     }
