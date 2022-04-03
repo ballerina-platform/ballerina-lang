@@ -29,7 +29,7 @@ public function main() returns error? {
     };
 }
 
-function secondFunc(ExternalClient exEp) returns boolean {
+function secondFunc(ExternalClient exEpP1) returns boolean {
 
     while exEp {
         ExternalClient exEp4 = new ("http://example.com/4");
@@ -47,5 +47,20 @@ function secondFunc(ExternalClient exEp) returns boolean {
         ExternalClient exEp7 = new ("http://example.com/7");
     }
 
+    return true;
+}
+
+function thirdFunc() returns boolean {
+    ExternalClient exEp8 = new ("http://example.com/7");
+    if true {
+        ExternalClient exEp9 = new ("http://example.com/2");
+    }
+
+    return true;
+}
+
+function fourthFunc(ExternalClient exEpP2) returns boolean {
+    var temp;
+    temp = exEpP2;
     return true;
 }
