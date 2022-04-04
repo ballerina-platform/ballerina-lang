@@ -19,6 +19,8 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -397,9 +399,9 @@ public class LargeMethodOptimizer {
             startInsNum = currSplit.lastIns + 1;
             newBBNum += 1;
             BIRBasicBlock newBB = new BIRBasicBlock(new Name("bb" + newBBNum));
-            List<BIROperand> args = new ArrayList<>();
+            List<BIRArgument> args = new ArrayList<>();
             for (BIRVariableDcl funcArg : currSplit.funcArgs) {
-                args.add(new BIROperand(funcArg));
+                args.add(new BIRArgument(ArgumentState.PROVIDED, funcArg));
             }
             currentBB.terminator = new BIRTerminator.Call(lastInstruction.pos, InstructionKind.CALL, false,
                     currentPackageId, newFuncName, args, splitFuncCallResultOp, newBB, Collections.emptyList(),
@@ -510,6 +512,11 @@ public class LargeMethodOptimizer {
         Set<BIRVariableDcl> usedTempAndSyntheticVars = new HashSet<>();
         Set<BIRVariableDcl> allUsedVars = new HashSet<>();
         Set<BIRVariableDcl> multipleBBUsedVars = new HashSet<>();
+        for (List<BIRBasicBlock> bbList : birFunction.parameters.values()) {
+            for (BIRBasicBlock basicBlock : bbList) {
+                allUsedVars.addAll(findUsedVars(basicBlock, usedTempAndSyntheticVars, allUsedVars, multipleBBUsedVars));
+            }
+        }
         for (BIRBasicBlock basicBlock : birFunction.basicBlocks) {
             allUsedVars.addAll(findUsedVars(basicBlock, usedTempAndSyntheticVars, allUsedVars, multipleBBUsedVars));
         }
@@ -588,7 +595,7 @@ public class LargeMethodOptimizer {
             BIRFunctionParameter funcParameter = new BIRFunctionParameter(lastIns.pos, funcArg.type, argName,
                     VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
             functionParams.add(funcParameter);
-            birFunc.parameters.add(funcParameter);
+            birFunc.parameters.put(funcParameter, new ArrayList<>());
             if (funcArg.kind == VarKind.SELF) {
                 selfVarDcl = new BIRVariableDcl(funcArg.pos, funcArg.type, funcArg.name, funcArg.originalName,
                         VarScope.FUNCTION, VarKind.ARG, funcArg.metaVarName);
@@ -680,9 +687,9 @@ public class LargeMethodOptimizer {
             startInsNum = possibleSplits.get(splitNum).lastIns + 1;
             newBBNum += 1;
             BIRBasicBlock newBB = new BIRBasicBlock(new Name("bb" + newBBNum));
-            List<BIROperand> args = new ArrayList<>();
+            List<BIRArgument> args = new ArrayList<>();
             for (BIRVariableDcl funcArg : possibleSplits.get(splitNum).funcArgs) {
-                args.add(new BIROperand(funcArg));
+                args.add(new BIRArgument(ArgumentState.PROVIDED, funcArg));
             }
             currentBB.terminator = new BIRTerminator.Call(instructionList.get(possibleSplits.get(splitNum).lastIns).pos,
                     InstructionKind.CALL, false, currentPackageId, newFuncName, args, currentBBTerminatorLhsOp,
@@ -743,7 +750,7 @@ public class LargeMethodOptimizer {
             BIRFunctionParameter funcParameter = new BIRFunctionParameter(currentIns.pos, funcArg.type, argName,
                     VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
             functionParams.add(funcParameter);
-            birFunc.parameters.add(funcParameter);
+            birFunc.parameters.put(funcParameter, new ArrayList<>());
             if (funcArg.kind == VarKind.SELF) {
                 selfVarDcl = new BIRVariableDcl(funcArg.pos, funcArg.type, funcArg.name, funcArg.originalName,
                         VarScope.FUNCTION, VarKind.ARG, funcArg.metaVarName);

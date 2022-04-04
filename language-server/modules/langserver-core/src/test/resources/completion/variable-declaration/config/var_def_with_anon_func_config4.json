@@ -591,6 +591,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "s",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "F",
+      "insertText": "s",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunc2",
       "kind": "Variable",
       "detail": "function (int i, string s) returns int",
@@ -599,19 +607,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "x",
+      "label": "i",
       "kind": "Variable",
       "detail": "int",
       "sortText": "F",
-      "insertText": "x",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "y",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "F",
-      "insertText": "y",
+      "insertText": "i",
       "insertTextFormat": "Snippet"
     },
     {
@@ -620,7 +620,7 @@
       "detail": "Snippet",
       "sortText": "CP",
       "filterText": "function",
-      "insertText": "function (int i, string s) returns int {\n    return 0;\n}",
+      "insertText": "function (int i1, string s1) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"
     }
   ]
