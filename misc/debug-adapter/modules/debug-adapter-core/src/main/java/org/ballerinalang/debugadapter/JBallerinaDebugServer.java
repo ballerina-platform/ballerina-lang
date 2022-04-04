@@ -28,7 +28,6 @@ import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.identifier.Utils;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.completion.CompletionGenerator;
@@ -102,7 +101,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -127,6 +125,7 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 
 /**
  * JBallerina debug server implementation.
@@ -243,8 +242,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
             clientConfigHolder = new ClientLaunchConfigHolder(args);
-            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
-            context.setSourceProject(sourceProject);
+            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             String sourceProjectRoot = context.getSourceProjectRoot();
             BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
                     new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
@@ -265,8 +263,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
             clientConfigHolder = new ClientAttachConfigHolder(args);
-            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
-            context.setSourceProject(sourceProject);
+            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
             ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
 
             String hostName = configHolder.getHostName().orElse("");
@@ -949,19 +946,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @return true if its a valid ballerina frame
      */
     static boolean isValidFrame(StackFrame stackFrame) {
-        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0
-                && !isCompilerGeneratedFrame(stackFrame);
-    }
-
-    /**
-     * Validates whether the provided stack frame is a compiler generated one during the codegen phase.
-     *
-     * @param stackFrame stack frame instance
-     * @return true if the provided stack frame is a compiler generated one during the codegen phase
-     */
-    private static boolean isCompilerGeneratedFrame(StackFrame stackFrame) {
-        String frameName = stackFrame.getName();
-        return frameName != null && frameName.startsWith("$") && frameName.endsWith("$");
+        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0;
     }
 
     /**

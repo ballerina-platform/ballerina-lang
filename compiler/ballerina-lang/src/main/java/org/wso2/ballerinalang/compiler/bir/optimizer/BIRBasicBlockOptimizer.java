@@ -84,6 +84,7 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
         birFunction.basicBlocks.removeAll(removableGOTOBasicBlocks);
 
         // Re-arrange basic blocks
+        birFunction.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(this::rearrangeBasicBlocks));
         birFunction.basicBlocks.forEach(this::rearrangeBasicBlocks);
         // Re-arrange error entries
         birFunction.errorTable.sort(Comparator.comparingInt(o ->

@@ -4,7 +4,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -51,7 +50,6 @@ public class OCEDynamicEnvironmentData {
     public boolean closureDesugaringInProgress;
     public boolean isDirty;
     public List<BLangSimpleVarRef> desugaredClosureVars;
-    public BLangExpression initInvocation;
 
     public OCEDynamicEnvironmentData() {
         lambdaFunctionsList = new ArrayList<>(1);
