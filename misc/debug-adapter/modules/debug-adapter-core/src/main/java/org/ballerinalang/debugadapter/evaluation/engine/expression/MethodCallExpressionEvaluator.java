@@ -23,10 +23,8 @@ import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
 import com.sun.jdi.VoidValue;
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
@@ -38,6 +36,8 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.ClassDefinitionResolver;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.NodeBasedArgProcessor;
+import org.ballerinalang.debugadapter.evaluation.engine.SymbolBasedArgProcessor;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
@@ -55,8 +55,7 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.LANG_LIB_NOT_FOUND;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND;
-import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
-import static org.ballerinalang.debugadapter.evaluation.engine.expression.FunctionInvocationExpressionEvaluator.modifyName;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_VALUE;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getAssociatedLangLibName;
@@ -171,9 +170,10 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
             isFoundObjectMethod = true;
             GeneratedInstanceMethod objectMethod = getObjectMethodByName(resultVar, methodName);
-            Map<String, Value> argValueMap = generateNamedArgs(context, methodName, objectMethodDef.get()
-                    .typeDescriptor(), argEvaluators);
-            objectMethod.setNamedArgValues(argValueMap);
+            SymbolBasedArgProcessor argProcessor = new SymbolBasedArgProcessor(context, methodName,
+                    objectMethod.getJDIMethodRef(), objectMethodDef.get());
+            List<Value> orderedArgsList = argProcessor.process(argEvaluators);
+            objectMethod.setArgValues(orderedArgsList);
             return objectMethod.invokeSafely();
         } catch (EvaluationException e) {
             // If the object method is not found, we have to ignore the Evaluation Exception and try to find any
@@ -234,19 +234,11 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
         argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
         FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
-        Map<String, Value> argValueMap = generateNamedArgs(context, methodName, functionSignature, argEvaluators);
-        langLibMethod.setNamedArgValues(argValueMap);
+        NodeBasedArgProcessor argProcessor = new NodeBasedArgProcessor(context, methodName, langLibMethod
+                .getJDIMethodRef(), functionSignature);
+        List<Value> orderedArgsList = argProcessor.process(argEvaluators);
+        langLibMethod.setArgValues(orderedArgsList);
         return langLibMethod.invokeSafely();
-    }
-
-    protected Optional<ClassSymbol> findClassDefWithinModule(String className) {
-        SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
-        return semanticContext.moduleSymbols()
-                .stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.CLASS
-                        && modifyName(symbol.getName().get()).equals(className))
-                .findFirst()
-                .map(symbol -> (ClassSymbol) symbol);
     }
 
     protected Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {

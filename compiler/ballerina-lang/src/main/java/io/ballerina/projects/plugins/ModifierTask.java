@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,26 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.model;
+package io.ballerina.projects.plugins;
 
 /**
- * {@code ArgumentState} represents state of an argument in an instruction.
+ * Represent a code modifier task that accepts an analysis context and return no result.
  *
- * @since 2.0.0
+ * @param <T> the type of the code modifier context
+ * @since 2201.0.3
  */
-public enum ArgumentState {
-    /**
-     * User has provided value for default parameter.
-     */
-    PROVIDED,
+@FunctionalInterface
+public interface ModifierTask<T> {
 
     /**
-     * User has not provided value for default parameter.
+     * Performs a code modification with the passed context.
+     *
+     * @param t code modifier context
      */
-    NOT_PROVIDED,
-    
-    /**
-     * User has provided value as a condition for default parameter.
-     */
-    CONDITIONALLY_PROVIDED
+    void modify(T t);
 }

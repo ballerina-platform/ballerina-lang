@@ -16,7 +16,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -46,7 +47,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     private TypeSymbol restTypeDesc;
     private List<TypeSymbol> typeInclusions;
 
-    public BallerinaRecordTypeSymbol(CompilerContext context, ModuleID moduleID, BRecordType recordType) {
+    public BallerinaRecordTypeSymbol(CompilerContext context, BRecordType recordType) {
         super(context, TypeDescKind.RECORD, recordType);
     }
 
@@ -106,7 +107,7 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
     @Override
     public String signature() {
         // Treating every record typedesc as exclusive record typedescs.
-        StringJoiner joiner = new StringJoiner(" ", "{| ", " |}");
+        StringJoiner joiner = new StringJoiner(" ", "{|", "|}");
         for (RecordFieldSymbol fieldSymbol : this.fieldDescriptors().values()) {
             String ballerinaFieldSignature = fieldSymbol.signature() + ";";
             joiner.add(ballerinaFieldSignature);
@@ -117,5 +118,15 @@ public class BallerinaRecordTypeSymbol extends AbstractTypeSymbol implements Rec
         });
 
         return "record " + joiner.toString();
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

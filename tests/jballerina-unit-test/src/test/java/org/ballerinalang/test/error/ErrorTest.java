@@ -45,6 +45,7 @@ public class ErrorTest {
     private CompileResult errorTestResult;
     private CompileResult distinctErrorTestResult;
     private CompileResult negativeDistinctErrorRes;
+    private CompileResult cloneableResult;
 
     private static final String CONST_ERROR_REASON = "reason one";
 
@@ -53,6 +54,7 @@ public class ErrorTest {
         errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
         distinctErrorTestResult = BCompileUtil.compile("test-src/error/distinct_error_test.bal");
         negativeDistinctErrorRes = BCompileUtil.compile("test-src/error/distinct_error_test_negative.bal");
+        cloneableResult = BCompileUtil.compile("test-src/error/value_and_error_cloneable_test.bal");
     }
 
     @Test
@@ -118,8 +120,8 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
-                        "\tat error_test:errorPanicCallee(error_test.bal:64)\n" +
-                        "\t   error_test:errorPanicTest(error_test.bal:58)");
+                        "\tat error_test:errorPanicCallee(error_test.bal:62)\n" +
+                        "\t   error_test:errorPanicTest(error_test.bal:56)");
     }
 
     @Test
@@ -336,7 +338,7 @@ public class ErrorTest {
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
                 "at ballerina.lang.array.0:slice(array.bal:128)\n\t" +
-                "   error_test:testStackTraceInNative(error_test.bal:339)");
+                "   error_test:testStackTraceInNative(error_test.bal:337)");
     }
 
     @Test
@@ -369,8 +371,8 @@ public class ErrorTest {
     public void testStackOverFlow() {
         Object result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         BArray arr = (BArray) result;
-        String expected1 = "{callableName:bar, moduleName:null, fileName:error_test.bal, lineNumber:408}";
-        String expected2 = "{callableName:bar2, moduleName:null, fileName:error_test.bal, lineNumber:412}";
+        String expected1 = "{callableName:bar, moduleName:null, fileName:error_test.bal, lineNumber:406}";
+        String expected2 = "{callableName:bar2, moduleName:null, fileName:error_test.bal, lineNumber:410}";
         String resultStack = ((BArray) arr.get(0)).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
@@ -399,14 +401,14 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: error1\n" +
-                "\tat error_test:foo(error_test.bal:470)\n" +
-                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:466)\n" +
+                "\tat error_test:foo(error_test.bal:468)\n" +
+                "\t   error_test:testStackTraceWithErrorCauseLocation(error_test.bal:464)\n" +
                 "cause: error2\n" +
-                "\tat error_test:baz(error_test.bal:479)\n" +
-                "\t   error_test:x(error_test.bal:475)\n" +
+                "\tat error_test:baz(error_test.bal:477)\n" +
+                "\t   error_test:x(error_test.bal:473)\n" +
                 "\t   ... 2 more\n" +
                 "cause: error3\n" +
-                "\tat error_test:foobar(error_test.bal:484)\n" +
+                "\tat error_test:foobar(error_test.bal:482)\n" +
                 "\t   ... 4 more");
     }
 
@@ -422,8 +424,8 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: error\n" +
-                "\tat Person:init(error_test.bal:495)\n" +
-                "\t   error_test:testStacktraceWithPanicInsideInitMethod(error_test.bal:500)");
+                "\tat Person:init(error_test.bal:493)\n" +
+                "\t   error_test:testStacktraceWithPanicInsideInitMethod(error_test.bal:498)");
     }
 
     @Test
@@ -438,8 +440,22 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: error!!!\n" +
-                "\tat error_test:$lambda$_2(error_test.bal:506)\n" +
-                "\t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:509)");
+                "\tat error_test:$lambda$_2(error_test.bal:504)\n" +
+                "\t   error_test:testStacktraceWithPanicInsideAnonymousFunction(error_test.bal:507)");
+    }
+
+    @DataProvider(name = "cloneableTests")
+    public Object[][] cloneableTests() {
+        return new Object[][]{
+                {"testSimpleErrorDetailsMatchToCloneable"},
+                {"testSimpleAssignabilityRules"},
+                {"testSimpleIsChecks"},
+        };
+    }
+
+    @Test(dataProvider = "cloneableTests")
+    public void testCloneableTests(String testFunction) {
+        BRunUtil.invoke(cloneableResult, testFunction);
     }
 
     @AfterClass
@@ -447,5 +463,6 @@ public class ErrorTest {
         errorTestResult = null;
         distinctErrorTestResult = null;
         negativeDistinctErrorRes = null;
+        cloneableResult = null;
     }
 }
