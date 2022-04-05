@@ -127,25 +127,25 @@ public class VariableVisibilityTest extends BaseTestCase {
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
 
         // local variable visibility test inside `if` statement.
-        Assert.assertEquals(localVariables.size(), 48);
+        Assert.assertEquals(localVariables.size(), 50);
 
         // local variable visibility test inside `else` statement.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 48);
+        Assert.assertEquals(localVariables.size(), 50);
 
         // local variable visibility test inside `else-if` statement.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 48);
+        Assert.assertEquals(localVariables.size(), 50);
 
         // local variable visibility test inside `while` loop.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 48);
+        Assert.assertEquals(localVariables.size(), 50);
 
         // local variable visibility test inside `foreach` loop.
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
@@ -157,13 +157,13 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 49);
+        Assert.assertEquals(localVariables.size(), 51);
 
         // visibility test of local variable defined inside `if` statement
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
-        Assert.assertEquals(localVariables.size(), 49);
+        Assert.assertEquals(localVariables.size(), 52);
 
         // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/27738
         // local variable visibility test inside `foreach` statement + lambda function.
