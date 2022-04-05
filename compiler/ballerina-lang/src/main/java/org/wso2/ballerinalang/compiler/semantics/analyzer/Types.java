@@ -3883,30 +3883,37 @@ public class Types {
 
     private boolean isFiniteTypeAssignable(BFiniteType finiteType, BType targetType, Set<TypePair> unresolvedTypes) {
         BType expType = getReferredType(targetType);
-        for (BLangExpression expression : finiteType.getValueSpace()) {
-            if (expType.tag != TypeTags.FINITE && expType.tag != TypeTags.UNION) {
-                if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
-                        !isAssignable(expression.getBType(), expType, unresolvedTypes)) {
-                    return false;
-                }
-            }
-
-            ((BLangLiteral) expression).isFiniteContext = true;
-            if (expType.tag == TypeTags.FINITE) {
+        if (expType.tag == TypeTags.FINITE) {
+            for (BLangExpression expression : finiteType.getValueSpace()) {
+                ((BLangLiteral) expression).isFiniteContext = true;
                 if (!isAssignableToFiniteType(expType, (BLangLiteral) expression)) {
                     return false;
                 }
-            } else {
-                List<BType> unionMemberTypes = getAllTypes(targetType, true);
+            }
+            return true;
+        }
+
+        if (targetType.tag == TypeTags.UNION) {
+            List<BType> unionMemberTypes = getAllTypes(targetType, true);
+            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+                ((BLangLiteral) valueExpr).isFiniteContext = true;
                 if (unionMemberTypes.stream()
                         .noneMatch(targetMemType ->
                                 getReferredType(targetMemType).tag == TypeTags.FINITE ?
-                                        isAssignableToFiniteType(targetMemType, (BLangLiteral) expression) :
-                                        isAssignable(expression.getBType(), targetMemType, unresolvedTypes) ||
+                                        isAssignableToFiniteType(targetMemType, (BLangLiteral) valueExpr) :
+                                        isAssignable(valueExpr.getBType(), targetMemType, unresolvedTypes) ||
                                                 isLiteralCompatibleWithBuiltinTypeWithSubTypes(
-                                                        (BLangLiteral) expression, targetMemType))) {
+                                                        (BLangLiteral) valueExpr, targetMemType))) {
                     return false;
                 }
+            }
+            return true;
+        }
+
+        for (BLangExpression expression : finiteType.getValueSpace()) {
+            if (!isLiteralCompatibleWithBuiltinTypeWithSubTypes((BLangLiteral) expression, targetType) &&
+                    !isAssignable(expression.getBType(), expType, unresolvedTypes)) {
+                return false;
             }
         }
         return true;
