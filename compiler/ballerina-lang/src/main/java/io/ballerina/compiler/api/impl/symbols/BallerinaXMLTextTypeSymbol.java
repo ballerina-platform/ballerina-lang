@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTextTypeSymbol;
@@ -34,7 +35,7 @@ import java.util.Optional;
  */
 public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XMLTextTypeSymbol {
 
-    public BallerinaXMLTextTypeSymbol(CompilerContext context, ModuleID moduleID, BXMLSubType textType) {
+    public BallerinaXMLTextTypeSymbol(CompilerContext context, BXMLSubType textType) {
         super(context, TypeDescKind.XML_TEXT, textType);
     }
 
@@ -51,5 +52,15 @@ public class BallerinaXMLTextTypeSymbol extends AbstractTypeSymbol implements XM
     @Override
     public String signature() {
         return "xml:" + Names.STRING_XML_TEXT;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

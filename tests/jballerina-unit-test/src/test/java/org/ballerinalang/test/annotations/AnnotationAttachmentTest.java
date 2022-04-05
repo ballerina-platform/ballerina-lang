@@ -551,6 +551,6 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "str");
         keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) recordFields.get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "s2");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "null");
+        Assert.assertNull(((BLangLiteral) keyValuePair.getValue()).value);
     }
 }

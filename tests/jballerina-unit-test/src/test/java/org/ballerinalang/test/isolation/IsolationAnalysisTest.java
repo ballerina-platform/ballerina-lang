@@ -50,6 +50,8 @@ public class IsolationAnalysisTest {
             "invalid invocation of a non-isolated function in the default value of a record field";
     private static final String INVALID_NON_ISOLATED_INIT_EXPRESSION_IN_RECORD_FIELD_DEFAULT =
             "invalid non-isolated initialization expression in the default value of a record field";
+    private static final String INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT =
+            "invalid access of an isolated variable outside a lock statement in the default value of a record field";
 
     private static final String INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT =
             "invalid access of mutable storage in the initializer of an object field";
@@ -259,8 +261,13 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_IN_RECORD_FIELD_DEFAULT, 33, 20);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_RECORD_FIELD_DEFAULT, 33, 24);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_IN_OBJECT_FIELD_DEFAULT, 39, 25);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 67, 23);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 68, 23);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 81, 25);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 95, 25);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 108, 27);
+        validateError(result, i++, INVALID_ISOLATED_VAR_ACCESS_OUTSIDE_LOCK_IN_RECORD_FIELD_DEFAULT, 111, 23);
         Assert.assertEquals(result.getErrorCount(), i);
-
     }
 
     @Test

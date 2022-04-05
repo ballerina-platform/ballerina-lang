@@ -627,6 +627,56 @@ function testConstPatternWithNegativeLiteral() {
     assertEquals("other", constPatternWithNegativeLiteral(-123.4));
 }
 
+function testConstPatternWithPredeclaredPrefix() {
+    assertEquals(0, constPatternWithPredeclaredPrefix1(int:MAX_VALUE));
+    assertEquals(1, constPatternWithPredeclaredPrefix1(int:MIN_VALUE));
+    assertEquals(2, constPatternWithPredeclaredPrefix1(2));
+
+    assertEquals(0, constPatternWithPredeclaredPrefix2([int:MIN_VALUE, int:MAX_VALUE]));
+    assertEquals(1, constPatternWithPredeclaredPrefix2([int:MAX_VALUE, int:MIN_VALUE]));
+
+    assertEquals(0, constPatternWithPredeclaredPrefix3({i: int:MIN_VALUE, j: int:MAX_VALUE}));
+    assertEquals(0, constPatternWithPredeclaredPrefix3({i: int:MIN_VALUE, j: int:MAX_VALUE, k: 2}));
+    assertEquals(1, constPatternWithPredeclaredPrefix3({i: int:MIN_VALUE}));
+    assertEquals(1, constPatternWithPredeclaredPrefix3({i: 2, j: 3}));
+}
+
+function constPatternWithPredeclaredPrefix1(int x) returns int {
+    match x {
+        int:MAX_VALUE => {
+            return 0;
+        }
+        int:MIN_VALUE => {
+            return 1;
+        }
+        _ => {
+            return 2;
+        }
+    }
+}
+
+function constPatternWithPredeclaredPrefix2(int[] x) returns int {
+    match x {
+        [int:MIN_VALUE, int:MAX_VALUE] => {
+            return 0;
+        }
+        _ => {
+            return 1;
+        }
+    }
+}
+
+function constPatternWithPredeclaredPrefix3(map<int> x) returns int {
+    match x {
+        {i: int:MIN_VALUE, j: int:MAX_VALUE} => {
+            return 0;
+        }
+        _ => {
+            return 1;
+        }
+    }
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

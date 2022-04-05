@@ -197,6 +197,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         }
         data.booleanConstCondition = prevBoolConst;
         resetUnreachableBlock(data);
+        resetSkipFurtherAnalysisInUnreachableBlock(data);
     }
 
     @Override
@@ -256,7 +257,6 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     @Override
     public void visit(BLangPanic panicNode, AnalyzerData data) {
-        checkStatementExecutionValidity(panicNode, data);
         data.statementReturnsPanicsOrFails = true;
     }
 
@@ -284,7 +284,6 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                 data.env.enclInvokable));
         data.unreachableBlock = data.unreachableBlock || data.booleanConstCondition == symTable.falseType;
         analyzeReachability(ifStmt.body, data);
-        resetUnreachableBlock(data);
 
         boolean allBranchesTerminate = data.breakAsLastStatement || data.statementReturnsPanicsOrFails;
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(allBranchesTerminate,
@@ -295,13 +294,15 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean ifStmtBreakAsLastStatement = data.breakAsLastStatement;
         boolean ifStmtContinueAsLastStatement = data.continueAsLastStatement;
 
-        if (data.booleanConstCondition != symTable.trueType) {
+        BLangStatement elseStmt = ifStmt.elseStmt;
+
+        if (data.booleanConstCondition != symTable.trueType || (elseStmt != null &&
+                elseStmt.getKind() == NodeKind.IF)) {
             resetStatementReturnsPanicsOrFails(data);
             resetErrorThrown(data);
             resetLastStatement(data);
         }
 
-        BLangStatement elseStmt = ifStmt.elseStmt;
         if (elseStmt != null) {
             data.potentiallyInvalidAssignmentInLoopsInfo.add(new PotentiallyInvalidAssignmentInfo(new ArrayList<>(),
                     data.env.enclInvokable));
@@ -310,10 +311,15 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                     elseStmt.getKind() != NodeKind.IF);
             analyzeReachability(elseStmt, data);
             resetUnreachableBlock(data);
+            resetSkipFurtherAnalysisInUnreachableBlock(data);
 
             handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                     data.breakAsLastStatement || data.statementReturnsPanicsOrFails,
                     data.continueAsLastStatement, data.potentiallyInvalidAssignmentInLoopsInfo);
+
+            if (data.booleanConstCondition == symTable.trueType) {
+                resetErrorThrown(data);
+            }
 
             if (data.booleanConstCondition == symTable.semanticError) {
                 data.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && data.statementReturnsPanicsOrFails;
@@ -353,7 +359,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     @Override
     public void visit(BLangFail failNode, AnalyzerData data) {
         checkStatementExecutionValidity(failNode, data);
-        data.errorThrown = true;
+        data.errorThrown = data.booleanConstCondition == symTable.semanticError;
         if (!data.failureHandled) {
             data.statementReturnsPanicsOrFails = true;
         }
@@ -492,6 +498,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.booleanConstCondition = symTable.semanticError;
         resetStatementReturnsPanicsOrFails(data);
         resetLastStatement(data);
+        resetUnreachableBlock(data);
         analyzeReachability(onFailClause, data);
         data.statementReturnsPanicsOrFails = currentStatementReturns;
     }
@@ -625,6 +632,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         data.env = whileEnv;
         analyzeReachability(whileNode.body, data);
         resetUnreachableBlock(data);
+        resetSkipFurtherAnalysisInUnreachableBlock(data);
 
         handlePotentiallyInvalidAssignmentsToTypeNarrowedVariablesInLoop(
                 data.breakAsLastStatement || data.statementReturnsPanicsOrFails, true,
@@ -695,6 +703,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                 data.potentiallyInvalidAssignmentInLoopsInfo);
         data.loopAndDoClauseCount--;
         data.loopAndDoClauseEnvs.pop();
+        resetStatementReturnsPanicsOrFails(data);
+        resetLastStatement(data);
     }
 
     @Override
@@ -715,6 +725,9 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private void checkStatementExecutionValidity(BLangStatement statement, AnalyzerData data) {
+        if (data.skipFurtherAnalysisInUnreachableBlock) {
+            return;
+        }
         checkUnreachableCode(statement.pos, data);
         checkConditionInWhileOrIf(statement, data);
     }
@@ -745,6 +758,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             resetLastStatement(data);
         } else if (data.unreachableBlock) {
+            data.skipFurtherAnalysisInUnreachableBlock = true;
             dlog.error(pos, DiagnosticErrorCode.UNREACHABLE_CODE);
             resetUnreachableBlock(data);
         }
@@ -772,6 +786,10 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         resetErrorThrown(data);
         resetLastStatement(data);
         data.booleanConstCondition = symTable.semanticError;
+    }
+
+    private void resetSkipFurtherAnalysisInUnreachableBlock(AnalyzerData data) {
+        data.skipFurtherAnalysisInUnreachableBlock = false;
     }
 
     private void validateAssignmentToNarrowedVariables(List<BLangExpression> exprs, Location location,
@@ -954,6 +972,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean breakStmtFound;
         boolean hasLastPatternInStatement;
         boolean failureHandled;
+        boolean skipFurtherAnalysisInUnreachableBlock;
         int loopCount;
         int loopAndDoClauseCount;
         BType booleanConstCondition;

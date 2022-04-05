@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
 import ballerina/lang.'value as value;
 
 type Address record {
@@ -1895,7 +1894,7 @@ function testToJsonWithTable() {
     assert(j2.toJsonString(), "[{\"fname\":\"John\", \"lname\":\"Wick\"}, {\"fname\":\"Robert\", " +
     "\"lname\":\"Downey\"}]");
 
-    table<map<any>> tab3 = table [
+    table<map<anydata>> tab3 = table [
           {id: 12, name: "abc"},
           {id: 34, name: "def"}
     ];
@@ -2037,25 +2036,6 @@ function testTableToJsonConversion() {
     json j6 = tb6.toJson();
     assert(j6.toJsonString(), "[{\"a\":1, \"b\":{\"x\":[12.4, \"abc\"], \"y\":[23.8, \"def\", [36.9, \"ghi\"]]}, " +
                                 "\"c\":\"xyz\"}, {\"a\":5, \"b\":{\"x\":[45.6, \"asd\"]}, \"d\":10.0, \"e\":12.5}]");
-}
-
-type RecordWithHandleField record {|
-    int i;
-    handle h;
-|};
-
-function testToJsonConversionError() {
-    table<RecordWithHandleField> tb = table [
-         {i: 12, h: java:fromString("pqr")},
-         {i: 34, h: java:fromString("pqr")}
-   ];
-
-   json|error j = trap tb.toJson();
-   assert(j is error, true);
-   error err = <error> j;
-   assert(err.message(), "{ballerina/lang.value}ConversionError");
-   assert(<string> checkpanic err.detail()["message"], "'table<RecordWithHandleField>' value cannot be converted to " +
-                                      "'json': cannot construct json object from 'handle' type data");
 }
 
 ///////////////////////// Tests for `ensureType()` ///////////////////////////
