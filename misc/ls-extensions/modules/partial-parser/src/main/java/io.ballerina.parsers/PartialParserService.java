@@ -61,21 +61,12 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            StatementNode statementNode;
-            String statement = request.getCodeSnippet();
 
-            if (request.getStModification() != null) {
-                statement = STModificationUtil.getModifiedStatement(statement, request.getStModification());
-            }
+            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+                    request.getStModification());
+            String formattedSourceCode = getFormattedSource(statement);
 
-            String formattedSourceCode = statement;
-            try {
-                formattedSourceCode = Formatter.format(statement);
-            } catch (FormatterException e) {
-                this.clientLogger.notifyUser("Formatting", e);
-            }
-
-            statementNode = NodeParser.parseStatement(formattedSourceCode);
+            StatementNode statementNode = NodeParser.parseStatement(formattedSourceCode);
 
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNode);
             STResponse response = new STResponse();
@@ -98,8 +89,12 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForModuleMembers(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            ModuleMemberDeclarationNode expressionNode = NodeParser
-                    .parseModuleMemberDeclaration(request.getCodeSnippet());
+
+            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+                    request.getStModification());
+            String formattedSourceCode = getFormattedSource(statement);
+
+            ModuleMemberDeclarationNode expressionNode = NodeParser.parseModuleMemberDeclaration(formattedSourceCode);
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
             STResponse response = new STResponse();
             response.setSyntaxTree(syntaxTreeJSON);
@@ -110,5 +105,18 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @Override
     public String getName() {
         return Constants.CAPABILITY_NAME;
+    }
+
+    private String getFormattedSource(String statement) {
+
+        String formattedSourceCode = statement;
+
+        try {
+            formattedSourceCode = Formatter.format(statement);
+        } catch (FormatterException e) {
+            this.clientLogger.notifyUser("Formatting", e);
+        }
+
+        return formattedSourceCode;
     }
 }
