@@ -160,13 +160,25 @@
       "endColumn": 13
     },
     "leadingMinutiae": [],
-    "trailingMinutiae": []
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      }
+    ]
   },
-  "source": "int age = 15;",
+  "source": "int age = 15;\n",
   "kind": "LocalVarDecl",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    }
+  ],
   "position": {
     "startLine": 0,
     "startColumn": 0,

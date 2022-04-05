@@ -314,13 +314,25 @@
       "endColumn": 56
     },
     "leadingMinutiae": [],
-    "trailingMinutiae": []
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      }
+    ]
   },
-  "source": "string fullName = firstName + middleName + \"Hofstadter\";",
+  "source": "string fullName = firstName + middleName + \"Hofstadter\";\n",
   "kind": "LocalVarDecl",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    }
+  ],
   "position": {
     "startLine": 0,
     "startColumn": 0,

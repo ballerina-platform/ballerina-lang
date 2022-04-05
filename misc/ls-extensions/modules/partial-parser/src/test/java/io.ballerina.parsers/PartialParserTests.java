@@ -130,9 +130,9 @@ public class PartialParserTests {
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
-    @Test(description = "Test getting ST for a record", enabled = false)
+    @Test(description = "Test getting ST for a record")
     public void testSTForRecordMembers() throws ExecutionException, InterruptedException, IOException {
-        String recordMember =  Files.readString(sampleRecord);;
+        String recordMember =  Files.readString(sampleRecord);
         PartialSTRequest request = new PartialSTRequest(recordMember);
         CompletableFuture<?> result = serviceEndpoint.request(MODULE_MEMBER, request);
         STResponse json = (STResponse) result.get();

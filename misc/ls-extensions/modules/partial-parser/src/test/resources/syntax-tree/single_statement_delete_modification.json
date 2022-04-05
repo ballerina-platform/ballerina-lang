@@ -56,24 +56,12 @@
           "endColumn": 15
         },
         "leadingMinutiae": [],
-        "trailingMinutiae": [
-          {
-            "kind": "WHITESPACE_MINUTIAE",
-            "minutiae": " ",
-            "isInvalid": false
-          }
-        ]
+        "trailingMinutiae": []
       },
-      "source": "fullName ",
+      "source": "fullName",
       "syntaxDiagnostics": [],
       "leadingMinutiae": [],
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "minutiae": " ",
-          "isInvalid": false
-        }
-      ],
+      "trailingMinutiae": [],
       "position": {
         "startLine": 0,
         "startColumn": 7,
@@ -82,16 +70,10 @@
       },
       "typeData": {}
     },
-    "source": "string fullName ",
+    "source": "string fullName",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
-    "trailingMinutiae": [
-      {
-        "kind": "WHITESPACE_MINUTIAE",
-        "minutiae": " ",
-        "isInvalid": false
-      }
-    ],
+    "trailingMinutiae": [],
     "position": {
       "startLine": 0,
       "startColumn": 0,
@@ -107,23 +89,35 @@
     "isMissing": false,
     "position": {
       "startLine": 0,
-      "startColumn": 16,
+      "startColumn": 15,
       "endLine": 0,
-      "endColumn": 17
+      "endColumn": 16
     },
     "leadingMinutiae": [],
-    "trailingMinutiae": []
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      }
+    ]
   },
-  "source": "string fullName ;",
+  "source": "string fullName;\n",
   "kind": "LocalVarDecl",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    }
+  ],
   "position": {
     "startLine": 0,
     "startColumn": 0,
     "endLine": 0,
-    "endColumn": 17
+    "endColumn": 16
   },
   "typeData": {}
 }

@@ -234,13 +234,25 @@
       "endColumn": 39
     },
     "leadingMinutiae": [],
-    "trailingMinutiae": []
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      }
+    ]
   },
-  "source": "string fullName = firstName + \"Cooper\";",
+  "source": "string fullName = firstName + \"Cooper\";\n",
   "kind": "LocalVarDecl",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    }
+  ],
   "position": {
     "startLine": 0,
     "startColumn": 0,

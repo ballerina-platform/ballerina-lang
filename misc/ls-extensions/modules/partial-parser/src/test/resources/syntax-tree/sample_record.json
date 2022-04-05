@@ -383,13 +383,13 @@
                       "leadingMinutiae": [],
                       "trailingMinutiae": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "minutiae": " ",
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "minutiae": "\n",
                           "isInvalid": false
                         }
                       ]
                     },
-                    "source": "            string code; ",
+                    "source": "            string code;\n",
                     "syntaxDiagnostics": [],
                     "leadingMinutiae": [
                       {
@@ -400,8 +400,8 @@
                     ],
                     "trailingMinutiae": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "minutiae": " ",
+                        "kind": "END_OF_LINE_MINUTIAE",
+                        "minutiae": "\n",
                         "isInvalid": false
                       }
                     ],
@@ -423,12 +423,18 @@
                         "value": "string",
                         "isMissing": false,
                         "position": {
-                          "startLine": 5,
-                          "startColumn": 25,
-                          "endLine": 5,
-                          "endColumn": 31
+                          "startLine": 6,
+                          "startColumn": 12,
+                          "endLine": 6,
+                          "endColumn": 18
                         },
-                        "leadingMinutiae": [],
+                        "leadingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "minutiae": "            ",
+                            "isInvalid": false
+                          }
+                        ],
                         "trailingMinutiae": [
                           {
                             "kind": "WHITESPACE_MINUTIAE",
@@ -437,9 +443,15 @@
                           }
                         ]
                       },
-                      "source": "string ",
+                      "source": "            string ",
                       "syntaxDiagnostics": [],
-                      "leadingMinutiae": [],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "minutiae": "            ",
+                          "isInvalid": false
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -448,10 +460,10 @@
                         }
                       ],
                       "position": {
-                        "startLine": 5,
-                        "startColumn": 25,
-                        "endLine": 5,
-                        "endColumn": 31
+                        "startLine": 6,
+                        "startColumn": 12,
+                        "endLine": 6,
+                        "endColumn": 18
                       },
                       "typeData": {}
                     },
@@ -461,10 +473,10 @@
                       "value": "name",
                       "isMissing": false,
                       "position": {
-                        "startLine": 5,
-                        "startColumn": 32,
-                        "endLine": 5,
-                        "endColumn": 36
+                        "startLine": 6,
+                        "startColumn": 19,
+                        "endLine": 6,
+                        "endColumn": 23
                       },
                       "leadingMinutiae": [],
                       "trailingMinutiae": []
@@ -475,10 +487,10 @@
                       "value": ";",
                       "isMissing": false,
                       "position": {
-                        "startLine": 5,
-                        "startColumn": 36,
-                        "endLine": 5,
-                        "endColumn": 37
+                        "startLine": 6,
+                        "startColumn": 23,
+                        "endLine": 6,
+                        "endColumn": 24
                       },
                       "leadingMinutiae": [],
                       "trailingMinutiae": [
@@ -489,9 +501,15 @@
                         }
                       ]
                     },
-                    "source": "string name;\n",
+                    "source": "            string name;\n",
                     "syntaxDiagnostics": [],
-                    "leadingMinutiae": [],
+                    "leadingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "minutiae": "            ",
+                        "isInvalid": false
+                      }
+                    ],
                     "trailingMinutiae": [
                       {
                         "kind": "END_OF_LINE_MINUTIAE",
@@ -500,10 +518,10 @@
                       }
                     ],
                     "position": {
-                      "startLine": 5,
-                      "startColumn": 25,
-                      "endLine": 5,
-                      "endColumn": 37
+                      "startLine": 6,
+                      "startColumn": 12,
+                      "endLine": 6,
+                      "endColumn": 24
                     },
                     "typeData": {}
                   }
@@ -514,9 +532,9 @@
                   "value": "}",
                   "isMissing": false,
                   "position": {
-                    "startLine": 6,
+                    "startLine": 7,
                     "startColumn": 8,
-                    "endLine": 6,
+                    "endLine": 7,
                     "endColumn": 9
                   },
                   "leadingMinutiae": [
@@ -534,7 +552,7 @@
                     }
                   ]
                 },
-                "source": "\n        record {\n            string code; string name;\n        } ",
+                "source": "\n        record {\n            string code;\n            string name;\n        } ",
                 "syntaxDiagnostics": [],
                 "leadingMinutiae": [
                   {
@@ -558,7 +576,7 @@
                 "position": {
                   "startLine": 4,
                   "startColumn": 8,
-                  "endLine": 6,
+                  "endLine": 7,
                   "endColumn": 9
                 },
                 "typeData": {}
@@ -569,9 +587,9 @@
                 "value": "city",
                 "isMissing": false,
                 "position": {
-                  "startLine": 6,
+                  "startLine": 7,
                   "startColumn": 10,
-                  "endLine": 6,
+                  "endLine": 7,
                   "endColumn": 14
                 },
                 "leadingMinutiae": [],
@@ -583,21 +601,21 @@
                 "value": ";",
                 "isMissing": false,
                 "position": {
-                  "startLine": 6,
+                  "startLine": 7,
                   "startColumn": 14,
-                  "endLine": 6,
+                  "endLine": 7,
                   "endColumn": 15
                 },
                 "leadingMinutiae": [],
                 "trailingMinutiae": [
                   {
-                    "kind": "WHITESPACE_MINUTIAE",
-                    "minutiae": " ",
+                    "kind": "END_OF_LINE_MINUTIAE",
+                    "minutiae": "\n",
                     "isInvalid": false
                   }
                 ]
               },
-              "source": "\n        record {\n            string code; string name;\n        } city; ",
+              "source": "\n        record {\n            string code;\n            string name;\n        } city;\n",
               "syntaxDiagnostics": [],
               "leadingMinutiae": [
                 {
@@ -613,15 +631,15 @@
               ],
               "trailingMinutiae": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "minutiae": " ",
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "minutiae": "\n",
                   "isInvalid": false
                 }
               ],
               "position": {
                 "startLine": 4,
                 "startColumn": 8,
-                "endLine": 6,
+                "endLine": 7,
                 "endColumn": 15
               },
               "typeData": {}
@@ -636,12 +654,18 @@
                   "value": "string",
                   "isMissing": false,
                   "position": {
-                    "startLine": 6,
-                    "startColumn": 16,
-                    "endLine": 6,
-                    "endColumn": 22
+                    "startLine": 8,
+                    "startColumn": 8,
+                    "endLine": 8,
+                    "endColumn": 14
                   },
-                  "leadingMinutiae": [],
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "minutiae": "        ",
+                      "isInvalid": false
+                    }
+                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -650,9 +674,15 @@
                     }
                   ]
                 },
-                "source": "string ",
+                "source": "        string ",
                 "syntaxDiagnostics": [],
-                "leadingMinutiae": [],
+                "leadingMinutiae": [
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "minutiae": "        ",
+                    "isInvalid": false
+                  }
+                ],
                 "trailingMinutiae": [
                   {
                     "kind": "WHITESPACE_MINUTIAE",
@@ -661,10 +691,10 @@
                   }
                 ],
                 "position": {
-                  "startLine": 6,
-                  "startColumn": 16,
-                  "endLine": 6,
-                  "endColumn": 22
+                  "startLine": 8,
+                  "startColumn": 8,
+                  "endLine": 8,
+                  "endColumn": 14
                 },
                 "typeData": {}
               },
@@ -674,10 +704,10 @@
                 "value": "Lane",
                 "isMissing": false,
                 "position": {
-                  "startLine": 6,
-                  "startColumn": 23,
-                  "endLine": 6,
-                  "endColumn": 27
+                  "startLine": 8,
+                  "startColumn": 15,
+                  "endLine": 8,
+                  "endColumn": 19
                 },
                 "leadingMinutiae": [],
                 "trailingMinutiae": []
@@ -688,10 +718,10 @@
                 "value": ";",
                 "isMissing": false,
                 "position": {
-                  "startLine": 6,
-                  "startColumn": 27,
-                  "endLine": 6,
-                  "endColumn": 28
+                  "startLine": 8,
+                  "startColumn": 19,
+                  "endLine": 8,
+                  "endColumn": 20
                 },
                 "leadingMinutiae": [],
                 "trailingMinutiae": [
@@ -702,9 +732,15 @@
                   }
                 ]
               },
-              "source": "string Lane;\n",
+              "source": "        string Lane;\n",
               "syntaxDiagnostics": [],
-              "leadingMinutiae": [],
+              "leadingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "minutiae": "        ",
+                  "isInvalid": false
+                }
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
@@ -713,10 +749,10 @@
                 }
               ],
               "position": {
-                "startLine": 6,
-                "startColumn": 16,
-                "endLine": 6,
-                "endColumn": 28
+                "startLine": 8,
+                "startColumn": 8,
+                "endLine": 8,
+                "endColumn": 20
               },
               "typeData": {}
             }
@@ -727,9 +763,9 @@
             "value": "}",
             "isMissing": false,
             "position": {
-              "startLine": 8,
+              "startLine": 10,
               "startColumn": 4,
-              "endLine": 8,
+              "endLine": 10,
               "endColumn": 5
             },
             "leadingMinutiae": [
@@ -752,7 +788,7 @@
               }
             ]
           },
-          "source": "    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } ",
+          "source": "    record {\n        string country;\n\n        record {\n            string code;\n            string name;\n        } city;\n        string Lane;\n\n    } ",
           "syntaxDiagnostics": [],
           "leadingMinutiae": [
             {
@@ -771,7 +807,7 @@
           "position": {
             "startLine": 1,
             "startColumn": 4,
-            "endLine": 8,
+            "endLine": 10,
             "endColumn": 5
           },
           "typeData": {}
@@ -782,9 +818,9 @@
           "value": "address",
           "isMissing": false,
           "position": {
-            "startLine": 8,
+            "startLine": 10,
             "startColumn": 6,
-            "endLine": 8,
+            "endLine": 10,
             "endColumn": 13
           },
           "leadingMinutiae": [],
@@ -796,9 +832,9 @@
           "value": ";",
           "isMissing": false,
           "position": {
-            "startLine": 8,
+            "startLine": 10,
             "startColumn": 13,
-            "endLine": 8,
+            "endLine": 10,
             "endColumn": 14
           },
           "leadingMinutiae": [],
@@ -810,7 +846,7 @@
             }
           ]
         },
-        "source": "    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } address;\n",
+        "source": "    record {\n        string country;\n\n        record {\n            string code;\n            string name;\n        } city;\n        string Lane;\n\n    } address;\n",
         "syntaxDiagnostics": [],
         "leadingMinutiae": [
           {
@@ -829,7 +865,7 @@
         "position": {
           "startLine": 1,
           "startColumn": 4,
-          "endLine": 8,
+          "endLine": 10,
           "endColumn": 14
         },
         "typeData": {}
@@ -844,9 +880,9 @@
             "value": "string",
             "isMissing": false,
             "position": {
-              "startLine": 10,
+              "startLine": 12,
               "startColumn": 4,
-              "endLine": 10,
+              "endLine": 12,
               "endColumn": 10
             },
             "leadingMinutiae": [
@@ -891,9 +927,9 @@
             }
           ],
           "position": {
-            "startLine": 10,
+            "startLine": 12,
             "startColumn": 4,
-            "endLine": 10,
+            "endLine": 12,
             "endColumn": 10
           },
           "typeData": {}
@@ -904,9 +940,9 @@
           "value": "school",
           "isMissing": false,
           "position": {
-            "startLine": 10,
+            "startLine": 12,
             "startColumn": 11,
-            "endLine": 10,
+            "endLine": 12,
             "endColumn": 17
           },
           "leadingMinutiae": [],
@@ -918,9 +954,9 @@
           "value": ";",
           "isMissing": false,
           "position": {
-            "startLine": 10,
+            "startLine": 12,
             "startColumn": 17,
-            "endLine": 10,
+            "endLine": 12,
             "endColumn": 18
           },
           "leadingMinutiae": [],
@@ -954,9 +990,9 @@
           }
         ],
         "position": {
-          "startLine": 10,
+          "startLine": 12,
           "startColumn": 4,
-          "endLine": 10,
+          "endLine": 12,
           "endColumn": 18
         },
         "typeData": {}
@@ -971,9 +1007,9 @@
             "value": "string",
             "isMissing": false,
             "position": {
-              "startLine": 11,
+              "startLine": 13,
               "startColumn": 4,
-              "endLine": 11,
+              "endLine": 13,
               "endColumn": 10
             },
             "leadingMinutiae": [
@@ -1008,9 +1044,9 @@
             }
           ],
           "position": {
-            "startLine": 11,
+            "startLine": 13,
             "startColumn": 4,
-            "endLine": 11,
+            "endLine": 13,
             "endColumn": 10
           },
           "typeData": {}
@@ -1021,9 +1057,9 @@
           "value": "name",
           "isMissing": false,
           "position": {
-            "startLine": 11,
+            "startLine": 13,
             "startColumn": 11,
-            "endLine": 11,
+            "endLine": 13,
             "endColumn": 15
           },
           "leadingMinutiae": [],
@@ -1035,9 +1071,9 @@
           "value": ";",
           "isMissing": false,
           "position": {
-            "startLine": 11,
+            "startLine": 13,
             "startColumn": 15,
-            "endLine": 11,
+            "endLine": 13,
             "endColumn": 16
           },
           "leadingMinutiae": [],
@@ -1066,9 +1102,9 @@
           }
         ],
         "position": {
-          "startLine": 11,
+          "startLine": 13,
           "startColumn": 4,
-          "endLine": 11,
+          "endLine": 13,
           "endColumn": 16
         },
         "typeData": {}
@@ -1083,9 +1119,9 @@
             "value": "int",
             "isMissing": false,
             "position": {
-              "startLine": 12,
+              "startLine": 14,
               "startColumn": 4,
-              "endLine": 12,
+              "endLine": 14,
               "endColumn": 7
             },
             "leadingMinutiae": [
@@ -1120,9 +1156,9 @@
             }
           ],
           "position": {
-            "startLine": 12,
+            "startLine": 14,
             "startColumn": 4,
-            "endLine": 12,
+            "endLine": 14,
             "endColumn": 7
           },
           "typeData": {}
@@ -1133,9 +1169,9 @@
           "value": "age",
           "isMissing": false,
           "position": {
-            "startLine": 12,
+            "startLine": 14,
             "startColumn": 8,
-            "endLine": 12,
+            "endLine": 14,
             "endColumn": 11
           },
           "leadingMinutiae": [],
@@ -1147,9 +1183,9 @@
           "value": ";",
           "isMissing": false,
           "position": {
-            "startLine": 12,
+            "startLine": 14,
             "startColumn": 11,
-            "endLine": 12,
+            "endLine": 14,
             "endColumn": 12
           },
           "leadingMinutiae": [],
@@ -1178,9 +1214,9 @@
           }
         ],
         "position": {
-          "startLine": 12,
+          "startLine": 14,
           "startColumn": 4,
-          "endLine": 12,
+          "endLine": 14,
           "endColumn": 12
         },
         "typeData": {}
@@ -1192,22 +1228,22 @@
       "value": "}",
       "isMissing": false,
       "position": {
-        "startLine": 13,
+        "startLine": 15,
         "startColumn": 0,
-        "endLine": 13,
+        "endLine": 15,
         "endColumn": 1
       },
       "leadingMinutiae": [],
       "trailingMinutiae": []
     },
-    "source": "record {\n    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } address;\n\n    string school;\n    string name;\n    int age;\n}",
+    "source": "record {\n    record {\n        string country;\n\n        record {\n            string code;\n            string name;\n        } city;\n        string Lane;\n\n    } address;\n\n    string school;\n    string name;\n    int age;\n}",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
     "trailingMinutiae": [],
     "position": {
       "startLine": 0,
       "startColumn": 10,
-      "endLine": 13,
+      "endLine": 15,
       "endColumn": 1
     },
     "typeData": {}
@@ -1218,9 +1254,9 @@
     "value": ";",
     "isMissing": false,
     "position": {
-      "startLine": 13,
+      "startLine": 15,
       "startColumn": 1,
-      "endLine": 13,
+      "endLine": 15,
       "endColumn": 2
     },
     "leadingMinutiae": [],
@@ -1232,7 +1268,7 @@
       }
     ]
   },
-  "source": "type Test record {\n    record {\n        string country;\n\n        record {\n            string code; string name;\n        } city; string Lane;\n\n    } address;\n\n    string school;\n    string name;\n    int age;\n};\n",
+  "source": "type Test record {\n    record {\n        string country;\n\n        record {\n            string code;\n            string name;\n        } city;\n        string Lane;\n\n    } address;\n\n    string school;\n    string name;\n    int age;\n};\n",
   "kind": "TypeDefinition",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
@@ -1246,7 +1282,7 @@
   "position": {
     "startLine": 0,
     "startColumn": 0,
-    "endLine": 13,
+    "endLine": 15,
     "endColumn": 2
   },
   "typeData": {}
