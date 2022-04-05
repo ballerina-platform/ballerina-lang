@@ -53,6 +53,7 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
@@ -269,7 +270,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_OBJECT_TYPE_DESC_SNIPPET.get()),
                 new SnippetCompletionItem(context, Snippet.KW_TRUE.get()),
-                new SnippetCompletionItem(context, Snippet.KW_FALSE.get())
+                new SnippetCompletionItem(context, Snippet.KW_FALSE.get()),
+                new SnippetCompletionItem(context, Snippet.KW_NIL.get())
         ));
 
         return completionItems;
@@ -390,7 +392,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @param node    node to evaluate upon
      * @return {@link Boolean}
-     * @deprecated Use {@link QNameReferenceUtil#onQualifiedNameIdentifier(BallerinaCompletionContext, Node)} instead
+     * @deprecated Use {@link org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)} instead
      */
     @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
