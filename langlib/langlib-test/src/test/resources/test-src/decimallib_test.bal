@@ -45,6 +45,10 @@ function testRound(decimal arg) returns decimal {
     return decimals:round(arg);
 }
 
+function testRoundToFractionDigits(decimal arg, int fractionDigits) returns decimal {
+    return decimals:round(arg, fractionDigits);
+}
+
 function testFloor(decimal arg) returns decimal {
     return decimals:floor(arg);
 }
