@@ -34,7 +34,7 @@ class Employee {
     string address = "No 20, Palm grove";
 }
 
-type CustomerTable table<map<anydata>>;
+type CustomerTable table<map<any>>;
 
 @test:Config {}
 function testAssertStringAndInt() {
