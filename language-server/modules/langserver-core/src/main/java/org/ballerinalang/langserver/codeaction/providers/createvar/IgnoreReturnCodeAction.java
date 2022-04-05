@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -46,6 +47,15 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Ignore Return Type";
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -53,10 +63,6 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
-            return Collections.emptyList();
-        }
-
         Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
         if (typeDescriptor.isEmpty()) {
