@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.types;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.elements.PackageID;
@@ -36,7 +37,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -74,7 +74,6 @@ public class Types {
     public final TypeSymbol BYTE;
     public final TypeSymbol COMPILATION_ERROR;
 
-
     private Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
         TypesFactory typesFactory = TypesFactory.getInstance(context);
@@ -106,7 +105,7 @@ public class Types {
 
     /**
      * This method is only used by the Ballerina Semantic Model as an entry point to the Types API implementation and
-     * retrieve an instance of this class. It shall not be used to access the Types API from elsewhere.
+     * used to retrieve an instance of this class. It shall not be used to access the Types API from elsewhere.
      */
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -119,8 +118,10 @@ public class Types {
 
     /**
      * Lookup for the symbol of a user defined type within a given module. This would be considering type
-     * definitions, constants, enums, enum members, and class definitions as valid user defined types when
-     * looking up. The module is determined by the provided org, module name and the version.
+     * definitions, constants, enums, enum members, and class definitions as valid user defined types when looking up.
+     * An empty Optional instance is returned if the provided module is not found or, if the given type is either
+     * invalid or not defined within the provided module. The module is determined by the provided org, module name
+     * and the version. All parameters are expected to be non-null values.
      *
      * @param org           The organization of the looking up module
      * @param moduleName    The name of the looking up module
@@ -129,20 +130,34 @@ public class Types {
      * @return The {@link Symbol} of the user defined type
      */
     public Optional<Symbol> getTypeByName(String org, String moduleName, String version, String typeDefName) {
-        if (org == null || moduleName == null || version == null) {
-            return Optional.empty();
+        if (org == null || moduleName == null || version == null || typeDefName == null) {
+            throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: "
+                    + org + " moduleName: "+moduleName + ", version: "+version + ", and typeDefName: " + typeDefName);
         }
 
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
 
-        return getTypeDefByName(packageID, typeDefName);
+        BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
+        if (packageSymbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
+        Scope.ScopeEntry entry = pkgEnv.scope.lookup(Names.fromString(typeDefName));
+        if (isValidTypeDef(entry.symbol)) {
+            return Optional.of(symbolFactory.getBCompiledSymbol(entry.symbol, typeDefName));
+        }
+
+        return Optional.empty();
     }
 
     /**
      * Lookup for all the symbols of user defined types within a given module. This would be considering type
      * definitions, constants, enums, enum members, and class definitions as valid user defined types when looking up.
-     * The module is determined by the provided org, module name and the version.
+     * An empty Optional instance is returned if no valid user defined type is found within the provided module. The
+     * module is determined by the provided org, module name and the version. All parameters are expected to be
+     * non-null values.
      *
      * @param org           The organization of the looking up module
      * @param moduleName    The name of the looking up module
@@ -151,33 +166,13 @@ public class Types {
      */
     public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
         if (org == null || moduleName == null || version == null) {
-            return Optional.empty();
+            throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: "+org+
+                    " moduleName: "+moduleName + ", and version: "+version);
         }
 
         PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
                 Names.fromString(version));
 
-        return getTypeDefSymbolsInModule(packageID);
-    }
-
-    private Optional<Symbol> getTypeDefByName(PackageID packageID, String typeDefName) {
-        BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
-        if (packageSymbol == null) {
-            return Optional.empty();
-        }
-
-        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
-        Scope.ScopeEntry entry = pkgEnv.scope.lookup(Names.fromString(typeDefName));
-        if (entry != null) {
-            if (isValidTypeDef(entry.symbol)) {
-                return Optional.ofNullable(symbolFactory.getBCompiledSymbol(entry.symbol, typeDefName));
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    private Optional<Map<String, Symbol>> getTypeDefSymbolsInModule(PackageID packageID) {
         BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
         if (packageSymbol == null) {
             return Optional.empty();
@@ -190,7 +185,7 @@ public class Types {
             return Optional.empty();
         }
 
-        Map<String, Symbol> typeDefSymbols = new HashMap<>();
+        Map<String, Symbol> typeDefSymbols = new FieldMap<>();
         for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
             BSymbol bSymbol = scopeEntry.symbol;
             if (isValidTypeDef(bSymbol)) {
