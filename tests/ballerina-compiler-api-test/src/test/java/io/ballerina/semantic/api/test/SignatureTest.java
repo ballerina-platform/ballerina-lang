@@ -20,7 +20,8 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
-import io.ballerina.compiler.api.symbols.*;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;
@@ -32,6 +33,10 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocume
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 
+/**
+ * Test cases to validate signature.
+ *
+ */
 public class SignatureTest {
     private SemanticModel model;
     private Document srcFile;
@@ -46,10 +51,10 @@ public class SignatureTest {
     @Test
     public void testSignature() {
         Symbol symbol = model.symbol(srcFile, from(16, 7)).get();
-        assertEquals(((BallerinaUnionTypeSymbol)((BallerinaTypeReferenceTypeSymbol)((VariableSymbol) symbol).
+        assertEquals(((BallerinaUnionTypeSymbol) ((BallerinaTypeReferenceTypeSymbol) ((VariableSymbol) symbol).
                 typeDescriptor()).typeDescriptor()).memberTypeDescriptors().get(0).signature(),
                 "\"" + "parent" + "\"");
-        assertEquals(((BallerinaUnionTypeSymbol)((BallerinaTypeReferenceTypeSymbol)((VariableSymbol) symbol).
+        assertEquals(((BallerinaUnionTypeSymbol) ((BallerinaTypeReferenceTypeSymbol) ((VariableSymbol) symbol).
                         typeDescriptor()).typeDescriptor()).memberTypeDescriptors().get(1).signature(),
                 "\"" + "any" + "\"");
     }
