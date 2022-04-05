@@ -689,6 +689,16 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testCastMapOfJsonToMapOfAnydata");
     }
 
+    @Test
+    public void testInvalidTypeCastMapOfJsonToMapOfBasicType() {
+        BRunUtil.invoke(result, "testInvalidTypeCastMapOfJsonToMapOfBasicType");
+    }
+
+    @Test
+    public void testInvalidTypeCastJsonToMapOfAnydata() {
+        BRunUtil.invoke(result, "testInvalidTypeCastJsonToMapOfAnydata");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

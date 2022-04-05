@@ -1024,6 +1024,18 @@ function testInvalidTypeCastMapOfJsonToMapOfBasicType() {
     assertEquality(expectedMsgM3.toString(), m3 is error ? m3.toString() : m3.toString());
 }
 
+function testInvalidTypeCastJsonToMapOfAnydata() {
+    json j1 = [{a1: (), a2: 1, a3: 1.0f, a4: 1.2d, a5: "a5", a6: true}];
+    map<anydata>|error m1 = trap (<map<anydata>> j1);
+    error expectedMsgM1 = error("{ballerina}TypeCastError\",message=\"incompatible types: 'json[]' cannot be cast to 'map<anydata>'");
+    assertEquality(expectedMsgM1.toString(), m1 is error ? m1.toString() : m1.toString());
+
+    json j2 = "json";
+    map<anydata>|error m3 = trap (<map<anydata>> j2);
+    error expectedMsgM3 = error("{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'map<anydata>'");
+    assertEquality(expectedMsgM3.toString(), m3 is error ? m3.toString() : m3.toString());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
