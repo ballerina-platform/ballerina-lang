@@ -195,13 +195,13 @@
       }
     },
     {
-      "label": "round(float x)",
+      "label": "round(float x, int fractionDigits)",
       "kind": "Function",
       "detail": "float",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nRounds a float value to the closest integral value.\n\nReturns the float value that is a mathematical integer and closest to parameter `x`.\nIf there are two such values, choose the one that is even\n(this is the round-to-nearest rounding mode, which is the default for IEEE and for Ballerina).\nSame as Java Math.rint method\nSame as .NET Math.Round method\nIEEE roundToIntegralTiesToEven operation\nNote that `<int>x` is the same as `<int>x.round()`\n  \n**Params**  \n- `float` x: float value to operate on  \n  \n**Return** `float`   \n- closest float value to parameter `x` that is a mathematical integer  \n  \n"
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nRound a float value to a specified number of digits.\nReturns the float value that is an integral multiple of 10 raised to the power of `-fractionDigits` and closest to `x`.\nIf there are two such values, choose the one whose final digit is even\n(this is the round-to-nearest rounding mode, which is the default for IEEE and for Ballerina).\nA value of `fractionDigits` greater than 0 thus corresponds to the number of digits after the decimal\npoint being `fractionDigits`; a value of 0 for `fractionDigits` rounds to an integer.\nIf `x` is NaN, +0, -0, +∞ or -∞, then the result is `x``.`\nWhen `fractionDigits` is 0, this is\nthe same as Java Math.rint method, .NET Math.Round method and\nIEEE roundToIntegralTiesToEven operation\nNote that `<int>x` is the same as `<int>x.round(0)`.\n  \n**Params**  \n- `float` x: float value to operate on  \n- `int` fractionDigits: the number of digits after the decimal point(Defaultable)  \n  \n**Return** `float`   \n- float value closest to `x` that is an integral multiple of 10 raised to the power of `-fractionDigits`  \n  \n"
         }
       },
       "sortText": "AA",
