@@ -141,17 +141,19 @@ public class AddCommandTest extends BaseCommandTest {
                         + "Maximum length of module name is 256 characters."));
     }
 
-    @DataProvider(name = "moduleNamesHasInvalidUnderscores")
-    public Object[][] provideModuleNamesHasInvalidUnderscores() {
+    @DataProvider(name = "invalidModuleNames")
+    public Object[][] provideInvalidModuleNames() {
         return new Object[][] {
                 { "_my_module", "Module name cannot have initial underscore characters." },
                 { "my_module_", "Module name cannot have trailing underscore characters." },
-                { "my__module", "Module name cannot have consecutive underscore characters." }
+                { "my__module", "Module name cannot have consecutive underscore characters." },
+                { "123_module", "Module name cannot have initial numeric characters." },
+                { "1.2.3", "Module name cannot have initial numeric characters." }
         };
     }
 
-    @Test(description = "Test add command with given module invalid underscore",
-            dataProvider = "moduleNamesHasInvalidUnderscores")
+    @Test(description = "Test add command with given invalid module name",
+            dataProvider = "invalidModuleNames")
     public void testAddCommandWithNameHasInvalidUnderscore(String invalidModuleName, String errMessage)
             throws IOException {
         String[] args = { invalidModuleName };

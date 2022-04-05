@@ -164,6 +164,16 @@ public class ProjectUtils {
     }
 
     /**
+     * Checks the organization, package or module name has initial numeric characters.
+     *
+     * @param name name.
+     * @return true if name does not have initial numeric characters, else false.
+     */
+    public static boolean validateInitialNumericsOfName(String name) {
+        return !name.matches("[0-9].*");
+    }
+
+    /**
      * Get specific error message when organization, package or module name has initial, trailing or
      * consecutive underscores.
      *

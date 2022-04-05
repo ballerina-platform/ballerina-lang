@@ -284,17 +284,19 @@ public class InitCommandTest extends BaseCommandTest {
                 + "Maximum length of package name is 256 characters."));
     }
 
-    @DataProvider(name = "packageNamesHasInvalidUnderscores")
-    public Object[][] providePackageNamesHasInvalidUnderscores() {
+    @DataProvider(name = "invalidPackageNames")
+    public Object[][] provideInvalidPackageNames() {
         return new Object[][] {
                 { "_my_package", "Package name cannot have initial underscore characters." },
                 { "my_package_", "Package name cannot have trailing underscore characters." },
-                { "my__package", "Package name cannot have consecutive underscore characters." }
+                { "my__package", "Package name cannot have consecutive underscore characters." },
+                { "123_module", "Package name cannot have initial numeric characters." },
+                { "1.2.3", "Package name cannot have initial numeric characters." }
         };
     }
 
     @Test(description = "Test init command with package name has invalid underscores",
-            dataProvider = "packageNamesHasInvalidUnderscores")
+            dataProvider = "invalidPackageNames")
     public void testInitCommandWithPackageNameHasInvalidUnderscores(String pkgName, String errMessage)
             throws IOException {
         Path projectPath = tmpDir.resolve("sample5");

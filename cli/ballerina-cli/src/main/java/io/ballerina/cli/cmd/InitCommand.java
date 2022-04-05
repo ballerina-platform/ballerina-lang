@@ -144,6 +144,16 @@ public class InitCommand implements BLauncherCmd {
             return;
         }
 
+        if (!ProjectUtils.validateInitialNumericsOfName(packageName)) {
+            CommandUtil.printError(errStream,
+                    "invalid package name : '" + packageName + "' :\n" +
+                            "Package name cannot have initial numeric characters.",
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         if (!ProjectUtils.validatePackageName(packageName)) {
             errStream.println("unallowed characters in the project name were replaced by " +
                     "underscores when deriving the package name. Edit the Ballerina.toml to change it.");

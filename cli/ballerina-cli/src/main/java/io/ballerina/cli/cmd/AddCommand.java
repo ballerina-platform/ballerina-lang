@@ -142,6 +142,16 @@ public class AddCommand implements BLauncherCmd {
             return;
         }
 
+        if (!ProjectUtils.validateInitialNumericsOfName(moduleName)) {
+            CommandUtil.printError(errStream,
+                    "invalid module name : '" + moduleName + "' :\n" +
+                            "Module name cannot have initial numeric characters.",
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // Check if the module already exists
         if (ProjectUtils.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,

@@ -513,7 +513,9 @@ public class NewCommandTest extends BaseCommandTest {
                 { "_my_package", "Package name cannot have initial underscore characters." },
                 { "my_package_", "Package name cannot have trailing underscore characters." },
                 { "my__package", "Package name cannot have consecutive underscore characters." },
-                { longPkgName, "Maximum length of package name is 256 characters." }
+                { longPkgName, "Maximum length of package name is 256 characters." },
+                { "123_module", "Package name cannot have initial numeric characters." },
+                { "1.2.3", "Package name cannot have initial numeric characters." }
         };
     }
 
