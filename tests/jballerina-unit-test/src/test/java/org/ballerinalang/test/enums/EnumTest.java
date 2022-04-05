@@ -62,14 +62,12 @@ public class EnumTest {
     }
 
     @DataProvider(name = "FunctionList")
-    public Object[] getTestFunctions() {
-        return new Object[]{
-                "testBasicEnumSupport",
-                "testEnumAsType",
-                "testEnumAsGlobalRef",
-                "testEnumInRecursiveArray",
-                "testEnumMemberContainingNumericEscape",
-                "testEnumMemberContainingQuotedIdentifier"
+    public Object[][] getTestFunctions() {
+        return new Object[][]{
+                {"testBasicEnumSupport"},
+                {"testEnumAsType"},
+                {"testEnumAsGlobalRef"},
+                {"testEnumInRecursiveArray"},
         };
     }
 
