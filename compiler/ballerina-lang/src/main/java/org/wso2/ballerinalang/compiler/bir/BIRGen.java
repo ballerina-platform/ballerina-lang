@@ -29,6 +29,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotation;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -198,7 +200,6 @@ import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
-import static org.ballerinalang.model.tree.NodeKind.STATEMENT_EXPRESSION;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
 
 /**
@@ -905,10 +906,25 @@ public class BIRGen extends BLangNodeVisitor {
 
         birFunc.localVars.add(birVarDcl);
 
+        List<BIRBasicBlock> bbsOfDefaultValueExpr = new ArrayList<>();
+        if (defaultValExpr != null) {
+            // Parameter has a default value expression.
+            BIRBasicBlock defaultExprBB = new BIRBasicBlock(this.env.nextBBId(names));
+            bbsOfDefaultValueExpr.add(defaultExprBB);
+            this.env.enclBB = defaultExprBB;
+            this.env.enclBasicBlocks = bbsOfDefaultValueExpr;
+            defaultValExpr.accept(this);
+
+            // Create a variable reference for the function param and setScopeAndEmit move instruction.
+            BIROperand varRef = new BIROperand(birVarDcl);
+            setScopeAndEmit(new Move(birFunc.pos, this.env.targetOperand, varRef));
+
+            this.env.enclBB.terminator = new BIRTerminator.Return(birFunc.pos);
+        }
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
         parameter.annotAttachments.addAll(getBIRAnnotAttachments(annots));
         birFunc.requiredParams.add(parameter);
-        birFunc.parameters.add(birVarDcl);
+        birFunc.parameters.put(birVarDcl, bbsOfDefaultValueExpr);
 
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
@@ -918,7 +934,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
-        birFunc.parameters.add(birVarDcl);
+        birFunc.parameters.put(birVarDcl, new ArrayList<>());
         birFunc.localVars.add(birVarDcl);
 
         BIRParameter restParam = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
@@ -933,7 +949,7 @@ public class BIRGen extends BLangNodeVisitor {
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
-        birFunc.parameters.add(birVarDcl);
+        birFunc.parameters.put(birVarDcl, new ArrayList<>());
         birFunc.localVars.add(birVarDcl);
 
         BIRParameter parameter = new BIRParameter(pos, paramSymbol.name, paramSymbol.flags);
@@ -1100,11 +1116,9 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        BLangExpression expr = exprStmtNode.expr;
-        expr.accept(this);
-        if (this.env.returnBB == null && expr.getKind() == STATEMENT_EXPRESSION &&
-                ((BLangStatementExpression) expr).expr.getKind() == INVOCATION &&
-        types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
+        exprStmtNode.expr.accept(this);
+        if (this.env.returnBB == null && exprStmtNode.expr.getKind() == NodeKind.INVOCATION &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(exprStmtNode.expr.getBType())) {
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             returnBB.terminator = new BIRTerminator.Return(exprStmtNode.pos);
             this.env.returnBB = returnBB;
@@ -1286,25 +1300,31 @@ public class BIRGen extends BLangNodeVisitor {
     private void createCall(BLangInvocation invocationExpr, boolean isVirtual) {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
-        List<BIROperand> args = new ArrayList<>(requiredArgs.size() + restArgs.size());
+        List<BIRArgument> args = new ArrayList<>(requiredArgs.size() + restArgs.size());
         boolean transactional = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.TRANSACTIONAL);
 
         for (BLangExpression requiredArg : requiredArgs) {
-            if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
+            if (requiredArg.getKind() == NodeKind.DYNAMIC_PARAM_EXPR) {
+                ((BLangDynamicArgExpr) requiredArg).conditionalArgument.accept(this);
+                BIROperand conditionalArg = this.env.targetOperand;
+                ((BLangDynamicArgExpr) requiredArg).condition.accept(this);
+                BIROperand condition = this.env.targetOperand;
+                args.add(new BIRArgument(ArgumentState.CONDITIONALLY_PROVIDED, conditionalArg.variableDcl, condition));
+            } else if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
                 requiredArg.accept(this);
-                args.add(this.env.targetOperand);
+                args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
             } else {
                 BIRVariableDcl birVariableDcl =
                         new BIRVariableDcl(requiredArg.getBType(), new Name("_"), VarScope.FUNCTION, VarKind.ARG);
                 birVariableDcl.ignoreVariable = true;
-                args.add(new BIROperand(birVariableDcl));
+                args.add(new BIRArgument(ArgumentState.NOT_PROVIDED, birVariableDcl));
             }
         }
 
         // seems like restArgs.size() is always 1 or 0, but lets iterate just in case
         for (BLangExpression arg : restArgs) {
             arg.accept(this);
-            args.add(this.env.targetOperand);
+            args.add(new BIRArgument(ArgumentState.PROVIDED, this.env.targetOperand.variableDcl));
         }
 
         BIROperand fp = null;

@@ -262,7 +262,7 @@ public class BIRBinaryWriter {
         }
 
         birbuf.writeInt(birFunction.parameters.size());
-        for (BIRNode.BIRFunctionParameter param : birFunction.parameters) {
+        for (BIRNode.BIRFunctionParameter param : birFunction.parameters.keySet()) {
             birbuf.writeByte(param.kind.getValue());
             writeType(birbuf, param.type);
             birbuf.writeInt(addStringCPEntry(param.name.value));
@@ -289,6 +289,9 @@ public class BIRBinaryWriter {
                 birbuf.writeInt(localVar.insOffset);
             }
         }
+
+        // Write basic blocks related to parameter default values
+        birFunction.parameters.values().forEach(funcInsWriter::writeBBs);
 
         // Write basic blocks
         funcInsWriter.writeBBs(birFunction.basicBlocks);

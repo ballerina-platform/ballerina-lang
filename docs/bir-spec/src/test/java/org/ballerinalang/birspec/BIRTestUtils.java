@@ -44,6 +44,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -167,6 +168,12 @@ class BIRTestUtils {
         int instructionOffset = 0;
         Map<Integer, ExpectedScopeEntry> scopes = new HashMap<>();
         Set<BirScope> visitedScopes = new HashSet<>();
+
+        // Collect scope vs starting instruction offset
+        Collection<List<BIRNode.BIRBasicBlock>> basicBlocksCollection = function.parameters.values();
+        for (List<BIRNode.BIRBasicBlock> basicBlocks : basicBlocksCollection) {
+            instructionOffset = generateExpectedScopeEntries(basicBlocks, instructionOffset, scopes, visitedScopes);
+        }
 
         generateExpectedScopeEntries(function.basicBlocks, instructionOffset, scopes, visitedScopes);
 
