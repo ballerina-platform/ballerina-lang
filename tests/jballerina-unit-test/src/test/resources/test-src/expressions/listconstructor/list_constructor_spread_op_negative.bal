@@ -386,6 +386,10 @@ function testSpreadOpWithNoRefPositive() {
     [string, boolean|string, int] _ = [...["x", "y"], 2]; // OK
 }
 
+type NeverRecord record {|
+    never a;
+|};
+
 function testSpreadOpTupleWithNeverRestDescPositive() {
     [int, never...] t1 = [3];
     int[1] _ = [...t1]; // OK
@@ -395,4 +399,8 @@ function testSpreadOpTupleWithNeverRestDescPositive() {
     [string, boolean, never...] t2 = [];
     [string, boolean, int, any...] _ = [...t2, 5]; // OK
     [string, boolean, int] _ = [...t2]; // OK
+
+    [string, boolean, NeverRecord...] t3 = [];
+    [string, boolean, int, any...] _ = [...t3, 5]; // OK
+    [string, boolean, int] _ = [...t3]; // OK
 }
