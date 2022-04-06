@@ -61,7 +61,8 @@ public class SemanticTokensTest {
                 FileUtils.fileContentAsObject(expectedPath.toAbsolutePath().toString()).getAsJsonArray(DATA);
         JsonArray responseJsonArray =
                 JsonParser.parseString(response).getAsJsonObject().getAsJsonObject(RESULT).getAsJsonArray(DATA);
-        Assert.assertEquals(decodeIntArray(responseJsonArray), expectedJsonArray, "SemanticTokensTest fails with " +
+        JsonArray decoded = decodeIntArray(responseJsonArray);
+        Assert.assertEquals(decoded, expectedJsonArray, "SemanticTokensTest fails with " +
                 expected + "test case.");
     }
 
