@@ -28,8 +28,8 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
 
 import java.io.PrintStream;
@@ -74,8 +74,6 @@ public class CompileTask implements Task {
             List<Diagnostic> diagnostics = new ArrayList<>();
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
-                start = System.currentTimeMillis();
-                BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
 
@@ -128,10 +126,15 @@ public class CompileTask implements Task {
             }
 
             // Report package compilation and backend diagnostics
-            diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics());
-            DiagnosticResult diagnosticResult = new DefaultDiagnosticResult(diagnostics);
-            diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
-            if (diagnosticResult.hasErrors()) {
+            diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+            boolean hasErrors = false;
+            for (Diagnostic d : diagnostics) {
+                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                    hasErrors = true;
+                }
+                err.println(d.toString());
+            }
+            if (hasErrors) {
                 throw createLauncherException("compilation contains errors");
             }
             project.save();
