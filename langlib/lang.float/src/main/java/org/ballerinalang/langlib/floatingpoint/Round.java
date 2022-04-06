@@ -18,15 +18,8 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NEGATIVE_FRACTION_DIGITS;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.float:round(float, int).
@@ -45,11 +38,6 @@ public class Round {
         if (isSpecialValue(x)) {
             return x;
         }
-        if (fractionDigits < 0) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(FLOAT_LANG_LIB, NEGATIVE_FRACTION_DIGITS),
-                    RuntimeErrors.FRACTION_DIGITS_NOT_NEGATIVE);
-        }
         if (fractionDigits == 0) {
             return Math.rint(x);
         }
@@ -59,16 +47,28 @@ public class Round {
             // Therefore, if `fractionDigits` is very large, `x` will not be changed.
             return x;
         }
+        if (fractionDigits < Integer.MIN_VALUE) {
+            return 0;
+        }
         // Down cast can be done safely because of above condition.
         int fractionDigitsAsInt = (int) fractionDigits;
         BigDecimal xInBigDecimal = BigDecimal.valueOf(x);
         BigDecimal xTmp = xInBigDecimal;
         int digitsTmp = fractionDigitsAsInt;
-        while (digitsTmp-- > 0) {
-            if (xTmp.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0) {
-                return x;
+        if (digitsTmp > 0) {
+            while (digitsTmp-- > 0) {
+                if (xTmp.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0) {
+                    return x;
+                }
+                xTmp = xTmp.multiply(BigDecimal.TEN);
             }
-            xTmp = xTmp.multiply(BigDecimal.TEN);
+        } else {
+            while (digitsTmp++ < 0) {
+                if (xTmp.compareTo(BigDecimal.ZERO) == 0) {
+                    return 0;
+                }
+                xTmp = xTmp.divide(BigDecimal.TEN, 0, RoundingMode.DOWN);
+            }
         }
         return xInBigDecimal.setScale(fractionDigitsAsInt, RoundingMode.HALF_EVEN).doubleValue();
     }

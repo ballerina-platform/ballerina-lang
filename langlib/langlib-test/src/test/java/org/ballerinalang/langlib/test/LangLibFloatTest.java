@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.test;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -187,21 +186,5 @@ public class LangLibFloatTest {
         return new String[] {
                 "testRound"
         };
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.float}NegativeFractionDigits " +
-                    "\\{\"message\":\"fraction digits cannot be negative\"}.*")
-    public void testRoundNegative1() {
-        BRunUtil.invoke(compileResult, "testRoundNegative1");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.float}NegativeFractionDigits " +
-                    "\\{\"message\":\"fraction digits cannot be negative\"}.*")
-    public void testRoundNegative2() {
-        BRunUtil.invoke(compileResult, "testRoundNegative2");
-        Assert.fail();
     }
 }
