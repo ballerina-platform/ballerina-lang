@@ -186,7 +186,8 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     private ArrayList<LSCompletionItem> orgNameContextCompletions(BallerinaCompletionContext ctx) {
         List<String> orgNames = new ArrayList<>();
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Package> pkgList = LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
+        List<LSPackageLoader.PackageInfo> pkgList = 
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         pkgList.forEach(pkg -> {
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
@@ -291,7 +292,8 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
-        List<Package> packageList = LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
+        List<LSPackageLoader.PackageInfo> packageList = 
+                LSPackageLoader.getInstance(serverContext).getAllVisiblePackages(context);
         packageList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;

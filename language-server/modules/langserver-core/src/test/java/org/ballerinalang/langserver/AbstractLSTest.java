@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * An abstract class for LS unit tests.
@@ -47,8 +48,8 @@ public abstract class AbstractLSTest {
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project1", "main.bal", "project2", "main.bal");
     private static final Map<String, String> LOCAL_PROJECTS =
             Map.of("local_project1", "main.bal", "local_project2", "main.bal");
-    private static final List<Package> REMOTE_PACKAGES = new ArrayList<>();
-    private static final List<Package> LOCAL_PACKAGES = new ArrayList<>();
+    private static final List<LSPackageLoader.PackageInfo> REMOTE_PACKAGES = new ArrayList<>();
+    private static final List<LSPackageLoader.PackageInfo> LOCAL_PACKAGES = new ArrayList<>();
 
     private Endpoint serviceEndpoint;
 
@@ -61,8 +62,12 @@ public abstract class AbstractLSTest {
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
-            REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS, languageServer.getWorkspaceManager(), context));
-            LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS, languageServer.getWorkspaceManager(), context));
+            REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS, 
+                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
+                    .collect(Collectors.toList()));
+            LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS, 
+                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
+                    .collect(Collectors.toList()));
         } catch (Exception e) {
             //ignore
         } finally {
