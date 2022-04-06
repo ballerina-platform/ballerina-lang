@@ -24,15 +24,15 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -137,12 +137,13 @@ public class JvmCastGen {
 
     //the symbol table is currently set from package gen class
     private final SymbolTable symbolTable;
-
     private final JvmTypeGen jvmTypeGen;
+    private final Types types;
 
-    public JvmCastGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen) {
+    public JvmCastGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, CompilerContext compilerContext) {
         this.symbolTable = symbolTable;
         this.jvmTypeGen = jvmTypeGen;
+        this.types = Types.getInstance(compilerContext);
     }
 
     void generatePlatformCheckCast(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BType sourceType,
@@ -1306,26 +1307,12 @@ public class JvmCastGen {
     private void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getReferredType(type);
         if (sourceType.tag == TypeTags.UNION || sourceType.tag == TypeTags.INTERSECTION ||
-                (isAnyType(sourceType) && !Symbols.isFlagOn(sourceType.flags, Flags.READONLY))) {
+                (types.isAssignable(sourceType, symbolTable.anyType) &&
+                        !Symbols.isFlagOn(sourceType.flags, Flags.READONLY))) {
             checkCast(mv, symbolTable.anydataType);
         } else {
             // if value types, then ad box instruction
             generateCastToAny(mv, sourceType);
-        }
-    }
-
-    private boolean isAnyType(BType type) {
-        switch (type.tag) {
-            case TypeTags.ANY:
-                return true;
-            case TypeTags.ARRAY:
-                return isAnyType(((BArrayType) type).getElementType());
-            case TypeTags.MAP:
-                return isAnyType(((BMapType) type).getConstraint());
-            case TypeTags.TABLE:
-                return isAnyType(((BTableType) type).getConstraint());
-            default:
-                return false;
         }
     }
 

@@ -401,7 +401,7 @@ public class JvmPackageGen {
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
             JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
-            JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen);
+            JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, compilerContext);
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
@@ -797,7 +797,7 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor);
+        JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, compilerContext);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen);
 
 

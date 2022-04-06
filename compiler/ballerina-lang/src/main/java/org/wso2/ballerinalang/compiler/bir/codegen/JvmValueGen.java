@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -137,10 +138,10 @@ public class JvmValueGen {
     private final JvmObjectGen jvmObjectGen;
     private final JvmRecordGen jvmRecordGen;
     private final TypeHashVisitor typeHashVisitor;
-
+    private final CompilerContext compilerContext;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
-                TypeHashVisitor typeHashVisitor) {
+                TypeHashVisitor typeHashVisitor, CompilerContext compilerContext) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
@@ -148,6 +149,7 @@ public class JvmValueGen {
         this.jvmRecordGen = new JvmRecordGen(jvmPackageGen.symbolTable);
         this.jvmObjectGen = new JvmObjectGen();
         this.typeHashVisitor = typeHashVisitor;
+        this.compilerContext = compilerContext;
     }
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
@@ -358,7 +360,7 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
-        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
+        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, compilerContext);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                 RECORD_VALUE_CLASS,
@@ -566,7 +568,7 @@ public class JvmValueGen {
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
-        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen);
+        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, compilerContext);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 
