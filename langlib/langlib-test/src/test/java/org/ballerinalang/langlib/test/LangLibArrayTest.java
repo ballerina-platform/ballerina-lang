@@ -543,6 +543,9 @@ public class LangLibArrayTest {
                 "testSome4",
                 "testSome5",
                 "testSome6",
+                "testSome7",
+                "testSome8",
+                "testSome9",
                 "testModificationWithinSome"
         };
     }

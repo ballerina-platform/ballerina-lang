@@ -441,11 +441,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -465,11 +465,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -489,11 +489,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -513,11 +513,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -537,11 +537,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -683,36 +683,17 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
           "newText": "import ballerina/lang.test;\n"
         }
       ]
-    },
-    {
-      "label": "http",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "filterText": "http",
-      "insertText": "http",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service on Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "E",
-      "filterText": "service_Listener",
-      "insertText": "service ${1} on new Listener(${2:0}) {\n    ${3}\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
     }
   ]
 }
