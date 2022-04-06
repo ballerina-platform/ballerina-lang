@@ -3273,6 +3273,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 } else {
                     boundVar.setBType(entryField.type);
                 }
+                errorDetailEntry.keySymbol = entryField.symbol;
             } else {
                 if (recordType.sealed) {
                     dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,

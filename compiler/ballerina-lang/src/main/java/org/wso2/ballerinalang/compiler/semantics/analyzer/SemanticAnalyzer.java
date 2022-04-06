@@ -1544,12 +1544,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
             String entryName = errorDetailEntry.key.getValue();
             BField entryField = detailFields.get(entryName);
+
             if (entryField == null) {
                 dlog.error(errorDetailEntry.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
-                        errorDetailEntry.key.value);
-            } else if ((entryField.symbol.flags & Flags.OPTIONAL) == Flags.OPTIONAL) {
+                           errorDetailEntry.key.value);
+                continue;
+            }
+
+            errorDetailEntry.keySymbol = entryField.symbol;
+
+            if (Symbols.isFlagOn(entryField.symbol.flags, Flags.OPTIONAL)) {
                 dlog.error(errorDetailEntry.pos,
-                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                           DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
             }
         }
     }
@@ -2351,19 +2357,20 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     dlog.error(detailItem.pos, DiagnosticErrorCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
                                detailItem.name);
                     return;
-                } else {
-                    dlog.error(detailItem.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
-                            detailItem.name.value);
-                    continue;
                 }
-            } else if (Symbols.isOptional(matchedDetailItem.symbol)) {
-                dlog.error(detailItem.pos,
-                        DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                dlog.error(detailItem.pos, DiagnosticErrorCode.CANNOT_BIND_UNDEFINED_ERROR_DETAIL_FIELD,
+                           detailItem.name.value);
                 continue;
-            } else {
-                matchedType = matchedDetailItem.type;
             }
 
+            detailItem.varSymbol = matchedDetailItem.symbol;
+
+            if (Symbols.isOptional(matchedDetailItem.symbol)) {
+                dlog.error(detailItem.pos, DiagnosticErrorCode.INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD);
+                continue;
+            }
+
+            matchedType = matchedDetailItem.type;
             checkErrorDetailRefItem(detailItem.pos, rhsPos, detailItem, matchedType, data);
             resetTypeNarrowing(detailItem.expr, data);
             if (!types.isAssignable(matchedType, detailItem.expr.getBType())) {
