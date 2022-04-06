@@ -234,13 +234,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return nodeJson;
     }
 
-    private Optional<Node> getParentFunctionBlock(Node node) {
+    protected Optional<Node> getParentFunctionBlock(Node node) {
         try {
-            if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+            if (node.kind() == SyntaxKind.FUNCTION_DEFINITION
+                    || node.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
                 return Optional.of(node);
-            }
-            if (node.parent().kind() == SyntaxKind.MODULE_PART) {
-                return Optional.empty();
             }
             return getParentFunctionBlock(node.parent());
         } catch (NullPointerException ex) {
