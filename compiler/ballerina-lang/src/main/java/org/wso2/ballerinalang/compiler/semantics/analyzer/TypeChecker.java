@@ -1622,7 +1622,9 @@ public class TypeChecker extends BLangNodeVisitor {
                 List<BType> actualTypes = new ArrayList<>();
                 for (BLangExpression expr : listConstructor.exprs) {
                     if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                        addListConstSpreadOpMemberTypes(actualTypes, expr, symTable.noType);
+                        BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+                        BType spreadOpExprType = checkExpr(spreadOpExpr, env, symTable.noType);
+                        actualTypes.addAll(getListConstSpreadOpMemberTypes(expr.pos, spreadOpExprType));
                         continue;
                     }
 
@@ -1660,11 +1662,10 @@ public class TypeChecker extends BLangNodeVisitor {
         return symTable.semanticError;
     }
 
-    private void addListConstSpreadOpMemberTypes(List<BType> types, BLangExpression expr, BType expType) {
-        expr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-        BType spreadOpExprType = checkExpr(expr, env, expType);
+    private List<BType> getListConstSpreadOpMemberTypes(Location spreadMemberPos, BType spreadOpExprType) {
         spreadOpExprType = Types.getReferredType(spreadOpExprType);
 
+        List<BType> types = new ArrayList<>();
         if (spreadOpExprType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) spreadOpExprType)) {
             types.addAll(((BTupleType) spreadOpExprType).tupleTypes);
         } else if (spreadOpExprType.tag == TypeTags.ARRAY &&
@@ -1674,9 +1675,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 types.add(bArrayType.eType);
             }
         } else {
-            dlog.error(expr.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
+            dlog.error(spreadMemberPos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
             types.add(symTable.semanticError);
         }
+
+        return types;
     }
 
     private BType getListConstructorCompatibleNonUnionType(BType type) {
@@ -1854,8 +1857,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                 }
             } else if (listExprSize > memberTypeSize) {
-                dlog.error(listConstructor.pos, DiagnosticErrorCode.SYNTAX_ERROR,
-                        "tuple and expression size does not match");
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.TUPLE_AND_EXPRESSION_SIZE_DOES_NOT_MATCH);
                 return symTable.semanticError;
             }
         }
@@ -1973,7 +1975,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isFixedLengthTuple(BTupleType bTupleType) {
-        return bTupleType.restType == null || Types.getReferredType(bTupleType.restType).tag == TypeTags.NEVER;
+        return bTupleType.restType == null ||
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bTupleType.restType);
     }
 
     private BType checkReadOnlyListType(BLangListConstructorExpr listConstructor) {
@@ -2026,7 +2029,9 @@ public class TypeChecker extends BLangNodeVisitor {
         this.expType = expType;
         for (BLangExpression e : exprs) {
             if (e.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                addListConstSpreadOpMemberTypes(types, e, expType);
+                BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
+                BType spreadOpExprType = checkExpr(spreadOpExpr, env, expType);
+                types.addAll(getListConstSpreadOpMemberTypes(e.pos, spreadOpExprType));
                 continue;
             }
 
