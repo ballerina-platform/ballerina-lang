@@ -1,16 +1,16 @@
 import ballerina/test;
-import ballerina/http;
-import ballerina/io;
+import ballerina/httpx;
+import ballerina/iox;
 
 @test:Config {}
 function testFunc1() returns @tainted error? {
     // Invoking the main function.
-    http:Client httpEndpoint = checkpanic new ("http://localhost:9090");
+    httpx:Client httpEndpoint = checkpanic new ("httpx://localhost:9090");
 
     // Send a `POST` request to the specified endpoint.
     json payload = {"hello": "world"};
     var response = httpEndpoint->post("/foo/bar", payload);
-    if (response is http:Response) {
+    if (response is httpx:Response) {
         var jsonRes = check response.getJsonPayload();
         test:assertEquals(jsonRes, payload);
     } else {
@@ -59,35 +59,35 @@ function testFunc2() {
 
 @test:BeforeSuite
 function beforeSuit() {
-    io:println("I'm the before suite function!");
+    iox:println("I'm the before suite function!");
 }
 
 @test:AfterSuite {}
 function afterSuite() {
-    io:println("I'm the after suite function!");
+    iox:println("I'm the after suite function!");
 }
 
 @test:BeforeGroups {value: ["g1"]}
 function beforeGroupsFunc() {
-    io:println("I'm the before groups function!");
+    iox:println("I'm the before groups function!");
 }
 
 // The after-groups function, which is executed after
 // the last test function belonging to the group `g1`.
 @test:AfterGroups {value: ["g1"]}
 function afterGroupsFunc() {
-    io:println("I'm the after groups function!");
+    iox:println("I'm the after groups function!");
 }
 
 @test:BeforeEach
 function beforeEachFunc() {
-    io:println("I'm the before each function!");
+    iox:println("I'm the before each function!");
 }
 
 // The after-each function, which is executed after each test function.
 @test:AfterEach
 function afterEachFunc() {
-    io:println("I'm the after each function!");
+    iox:println("I'm the after each function!");
 }
 
 @test:Config {
@@ -95,6 +95,6 @@ function afterEachFunc() {
     after: testFunc1
 }
 function testFunction() {
-    io:println("I'm in test function!");
+    iox:println("I'm in test function!");
     test:assertTrue(true, msg = "Failed!");
 }
