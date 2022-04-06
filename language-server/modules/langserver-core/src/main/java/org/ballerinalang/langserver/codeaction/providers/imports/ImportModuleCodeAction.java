@@ -19,7 +19,6 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
@@ -64,7 +63,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                 diagnosticMessage.lastIndexOf("'"));
-        List<Package> packagesList = LSPackageLoader
+        List<LSPackageLoader.PackageInfo> packagesList = LSPackageLoader
                 .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
         packagesList.stream()

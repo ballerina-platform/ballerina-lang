@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,9 +48,9 @@ public class LSPackageLoader {
     public static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
-    private final List<Package> distRepoPackages;
-    private List<Package> remoteRepoPackages;
-    private List<Package> localRepoPackages;
+    private final List<PackageInfo> distRepoPackages;
+    private List<PackageInfo> remoteRepoPackages;
+    private List<PackageInfo> localRepoPackages;
 
     public static LSPackageLoader getInstance(LanguageServerContext context) {
         LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
@@ -70,7 +71,7 @@ public class LSPackageLoader {
      *
      * @return {@link List} of local repo packages
      */
-    public List<Package> getLocalRepoPackages(PackageRepository repository) {
+    public List<PackageInfo> getLocalRepoPackages(PackageRepository repository) {
         if (this.localRepoPackages != null) {
             return this.localRepoPackages;
         }
@@ -83,7 +84,7 @@ public class LSPackageLoader {
      *
      * @return {@link List} of remote repo packages
      */
-    public List<Package> getRemoteRepoPackages(PackageRepository repository) {
+    public List<PackageInfo> getRemoteRepoPackages(PackageRepository repository) {
         if (this.remoteRepoPackages != null) {
             return this.remoteRepoPackages;
         }
@@ -97,7 +98,7 @@ public class LSPackageLoader {
      *
      * @return {@link List} of distribution repo packages
      */
-    public List<Package> getDistributionRepoPackages() {
+    public List<PackageInfo> getDistributionRepoPackages() {
         if (this.distRepoPackages != null) {
             return this.distRepoPackages;
         }
@@ -114,10 +115,9 @@ public class LSPackageLoader {
      *
      * @return {@link List} packages
      */
-    public List<Package> getAllVisiblePackages(DocumentServiceContext ctx) {
-        List<Package> packagesList = new ArrayList<>();
+    public List<PackageInfo> getAllVisiblePackages(DocumentServiceContext ctx) {
+        List<PackageInfo> packagesList = new ArrayList<>();
         packagesList.addAll(this.getDistributionRepoPackages());
-
 
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
@@ -132,9 +132,9 @@ public class LSPackageLoader {
         return packagesList;
     }
 
-    private List<Package> getPackagesFromRepository(PackageRepository repository, List<String> skipList) {
+    private List<PackageInfo> getPackagesFromRepository(PackageRepository repository, List<String> skipList) {
         Map<String, List<String>> packageMap = repository.getPackages();
-        List<Package> packages = new ArrayList<>();
+        List<PackageInfo> packages = new ArrayList<>();
         packageMap.forEach((key, value) -> {
             if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
@@ -154,10 +154,44 @@ public class LSPackageLoader {
 
                 Optional<Package> repoPackage = repository.getPackage(request,
                         ResolutionOptions.builder().setOffline(true).build());
-                repoPackage.ifPresent(packages::add);
+                repoPackage.ifPresent(pkg -> packages.add(new PackageInfo(pkg)));
             });
         });
 
         return packages;
+    }
+
+    /**
+     * A light-weight package information holder.
+     */
+    public static class PackageInfo {
+
+        private PackageOrg packageOrg;
+        private PackageName packageName;
+        private PackageVersion packageVersion;
+        private Path sourceRoot;
+
+        public PackageInfo(Package pkg) {
+            this.packageOrg = pkg.packageOrg();
+            this.packageName = pkg.packageName();
+            this.packageVersion = pkg.packageVersion();
+            this.sourceRoot = pkg.project().sourceRoot();
+        }
+
+        public PackageName packageName() {
+            return packageName;
+        }
+
+        public PackageOrg packageOrg() {
+            return packageOrg;
+        }
+
+        public PackageVersion packageVersion() {
+            return packageVersion;
+        }
+
+        public Path sourceRoot() {
+            return sourceRoot;
+        }
     }
 }
