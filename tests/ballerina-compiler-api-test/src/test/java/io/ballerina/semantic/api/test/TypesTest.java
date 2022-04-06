@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnyTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnydataTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
@@ -47,7 +48,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.types.Types;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import org.ballerinalang.test.BCompileUtil;

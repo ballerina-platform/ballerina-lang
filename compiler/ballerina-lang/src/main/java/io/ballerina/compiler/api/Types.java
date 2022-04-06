@@ -15,43 +15,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.compiler.api.types;
+package io.ballerina.compiler.api;
 
+import io.ballerina.compiler.api.impl.BallerinaTypes;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
-import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Represents the set of built-in and user-defined types available in a single semantic context.
+ * Represents the abstract interface of the Types API. Used to access the set of built-in and user-defined
+ * types available in a single semantic context.
  *
  * @since 2201.1.0
  */
-
-public class Types {
-
-    private static final CompilerContext.Key<Types> TYPES_KEY = new CompilerContext.Key<>();
-    private final SymbolFactory symbolFactory;
-    private final SymbolTable symbolTable;
-    private final PackageCache packageCache;
+public abstract class Types {
+    protected static final CompilerContext.Key<BallerinaTypes> TYPES_KEY = new CompilerContext.Key<>();
+    protected final SymbolFactory symbolFactory;
+    protected final SymbolTable symbolTable;
+    protected final PackageCache packageCache;
 
     public final TypeSymbol BOOLEAN;
     public final TypeSymbol INT;
@@ -74,8 +62,7 @@ public class Types {
     public final TypeSymbol BYTE;
     public final TypeSymbol COMPILATION_ERROR;
 
-    private Types(CompilerContext context) {
-        context.put(TYPES_KEY, this);
+    protected Types(CompilerContext context) {
         TypesFactory typesFactory = TypesFactory.getInstance(context);
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -104,19 +91,6 @@ public class Types {
     }
 
     /**
-     * This method is only used by the Ballerina Semantic Model as an entry point to the Types API implementation and
-     * used to retrieve an instance of this class. It shall not be used to access the Types API from elsewhere.
-     */
-    public static Types getInstance(CompilerContext context) {
-        Types types = context.get(TYPES_KEY);
-        if (types == null) {
-            types = new Types(context);
-        }
-
-        return types;
-    }
-
-    /**
      * Lookup for the symbol of a user defined type within a given module. This would be considering type
      * definitions, constants, enums, enum members, and class definitions as valid user defined types when looking up.
      * An empty Optional instance is returned if the provided module is not found or, if the given type is either
@@ -129,28 +103,7 @@ public class Types {
      * @param typeDefName   The type definition
      * @return The {@link Symbol} of the user defined type
      */
-    public Optional<Symbol> getTypeByName(String org, String moduleName, String version, String typeDefName) {
-        if (org == null || moduleName == null || version == null || typeDefName == null) {
-            throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: "
-                    + org + " moduleName: "+moduleName + ", version: "+version + ", and typeDefName: " + typeDefName);
-        }
-
-        PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
-                Names.fromString(version));
-
-        BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
-        if (packageSymbol == null) {
-            return Optional.empty();
-        }
-
-        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
-        Scope.ScopeEntry entry = pkgEnv.scope.lookup(Names.fromString(typeDefName));
-        if (isValidTypeDef(entry.symbol)) {
-            return Optional.of(symbolFactory.getBCompiledSymbol(entry.symbol, typeDefName));
-        }
-
-        return Optional.empty();
-    }
+    public abstract Optional<Symbol> getTypeByName(String org, String moduleName, String version, String typeDefName);
 
     /**
      * Lookup for all the symbols of user defined types within a given module. This would be considering type
@@ -164,44 +117,5 @@ public class Types {
      * @param version       The version of the looking up module
      * @return A {@link Map} of the user defined type symbols
      */
-    public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
-        if (org == null || moduleName == null || version == null) {
-            throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: "+org+
-                    " moduleName: "+moduleName + ", and version: "+version);
-        }
-
-        PackageID packageID = new PackageID(Names.fromString(org), Names.fromString(moduleName),
-                Names.fromString(version));
-
-        BPackageSymbol packageSymbol = packageCache.getSymbol(packageID);
-        if (packageSymbol == null) {
-            return Optional.empty();
-        }
-
-        SymbolEnv pkgEnv = symbolTable.pkgEnvMap.get(packageSymbol);
-        Scope pkgEnvScope = pkgEnv.scope;
-
-        if (pkgEnvScope == null || pkgEnvScope.entries == null) {
-            return Optional.empty();
-        }
-
-        Map<String, Symbol> typeDefSymbols = new FieldMap<>();
-        for (Scope.ScopeEntry scopeEntry : pkgEnvScope.entries.values()) {
-            BSymbol bSymbol = scopeEntry.symbol;
-            if (isValidTypeDef(bSymbol)) {
-                String typeDefName = bSymbol.getOriginalName().getValue();
-                typeDefSymbols.put(typeDefName, symbolFactory.getBCompiledSymbol(bSymbol, typeDefName));
-            }
-        }
-
-        return Optional.of(Collections.unmodifiableMap(typeDefSymbols));
-    }
-
-    private boolean isValidTypeDef(BSymbol bSymbol) {
-        return bSymbol != null && bSymbol.getOrigin() != SymbolOrigin.VIRTUAL
-                && (bSymbol.getKind() == SymbolKind.TYPE_DEF
-                || bSymbol.getKind() == SymbolKind.CONSTANT
-                || bSymbol.getKind() == SymbolKind.ENUM
-                || Symbols.isFlagOn(bSymbol.flags, Flags.CLASS));
-    }
+    public abstract Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version);
 }
