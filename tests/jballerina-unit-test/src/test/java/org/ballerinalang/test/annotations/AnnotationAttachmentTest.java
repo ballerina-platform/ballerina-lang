@@ -17,7 +17,6 @@
 package org.ballerinalang.test.annotations;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -48,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -512,14 +512,14 @@ public class AnnotationAttachmentTest {
             Assert.assertEquals(expression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
             BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
             Assert.assertEquals(recordLiteral.getFields().size(), 0);
-            Assert.assertTrue(getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD_TYPE_TAG
-                    || getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.MAP_TAG);
-            if (getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD_TYPE_TAG) {
+            Assert.assertTrue(getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD
+                    || getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.MAP);
+            if (getConstrainedTypeFromRef(recordLiteral.getBType()).tag == TypeTags.RECORD) {
                 Assert.assertEquals(recordLiteral.getBType().tsymbol.name.value, typeName);
             } else {
-                Assert.assertEquals(getConstrainedTypeFromRef(recordLiteral.getBType()).tag, TypeTags.MAP_TAG);
+                Assert.assertEquals(getConstrainedTypeFromRef(recordLiteral.getBType()).tag, TypeTags.MAP);
                 Assert.assertEquals(((BMapType) getConstrainedTypeFromRef(recordLiteral.getBType())).constraint.tag,
-                        TypeTags.INT_TAG);
+                        TypeTags.INT);
             }
             i++;
         }
@@ -551,6 +551,6 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "str");
         keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) recordFields.get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "s2");
-        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "null");
+        Assert.assertNull(((BLangLiteral) keyValuePair.getValue()).value);
     }
 }

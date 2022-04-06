@@ -58,3 +58,57 @@ class Bar {
         self.i = 1;
     }
 }
+
+isolated int[] z = [1];
+
+function f1() {
+    lock {
+        record {
+            int[] a = z; // error
+            int[] b = z.clone(); // error
+            function c = function () {
+                lock {
+                    _ = z; // OK
+                }
+            };
+        } _ = {};
+    }
+}
+
+function f2() returns typedesc<record { int[] arr; }> {
+    lock {
+        record {
+            int[] arr = z; // error
+        } r = {};
+
+        int[] _ = z; // OK
+
+        return typeof r;
+    }
+}
+
+function f3() returns typedesc<record { int[] arr; }> {
+    lock {
+        int[] _ = z; // OK
+
+        record {
+            int[] arr = z; // error
+        } r = {};
+
+        int[] _ = z; // OK
+
+        return typeof r;
+    }
+}
+
+function f4() {
+    lock {
+        record {
+            record {
+                int[] i = z; // error
+                int j = 3; // OK
+            } r = {};
+            int[] k = z; // error
+        } _ = {};
+    }
+}

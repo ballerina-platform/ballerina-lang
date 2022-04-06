@@ -40,18 +40,6 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>
 
-            <!--Breakpoint tests-->
-            <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.DebugTerminationTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.DebugInstructionTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.LogPointTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
-            <class name="org.ballerinalang.debugger.test.adapter.DebugOutputTest"/>
-
             <!--Debug Variables Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.variables.VariableQueryTest"/>
@@ -63,7 +51,19 @@ under the License.
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.SingleFileEvaluationNegativeTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.DependencyEvaluationTest"/>
 
-            <!--Debug Completions Tests-->
+            <!--Other tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugTerminationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugInstructionTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LogPointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugOutputTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.RecursiveDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.BreakpointVerificationTest"/>
             <class name="org.ballerinalang.debugger.test.adapter.completions.DebugCompletionTest"/>
         </classes>
     </test>

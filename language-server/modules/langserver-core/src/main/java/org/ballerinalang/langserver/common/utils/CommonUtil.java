@@ -267,6 +267,11 @@ public class CommonUtil {
         return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
     }
 
+    public static Optional<String> getDefaultPlaceholderForType(TypeSymbol bType) {
+        return getDefaultValueForType(bType)
+                .map(defaultValue -> defaultValue.replace("}", "\\}"));
+    }
+
     /**
      * Get the default value for the given BType.
      *
@@ -682,7 +687,7 @@ public class CommonUtil {
             insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
         } else {
             insertText.append("${").append(fieldId).append(":")
-                    .append(getDefaultValueForType(bField.typeDescriptor()).orElse(" ")).append("}");
+                    .append(getDefaultPlaceholderForType(bField.typeDescriptor()).orElse(" ")).append("}");
         }
 
         return insertText.toString();
@@ -1615,6 +1620,22 @@ public class CommonUtil {
         TypeSymbol varTypeSymbol = CommonUtil.getRawType(selfSymbol.typeDescriptor());
 
         return classSymbol.equals(varTypeSymbol);
+    }
+
+    /**
+     * Check if the symbol is an object symbol with self as the name.
+     *
+     * @param symbol               Symbol
+     * @param nodeAtCursor         Node
+     * @return {@link Boolean} whether the symbol is a self object symbol.
+     */
+    public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
+        Node currentNode = nodeAtCursor;
+        while (currentNode != null && currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
+            currentNode = currentNode.parent();
+        }
+        return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                && symbol.getName().orElse("").equals(SELF_KW);
     }
 
     /**

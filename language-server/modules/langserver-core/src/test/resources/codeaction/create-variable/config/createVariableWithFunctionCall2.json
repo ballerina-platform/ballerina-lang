@@ -3,7 +3,7 @@
   "character": 7,
   "expected": [
     {
-      "title": "Create variable with 'record {| int a; |}'",
+      "title": "Create variable with 'record {|int a;|}'",
       "edits": [
         {
           "range": {
@@ -16,7 +16,7 @@
               "character": 4
             }
           },
-          "newText": "record {| int a; |} rec = "
+          "newText": "record {|int a;|} rec = "
         }
       ]
     },

@@ -1,0 +1,130 @@
+{
+  "line": 22,
+  "character": 12,
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 38
+            },
+            "end": {
+              "line": 22,
+              "character": 38
+            }
+          },
+          "newText": "\n    if sayHello is HelloReply {\n\n    }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 38
+            },
+            "end": {
+              "line": 22,
+              "character": 38
+            }
+          },
+          "newText": "\n    if sayHello is E1 {\n\n    }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply|E1 sayHello = "
+        }
+      ]
+    },
+    {
+      "title": "Create variable and check error",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply|E1 sayHello = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 22
+            },
+            "end": {
+              "line": 21,
+              "character": 22
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    },
+    {
+      "title": "Create variable",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply|E1 sayHello = "
+        }
+      ]
+    },
+    {
+      "title": "Ignore return value",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "_ = "
+        }
+      ]
+    }
+  ]
+}

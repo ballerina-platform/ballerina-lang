@@ -18,12 +18,13 @@
 
 package org.ballerinalang.test.javainterop.basic;
 
-import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BHandleValue;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.HandleValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -49,121 +50,124 @@ public class StaticMethodTest {
     }
 
     @Test(dataProvider = "nullReturnFunctions")
-    public void testReturnNothing(String funcName, int length) {
-        BValue[] returns = BRunUtil.invoke(result, funcName);
-        Assert.assertEquals(returns.length, length);
-        Assert.assertNull(returns[0]);
+    public void testReturnNothing(String funcName) {
+        Object returns = BRunUtil.invoke(result, funcName);
+        Assert.assertNull(returns);
     }
 
     @DataProvider(name = "nullReturnFunctions")
     public Object[] getNullReturnFunctions() {
         return new Object[][]{
-                {"testAcceptNothingAndReturnNothing", 1}, {"testInteropFunctionWithDifferentName", 1},
-                {"testErrorOrTupleReturn", 2}
+                {"testAcceptNothingAndReturnNothing"}, {"testInteropFunctionWithDifferentName"}
         };
+    }
+
+    @Test
+    public void testErrorOrTupleReturn() {
+        Object val = BRunUtil.invoke(result, "testErrorOrTupleReturn");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertNull(returns.get(0));
+        Assert.assertNull(returns.get(1));
     }
 
     @Test(description = "Test invoking a java static function that accepts nothing and returns a Date")
     public void testAcceptNothingButReturnDate() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingButReturnDate");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BHandleValue) returns[0]).getValue() instanceof Date);
+        Object returns = BRunUtil.invoke(result, "testAcceptNothingButReturnDate");
+        Assert.assertTrue(((HandleValue) returns).getValue() instanceof Date);
     }
 
     @Test(description = "Test invoking a java static function that accepts nothing and returns a string")
     public void testAcceptNothingButReturnString() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptNothingButReturnString");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "hello world");
+        Object returns = BRunUtil.invoke(result, "testAcceptNothingButReturnString");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "hello world");
     }
 
     @Test
     public void testStringParamAndReturn() {
-        BValue[] args = new BValue[1];
-        args[0] = new BString("Royce");
-        BValue[] returns = BRunUtil.invoke(result, "stringParamAndReturn", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Royce and Hadrian");
+        Object[] args = new Object[1];
+        args[0] = StringUtils.fromString("Royce");
+        Object returns = BRunUtil.invoke(result, "stringParamAndReturn", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Royce and Hadrian");
     }
 
     @Test(description = "Test invoking a java static function that accepts and returns a Date")
     public void testAcceptSomethingAndReturnSomething() {
-        BValue[] args = new BValue[1];
+        Object[] args = new Object[1];
         Date argValue = new Date();
-        args[0] = new BHandleValue(argValue);
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptSomethingAndReturnSomething", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertTrue(((BHandleValue) returns[0]).getValue() instanceof Date);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), argValue);
+        args[0] = new HandleValue(argValue);
+        Object returns = BRunUtil.invoke(result, "testAcceptSomethingAndReturnSomething", args);
+        Assert.assertTrue(((HandleValue) returns).getValue() instanceof Date);
+        Assert.assertEquals(((HandleValue) returns).getValue(), argValue);
     }
 
     @Test(description = "Test static java method that accepts two parameters")
     public void testJavaInteropFunctionThatAcceptsTwoParameters() {
-        BValue[] args = new BValue[2];
-        args[0] = new BHandleValue("1");
-        args[1] = new BHandleValue("2");
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptTwoParamsAndReturnSomething", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), "12");
+        Object[] args = new Object[2];
+        args[0] = new HandleValue("1");
+        args[1] = new HandleValue("2");
+        Object returns = BRunUtil.invoke(result, "testAcceptTwoParamsAndReturnSomething", args);
+        Assert.assertEquals(((HandleValue) returns).getValue(), "12");
     }
 
     @Test(description = "Test static java method that accepts three parameters")
     public void testJavaInteropFunctionThatAcceptsThreeParameters() {
-        BValue[] args = new BValue[3];
-        args[0] = new BHandleValue(1);
-        args[1] = new BHandleValue(2);
-        args[2] = new BHandleValue(3);
-        BValue[] returns = BRunUtil.invoke(result, "testAcceptThreeParamsAndReturnSomething", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BHandleValue) returns[0]).getValue(), 6);
+        Object[] args = new Object[3];
+        args[0] = new HandleValue(1);
+        args[1] = new HandleValue(2);
+        args[2] = new HandleValue(3);
+        Object returns = BRunUtil.invoke(result, "testAcceptThreeParamsAndReturnSomething", args);
+        
+        Assert.assertEquals(((HandleValue) returns).getValue(), 6);
     }
 
     @Test(description = "Test static java method that returns error value as objects")
     public void testReturnObjectValueOrError() {
-        BValue[] returns = BRunUtil.invoke(result, "getObjectOrError");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "some reason");
+        Object returns = BRunUtil.invoke(result, "getObjectOrError");
+        
+        Assert.assertEquals(((BError) returns).getMessage(), "some reason");
     }
 
     @Test(description = "Test static java method that returns error value or MapValue")
     public void testMapValueOrErrorReturn() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnionReturn");
-        Assert.assertEquals(returns[0].stringValue(),
+        Object returns = BRunUtil.invoke(result, "testUnionReturn");
+        Assert.assertEquals(returns.toString(),
                 "{\"resources\":[{\"path\":\"basePath\",\"method\":\"Method string\"}]}");
     }
 
     @Test
     public void testFuncWithAsyncDefaultParamExpression() {
-        BValue[] returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 145);
+        Object returns = BRunUtil.invoke(result, "testFuncWithAsyncDefaultParamExpression");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 145L);
     }
 
     @Test
     public void testUsingParamValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testUsingParamValues");
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 290);
+        Object returns = BRunUtil.invoke(result, "testUsingParamValues");
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 290L);
     }
 
     @Test
     public void testDecimalParamAndReturn() {
-        BValue[] args = new BValue[1];
-        args[0] = new BDecimal("100");
-        BValue[] returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
-        Assert.assertTrue(returns[0] instanceof BDecimal);
-        Assert.assertEquals(returns[0].stringValue(), "199.7");
+        Object[] args = new Object[1];
+        args[0] = ValueCreator.createDecimalValue("100");
+        Object returns = BRunUtil.invoke(result, "testDecimalParamAndReturn", args);
+        Assert.assertTrue(returns instanceof BDecimal);
+        Assert.assertEquals(returns.toString(), "199.7");
     }
 
-    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+    @Test(expectedExceptions = io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
                   "value.*")
     public void testCreateRawDetails() {
         BRunUtil.invoke(result, "testCreateRawDetails");
     }
 
-    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+    @Test(expectedExceptions = io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*Invalid update of record field: modification not allowed on readonly " +
                   "value.*")
     public void testCreateDetails() {

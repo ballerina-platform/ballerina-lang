@@ -22,7 +22,6 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
     implementation 'org.slf4j:slf4j-api'
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-cli')

@@ -1593,6 +1593,7 @@ public class BIRPackageSymbolEnter {
 
         private void ignoreAttachedFunc() throws IOException {
             getStringCPEntryValue(inputStream);
+            getStringCPEntryValue(inputStream);
             // TODO: check
             inputStream.readLong();
             readTypeFromCp();
@@ -1640,14 +1641,14 @@ public class BIRPackageSymbolEnter {
         private void populateIntersectionTypeReferencedFunctions(DataInputStream inputStream,
                                                                  BObjectTypeSymbol objectSymbol) throws IOException {
             String attachedFuncName = getStringCPEntryValue(inputStream);
+            String attachedFuncOrigName = getStringCPEntryValue(inputStream);
             var attachedFuncFlags = inputStream.readLong();
             if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
                     Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
                 BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
                 Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
                         objectSymbol.name.value, attachedFuncName));
-                Name funcOrigName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                        objectSymbol.originalName.value, attachedFuncName));
+                Name funcOrigName = names.fromString(attachedFuncOrigName);
                 BInvokableSymbol attachedFuncSymbol =
                         Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
                                 env.pkgSymbol.pkgID, attachedFuncType,
@@ -1723,7 +1724,6 @@ public class BIRPackageSymbolEnter {
                 litExpr.value = dataInStream.readBoolean();
                 break;
             case TypeTags.NIL:
-                litExpr.value = "null";
                 litExpr.originalValue = "null";
                 break;
             default:

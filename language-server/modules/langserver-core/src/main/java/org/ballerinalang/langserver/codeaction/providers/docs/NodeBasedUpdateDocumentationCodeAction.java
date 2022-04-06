@@ -72,15 +72,17 @@ public class NodeBasedUpdateDocumentationCodeAction extends AbstractCodeActionPr
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
-        NonTerminalNode matchedNode = posDetails.matchedTopLevelNode();
+        Optional<NonTerminalNode> matchedDocumentableNode = posDetails.enclosingDocumentableNode();
 
-        if (!hasDocs(matchedNode) || !hasMismatch(context, matchedNode)) {
+        if (matchedDocumentableNode.isEmpty()
+                || !hasDocs(matchedDocumentableNode.get())
+                || !hasMismatch(context, matchedDocumentableNode.get())) {
             return Collections.emptyList();
         }
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         CommonUtil.toRange(matchedNode.lineRange()));
+                                                         CommonUtil.toRange(matchedDocumentableNode.get().lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.UPDATE_DOCUMENTATION_TITLE);        

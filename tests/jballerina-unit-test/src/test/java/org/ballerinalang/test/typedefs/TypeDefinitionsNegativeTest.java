@@ -72,6 +72,7 @@ public class TypeDefinitionsNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'CustomType'", 28, 6);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected " +
                 "'function () returns (int)', found 'function () returns (MyTuple)'", 37, 33);
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'Foo', found 'string'", 43, 13);
 
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }

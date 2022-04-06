@@ -16,8 +16,7 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -41,60 +40,60 @@ public class TupleRestDescriptorTest {
 
     @Test(description = "Test tuple assignment with rest descriptor")
     public void testBasicTupleAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "basicTupleAssignment", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[1,\"s\",true,true] [2,\"s\",true] [3,\"s\"]");
+        Object returns = BRunUtil.invoke(result, "basicTupleAssignment", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "[1,\"s\",true,true] [2,\"s\",true] [3,\"s\"]");
     }
 
     @Test(description = "Test tuple assignment with nil `()` rest descriptor")
     public void testTupleAssignmentWithNilRestDescriptor() {
-        BValue[] returns = BRunUtil.invoke(result, "tupleAssignmentWithNilRestDescriptor", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[1,\"s\"] [1,\"s\",null] [1,\"s\",null,null] [null,null]");
+        Object returns = BRunUtil.invoke(result, "tupleAssignmentWithNilRestDescriptor", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "[1,\"s\"] [1,\"s\",null] [1,\"s\",null,null] [null,null]");
     }
 
     @Test(description = "Test tuple assignment with only rest descriptor")
     public void testTupleAssignmentWithOnlyRestDescriptor() {
-        BValue[] returns = BRunUtil.invoke(result, "tupleAssignmentWithOnlyRestDescriptor", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "[1,2] [\"s\",\"s\"] [null,null]");
+        Object returns = BRunUtil.invoke(result, "tupleAssignmentWithOnlyRestDescriptor", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "[1,2] [\"s\",\"s\"] [null,null]");
     }
 
     @Test(description = "Test tuple covariance with rest descriptor")
     public void testTupleCovarianceWithRestDescriptor() {
-        BValue[] returns = BRunUtil.invoke(result, "tupleCovarianceWithRestDescriptor", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "s {\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
+        Object returns = BRunUtil.invoke(result, "tupleCovarianceWithRestDescriptor", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "s {\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
                 "\"intern\":true} {\"name\":\"John\",\"intern\":true} ");
     }
 
     @Test(description = "Test tuple covariance with only rest descriptor")
     public void tupleCovarianceWithOnlyRestDescriptor() {
-        BValue[] returns = BRunUtil.invoke(result, "tupleCovarianceWithOnlyRestDescriptor", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
+        Object returns = BRunUtil.invoke(result, "tupleCovarianceWithOnlyRestDescriptor", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "{\"name\":\"John\",\"intern\":true} {\"name\":\"John\"," +
                 "\"intern\":true} {\"name\":\"John\",\"intern\":true} ");
     }
 
     @Test(description = "Test function invocation with tuples with rest descriptor")
     public void testFunctionInvocation() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionInvocation", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "y 5.0 true false ");
+        Object returns = BRunUtil.invoke(result, "testFunctionInvocation", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "y 5.0 true false ");
     }
 
     @Test(description = "Test function return value with tuple assignment with rest descriptor")
     public void testFunctionReturnValue() {
-        BValue[] returns = BRunUtil.invoke(result, "testFunctionReturnValue", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "x 5.0 true false ");
+        Object returns = BRunUtil.invoke(result, "testFunctionReturnValue", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "x 5.0 true false ");
     }
 
     @Test(description = "Test indexed based access on tuples with rest descriptor")
     public void testIndexBasedAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testIndexBasedAccess", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "false a1 b1 c1 ");
+        Object returns = BRunUtil.invoke(result, "testIndexBasedAccess", new Object[]{});
+
+        Assert.assertEquals(returns.toString(), "false a1 b1 c1 ");
     }
 
     @Test
@@ -137,29 +136,29 @@ public class TupleRestDescriptorTest {
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'",
                 19, 36);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '([string,int,boolean]|string)'," +
-                                          " found '[string,int,boolean,boolean]'", 24, 12);
+                " found '[string,int,boolean,boolean]'", 24, 12);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int,int,string...]', found " +
-                                          "'[int]'", 29, 31);
+                "'[int]'", 29, 31);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[int,float,string,string...]', " +
-                                          "found '[int,float,string...]'", 32, 41);
+                "found '[int,float,string...]'", 32, 41);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '[int,(string|int),(string|int)...]', " +
-                                          "found '[int,(string|int)...]'", 38, 42);
+                "incompatible types: expected '[int,(string|int),(string|int)...]', " +
+                        "found '[int,(string|int)...]'", 38, 42);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '[int,string...]', found '[int,(string|int)...]'",
-                                  39, 26);
+                "incompatible types: expected '[int,string...]', found '[int,(string|int)...]'",
+                39, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '[int]', found '[int,(string|int)...]'",
-                                  40, 15);
+                "incompatible types: expected '[int]', found '[int,(string|int)...]'",
+                40, 15);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '[int,int,int,int,int...]', found 'int[3]'",
-                                  44, 38);
+                "incompatible types: expected '[int,int,int,int,int...]', found 'int[3]'",
+                44, 38);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '[int,string...]', found 'int[3]'",
-                                  45, 26);
+                "incompatible types: expected '[int,string...]', found 'int[3]'",
+                45, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '[string,string,string,string]', found 'int[3]'",
-                                  46, 42);
+                "incompatible types: expected '[string,string,string,string]', found 'int[3]'",
+                46, 42);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

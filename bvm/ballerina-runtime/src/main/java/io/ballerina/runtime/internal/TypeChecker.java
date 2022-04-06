@@ -2511,7 +2511,11 @@ public class TypeChecker {
             }
         }
 
-        for (int i = 0; i < source.size(); i++) {
+        int sourceSize = source.size();
+        if ((targetType.getState() != ArrayState.OPEN) && (sourceSize != targetType.getSize())) {
+            return false;
+        }
+        for (int i = 0; i < sourceSize; i++) {
             if (!checkIsLikeType(null, source.get(i), targetTypeElementType, unresolvedValues,
                     allowNumericConversion, null)) {
                 return false;
