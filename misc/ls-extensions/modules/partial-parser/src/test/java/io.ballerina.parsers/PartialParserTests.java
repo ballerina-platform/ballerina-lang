@@ -44,17 +44,10 @@ public class PartialParserTests {
     private static final String MODULE_MEMBER = "partialParser/getSTForModuleMembers";
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+    private static final Path ST_WINDOWS = RES_DIR.resolve("syntax-tree").resolve("windows");
+    private static final Path ST_LINUX = RES_DIR.resolve("syntax-tree").resolve("linux");
 
-    private final Path singleStatementST = RES_DIR.resolve("syntax-tree").resolve("single_statement.json");
-    private final Path singleStatementModifiedWithReplaceST = RES_DIR.resolve("syntax-tree")
-            .resolve("single_statement_replace_modification.json");
-    private final Path singleStatementModifiedWithDeleteST = RES_DIR.resolve("syntax-tree")
-            .resolve("single_statement_delete_modification.json");
-    private final Path singleStatementModifiedWithInsertST = RES_DIR.resolve("syntax-tree")
-            .resolve("single_statement_insert_modification.json");
-    private final Path expressionST = RES_DIR.resolve("syntax-tree").resolve("expression.json");
     private final Path sampleRecord = RES_DIR.resolve("ballerina").resolve("sample_record.bal");
-    private final Path recordST = RES_DIR.resolve("syntax-tree").resolve("sample_record.json");
 
     private Endpoint serviceEndpoint;
 
@@ -65,80 +58,114 @@ public class PartialParserTests {
 
     @Test(description = "Test getting ST for a single statement")
     public void testSTForSingleStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
+
         String statement = "string fullName = firstName + \"Cooper\";";
+        String file = "single_statement.json";
+
         PartialSTRequest request = new PartialSTRequest(statement);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
-        BufferedReader br = new BufferedReader(new FileReader(singleStatementST.toAbsolutePath().toString()));
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
     @Test(description = "Test getting ST for a single statement with replace modification")
-    public void testModifiedSTForReplacement()
-            throws ExecutionException, InterruptedException, FileNotFoundException {
+    public void testModifiedSTForReplacement() throws ExecutionException, InterruptedException, FileNotFoundException {
+
         String statement = "string fullName = firstName + \"Cooper\";";
         String modification = "middleName + \"Hofstadter\"";
+        String file = "single_statement_replace_modification.json";
+
         STModification stModification = new STModification(0, 30, 0, 38, modification);
         PartialSTRequest request = new PartialSTRequest(statement, stModification);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
-        BufferedReader br = new BufferedReader(
-                new FileReader(singleStatementModifiedWithReplaceST.toAbsolutePath().toString()));
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
     @Test(description = "Test getting ST for a single statement with delete modification")
-    public void testModifiedSTForDeletion()
-            throws ExecutionException, InterruptedException, FileNotFoundException {
+    public void testModifiedSTForDeletion() throws ExecutionException, InterruptedException, FileNotFoundException {
+
         String statement = "string fullName = firstName + \"Cooper\";";
         String modification = "";
+        String file = "single_statement_delete_modification.json";
+
         STModification stModification = new STModification(0, 16, 0, 38, modification);
         PartialSTRequest request = new PartialSTRequest(statement, stModification);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
-        BufferedReader br = new BufferedReader(
-                new FileReader(singleStatementModifiedWithDeleteST.toAbsolutePath().toString()));
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
     @Test(description = "Test getting ST for a single statement with insert modification")
-    public void testModifiedSTForInsertion()
-            throws ExecutionException, InterruptedException, FileNotFoundException {
+    public void testModifiedSTForInsertion() throws ExecutionException, InterruptedException, FileNotFoundException {
+
         String statement = "";
         String modification = "int age = 15;";
+        String file = "single_statement_insert_modification.json";
+
         STModification stModification = new STModification(0, 0, 0, 0, modification);
         PartialSTRequest request = new PartialSTRequest(statement, stModification);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
         STResponse json = (STResponse) result.get();
-        BufferedReader br = new BufferedReader(
-                new FileReader(singleStatementModifiedWithInsertST.toAbsolutePath().toString()));
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
     @Test(description = "Test getting ST for an expression")
     public void testSTForExpression() throws ExecutionException, InterruptedException, FileNotFoundException {
+
         String expression = "(population - infantCount) * 20;";
+        String file = "expression.json";
+
         PartialSTRequest request = new PartialSTRequest(expression);
         CompletableFuture<?> result = serviceEndpoint.request(EXPRESSION, request);
         STResponse json = (STResponse) result.get();
-        BufferedReader br = new BufferedReader(new FileReader(expressionST.toAbsolutePath().toString()));
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
     @Test(description = "Test getting ST for a record")
     public void testSTForRecordMembers() throws ExecutionException, InterruptedException, IOException {
+
         String recordMember =  Files.readString(sampleRecord);
+        String file = "sample_record.json";
+
         PartialSTRequest request = new PartialSTRequest(recordMember);
         CompletableFuture<?> result = serviceEndpoint.request(MODULE_MEMBER, request);
         STResponse json = (STResponse) result.get();
-        BufferedReader br = new BufferedReader(new FileReader(recordST.toAbsolutePath().toString()));
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
         Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    private FileReader getFileReader(String fileName) throws FileNotFoundException {
+        FileReader fileReader;
+        if (System.getProperty("os.name").startsWith("Windows")) {
+            fileReader = new FileReader(ST_WINDOWS.resolve(fileName).toAbsolutePath().toString());
+        } else {
+            fileReader = new FileReader(ST_LINUX.resolve(fileName).toAbsolutePath().toString());
+        }
+        return fileReader;
     }
 
 }
