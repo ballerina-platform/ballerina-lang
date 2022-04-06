@@ -222,7 +222,6 @@ public class BIRGen extends BLangNodeVisitor {
     private boolean varAssignment = false;
     private Map<BSymbol, BIRTypeDefinition> typeDefs = new LinkedHashMap<>();
     private BlockNode currentBlock;
-    private Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
@@ -719,8 +718,6 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.env.clear();
 
-        this.env.unlockVars.clear();
-
         // Rearrange basic block ids.
         birFunc.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names)));
         birFunc.basicBlocks.forEach(bb -> bb.id = this.env.nextBBId(names));
@@ -748,13 +745,13 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock endLoopEndBB = this.env.enclLoopEndBB;
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBody;
-        this.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
+        this.env.varDclsByBlock.computeIfAbsent(astBody, k -> new ArrayList<>());
 
         for (BLangStatement astStmt : astBody.stmts) {
             astStmt.accept(this);
         }
 
-        List<BIRVariableDcl> varDecls = this.varDclsByBlock.get(astBody);
+        List<BIRVariableDcl> varDecls = this.env.varDclsByBlock.get(astBody);
         for (BIRVariableDcl birVariableDcl : varDecls) {
             birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1);
         }
@@ -1110,7 +1107,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock currentWithinOnFailEndBB = this.env.enclInnerOnFailEndBB;
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
-        this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
+        this.env.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
         if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
             blockEndBB = beginBreakableBlock(astBlockStmt.pos, astBlockStmt.failureBreakMode);
         }
@@ -1120,7 +1117,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
             endBreakableBlock(blockEndBB);
         }
-        this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
+        this.env.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
                 birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
         if (astBlockStmt.isLetExpr) {
@@ -1203,7 +1200,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, kind, astVarDefStmt.var.name.value);
         birVarDcl.startBB = this.env.enclBB;
-        this.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
+        this.env.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
         this.env.enclFunc.localVars.add(birVarDcl);
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
