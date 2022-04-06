@@ -445,6 +445,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
         buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
+        buff.writeInt(addStringCPEntry(attachedFunc.symbol.getOriginalName().getValue()));
         buff.writeLong(attachedFunc.symbol.flags);
         writeTypeCpIndex(attachedFunc.type);
     }
