@@ -75,6 +75,6 @@ public class ProjectUpdateEventPublisher implements EventPublisher {
         latestScheduled = scheduledFuture;
         
         publisherSubscribersList.
-                forEach(subscriber -> subscriber.announce(client, context, serverContext, scheduledFuture));
+                forEach(subscriber -> subscriber.onNotificationArrived(client, context, serverContext, scheduledFuture));
     }
 }

@@ -39,7 +39,7 @@ public interface EventSubscriber {
      */
     List<PublisherKind> getPublisherKinds();
     
-    void announce(ExtendedLanguageClient client, DocumentServiceContext context, 
-                  LanguageServerContext languageServerContext,
-                  CompletableFuture<Boolean> latestScheduled);
+    void onNotificationArrived(ExtendedLanguageClient client, DocumentServiceContext context,
+                               LanguageServerContext languageServerContext,
+                               CompletableFuture<Boolean> latestScheduled);
 }

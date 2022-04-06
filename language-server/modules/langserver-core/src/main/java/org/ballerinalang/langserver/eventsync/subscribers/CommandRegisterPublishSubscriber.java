@@ -42,8 +42,8 @@ public class CommandRegisterPublishSubscriber implements EventSubscriber {
     }
     
     @Override
-    public void announce(ExtendedLanguageClient client, DocumentServiceContext context,
-                         LanguageServerContext languageServerContext, CompletableFuture<Boolean> scheduledFuture) {
+    public void onNotificationArrived(ExtendedLanguageClient client, DocumentServiceContext context,
+                                      LanguageServerContext languageServerContext, CompletableFuture<Boolean> scheduledFuture) {
         LSClientUtil.checkAndRegisterCommands(context, scheduledFuture);
     }
 }

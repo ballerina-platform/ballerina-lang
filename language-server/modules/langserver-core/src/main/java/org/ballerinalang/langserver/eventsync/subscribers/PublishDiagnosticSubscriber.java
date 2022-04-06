@@ -43,9 +43,9 @@ public class PublishDiagnosticSubscriber implements EventSubscriber {
     }
     
     @Override
-    public void announce(ExtendedLanguageClient client, DocumentServiceContext context,
-                         LanguageServerContext languageServerContext,
-                         CompletableFuture<Boolean> scheduledFuture) {
+    public void onNotificationArrived(ExtendedLanguageClient client, DocumentServiceContext context,
+                                      LanguageServerContext languageServerContext,
+                                      CompletableFuture<Boolean> scheduledFuture) {
         DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(languageServerContext);
         diagnosticsHelper.schedulePublishDiagnostics(client, context, scheduledFuture);
     }
