@@ -262,15 +262,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "a1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "a1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "tainted",
       "kind": "Property",
       "detail": "Annotation",
@@ -289,47 +280,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "a3",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "a3 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "typeParam",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
       "insertText": "typeParam",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "a2",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "a2 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "annotationCommon",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "annotationCommon {\n\tfoo: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -366,6 +321,51 @@
       "detail": "Annotation",
       "sortText": "B",
       "insertText": "strand",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "a2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "a2 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "annotationCommon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "annotationCommon {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "a3",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "a3 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "a1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "a1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

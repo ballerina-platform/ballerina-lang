@@ -283,11 +283,20 @@
       "additionalTextEdits": []
     },
     {
+      "label": "isolatedParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "isolatedParam",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "parameterAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "A",
-      "insertText": "parameterAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "parameterAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
@@ -296,16 +305,7 @@
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "B",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
-      "label": "isolatedParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "isolatedParam",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

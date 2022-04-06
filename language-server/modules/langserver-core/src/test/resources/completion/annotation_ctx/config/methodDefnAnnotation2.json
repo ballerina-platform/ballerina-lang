@@ -247,15 +247,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "objectFunctionAnnotation1",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "A",
-      "insertText": "objectFunctionAnnotation1 {\n\tfoo: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "objectFunctionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
@@ -274,15 +265,6 @@
       "additionalTextEdits": []
     },
     {
-      "label": "display",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "B",
-      "insertText": "display {\n\tlabel: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "functionAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
@@ -292,11 +274,29 @@
       "additionalTextEdits": []
     },
     {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "B",
+      "insertText": "display {\n\tlabel: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "objectFunctionAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "A",
+      "insertText": "objectFunctionAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "functionAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "A",
-      "insertText": "functionAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "functionAnnotation1 {\n\tfoo: ${1:\"\"}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }
