@@ -127,7 +127,6 @@ public isolated function reduce(Type[] arr, @isolatedParam function(Type1 accum,
 # + arr - the array
 # + func - function to apply to each member
 # + return - true if applying parameter `func` returns true for some member of `arr`; otherwise, false
-#
 public isolated function some(Type[] arr, @isolatedParam function(Type val) returns boolean func) returns boolean {
     foreach var item in arr {
         if func(item) {

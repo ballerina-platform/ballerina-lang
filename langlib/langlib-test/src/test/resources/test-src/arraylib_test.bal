@@ -1529,7 +1529,14 @@ function fun3(int val) returns boolean {
 }
 
 function testModificationWithinSome() {
-    _ = globalArr.some(fun3); // runtime error
+    boolean|error res = trap globalArr.some(fun3);
+    assertTrue(res is error);
+
+    error err = <error>res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error ? message.toString() : message.toString();
+    assertValueEquality("{ballerina/lang.array}IndexOutOfRange", err.message());
+    assertValueEquality("array index out of range: index: 2, size: 2", detailMessage);
 }
 
 function func4(map<int> val) returns boolean {

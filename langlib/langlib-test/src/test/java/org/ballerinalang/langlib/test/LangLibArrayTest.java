@@ -484,14 +484,6 @@ public class LangLibArrayTest {
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}IndexOutOfRange " +
-                    "\\{\"message\":\"array index out of range: index: 2, size: 2\"}.*")
-    public void testModificationWithinSome() {
-        BRunUtil.invoke(compileResult, "testModificationWithinSome");
-        Assert.fail();
-    }
-
     @Test(dataProvider = "FunctionList")
     public void testArrayFunctions(String funcName) {
         BRunUtil.invoke(compileResult, funcName);
@@ -550,7 +542,8 @@ public class LangLibArrayTest {
                 "testSome3",
                 "testSome4",
                 "testSome5",
-                "testSome6"
+                "testSome6",
+                "testModificationWithinSome"
         };
     }
 }
