@@ -6067,6 +6067,10 @@ public class Types {
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
     }
 
+    public boolean isFixedLengthTuple(BTupleType bTupleType) {
+        return bTupleType.restType == null || isNeverTypeOrStructureTypeWithARequiredNeverMember(bTupleType.restType);
+    }
+
     public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
         if (type == null) {
             return false;

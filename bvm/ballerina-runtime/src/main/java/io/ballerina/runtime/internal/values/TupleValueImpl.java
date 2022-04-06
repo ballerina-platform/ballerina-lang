@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
@@ -157,8 +158,17 @@ public class TupleValueImpl extends AbstractArrayValue {
             this.refValues = new Object[DEFAULT_ARRAY_SIZE];
         }
 
-        for (int index = 0; index < initialValues.length; index++) {
-            addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
+        int index = 0;
+        for (BListInitialValueEntry listEntry : initialValues) {
+            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
+                addRefValue(index++, ((ListInitialValueEntry.ExpressionEntry) listEntry).value);
+            } else {
+                BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
+                BIterator<?> iterator = values.getIterator();
+                while (iterator.hasNext()) {
+                    addRefValue(index++, iterator.next());
+                }
+            }
         }
 
         if (size >= memCount) {
@@ -166,7 +176,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             return;
         }
 
-        for (int i = (int) size; i < memCount; i++) {
+        for (int i = (int) size; i < memCount; i++) { // TODO: fix filler value part
             Type memType = memTypes.get(i);
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;

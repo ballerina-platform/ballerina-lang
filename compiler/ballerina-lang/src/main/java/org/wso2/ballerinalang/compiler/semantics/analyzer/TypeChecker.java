@@ -1665,21 +1665,21 @@ public class TypeChecker extends BLangNodeVisitor {
     private List<BType> getListConstSpreadOpMemberTypes(Location spreadMemberPos, BType spreadOpExprType) {
         spreadOpExprType = Types.getReferredType(spreadOpExprType);
 
-        List<BType> types = new ArrayList<>();
-        if (spreadOpExprType.tag == TypeTags.TUPLE && isFixedLengthTuple((BTupleType) spreadOpExprType)) {
-            types.addAll(((BTupleType) spreadOpExprType).tupleTypes);
+        List<BType> memTypes = new ArrayList<>();
+        if (spreadOpExprType.tag == TypeTags.TUPLE && types.isFixedLengthTuple((BTupleType) spreadOpExprType)) {
+            memTypes.addAll(((BTupleType) spreadOpExprType).tupleTypes);
         } else if (spreadOpExprType.tag == TypeTags.ARRAY &&
                 ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
             BArrayType bArrayType = (BArrayType) spreadOpExprType;
             for (int i = 0; i < bArrayType.size; i++) {
-                types.add(bArrayType.eType);
+                memTypes.add(bArrayType.eType);
             }
         } else {
             dlog.error(spreadMemberPos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
-            types.add(symTable.semanticError);
+            memTypes.add(symTable.semanticError);
         }
 
-        return types;
+        return memTypes;
     }
 
     private BType getListConstructorCompatibleNonUnionType(BType type) {
@@ -1735,7 +1735,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return symTable.semanticError;
                     case TypeTags.TUPLE:
                         BTupleType tType = (BTupleType) spreadOpType;
-                        if (isFixedLengthTuple(tType)) {
+                        if (types.isFixedLengthTuple(tType)) {
                             listExprSize += tType.tupleTypes.size();
                             continue;
                         }
@@ -1793,7 +1793,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         }
                     }
 
-                    if (!isFixedLengthTuple(spreadOpTuple)) {
+                    if (!types.isFixedLengthTuple(spreadOpTuple)) {
                         if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.restType, eType)) {
                             return symTable.semanticError;
                         }
@@ -1814,7 +1814,7 @@ public class TypeChecker extends BLangNodeVisitor {
         int memberTypeSize = memberTypes.size();
         BType restType = tupleType.restType;
 
-        if (isFixedLengthTuple(tupleType)) {
+        if (types.isFixedLengthTuple(tupleType)) {
             int listExprSize = 0;
             for (BLangExpression expr : exprs) {
                 if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
@@ -1838,7 +1838,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         return symTable.semanticError;
                     case TypeTags.TUPLE:
                         BTupleType tType = (BTupleType) spreadOpType;
-                        if (isFixedLengthTuple(tType)) {
+                        if (types.isFixedLengthTuple(tType)) {
                             listExprSize += tType.tupleTypes.size();
                             continue;
                         }
@@ -1916,7 +1916,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     BTupleType spreadOpTuple = (BTupleType) spreadOpType;
                     int spreadOpMemberTypeSize = spreadOpTuple.tupleTypes.size();
 
-                    if (isFixedLengthTuple(spreadOpTuple)) {
+                    if (types.isFixedLengthTuple(spreadOpTuple)) {
                         for (int i = 0; i < spreadOpMemberTypeSize && nonRestTypeIndex < memberTypeSize;
                              i++, nonRestTypeIndex++) {
                             if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.tupleTypes.get(i),
@@ -1972,11 +1972,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return errored ? symTable.semanticError : tupleType;
-    }
-
-    private boolean isFixedLengthTuple(BTupleType bTupleType) {
-        return bTupleType.restType == null ||
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bTupleType.restType);
     }
 
     private BType checkReadOnlyListType(BLangListConstructorExpr listConstructor) {

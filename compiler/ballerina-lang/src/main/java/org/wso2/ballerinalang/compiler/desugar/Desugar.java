@@ -5852,12 +5852,38 @@ public class Desugar extends BLangNodeVisitor {
         List<BType> tupleMemberTypes = tupleType.tupleTypes;
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
+
+        BType targetType = null;
         for (int i = 0; i < tupleExprSize; i++) {
             BLangExpression expr = exprs.get(i);
+
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BType spreadOpType = ((BLangListConstructorSpreadOpExpr) expr).expr.getBType();
+                spreadOpType = Types.getReferredType(spreadOpType);
+                if (spreadOpType.tag == TypeTags.ARRAY) {
+                    BArrayType spreadOpBArray = (BArrayType) spreadOpType;
+                    if (spreadOpBArray.size >= 0) {
+                        i += spreadOpBArray.size;
+                        continue;
+                    }
+                } else {
+                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    if (types.isFixedLengthTuple(spreadOpTuple)) {
+                        i += spreadOpTuple.tupleTypes.size();
+                        continue;
+                    }
+                }
+                targetType = tupleType.restType;
+                continue;
+            }
+
             BType expType = expr.impConversionExpr == null ? expr.getBType() : expr.impConversionExpr.getBType();
-            BType targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
+            if (targetType == null) {
+                targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
+            }
             types.setImplicitCastExpr(expr, expType, targetType);
         }
+
         tupleLiteral.exprs = rewriteExprs(tupleLiteral.exprs);
         result = tupleLiteral;
     }
