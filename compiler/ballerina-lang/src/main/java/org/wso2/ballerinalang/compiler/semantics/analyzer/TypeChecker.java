@@ -5522,7 +5522,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body, data.queryEnvs.peek()),
                                      data.prevEnvs);
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-        data.resultType = types.checkType(doClause.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+        data.resultType =
+                types.checkType(doClause.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         data.queryFinalClauses.pop();
         data.queryEnvs.pop();
         if (!data.breakToParallelQueryEnv) {
@@ -5533,9 +5534,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangFromClause fromClause, AnalyzerData data) {
         boolean prevBreakToParallelEnv = data.breakToParallelQueryEnv;
-        if (fromClause.collection.getKind() == NodeKind.QUERY_EXPR ||
-                (fromClause.collection.getKind() == NodeKind.GROUP_EXPR
-                        && ((BLangGroupExpr) fromClause.collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
+        BLangExpression collection = fromClause.collection;
+        if (collection.getKind() == NodeKind.QUERY_EXPR ||
+                (collection.getKind() == NodeKind.GROUP_EXPR
+                        && ((BLangGroupExpr) collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
             data.breakToParallelQueryEnv = true;
         }
         SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, data.queryEnvs.pop());
@@ -5551,9 +5553,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangJoinClause joinClause, AnalyzerData data) {
         boolean prevBreakEnv = data.breakToParallelQueryEnv;
-        if (joinClause.collection.getKind() == NodeKind.QUERY_EXPR ||
-                (joinClause.collection.getKind() == NodeKind.GROUP_EXPR
-                        && ((BLangGroupExpr) joinClause.collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
+        BLangExpression collection = joinClause.collection;
+        if (collection.getKind() == NodeKind.QUERY_EXPR ||
+                (collection.getKind() == NodeKind.GROUP_EXPR
+                        && ((BLangGroupExpr) collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
             data.breakToParallelQueryEnv = true;
         }
         SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, data.queryEnvs.pop());
