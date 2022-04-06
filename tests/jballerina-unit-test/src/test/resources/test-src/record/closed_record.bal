@@ -162,8 +162,8 @@ function testFuncPtrAsRecordField() returns string {
     p.fullName = function () returns string {
         return p.lname + ", " + p.fname;
     };
-    function() returns string fp = <function() returns string>p["fullName"];
-    return fp();
+
+    return p.fullName();
 }
 
 public type InMemoryModeConfig record {|
