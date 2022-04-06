@@ -5281,12 +5281,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
-    public void visit(BLangQueryExpr queryExpr) {
-        if (breakToParallelQueryEnv) {
-            queryEnvs.push(prevEnvs.peek());
+    public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
+        if (data.breakToParallelQueryEnv) {
+            data.queryEnvs.push(data.prevEnvs.peek());
         } else {
-            queryEnvs.push(env);
-            prevEnvs.push(env);
+            data.queryEnvs.push(data.env);
+            data.prevEnvs.push(data.env);
         }
         data.queryFinalClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
@@ -5299,7 +5299,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 types.checkType(queryExpr.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         data.queryFinalClauses.pop();
         data.queryEnvs.pop();
-        if (!breakToParallelQueryEnv) {
+        if (!data.breakToParallelQueryEnv) {
             data.prevEnvs.pop();
         }
 
@@ -5508,11 +5508,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
-        if (breakToParallelQueryEnv) {
-            data.queryEnvs.push(prevEnvs.peek());
+        if (data.breakToParallelQueryEnv) {
+            data.queryEnvs.push(data.prevEnvs.peek());
         } else {
-            data.queryEnvs.push(env);
-            data.prevEnvs.push(env);
+            data.queryEnvs.push(data.env);
+            data.prevEnvs.push(data.env);
         }
         BLangDoClause doClause = queryAction.getDoClause();
         data.queryFinalClauses.push(doClause);
@@ -5522,7 +5522,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body, data.queryEnvs.peek()),
                                      data.prevEnvs);
         BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-        data.resultType = types.checkType(doClause.pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+        data.resultType = types.checkType(doClause.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         data.queryFinalClauses.pop();
         data.queryEnvs.pop();
         if (!data.breakToParallelQueryEnv) {
