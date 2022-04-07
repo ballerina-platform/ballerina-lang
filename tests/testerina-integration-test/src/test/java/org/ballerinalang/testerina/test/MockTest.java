@@ -33,7 +33,8 @@ import java.util.HashMap;
 /**
  * Test class to test positive scenarios of testerina using a ballerina project.
  */
-public class MockTest extends BaseTestCase {
+public class
+MockTest extends BaseTestCase {
 
     private BMainInstance balClient;
     private String projectPath;
