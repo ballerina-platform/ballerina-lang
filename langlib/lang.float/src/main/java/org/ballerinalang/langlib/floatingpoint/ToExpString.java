@@ -91,6 +91,8 @@ public class ToExpString {
         int p = Integer.parseInt(secondSection);
         if (p >= 0) {
             secondSection = "e+" + secondSection;
+        } else {
+            secondSection = "e" + secondSection;
         }
 
         return StringUtils.fromString(firstSection + secondSection);

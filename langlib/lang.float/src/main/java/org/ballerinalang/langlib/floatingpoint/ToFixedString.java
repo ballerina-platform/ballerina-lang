@@ -61,6 +61,6 @@ public class ToFixedString {
 
         BigDecimal numberBigDecimal = new BigDecimal(x);
         numberBigDecimal  = numberBigDecimal.setScale(fracDig, RoundingMode.HALF_EVEN);
-        return StringUtils.fromString(String.valueOf(numberBigDecimal));
+        return StringUtils.fromString(numberBigDecimal.toPlainString());
     }
 }
