@@ -35,6 +35,7 @@ import java.util.Optional;
 public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements ArrayTypeSymbol {
     private Integer size;
     private TypeSymbol memberTypeDesc;
+    private String signature;
 
     public BallerinaArrayTypeSymbol(CompilerContext context, BArrayType arrayType) {
         super(context, TypeDescKind.ARRAY, arrayType);
@@ -54,12 +55,28 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
 
     @Override
     public String signature() {
-        // If the array is of fixed size, the signature should reflect that.
-        String sizeStr = "[" + size().map(Objects::toString).orElse("") + "]";
-        if (memberTypeDescriptor().typeKind() == TypeDescKind.UNION) {
-            return "(" + memberTypeDescriptor().signature() + ")" + sizeStr;
+        if (this.signature != null) {
+            return this.signature;
         }
-        return memberTypeDescriptor().signature() + sizeStr;
+
+        StringBuilder sigBuilder = new StringBuilder();
+        TypeSymbol memberType = memberTypeDescriptor();
+
+        sigBuilder.append('[').append(size().map(Objects::toString).orElse("")).append(']');
+
+        while (memberType.typeKind() == TypeDescKind.ARRAY) {
+            ArrayTypeSymbol arrType = (ArrayTypeSymbol) memberType;
+            sigBuilder.append('[').append(arrType.size().map(Objects::toString).orElse("")).append(']');
+            memberType = arrType.memberTypeDescriptor();
+        }
+
+        if (memberType.typeKind() == TypeDescKind.UNION || memberType.typeKind() == TypeDescKind.INTERSECTION) {
+            this.signature = "(" + memberType.signature() + ")" + sigBuilder;
+        } else {
+            this.signature = memberType.signature() + sigBuilder;
+        }
+
+        return this.signature;
     }
 
     @Override
