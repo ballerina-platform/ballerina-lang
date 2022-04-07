@@ -183,6 +183,8 @@ type Bar [int, string];
 
 type Baz int[]|string|boolean;
 
+type Qux int;
+
 function testSpreadOpWithListTypeBeingTypeRef() {
     IntArr _ = [1, ...[2, "s"]]; // error
 
@@ -193,6 +195,9 @@ function testSpreadOpWithListTypeBeingTypeRef() {
 
     Foo t = [3, ...["s"]]; // OK
     Bar _ = [...t]; // error
+
+    Qux x = 3;
+    IntArr _ = [1, 2, ...x]; // error
 }
 
 function testTypeCheckingForArrayArrayCompatibilityPositive() {

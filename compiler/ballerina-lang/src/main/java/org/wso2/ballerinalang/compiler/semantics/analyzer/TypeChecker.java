@@ -1775,17 +1775,17 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
             BType spreadOpType = checkExpr(spreadOpExpr, this.env);
-            spreadOpType = Types.getReferredType(spreadOpType);
+            BType spreadOpReferredType = Types.getReferredType(spreadOpType);
 
-            switch (spreadOpType.tag) {
+            switch (spreadOpReferredType.tag) {
                 case TypeTags.ARRAY:
-                    BType spreadOpeType = ((BArrayType) spreadOpType).eType;
+                    BType spreadOpeType = ((BArrayType) spreadOpReferredType).eType;
                     if (types.typeIncompatible(spreadOpExpr.pos, spreadOpeType, eType)) {
                         return symTable.semanticError;
                     }
                     break;
                 case TypeTags.TUPLE:
-                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    BTupleType spreadOpTuple = (BTupleType) spreadOpReferredType;
                     List<BType> tupleTypes = spreadOpTuple.tupleTypes;
                     for (BType tupleMemberType : tupleTypes) {
                         if (types.typeIncompatible(spreadOpExpr.pos, tupleMemberType, eType)) {
@@ -1880,11 +1880,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
             BType spreadOpType = checkExpr(spreadOpExpr, this.env);
-            spreadOpType = Types.getReferredType(spreadOpType);
+            BType spreadOpReferredType = Types.getReferredType(spreadOpType);
 
-            switch (spreadOpType.tag) {
+            switch (spreadOpReferredType.tag) {
                 case TypeTags.ARRAY:
-                    BArrayType spreadOpArray = (BArrayType) spreadOpType;
+                    BArrayType spreadOpArray = (BArrayType) spreadOpReferredType;
                     if (spreadOpArray.state == BArrayState.CLOSED) {
                         for (int i = 0; i < spreadOpArray.size && nonRestTypeIndex < memberTypeSize;
                              i++, nonRestTypeIndex++) {
@@ -1913,7 +1913,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
                     break;
                 case TypeTags.TUPLE:
-                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    BTupleType spreadOpTuple = (BTupleType) spreadOpReferredType;
                     int spreadOpMemberTypeSize = spreadOpTuple.tupleTypes.size();
 
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
