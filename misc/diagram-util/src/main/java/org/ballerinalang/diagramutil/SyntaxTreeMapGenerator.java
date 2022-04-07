@@ -205,26 +205,24 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 // Add module level endpoints
                 this.visibleEpsForModule.forEach(blockEndpoints::add);
 
-                if (this.visibleEpsForEachBlock.size() > 0) {
-                    for (JsonObject endpoint : this.visibleEpsForEachBlock) {
-                        int epStartLine = endpoint.get("position").getAsJsonObject().get("startLine").getAsInt();
-                        int epEndLine = endpoint.get("position").getAsJsonObject().get("endLine").getAsInt();
+                for (JsonObject endpoint : this.visibleEpsForEachBlock) {
+                    int epStartLine = endpoint.get("position").getAsJsonObject().get("startLine").getAsInt();
+                    int epEndLine = endpoint.get("position").getAsJsonObject().get("endLine").getAsInt();
 
-                        Optional<Node> parentFunctionBlock = getParentFunctionBlock(node);
-                        if (parentFunctionBlock.isPresent()
-                                && epStartLine >= parentFunctionBlock.get().lineRange().startLine().line()
-                                && epEndLine < node.lineRange().startLine().line()
-                                && !endpoint.has("innerBlock")) {
-                            blockEndpoints.add(endpoint);
-                        }
+                    Optional<Node> parentFunctionBlock = getParentFunctionBlock(node);
+                    if (parentFunctionBlock.isPresent()
+                            && epStartLine >= parentFunctionBlock.get().lineRange().startLine().line()
+                            && epEndLine < node.lineRange().startLine().line()
+                            && !endpoint.has("innerBlock")) {
+                        blockEndpoints.add(endpoint);
+                    }
 
-                        if (epStartLine >= node.lineRange().startLine().line()
-                                && epEndLine < node.lineRange().endLine().line()
-                                && !endpoint.has("innerBlock")) {
-                            blockEndpoints.add(endpoint);
-                            // Add key to filter endpoints only visible to a block
-                            endpoint.addProperty("innerBlock", true);
-                        }
+                    if (epStartLine >= node.lineRange().startLine().line()
+                            && epEndLine < node.lineRange().endLine().line()
+                            && !endpoint.has("innerBlock")) {
+                        blockEndpoints.add(endpoint);
+                        // Add key to filter endpoints only visible to a block
+                        endpoint.addProperty("innerBlock", true);
                     }
                 }
                 nodeJson.add("VisibleEndpoints", blockEndpoints);
