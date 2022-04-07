@@ -72,6 +72,15 @@ public isolated function round(decimal x) returns decimal =  @java:Method {
     name: "round"
 } external;
 
+# IEEE quantize operation.
+# + x - decimal value to operate on
+# + y - decimal value from which to get the quantum
+# + return - `x` with the quantum of `y`
+public isolated function quantize(decimal x, decimal y) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Quantize",
+    name: "quantize"
+} external;
+
 # Rounds a decimal down to the closest integral value.
 #
 # + x - decimal value to operate on
