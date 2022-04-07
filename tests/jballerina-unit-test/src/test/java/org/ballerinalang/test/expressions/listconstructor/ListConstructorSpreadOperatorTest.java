@@ -19,8 +19,11 @@ package org.ballerinalang.test.expressions.listconstructor;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -29,6 +32,58 @@ import org.testng.annotations.Test;
  * @since 2201.1.0
  */
 public class ListConstructorSpreadOperatorTest {
+
+    private CompileResult result, inferenceResult;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/expressions/listconstructor/list_constructor_spread_op.bal");
+        inferenceResult = BCompileUtil
+                .compile("test-src/expressions/listconstructor/list_constructor_spread_op_inference.bal");
+    }
+
+    @Test
+    public void testSpreadOpCompatibilityBetweenLists() {
+        BRunUtil.invoke(result, "testArrayArrayCompatibility");
+        BRunUtil.invoke(result, "testTupleTupleCompatibility");
+        BRunUtil.invoke(result, "testTupleArrayCompatibility");
+        BRunUtil.invoke(result, "testArrayTupleCompatibility");
+    }
+
+    @Test
+    public void testSpreadOpWithFillerValues() {
+        BRunUtil.invoke(result, "testFillerValue1");
+        BRunUtil.invoke(result, "testFillerValue2");
+    }
+
+    @Test
+    public void testSpreadOpWithVaryingLengthRef() {
+        BRunUtil.invoke(result, "testSpreadOpWithVaryingLengthRef");
+    }
+
+    @Test
+    public void testSpreadOpWithListConstructorTypeBeingTypeRef() {
+        BRunUtil.invoke(result, "testSpreadOpWithListConstructorTypeBeingTypeRef");
+    }
+
+    @Test
+    public void testSpreadOpWithExprNotBeingAReference() {
+        BRunUtil.invoke(result, "testSpreadOpWithExprNotBeingAReference");
+    }
+
+    @Test
+    public void testSpreadOpTupleWithNeverRestDescriptor() {
+        BRunUtil.invoke(result, "testSpreadOpTupleWithNeverRestDescriptor");
+    }
+
+    @Test
+    public void testSpreadOpInference() {
+        BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithVar");
+        BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithReadonly");
+        BRunUtil.invoke(inferenceResult, "testSpreadOpWithTypedesc");
+        BRunUtil.invoke(inferenceResult, "testInferenceViaSpreadOpWithTypeRef");
+        BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithNeverRestDescriptor");
+    }
 
     @Test
     public void testSpreadOperatorNegative() {
@@ -295,5 +350,11 @@ public class ListConstructorSpreadOperatorTest {
                 "size mismatch in closed array. expected '3', but found '4'", 23, 17);
         BAssertUtil.validateError(resultNegative, i++, "self referenced variable 'a6'", 23, 32);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
+        inferenceResult = null;
     }
 }
