@@ -395,14 +395,17 @@ function testStringSubtypesAddition() {
     Strings|Baz c = "bar";
     Bar d = "B";
     string:Char e = "e";
-    assertEquality(a + c, "abcbar");
-    assertEquality(a + b, "abcd");
+    string f = a + c;
+    string g = a + b;
+    string h = d + e;
+    assertEquality(f, "abcbar");
+    assertEquality(g, "abcd");
     assertEquality(a + b + a, "abcdabc");
     assertEquality(c + b, "bard");
     assertEquality(a + e, "abce");
     assertEquality(b + e, "de");
     assertEquality(c + e, "bare");
-    assertEquality(d + e, "Be");
+    assertEquality(h, "Be");
     assertEquality(b + e + b, "ded");
 }
 
@@ -420,7 +423,14 @@ function testXmlSubtypesAddition() {
     xml<'xml:Text>|xml<'xml:Comment> g = xml `<!--comment-->`;
     xml<'xml:Element|'xml:ProcessingInstruction> h = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
     xml<'xml:Element>|'xml:Text i = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
-
+    xml j = a + b;
+    xml k = a + c;
+    xml l = a + d;
+    xml m = c + g;
+    xml n = c + h;
+    xml o = d + f;
+    xml p = g + h;
+    
     xml result1 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><foo>Anne</foo><fuu>Peter</fuu>`;
     xml result2 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><?foo ?><?faa ?>`;
     xml result3 = xml `<foo>foo</foo><?foo ?>text1<!--comment-->text1 text2`;
@@ -428,13 +438,13 @@ function testXmlSubtypesAddition() {
     xml result5 = xml `<?foo ?><?faa ?><root> text1<foo>100</foo><foo>200</foo></root><?foo ?>`;
     xml result6 = xml `text1 text2<!--comment-->`;
     xml result7 = xml `<!--comment--><root> text1<foo>100</foo><foo>200</foo></root><?foo ?>`;
-    assertEquality(a + b, result1);
-    assertEquality(a + c, result2);
-    assertEquality(a + d, result3);
-    assertEquality(c + g, result4);
-    assertEquality(c + h, result5);
-    assertEquality(d + f, result6);
-    assertEquality(g + h, result7);
+    assertEquality(j, result1);
+    assertEquality(k, result2);
+    assertEquality(l, result3);
+    assertEquality(m, result4);
+    assertEquality(n, result5);
+    assertEquality(o, result6);
+    assertEquality(p, result7);
 }
 
 function assertEquality(any actual, any expected) {
