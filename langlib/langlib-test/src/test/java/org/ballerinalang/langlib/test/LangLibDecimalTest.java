@@ -251,6 +251,10 @@ public class LangLibDecimalTest {
                 {ValueCreator.createDecimalValue("5.55"), -200, "0"},
 
                 {ValueCreator.createDecimalValue("5.55"), Integer.MAX_VALUE, "5.55"},
+                {ValueCreator.createDecimalValue("5.55"), Integer.MIN_VALUE, "0"},
+                {ValueCreator.createDecimalValue("5.5E-2"), 3, "0.055"},
+                {ValueCreator.createDecimalValue("5.52156E2"), 3, "552.156"},
+                {ValueCreator.createDecimalValue("5.521561234452654235E2"), 15, "552.156123445265424"},
         };
     }
 
