@@ -74,6 +74,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_CONFIG_DATA_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_KEY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_MODULE_CONFIG_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CONFIGURABLES;
@@ -153,9 +154,7 @@ public class ConfigMethodGen {
         mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
         mv.visitVarInsn(ALOAD, 4);
-
-        mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", MAP_PUT, true);
-        mv.visitInsn(POP);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "addModuleConfigData", ADD_MODULE_CONFIG_DATA, false);
         mv.visitLabel(elseLabel);
     }
 
