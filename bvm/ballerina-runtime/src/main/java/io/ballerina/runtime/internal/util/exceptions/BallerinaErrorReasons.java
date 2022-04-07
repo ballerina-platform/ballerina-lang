@@ -112,6 +112,8 @@ public class BallerinaErrorReasons {
     public static final BString UNSUPPORTED_DECIMAL_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
             "UnsupportedDecimalError"));
 
+    public static final String INVALID_FRACTION_DIGITS_ERROR = "InvalidFractionDigits";
+
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
                                               .concat(CLOSING_CURLY_BRACE).concat(identifier));
