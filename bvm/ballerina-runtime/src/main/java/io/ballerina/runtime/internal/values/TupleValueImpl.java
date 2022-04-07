@@ -171,12 +171,12 @@ public class TupleValueImpl extends AbstractArrayValue {
             }
         }
 
-        if (size >= memCount) {
+        if (index >= memCount) {
             this.typedesc = getTypedescValue(tupleType, this);
             return;
         }
 
-        for (int i = (int) size; i < memCount; i++) {
+        for (int i = index; i < memCount; i++) {
             Type memType = memTypes.get(i);
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;
