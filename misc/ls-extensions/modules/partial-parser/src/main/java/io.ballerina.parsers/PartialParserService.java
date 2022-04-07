@@ -26,10 +26,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
-import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.eclipse.lsp4j.MessageParams;
-import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -44,16 +41,10 @@ import java.util.concurrent.CompletableFuture;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("partialParser")
 public class PartialParserService implements ExtendedLanguageServerService {
-    private ExtendedLanguageClient extendedLanguageClient;
 
     @Override
     public Class<?> getRemoteInterface() {
         return getClass();
-    }
-
-    @Override
-    public void connect(ExtendedLanguageClient client) {
-        this.extendedLanguageClient = client;
     }
 
     @JsonRequest
@@ -112,8 +103,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
         try {
             formattedSourceCode = Formatter.format(statement);
         } catch (FormatterException e) {
-            String msg = "[Warn] Failed to format the statement: " + statement + ", Cause: " + e.getMessage();
-            extendedLanguageClient.logMessage(new MessageParams(MessageType.Warning, msg));
+            // TODO: Print a warn log in the language client.
+            //  The methods are currently unavailable
+            //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/67).
         }
 
         return formattedSourceCode;
