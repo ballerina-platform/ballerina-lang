@@ -47,10 +47,10 @@ public class ToExpString {
         long noOfFractionDigits;
 
         // If fractionalDigits is `()`, use the minimum number of digits required to accurately represent the value.
+        double xAbsValue = Math.abs(x);
         if (fractionDigits == null) {
-            double xAbsValueOf = Math.abs(x);
-            int integerPart = (int) (Math.log10(xAbsValueOf));
-            noOfFractionDigits = BigDecimal.valueOf(xAbsValueOf / Math.pow(10, integerPart)).scale();
+            int integerPart = (int) (Math.log10(xAbsValue));
+            noOfFractionDigits = BigDecimal.valueOf(xAbsValue / Math.pow(10, integerPart)).scale();
         } else {
             noOfFractionDigits = (long) fractionDigits;
         }
@@ -69,17 +69,31 @@ public class ToExpString {
 
         int exponent = (int) noOfFractionDigits;
 
+        int tens = 0;
+        if (xAbsValue != 0 && xAbsValue < 1) {
+            double multipliedValue = xAbsValue;
+
+            while (multipliedValue < 1) {
+                multipliedValue = xAbsValue * Math.pow(10, tens + 1);
+                tens++;
+            }
+        }
+
         DecimalFormat decimalFormat = new DecimalFormat();
         decimalFormat.setRoundingMode(RoundingMode.HALF_EVEN);
 
 
         BigDecimal numberBigDecimal = new BigDecimal(x);
-        numberBigDecimal  = numberBigDecimal.setScale(exponent, RoundingMode.HALF_EVEN);
+        if (xAbsValue != 0 && xAbsValue < 1) {
+            numberBigDecimal  = numberBigDecimal.setScale(exponent + tens, RoundingMode.HALF_EVEN);
 
-        String power = "#".repeat(exponent);
+        } else {
+            numberBigDecimal  = numberBigDecimal.setScale(exponent, RoundingMode.HALF_EVEN);
+        }
+
+        String power = "0".repeat(exponent);
 
         decimalFormat = new DecimalFormat("0." + power + "E0");
-
         String res = decimalFormat.format(numberBigDecimal);
         int indexOfExp = res.lastIndexOf("E");
         String firstSection = res.substring(0, indexOfExp);
