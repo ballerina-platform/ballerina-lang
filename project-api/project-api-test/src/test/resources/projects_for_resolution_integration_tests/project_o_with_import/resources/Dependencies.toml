@@ -9,7 +9,7 @@ dependencies-toml-version = "2"
 [[package]]
 org = "adv_res"
 name = "package_m"
-version = "1.0.1"
+version = "1.3.0-beta.1"
 modules = [
 	{org = "adv_res", packageName = "package_m", moduleName = "package_m"}
 ]

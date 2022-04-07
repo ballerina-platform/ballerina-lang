@@ -23,15 +23,13 @@ type FooRec record {|
 
 function testRecFieldFuncPointerAsyncCall() {
     FooRec fr = {};
-    function () returns string fi = fr.fn;
-    future<string> fs = start fi();
+    future<string> fs = start fr.fn();
     string result = checkpanic wait fs;
     assert("FOO", result);
 
     fr["rec"] = <FooRec>{};
     FooRec fr2 = <FooRec>fr["rec"];
-    function () returns string fi2 = fr.fn;
-    fs = start fi2();
+    fs = start fr2.fn();
     string result2 = checkpanic wait fs;
     assert("FOO", result2);
 }

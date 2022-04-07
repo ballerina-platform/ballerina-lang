@@ -825,12 +825,15 @@ public class BTestRunner {
             for (Type type : types) {
                 Class<?> classMapping = getArgTypeToClassMapping(type);
                 typeList.add(classMapping);
+                typeList.add(Boolean.TYPE);
             }
         } else {
             Class<?> type = getArgTypeToClassMapping(bArray.getElementType());
             for (int i = 0; i < bArray.size(); i++) {
                 // Add the param type.
                 typeList.add(type);
+                // This is in jvm function signature to denote if args is passed or not.
+                typeList.add(Boolean.TYPE);
             }
         }
     }
@@ -844,6 +847,7 @@ public class BTestRunner {
                 // Add the param type.
                 params.add(bArray.getRefValue(i));
                 // This is in jvm function signature to denote if args is passed or not.
+                params.add(Boolean.TRUE);
             }
             valueList.add(params.toArray());
         } else {
@@ -851,6 +855,7 @@ public class BTestRunner {
                 // Add the param type.
                 params.add(bArray.get(i));
                 // This is in jvm function signature to denote if args is passed or not.
+                params.add(Boolean.TRUE);
             }
             valueList.add(params.toArray());
         }
