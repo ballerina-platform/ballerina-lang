@@ -17,21 +17,24 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
-import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Method;
 
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IS_CALL_ORIGINAL;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_UTILS;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DRETURN;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FRETURN;
+import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.LLOAD;
@@ -71,24 +74,23 @@ public class MockFunctionReplaceVisitor extends ClassVisitor {
 
     private static class MethodReplaceAdapter extends MethodVisitor {
 
-        private final MethodVisitor methodVisitor;
         private final Method mockFunc;
 
         MethodReplaceAdapter(MethodVisitor mv, Method mockFunc) {
-            super(Opcodes.ASM7);
-            this.methodVisitor = mv;
+            super(Opcodes.ASM7, mv);
             this.mockFunc = mockFunc;
-        }
-
-        @Override
-        public void visitMaxs(int maxStack, int maxLocals) {
-            methodVisitor.visitMaxs(0, 0);
         }
 
         @Override
         public void visitCode() {
 
-            methodVisitor.visitCode();
+            Label label0 = new Label();
+            super.visitLabel(label0);
+            super.visitMethodInsn(INVOKESTATIC, TESTERINA_UTILS, IS_CALL_ORIGINAL, "()Z", false);
+            Label label1 = new Label();
+            super.visitJumpInsn(IFNE, label1);
+            Label label2 = new Label();
+            super.visitLabel(label2);
 
             Class<?>[] parameterTypes = mockFunc.getParameterTypes();
             int paramOffset = 0;
@@ -102,59 +104,46 @@ public class MockFunctionReplaceVisitor extends ClassVisitor {
             }
 
             String mockFuncClassName = mockFunc.getDeclaringClass().getName().replace(".", "/");
-            methodVisitor.visitMethodInsn(INVOKESTATIC, mockFuncClassName, mockFunc.getName(),
+            super.visitMethodInsn(INVOKESTATIC, mockFuncClassName, mockFunc.getName(),
                     Type.getMethodDescriptor(mockFunc), false);
 
             generateReturnInstruction(mockFunc.getReturnType());
+            super.visitLabel(label1);
+            super.visitCode();
         }
 
         private void generateLoadInstruction(Class<?> type, int index) {
             if (type.isPrimitive()) {
                 if (type == Integer.TYPE || type == Boolean.TYPE) {
-                    methodVisitor.visitVarInsn(ILOAD, index);
+                    super.visitVarInsn(ILOAD, index);
                 } else if (type == Long.TYPE) {
-                    methodVisitor.visitVarInsn(LLOAD, index);
+                    super.visitVarInsn(LLOAD, index);
                 } else if (type == Float.TYPE) {
-                    methodVisitor.visitVarInsn(FLOAD, index);
+                    super.visitVarInsn(FLOAD, index);
                 } else if (type == Double.TYPE) {
-                    methodVisitor.visitVarInsn(DLOAD, index);
+                    super.visitVarInsn(DLOAD, index);
                 }
             } else {
-                methodVisitor.visitVarInsn(ALOAD, index);
+                super.visitVarInsn(ALOAD, index);
             }
         }
 
         private void generateReturnInstruction(Class<?> returnType) {
             if (returnType.isPrimitive()) {
                 if (returnType == Integer.TYPE || returnType == Boolean.TYPE || returnType == Byte.TYPE) {
-                    methodVisitor.visitInsn(Opcodes.IRETURN);
+                    super.visitInsn(Opcodes.IRETURN);
                 } else if (returnType == Long.TYPE) {
-                    methodVisitor.visitInsn(LRETURN);
+                    super.visitInsn(LRETURN);
                 } else if (returnType == Float.TYPE) {
-                    methodVisitor.visitInsn(FRETURN);
+                    super.visitInsn(FRETURN);
                 } else if (returnType == Double.TYPE) {
-                    methodVisitor.visitInsn(DRETURN);
+                    super.visitInsn(DRETURN);
                 } else if (returnType == Void.TYPE) {
-                    methodVisitor.visitInsn(RETURN);
+                    super.visitInsn(RETURN);
                 }
             } else {
-                methodVisitor.visitInsn(ARETURN);
+                super.visitInsn(ARETURN);
             }
-        }
-
-        @Override
-        public void visitEnd() {
-            methodVisitor.visitEnd();
-        }
-
-        @Override
-        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
-            return methodVisitor.visitAnnotation(desc, visible);
-        }
-
-        @Override
-        public void visitParameter(String name, int access) {
-            methodVisitor.visitParameter(name, access);
         }
     }
 }

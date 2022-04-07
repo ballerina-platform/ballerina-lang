@@ -377,29 +377,27 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     }
 
     private String getQualifiedClassName(BLangTestablePackage bLangTestablePackage,
-                             String pkgId, String functionName) {
+                                         String pkgId, String functionName) {
         String className;
         if (bLangTestablePackage.packageID.toString().contains(pkgId)) {
             if (bLangTestablePackage.symbol.scope.entries.containsKey(new Name(functionName))) {
-                BInvokableSymbol symbol = (BInvokableSymbol) bLangTestablePackage.symbol.scope.entries
-                        .get(new Name(functionName)).symbol;
+                BSymbol symbol = bLangTestablePackage.symbol.scope.entries.get(new Name(functionName)).symbol;
                 className = getClassName(bLangTestablePackage.symbol, symbol.getPosition());
             } else {
                 BLangPackage parentPkg = bLangTestablePackage.parent;
-                BInvokableSymbol symbol = (BInvokableSymbol) parentPkg.symbol.scope.entries
-                        .get(new Name(functionName)).symbol;
+                BSymbol symbol = parentPkg.symbol.scope.entries.get(new Name(functionName)).symbol;
                 className = getClassName(parentPkg.symbol, symbol.getPosition());
             }
 
         } else {
-            className = getImportFunctionClassName(bLangTestablePackage,
+            className = getImportedFunctionClassName(bLangTestablePackage,
                     pkgId, functionName);
         }
         return className;
     }
 
-    private String getImportFunctionClassName(BLangTestablePackage bLangTestablePackage,
-                                                     String pkgId, String functionName) {
+    private String getImportedFunctionClassName(BLangTestablePackage bLangTestablePackage,
+                                                String pkgId, String functionName) {
         String className = getClassName(bLangTestablePackage.getImports(), pkgId, functionName);
 
         if (className == null) {
@@ -411,7 +409,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private String getClassName(List<BLangImportPackage> imports, String pkgId, String functionName) {
         for (BLangImportPackage importPackage : imports) {
             if (importPackage.symbol.pkgID.toString().equals(pkgId)) {
-                BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) importPackage.symbol.scope.entries
+                BSymbol bInvokableSymbol = importPackage.symbol.scope.entries
                         .get(new Name(functionName)).symbol;
                 return getClassName(importPackage.symbol, bInvokableSymbol.getPosition());
             }
@@ -422,7 +420,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private String getClassName(BPackageSymbol bPackageSymbol, Location pos) {
         return JarResolver.getQualifiedClassName(
                 bPackageSymbol.pkgID.orgName.getValue(),
-                bPackageSymbol.pkgID.pkgName.getValue(),
+                bPackageSymbol.pkgID.name.getValue(),
                 bPackageSymbol.pkgID.version.getValue(),
                 pos.lineRange().filePath()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
