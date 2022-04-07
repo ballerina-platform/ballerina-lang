@@ -455,11 +455,11 @@ public class SymbolTable {
     }
 
     public void defineOperators() {
-        // Binary arithmetic operators for nullable integer types
-        defineNilableIntegerArithmeticOperations();
-
         // Binary arithmetic operators
         defineIntegerArithmeticOperations();
+
+        // Binary arithmetic operators for nullable integer types
+        defineNilableIntegerArithmeticOperations();
 
         // Binary bitwise operators for nullable integer types
         defineNilableIntegerBitwiseAndOperations();

@@ -181,6 +181,6 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, 13, "operator '+' not defined for 'C' and 'float'", 64, 14);
         BAssertUtil.validateError(resultNegative, 14, "operator '+' not defined for 'C' and 'float'", 65, 14);
         BAssertUtil.validateError(resultNegative, 15, "incompatible types: expected 'string', found 'xml'", 72, 16);
-        BAssertUtil.validateError(resultNegative, 16, "incompatible types: expected 'FO', found 'string'", 73, 13);
+        BAssertUtil.validateError(resultNegative, 16, "incompatible types: expected 'FO', found 'string'", 73, 12);
     }
 }

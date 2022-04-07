@@ -369,8 +369,8 @@ function testStringXmlSubtypesAddition() {
     xml x1 = xml `efg`;
     xml:Text x2 = xml `text`;
     string:Char|Strings b = "d";
-    Strings|Chars e = "bar";
-    bar d = "B";
+    Strings|Baz e = "bar";
+    Bar d = "B";
 
     assertEquality(s + x2, xml `abctext`);
     assertEquality(x2 + s, xml `textabc`);
@@ -386,14 +386,14 @@ function testStringXmlSubtypesAddition() {
     assertEquality(x1 + d, xml `efgB`);
 }
 
-type Chars "B"|"bar";
-type bar Chars|string;
+type Baz "B"|"bar";
+type Bar Baz|string;
 
 function testStringSubtypesAddition() {
     string a = "abc";
     string:Char|Strings b = "d";
-    Strings|Chars c = "bar";
-    bar d = "B";
+    Strings|Baz c = "bar";
+    Bar d = "B";
     string:Char e = "e";
     assertEquality(a + c, "abcbar");
     assertEquality(a + b, "abcd");
@@ -406,15 +406,15 @@ function testStringSubtypesAddition() {
     assertEquality(b + e + b, "ded");
 }
 
-type foo xml<'xml:Text>|xml<'xml:Comment> ;
-type foo2 xml<'xml:Element|'xml:ProcessingInstruction>;
-type foo3 foo|foo2;
+type Foo xml<'xml:Text>|xml<'xml:Comment> ;
+type Foo2 xml<'xml:Element|'xml:ProcessingInstruction>;
+type Foo3 Foo|Foo2;
 
 function testXmlSubtypesAddition() {
     xml a = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
-    xml<'xml:Element>|foo b = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
-    foo2 c = xml `<?foo?><?faa?>`;
-    foo3 d = xml `text1 text2`;
+    xml<'xml:Element>|Foo b = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    Foo2 c = xml `<?foo?><?faa?>`;
+    Foo3 d = xml `text1 text2`;
     xml<'xml:Comment> e = xml `<!--comment1--><!--comment2-->`;
     xml<'xml:Text|'xml:Comment> f = xml `<!--comment-->`;
     xml<'xml:Text>|xml<'xml:Comment> g = xml `<!--comment-->`;

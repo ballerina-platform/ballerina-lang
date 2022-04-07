@@ -69,8 +69,8 @@ function testImplicitConversion() {
     xml x = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
     string y = "abc";
 
-    string z = x + y;
-    FO xx = i + o;
+    string _ = x + y;
+    FO _ = i + o;
 }
 
 type FO "fo";
