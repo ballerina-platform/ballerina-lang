@@ -325,6 +325,7 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVaria
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
+import static org.wso2.ballerinalang.compiler.util.Constants.LISTENER_COUNT_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.util.Names.GENERATED_INIT_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -791,11 +792,14 @@ public class Desugar extends BLangNodeVisitor {
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.startFunction.body);
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.stopFunction.body);
 
-        pkgNode.initFunction = splitInitFunction(pkgNode, env);
+        if (isJvmTarget) {
+            pkgNode.initFunction = splitInitFunction(pkgNode, env);
+            pkgNode.startFunction = splitStartFunction(pkgNode, env);
+            pkgNode.stopFunction = splitStopFunction(pkgNode, env);
+        }
+
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
-        pkgNode.startFunction = splitStartFunction(pkgNode, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
-        pkgNode.stopFunction = splitStopFunction(pkgNode, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
         pkgNode.functions = rewrite(pkgNode.functions, env);
 
@@ -10025,9 +10029,6 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
         int methodSize = INIT_METHOD_SPLIT_SIZE;
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.body;
-        if (!isJvmTarget) {
-            return packageNode.initFunction;
-        }
         BLangFunction initFunction = packageNode.initFunction;
 
         List<BLangFunction> generatedFunctions = new ArrayList<>();
@@ -10130,11 +10131,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction splitStartFunction(BLangPackage packageNode, SymbolEnv env) {
-        int listenerCountPerMethod = 50;
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.startFunction.body;
-        if (!isJvmTarget) {
-            return packageNode.startFunction;
-        }
         BLangFunction startFunction = packageNode.startFunction;
 
         List<BLangFunction> generatedFunctions = new ArrayList<>();
@@ -10144,7 +10141,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.body;
 
         for (int i = 0; i < stmts.size() - 1; i++) {
-            if (i > 0 && (i % listenerCountPerMethod == 0)) {
+            if (i > 0 && (i % LISTENER_COUNT_PER_METHOD == 0)) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateStartFunction(packageNode, env);
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
@@ -10190,11 +10187,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangFunction splitStopFunction(BLangPackage packageNode, SymbolEnv env) {
-        int listenerCountPerMethod = 50;
         BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.stopFunction.body;
-        if (!isJvmTarget) {
-            return packageNode.stopFunction;
-        }
         BLangFunction stopFunction = packageNode.stopFunction;
 
         List<BLangFunction> generatedFunctions = new ArrayList<>();
@@ -10204,7 +10197,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.body;
 
         for (int i = 0; i < stmts.size() - 1; i++) {
-            if (i > 0 && (i % listenerCountPerMethod == 0)) {
+            if (i > 0 && (i % LISTENER_COUNT_PER_METHOD == 0)) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateStopFunction(packageNode, env);
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
@@ -10289,7 +10282,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFunction createIntermediateStartFunction(BLangPackage pkgNode, SymbolEnv env) {
         String alias = pkgNode.symbol.pkgID.toString();
         BLangFunction startFunction = ASTBuilderUtil
-                .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
+                .createInitFunctionWithErrorOrNilReturn(new BLangDiagnosticLocation("$_start", 0, 0, 0, 0), alias,
                         new Name(Names.START_FUNCTION_SUFFIX.value
                                 + this.startFuncIndex++), symTable);
         // Create invokable symbol for start function
@@ -10300,7 +10293,7 @@ public class Desugar extends BLangNodeVisitor {
     private BLangFunction createIntermediateStopFunction(BLangPackage pkgNode, SymbolEnv env) {
         String alias = pkgNode.symbol.pkgID.toString();
         BLangFunction stopFunction = ASTBuilderUtil
-                .createInitFunctionWithNilReturn(pkgNode.pos, alias,
+                .createInitFunctionWithNilReturn(new BLangDiagnosticLocation("$_stop", 0, 0, 0, 0), alias,
                         new Name(Names.STOP_FUNCTION_SUFFIX.value
                                 + this.stopFuncIndex++));
         // Create invokable symbol for stop function
