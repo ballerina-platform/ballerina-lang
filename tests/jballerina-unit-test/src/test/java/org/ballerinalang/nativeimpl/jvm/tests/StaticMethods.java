@@ -83,6 +83,7 @@ public class StaticMethods {
     private static final BTupleType tupleType = new BTupleType(
             Arrays.asList(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_FLOAT, PredefinedTypes.TYPE_STRING,
                           PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
+    private static Module errorModule = new Module("testorg", "distinct_error.errors", "1");
 
     private StaticMethods() {
     }
@@ -155,7 +156,7 @@ public class StaticMethods {
             case 4:
                 return null;
             case 5:
-                return ValueCreator.createMapValue(PredefinedTypes.TYPE_ANYDATA);
+                return ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
             default:
                 return true;
         }
@@ -296,6 +297,29 @@ public class StaticMethods {
     public static BError acceptStringErrorReturnWhichThrowsCheckedException(BString msg)
             throws JavaInteropTestCheckedException {
         return ErrorCreator.createError(msg, new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+    }
+
+    public static Object acceptIntErrorUnionReturnWhichThrowsCheckedException(int flag)
+            throws JavaInteropTestCheckedException {
+        if (flag == 0) {
+            return 5;
+        } else {
+            return new ErrorValue(StringUtils.fromString("error message"));
+        }
+    }
+
+    public static Object returnDistinctErrorUnionWhichThrowsCheckedException(int flag, BString errorName)
+            throws JavaInteropTestCheckedException {
+        if (flag == 0) {
+            return 5;
+        } else if (flag == 1) {
+            BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
+            errorDetails.put(StringUtils.fromString("detail"), "detail error message");
+            return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("error msg"),
+                    null, errorDetails);
+        } else {
+            return ErrorCreator.createError(StringUtils.fromString("Invalid data given"));
+        }
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -644,7 +668,7 @@ public class StaticMethods {
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("Riyafa")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("birth"), StringUtils.fromString("Sri Lanka"))};
-        return ValueCreator.createMapValue(bmap.getType(), mapInitialValueEntries);
+        return ValueCreator.createRecordValue((RecordType) bmap.getType(), mapInitialValueEntries);
     }
 
     public static BMap<BString, Object> createStudent() {
@@ -675,7 +699,7 @@ public class StaticMethods {
         BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("id"), 123L)};
-        return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
+        return ValueCreator.createRecordValue(recordType, mapInitialValueEntries);
     }
 
     public static BDecimal defaultDecimalArgsAddition(BDecimal a, BDecimal b) {

@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.IntSigned16TypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntSubType;
@@ -33,7 +34,7 @@ import java.util.Optional;
  */
 public class BallerinaIntSigned16TypeSymbol extends AbstractTypeSymbol implements IntSigned16TypeSymbol {
 
-    public BallerinaIntSigned16TypeSymbol(CompilerContext context, ModuleID moduleID, BIntSubType signed16Type) {
+    public BallerinaIntSigned16TypeSymbol(CompilerContext context, BIntSubType signed16Type) {
         super(context, TypeDescKind.INT_SIGNED16, signed16Type);
     }
 
@@ -45,5 +46,15 @@ public class BallerinaIntSigned16TypeSymbol extends AbstractTypeSymbol implement
     @Override
     public String signature() {
         return "int:" + Names.STRING_SIGNED16;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

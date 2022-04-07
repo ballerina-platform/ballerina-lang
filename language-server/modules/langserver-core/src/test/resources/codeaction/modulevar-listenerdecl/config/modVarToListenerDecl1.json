@@ -1,0 +1,24 @@
+{
+  "line": 19,
+  "character": 12,
+  "expected": [
+    {
+      "title": "Convert module variable 'ln' to listener declaration",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 0
+            },
+            "end": {
+              "line": 17,
+              "character": 0
+            }
+          },
+          "newText": "listener "
+        }
+      ]
+    }
+  ]
+}

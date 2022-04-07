@@ -28,6 +28,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -63,7 +65,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
             }
             resolvedContext = ResolvedContext.TYPEDESC;
         } else if (this.onExpressionContext(context, node)) {
-            completionItems.addAll(this.initializerContextCompletions(context, node.typeDescriptor().orElse(null)));
+            completionItems.addAll(this.initializerContextCompletions(context,
+                    node.typeDescriptor().orElse(null), node.initializer()));
             resolvedContext = ResolvedContext.EXPRESSION;
         }
         this.sort(context, node, completionItems, resolvedContext);
@@ -100,7 +103,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
     }
 
     @Override
-    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context, Node typeDsc) {
+    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context,
+                                                                   Node typeDesc, Node initializer) {
         // Note: Type descriptor is possibly null. Hence, if we are going to use it, we have to be aware of that.
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
@@ -115,6 +119,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
                     .filter(predicate)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRUE.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FALSE.get()));
         }
         completionItems.addAll(this.getCompletionItemList(constants, context));
 

@@ -17,6 +17,7 @@
  */
 package io.ballerina.toml.validator;
 
+import io.ballerina.toml.syntax.tree.DocumentMemberDeclarationNode;
 import io.ballerina.toml.validator.schema.AbstractSchema;
 import io.ballerina.toml.validator.schema.ArraySchema;
 import io.ballerina.toml.validator.schema.BooleanSchema;
@@ -27,8 +28,7 @@ import io.ballerina.toml.validator.schema.SchemaVisitor;
 import io.ballerina.toml.validator.schema.StringSchema;
 import io.ballerina.toml.validator.schema.Type;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -40,18 +40,20 @@ import java.util.Optional;
 public class BoilerplateGenerator extends SchemaVisitor {
 
     private String parentTableKey;
-    private final List<String> output;
+    private final Map<String, DocumentMemberDeclarationNode> nodes;
     private String key;
 
-    private static final String NEW_LINE = System.lineSeparator();
-
     public BoilerplateGenerator(Schema rootSchema) {
-        this.output = new ArrayList<>();
+        this.nodes = new LinkedHashMap<>();
         Map<String, AbstractSchema> children = rootSchema.properties();
         for (Map.Entry<String, AbstractSchema> entry : children.entrySet()) {
             String key = entry.getKey();
             AbstractSchema value = entry.getValue();
-            this.parentTableKey = key;
+            if (value.type() == Type.OBJECT || value.type() == Type.ARRAY) {
+                this.parentTableKey = key;
+            } else {
+                this.key = key;
+            }
             value.accept(this);
         }
     }
@@ -63,16 +65,14 @@ public class BoilerplateGenerator extends SchemaVisitor {
             return;
         }
         if (!isTableHeaderSkippable(children)) {
-            output.add("[" + this.parentTableKey + "]" + NEW_LINE);
+            nodes.put(this.parentTableKey, SampleNodeGenerator.createTable(this.parentTableKey,
+                    objectSchema.description().orElse(null)));
         }
         String parentKey = this.parentTableKey;
         for (Map.Entry<String, AbstractSchema> entry : children.entrySet()) {
             String key = entry.getKey();
             AbstractSchema value = entry.getValue();
-            if (value.type() == Type.OBJECT) {
-                this.parentTableKey = this.parentTableKey + "." + key;
-            }
-            if (value.type() == Type.ARRAY) {
+            if (value.type() == Type.OBJECT || value.type() == Type.ARRAY) {
                 this.parentTableKey = this.parentTableKey + "." + key;
             } else {
                 this.key = key;
@@ -86,7 +86,8 @@ public class BoilerplateGenerator extends SchemaVisitor {
     public void visit(ArraySchema arraySchema) {
         AbstractSchema items = arraySchema.items();
         if (items.type() == Type.OBJECT) {
-            output.add("[[" + this.parentTableKey + "]]" + NEW_LINE);
+            nodes.put(this.parentTableKey, SampleNodeGenerator.createTableArray(this.parentTableKey,
+                    arraySchema.description().orElse(null)));
             Map<String, AbstractSchema> children = ((Schema) items).properties();
             for (Map.Entry<String, AbstractSchema> entry : children.entrySet()) {
                 String key = entry.getKey();
@@ -110,7 +111,8 @@ public class BoilerplateGenerator extends SchemaVisitor {
             return;
         }
         Boolean val = defaultValue.get();
-        output.add(this.key + " = " + val + NEW_LINE);
+        String key = this.parentTableKey + "." + this.key;
+        nodes.put(key, SampleNodeGenerator.createBooleanKV(this.key, val, booleanSchema.description().orElse(null)));
     }
 
     @Override
@@ -120,7 +122,9 @@ public class BoilerplateGenerator extends SchemaVisitor {
             return;
         }
         Double val = defaultValue.get();
-        output.add(this.key + " = " + numericPrettyPrint(val) + NEW_LINE);
+        String key = this.parentTableKey + "." + this.key;
+        nodes.put(key, SampleNodeGenerator.createNumericKV(this.key, numericPrettyPrint(val),
+                numericSchema.description().orElse(null)));
     }
 
     @Override
@@ -130,11 +134,12 @@ public class BoilerplateGenerator extends SchemaVisitor {
             return;
         }
         String val = defaultValue.get();
-        output.add(this.key + " = " + "\"" + val + "\"" + NEW_LINE);
+        String key = this.parentTableKey + "." + this.key;
+        nodes.put(key, SampleNodeGenerator.createStringKV(this.key, val, stringSchema.description().orElse(null)));
     }
 
-    public List<String> getOutput() {
-        return output;
+    public Map<String, DocumentMemberDeclarationNode> getNodes() {
+        return nodes;
     }
 
     private static String numericPrettyPrint(double d) {

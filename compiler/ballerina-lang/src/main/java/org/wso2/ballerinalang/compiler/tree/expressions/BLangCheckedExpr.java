@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
@@ -38,8 +40,10 @@ import java.util.List;
  */
 public class BLangCheckedExpr extends BLangExpression implements CheckedExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
 
+    // Semantic Data
     // This list caches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;
 
@@ -56,6 +60,16 @@ public class BLangCheckedExpr extends BLangExpression implements CheckedExpressi
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

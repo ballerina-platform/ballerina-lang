@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,5 +68,15 @@ public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<Ty
         int gtTokenEnd = node.gtToken().textRange().endOffset();
 
         return cursor <= gtTokenEnd;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     TypeCastExpressionNode node,
+                     List<LSCompletionItem> completionItems) {
+        completionItems.forEach(lsCItem -> {
+            String sortText = SortingUtil.genSortTextForTypeDescContext(context, lsCItem);
+            lsCItem.getCompletionItem().setSortText(sortText);
+        });
     }
 }

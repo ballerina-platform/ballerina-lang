@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -55,16 +56,27 @@ public class AnnotationUtils {
             type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
 
-        if (type.getTag() != TypeTags.OBJECT_TYPE_TAG) {
+        if (type.getTag() != TypeTags.OBJECT_TYPE_TAG && type.getTag() != TypeTags.SERVICE_TAG) {
             return;
         }
         BObjectType objectType = (BObjectType) type;
         for (MethodType attachedFunction : objectType.getMethods()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
-            if (globalAnnotMap.containsKey(annotationKey)) {
-                ((BMethodType) attachedFunction).setAnnotations((MapValue<BString, Object>)
-                                                                             globalAnnotMap.get(annotationKey));
+            setMethodAnnotations(globalAnnotMap, annotationKey, (BMethodType) attachedFunction);
+        }
+        if (type.getTag() == TypeTags.SERVICE_TAG) {
+            BServiceType serviceType = (BServiceType) type;
+            for (ResourceMethodType resourceMethod : serviceType.getResourceMethods()) {
+                annotationKey = StringUtils.fromString(resourceMethod.getAnnotationKey());
+                setMethodAnnotations(globalAnnotMap, annotationKey, (BMethodType) resourceMethod);
             }
+        }
+    }
+
+    private static void setMethodAnnotations(MapValue<BString, Object> globalAnnotMap, BString annotationKey,
+                                             BMethodType resourceMethod) {
+        if (globalAnnotMap.containsKey(annotationKey)) {
+            resourceMethod.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
     }
 

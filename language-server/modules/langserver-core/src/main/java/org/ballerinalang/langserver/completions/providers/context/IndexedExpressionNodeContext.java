@@ -36,6 +36,7 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class IndexedExpressionNodeContext extends AbstractCompletionProvider<IndexedExpressionNode> {
+
     public IndexedExpressionNodeContext() {
         super(IndexedExpressionNode.class);
     }
@@ -46,7 +47,7 @@ public class IndexedExpressionNodeContext extends AbstractCompletionProvider<Ind
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> entries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
 
@@ -55,7 +56,12 @@ public class IndexedExpressionNodeContext extends AbstractCompletionProvider<Ind
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, IndexedExpressionNode node) {
+        return context.getNodeAtCursor().textRange().endOffset() >= context.getCursorPositionInTree();
     }
 }

@@ -27,19 +27,20 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tools-api')
+    implementation project(':identifier-util')
     implementation 'com.google.code.gson:gson'
-    implementation 'com.google.code.gson:gson:2.7'
-    implementation 'org.jacoco:org.jacoco.core:0.8.5'
-    implementation 'org.jacoco:org.jacoco.report:0.8.5'
-    implementation 'org.ow2.asm:asm:7.2'
-    implementation 'org.ow2.asm:asm-commons:7.2'
-    implementation 'org.ow2.asm:asm-tree:7.2'
+    implementation "com.google.code.gson:gson:${project.gsonVersion}"
+    implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
+    implementation "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
+    implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
+    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
+    implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
 
-    compile group: 'org.jacoco', name: 'org.jacoco.core', version: '0.8.5'
-    compile group: 'org.jacoco', name: 'org.jacoco.report', version: '0.8.5'
-    compile group: 'org.ow2.asm', name: 'asm', version: '7.2'
-    compile group: 'org.ow2.asm', name: 'asm-commons', version: '7.2'
-    compile group: 'org.ow2.asm', name: 'asm-tree', version: '7.2'
+    compile group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
+    compile group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
+    compile group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
+    compile group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
+    compile group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
 
     jar {
         from {

@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ import java.util.List;
  */
 public class BLangRawTemplateLiteral extends BLangExpression implements RawTemplateLiteralNode {
 
+    // BLangNodes
     public List<BLangLiteral> strings;
     public List<BLangExpression> insertions;
 
@@ -44,6 +47,16 @@ public class BLangRawTemplateLiteral extends BLangExpression implements RawTempl
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

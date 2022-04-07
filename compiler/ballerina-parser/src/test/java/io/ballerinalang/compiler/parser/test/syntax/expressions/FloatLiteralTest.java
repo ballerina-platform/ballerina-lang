@@ -48,4 +48,21 @@ public class FloatLiteralTest extends AbstractExpressionsTest {
         // HexIndicator DottedHexNumber [HexExponent]
         testFile("basic-literals/float_literal_source_05.bal", "basic-literals/float_literal_assert_05.json");
     }
+
+    // Invalid syntax tests
+
+    @Test
+    public void testInvalidTrailingDot() {
+
+        // DecimalFloatingPointNumber
+        testFile("basic-literals/float_literal_source_06.bal", "basic-literals/float_literal_assert_06.json");
+
+        // HexFloatingPointLiteral
+        testFile("basic-literals/float_literal_source_07.bal", "basic-literals/float_literal_assert_07.json");
+    }
+
+    @Test
+    public void testInvalidFloatingPointLiteral() {
+        testFile("basic-literals/float_literal_source_08.bal", "basic-literals/float_literal_assert_08.json");
+    }
 }

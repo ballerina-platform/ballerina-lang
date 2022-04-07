@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.WaitExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.List;
@@ -33,6 +35,7 @@ public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode
 
     private static final String WAIT_KEYWORD = "wait";
 
+    // BLangNodes
     public List<BLangExpression> exprList;
 
     @Override
@@ -43,6 +46,16 @@ public class BLangWaitExpr extends BLangExpression implements WaitExpressionNode
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

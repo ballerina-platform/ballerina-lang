@@ -34,9 +34,9 @@ public class ComplexSemType implements SemType {
     public final UniformTypeBitSet some;
     // There is one member of subtypes for each bit set in some.
     // Ordered in increasing order of UniformTypeCode
-    public final SubtypeData[] subtypeDataList;
+    public final ProperSubtypeData[] subtypeDataList;
 
-    public ComplexSemType(UniformTypeBitSet all, UniformTypeBitSet some, SubtypeData[] subtypeDataList) {
+    public ComplexSemType(UniformTypeBitSet all, UniformTypeBitSet some, ProperSubtypeData[] subtypeDataList) {
         this.all = all;
         this.some = some;
         this.subtypeDataList = subtypeDataList;
@@ -48,7 +48,7 @@ public class ComplexSemType implements SemType {
 
     public static ComplexSemType createComplexSemType(int allBitset, List<UniformSubtype> subtypeList) {
         int some = 0;
-        ArrayList<SubtypeData> dataList = new ArrayList<>();
+        ArrayList<ProperSubtypeData> dataList = new ArrayList<>();
         for (UniformSubtype uniformSubtype : subtypeList) {
             dataList.add(uniformSubtype.subtypeData);
             int c = uniformSubtype.uniformTypeCode.code;
@@ -57,6 +57,6 @@ public class ComplexSemType implements SemType {
         return new ComplexSemType(
                 UniformTypeBitSet.from(allBitset),
                 UniformTypeBitSet.from(some),
-                dataList.toArray(new SubtypeData[]{}));
+                dataList.toArray(new ProperSubtypeData[]{}));
     }
 }

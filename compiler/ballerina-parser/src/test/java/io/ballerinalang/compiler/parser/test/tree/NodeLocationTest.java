@@ -17,12 +17,14 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -229,5 +231,58 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
                 .apply();
 
         Assert.assertNotNull(detachedImportDeclNode.lineRange());
+    }
+
+    @Test
+    public void testNodeLocationEqualsAndHashCodeMethods() {
+        String inputSrc = "import ballerina/http;\n" +
+                "import ballerina/log;\n" +
+                "\n" +
+                "public function func1() returns string {\n" +
+                "    log:printDebug(\"A debug message\");\n" +
+                "    http:Client cl = check new (\"\");\n" +
+                "}\n";
+        TextDocument textDocument = TextDocuments.from(inputSrc);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+        ModulePartNode modulePartNode1 = syntaxTree.rootNode();
+
+        String modifiedSrc = "import ballerina/http;\n" +
+                "import ballerina/log;\n" +
+                "\n" +
+                "public function func1() returns string {\n" +
+                "    log:printDebug(\"A debug message\");\n" +
+                "    http:Client cl = check new (\"http://example.com\");\n" +
+                "    json resp = cl->get(\"/path\");\n" +
+                "}\n";
+        textDocument = TextDocuments.from(modifiedSrc);
+        syntaxTree = SyntaxTree.from(textDocument);
+        ModulePartNode modulePartNode2 = syntaxTree.rootNode();
+
+        Assert.assertEquals(modulePartNode1.imports().size(), modulePartNode2.imports().size());
+        for (int i = 0; i < modulePartNode1.imports().size(); i++) {
+            ImportDeclarationNode importDeclarationNode1 = modulePartNode1.imports().get(i);
+            ImportDeclarationNode importDeclarationNode2 = modulePartNode2.imports().get(i);
+            Assert.assertEquals(importDeclarationNode2.location(), importDeclarationNode1.location());
+            Assert.assertEquals(importDeclarationNode1.location().hashCode(),
+                    importDeclarationNode2.location().hashCode());
+        }
+
+        FunctionDefinitionNode functionDefinitionNode1 = (FunctionDefinitionNode) modulePartNode1.members().get(0);
+        FunctionDefinitionNode functionDefinitionNode2 = (FunctionDefinitionNode) modulePartNode2.members().get(0);
+        Assert.assertNotEquals(functionDefinitionNode1.location(), functionDefinitionNode2.location());
+        Assert.assertNotEquals(functionDefinitionNode1.location().hashCode(),
+                functionDefinitionNode2.location().hashCode());
+
+        StatementNode logStmt1 = ((FunctionBodyBlockNode) functionDefinitionNode1.functionBody()).statements().get(0);
+        StatementNode logStmt2 = ((FunctionBodyBlockNode) functionDefinitionNode2.functionBody()).statements().get(0);
+        Assert.assertEquals(logStmt1.location(), logStmt2.location());
+        Assert.assertEquals(logStmt1.location().hashCode(), logStmt2.location().hashCode());
+        
+        StatementNode clientDecl1 = ((FunctionBodyBlockNode) functionDefinitionNode1.functionBody())
+                .statements().get(0);
+        StatementNode clientDecl2 = ((FunctionBodyBlockNode) functionDefinitionNode2.functionBody())
+                .statements().get(0);
+        Assert.assertEquals(clientDecl1.location(), clientDecl2.location());
+        Assert.assertEquals(clientDecl1.location().hashCode(), clientDecl2.location().hashCode());
     }
 }

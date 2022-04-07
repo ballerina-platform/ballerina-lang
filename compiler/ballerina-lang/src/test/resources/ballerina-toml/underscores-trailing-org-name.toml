@@ -1,0 +1,4 @@
+[package]
+name = "my_package_"
+org = "my_org_"
+version = "1.0.0"

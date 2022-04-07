@@ -262,7 +262,7 @@ function testComplexTernary_2() returns string {
     int|string|float|boolean|xml x = "string";
     if(x is boolean) {return "boolean";}
     if (x is int|string|float|boolean) {
-        return x is int ? "int" : (x is float ? "float" : (x is boolean ? "boolean" : x));
+        return x is int ? "int" : (x is float ? "float" : x);
     } else {
         xml y = x;
         return "xml";
@@ -943,24 +943,16 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     boolean isGenericError = a1 is error && a2 is error;
     return [isSpecificError, isGenericError];
 }
+
 function testCustomErrorType() {
-    Details d = { message: "detail message" };
+    Details d = {message: "detail message"};
     MyError|MyErrorTwo e = error MyError(ERR_REASON, message = d.message);
-    if (e is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e is MyErrorTwo);
+    test:assertTrue(e is MyError);
+
     MyErrorTwo|MyError e1 = error MyError(ERR_REASON, message = d.message);
-    if (e1 is MyErrorTwo) {
-        test:assertFail();
-    }
-    if (e1 is MyError) {
-    } else {
-        test:assertFail();
-    }
+    test:assertFalse(e1 is MyErrorTwo);
+    test:assertTrue(e1 is MyError);
 }
 
 function testTypeGuardForCustomErrorNegative() returns boolean {
@@ -1057,7 +1049,7 @@ function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean 
 }
 
 type Detail record {
-    string message?;
+    string message;
     error cause?;
     int? code;
     float f?;
@@ -1148,16 +1140,12 @@ function testNarrowedTypeResetWithNestedTypeGuards() {
                     int j = i;
                     jo = j;
                     i = "hello";
-                } else {
-                    int k = i;
                 }
             } else {
                 string s = i;
             }
             int|string? q = i;
             qo = q;
-        } else {
-            int|string x = i;
         }
         int|string? r = i;
         ro = r;
@@ -1634,6 +1622,138 @@ function testTypeDefinitionForNewTypeCreatedInTypeGuard() {
         assertEquality(true, v is Grault);
         assertEquality(false, v is record {| byte i = 101; boolean s; |});
     }
+}
+
+public type SomeRecord record {
+    int intField;
+};
+
+public function testIfElseWithTypeTest() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    any x = true;
+
+    if c is () {
+
+    } else if x is int {
+        c = f;
+    } else if (x is boolean) {
+        foo(c);
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariables() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+
+    } else if g is () {
+
+    } else if x is int {
+        c = f;
+        g = ();
+        g = 4;
+    } else if (x is boolean) {
+        foo(c);
+    } else if (g is SomeRecord) {
+        foo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariablesInMultipleBlocks() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+        assertFalse(c is ());
+    } else if g is () {
+        assertFalse(g is ());
+    } else if x is int {
+        c = f;
+    } else if (x is float) {
+        assertFalse(x is float);
+         SomeRecord|int|() s = 5;
+         g = s;
+    } else if (x is boolean) {
+        assertTrue(x is boolean);
+        foo(c);
+    } else if (x is string) {
+        assertFalse(x is string);
+        goo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+public function testIfElseWithTypeTestMultipleVariablesInNestedBlocks() {
+    SomeRecord? c = {intField: 10};
+    SomeRecord? f = ();
+    SomeRecord|int|() g = 4;
+    any x = true;
+
+    if c is () {
+        assertFalse(c is ());
+    } else if g is () {
+        assertFalse(g is ());
+    } else if x is int {
+        assertFalse(x is int);
+        c = f;
+        if (f is SomeRecord) {
+            hoo(c);
+            if (g is int) {
+                g = ();
+            } else {
+                SomeRecord s = g;
+                g = 4;
+                yoo(g);
+            }
+        }
+    } else if (x is float) {
+        assertFalse(x is float);
+         SomeRecord|int|() s = 5;
+         g = s;
+    } else if (x is boolean) {
+        assertTrue(x is boolean);
+        foo(c);
+    } else if (x is string) {
+        goo(g);
+    } else {
+        SomeRecord|int w = 4;
+        g = w;
+    }
+}
+
+function foo(SomeRecord aa) {
+    assertEquality(10, aa.intField);
+}
+
+function hoo(SomeRecord? aa) {
+
+}
+
+function goo(SomeRecord|int aa) {
+
+}
+
+function yoo(SomeRecord|int|() aa) {
+
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(anydata expected, anydata actual) {

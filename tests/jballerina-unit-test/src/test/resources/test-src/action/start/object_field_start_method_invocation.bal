@@ -102,6 +102,7 @@ public function testInvocationOfObjectField() {
     var tf = wait tfF;
     assertEquals(1, tf);
 }
+
 public isolated function testInvocationOfObjectFieldWithMutableState() {
     Proxy proxy = new (10);
     proxy.inc();
@@ -125,6 +126,15 @@ public isolated function testInvocationOfObjectFieldWithMutableState() {
     getF = start proxy.get();
     getR = wait getF;
     assertEquals(5, getR);
+}
+
+public function testInvocationOfObjectFieldWithTypeInit() {
+    var ff = start (new F()).f();
+    var fr = wait ff;
+    assertEquals(1, fr);
+    var fooDelF = start (new F()).fooDel();
+    var fooDel = wait fooDelF;
+    assertEquals(foo(), fooDel);
 }
 
 isolated function assertEquals(anydata|error expected, anydata|error actual) {

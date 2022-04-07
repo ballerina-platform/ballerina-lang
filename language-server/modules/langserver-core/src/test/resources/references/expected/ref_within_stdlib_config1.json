@@ -1,0 +1,37 @@
+{
+  "source": {
+    "file": "repo/bala/ballerina/lang.array/0.0.0/any/modules/lang.array/array.bal"
+  },
+  "position": {
+    "line": 55,
+    "character": 21
+  },
+  "result": [
+    {
+      "uri": "repo/bala/ballerina/lang.array/0.0.0/any/modules/lang.array/array.bal",
+      "range": {
+        "start": {
+          "line": 56,
+          "character": 11
+        },
+        "end": {
+          "line": 56,
+          "character": 22
+        }
+      }
+    },
+    {
+      "uri": "repo/bala/ballerina/lang.array/0.0.0/any/modules/lang.array/array.bal",
+      "range": {
+        "start": {
+          "line": 55,
+          "character": 18
+        },
+        "end": {
+          "line": 55,
+          "character": 29
+        }
+      }
+    }
+  ]
+}

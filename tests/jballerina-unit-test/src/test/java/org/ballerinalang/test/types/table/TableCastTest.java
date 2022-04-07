@@ -17,8 +17,6 @@
 
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,32 +43,32 @@ public class TableCastTest {
 
     @Test
     public void testKeyConstraintCastToString1() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString1");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString1");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString2() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString2");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString2");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString3() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString3");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString3");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testKeyConstraintCastToString4() {
-        BValue[] results = BRunUtil.invoke(result, "testKeyConstraintCastToString4");
-        Assert.assertTrue(((BBoolean) results[0]).booleanValue());
+        Object results = BRunUtil.invoke(result, "testKeyConstraintCastToString4");
+        Assert.assertTrue((Boolean) results);
     }
 
     @Test
     public void testNegativeCases() {
         Assert.assertEquals(negativeResult.getErrorCount(), 5);
-        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'table<(Person|Customer)> key<string>' " +
+        BAssertUtil.validateError(negativeResult, 0, "incompatible types: 'PersonTable1' " +
                 "cannot be cast to 'table<Person> key<int>'", 49, 34);
         BAssertUtil.validateError(negativeResult, 1, "invalid key constraint provided for member access. " +
                 "key constraint expected with type 'int'", 50, 12);

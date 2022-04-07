@@ -18,9 +18,7 @@
 
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,67 +41,67 @@ public class ConstantAccessTest {
 
     @Test(description = "Test accessing constant from other packages")
     public void testAccessingConstantFromOtherPkg() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "accessConstantFromOtherPkg");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
+        Object returns = BRunUtil.invoke(compileResult, "accessConstantFromOtherPkg");
+
+        Assert.assertSame(returns.getClass(), Double.class);
+        Assert.assertEquals(returns, 342342.234);
     }
 
     @Test(description = "Test accessing public constant from other packages")
     public void accessPublicConstantFromOtherPackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "accessPublicConstantFromOtherPackage");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "accessPublicConstantFromOtherPackage");
+
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test(description = "Test accessing public constant type from other packages")
     public void accessPublicConstantTypeFromOtherPackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "accessPublicConstantTypeFromOtherPackage");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "A");
+        Object returns = BRunUtil.invoke(compileResult, "accessPublicConstantTypeFromOtherPackage");
+
+        Assert.assertEquals(returns.toString(), "A");
     }
 
     @Test(description = "Test assigning constant from other package to global variable")
     public void testAssigningConstFromOtherPkgToGlobalVar() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "assignConstFromOtherPkgToGlobalVar");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 342342.234);
+        Object returns = BRunUtil.invoke(compileResult, "assignConstFromOtherPkgToGlobalVar");
+
+        Assert.assertSame(returns.getClass(), Double.class);
+        Assert.assertEquals(returns, 342342.234);
     }
 
     @Test(description = "Test negative constant values")
     public void testNegativeConstantValues() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getNegativeConstants");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertSame(returns[3].getClass(), BFloat.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), -342);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), -88);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), -88.2);
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), -3343.88);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "getNegativeConstants");
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Long.class);
+        Assert.assertSame(returns.get(2).getClass(), Double.class);
+        Assert.assertSame(returns.get(3).getClass(), Double.class);
+        Assert.assertEquals(returns.get(0), -342L);
+        Assert.assertEquals(returns.get(1), -88L);
+        Assert.assertEquals(returns.get(2), -88.2);
+        Assert.assertEquals(returns.get(3), -3343.88);
     }
 
     @Test(description = "Test assigning float to int in constants")
     public void floatIntConversion() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "floatIntConversion");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "floatIntConversion");
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertSame(returns.get(0).getClass(), Double.class);
+        Assert.assertEquals(returns.get(0), 4.0);
 
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 6.0);
+        Assert.assertSame(returns.get(1).getClass(), Double.class);
+        Assert.assertEquals(returns.get(1), 6.0);
 
-        Assert.assertSame(returns[2].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 10.0);
+        Assert.assertSame(returns.get(2).getClass(), Double.class);
+        Assert.assertEquals(returns.get(2), 10.0);
     }
 
     @Test
     public void testTypeAssignment() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTypeAssignment");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "A");
+        Object returns = BRunUtil.invoke(compileResult, "testTypeAssignment");
+
+        Assert.assertEquals(returns.toString(), "A");
     }
 
     @AfterClass

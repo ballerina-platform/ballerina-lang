@@ -81,6 +81,9 @@ public class ModuleTupleVariableTest {
                 "invalid list binding pattern: expected an array or a tuple, but found 'int'",
                 47, 6);
         validateError(compileResultNegative, index++,
+                "invalid field binding pattern; can only bind required fields",
+                47, 17);
+        validateError(compileResultNegative, index++,
                 "invalid error binding pattern with type 'float'", 47, 30);
         validateError(compileResultNegative, index++,
                 "invalid list binding pattern; member variable count mismatch with member type count", 51, 1);
@@ -103,7 +106,7 @@ public class ModuleTupleVariableTest {
                 "test-src/statements/vardeclr/module_tuple_var_decl_annotation_negetive.bal");
         int index = 0;
         validateError(compileResult, index++,
-                "annotation 'ballerina/lang.annotations:1.0.0:deprecated' is not allowed on var", 20, 1);
+                "annotation 'ballerina/lang.annotations:0.0.0:deprecated' is not allowed on var", 20, 1);
         assertEquals(compileResult.getErrorCount(), index);
     }
 

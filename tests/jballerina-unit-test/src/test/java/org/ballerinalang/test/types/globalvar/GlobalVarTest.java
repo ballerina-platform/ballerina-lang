@@ -56,4 +56,11 @@ public class GlobalVarTest {
                         "/configurable_var_positive.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
+
+    @Test
+    public void testOCEDependOnGlobalVariable() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/variabledef/oce_depend_on_global_variable.bal");
+        BRunUtil.invoke(result, "testOCEDependOnGlobalVariable");
+    }
 }

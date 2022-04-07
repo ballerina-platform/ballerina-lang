@@ -31,6 +31,7 @@ import io.ballerina.shell.test.unit.base.TestCases;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -46,7 +47,7 @@ public class TrialTreeParserTest {
     private static final String MISC_TESTCASES = "testcases/treeparser.misc.json";
     private static final String MODULE_DCLN_MAIN_TESTCASE = "testcases/treeparser.dcln.main.json";
     private static final String MODULE_DCLN_INIT_TESTCASE = "testcases/treeparser.dcln.init.json";
-    private static final String MODULE_DCLN_UNDERSCORE_TESTCASE = "testcases/treeparser.dcln.underscore.json";
+    private static final String MODULE_DCLN_RESERVED_TESTCASE = "testcases/treeparser.dcln.underscore.json";
 
     @Test
     public void testImportParse() {
@@ -90,8 +91,8 @@ public class TrialTreeParserTest {
     }
 
     @Test(expectedExceptions = TreeParserException.class)
-    public void testModuleDclnNameDoubleUnderscoreTest() throws TreeParserException {
-        testModuleDclnName(MODULE_DCLN_UNDERSCORE_TESTCASE);
+    public void testModuleDclnNameReservedTest() throws TreeParserException {
+        testModuleDclnName(MODULE_DCLN_RESERVED_TESTCASE);
     }
 
     private void testParse(String fileName, Class<?> parentClazz) {
@@ -99,10 +100,12 @@ public class TrialTreeParserTest {
         TreeParser treeParser = TestUtils.getTestTreeParser();
         for (TestCase testCase : testCases) {
             try {
-                Node node = treeParser.parse(testCase.getInput());
-                String actual = node.getClass().getSimpleName();
-                Assert.assertEquals(List.of(actual), testCase.getExpected(), testCase.getName());
-                Assert.assertTrue(parentClazz.isInstance(node), testCase.getName() + " not expected instance");
+                Collection<Node> nodes = treeParser.parse(testCase.getInput());
+                for (Node node : nodes) {
+                    String actual = node.getClass().getSimpleName();
+                    Assert.assertEquals(List.of(actual), testCase.getExpected(), testCase.getName());
+                    Assert.assertTrue(parentClazz.isInstance(node), testCase.getName() + " not expected instance");
+                }
             } catch (TreeParserException e) {
                 Assert.assertNull(testCase.getExpected(), testCase.getName() + " error: " + e.getMessage());
             }

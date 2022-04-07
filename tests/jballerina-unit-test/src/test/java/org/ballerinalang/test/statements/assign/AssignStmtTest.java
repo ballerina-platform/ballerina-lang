@@ -16,13 +16,12 @@
  */
 package org.ballerinalang.test.statements.assign;
 
-import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -48,68 +47,63 @@ public class AssignStmtTest {
 
     @Test
     public void invokeAssignmentTest() {
-        BValue[] args = { new BInteger(100) };
-        BValue[] returns = BRunUtil.invoke(result, "testIntAssignStmt", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Object[] args = {(100)};
+        Object returns = BRunUtil.invoke(result, "testIntAssignStmt", args);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        Assert.assertSame(returns.getClass(), Long.class);
+
+        long actual = (long) returns;
         long expected = 100;
         Assert.assertEquals(actual, expected);
 
         // floattype assignment test
-        args = new BValue[] { new BFloat(2.3f) };
+        args = new Object[]{(2.3f)};
         returns = BRunUtil.invoke(result, "testFloatAssignStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actualFloat = ((BFloat) returns[0]).floatValue();
+        double actualFloat = (double) returns;
         double expectedFloat = 2.3f;
         Assert.assertEquals(actualFloat, expectedFloat);
 
         // Boolean assignment test
-        args = new BValue[] { new BBoolean(true) };
+        args = new Object[]{(true)};
         returns = BRunUtil.invoke(result, "testBooleanAssignStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertSame(returns.getClass(), Boolean.class);
 
-        boolean actualBoolean = ((BBoolean) returns[0]).booleanValue();
+        boolean actualBoolean = (boolean) returns;
         Assert.assertTrue(actualBoolean);
 
         // String assignment test
-        args = new BValue[] { new BString("Test Value") };
+        args = new Object[]{StringUtils.fromString("Test Value")};
         returns = BRunUtil.invoke(result, "testStringAssignStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertTrue(returns instanceof BString);
 
-        String actualString = returns[0].stringValue();
+        String actualString = returns.toString();
         String expectedString = "Test Value";
         Assert.assertEquals(actualString, expectedString);
 
         // Array index to int assignment test
-        BValueArray arrayValue = new BValueArray(BTypes.typeInt);
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT));
         arrayValue.add(0, 150);
-        args = new BValue[] { arrayValue };
+        args = new Object[]{arrayValue};
         returns = BRunUtil.invoke(result, "testArrayIndexToIntAssignStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 150;
         Assert.assertEquals(actual, expected);
 
         // Int to array index assignment test
-        args = new BValue[] { new BInteger(250) };
+        args = new Object[]{(250)};
         returns = BRunUtil.invoke(result, "testIntToArrayAssignStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 250;
         Assert.assertEquals(actual, expected);
     }
@@ -117,38 +111,37 @@ public class AssignStmtTest {
     @Test(description = "Test assignment statement with multi return function")
     public void testAssignmentStmtWithMultiReturnFunc() {
         // Int assignment test
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "testMultiReturn", args);
+        Object[] args = {};
+        BArray returns = (BArray) BRunUtil.invoke(result, "testMultiReturn", args);
 
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(5, ((BInteger) returns[0]).intValue());
-        Assert.assertEquals("john", returns[1].stringValue());
-        Assert.assertEquals(6, ((BInteger) returns[2]).intValue());
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertEquals(5L, returns.get(0));
+        Assert.assertEquals("john", returns.get(1).toString());
+        Assert.assertEquals(6L, returns.get(2));
     }
 
     @Test(description = "Test assignment of int to float")
     public void testAssignmentStatementIntToFloat() {
-        BValue[] args = { new BInteger(100) };
-        BValue[] returns = BRunUtil.invoke(result, "testIntCastFloatStmt", args);
+        Object[] args = {(100)};
+        Object returns = BRunUtil.invoke(result, "testIntCastFloatStmt", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
+        Assert.assertSame(returns.getClass(), Double.class);
 
-        double actual = ((BFloat) returns[0]).floatValue();
+        double actual = (double) returns;
         double expected = 100f;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test action result assignment with variable destructure")
     public void restActionResultAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "restActionResultAssignment");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
-        Assert.assertEquals(returns[2].stringValue(), "a");
-        Assert.assertEquals(returns[3].stringValue(), "the error reason");
-        Assert.assertEquals(returns[4].stringValue(), "foo3 error");
-        Assert.assertEquals(returns[5].stringValue(), "3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "restActionResultAssignment");
+        Assert.assertEquals(returns.get(0), 0L);
+        Assert.assertEquals(returns.get(1), 0L);
+        Assert.assertEquals(returns.get(2).toString(), "a");
+        Assert.assertEquals(returns.get(3).toString(), "the error reason");
+        Assert.assertEquals(returns.get(4).toString(), "foo3 error");
+        Assert.assertEquals(returns.get(5).toString(), "3");
     }
 
     @Test
@@ -198,24 +191,24 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'map<string>', found 'record {| string a; anydata...; |}'", 78, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid record binding pattern with type 'error'", 79, 9);
+                "invalid record binding pattern with type 'error'", 79, 5);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid record variable; expecting a record type but found 'error' in type definition", 79, 20);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'any[]', found 'error[]'", 85, 15);
+                "incompatible types: expected 'any[]', found 'error[]'", 85, 15);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'error[]', found 'any[]'", 87, 26);
+                "incompatible types: expected 'error[]', found 'any[]'", 87, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'CLError?[]', found 'error?[]'", 105, 19);
+                "incompatible types: expected 'CLError?[]', found 'error?[]'", 105, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'CLError?[]', found 'error?[]'", 106, 11);
+                "incompatible types: expected 'CLError?[]', found 'error?[]'", 106, 11);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '(error|int[])', found 'error[]'", 114, 21);
+                "incompatible types: expected '(error|int[])', found 'error[]'", 114, 21);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '(int|error[])', found 'error'", 119, 21);
+                "incompatible types: expected '(int|error[])', found 'error'", 119, 21);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'function ((any|error)...) returns ()', found " +
-                                          "'function (any...) returns ()'", 123, 47);
+                "incompatible types: expected 'function ((any|error)...) returns ()', found " +
+                        "'function (any...) returns ()'", 123, 47);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -295,7 +288,7 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'typedesc<Foo>'",
                 26, 11);
         BAssertUtil.validateError(resultNegative, i++, "invalid rest descriptor type; expecting an array type but " +
-                        "found 'typedesc<Foo>'", 27, 5);
+                "found 'typedesc<Foo>'", 27, 5);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 27, 9);
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 29, 14);
         BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'error?', found 'typedesc<Foo>'",

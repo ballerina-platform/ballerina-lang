@@ -29,11 +29,9 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
 import org.ballerinalang.langserver.completions.util.ForeachCompletionUtil;
-import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.ballerinalang.langserver.completions.util.TypeGuardCompletionUtil;
 
 import java.util.ArrayList;
@@ -94,28 +92,14 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         return completionItems;
     }
 
-    @Override
-    public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        // We assign higher priority to record/object fields while assigning other completion items default priorities
-        completionItems.forEach(completionItem -> {
-            int rank;
-            switch (completionItem.getType()) {
-                case OBJECT_FIELD:
-                case RECORD_FIELD:
-                    rank = 1;
-                    break;
-                case SYMBOL:
-                    Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
-                    rank = (symbol.isPresent() && symbol.get().kind() == SymbolKind.XMLNS) ? 2
-                            : SortingUtil.toRank(completionItem, 2);
-                    break;
-                default:
-                    rank = SortingUtil.toRank(completionItem, 2);
-            }
-
-            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
-        });
-    }
+    /**
+     * Concrete implementations should do their own sorting.
+     *
+     * @param context         Completion context
+     * @param node            Node for which completion is being provided
+     * @param completionItems Completion items to be sorted
+     */
+    public abstract void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems);
 
     private List<LSCompletionItem> getXmlAttributeAccessCompletions(BallerinaCompletionContext context) {
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {

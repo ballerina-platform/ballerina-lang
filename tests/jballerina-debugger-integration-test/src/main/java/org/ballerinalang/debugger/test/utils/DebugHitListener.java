@@ -18,7 +18,7 @@
 
 package org.ballerinalang.debugger.test.utils;
 
-import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.client.DAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
@@ -29,6 +29,7 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -39,12 +40,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class DebugHitListener extends TimerTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugHitListener.class);
-    private final TestDAPClientConnector connector;
+    private final DAPClientConnector connector;
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
     private boolean debugHitFound;
 
-    public DebugHitListener(TestDAPClientConnector connector) {
+    public DebugHitListener(DAPClientConnector connector) {
         this.connector = connector;
         this.debugHitFound = false;
     }
@@ -67,7 +68,8 @@ public class DebugHitListener extends TimerTask {
         while (!events.isEmpty() && connector.isConnected()) {
             StoppedEventArguments event = events.poll();
             if (event == null || !(event.getReason().equals(StoppedEventArgumentsReason.BREAKPOINT)
-                    || event.getReason().equals(StoppedEventArgumentsReason.STEP))) {
+                    || event.getReason().equals(StoppedEventArgumentsReason.STEP)
+                    || event.getReason().equals(StoppedEventArgumentsReason.PAUSE))) {
                 continue;
             }
             BallerinaTestDebugPoint bp = null;
@@ -109,14 +111,15 @@ public class DebugHitListener extends TimerTask {
             if (stackFrames.length == 0) {
                 return null;
             }
-            return new BallerinaTestDebugPoint(stackFrames[0].getSource().getPath(), stackFrames[0].getLine());
+            URI stackFrameLocation = URI.create(stackFrames[0].getSource().getPath());
+            return new BallerinaTestDebugPoint(stackFrameLocation, stackFrames[0].getLine());
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching stack frames", e);
             throw new BallerinaTestException("Error occurred when fetching stack frames.", e);
         }
     }
 
-    public TestDAPClientConnector getConnector() {
+    public DAPClientConnector getConnector() {
         return connector;
     }
 }

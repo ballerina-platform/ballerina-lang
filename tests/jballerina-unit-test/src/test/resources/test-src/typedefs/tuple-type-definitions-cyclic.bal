@@ -179,10 +179,8 @@ function testIndirectRecursion() {
 
     mapDef test5 = {one: ["nil", [], "&"]};
     tupleDef test6;
-    if (test5.get("one")[0] is XNil) {
+    if (test5.get("one")[0] is XNil) { // always true
         test6 = [["nil", ["|"], "&"]];
-    } else {
-        test6 = [["nil", [], "&"]];
     }
     assert(test6[0][1][0] is string, true);
 
@@ -293,6 +291,18 @@ public function recursiveTupleArrayCloneTest() {
    RTuple[] v = [];
    any x = v.cloneReadOnly();
    assertTrue(x is readonly & RTuple[]);
+}
+
+type RestTypeTuple [int, RestTypeTuple...];
+
+function testRecursiveTupleWithRestType() {
+   RestTypeTuple a = [1];
+   RestTypeTuple b = [2, a, a, a];
+   RestTypeTuple c = [3, a, b];
+
+   assertTrue(a[0] is int);
+   assertTrue(b[1] is RestTypeTuple);
+   assertTrue(c[2] is RestTypeTuple);
 }
 
 function assertTrue(anydata actual) {

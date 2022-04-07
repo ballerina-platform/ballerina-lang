@@ -35,7 +35,7 @@ public class CleanTargetDirTask implements Task {
     @Override
     public void execute(Project project) {
         try {
-            Target target = new Target(project.sourceRoot());
+            Target target = new Target(project.targetDir());
             target.clean();
         } catch (IOException | ProjectException e) {
             throw createLauncherException("unable to clean the target directory: " + e.getMessage());

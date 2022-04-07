@@ -17,6 +17,7 @@
  */
 package io.ballerina.types;
 
+import io.ballerina.types.subtypedata.AllOrNothingSubtype;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
 import io.ballerina.types.typeops.BddCommonOps;
@@ -24,6 +25,10 @@ import io.ballerina.types.typeops.BddCommonOps;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static io.ballerina.types.Conjunction.and;
+import static io.ballerina.types.UniformTypeCode.UT_LIST_RO;
+import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
 
 /**
  * Code common to implementation of multiple basic types.
@@ -41,7 +46,31 @@ public class Common {
         return true;
     }
 
+    public static boolean typeListIsReadOnly(Iterable<SemType> list) {
+        for (SemType t : list) {
+            if (!Core.isReadOnly(t)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static SemType[] readOnlyTypeList(SemType[] mt) {
+        List<SemType> types = new ArrayList<>();
+        for (SemType s : mt) {
+            SemType t;
+            if (Core.isReadOnly(s)) {
+                t = s;
+            } else {
+                t = Core.intersect(s, PredefinedType.READONLY);
+            }
+            types.add(t);
+        }
+
+        return types.toArray(new SemType[]{});
+    }
+
+    public static SemType[] readOnlyTypeList(Iterable<SemType> mt) {
         List<SemType> types = new ArrayList<>();
         for (SemType s : mt) {
             SemType t;
@@ -70,9 +99,9 @@ public class Common {
             return !((BddAllOrNothing) b).isAll() || predicate.apply(cx, pos, neg);
         } else {
             BddNode bn = (BddNode) b;
-            return bddEvery(cx, bn.left, Conjunction.from(bn.atom, pos), neg, predicate)
+            return bddEvery(cx, bn.left, and(bn.atom, pos), neg, predicate)
                     && bddEvery(cx, bn.middle, pos, neg, predicate)
-                    && bddEvery(cx, bn.right, pos, Conjunction.from(bn.atom, neg), predicate);
+                    && bddEvery(cx, bn.right, pos, and(bn.atom, neg), predicate);
         }
     }
 
@@ -112,7 +141,7 @@ public class Common {
         if (atom instanceof RecAtom && ((RecAtom) atom).index < 0) {
             return next;
         }
-        return Conjunction.from(atom, next);
+        return and(atom, next);
     }
 
     public static SemType[] shallowCopyTypes(SemType[] v) {
@@ -155,6 +184,16 @@ public class Common {
         return false;
     }
 
+
+    public static boolean isNothingSubtype(SubtypeData data) {
+        return data instanceof AllOrNothingSubtype && ((AllOrNothingSubtype) data).isNothingSubtype();
+    }
+
+    public static boolean isListBitsSet(UniformTypeBitSet t) {
+        int bitset = t.bitset;
+        return ((bitset & UT_LIST_RO.code) != 0) || ((bitset & UT_LIST_RW.code) != 0);
+    }
+
     /**
      * Function interface used for method references.
      *
@@ -162,5 +201,12 @@ public class Common {
      */
     public interface BddPredicate {
         boolean apply(Context cx, Conjunction posList, Conjunction negList);
+    }
+
+    public static boolean isAllSubtype(SubtypeData d) {
+        if (d instanceof AllOrNothingSubtype) {
+            return ((AllOrNothingSubtype) d).isAllSubtype();
+        }
+        return false;
     }
 }

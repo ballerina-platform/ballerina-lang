@@ -29,13 +29,13 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.PrintStream;
-import java.util.Optional;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.INTERNAL_ERROR_MESSAGE;
 
 /**
  * Util methods required for jBallerina runtime.
@@ -145,9 +145,7 @@ public class RuntimeUtils {
     public static void handleRuntimeReturnValues(Object returnValue) {
         if (returnValue instanceof ErrorValue) {
             ErrorValue errorValue = (ErrorValue) returnValue;
-            errStream.println("error: " + errorValue.getMessage() +
-                                      Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details)
-                                              .orElse(""));
+            errStream.println("error: " + errorValue.getPrintableError());
             Runtime.getRuntime().exit(1);
         }
     }
@@ -174,6 +172,7 @@ public class RuntimeUtils {
 
     public static void logBadSad(Throwable throwable) {
         // These errors are unhandled errors in JVM, hence logging them to bre log.
+        errStream.println(INTERNAL_ERROR_MESSAGE);
         printCrashLog(throwable);
     }
 

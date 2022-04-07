@@ -391,7 +391,7 @@ public class MarkdownDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 48);
+        Assert.assertEquals(compileResult.getWarnCount(), 53);
 
         int index = 0;
 
@@ -459,7 +459,12 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid usage of parameter reference outside of function definition 'invalidParameter'", 126, 3);
         BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'val1'", 132, 39);
-        BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'val2'", 139, 32);
+        BAssertUtil.validateWarning(compileResult, index++, "undocumented parameter 'val2'", 139, 32);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid escape sequence '\\'", 144, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'v\\'", 144, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "invalid escape sequence '\\'", 145, 5);
+        BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'a\\'", 145, 5);
+        BAssertUtil.validateWarning(compileResult, index, "missing hyphen token", 146, 1);
     }
 
     @Test(description = "Test doc service")
@@ -780,5 +785,26 @@ public class MarkdownDocumentationTest {
         BLangFunction bLangFunction = objectTypeNode.functions.get(0);
         BLangMarkdownDocumentation markdownDocumentationAttachment = bLangFunction.getMarkdownDocumentationAttachment();
         Assert.assertEquals(markdownDocumentationAttachment.getDocumentation(), "This is the doc");
+    }
+
+    @Test(description = "Test error message for docs on disallowed constructs")
+    public void testDocumentationOnDisallowedConstructs() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/documentation/markdown_on_disallowed_constructs.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
+
+        int index = 0;
+
+        BAssertUtil.validateError(compileResult, index++,
+                "documentation and annotations are not allowed for 'import declaration'", 17, 1);
+        BAssertUtil.validateError(compileResult, index++,
+                "cannot resolve module 'foobar/foo.bar.baz as pkg1'", 18, 1);
+        BAssertUtil.validateError(compileResult, index++,
+                "documentation and annotations are not allowed for 'XML namespace declaration'", 20, 1);
+        BAssertUtil.validateError(compileResult, index++,
+                "documentation and annotations are not allowed for 'record rest descriptor'", 25, 15);
+        BAssertUtil.validateError(compileResult, index,
+                "documentation and annotations are not allowed for 'object type inclusion'", 34, 5);
     }
 }

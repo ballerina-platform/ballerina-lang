@@ -1,5 +1,3 @@
-import ballerina/lang.'value;
-
 function errorConstructReasonTest() {
     error er1 = error("error1");
 
@@ -199,7 +197,7 @@ function testGenericErrorWithDetailRecord() returns boolean {
     int detailStatusCode = 123;
     error e = error(reason, message = detailMessage, statusCode = detailStatusCode);
     string errReason = e.message();
-    map<value:Cloneable> errDetail = e.detail();
+    map<error:Cloneable> errDetail = e.detail();
     return errReason == reason && <string> checkpanic errDetail.get("message") == detailMessage &&
             <int> checkpanic errDetail.get("statusCode") == detailStatusCode;
 }
@@ -252,12 +250,12 @@ function testErrorConstrWithConstLiteralForConstReason() returns error {
 
 function testUnspecifiedErrorDetailFrozenness() returns boolean {
     error e1 = error("reason 1");
-    map<value:Cloneable> m1 = e1.detail();
+    map<error:Cloneable> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }
 
-function addValueToMap(map<value:Cloneable> m, string key, anydata|readonly value) {
+function addValueToMap(map<error:Cloneable> m, string key, anydata|readonly value) {
     m[key] = value;
 }
 
@@ -412,10 +410,10 @@ function bar2(){
     bar();
 }
 
-function testStackOverFlow() returns [error:CallStackElement[], string]? {
+function testStackOverFlow() returns [error:StackFrame[], string]? {
     error? e = trap bar();
     if (e is error){
-        return [e.stackTrace().callStack, e.message()];
+        return [e.stackTrace(), e.message()];
     }
 }
 

@@ -114,4 +114,9 @@ public class FuncCallExpressionTest extends AbstractExpressionsTest {
     public void testInvalidArgsAfterNamedArg() {
         test("foo(5, a, age = 18, 10, ...subjects, b = 10)", "func-call/func_call_assert_19.json");
     }
+
+    @Test
+    public void testArgRecoveryAfterANamedArg() {
+        testFile("func-call/func_call_source_20.bal", "func-call/func_call_assert_20.json");
+    }
 }

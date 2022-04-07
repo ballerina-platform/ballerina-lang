@@ -36,7 +36,8 @@ public class TypeTags {
     public static final int ANYDATA = NIL + 1;
     public static final int RECORD = ANYDATA + 1;
     public static final int TYPEDESC = RECORD + 1;
-    public static final int STREAM = TYPEDESC + 1;
+    public static final int TYPEREFDESC = TYPEDESC + 1;
+    public static final int STREAM = TYPEREFDESC + 1;
     public static final int MAP = STREAM + 1;
     public static final int INVOKABLE = MAP + 1;
     // All the above types are branded types
@@ -144,4 +145,18 @@ public class TypeTags {
         }
         return false;
     }
+
+    public static boolean isSimpleBasicType(int tag) {
+        switch (tag) {
+            case TypeTags.BYTE:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.BOOLEAN:
+            case TypeTags.NIL:
+                return true;
+            default:
+                return (TypeTags.isIntegerTypeTag(tag)) || (TypeTags.isStringTypeTag(tag));
+        }
+    }
+
 }

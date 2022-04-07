@@ -15,44 +15,26 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
-import org.ballerinalang.langserver.completions.util.Snippet;
-import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +44,7 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class MappingConstructorExpressionNodeContext extends
-        AbstractCompletionProvider<MappingConstructorExpressionNode> {
+        MappingContextProvider<MappingConstructorExpressionNode> {
 
     public MappingConstructorExpressionNodeContext() {
         super(MappingConstructorExpressionNode.class);
@@ -73,72 +55,36 @@ public class MappingConstructorExpressionNodeContext extends
                                                  MappingConstructorExpressionNode node) throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        NonTerminalNode evalNode = (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE)
-                ? nodeAtCursor.parent() : nodeAtCursor;
+        Optional<Node> evalNode = getEvalNode(context);
+        if (evalNode.isEmpty()) {
+            return completionItems;
+        }
 
-        if (this.withinValueExpression(context, evalNode)) {
+        if (this.withinValueExpression(context, evalNode.get())) {
+            completionItems.addAll(getCompletionsInValueExpressionContext(context));
+        } else if (this.withinComputedNameContext(context, evalNode.get())) {
             if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
             } else {
-                completionItems.addAll(this.expressionCompletions(context));
-            }
-        } else if (this.withinComputedNameContext(context, evalNode)) {
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-                completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
-            } else {
-                completionItems.addAll(getComputedNameCompletions(context));
+                completionItems.addAll(this.getComputedNameCompletions(context));
             }
         } else {
-            if (!this.hasReadonlyKW(evalNode)) {
-                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_READONLY.get()));
-            }
-            List<Pair<TypeSymbol, TypeSymbol>> recordTypeDesc = this.getRecordTypeDescs(context, node);
-            for (Pair<TypeSymbol, TypeSymbol> recordTypeSymbol : recordTypeDesc) {
-                RecordTypeSymbol rawType = (RecordTypeSymbol) (CommonUtil.getRawType(recordTypeSymbol.getLeft()));
-                Map<String, RecordFieldSymbol> fields = this.getValidFields(node, rawType);
-                // TODO: Revamp the implementation
-                // completionItems.addAll(BLangRecordLiteralUtil.getSpreadCompletionItems(context, recordType));
-                completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, recordTypeSymbol));
-                if (!fields.values().isEmpty()) {
-                    completionItems.add(CommonUtil.getFillAllStructFieldsItem(context, fields,
-                            recordTypeSymbol));
-                }
-                completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
-            }
+            completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode.get()));
         }
         this.sort(context, node, completionItems);
-
         return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, MappingConstructorExpressionNode node) {
-        return !node.openBrace().isMissing() && !node.closeBrace().isMissing();
+        int cursor = context.getCursorPositionInTree();
+        return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
+                && cursor > node.openBrace().textRange().startOffset()
+                && cursor < node.closeBrace().textRange().endOffset();
     }
 
-    private boolean withinValueExpression(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
-        Token colon = null;
-
-        if (evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD) {
-            colon = ((SpecificFieldNode) evalNodeAtCursor).colon().orElse(null);
-        } else if (evalNodeAtCursor.kind() == SyntaxKind.COMPUTED_NAME_FIELD) {
-            colon = ((ComputedNameFieldNode) evalNodeAtCursor).colonToken();
-        }
-
-        if (colon == null) {
-            return false;
-        }
-
-        int cursorPosInTree = context.getCursorPositionInTree();
-        int colonEnd = colon.textRange().endOffset();
-
-        return cursorPosInTree > colonEnd;
-    }
-
-    private boolean withinComputedNameContext(BallerinaCompletionContext context, NonTerminalNode evalNodeAtCursor) {
+    private boolean withinComputedNameContext(BallerinaCompletionContext context, Node evalNodeAtCursor) {
         if (evalNodeAtCursor.kind() != SyntaxKind.COMPUTED_NAME_FIELD) {
             return false;
         }
@@ -148,48 +94,6 @@ public class MappingConstructorExpressionNodeContext extends
         int cursorPosInTree = context.getCursorPositionInTree();
 
         return cursorPosInTree >= openBracketEnd && cursorPosInTree <= closeBracketStart;
-    }
-
-    private List<Pair<TypeSymbol, TypeSymbol>> getRecordTypeDescs(BallerinaCompletionContext context,
-                                                                  MappingConstructorExpressionNode node) {
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> resolvedType = node.apply(typeResolver);
-        if (resolvedType.isEmpty()) {
-            return Collections.emptyList();
-        }
-        TypeSymbol rawType = CommonUtil.getRawType(resolvedType.get());
-        if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Collections.singletonList(Pair.of(rawType, resolvedType.get()));
-        }
-        if (rawType.typeKind() == TypeDescKind.UNION) {
-            return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
-                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD)
-                    .map(typeSymbol -> Pair.of(CommonUtil.getRawType(typeSymbol), typeSymbol))
-                    .collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
-    }
-
-    private List<LSCompletionItem> getVariableCompletionsForFields(BallerinaCompletionContext ctx,
-                                                                   Map<String, RecordFieldSymbol> recFields) {
-        List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.forEach(symbol -> {
-            if (!(symbol instanceof VariableSymbol)) {
-                return;
-            }
-            TypeSymbol typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
-            String symbolName = symbol.getName().get();
-            if (recFields.containsKey(symbolName)
-                    && recFields.get(symbolName).typeDescriptor().typeKind() == typeDescriptor.typeKind()) {
-                CompletionItem cItem = VariableCompletionItemBuilder.build((VariableSymbol) symbol, symbolName,
-                        CommonUtil.getModifiedTypeName(ctx, typeDescriptor));
-                completionItems.add(new SymbolCompletionItem(ctx, symbol, cItem));
-            }
-        });
-
-        return completionItems;
     }
 
     private List<LSCompletionItem> getComputedNameCompletions(BallerinaCompletionContext context) {
@@ -204,34 +108,12 @@ public class MappingConstructorExpressionNodeContext extends
         return completionItems;
     }
 
-    private boolean hasReadonlyKW(NonTerminalNode evalNodeAtCursor) {
-        return ((evalNodeAtCursor.kind() == SyntaxKind.SPECIFIC_FIELD)
-                && ((SpecificFieldNode) evalNodeAtCursor).readonlyKeyword().isPresent());
-    }
-
-    private List<LSCompletionItem> getExpressionsCompletionsForQNameRef(BallerinaCompletionContext context,
-                                                                        QualifiedNameReferenceNode qNameRef) {
-        Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                || symbol.kind() == SymbolKind.FUNCTION;
-        List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
-
-        return this.getCompletionItemList(moduleContent, context);
-    }
-
-    private Map<String, RecordFieldSymbol> getValidFields(MappingConstructorExpressionNode node,
-                                                          RecordTypeSymbol recordTypeSymbol) {
-        List<String> missingFields = node.fields().stream()
+    @Override
+    protected List<String> getFields(MappingConstructorExpressionNode node) {
+        return node.fields().stream()
                 .filter(field -> !field.isMissing() && field.kind() == SyntaxKind.SPECIFIC_FIELD
                         && ((SpecificFieldNode) field).fieldName().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((IdentifierToken) ((SpecificFieldNode) field).fieldName()).text())
                 .collect(Collectors.toList());
-        Map<String, RecordFieldSymbol> fieldSymbols = new HashMap<>();
-        recordTypeSymbol.fieldDescriptors().forEach((name, symbol) -> {
-            if (!missingFields.contains(name)) {
-                fieldSymbols.put(name, symbol);
-            }
-        });
-
-        return fieldSymbols;
     }
 }

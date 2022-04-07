@@ -2,6 +2,7 @@
 function testTableConstructExprs() {
     testTableConstructExprWithAnyMap();
     testTableConstructExprWithAnydataMap();
+    testTableConstructExprVar();
 }
 
 type CustomerTable table<map<any>>;
@@ -22,6 +23,19 @@ function testTableConstructExprWithAnydataMap() {
                                                 { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality("[{\"id\":13,\"name\":\"Sanjiva\",\"lname\":\"Weerawarana\"},{\"id\":23,\"name\":\"James\",\"lname\":\"Clark\"}]", customerTable.toString());
+}
+
+function testTableConstructExprVar() {
+    map<int> m = {a: 1, b: 2};
+
+    var v1 = table [
+        {name: "Jo"},
+        {...m}
+    ];
+
+    table<record {|(string|int) name?; int...;|}> t1 = v1;
+
+    assertEquality("[{\"name\":\"Jo\"},{\"a\":1,\"b\":2}]", t1.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

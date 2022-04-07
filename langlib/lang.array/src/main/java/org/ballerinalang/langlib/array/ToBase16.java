@@ -49,7 +49,6 @@ public class ToBase16 {
                                            NOT_SUPPORTED_ERROR_DETAIL);
         }
 
-        // Implementation borrowed from https://stackoverflow.com/a/9855338
         byte[] bytes = arr.getBytes();
         char[] base16Chars = new char[bytes.length * 2];
 

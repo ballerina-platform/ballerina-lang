@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.types;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -27,7 +28,6 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -111,7 +111,14 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) ValueCreator.createRecordValue(this.pkg, this.typeName);
+        String typeName = this.typeName;
+        if (intersectionType != null) {
+            typeName = ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType).getName();
+        }
+        if (isReadOnly()) {
+            return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
+        }
+        return (V) ValueCreator.createRecordValue(this.pkg, typeName);
     }
 
     @SuppressWarnings("unchecked")
@@ -134,7 +141,7 @@ public class BRecordType extends BStructureType implements RecordType {
 
     @Override
     public String getAnnotationKey() {
-        return IdentifierUtils.decodeIdentifier(this.typeName);
+        return Utils.decodeIdentifier(this.typeName);
     }
 
     @Override

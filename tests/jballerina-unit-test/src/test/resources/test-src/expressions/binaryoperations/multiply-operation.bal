@@ -33,6 +33,25 @@ const decimal K = 10.5;
 
 type L J|K;
 
+type IntType1 -2|-1|0|1|2;
+type IntType2 int:Unsigned8|int:Signed32;
+type IntType3 IntType1|IntType2;
+type IntType4 IntType1|byte;
+
+const float AA = 1.25;
+const float BB = 2.5;
+
+type FloatType1 -2.0f|-1.0f|0.0f|1.0f|2.0f;
+type FloatType2 FloatType1;
+type FloatType3 AA|BB;
+
+const decimal CC = 1.25;
+const decimal DD = 3.0;
+
+type DecimalType1 CC|DD;
+type DecimalType2 1d|2d|-1d|2d;
+type DecimalType3 DecimalType1|DecimalType2;
+
 function testMultiplicationWithTypes() {
     SomeTypes a1 = 10;
     int a2 = 20;
@@ -57,6 +76,43 @@ function testMultiplicationWithTypes() {
     assertEqual(a7 * a9, 320.25);
     assertEqual(a8 * a9, 320.25);
     assertEqual(a10 * a11, 210d);
+
+    IntType3 a21 = 1;
+    IntType3|int a22 = 2;
+    int|IntType4 a23 = 3;
+
+    assertEqual(a21 * a21, 1);
+    assertEqual(a21 * a22, 2);
+    assertEqual(a21 * a23, 3);
+    assertEqual(a22 * a23, 6);
+    assertEqual(a23 * a23, 9);
+
+    FloatType2 a24 = -2;
+    FloatType2 a25 = 1;
+    FloatType3|float a26 = 1.25;
+    float|FloatType3 a27 = 2.5;
+
+    assertEqual(a24 * a24, 4.0);
+    assertEqual(a24 * a25, -2.0);
+    assertEqual(a24 * a26, -2.5);
+    assertEqual(a24 * a27, -5.0);
+    assertEqual(a25 * a25, 1.0);
+    assertEqual(a25 * a26, 1.25);
+    assertEqual(a25 * a27, 2.5);
+    assertEqual(a26 * a26, 1.5625);
+    assertEqual(a26 * a27, 3.125);
+    assertEqual(a27 * a27, 6.25);
+
+    DecimalType1 a28 = 1.25;
+    DecimalType3|decimal a29 = 2;
+    decimal|DecimalType3 a30 = 3;
+
+    assertEqual(a28 * a28, 1.5625d);
+    assertEqual(a28 * a29, 2.5d);
+    assertEqual(a28 * a30, 3.75d);
+    assertEqual(a29 * a29, 4d);
+    assertEqual(a29 * a30, 6d);
+    assertEqual(a30 * a30, 9d);
 }
 
 function testMultiplySingleton() {
@@ -80,11 +136,152 @@ function testContextuallyExpectedTypeOfNumericLiteralInMultiply() {
     float a2 = 5 * 3 * 2.0;
     decimal a3 = 15.0 * 2;
     decimal a4 = 5.0 * 3.0 * 2;
+    float? a5 = 10 * 5;
+    decimal? a6 = 2 * 10.0;
 
     assertEqual(a1, 20.0);
     assertEqual(a2, 30.0);
     assertEqual(a3, 30.0d);
     assertEqual(a4, 30.0d);
+    assertEqual(a5, 50.0);
+    assertEqual(a6, 20.0d);
+}
+
+type Ints 1|2;
+type T1 1|2|()|3;
+type T2 1|2|3?;
+type Decimals 1d|2d;
+
+function testMultiplyNullable() {
+    int? a1 = 10;
+    int? a2 = 2;
+    int? a3 = 1;
+    int? a4 = ();
+    int a5 = 5;
+    float? a6 = 30.0;
+    float? a7 = 10.0;
+    float? a8 = ();
+    float a9 = 5.0;
+
+    int? a10 = (a1 * a2) * a5;
+    int? a11 = a5 * a3;
+    int? a12 = a4 * a1;
+    float? a13 = a6 * a7;
+    float? a14 = a6 * a9;
+    float? a15 = a6 * a8;
+
+    Ints a16 = 2;
+    int? a17 = 1;
+    int? a18 = a16 * a17;
+
+    int a19 = 25;
+    Ints? a20 = 2;
+
+    T1 a21 = 2;
+    T2? a22 = 1;
+    ()|int a23 = ();
+    T2? a24 = 1;
+
+    Decimals? a25 = 1;
+    Decimals? a26 = 2;
+
+    int:Unsigned8 a = 1;
+    int:Unsigned16 b = 2;
+    int:Unsigned32 c = 5;
+    int:Signed8 d = 20;
+    int:Signed16 e = 10;
+    int:Signed32 f = 10;
+    byte g = 30;
+
+    assertEqual(a10, 100);
+    assertEqual(a11, 5);
+    assertEqual(a12, ());
+    assertEqual(a13, 300.0);
+    assertEqual(a14, 150.0);
+    assertEqual(a15, ());
+    assertEqual(a18, 2);
+    assertEqual(a19 * a20, 50);
+
+    assertEqual(a21 * a21, 4);
+    assertEqual(a21 * a22, 2);
+    assertEqual(a21 * a23, ());
+    assertEqual(a22 * a22, 1);
+    assertEqual(a22 * a23, ());
+    assertEqual(a23 * a23, ());
+    assertEqual(a24 * a21, 2);
+    assertEqual(a25 * a26, 2d);
+
+    assertEqual(a * a, 1);
+    assertEqual(a * b, 2);
+    assertEqual(a * c, 5);
+    assertEqual(a * d, 20);
+    assertEqual(a * e, 10);
+    assertEqual(a * f, 10);
+    assertEqual(a * g, 30);
+
+    assertEqual(b * c, 10);
+    assertEqual(b * d, 40);
+    assertEqual(b * e, 20);
+    assertEqual(b * f, 20);
+    assertEqual(b * g, 60);
+    assertEqual(b * b, 4);
+
+    assertEqual(c * c, 25);
+    assertEqual(c * d, 100);
+    assertEqual(c * e, 50);
+    assertEqual(c * f, 50);
+    assertEqual(c * g, 150);
+
+    assertEqual(d * d, 400);
+    assertEqual(d * e, 200);
+    assertEqual(d * f, 200);
+    assertEqual(d * g, 600);
+
+    assertEqual(e * e, 100);
+    assertEqual(e * f, 100);
+    assertEqual(e * g, 300);
+
+    assertEqual(f * f, 100);
+    assertEqual(f * g, 300);
+
+    assertEqual(g * g, 900);
+
+    IntType3? a27 = 1;
+    IntType3? a28 = 2;
+    IntType4? a29 = 3;
+
+    assertEqual(a27 * a27, 1);
+    assertEqual(a27 * a28, 2);
+    assertEqual(a27 * a29, 3);
+    assertEqual(a28 * a29, 6);
+    assertEqual(a29 * a29, 9);
+
+    FloatType2? a30 = -2;
+    FloatType2? a31 = 1;
+    FloatType3? a32 = 1.25;
+    FloatType3? a33 = 2.5;
+
+    assertEqual(a30 * a30, 4.0);
+    assertEqual(a30 * a31, -2.0);
+    assertEqual(a30 * a32, -2.5);
+    assertEqual(a30 * a33, -5.0);
+    assertEqual(a31 * a31, 1.0);
+    assertEqual(a31 * a32, 1.25);
+    assertEqual(a31 * a33, 2.5);
+    assertEqual(a32 * a32, 1.5625);
+    assertEqual(a32 * a33, 3.125);
+    assertEqual(a33 * a33, 6.25);
+
+    DecimalType1? a34 = 1.25;
+    DecimalType3? a35 = 2;
+    DecimalType3? a36 = 3;
+
+    assertEqual(a34 * a34, 1.5625d);
+    assertEqual(a34 * a35, 2.5d);
+    assertEqual(a34 * a36, 3.75d);
+    assertEqual(a35 * a35, 4d);
+    assertEqual(a35 * a36, 6d);
+    assertEqual(a36 * a36, 9d);
 }
 
 function assertEqual(any actual, any expected) {

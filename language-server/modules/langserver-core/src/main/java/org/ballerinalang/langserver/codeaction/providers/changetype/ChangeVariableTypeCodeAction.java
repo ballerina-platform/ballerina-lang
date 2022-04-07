@@ -37,12 +37,14 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for change variable type.
@@ -53,6 +55,7 @@ import java.util.Optional;
 public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Change Variable Type";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     /**
      * {@inheritDoc}
@@ -61,14 +64,20 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
-
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
-        if (typeSymbol.isEmpty()) {
+        Optional<TypeSymbol> foundType;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(
+                    CodeActionUtil.getDiagPropertyFilterFunction(
+                            DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        }
+        if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -88,7 +97,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         Optional<String> typeNodeStr = getTypeNodeStr(typeNode.get());
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
         for (String type : types) {
             if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
                 // Skip suggesting same type
@@ -97,7 +106,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(CommonUtil.toRange(typeNode.get().lineRange()), type));
             String commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
-            actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }
@@ -109,14 +118,21 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
     private Optional<NonTerminalNode> getVariableNode(NonTerminalNode sNode) {
         // Find var node
-        while (sNode != null &&
-                sNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                sNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
-                sNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
-            sNode = sNode.parent();
+        if (isVariableNode(sNode)) {
+            return Optional.of(sNode);
+        } else if (isVariableNode(sNode.parent())) {
+            return Optional.of(sNode.parent());
         }
 
-        return Optional.ofNullable(sNode);
+        return Optional.empty();
+    }
+    
+    boolean isVariableNode (NonTerminalNode sNode) {
+        return sNode != null &&
+                (sNode.kind() == SyntaxKind.LOCAL_VAR_DECL ||
+                sNode.kind() == SyntaxKind.MODULE_VAR_DECL ||
+                sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) &&
+                (sNode.kind() != SyntaxKind.POSITIONAL_ARG || sNode.kind() != SyntaxKind.NAMED_ARG);
     }
 
     private Optional<String> getTypeNodeStr(ExpressionNode expressionNode) {
@@ -141,9 +157,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                     return Optional.empty();
                 }
                 SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-                NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
-                if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
-                    return Optional.of(((TypedBindingPatternNode) node).typeDescriptor());
+                Optional<NonTerminalNode> node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
+                if (node.isPresent() && node.get().kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
+                    return Optional.of(((TypedBindingPatternNode) node.get()).typeDescriptor());
                 } else {
                     return Optional.empty();
                 }

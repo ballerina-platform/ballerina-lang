@@ -23,8 +23,7 @@ package io.ballerina.toml.semantic;
  * @since 2.0.0
  */
 public enum TomlType {
-
-    //TOML
+    
     UNQUOTED_KEY,
     TABLE,
     KEY_VALUE,
@@ -36,9 +35,6 @@ public enum TomlType {
     BOOLEAN,
     ARRAY,
     INLINE_TABLE,
-
-    INVALID,
-    MODULE_PART,
-    EOF_TOKEN,
+    
     NONE;
 }

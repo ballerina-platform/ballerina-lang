@@ -18,13 +18,11 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -53,8 +51,8 @@ public class LangLibStringTest {
 
     @Test
     public void testToLower() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToLower");
-        assertEquals(returns[0].stringValue(), "hello ballerina!");
+        Object returns = BRunUtil.invoke(compileResult, "testToLower");
+        assertEquals(returns.toString(), "hello ballerina!");
     }
 
     @Test
@@ -64,10 +62,8 @@ public class LangLibStringTest {
 
     @Test
     public void testSubString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSubString");
-        assertEquals(returns[0].stringValue(), "Bal");
-        assertEquals(returns[1].stringValue(), "Ballerina!");
-        assertEquals(returns[2].stringValue(), "Ballerina!");
+        Object returns = BRunUtil.invoke(compileResult, "testSubString");
+        assertEquals(returns.toString(), "[\"Bal\",\"Ballerina!\",\"Ballerina!\"]");
     }
 
     @Test
@@ -77,42 +73,42 @@ public class LangLibStringTest {
 
     @Test
     public void testConcat() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testConcat");
-        assertEquals(returns[0].stringValue(), "Hello from Ballerina");
+        Object returns = BRunUtil.invoke(compileResult, "testConcat");
+        assertEquals(returns.toString(), "Hello from Ballerina");
     }
 
     @Test
     public void testFromBytes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFromBytes");
-        assertEquals(returns[0].stringValue(), "Hello Ballerina!");
+        Object returns = BRunUtil.invoke(compileResult, "testFromBytes");
+        assertEquals(returns.toString(), "Hello Ballerina!");
     }
 
     @Test
     public void testJoin() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJoin");
-        assertEquals(returns[0].stringValue(), "Sunday, Monday, Tuesday");
+        Object returns = BRunUtil.invoke(compileResult, "testJoin");
+        assertEquals(returns.toString(), "Sunday, Monday, Tuesday");
     }
 
     @Test
     public void testStartsWith() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testStartsWith");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testStartsWith");
+        assertTrue((Boolean) returns);
     }
 
     @Test(dataProvider = "SubStringsForEndsWith")
     public void testEndsWith(BString str, boolean expected) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEndsWith", new BValue[]{str});
-        assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+        Object returns = BRunUtil.invoke(compileResult, "testEndsWith", new Object[]{str});
+        assertEquals(returns, expected);
     }
 
     @Test(dataProvider = "SubStringsForIndexOf")
     public void testIndexOf(BString substr, Object expected) {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf", new BValue[]{substr});
+        Object returns = BRunUtil.invoke(compileResult, "testIndexOf", new Object[]{substr});
 
         if (expected == null) {
-            assertNull(returns[0]);
+            assertNull(returns);
         } else {
-            assertEquals(((BInteger) returns[0]).intValue(), (long) expected, "For substring: " + substr);
+            assertEquals(returns, expected, "For substring: " + substr);
         }
     }
 
@@ -122,21 +118,21 @@ public class LangLibStringTest {
     }
 
     @Test(dataProvider = "codePointCompareProvider")
-    public void testCodePointCompare(String st1, String st2, int expected) {
-        BValue[] args = {new BString(st1), new BString(st2)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCodePointCompare", args);
-        assertEquals(((BInteger) returns[0]).intValue(), expected);
+    public void testCodePointCompare(String st1, String st2, long expected) {
+        Object[] args = {StringUtils.fromString(st1), StringUtils.fromString(st2)};
+        Object returns = BRunUtil.invoke(compileResult, "testCodePointCompare", args);
+        assertEquals(returns, expected);
     }
 
     @Test(dataProvider = "codePointAtProvider")
-    public void testGetCodepoint(String st1, int at, int expected) {
-        BValue[] args = {new BString(st1), new BInteger(at)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetCodepoint", args);
-        assertEquals(((BInteger) returns[0]).intValue(), expected);
+    public void testGetCodepoint(String st1, long at, long expected) {
+        Object[] args = {StringUtils.fromString(st1), at};
+        Object returns = BRunUtil.invoke(compileResult, "testGetCodepoint", args);
+        assertEquals(returns, expected);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-        expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"String codepoint index out of range: " +
+        expectedExceptionsMessageRegExp = ".*IndexOutOfRange \\{\"message\":\"string codepoint index out of range: " +
                 "1\"\\}.*")
     public void testGetCodepointNegative() {
         testGetCodepoint("", 1, 0);
@@ -144,28 +140,28 @@ public class LangLibStringTest {
 
     @Test(dataProvider = "stringToCodepointsProvider")
     public void testToCodepointInts(String st1, int[] expected) {
-        BValue[] args = {new BString(st1)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testToCodepointInts", args);
-        assertEquals(returns[0].size(), expected.length);
-        int[] codePoints = toIntArray((BValueArray) returns[0]);
+        Object[] args = {StringUtils.fromString(st1)};
+        Object returns = BRunUtil.invoke(compileResult, "testToCodepointInts", args);
+        assertEquals(((BArray) returns).size(), expected.length);
+        int[] codePoints = toIntArray((BArray) returns);
         assertEquals(codePoints, expected);
     }
 
     @Test(dataProvider = "codePointsToString")
     public void testFromCodePointInts(long[] array, String expected) {
-        BValue[] args = {new BValueArray(array)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals(returns[0].stringValue(), expected);
+        Object[] args = {ValueCreator.createArrayValue(array)};
+        Object returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
+        assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testFromCodePointIntsNegative() {
-        BValue[] args = {new BValueArray(new long[]{0x10FFFF, 0x10FFFF + 1})};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
-        assertEquals(returns[0].stringValue(), "Invalid codepoint: 1114112 {}");
+        Object[] args = {ValueCreator.createArrayValue(new long[]{0x10FFFF, 0x10FFFF + 1})};
+        Object returns = BRunUtil.invoke(compileResult, "testFromCodePointInts", args);
+        assertEquals(returns.toString(), "error(\"Invalid codepoint: 1114112\")");
     }
 
-    private int[] toIntArray(BValueArray array) {
+    private int[] toIntArray(BArray array) {
         int[] ar = new int[(int) array.size()];
         for (int i = 0; i < ar.length; i++) {
             ar[i] = (int) array.getInt(i);
@@ -176,16 +172,16 @@ public class LangLibStringTest {
     @DataProvider(name = "SubStringsForIndexOf")
     public Object[][] getSubStrings() {
         return new Object[][]{
-                {new BString("Ballerina"), 6L},
-                {new BString("Invalid"), null},
+                {StringUtils.fromString("Ballerina"), 6L},
+                {StringUtils.fromString("Invalid"), null},
         };
     }
 
     @DataProvider(name = "SubStringsForEndsWith")
     public Object[][] getSubStringsForMatching() {
         return new Object[][]{
-                {new BString("Ballerina!"), true},
-                {new BString("Invalid"), false},
+                {StringUtils.fromString("Ballerina!"), true},
+                {StringUtils.fromString("Invalid"), false},
         };
     }
 
@@ -236,11 +232,11 @@ public class LangLibStringTest {
     }
 
     @Test(dataProvider = "testSubstringDataProvider")
-    public void testSubstring(String str, int start, int end, String result) {
-        BValue[] args = {new BString(str), new BInteger(start), new BInteger(end)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSubstring", args);
-        Assert.assertEquals(returns[0].stringValue(),
-                            "{ballerina/lang.string}StringOperationError {\"message\":\"" + result + "\"}");
+    public void testSubstring(String str, long start, long end, String result) {
+        Object[] args = {StringUtils.fromString(str), start, end};
+        Object returns = BRunUtil.invoke(compileResult, "testSubstring", args);
+        Assert.assertEquals(returns.toString(),
+                "error(\"{ballerina/lang.string}StringOperationError\",message=\"" + result + "\")");
     }
 
     @Test
@@ -261,14 +257,14 @@ public class LangLibStringTest {
 
     @Test
     public void testIncludes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIncludes");
-        assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testIncludes");
+        assertTrue((Boolean) returns);
     }
 
     @Test
     public void testChainedStringFunctions() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testChainedStringFunctions");
-        assertEquals(returns[0].stringValue(), "foo1foo2foo3foo4");
+        Object returns = BRunUtil.invoke(compileResult, "testChainedStringFunctions");
+        assertEquals(returns.toString(), "foo1foo2foo3foo4");
     }
 
     @Test
@@ -283,7 +279,7 @@ public class LangLibStringTest {
 
     @Test(dataProvider = "unicodeCharProvider")
     public void testIteratorWithUnicodeChar(long codePoint, long[] expected) {
-        BValue[] args = {new BInteger(codePoint), new BValueArray(expected)};
+        Object[] args = {codePoint, ValueCreator.createArrayValue(expected)};
         BRunUtil.invoke(compileResult, "testIteratorWithUnicodeChar", args);
     }
 
@@ -308,15 +304,15 @@ public class LangLibStringTest {
 
     @Test(dataProvider = "StringPrefixProvider")
     public void testConcatNonBMPStrings(String prefix) {
-        BString bString = new BString(prefix);
-        BString resultString = new BString(prefix + "👋world🤷!");
-        BRunUtil.invoke(compileResult, "concatNonBMP", new BValue[]{bString, resultString});
+        BString bString = StringUtils.fromString(prefix);
+        BString resultString = StringUtils.fromString(prefix + "👋world🤷!");
+        BRunUtil.invoke(compileResult, "concatNonBMP", new Object[]{bString, resultString});
     }
 
     @Test(dataProvider = "StringPrefixProvider")
     public void testCharIterator(String prefix) {
-        BString bString = new BString(prefix + "👋world🤷!");
-        BRunUtil.invoke(compileResult, "testCharIterator", new BValue[]{bString});
+        BString bString = StringUtils.fromString(prefix + "👋world🤷!");
+        BRunUtil.invoke(compileResult, "testCharIterator", new Object[]{bString});
     }
 
     @DataProvider(name = "StringPrefixProvider")

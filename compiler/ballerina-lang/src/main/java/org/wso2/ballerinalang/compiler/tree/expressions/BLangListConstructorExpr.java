@@ -21,6 +21,8 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
@@ -37,7 +39,10 @@ import java.util.List;
  */
 public class BLangListConstructorExpr extends BLangExpression implements ListConstructorExprNode {
 
+    // BLangNodes
     public List<BLangExpression> exprs;
+
+    // Semantic Data
     public boolean isTypedescExpr = false;
     public BType typedescType = null;
 
@@ -49,6 +54,16 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

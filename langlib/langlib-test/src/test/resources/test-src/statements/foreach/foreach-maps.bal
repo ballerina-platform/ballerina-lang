@@ -59,3 +59,27 @@ function testAddWhileIteration () returns (string) | error {
     }
     return output;
 }
+
+function testWildcardBindingPatternInForeachStatement() {
+    int m = 0;
+
+    map<int> x1 = {a: 1};
+    foreach int _ in x1 {
+        m += 1;
+    }
+
+    map<int> x2 = {a: 1, b: 2};
+    foreach var _ in x2 {
+        m += 1;
+    }
+
+    assertEquality(3, m);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

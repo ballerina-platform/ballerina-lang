@@ -1,0 +1,5 @@
+digraph "example1" {
+    "samejs/app:0.1.0" -> "samjs/b:1.3.4"
+    "samjs/b:1.3.4" -> "samjs/c:0.4.5"
+    "samjs/c:0.4.5" -> "samjs/s:2.0.4"
+}

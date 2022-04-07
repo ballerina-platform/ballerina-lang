@@ -151,7 +151,7 @@ public class Env {
         this.types.put(typeName, semType);
     }
 
-    public Map<String, SemType> geTypeNameSemTypeMap() {
+    public Map<String, SemType> getTypeNameSemTypeMap() {
         return this.types;
     }
 }

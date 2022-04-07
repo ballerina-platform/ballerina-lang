@@ -16,9 +16,7 @@
  */
 package org.ballerinalang.test.statements.assign;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -103,8 +101,8 @@ public class LValueTest {
 
     @Test(dataProvider = "valueStoreFunctions")
     public void testValueStore(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "valueStoreFunctions")
@@ -169,11 +167,11 @@ public class LValueTest {
 
     @Test
     public void testListFillMember() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayFillSuccess1");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testArrayFillSuccess1");
+        Assert.assertTrue((Boolean) returns);
 
         returns = BRunUtil.invoke(result, "testArrayFillSuccess2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -186,8 +184,8 @@ public class LValueTest {
 
     @Test(dataProvider = "mappingFillingReadFunctions")
     public void testMappingFillingRead(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mappingFillingReadFunctions")

@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.record;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -55,50 +53,52 @@ public class OpenRecordIterationTest {
 
         // Test invalid no. of args with foreach loop
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "invalid list binding pattern: attempted to infer a list type, " +
-                                  "but found 'anydata'",
-                                  34, 17);
+                "invalid list binding pattern: attempted to infer a list type, " +
+                        "but found 'anydata'",
+                34, 13);
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected '[string,any]', found 'anydata'", 41, 15);
+                "incompatible types: expected '[string,any]', found 'anydata'", 41, 15);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected '(string|int|Address)', found 'anydata'",
-                                  44, 15);
+                "incompatible types: expected '(string|int|Address)', found 'anydata'",
+                44, 15);
 
         // Test invalid map iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected '[string,any]', found 'anydata'",
-                                  52, 28);
+                "incompatible types: expected '[string,any]', found 'anydata'",
+                52, 28);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'map', found 'map<(any|error)>'", 60, 12);
+                "incompatible types: expected 'map', found 'map<(any|error)>'", 60, 12);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'Person', found 'map<anydata>'",
-                                  68, 21);
+                "incompatible types: expected 'Person', found 'map<anydata>'",
+                68, 21);
 
         // Test invalid filter iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected '[string,any]', found 'anydata'",
-                                  74, 30);
+                "incompatible types: expected '[string,any]', found 'anydata'",
+                74, 30);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'function ((any|error)) returns (boolean)', found " +
-                                          "'function (anydata) returns (string)'",
-                                  82, 21);
+                "incompatible types: expected " +
+                        "'function (ballerina/lang.map:0.0.0:Type) returns (boolean)', " +
+                        "found 'function (anydata) returns (string)'",
+                82, 21);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'function ((any|error)) returns (boolean)', found " +
-                                          "'function (anydata) returns ([string,any,string])'",
-                                  86, 21);
+                "incompatible types: expected " +
+                        "'function (ballerina/lang.map:0.0.0:Type) returns (boolean)', found " +
+                        "'function (anydata) returns ([string,any,string])'",
+                86, 21);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'Person', found 'map<anydata>'",
-                                  90, 21);
+                "incompatible types: expected 'Person', found 'map<anydata>'",
+                90, 21);
 
         // Test mismatching chained iterable op return values
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'map<int>', found 'map<float>'",
-                                  107, 18);
+                "incompatible types: expected 'map<int>', found 'map<float>'",
+                107, 18);
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected 'int[]', found 'map<float>'",
-                                  133, 16);
+                "incompatible types: expected 'int[]', found 'map<float>'",
+                133, 16);
 
         Assert.assertEquals(openRecNegatives.getErrorCount(), index);
     }
@@ -106,269 +106,269 @@ public class OpenRecordIterationTest {
     @Test
     public void testForeachWithOpenRecords() {
         String[] expectedFields = new String[]{"name", "age", "address"};
-        BValue[] returns = BRunUtil.invoke(result, "testForeachWithOpenRecords");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachWithOpenRecords");
 
-        BValueArray fields = (BValueArray) returns[0];
+        BArray fields = (BArray) returns.get(0);
         for (int i = 0; i < fields.size(); i++) {
             Assert.assertEquals(fields.getString(i), expectedFields[i]);
         }
 
-        BValueArray values = (BValueArray) returns[1];
-        Assert.assertEquals(values.getRefValue(0).stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) values.getRefValue(1)).intValue(), 25);
+        BArray values = (BArray) returns.get(1);
+        Assert.assertEquals(values.getRefValue(0).toString(), "John Doe");
+        Assert.assertEquals((values.getRefValue(1)), 25L);
         Assert.assertTrue(values.getRefValue(2) instanceof BMap);
 
         BMap addressRecord = (BMap) values.getRefValue(2);
-        Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
-        Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
 
     @Test
     public void testForeachWithOpenRecords2() {
         String[] expectedFields = new String[]{"name", "age", "address", "height"};
-        BValue[] returns = BRunUtil.invoke(result, "testForeachWithOpenRecords2");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachWithOpenRecords2");
 
-        BValueArray fields = (BValueArray) returns[0];
+        BArray fields = (BArray) returns.get(0);
         for (int i = 0; i < fields.size(); i++) {
             Assert.assertEquals(fields.getString(i), expectedFields[i]);
         }
 
-        BValueArray values = (BValueArray) returns[1];
-        Assert.assertEquals(values.getRefValue(0).stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) values.getRefValue(1)).intValue(), 25);
+        BArray values = (BArray) returns.get(1);
+        Assert.assertEquals(values.getRefValue(0).toString(), "John Doe");
+        Assert.assertEquals((values.getRefValue(1)), 25L);
         Assert.assertTrue(values.getRefValue(2) instanceof BMap);
-        Assert.assertEquals(((BFloat) values.getRefValue(3)).floatValue(), 5.9);
+        Assert.assertEquals((values.getRefValue(3)), 5.9);
 
         BMap addressRecord = (BMap) values.getRefValue(2);
-        Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
-        Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
 
     @Test
     public void testForeachWithOpenRecords3() {
-        BValue[] returns = BRunUtil.invoke(result, "testForeachWithOpenRecords3");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachWithOpenRecords3");
 
-        Assert.assertEquals(returns[0].stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
-        Assert.assertTrue(returns[2] instanceof BMap);
+        Assert.assertEquals(returns.get(0).toString(), "John Doe");
+        Assert.assertEquals(returns.get(1), 25L);
+        Assert.assertTrue(returns.get(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) returns[2];
-        Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
-        Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
+        BMap addressRecord = (BMap) returns.get(2);
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
 
     @Test(description = "Tests foreach iterable operation on open records")
     public void testForeachOpWithOpenRecords() {
-        BValue[] returns = BRunUtil.invoke(result, "testForeachOpWithOpenRecords");
+        BArray returns = (BArray) BRunUtil.invoke(result, "testForeachOpWithOpenRecords");
 
-        Assert.assertEquals(returns[0].stringValue(), "John Doe");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 25);
-        Assert.assertTrue(returns[2] instanceof BMap);
+        Assert.assertEquals(returns.get(0).toString(), "John Doe");
+        Assert.assertEquals(returns.get(1), 25L);
+        Assert.assertTrue(returns.get(2) instanceof BMap);
 
-        BMap addressRecord = (BMap) returns[2];
-        Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
-        Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
+        BMap addressRecord = (BMap) returns.get(2);
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
 
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 5.9);
+        Assert.assertEquals(returns.get(3), 5.9);
     }
 
     @Test(description = "Tests map iterable operation on open records")
     public void testMapOpWithOpenRecords() {
         String[] expectedFields = new String[]{"name", "age", "address", "profession"};
-        BValue[] returns = BRunUtil.invoke(result, "testMapOpWithOpenRecords");
+        Object returns = BRunUtil.invoke(result, "testMapOpWithOpenRecords");
 
-        BMap person = (BMap) returns[0];
-        Assert.assertEquals(person.get(expectedFields[0]).stringValue(), "john doe");
-        Assert.assertEquals(((BInteger) person.get(expectedFields[1])).intValue(), 25);
-        Assert.assertTrue(person.get(expectedFields[2]) instanceof BMap);
-        Assert.assertEquals(person.get(expectedFields[3]).stringValue(), "software engineer");
+        BMap person = (BMap) returns;
+        Assert.assertEquals(person.get(StringUtils.fromString(expectedFields[0])).toString(), "john doe");
+        Assert.assertEquals((person.get(StringUtils.fromString(expectedFields[1]))), 25L);
+        Assert.assertTrue(person.get(StringUtils.fromString(expectedFields[2])) instanceof BMap);
+        Assert.assertEquals(person.get(StringUtils.fromString(expectedFields[3])).toString(), "software engineer");
 
-        BMap addressRecord = (BMap) person.get(expectedFields[2]);
-        Assert.assertEquals(addressRecord.get("street").stringValue(), "Palm Grove");
-        Assert.assertEquals(addressRecord.get("city").stringValue(), "Colombo 3");
+        BMap addressRecord = (BMap) person.get(StringUtils.fromString(expectedFields[2]));
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("street")).toString(), "Palm Grove");
+        Assert.assertEquals(addressRecord.get(StringUtils.fromString("city")).toString(), "Colombo 3");
     }
 
     @Test(description = "Tests filter iterable operation on open records")
     public void testFilterOpWithOpenRecords() {
-        BValue[] returns = BRunUtil.invoke(result, "testFilterOpWithOpenRecords");
-        BMap foo = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(result, "testFilterOpWithOpenRecords");
+        BMap foo = (BMap) returns;
 
-        Assert.assertNull(foo.get("a"));
-        Assert.assertEquals(foo.get("b").stringValue(), "B");
-        Assert.assertEquals(foo.get("c").stringValue(), "C");
-        Assert.assertEquals(foo.get("d").stringValue(), "D");
-        Assert.assertNull(foo.get("e"));
-        Assert.assertEquals(foo.get("f").stringValue(), "F");
+        Assert.assertNull(foo.get(StringUtils.fromString("a")));
+        Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "B");
+        Assert.assertEquals(foo.get(StringUtils.fromString("c")).toString(), "C");
+        Assert.assertEquals(foo.get(StringUtils.fromString("d")).toString(), "D");
+        Assert.assertNull(foo.get(StringUtils.fromString("e")));
+        Assert.assertEquals(foo.get(StringUtils.fromString("f")).toString(), "F");
     }
 
     @Test(description = "Tests count iterable operation on open records")
     public void testCountOpWithOpenRecords() {
-        BValue[] returns = BRunUtil.invoke(result, "testCountOpWithOpenRecords");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 6);
+        Object returns = BRunUtil.invoke(result, "testCountOpWithOpenRecords");
+        Assert.assertEquals(returns, 6L);
     }
 
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords() {
-        BValue[] returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords");
-        BMap foo = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords");
+        BMap foo = (BMap) returns;
 
-        Assert.assertNull(foo.get("a"));
-        Assert.assertEquals(foo.get("b").stringValue(), "bb");
-        Assert.assertEquals(foo.get("c").stringValue(), "cc");
-        Assert.assertEquals(foo.get("d").stringValue(), "dd");
-        Assert.assertNull(foo.get("e"));
-        Assert.assertEquals(foo.get("f").stringValue(), "ff");
+        Assert.assertNull(foo.get(StringUtils.fromString("a")));
+        Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "bb");
+        Assert.assertEquals(foo.get(StringUtils.fromString("c")).toString(), "cc");
+        Assert.assertEquals(foo.get(StringUtils.fromString("d")).toString(), "dd");
+        Assert.assertNull(foo.get(StringUtils.fromString("e")));
+        Assert.assertEquals(foo.get(StringUtils.fromString("f")).toString(), "ff");
     }
 
     @Test(description = "Test case for map op on open records with all int fields")
     public void testMapWithAllStringOpenRecord() {
-        BValue[] returns = BRunUtil.invoke(result, "testMapWithAllStringOpenRecord");
+        Object returns = BRunUtil.invoke(result, "testMapWithAllStringOpenRecord");
 
-        BMap foo = (BMap) returns[0];
-        Assert.assertEquals(foo.get("a").stringValue(), "aa");
-        Assert.assertEquals(foo.get("b").stringValue(), "bb");
-        Assert.assertEquals(foo.get("c").stringValue(), "cc");
-        Assert.assertEquals(foo.get("d").stringValue(), "dd");
-        Assert.assertEquals(foo.get("e").stringValue(), "ee");
+        BMap foo = (BMap) returns;
+        Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), "aa");
+        Assert.assertEquals(foo.get(StringUtils.fromString("b")).toString(), "bb");
+        Assert.assertEquals(foo.get(StringUtils.fromString("c")).toString(), "cc");
+        Assert.assertEquals(foo.get(StringUtils.fromString("d")).toString(), "dd");
+        Assert.assertEquals(foo.get(StringUtils.fromString("e")).toString(), "ee");
     }
 
     @Test(description = "Test case for map op on open records with all int fields")
     public void testMapWithAllIntOpenRecord() {
-        BValue[] args = new BValue[]{new BInteger(80), new BInteger(75), new BInteger(65), new BInteger(78)};
-        BValue[] returns = BRunUtil.invoke(result, "testMapWithAllIntOpenRecord", args);
+        Object[] args = new Object[]{(80), (75), (65), (78)};
+        Object returns = BRunUtil.invoke(result, "testMapWithAllIntOpenRecord", args);
 
-        BMap gradesMap = (BMap) returns[0];
-        Assert.assertEquals(((BInteger) gradesMap.get("maths")).intValue(), 90);
-        Assert.assertEquals(((BInteger) gradesMap.get("physics")).intValue(), 85);
-        Assert.assertEquals(((BInteger) gradesMap.get("chemistry")).intValue(), 75);
-        Assert.assertEquals(((BInteger) gradesMap.get("english")).intValue(), 88);
+        BMap gradesMap = (BMap) returns;
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), 90L);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("physics"))), 85L);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("chemistry"))), 75L);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("english"))), 88L);
     }
 
     @Test(description = "Test case for map op on open records with all float fields")
     public void testMapWithAllFloatOpenRecord() {
         final double a = 20.15, b = 7.89, c = 5.15, p = 9.9;
-        BValue[] args = new BValue[]{new BFloat(a), new BFloat(b), new BFloat(c)};
-        BValue[] returns = BRunUtil.invoke(result, "testMapWithAllFloatOpenRecord", args);
+        Object[] args = new Object[]{(a), (b), (c)};
+        Object returns = BRunUtil.invoke(result, "testMapWithAllFloatOpenRecord", args);
 
-        BMap gradesMap = (BMap) returns[0];
-        Assert.assertEquals(((BFloat) gradesMap.get("x")).floatValue(), a + 10);
-        Assert.assertEquals(((BFloat) gradesMap.get("y")).floatValue(), b + 10);
-        Assert.assertEquals(((BFloat) gradesMap.get("z")).floatValue(), c + 10);
-        Assert.assertEquals(((BFloat) gradesMap.get("p")).floatValue(), p + 10);
+        BMap gradesMap = (BMap) returns;
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a + 10);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("y"))), b + 10);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("z"))), c + 10);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("p"))), p + 10);
     }
 
     @Test(description = "Test case for filter op on open records with all string fields")
     public void testFilterWithAllStringOpenRecord() {
         final String a = "AA", e = "EE", f = "FF";
-        BValue[] returns = BRunUtil.invoke(result, "testFilterWithAllStringOpenRecord");
+        Object returns = BRunUtil.invoke(result, "testFilterWithAllStringOpenRecord");
 
-        BMap foo = (BMap) returns[0];
-        Assert.assertEquals(foo.get("a").stringValue(), a);
-        Assert.assertNull(foo.get("b"));
-        Assert.assertNull(foo.get("c"));
-        Assert.assertNull(foo.get("d"));
-        Assert.assertEquals(foo.get("e").stringValue(), e);
-        Assert.assertEquals(foo.get("f").stringValue(), f);
+        BMap foo = (BMap) returns;
+        Assert.assertEquals(foo.get(StringUtils.fromString("a")).toString(), a);
+        Assert.assertNull(foo.get(StringUtils.fromString("b")));
+        Assert.assertNull(foo.get(StringUtils.fromString("c")));
+        Assert.assertNull(foo.get(StringUtils.fromString("d")));
+        Assert.assertEquals(foo.get(StringUtils.fromString("e")).toString(), e);
+        Assert.assertEquals(foo.get(StringUtils.fromString("f")).toString(), f);
     }
 
     @Test(description = "Test case for filter op on open records with all int fields")
     public void testFilterWithAllIntOpenRecord() {
         final long m = 80, p = 75, e = 78;
-        BValue[] returns = BRunUtil.invoke(result, "testFilterWithAllIntOpenRecord");
+        Object returns = BRunUtil.invoke(result, "testFilterWithAllIntOpenRecord");
 
-        BMap gradesMap = (BMap) returns[0];
-        Assert.assertEquals(((BInteger) gradesMap.get("maths")).intValue(), m);
-        Assert.assertEquals(((BInteger) gradesMap.get("physics")).intValue(), p);
-        Assert.assertNull(gradesMap.get("chemistry"));
-        Assert.assertEquals(((BInteger) gradesMap.get("english")).intValue(), e);
+        BMap gradesMap = (BMap) returns;
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("maths"))), m);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("physics"))), p);
+        Assert.assertNull(gradesMap.get(StringUtils.fromString("chemistry")));
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("english"))), e);
     }
 
     @Test(description = "Test case for map op on open records with all float fields")
     public void testFilterWithAllFloatOpenRecord() {
         final double a = 20.15, b = 7.89, c = 5.15, p = 9.9;
-        BValue[] args = new BValue[]{new BFloat(a), new BFloat(b), new BFloat(c)};
-        BValue[] returns = BRunUtil.invoke(result, "testFilterWithAllFloatOpenRecord", args);
+        Object[] args = new Object[]{(a), (b), (c)};
+        Object returns = BRunUtil.invoke(result, "testFilterWithAllFloatOpenRecord", args);
 
-        BMap gradesMap = (BMap) returns[0];
-        Assert.assertEquals(((BFloat) gradesMap.get("x")).floatValue(), a);
-        Assert.assertEquals(((BFloat) gradesMap.get("y")).floatValue(), b);
-        Assert.assertNull(gradesMap.get("z"));
-        Assert.assertEquals(((BFloat) gradesMap.get("p")).floatValue(), p);
+        BMap gradesMap = (BMap) returns;
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("x"))), a);
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("y"))), b);
+        Assert.assertNull(gradesMap.get(StringUtils.fromString("z")));
+        Assert.assertEquals((gradesMap.get(StringUtils.fromString("p"))), p);
     }
 
     @Test(description = "Test case for terminal ops on open records with all int fields")
     public void testTerminalOpsOnAllIntOpenRecord() {
         long[] marks = new long[]{80, 75, 65, 78};
-        BValue[] args = new BValue[]
-                {new BInteger(marks[0]), new BInteger(marks[1]), new BInteger(marks[2]), new BInteger(marks[3])};
-        BValue[] returns = BRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord", args);
+        Object[] args = new Object[]
+                {(marks[0]), (marks[1]), (marks[2]), (marks[3])};
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord", args);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), stream(marks).count());
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), stream(marks).max().getAsLong());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), stream(marks).min().getAsLong());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), stream(marks).sum());
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), stream(marks).average().getAsDouble());
+        Assert.assertEquals(returns.get(0), stream(marks).count());
+        Assert.assertEquals(returns.get(1), stream(marks).max().getAsLong());
+        Assert.assertEquals(returns.get(2), stream(marks).min().getAsLong());
+        Assert.assertEquals(returns.get(3), stream(marks).sum());
+        Assert.assertEquals(returns.get(4), stream(marks).average().getAsDouble());
     }
 
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords2() {
-        BValue[] returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords2");
-        BMap grades = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords2");
+        BMap grades = (BMap) returns;
 
-        Assert.assertEquals(((BFloat) grades.get("maths")).floatValue(), 4.2);
-        Assert.assertEquals(((BFloat) grades.get("physics")).floatValue(), 4.2);
-        Assert.assertEquals(((BFloat) grades.get("english")).floatValue(), 4.2);
-        Assert.assertNull(grades.get("chemistry"));
+        Assert.assertEquals((grades.get(StringUtils.fromString("maths"))), 4.2);
+        Assert.assertEquals((grades.get(StringUtils.fromString("physics"))), 4.2);
+        Assert.assertEquals((grades.get(StringUtils.fromString("english"))), 4.2);
+        Assert.assertNull(grades.get(StringUtils.fromString("chemistry")));
     }
 
     @Test(description = "Test case for chained iterable operations on open records")
     public void testChainedOpsWithOpenRecords3() {
-        BValue[] returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords3");
-        BMap grades = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(result, "testChainedOpsWithOpenRecords3");
+        BMap grades = (BMap) returns;
 
-        Assert.assertEquals(((BFloat) grades.get("maths")).floatValue(), 4.2);
-        Assert.assertEquals(((BFloat) grades.get("physics")).floatValue(), 4.2);
-        Assert.assertEquals(((BFloat) grades.get("english")).floatValue(), 4.2);
-        Assert.assertNull(grades.get("chemistry"));
+        Assert.assertEquals((grades.get(StringUtils.fromString("maths"))), 4.2);
+        Assert.assertEquals((grades.get(StringUtils.fromString("physics"))), 4.2);
+        Assert.assertEquals((grades.get(StringUtils.fromString("english"))), 4.2);
+        Assert.assertNull(grades.get(StringUtils.fromString("chemistry")));
     }
 
     @Test(description = "Test case for terminal ops on open records with all int fields")
     public void testTerminalOpsOnAllIntOpenRecord2() {
         long[] marks = new long[]{80, 75, 0, 78};
-        BValue[] args = new BValue[]
-                {new BInteger(marks[0]), new BInteger(marks[1]), new BInteger(marks[3])};
-        BValue[] returns = BRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord2", args);
+        Object[] args = new Object[]
+                {(marks[0]), (marks[1]), (marks[3])};
+        BArray returns = (BArray) BRunUtil.invoke(result, "testTerminalOpsOnAllIntOpenRecord2", args);
 
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), stream(marks).count());
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), stream(marks).max().getAsLong());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), stream(marks).min().getAsLong());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), stream(marks).sum());
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), stream(marks).average().getAsDouble());
+        Assert.assertEquals(returns.get(0), stream(marks).count());
+        Assert.assertEquals(returns.get(1), stream(marks).max().getAsLong());
+        Assert.assertEquals(returns.get(2), stream(marks).min().getAsLong());
+        Assert.assertEquals(returns.get(3), stream(marks).sum());
+        Assert.assertEquals(returns.get(4), stream(marks).average().getAsDouble());
     }
 
     @Test(description = "Test case for iterable op chains ending with a terminal op")
     public void testOpChainsWithTerminalOps() {
         long[] grades = new long[]{80, 76, 78};
-        BValue[] returns = BRunUtil.invoke(result, "testOpChainsWithTerminalOps",
-                                           new BValue[]{new BInteger(grades[0]), new BInteger(grades[1]),
-                                                   new BInteger(65)});
+        BArray returns = (BArray) BRunUtil.invoke(result, "testOpChainsWithTerminalOps",
+                new Object[]{(grades[0]), (grades[1]),
+                        (65)});
         grades = stream(grades).map(g -> g + 10).toArray();
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), stream(grades).count());
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), stream(grades).sum());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(), stream(grades).max().getAsLong());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), stream(grades).min().getAsLong());
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), stream(grades).average().getAsDouble());
+        Assert.assertEquals(returns.get(0), stream(grades).count());
+        Assert.assertEquals(returns.get(1), stream(grades).sum());
+        Assert.assertEquals(returns.get(2), stream(grades).max().getAsLong());
+        Assert.assertEquals(returns.get(3), stream(grades).min().getAsLong());
+        Assert.assertEquals(returns.get(4), stream(grades).average().getAsDouble());
     }
 
     @Test(description = "Test case for checking whether iterable ops mutate the original record")
     public void testMutability() {
-        BValue[] returns = BRunUtil.invoke(result, "testMutability");
-        BMap grades = (BMap) returns[0];
+        Object returns = BRunUtil.invoke(result, "testMutability");
+        BMap grades = (BMap) returns;
         Assert.assertEquals(grades.size(), 4);
-        Assert.assertEquals(((BInteger) grades.get("maths")).intValue(), 80);
-        Assert.assertEquals(((BInteger) grades.get("physics")).intValue(), 75);
-        Assert.assertEquals(((BInteger) grades.get("chemistry")).intValue(), 65);
-        Assert.assertEquals(((BInteger) grades.get("english")).intValue(), 78);
+        Assert.assertEquals(grades.get(StringUtils.fromString("maths")), 80L);
+        Assert.assertEquals(grades.get(StringUtils.fromString("physics")), 75L);
+        Assert.assertEquals(grades.get(StringUtils.fromString("chemistry")), 65L);
+        Assert.assertEquals(grades.get(StringUtils.fromString("english")), 78L);
     }
 
     @AfterClass

@@ -19,10 +19,10 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -31,22 +31,22 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
-
 
 /**
  * A class to hold the lang library function info required for types.
@@ -59,15 +59,17 @@ public class LangLibrary {
     private static final String LANG_VALUE = "value";
 
     private final Map<String, Map<String, BInvokableSymbol>> langLibMethods;
-    private final Map<String, List<FunctionSymbol>> wrappedLangLibMethods;
     private final SymbolFactory symbolFactory;
+    private final LangLibFunctionBinder methodBinder;
+    private final Types types;
 
     private LangLibrary(CompilerContext context) {
         context.put(LANG_LIB_KEY, this);
 
         this.symbolFactory = SymbolFactory.getInstance(context);
-        this.wrappedLangLibMethods = new HashMap<>();
         this.langLibMethods = new HashMap<>();
+        this.types = Types.getInstance(context);
+        this.methodBinder = new LangLibFunctionBinder(this.types);
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : symbolTable.pkgEnvMap.entrySet()) {
@@ -76,7 +78,7 @@ public class LangLibrary {
 
             if (isLangLibModule(moduleID)) {
                 if (!LANG_VALUE.equals(moduleID.nameComps.get(1).value)) {
-                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods);
+                    addLangLibMethods(moduleID.nameComps.get(1).value, module, this.langLibMethods, types);
                 } else {
                     populateLangValueLibrary(module, this.langLibMethods);
                 }
@@ -97,87 +99,42 @@ public class LangLibrary {
      * Given a type descriptor kind, return the list of lang library functions that can be called using a method call
      * expr, on an expression of that type.
      *
-     * @param typeDescKind A type descriptor kind
      * @return The associated list of lang library functions
      */
-    public List<FunctionSymbol> getMethods(TypeDescKind typeDescKind) {
-        String langLibName = getAssociatedLangLibName(typeDescKind);
-        return getMethods(langLibName);
-    }
-
-    /**
-     * Given an internal type kind, return the list of lang library functions that can be called using a method call
-     * expr, on an expression of that type.
-     *
-     * @param typeKind A type kind
-     * @return The associated list of lang library functions
-     */
-    public List<FunctionSymbol> getMethods(TypeKind typeKind) {
-        String langLibName = getAssociatedLangLibName(typeKind);
-        return getMethods(langLibName);
+    public List<FunctionSymbol> getMethods(BType type) {
+        String langLibName;
+        if (type.getKind() == TypeKind.UNION && types.isAllErrorMembers((BUnionType) type)) {
+            langLibName = TypeKind.ERROR.typeName();
+        } else {
+            langLibName = getAssociatedLangLibName(type.getKind());
+        }
+        return getMethods(langLibName, type);
     }
 
     // Private Methods
 
-    private List<FunctionSymbol> getMethods(String langLibName) {
-        if (wrappedLangLibMethods.containsKey(langLibName)) {
-            return wrappedLangLibMethods.get(langLibName);
-        }
-
+    private List<FunctionSymbol> getMethods(String langLibName, BType type) {
         Map<String, BInvokableSymbol> methods = langLibMethods.get(langLibName);
-
+        BType boundType = getTypeParamBoundType(type);
         List<FunctionSymbol> wrappedMethods = new ArrayList<>();
-        wrappedLangLibMethods.put(langLibName, wrappedMethods);
-        populateMethodList(wrappedMethods, methods);
+
+        populateMethodList(wrappedMethods, methods, type, boundType);
 
         // Add the common functions in lang.value to types which have an associated lang library.
         if (!LANG_VALUE.equals(langLibName)) {
-            populateMethodList(wrappedMethods, langLibMethods.get(LANG_VALUE));
+            populateMethodList(wrappedMethods, langLibMethods.get(LANG_VALUE), type, null);
         }
 
         return wrappedMethods;
     }
 
-    private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib) {
+    private void populateMethodList(List<FunctionSymbol> list, Map<String, BInvokableSymbol> langLib, BType type,
+                                    BType boundTypeParam) {
         for (BInvokableSymbol symbol : langLib.values()) {
             String name = symbol.getOriginalName().getValue();
-            FunctionSymbol method = symbolFactory.createFunctionSymbol(symbol, name);
+            BInvokableSymbol duplicate = methodBinder.cloneAndBind(symbol, type, boundTypeParam);
+            FunctionSymbol method = symbolFactory.createFunctionSymbol(duplicate, name);
             list.add(method);
-        }
-    }
-
-    private String getAssociatedLangLibName(TypeDescKind typeDescKind) {
-        switch (typeDescKind) {
-            case ARRAY:
-            case TUPLE:
-                return ARRAY.getName();
-            case RECORD:
-            case MAP:
-                return MAP.getName();
-            case FLOAT:
-            case DECIMAL:
-            case BOOLEAN:
-            case STREAM:
-            case OBJECT:
-            case ERROR:
-            case FUTURE:
-            case TYPEDESC:
-            case TABLE:
-                return typeDescKind.getName();
-            default:
-                if (typeDescKind.isIntegerType()) {
-                    return INT.getName();
-                }
-
-                if (typeDescKind.isXMLType()) {
-                    return XML.getName();
-                }
-
-                if (typeDescKind.isStringType()) {
-                    return STRING.getName();
-                }
-
-                return LANG_VALUE;
         }
     }
 
@@ -188,7 +145,7 @@ public class LangLibrary {
                 return TypeKind.INT.typeName();
             case ARRAY:
             case TUPLE:
-                return TypeKind.ARRAY.typeName();
+                return "array";
             case RECORD:
             case MAP:
                 return TypeKind.MAP.typeName();
@@ -210,7 +167,7 @@ public class LangLibrary {
     }
 
     private static void addLangLibMethods(String basicType, BPackageSymbol langLibModule,
-                                          Map<String, Map<String, BInvokableSymbol>> langLibMethods) {
+                                          Map<String, Map<String, BInvokableSymbol>> langLibMethods, Types types) {
         Map<String, BInvokableSymbol> methods = new HashMap<>();
 
         for (Map.Entry<Name, Scope.ScopeEntry> nameScopeEntry : langLibModule.scope.entries.entrySet()) {
@@ -223,9 +180,10 @@ public class LangLibrary {
             BInvokableSymbol invSymbol = (BInvokableSymbol) symbol;
 
             if (Symbols.isFlagOn(invSymbol.flags, Flags.PUBLIC) &&
-                    (!invSymbol.params.isEmpty() &&
-                            basicType.compareToIgnoreCase(invSymbol.params.get(0).type.getKind().name()) == 0 ||
-                    invSymbol.restParam != null && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
+                    (!invSymbol.params.isEmpty()
+                            && basicType.compareToIgnoreCase(Types.getReferredType(invSymbol.params.get(0).type)
+                            .getKind().name()) == 0 || invSymbol.restParam != null
+                            && basicType.compareToIgnoreCase(((BArrayType) invSymbol.restParam.type)
                             .eType.tsymbol.getName().getValue()) == 0)) {
                 methods.put(invSymbol.name.value, invSymbol);
             }
@@ -249,6 +207,28 @@ public class LangLibrary {
         }
 
         langLibMethods.put(LANG_VALUE, methods);
+    }
+
+    private BType getTypeParamBoundType(BType type) {
+        switch (type.getKind()) {
+            case MAP:
+                return ((BMapType) type).constraint;
+            case ARRAY:
+                return ((BArrayType) type).eType;
+            case TABLE:
+                return ((BTableType) type).constraint;
+            case STREAM:
+                return ((BStreamType) type).constraint;
+            case XML:
+                if (type.tag == TypeTags.XML) {
+                    return ((BXMLType) type).constraint;
+                }
+                return type;
+            // The following explicitly mentioned type kinds should be supported, but they are not for the moment.
+            case ERROR:
+            default:
+                return null;
+        }
     }
 
     private static boolean isLangLibModule(PackageID moduleID) {

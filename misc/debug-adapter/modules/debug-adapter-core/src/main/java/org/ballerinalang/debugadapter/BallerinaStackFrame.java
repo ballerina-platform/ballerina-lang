@@ -21,20 +21,23 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
+import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.StackFrame;
 
+import java.net.URI;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.getSrcPathFromBreakpointLocation;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isService;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
@@ -60,6 +63,7 @@ public class BallerinaStackFrame {
     private static final String METHOD_INIT = "$init$";
     private static final String SELF_VAR_NAME = "self";
     private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
+    private static final String BALA_URI_SCHEME_NAME = "bala:";
 
     public BallerinaStackFrame(ExecutionContext context, Integer frameId, StackFrameProxyImpl stackFrameProxy) {
         this.context = context;
@@ -86,22 +90,39 @@ public class BallerinaStackFrame {
             if (!isBalStackFrame(jStackFrame.getStackFrame())) {
                 return null;
             }
-
             StackFrame dapStackFrame = new StackFrame();
             dapStackFrame.setId(frameId);
             dapStackFrame.setName(getStackFrameName(jStackFrame));
             dapStackFrame.setLine(jStackFrame.location().lineNumber());
             dapStackFrame.setColumn(0);
 
-            // Adds ballerina source information.
-            Optional<Path> sourcePath = getSrcPathFromBreakpointLocation(jStackFrame.location(),
-                    context.getSourceProject());
-            if (sourcePath.isPresent()) {
-                Source source = new Source();
-                source.setPath(sourcePath.get().toString());
-                source.setName(jStackFrame.location().sourceName());
-                dapStackFrame.setSource(source);
+            Optional<Map.Entry<Path, DebugSourceType>> sourcePathAndType =
+                    PackageUtils.getStackFrameSourcePath(jStackFrame.location(), context.getSourceProject());
+            if (sourcePathAndType.isEmpty()) {
+                return null;
             }
+            Path frameLocationPath = sourcePathAndType.get().getKey();
+            DebugSourceType sourceType = sourcePathAndType.get().getValue();
+            Source source = new Source();
+            source.setName(jStackFrame.location().sourceName());
+            URI uri = frameLocationPath.toAbsolutePath().toUri();
+
+            // If the corresponding source file of the stack frame is a bala source, the source should be readonly in
+            // the editor side. Therefore adds a custom URI scheme to the file path, after verifying that the connected
+            // debug client support custom URI schemes.
+            Optional<ClientConfigHolder.ExtendedClientCapabilities> capabilities =
+                    context.getAdapter().getClientConfigHolder().getExtendedCapabilities();
+            boolean supportsReadOnlyEditors = capabilities.isPresent() && capabilities.get().supportsReadOnlyEditors();
+
+            if (supportsReadOnlyEditors && sourceType == DebugSourceType.DEPENDENCY) {
+                // Note: Since we are using a Ballerina-specific custom URI scheme, the future DAP client
+                // implementations may have to implement custom editor providers in order to support URIs coming
+                // from the debug server.
+                source.setPath(PackageUtils.covertToBalaUri(uri).toString());
+            } else {
+                source.setPath(uri.toString());
+            }
+            dapStackFrame.setSource(source);
             return dapStackFrame;
         } catch (Exception e) {
             return null;

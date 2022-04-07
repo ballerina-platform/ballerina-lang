@@ -6,17 +6,30 @@
   "source": "expression_context/source/object_constructor_expr_ctx_source1.bal",
   "items": [
     {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "object",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object constructor",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "insertText": "object {\n\t\n};",
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "isolated",
+      "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     }
   ]

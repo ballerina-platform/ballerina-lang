@@ -17,10 +17,13 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -59,7 +62,7 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
     public boolean onPreValidation(BallerinaCompletionContext context, ClassDefinitionNode node) {
         int cursor = context.getCursorPositionInTree();
         Token classKeyword = node.classKeyword();
-        
+
         return !classKeyword.isMissing() && cursor > classKeyword.textRange().endOffset()
                 && cursor <= node.closeBrace().textRange().startOffset();
     }
@@ -84,6 +87,9 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
             List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
             return this.getCompletionItemList(typesInModule, context);
         }
+        if (onSuggestionsAfterQualifiers(context, context.getNodeAtCursor())) {
+            return this.getCompletionItemsOnQualifiers(context.getNodeAtCursor(), context);
+        }
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         // Here we do not add the function keyword as type descriptor completion items add it.
@@ -102,6 +108,39 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         }
         completionItems.addAll(this.getTypeDescContextItems(context));
 
+        return completionItems;
+    }
+
+    @Override
+    protected List<LSCompletionItem> getCompletionItemsOnQualifiers(Node node, BallerinaCompletionContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletionItemsOnQualifiers(node, context));
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return completionItems;
+        }
+        Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
+        if (lastQualifier.kind() == SyntaxKind.ISOLATED_KEYWORD
+                || lastQualifier.kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+        } else if (lastQualifier.kind() == SyntaxKind.PRIVATE_KEYWORD
+                || lastQualifier.kind() == SyntaxKind.PUBLIC_KEYWORD) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_REMOTE.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REMOTE_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+            if (ClassDefinitionNodeContextUtil.onSuggestInitFunction(node)) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
+            }
+            completionItems.addAll(this.getTypeDescContextItems(context));
+        }
         return completionItems;
     }
 }

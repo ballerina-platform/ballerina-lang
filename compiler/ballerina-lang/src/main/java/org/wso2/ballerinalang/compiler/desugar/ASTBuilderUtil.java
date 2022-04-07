@@ -44,6 +44,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -192,6 +194,15 @@ public class ASTBuilderUtil {
             }
 
             @Override
+            public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            }
+
+            @Override
+            public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+                return null;
+            }
+
+            @Override
             public NodeKind getKind() {
                 return null;
             }
@@ -267,18 +278,12 @@ public class ASTBuilderUtil {
         return assignment;
     }
 
-    static BLangAssignment createAssignmentStmt(Location location, BLangExpression varRef,
-                                                BLangExpression rhsExpr) {
-        return createAssignmentStmt(location, varRef, rhsExpr, false);
-    }
-
     static BLangAssignment createAssignmentStmt(Location pos, BLangExpression varRef,
-                                                BLangExpression rhsExpr, boolean declaredWithVar) {
+                                                BLangExpression rhsExpr) {
         final BLangAssignment assignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
         assignment.pos = pos;
         assignment.varRef = varRef;
         assignment.expr = rhsExpr;
-        assignment.declaredWithVar = declaredWithVar;
         return assignment;
     }
 
@@ -863,7 +868,10 @@ public class ASTBuilderUtil {
                                                                       PackageID newPkgID,
                                                                       Location location,
                                                                       SymbolOrigin origin) {
-        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName, newName, newPkgID,
+        // Since this is a duplicate, there's no reason for the original name to change. The name changes since we're
+        // taking the name as AttachedType'sName.methodName
+        BInvokableSymbol dupFuncSymbol = Symbols.createFunctionSymbol(invokableSymbol.flags, newName,
+                                                                      invokableSymbol.getOriginalName(), newPkgID,
                                                                       null, owner, invokableSymbol.bodyExist,
                                                                       location, origin);
         dupFuncSymbol.receiverSymbol = invokableSymbol.receiverSymbol;
@@ -891,7 +899,7 @@ public class ASTBuilderUtil {
         return dupFuncSymbol;
     }
 
-    private static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
+    public static BVarSymbol duplicateParamSymbol(BVarSymbol paramSymbol, BInvokableSymbol owner) {
         BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
                                                    paramSymbol.type, owner, paramSymbol.pos, paramSymbol.origin);
         newParamSymbol.tainted = paramSymbol.tainted;
@@ -930,11 +938,12 @@ public class ASTBuilderUtil {
         return xmlTextLiteral;
     }
 
-    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition,
+    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition, BVarSymbol param,
                                                                    BLangExpression conditionalArg) {
         BLangDynamicArgExpr dynamicExpression = new BLangDynamicArgExpr();
         dynamicExpression.condition = condition;
         dynamicExpression.conditionalArgument = conditionalArg;
+        dynamicExpression.setBType(param.getType());
         return dynamicExpression;
     }
 

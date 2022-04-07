@@ -116,10 +116,10 @@ function testOnFailErrorType(string | int | boolean a) returns string|error {
             return "Value is 'true'";
         }
         false => {
-            int resA = check getTypeAError();
+            int _ = check getTypeAError();
         }
         "fail" => {
-            int resB = check getTypeBError();
+            int _ = check getTypeBError();
         }
     } on fail ErrorTypeB e {
         return "Value is 'error'";

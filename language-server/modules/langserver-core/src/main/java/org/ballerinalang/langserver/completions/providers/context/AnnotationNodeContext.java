@@ -201,7 +201,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, AnnotationNode node) {
-        return !node.atToken().isMissing();
+            return !node.atToken().isMissing() 
+                    && context.getCursorPositionInTree() <= node.annotReference().textRange().endOffset();
     }
 
     private boolean addAlias(BallerinaCompletionContext context, AnnotationNode node, ModuleID annotationOwner) {
@@ -236,10 +237,10 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                     rank = currentOrg.equals(orgName) && currentPkgName.equals(moduleName) ? 1 : 2;
 
                 } else {
-                    rank = SortingUtil.toRank(completionItem, 2);
+                    rank = SortingUtil.toRank(context, completionItem, 2);
                 }
             } else {
-                rank = SortingUtil.toRank(completionItem, 2);
+                rank = SortingUtil.toRank(context, completionItem, 2);
             }
             completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
         });

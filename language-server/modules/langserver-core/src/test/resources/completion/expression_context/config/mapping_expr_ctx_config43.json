@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "endLine",
       "kind": "Field",
       "detail": "Range.endLine",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "endLine: {\n\tline: ${1:0},\n\toffset: ${2:0}\n}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "startLine",
       "kind": "Field",
       "detail": "Range.startLine",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "startLine: {\n\tline: ${1:0},\n\toffset: ${2:0}\n}",
       "insertTextFormat": "Snippet"
     },

@@ -17,7 +17,7 @@
 
 package org.ballerinalang.test.javainterop;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -64,7 +64,7 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "unknown type 'td'", 65, 73);
         validateError(errors, indx++, "unknown type 'td'", 73, 54);
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
-                "'map<ballerina/lang.value:1.0.0:Cloneable>'", 82, 83);
+                "'map<ballerina/lang.value:0.0.0:Cloneable>'", 82, 83);
         validateError(errors, indx++, "unknown type 'detail'", 82, 83);
         validateError(errors, indx++,
                       "a function with a non-'external' function body cannot be a dependently-typed function", 89, 45);
@@ -77,9 +77,6 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++,
                       "a function with a non-'external' function body cannot be a dependently-typed function", 115, 45);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 115, 45);
-        validateError(errors, indx++, "unknown type 'td'", 127, 48);
-        validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
-                "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 127, 57);
         validateError(errors, indx++, "mismatched function signatures: expected 'public function get" +
                 "(typedesc<anydata> td) returns (td|error)', found 'public function get(typedesc<anydata> td) returns" +
                 " (other|error)'", 140, 5);
@@ -177,6 +174,9 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 361, 15);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 362, 15);
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 363, 18);
+        validateError(errors, indx++, "incompatible type for parameter 't' with inferred typedesc value: expected " +
+                "'typedesc<(int|string)>', found 'typedesc<boolean>'", 369, 17);
+        validateError(errors, indx++, "incompatible types: expected 'TargetType', found 'typedesc<boolean>'", 371, 64);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -230,7 +230,10 @@ public class DependentlyTypedFunctionsTest {
                 {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaArrayRestArg"},
                 {"testArgsForDependentlyTypedFunctionViaRecordRestArg"},
-                {"testDependentlyTypedFunctionWithIncludedRecordParam"}
+                {"testDependentlyTypedFunctionWithIncludedRecordParam"},
+                {"testDependentlyTypedMethodCallOnObjectType"},
+                {"testDependentlyTypedMethodCallOnObjectTypeWithInferredArgument"},
+                {"testDependentlyTypedFunctionWithInferredArgForParamOfTypeReferenceType"}
         };
     }
 

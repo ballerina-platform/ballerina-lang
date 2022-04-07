@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.test.expressions.access;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,18 +44,18 @@ public class MemberAccessTest {
         negativeResult = BCompileUtil.compile("test-src/expressions/access/member_access_negative.bal");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testNegativeCases() {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 33, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 34, 12);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 35, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'ALL_STRINGS'", 35, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 37, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 38, 12);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 39, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'ALL_STRINGS'", 39, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 41, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 42, 12);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 43, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'ALL_STRINGS'", 43, 12);
         validateError(negativeResult, i++, "invalid operation: type 'int[]?' does not support member access", 53, 9);
         validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support " +
                 "member access", 54, 9);
@@ -109,8 +107,9 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'float', found 'string:Char'", 157, 17);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 158, 21);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 159, 21);
-        validateError(negativeResult, i++, "invalid operation: type 'foo|1' does not support member access", 169, 17);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'foo|1'", 170, 20);
+        validateError(negativeResult, i++, "invalid operation: type 'StrOrInt' does not support member access",
+                169, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'StrOrInt'", 170, 20);
         validateError(negativeResult, i++, "invalid operation: type 'string' does not support member access for " +
                 "assignment", 175, 5);
         validateError(negativeResult, i++, "list index out of range: index: '5'", 182, 12);
@@ -129,8 +128,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "listMemberAccessFunctions")
     public void testListMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "listMemberAccessFunctions")
@@ -209,8 +208,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "recordMemberAccessFunctions")
     public void testRecordMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "recordMemberAccessFunctions")
@@ -229,8 +228,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "mapMemberAccessFunctions")
     public void testMapMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mapMemberAccessFunctions")
@@ -245,8 +244,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "optionalMappingMemberAccessFunctions")
     public void testOptionalMappingMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "optionalMappingMemberAccessFunctions")
@@ -280,8 +279,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "mappingUnionMemberAccessFunctions")
     public void testMappingUnionMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "mappingUnionMemberAccessFunctions")
@@ -294,8 +293,8 @@ public class MemberAccessTest {
 
     @Test(dataProvider = "stringMemberAccessFunctions")
     public void testStringMemberAccess(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "stringMemberAccessFunctions")
@@ -312,32 +311,32 @@ public class MemberAccessTest {
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: -1, size: 5\"\\}.*")
     public void testOutOfRangeStringMemberAccess1() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess1");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess1");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 11, size: 11\"\\}.*")
     public void testOutOfRangeStringMemberAccess2() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess2");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 25, size: 12\"\\}.*")
     public void testOutOfRangeStringMemberAccess3() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeStringMemberAccess3");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.string\\}IndexOutOfRange \\{\"message\":\"string "
                     + "index out of range: index: 4, size: 3\"\\}.*")
     public void testOutOfRangeFiniteTypeStringMemberAccess() {
-        BValue[] returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testOutOfRangeFiniteTypeStringMemberAccess");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -369,6 +368,28 @@ public class MemberAccessTest {
         BRunUtil.invoke(result, "testInvalidMemberAccessOnStrings2");
     }
 
+    @Test(dataProvider = "memberAccessWithBinaryExprAsIndex")
+    public void testMemberAccessWithBinaryExprAsIndex(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider(name = "memberAccessWithBinaryExprAsIndex")
+    public Object[][] memberAccessWithBinaryExprAsIndex() {
+        return new Object[][] {
+                { "testMemberAccessWithBinaryExprAsIndex" },
+                { "testMemberAccessWithGroupExprAsIndex" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr1" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr2" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr3" },
+                { "testMemberAccessOutOfRangeWithBinaryExpr4" }
+        };
+    }
+
+    @Test
+    public void testMemberAccessInInferTypeCtxWithTypeRef() {
+        BRunUtil.invoke(result, "testMemberAccessInInferTypeCtxWithTypeRef");
+    }
+    
     @Test
     public void testNestedMemberAccessOnIntersectionTypes() {
         BRunUtil.invoke(result, "testNestedMemberAccessOnIntersectionTypes");

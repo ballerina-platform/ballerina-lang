@@ -139,3 +139,9 @@ public function myFunc1(string name1, string val1) {
 function myFunc2(string name2, string val2) {
 
 }
+
+# Description
+# + v\	- Parameter
+# + a\
+public function main1() {
+}

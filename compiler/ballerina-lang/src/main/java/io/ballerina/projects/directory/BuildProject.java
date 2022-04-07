@@ -17,8 +17,10 @@
  */
 package io.ballerina.projects.directory;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -36,13 +38,16 @@ import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -51,8 +56,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * {@code BuildProject} represents Ballerina project instance created from the project directory.
@@ -68,7 +75,7 @@ public class BuildProject extends Project {
      * @return build project
      */
     public static BuildProject load(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
-        return load(environmentBuilder, projectPath, new BuildOptionsBuilder().build());
+        return load(environmentBuilder, projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -78,7 +85,7 @@ public class BuildProject extends Project {
      * @return BuildProject instance
      */
     public static BuildProject load(Path projectPath) {
-        return load(projectPath, new BuildOptionsBuilder().build());
+        return load(projectPath, BuildOptions.builder().build());
     }
 
     /**
@@ -149,6 +156,14 @@ public class BuildProject extends Project {
     }
 
     @Override
+    public Project duplicate() {
+        BuildOptions duplicateBuildOptions = BuildOptions.builder().build().acceptTheirs(buildOptions());
+        BuildProject buildProject = new BuildProject(
+                ProjectEnvironmentBuilder.getDefaultBuilder(), this.sourceRoot, duplicateBuildOptions);
+        return cloneProject(buildProject);
+    }
+
+    @Override
     public DocumentId documentId(Path file) {
         if (isFilePathInProject(file)) {
             Path parent = Optional.of(file.toAbsolutePath().getParent()).get();
@@ -156,25 +171,32 @@ public class BuildProject extends Project {
                 String moduleDirName;
                 // Check for the module name contains a dot and not being the default module
                 if (!this.currentPackage().getDefaultModule().moduleId().equals(moduleId)) {
-                    moduleDirName = moduleId.moduleName()
+                    moduleDirName = currentPackage().module(moduleId).moduleName().toString()
                             .split(this.currentPackage().packageName().toString() + "\\.")[1];
                 } else {
                     moduleDirName = Optional.of(this.sourceRoot.getFileName()).get().toString();
                 }
 
-                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName) || Optional.of(
-                        Optional.of(parent.getParent()).get().getFileName()).get().toString().equals(moduleDirName)) {
-                    Module module = this.currentPackage().module(moduleId);
+                Module module = this.currentPackage().module(moduleId);
+                if (Optional.of(parent.getFileName()).get().toString().equals(moduleDirName)) {
+                    // this is a source file
                     for (DocumentId documentId : module.documentIds()) {
                         if (module.document(documentId).name().equals(
                                 Optional.of(file.getFileName()).get().toString())) {
                             return documentId;
                         }
                     }
-                    for (DocumentId documentId : module.testDocumentIds()) {
-                        if (module.document(documentId).name().split(ProjectConstants.TEST_DIR_NAME + "/")[1]
-                                .equals(Optional.of(file.getFileName()).get().toString())) {
-                            return documentId;
+                } else if (Optional.of(parent.getFileName()).get().toString().equals(ProjectConstants.TEST_DIR_NAME)) {
+                    // this is a test file
+                    if (Optional.of(Optional.of(parent.getParent()).get().getFileName()).get().toString()
+                            .equals(moduleDirName)) {
+                        for (DocumentId documentId : module.testDocumentIds()) {
+                            String[] splitName = module.document(documentId).name()
+                                    .split(ProjectConstants.TEST_DIR_NAME + "/");
+                            if (splitName.length > 1 && splitName[1]
+                                    .equals(Optional.of(file.getFileName()).get().toString())) {
+                                return documentId;
+                            }
                         }
                     }
                 }
@@ -193,7 +215,33 @@ public class BuildProject extends Project {
     }
 
     public void save() {
-        writeDependencies();
+        Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
+        boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
+        // if build file does not exists
+
+        if (!buildFilePath.toFile().exists()) {
+            createBuildFile(buildFilePath);
+            writeBuildFile(buildFilePath);
+            writeDependencies();
+        } else {
+            BuildJson buildJson = null;
+            try {
+                buildJson = readBuildJson(buildFilePath);
+            } catch (JsonSyntaxException | IOException e) {
+                // ignore
+            }
+
+            // need to update Dependencies toml
+            writeDependencies();
+
+            // check whether buildJson is null and last updated time has expired
+            if (buildJson != null && !shouldUpdate) {
+                buildJson.setLastBuildTime(System.currentTimeMillis());
+                writeBuildFile(buildFilePath, buildJson);
+            } else {
+                writeBuildFile(buildFilePath);
+            }
+        }
     }
 
     private void writeDependencies() {
@@ -234,7 +282,32 @@ public class BuildProject extends Project {
         Collection<ResolvedPackageDependency> directDependencies = dependencyGraph.getDirectDependencies(rootPkgNode);
 
         List<Dependency> dependencies = new ArrayList<>();
-        // 1. set direct dependencies
+
+        // 1. set root package as a dependency
+        Package rootPackage = rootPkgNode.packageInstance();
+        Dependency rootPkgDependency = new Dependency(rootPackage.packageOrg().value(),
+                                                      rootPackage.packageName().value(),
+                                                      rootPackage.packageVersion().value().toString());
+        // get modules of the root package
+        List<Dependency.Module> rootPkgModules = new ArrayList<>();
+        for (ModuleId moduleId : rootPackage.moduleIds()) {
+            Module module = rootPackage.module(moduleId);
+            Dependency.Module depsModule = new Dependency.Module(module.descriptor().org().value(),
+                                                                 module.descriptor().packageName().value(),
+                                                                 module.descriptor().name().toString());
+            rootPkgModules.add(depsModule);
+        }
+        // sort modules
+        rootPkgModules.sort(Comparator.comparing(Dependency.Module::moduleName));
+        rootPkgDependency.setModules(rootPkgModules);
+        // get transitive dependencies of the root package
+        rootPkgDependency.setDependencies(getTransitiveDependencies(dependencyGraph, rootPkgNode));
+        // set transitive and scope
+        rootPkgDependency.setTransitive(false);
+        rootPkgDependency.setScope(rootPkgNode.scope());
+        dependencies.add(rootPkgDependency);
+
+        // 2. set direct dependencies
         for (ResolvedPackageDependency directDependency : directDependencies) {
             Package aPackage = directDependency.packageInstance();
             Dependency dependency = new Dependency(aPackage.packageOrg().toString(), aPackage.packageName().value(),
@@ -263,16 +336,14 @@ public class BuildProject extends Project {
             dependencies.add(dependency);
         }
 
-        // 2. set transitive dependencies
+        // 3. set transitive dependencies
         Collection<ResolvedPackageDependency> allDependencies = dependencyGraph.getNodes();
         for (ResolvedPackageDependency transDependency : allDependencies) {
             // check whether it's a direct dependency, skip it since it is already added
             if (directDependencies.contains(transDependency)) {
                 continue;
             }
-            if (transDependency.packageInstance() != this.currentPackage()
-                    && !transDependency.packageInstance().descriptor().isBuiltInPackage()
-                    && !transDependency.isPlatformProvided()) {
+            if (transDependency.packageInstance() != this.currentPackage()) {
                 Package aPackage = transDependency.packageInstance();
                 Dependency dependency = new Dependency(aPackage.packageOrg().toString(),
                                                        aPackage.packageName().value(),
@@ -327,6 +398,47 @@ public class BuildProject extends Project {
             Files.write(filePath, Collections.singleton(content));
         } catch (IOException e) {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
+        }
+    }
+
+    private static void createBuildFile(Path buildFilePath) {
+        try {
+            if (!buildFilePath.getParent().toFile().exists()) {
+                // create target directory if not exists
+                Files.createDirectory(buildFilePath.getParent());
+            }
+            Files.createFile(buildFilePath);
+        } catch (IOException e) {
+            throw new ProjectException("Failed to create '" + BUILD_FILE + "' file");
+        }
+    }
+
+    private static void writeBuildFile(Path buildFilePath) {
+        BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
+                RepoUtils.getBallerinaShortVersion());
+        writeBuildFile(buildFilePath, buildJson);
+    }
+
+    private static void writeBuildFile(Path buildFilePath, BuildJson buildJson) {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        // Check write permissions
+        if (!buildFilePath.toFile().canWrite()) {
+            return;
+        }
+        // write build file
+        try {
+            Files.write(buildFilePath, Collections.singleton(gson.toJson(buildJson)));
+        } catch (IOException e) {
+            // ignore
+        }
+    }
+
+    @Override
+    public Path targetDir() {
+        if (this.buildOptions().getTargetPath() == null) {
+            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
+        } else {
+            return Paths.get(this.buildOptions().getTargetPath());
         }
     }
 }

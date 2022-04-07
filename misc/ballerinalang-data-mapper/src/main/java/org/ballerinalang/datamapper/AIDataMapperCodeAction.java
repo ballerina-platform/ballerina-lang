@@ -29,15 +29,10 @@ import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDeta
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -50,6 +45,7 @@ import java.util.Optional;
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "AI Data Mapper";
+    public static final String GENERATE_MAPPING_FUNCTION = "Generate mapping function";
 
     /**
      * {@inheritDoc}
@@ -100,19 +96,13 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
             if (typeDescriptor == TypeDescKind.UNION || typeDescriptor == TypeDescKind.RECORD ||
                     typeDescriptor == TypeDescKind.COMPILATION_ERROR) {
-                CodeAction action = new CodeAction("Generate mapping function");
-                action.setKind(CodeActionKind.QuickFix);
-
-                String uri = context.fileUri();
-                AIDataMapperCodeActionUtil dataMapperUtil = AIDataMapperCodeActionUtil.getInstance();
-                List<TextEdit> fEdits = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
-                        diagnostic);
+                List<TextEdit> fEdits = AIDataMapperCodeActionUtil.getInstance()
+                        .getAIDataMapperCodeActionEdits(positionDetails, context, diagnostic);
                 if (fEdits.isEmpty()) {
                     return Optional.empty();
                 }
-                action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
-                action.setDiagnostics(new ArrayList<>());
+                CodeAction action = createCodeAction(GENERATE_MAPPING_FUNCTION, fEdits, context.fileUri(), 
+                        CodeActionKind.QuickFix);
                 return Optional.of(action);
             }
         } catch (IOException e) {

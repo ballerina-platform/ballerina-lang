@@ -1,0 +1,36 @@
+{
+  "position": {
+    "line": 2,
+    "character": 14
+  },
+  "source": "module_part_context/source/source13.bal",
+  "items": [
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "function",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "function",
+      "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

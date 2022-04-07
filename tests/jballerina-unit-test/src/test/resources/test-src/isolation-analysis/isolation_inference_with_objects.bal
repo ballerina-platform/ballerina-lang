@@ -827,12 +827,9 @@ class IsolatedClassWithRawTemplateTransfer {
 }
 
 class IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr {
-    final IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr x = f3();
-    private IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr y = f3();
     private int z = 1;
 
     function init() {
-        f4();
     }
 }
 
@@ -1089,13 +1086,6 @@ public function testIsolatedInference() {
     assertTrue(isMethodIsolated(y, "getArrOne"));
     assertTrue(isMethodIsolated(y, "getArrTwo"));
     assertTrue(isMethodIsolated(y, "getArrs"));
-
-    IsolatedObjectWithIsolatedFunctionCallAccessingModuleVarOfSameTypeAsDefaultValueExpr z = new;
-    assertTrue(<any> z is isolated object {});
-    assertTrue(<any> f is isolated object {});
-    assertTrue(<any> f3 is isolated function);
-    assertTrue(<any> f4 is isolated function);
-    assertTrue(isMethodIsolated(z, "init"));
 
     IsolatedClassIncludingObjectAndClass a2 = new ([]);
     assertTrue(isMethodIsolated(a2, "init"));

@@ -1,11 +1,5 @@
 function foo() {
     var str1 = 2.toString();
-    var str2 = 25.e1.toString();
-    var str3 = 25.E2.toString();
-    var str4 = 25.f.toString();
-    var str5 = 25.F.toString();
-    var str6 = 25.d.toString();
-    var str7 = 25.D.toString();
     var str8 = 2.exit();
     var str9 = 2.Exit();
     var str10 = 2.file();
@@ -14,10 +8,18 @@ function foo() {
     var str13 = 2.Done();
     var str14 = .2.toString();
     var str15 = 2.0.toString();
-    var str16 = 0x3eA3p34.toString();
-    var str17 = 0X3eA3p+34.toString();
-    var str18 = 0X.4Eb2.toString();
-    var str19 = 0X3eA3.4Eb2p45.toString();
-    var str20 = 0X3eA3.4Eb2p45.toString();
-    var str21 = 0x.4Eb2P-45.toString();
+    var str16 = 25f.toString();
+    var str17 = 25F.toBalString();
+    var str18 = 25d.toString();
+    var str19 = 25D.toString();
+
+    var hexStr1 = 0x3eA3p34.toString();
+    var hexStr2 = 0X3eA3p+34.toString();
+    var hexStr3 = 0X.4Eb2.toString();
+    var hexStr4 = 0X3eA3.4Eb2p45.toString();
+    var hexStr5 = 0X3eA3.4Eb2p45.toString();
+    var hexStr6 = 0x.4Eb2P-45.toString();
+    var hexStr7 = 0xff.toHexString();
+    var hexStr8 = 0xff.abs();
+    var hexStr9 = 0xff.clone();
 }

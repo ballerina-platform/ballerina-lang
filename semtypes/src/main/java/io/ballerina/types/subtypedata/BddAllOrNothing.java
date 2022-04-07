@@ -46,6 +46,10 @@ public class BddAllOrNothing implements Bdd {
         return this.isAll;
     }
 
+    public boolean isNothing() {
+        return !this.isAll;
+    }
+
     public BddAllOrNothing complement() {
         if (isAll) {
             return nothing;
