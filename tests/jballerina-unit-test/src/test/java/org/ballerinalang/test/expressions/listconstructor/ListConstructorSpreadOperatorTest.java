@@ -146,12 +146,14 @@ public class ListConstructorSpreadOperatorTest {
                 "invalid usage of spread operator: fixed member expected for 'string'", 170, 41);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid usage of spread operator: fixed member expected for 'string'", 173, 38);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 187, 23);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 189, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 190, 24);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 192, 20);
+                "invalid usage of spread operator: fixed length list expected", 192, 24);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'string', found 'int'", 194, 20);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid usage of spread operator: fixed length list expected", 195, 17);
+                "invalid usage of spread operator: fixed length list expected", 197, 17);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected an array or a tuple, found 'Qux'", 200, 26);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
