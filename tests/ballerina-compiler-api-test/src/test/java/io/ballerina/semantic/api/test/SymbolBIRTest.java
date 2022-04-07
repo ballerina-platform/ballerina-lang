@@ -157,8 +157,9 @@ public class SymbolBIRTest {
         fooTypeDefs.remove("Colour");
         fooTypeDefs.remove("Dog");
         fooTypeDefs.remove("EmployeeObj");
+        fooTypeDefs.remove("Human");
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
-        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj"));
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
@@ -219,6 +220,24 @@ public class SymbolBIRTest {
         assertEquals(inclusions.get(0).typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) inclusions.get(0)).typeDescriptor().typeKind(), RECORD);
         assertEquals(inclusions.get(0).getName().get(), "Person");
+    }
+
+    @Test(dataProvider = "MethodsInAbstractObject")
+    public void testMethodsInAbstractObject(int line, int col, String name, SymbolKind kind) {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(line, col));
+        assertTrue(optionalSymbol.isPresent());
+        Symbol symbol = optionalSymbol.get();
+        assertEquals(symbol.getName().get(), name);
+        assertEquals(symbol.kind(), kind);
+    }
+
+    @DataProvider(name = "MethodsInAbstractObject")
+    public Object[][] getMethodSymbolsInAbstractObject() {
+        return new Object[][]{
+                {36, 26, "eatFunction", SymbolKind.METHOD},
+                {37, 24, "walkFunction", SymbolKind.METHOD},
+                {38, 17, "age", SymbolKind.OBJECT_FIELD},
+        };
     }
 
     // util methods

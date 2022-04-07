@@ -188,6 +188,10 @@ public class InteropMethodGen {
             Label paramNextLabel = labelGen.getLabel(birFuncParam.name.value + "next");
             mv.visitJumpInsn(IFNE, paramNextLabel);
 
+            List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
+            generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, moduleClassName,
+                                asyncDataCollector);
+
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
@@ -223,7 +227,7 @@ public class InteropMethodGen {
         }
 
         // Load java method parameters
-        birFuncParamIndex = jField.isStatic() ? 0 : 1;
+        birFuncParamIndex = jField.isStatic() ? 0 : 2;
         if (birFuncParamIndex < birFuncParams.size()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             int paramLocalVarIndex = indexMap.addIfNotExists(birFuncParam.name.value, birFuncParam.type);
@@ -333,7 +337,7 @@ public class InteropMethodGen {
 
         List<BIROperand> args = new ArrayList<>();
 
-        List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
+        List<BIRNode.BIRFunctionParameter> birFuncParams = new ArrayList<>(birFunc.parameters.keySet());
         int birFuncParamIndex = 0;
         // Load receiver which is the 0th parameter in the birFunc
         if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {

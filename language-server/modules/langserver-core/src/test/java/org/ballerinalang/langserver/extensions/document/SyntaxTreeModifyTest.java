@@ -177,8 +177,8 @@ public class SyntaxTreeModifyTest {
         TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
     }
 
-    @Test(description = "Remove unused import from file on modification.")
-    public void testRemoveUnusedImport() throws IOException {
+    @Test(description = "Not remove unused import from file on modification.")
+    public void testNotRemoveUnusedImport() throws IOException {
         skipOnWindows();
         Path inputFile = LSExtensionTestUtil.createTempFile(removeImport);
         TestUtil.openDocument(serviceEndpoint, inputFile);
