@@ -24,11 +24,8 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaAnyTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnydataTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaBooleanTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaByteTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaCompilationErrorTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaDecimalTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaErrorTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFloatTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionTypeSymbol;
@@ -41,11 +38,14 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaReadonlyTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStreamTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
-import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDescTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaXMLTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Module;
@@ -105,7 +105,6 @@ import static org.testng.Assert.assertTrue;
 public class TypesTest {
 
     Project project;
-    private SemanticModel model;
     private Types types;
 
     @BeforeClass
@@ -117,7 +116,7 @@ public class TypesTest {
         }
 
         project = BCompileUtil.loadProject("test-src/types-project");
-        model = getDefaultModulesSemanticModel(project);
+        SemanticModel model = getDefaultModulesSemanticModel(project);
         types = model.types();
     }
 
@@ -156,16 +155,11 @@ public class TypesTest {
     @Test(dataProvider = "TypesByNameProvider")
     public void testTypeByName(String moduleName, String typeDefName, SymbolKind symKind, TypeDescKind typeDescKind) {
         Module module = getModule(project, moduleName);
-        model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
-        types = model.types();
-        String org = module.descriptor().org().value();
-        String pkgName = module.descriptor().name().toString();
-        String version = module.descriptor().version().toString();
-
-        Optional<Symbol> symbol = types.getTypeByName(org, pkgName, version, typeDefName);
+        SemanticModel model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
+        Types types = model.types();
+        Optional<Symbol> symbol = types.getTypeByName("testorg", "typesapi." + moduleName, "1.0.0", typeDefName);
         assertTrue(symbol.isPresent());
         assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
-
         Optional<String> symbolName = symbol.get().getName();
         assertTrue(symbolName.isPresent());
         assertEquals(symbolName.get(), typeDefName);
@@ -244,7 +238,6 @@ public class TypesTest {
         Optional<Symbol> symbol = types.getTypeByName("testorg", pkgName, "1.0.0", typeDefName);
         assertTrue(symbol.isPresent());
         assertSymbolTypeDesc(symbol.get(), symKind, typeDescKind);
-
         Optional<String> symbolName = symbol.get().getName();
         assertTrue(symbolName.isPresent());
         assertEquals(symbolName.get(), typeDefName);
@@ -274,17 +267,12 @@ public class TypesTest {
     @Test(dataProvider = "subTypeOfProvider")
     public void testSubTypeOfTypes(String moduleName, String typeDefName, TypeSymbol expType) {
         Module module = getModule(project, moduleName);
-        model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
-        types = model.types();
-        String org = module.descriptor().org().value();
-        String pkgName = module.descriptor().name().toString();
-        String version = module.descriptor().version().toString();
-
-        Optional<Symbol> symbol = types.getTypeByName(org, pkgName, version, typeDefName);
+        SemanticModel model = project.currentPackage().getCompilation().getSemanticModel(module.moduleId());
+        Types types = model.types();
+        Optional<Symbol> symbol = types.getTypeByName("testorg", "typesapi." + moduleName, "1.0.0", typeDefName);
         assertTrue(symbol.isPresent());
         Optional<TypeSymbol> typeSymbol = getTypeSymbolOfTypeDef(symbol.get());
         assertTrue(typeSymbol.isPresent());
-
         assertTrue(typeSymbol.get().subtypeOf(expType));
     }
 
@@ -309,12 +297,11 @@ public class TypesTest {
     private void testTypesInModule(String pkgName, Object[][] expTypes) {
         Optional<Map<String, Symbol>> typesInModule = types.typesInModule("testorg", pkgName, "1.0.0");
         assertTrue(typesInModule.isPresent());
-
         Map<String, Symbol> typeDefSymbolMap = typesInModule.get();
         assertEquals(typeDefSymbolMap.size(), expTypes.length);
 
         for (Object[] expType : expTypes) {
-            String expTypeName = String.valueOf(expType[0]);
+            String expTypeName = (String) expType[0];
             Symbol symbol = typeDefSymbolMap.get(expTypeName);
             assertNotNull(symbol);
             assertSymbolTypeDesc(symbol, (SymbolKind) expType[1], (TypeDescKind) expType[2]);
@@ -331,14 +318,14 @@ public class TypesTest {
     private Optional<TypeSymbol> getTypeSymbolOfTypeDef(Symbol symbol) {
         switch (symbol.kind()) {
             case TYPE_DEFINITION:
-                return Optional.of(((BallerinaTypeDefinitionSymbol) symbol).typeDescriptor());
+                return Optional.of(((TypeDefinitionSymbol) symbol).typeDescriptor());
             case CONSTANT:
             case ENUM_MEMBER:
-                return Optional.of(((BallerinaConstantSymbol) symbol).typeDescriptor());
+                return Optional.of(((ConstantSymbol) symbol).typeDescriptor());
             case ENUM:
-                return Optional.of(((BallerinaEnumSymbol) symbol).typeDescriptor());
+                return Optional.of(((EnumSymbol) symbol).typeDescriptor());
             case CLASS:
-                return Optional.of((BallerinaClassSymbol) symbol);
+                return Optional.of((ClassSymbol) symbol);
         }
         return Optional.empty();
     }
