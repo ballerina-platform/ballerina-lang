@@ -758,9 +758,6 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertTrue(diagnosticIterator.next().toString().contains(
                 "WARNING [Ballerina.toml:(11:1,15:19)] Dependency version (1.2.3) cannot be found in the " +
                         "local repository. org: `ccc` name: ddd"));
-        // Check dependency repository is not given diagnostic
-        Assert.assertTrue(diagnosticIterator.next().toString().contains(
-                "ERROR [Ballerina.toml:(6:1,9:18)] 'repository' under [[dependency]] is missing"));
         // Check dependency cannot be resolved diagnostic
         Assert.assertEquals(
                 diagnosticIterator.next().toString(),

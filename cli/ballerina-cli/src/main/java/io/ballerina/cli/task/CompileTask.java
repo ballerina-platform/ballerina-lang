@@ -91,7 +91,8 @@ public class CompileTask implements Task {
                     // SingleFileProject cannot hold additional sources or resources
                     // and BalaProjects is a read-only project.
                     // Hence we run the code generators only for BuildProject
-                    DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage().runCodeGenAndModifyPlugins();
+                    DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
+                            .runCodeGenAndModifyPlugins();
                     if (codeGenAndModifyDiagnosticResult != null) {
                         diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
                     }
