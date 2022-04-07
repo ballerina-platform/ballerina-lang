@@ -176,7 +176,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             return;
         }
 
-        for (int i = (int) size; i < memCount; i++) { // TODO: fix filler value part
+        for (int i = (int) size; i < memCount; i++) {
             Type memType = memTypes.get(i);
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;
