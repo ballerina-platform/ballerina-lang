@@ -1905,15 +1905,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         BLangStatement exprStmt = bLangStatementExpression.stmt;
-        if (exprStmt.getKind() == NodeKind.BLOCK) {
+        if (exprStmt.getKind() == NodeKind.BLOCK && !((BLangBlockStmt) exprStmt).isLetExpr) {
             BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) exprStmt;
-            if (bLangBlockStmt.isLetExpr) {
-                bLangStatementExpression.stmt = rewrite(bLangBlockStmt, env);
-            } else {
-                for (int i = 0; i < bLangBlockStmt.stmts.size(); i++) {
-                    BLangStatement stmt = bLangBlockStmt.stmts.remove(i);
-                    bLangBlockStmt.stmts.add(i, rewrite(stmt, env));
-                }
+            for (int i = 0; i < bLangBlockStmt.stmts.size(); i++) {
+                BLangStatement stmt = bLangBlockStmt.stmts.remove(i);
+                bLangBlockStmt.stmts.add(i, rewrite(stmt, env));
             }
         } else {
             bLangStatementExpression.stmt = rewrite(exprStmt, env);
