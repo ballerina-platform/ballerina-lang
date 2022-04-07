@@ -734,21 +734,21 @@ public class JvmPackageGen {
         }
     }
 
-    private void generateDependencyList(BPackageSymbol packageSymbol, PackageID sourcePackageID)  {
+    private void generateDependencyList(BPackageSymbol packageSymbol)  {
         if (packageSymbol.bir != null) {
-            generate(packageSymbol.bir, false, sourcePackageID);
+            generate(packageSymbol.bir, false);
         } else {
             for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
                 if (importPkgSymbol == null) {
                     continue;
                 }
-                generateDependencyList(importPkgSymbol, sourcePackageID);
+                generateDependencyList(importPkgSymbol);
             }
         }
         dependentModules.add(packageSymbol.pkgID);
     }
 
-    CompiledJarFile generate(BIRPackage module, boolean isEntry, PackageID sourcePackageID) {
+    CompiledJarFile generate(BIRPackage module, boolean isEntry) {
         if (dependentModules.contains(module.packageID)) {
             return null;
         }
@@ -759,7 +759,7 @@ public class JvmPackageGen {
 
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
                     getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
-            generateDependencyList(pkgSymbol, sourcePackageID);
+            generateDependencyList(pkgSymbol);
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);

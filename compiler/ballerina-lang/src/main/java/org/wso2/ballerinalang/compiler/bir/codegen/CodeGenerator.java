@@ -68,14 +68,14 @@ public class CodeGenerator {
 
     public CompiledJarFile generate(BLangPackage bLangPackage) {
         // generate module
-        return generate(bLangPackage.symbol, bLangPackage.packageID);
+        return generate(bLangPackage.symbol);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, PackageID sourcePackageID) {
-        return generate(bLangTestablePackage.symbol, sourcePackageID);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage) {
+        return generate(bLangTestablePackage.symbol);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol, PackageID sourcePackageID) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol) {
 
         // Split large BIR functions into smaller methods
         largeMethodOptimizer = new LargeMethodOptimizer(symbolTable);
@@ -93,7 +93,7 @@ public class CodeGenerator {
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true, sourcePackageID);
+        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
 
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);
