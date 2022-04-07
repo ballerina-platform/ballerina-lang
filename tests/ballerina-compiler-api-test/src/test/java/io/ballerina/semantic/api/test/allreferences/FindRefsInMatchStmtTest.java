@@ -61,6 +61,10 @@ public class FindRefsInMatchStmtTest extends FindAllReferencesTest {
                         List.of(location(31, 36, 40),
                                 location(34, 24, 28))
                 },
+                {43, 23, location(42, 20, 23),
+                        List.of(location(42, 20, 23),
+                                location(43, 23, 26))
+                },
         };
     }
 

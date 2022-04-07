@@ -398,6 +398,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
+    private boolean skipFailStmtRewrite;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -7665,7 +7666,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        if (this.onFailClause != null) {
+        if (this.onFailClause != null && !this.skipFailStmtRewrite) {
             if (this.onFailClause.bodyContainsFail) {
                 result = rewriteNestedOnFail(this.onFailClause, failNode);
             } else {
@@ -8071,14 +8072,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
+        this.skipFailStmtRewrite = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env);
         result = rewrite(stmtExpr, env);
+        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
+        this.skipFailStmtRewrite = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env);
         result = rewrite(stmtExpr, env);
+        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
     }
 
     @Override

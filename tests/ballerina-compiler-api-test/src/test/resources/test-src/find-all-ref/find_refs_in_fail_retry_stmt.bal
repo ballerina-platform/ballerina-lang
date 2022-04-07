@@ -89,3 +89,19 @@ function testLockOnFail(){
         error ref = ee;
     }
 }
+
+function testOnFail() returns error? {
+    string str = "string";
+    int count = 0;
+    error er = error error:Retriable("Error");
+    retry {
+        count = count + 1;
+        if (count < 5) {
+            str += "retry";
+        }
+        str = "value";
+        fail er;
+    } on fail error e {
+        error ref = e;
+    }
+}
