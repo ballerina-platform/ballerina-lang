@@ -54,7 +54,7 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODE.contains(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
+        if (!DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
                 || context.currentSemanticModel().isEmpty()) {
             return Collections.emptyList();
         }
