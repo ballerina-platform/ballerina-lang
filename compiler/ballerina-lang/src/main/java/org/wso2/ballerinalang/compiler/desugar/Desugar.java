@@ -5799,8 +5799,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression expr;
         BType listConstructorType = Types.getReferredType(listConstructor.getBType());
         if (listConstructorType.tag == TypeTags.TUPLE) {
-            expr = new BLangTupleLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.getBType(),
-                    listConstructor.minFilledMemSize);
+            expr = new BLangTupleLiteral(listConstructor.pos, listConstructor.exprs, listConstructor.getBType());
             result = rewriteExpr(expr);
         } else if (listConstructorType.tag == TypeTags.JSON) {
             expr = new BLangJSONArrayLiteral(listConstructor.exprs, new BArrayType(listConstructor.getBType()));
@@ -5885,7 +5884,7 @@ public class Desugar extends BLangNodeVisitor {
             } else {
                 targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
             }
-            
+
             types.setImplicitCastExpr(expr, expType, targetType);
             i++;
         }

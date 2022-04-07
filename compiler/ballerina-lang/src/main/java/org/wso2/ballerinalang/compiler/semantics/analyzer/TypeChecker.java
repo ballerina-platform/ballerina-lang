@@ -1962,8 +1962,6 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        listConstructor.minFilledMemSize = nonRestTypeIndex;
-
         while (nonRestTypeIndex < memberTypeSize) {
             if (!types.hasFillerValue(memberTypes.get(nonRestTypeIndex))) {
                 dlog.error(listConstructor.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE,
@@ -2042,7 +2040,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType) {
         List<BType> memTypes = checkExprList(listConstructor.exprs, env, expType);
-        listConstructor.minFilledMemSize = memTypes.size();
 
         for (BType memType : memTypes) {
             if (memType == symTable.semanticError) {

@@ -43,8 +43,6 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
     // BLangNodes
     public List<BLangExpression> exprs;
 
-    public int minFilledMemSize = 0;
-
     // Semantic Data
     public boolean isTypedescExpr = false;
     public BType typedescType = null;
@@ -120,11 +118,10 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
             this.exprs = new ArrayList<>();
         }
 
-        public BLangTupleLiteral(Location pos, List<BLangExpression> exprs, BType tupleType, int minFilledMemSize) {
+        public BLangTupleLiteral(Location pos, List<BLangExpression> exprs, BType tupleType) {
             this.pos = pos;
             this.exprs = exprs;
             this.setBType(tupleType);
-            this.minFilledMemSize = minFilledMemSize;
         }
 
         @Override

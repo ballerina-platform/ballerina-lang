@@ -2551,8 +2551,7 @@ public class BIRGen extends BLangNodeVisitor {
                 ((BArrayType) listConstructorExprType).state != BArrayState.OPEN) {
             size = ((BArrayType) listConstructorExprType).size;
         } else if (listConstructorExprType.tag == TypeTags.TUPLE) {
-//            listConstructorExpr.minFilledMemSize ((BTupleType) listConstructorExprType).tupleTypes.size()
-            size = listConstructorExpr.minFilledMemSize; // TODO: revisit
+            size = exprs.size();
         }
 
         BLangLiteral literal = new BLangLiteral();
