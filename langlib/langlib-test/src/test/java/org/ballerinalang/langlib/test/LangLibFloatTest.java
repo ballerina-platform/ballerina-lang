@@ -160,7 +160,12 @@ public class LangLibFloatTest {
                 "testToExpStringWhenFractionDigitsIsZero",
                 "testToExpStringWhenFractionDigitsIsNil",
                 "testToExpStringWhenFractionDigitsIsVeryLargeInt",
-                "testToExpStringWhenFractionDigitsIsIntMax"
+                "testToExpStringWhenFractionDigitsIsIntMax",
+                "testToExpStringWithMorePositiveFloats",
+                "testToExpStringWithVerySmallAndLargePositiveFloats",
+                "testToExpStringWithMoreNegativeFloats",
+                "testToExpStringWithVerySmallAndLargeNegativeFloats",
+                "testToExpStringWithHexaDecimalFloatingPoints"
         };
     }
 }
