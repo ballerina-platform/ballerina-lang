@@ -2042,6 +2042,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType) {
         List<BType> memTypes = checkExprList(listConstructor.exprs, env, expType);
+        listConstructor.minFilledMemSize = memTypes.size();
 
         for (BType memType : memTypes) {
             if (memType == symTable.semanticError) {

@@ -5854,10 +5854,9 @@ public class Desugar extends BLangNodeVisitor {
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
 
-        BType targetType = null;
-        for (int i = 0; i < tupleExprSize; i++) {
-            BLangExpression expr = exprs.get(i);
-
+        boolean isInRestType = false;
+        int i = 0;
+        for (BLangExpression expr: exprs) {
             if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BType spreadOpType = ((BLangListConstructorSpreadOpExpr) expr).expr.getBType();
                 spreadOpType = Types.getReferredType(spreadOpType);
@@ -5874,15 +5873,21 @@ public class Desugar extends BLangNodeVisitor {
                         continue;
                     }
                 }
-                targetType = tupleType.restType;
+                isInRestType = true;
                 continue;
             }
 
             BType expType = expr.impConversionExpr == null ? expr.getBType() : expr.impConversionExpr.getBType();
-            if (targetType == null) {
+
+            BType targetType;
+            if (isInRestType) {
+                targetType = tupleType.restType;
+            } else {
                 targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
             }
+            
             types.setImplicitCastExpr(expr, expType, targetType);
+            i++;
         }
 
         tupleLiteral.exprs = rewriteExprs(tupleLiteral.exprs);
