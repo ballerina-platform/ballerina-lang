@@ -20,6 +20,7 @@ package io.ballerina.compiler.api;
 import io.ballerina.compiler.api.impl.BallerinaTypes;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -37,6 +38,7 @@ import java.util.Optional;
  */
 public abstract class Types {
     protected static final CompilerContext.Key<BallerinaTypes> TYPES_KEY = new CompilerContext.Key<>();
+    protected final CompilerContext context;
     protected final SymbolFactory symbolFactory;
     protected final SymbolTable symbolTable;
     protected final PackageCache packageCache;
@@ -63,6 +65,7 @@ public abstract class Types {
     public final TypeSymbol COMPILATION_ERROR;
 
     protected Types(CompilerContext context) {
+        this.context = context;
         TypesFactory typesFactory = TypesFactory.getInstance(context);
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -118,4 +121,6 @@ public abstract class Types {
      * @return A {@link Map} of the user defined type symbols
      */
     public abstract Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version);
+
+    public abstract TypeBuilder builder();
 }

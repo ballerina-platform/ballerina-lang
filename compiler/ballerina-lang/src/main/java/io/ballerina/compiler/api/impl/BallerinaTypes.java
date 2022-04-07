@@ -18,6 +18,8 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.Types;
+import io.ballerina.compiler.api.impl.types.BallerinaTypeBuilder;
+import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.Symbol;
 import org.ballerinalang.model.elements.PackageID;
@@ -117,6 +119,11 @@ public class BallerinaTypes extends Types {
         }
 
         return Optional.of(Collections.unmodifiableMap(typeDefSymbols));
+    }
+
+    @Override
+    public TypeBuilder builder() {
+        return BallerinaTypeBuilder.getInstance(context);
     }
 
     private boolean isValidTypeDef(BSymbol bSymbol) {
