@@ -19,6 +19,8 @@
 package org.wso2.ballerinalang.compiler.bir;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -57,6 +59,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
@@ -1520,7 +1523,7 @@ public class BIRGen extends BLangNodeVisitor {
             // If not create one
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             addToTrapStack(returnBB);
-            returnBB.terminator = new BIRTerminator.Return(astReturnStmt.pos);
+            returnBB.terminator = new BIRTerminator.Return(getFunctionLastLinePos());
             this.env.returnBB = returnBB;
         }
         if (this.env.enclBB.terminator == null) {
@@ -1544,6 +1547,16 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB = nextBB;
             addToTrapStack(nextBB);
         }
+    }
+
+    private BLangDiagnosticLocation getFunctionLastLinePos() {
+        if (this.env.enclFunc.pos == null) {
+            return null;
+        }
+        LineRange lineRange = this.env.enclFunc.pos.lineRange();
+        LinePosition endLine = lineRange.endLine();
+        return new BLangDiagnosticLocation(lineRange.filePath(), endLine.line(), endLine.line(), endLine.offset(),
+                endLine.offset(), 0, 0);
     }
 
     @Override
