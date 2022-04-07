@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * Test cases for the lang.float library.
+ * Test cases for the lang.decimal library.
  *
  * @since 1.0
  */
@@ -325,5 +325,15 @@ public class LangLibDecimalTest {
     @Test
     public void testFromStringFunctionWithInvalidValues() {
         BRunUtil.invoke(compileResult, "testFromStringFunctionWithInvalidValues");
+    }
+
+    @Test
+    public void testQuantize() {
+        BRunUtil.invoke(compileResult, "testQuantize");
+    }
+
+    @Test
+    public void testQuantizeFunctionWithInvalidOutput() {
+        BRunUtil.invoke(compileResult, "testQuantizeFunctionWithInvalidOutput");
     }
 }
