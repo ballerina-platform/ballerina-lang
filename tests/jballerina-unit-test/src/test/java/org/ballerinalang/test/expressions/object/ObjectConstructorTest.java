@@ -57,6 +57,7 @@ public class ObjectConstructorTest {
                 {"testObjectConstructorWithDistinctTypeReferenceVar"},
                 {"testObjectConstructorWithDefiniteTypeAndWithoutReference"},
                 {"testObjectConstructorExprWithReadOnlyCET"},
+                {"testMultipleVarAssignments"}
         };
     }
 
