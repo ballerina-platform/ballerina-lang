@@ -49,6 +49,14 @@ function testRoundToFractionDigits(decimal arg, int fractionDigits) returns deci
     return decimals:round(arg, fractionDigits);
 }
 
+function testRoundToZeroWithCast(decimal arg) {
+    int casted = <int>arg;
+    decimal rounded = arg.round(0);
+    string castedStr = casted.toBalString() + "d"; // hack to make a decimal string
+    string roundedStr = rounded.toBalString();
+    assertEquality(castedStr, roundedStr);
+}
+
 function testFloor(decimal arg) returns decimal {
     return decimals:floor(arg);
 }

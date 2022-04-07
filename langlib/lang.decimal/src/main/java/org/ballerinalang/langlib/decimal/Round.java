@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.decimal;
 
-import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BDecimal;
 
@@ -38,28 +37,18 @@ import java.math.RoundingMode;
 //        isPublic = true
 //)
 public class Round {
+
     public static BDecimal round(BDecimal x, long fractionDigits) {
-        // Ballerina uses MathContext.DECIMAL128 format and precision is 34
-//        BigDecimal newDecimal = new BigDecimal(x.value().doubleValue(), MathContext.DECIMAL128);
+
         BigDecimal value = x.value();
-        BigDecimal scaledDecimal;
-        if (fractionDigits >= Integer.MAX_VALUE) {
-            scaledDecimal = x.value().setScale(Integer.MAX_VALUE, RoundingMode.HALF_EVEN);
+        if (fractionDigits >= value.scale()) {
+            return x;
         } else if (fractionDigits <= Integer.MIN_VALUE) {
-            scaledDecimal = x.value().setScale(Integer.MIN_VALUE, RoundingMode.HALF_EVEN);
-        } else if (fractionDigits == 0) {
-            if (value.compareTo(RuntimeConstants.BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX) < 0 &&
-                    value.compareTo(RuntimeConstants.BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN) > 0) {
-                long intValue = x.intValue();
-                scaledDecimal = new BigDecimal(intValue, MathContext.DECIMAL128);
-            } else {
-                scaledDecimal = x.value().setScale(0, RoundingMode.HALF_EVEN);
-            }
-        } else {
-            int toIntExact = Math.toIntExact(fractionDigits); // assume no integer overflow due to
-            // previous conditions
-            scaledDecimal = x.value().setScale(toIntExact, RoundingMode.HALF_EVEN);
+            BigDecimal scaledDecimal = new BigDecimal(0, MathContext.DECIMAL128);
+            return ValueCreator.createDecimalValue(scaledDecimal);
         }
+        int toIntExact = Math.toIntExact(fractionDigits); // assume no integer overflow due to
+        BigDecimal scaledDecimal = value.setScale(toIntExact, RoundingMode.HALF_EVEN);
         return ValueCreator.createDecimalValue(scaledDecimal);
     }
 }
