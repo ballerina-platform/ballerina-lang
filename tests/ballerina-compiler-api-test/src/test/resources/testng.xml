@@ -137,6 +137,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.ErrorTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.FunctionTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ImportDeclSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.ModuleSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ObjectTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ParameterSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.RecordTypeSymbolTest" />

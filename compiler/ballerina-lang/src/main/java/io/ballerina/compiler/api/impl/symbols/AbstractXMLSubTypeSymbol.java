@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,40 +17,26 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.SymbolTransformer;
-import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
-import io.ballerina.compiler.api.symbols.StringCharTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Optional;
 
 /**
- * Represents the string:Char type descriptor.
+ * A base class for the xml subtypes.
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
-public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements StringCharTypeSymbol {
+public abstract class AbstractXMLSubTypeSymbol extends AbstractTypeSymbol {
 
     private ModuleSymbol module;
 
-    public BallerinaStringCharTypeSymbol(CompilerContext context, BStringSubType charType) {
-        super(context, TypeDescKind.STRING_CHAR, charType);
-    }
-
-    @Override
-    public Optional<String> getName() {
-        return Optional.of(Names.STRING_CHAR);
-    }
-
-    @Override
-    public String signature() {
-        return "string:" + Names.STRING_CHAR;
+    public AbstractXMLSubTypeSymbol(CompilerContext context, TypeDescKind typeKind, BXMLSubType type) {
+        super(context, typeKind, type);
     }
 
     @Override
@@ -61,19 +47,9 @@ public class BallerinaStringCharTypeSymbol extends AbstractTypeSymbol implements
 
         SymbolTable symTable = SymbolTable.getInstance(this.context);
         SymbolFactory symFactory = SymbolFactory.getInstance(this.context);
-        this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langStringModuleSymbol,
-                                                                   symTable.langStringModuleSymbol
+        this.module = (ModuleSymbol) symFactory.getBCompiledSymbol(symTable.langXmlModuleSymbol,
+                                                                   symTable.langXmlModuleSymbol
                                                                            .getOriginalName().value);
         return Optional.of(this.module);
-    }
-
-    @Override
-    public void accept(SymbolVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SymbolTransformer<T> transformer) {
-        return transformer.transform(this);
     }
 }
