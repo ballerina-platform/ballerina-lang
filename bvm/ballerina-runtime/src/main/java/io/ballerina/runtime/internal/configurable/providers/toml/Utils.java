@@ -476,19 +476,6 @@ public class Utils {
 
     }
 
-    static boolean isSimpleArray(Type elementType) {
-        switch (elementType.getTag()) {
-            case TypeTags.INTERSECTION_TAG:
-                return isSimpleArray(((IntersectionType) elementType).getEffectiveType());
-            case TypeTags.ARRAY_TAG:
-                return isSimpleArray(((ArrayType) elementType).getElementType());
-            case TypeTags.TUPLE_TAG:
-                return true;
-            default:
-                return isSimpleType(elementType.getTag()) || isXMLType(elementType);
-        }
-    }
-
     static Type getTupleElementType(List<Type> tupleTypes, int i, TupleType tupleType) {
         Type restType = tupleType.getRestType();
         if (i >= tupleTypes.size() && restType != null) {
