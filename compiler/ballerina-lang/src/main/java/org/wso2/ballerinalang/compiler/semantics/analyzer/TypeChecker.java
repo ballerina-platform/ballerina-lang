@@ -197,6 +197,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -213,8 +214,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -6770,9 +6769,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             } else {
                 for (BLangExpression restArg : iExpr.restArgs) {
-                    checkExpr(restArg, this.env, symTable.semanticError);
+                    checkExpr(restArg, symTable.semanticError, data);
                 }
-                this.resultType = symTable.semanticError;
+                data.resultType = symTable.semanticError;
             }
         }
 
