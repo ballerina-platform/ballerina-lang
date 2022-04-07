@@ -239,7 +239,7 @@ public class CliProvider implements ConfigProvider {
     }
 
     private Object getUnionValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
-        List<Object> matchingValues = getConvertibleMemberValues(cliArg.value, unionType);
+        List<Object> matchingValues = convertAndGetValuesFromString(cliArg.value, unionType);
         if (matchingValues.size() == 1) {
             return matchingValues.get(0);
         }
@@ -250,7 +250,7 @@ public class CliProvider implements ConfigProvider {
         throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, cliArg, key.variable, typeName);
     }
 
-    private List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
+    private List<Object> convertAndGetValuesFromString(String value, UnionType unionType) {
         List<Object> matchingValues = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             switch (type.getTag()) {
@@ -279,10 +279,10 @@ public class CliProvider implements ConfigProvider {
         return matchingValues;
     }
 
-    private void validateAndAddValue(List<Object> matchingValues, Function<String, Object> func, String value) {
+    private void validateAndAddValue(List<Object> matchingValues, Function<String, Object> convertFunc, String value) {
         Object unionValue;
         try {
-            unionValue = func.apply(value);
+            unionValue = convertFunc.apply(value);
         } catch (NumberFormatException | BError e) {
             return;
         }
