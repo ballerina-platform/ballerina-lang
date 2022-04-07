@@ -330,7 +330,7 @@ public class TestProcessor {
                 // Remove the duplicated annotations.
                 boolean testable = functionSymbol.getModule().get().id().isTestable();
                 PackageID moduleTestCompilationId = module.descriptor().moduleTestCompilationId();
-                String testModuleName = testable? moduleTestCompilationId.name.value + Names.TEST_PACKAGE :
+                String testModuleName = testable ? moduleTestCompilationId.name.value + Names.TEST_PACKAGE :
                         moduleTestCompilationId.name.value;
                 String className = pos.lineRange().filePath()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
