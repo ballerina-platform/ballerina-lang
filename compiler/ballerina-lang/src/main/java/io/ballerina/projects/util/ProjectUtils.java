@@ -129,7 +129,26 @@ public class ProjectUtils {
      * @return True if valid package name, else false.
      */
     public static boolean validatePackageName(String packageName) {
-        return validateDotSeparatedIdentifiers(packageName);
+        return validateDotSeparatedIdentifiers(packageName)
+                && validateUnderscoresOfName(packageName)
+                && validateInitialNumericsOfName(packageName);
+    }
+
+    /**
+     * Validates the package name.
+     *
+     * @param orgName     The organization name.
+     * @param packageName The package name.
+     * @return True if valid package name, else false.
+     */
+    public static boolean validatePackageName(String orgName, String packageName) {
+        if (isLangLibPackage(PackageOrg.from(orgName), PackageName.from(packageName))) {
+            return validateDotSeparatedIdentifiers(packageName)
+                    && validateInitialNumericsOfName(packageName);
+        }
+        return validateDotSeparatedIdentifiers(packageName)
+                && validateUnderscoresOfName(packageName)
+                && validateInitialNumericsOfName(packageName);
     }
 
     /**
@@ -161,6 +180,26 @@ public class ProjectUtils {
      */
     public static boolean validateUnderscoresOfName(String name) {
         return !(name.startsWith("_") || name.endsWith("_") || name.contains("__"));
+    }
+
+    /**
+     * Checks the organization, package or module name has initial numeric characters.
+     *
+     * @param name name.
+     * @return true if name does not have initial numeric characters, else false.
+     */
+    public static boolean validateInitialNumericsOfName(String name) {
+        return !name.matches("[0-9].*");
+    }
+
+    /**
+     * Remove last character of the given string.
+     *
+     * @param aString given string
+     * @return string removed last character
+     */
+    public static String removeLastChar(String aString) {
+        return aString.substring(0, aString.length() - 1);
     }
 
     /**
@@ -234,13 +273,59 @@ public class ProjectUtils {
      * Guess package name with valid pattern.
      *
      * @param packageName package name
+     * @param template    template name
      * @return package name
      */
-    public static String guessPkgName(String packageName) {
+    public static String guessPkgName(String packageName, String template) {
         if (!validatePackageName(packageName)) {
-            return packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
+            packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
+        }
+
+        // if package name is starting with underscore or numeric character, prepend `app` / `lib`
+        if (packageName.startsWith("_") || packageName.matches("[0-9].*")) {
+            if (template.equalsIgnoreCase("lib")) {
+                packageName = "lib" + packageName;
+            } else {
+                packageName = "app" + packageName;
+            }
+        }
+
+        // if package name has consecutive underscores, replace them with a single underscore
+        if (packageName.contains("__")) {
+            packageName = packageName.replaceAll("__", "_");
+        }
+
+        // if package name has trailing underscore remove it
+        if (packageName.endsWith("_")) {
+            packageName = removeLastChar(packageName);
         }
         return packageName;
+    }
+
+    /**
+     * Guess module name with valid pattern.
+     *
+     * @param moduleName module name
+     * @return module name
+     */
+    public static String guessModuleName(String moduleName) {
+        if (!validateModuleName(moduleName)) {
+            return moduleName.replaceAll("[^a-zA-Z0-9_.]", "_");
+        }
+        return moduleName;
+    }
+
+    public static PackageOrg defaultOrg() {
+        return PackageOrg.from(guessOrgName());
+    }
+
+    public static PackageName defaultName(Path projectPath) {
+        return PackageName.from(guessPkgName(Optional.ofNullable(projectPath.getFileName())
+                .map(Path::toString).orElse(""), "app"));
+    }
+
+    public static PackageVersion defaultVersion() {
+        return PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
     }
 
     public static String getBalaName(PackageManifest pkgDesc) {

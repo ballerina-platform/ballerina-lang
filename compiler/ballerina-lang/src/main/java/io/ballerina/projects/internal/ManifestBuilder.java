@@ -65,6 +65,9 @@ import java.util.regex.Pattern;
 
 import static io.ballerina.projects.internal.ManifestUtils.convertDiagnosticToString;
 import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTableNode;
+import static io.ballerina.projects.util.ProjectUtils.defaultName;
+import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
+import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
 import static io.ballerina.projects.util.ProjectUtils.guessOrgName;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
@@ -243,49 +246,54 @@ public class ManifestBuilder {
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
         // set defaults
-        PackageOrg defaultOrg = PackageOrg.from(guessOrgName());
-        PackageName defaultName = PackageName.from(guessPkgName(Optional.ofNullable(this.projectPath.getFileName())
-                .map(Path::toString).orElse("")));
-        PackageVersion defaultVersion = PackageVersion.from(ProjectConstants.INTERNAL_VERSION);
         String org;
         String name;
         String version;
 
         if (tomlTableNode.entries().isEmpty()) {
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+            return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
         if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+            return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
         if (pkgNode.entries().isEmpty()) {
-            return PackageDescriptor.from(defaultOrg, defaultName, defaultVersion);
+            return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
-        org = getStringValueFromTomlTableNode(pkgNode, "org", defaultOrg.value());
-        name = getStringValueFromTomlTableNode(pkgNode, "name", defaultName.value());
-        version = getStringValueFromTomlTableNode(pkgNode, VERSION, defaultVersion.value().toString());
+        org = getStringValueFromTomlTableNode(pkgNode, "org");
+        if (org == null) {
+            org = defaultOrg().value();
+        }
+        name = getStringValueFromTomlTableNode(pkgNode, "name");
+        if (name == null) {
+            name = defaultName(this.projectPath).value();
+        }
+        version = getStringValueFromTomlTableNode(pkgNode, VERSION);
+        if (version == null) {
+            version = defaultVersion().value().toString();
+        }
 
         // check org is valid identifier
         boolean isValidOrg = ProjectUtils.validateOrgName(org);
         if (!isValidOrg) {
-            org = defaultOrg.value();
+            org = defaultOrg().value();
         }
 
         // check that the package name is valid
-        boolean isValidPkg = ProjectUtils.validatePackageName(name);
+        boolean isValidPkg = ProjectUtils.validatePackageName(org, name);
         if (!isValidPkg) {
-            name = defaultName.value();
+            name = defaultName(this.projectPath).value();
         }
 
         // check version is compatible with semver
         try {
             SemanticVersion.from(version);
         } catch (ProjectException e) {
-            version = defaultVersion.value().toString();
+            version = defaultVersion().value().toString();
         }
 
         return PackageDescriptor.from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version));
@@ -534,6 +542,15 @@ public class ManifestBuilder {
             }
         }
         return true;
+    }
+
+    public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key) {
+        TopLevelNode topLevelNode = tomlTableNode.entries().get(key);
+        if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+            // return default value
+            return null;
+        }
+        return getStringFromTomlTableNode(topLevelNode);
     }
 
     public static String getStringValueFromTomlTableNode(TomlTableNode tomlTableNode, String key, String defaultValue) {
