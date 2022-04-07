@@ -19,6 +19,7 @@ package io.ballerina.types.typeops;
 
 import io.ballerina.types.Bdd;
 import io.ballerina.types.BddMemo;
+import io.ballerina.types.Common;
 import io.ballerina.types.Conjunction;
 import io.ballerina.types.Context;
 import io.ballerina.types.Core;
@@ -27,12 +28,8 @@ import io.ballerina.types.PredefinedType;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeOps;
-import io.ballerina.types.subtypedata.BddAllOrNothing;
-import io.ballerina.types.subtypedata.BddNode;
 
 import java.io.PrintStream;
-
-import static io.ballerina.types.Conjunction.and;
 
 /**
  * Function specific methods operate on SubtypeData.
@@ -65,7 +62,8 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
                     return false;
             }
         }
-        boolean isEmpty = functionBddIsEmpty(cx, b, PredefinedType.NEVER, null, null);
+
+        boolean isEmpty = Common.bddEvery(cx, b, null, null, FunctionOps::functionFormulaIsEmpty);
         if (isEmpty) {
             m.isEmpty = BddMemo.MemoStatus.TRUE;
         } else {
@@ -74,30 +72,48 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
         return isEmpty;
     }
 
-    private boolean functionBddIsEmpty(Context cx, Bdd b, SemType s, Conjunction pos, Conjunction neg) {
-        if (b instanceof BddAllOrNothing) {
-            if (!((BddAllOrNothing) b).isAll()) {
-                return true;
-            }
-            if (neg == null) {
-                return false;
-            } else {
-                // replaces the SemType[2] [t0, t1] in nballerina where t0 = paramType, t1 = retType
-                FunctionAtomicType t = cx.functionAtomType(neg.atom);
-                SemType t0 = t.paramType;
-                SemType t1 = t.retType;
-                return (Core.isSubtype(cx, t0, s) && functionTheta(cx, t0, Core.complement(t1), pos))
-                        || functionBddIsEmpty(cx, BddAllOrNothing.bddAll(), s, pos, neg.next);
-            }
+    private static boolean functionFormulaIsEmpty(Context cx, Conjunction pos, Conjunction neg) {
+        return functionPathIsEmpty(cx, functionUnionParams(cx, pos), pos, neg);
+    }
+
+    private static boolean functionPathIsEmpty(Context cx, SemType params, Conjunction pos, Conjunction neg) {
+        if (neg == null) {
+            return false;
         } else {
-            BddNode bn = (BddNode) b;
-            FunctionAtomicType st = cx.functionAtomType(bn.atom);
-            SemType sd = st.paramType;
-            SemType sr = st.retType;
-            return functionBddIsEmpty(cx, bn.left, Core.union(s, sd), and(bn.atom, pos), neg)
-                    && functionBddIsEmpty(cx, bn.middle, s, pos, neg)
-                    && functionBddIsEmpty(cx, bn.right, s, pos, and(bn.atom, neg));
+            FunctionAtomicType t = cx.functionAtomType(neg.atom);
+            SemType t0 = t.paramType;
+            SemType t1 = t.retType;
+            return (Core.isSubtype(cx, t0, params) && functionPhi(cx, t0, Core.complement(t1), pos))
+                    || functionPathIsEmpty(cx, params, pos, neg.next);
         }
+    }
+
+    private static boolean functionPhi(Context cx, SemType t0, SemType t1, Conjunction pos) {
+        if (pos == null) {
+            return Core.isEmpty(cx, t0) || Core.isEmpty(cx, t1);
+        } else {
+            FunctionAtomicType s = cx.functionAtomType(pos.atom);
+            SemType s0 = s.paramType;
+            SemType s1 = s.retType;
+            return (Core.isSubtype(cx, t0, s0)
+                    || Core.isSubtype(cx, functionIntersectRet(cx, pos.next), Core.complement(t1)))
+                    && functionPhi(cx, t0, Core.intersect(t1, s1), pos.next)
+                    && functionPhi(cx, Core.diff(t0, s0), t1, pos.next);
+        }
+    }
+
+    private static SemType functionUnionParams(Context cx, Conjunction pos) {
+        if (pos == null) {
+            return PredefinedType.NEVER;
+        }
+        return Core.union(cx.functionAtomType(pos.atom).retType, functionUnionParams(cx, pos.next));
+    }
+
+    private static SemType functionIntersectRet(Context cx, Conjunction pos) {
+        if (pos == null) {
+            return PredefinedType.TOP;
+        }
+        return Core.intersect(cx.functionAtomType(pos.atom).retType, functionIntersectRet(cx, pos.next));
     }
 
     private boolean functionTheta(Context cx, SemType t0, SemType t1, Conjunction pos) {
