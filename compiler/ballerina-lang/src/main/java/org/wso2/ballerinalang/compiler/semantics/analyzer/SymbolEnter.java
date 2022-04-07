@@ -481,9 +481,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {
         for (BLangNode typeDef : typeDefNodes) {
-            if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
-                continue;
-            } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
+            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
                 BLangTypeDefinition typeDefNode = (BLangTypeDefinition) typeDef;
                 BType type = typeDefNode.typeNode.getBType();
                 typeToTypeDef.put(type, typeDefNode);
@@ -510,7 +508,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
         BObjectType objType = (BObjectType) tSymbol.type;
 
-        // todo: check for class fields and object fields
         defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
