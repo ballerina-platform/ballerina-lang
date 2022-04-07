@@ -10119,14 +10119,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        if (generatedFunctions.size() > 1) {
-            // add last func
-            BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
-            lastFunc = rewrite(lastFunc, env);
-            packageNode.functions.add(lastFunc);
-            packageNode.topLevelNodes.add(lastFunc);
-        }
-
+        rewriteLastSplitFunction(packageNode, env, generatedFunctions);
         return generatedFunctions.get(0);
     }
 
@@ -10175,6 +10168,12 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        rewriteLastSplitFunction(packageNode, env, generatedFunctions);
+        return generatedFunctions.get(0);
+    }
+
+    private void rewriteLastSplitFunction(BLangPackage packageNode, SymbolEnv env,
+                                          List<BLangFunction> generatedFunctions) {
         if (generatedFunctions.size() > 1) {
             // add last func
             BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
@@ -10182,8 +10181,6 @@ public class Desugar extends BLangNodeVisitor {
             packageNode.functions.add(lastFunc);
             packageNode.topLevelNodes.add(lastFunc);
         }
-
-        return generatedFunctions.get(0);
     }
 
     private BLangFunction splitStopFunction(BLangPackage packageNode, SymbolEnv env) {
@@ -10229,14 +10226,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        if (generatedFunctions.size() > 1) {
-            // add last func
-            BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
-            lastFunc = rewrite(lastFunc, env);
-            packageNode.functions.add(lastFunc);
-            packageNode.topLevelNodes.add(lastFunc);
-        }
-
+        rewriteLastSplitFunction(packageNode, env, generatedFunctions);
         return generatedFunctions.get(0);
     }
 
