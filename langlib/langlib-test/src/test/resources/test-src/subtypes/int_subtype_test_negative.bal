@@ -354,4 +354,209 @@ function testOutOfBoundValueAssignment(){
      int:Unsigned8 _ = -9223372036854775553;
      int:Unsigned8 _ = -9223372036854775808;
 }
-// TODO : Add more test cases.
+
+type IntType1 int:Unsigned32|int:Signed8;
+
+type IntType2 int:Unsigned32|int:Unsigned8;
+
+type IntType3 int:Signed16|int:Unsigned8;
+
+type IntType4 int:Signed16|int:Signed32;
+
+function testInCompatibleTypesWithUnionOfIntSubtypes() {
+    int:Signed8|int:Signed16 _ = 32767 + 1;
+    int:Signed8|int:Signed16 _ = 32768;
+    int:Signed16|int:Signed8 _ = 32767 + 1;
+    int:Signed16|int:Signed8 _ = 32768;
+
+    int:Signed8|int:Signed16 _ = -32768 - 1;
+    int:Signed8|int:Signed16 _ = -32769;
+    int:Signed16|int:Signed8 _ = -32768 - 1;
+    int:Signed16|int:Signed8 _ = -32769;
+
+    int:Signed8|int:Signed32 _ = 2147483647 + 1;
+    int:Signed8|int:Signed32 _ = 2147483648;
+    int:Signed32|int:Signed8 _ = 2147483647 + 1;
+    int:Signed32|int:Signed8 _ = 2147483648;
+
+    int:Signed8|int:Signed32 _ = -2147483648 - 1;
+    int:Signed8|int:Signed32 _ = -2147483649;
+    int:Signed32|int:Signed8 _ = -2147483648 - 1;
+    int:Signed32|int:Signed8 _ = -2147483649;
+
+    int:Signed8|int:Unsigned8 _ = 255 + 1;
+    int:Signed8|int:Unsigned8 _ = 256;
+    int:Unsigned8|int:Signed8 _ = 255 + 1;
+    int:Unsigned8|int:Signed8 _ = 256;
+
+    int:Signed8|int:Unsigned8 _ = -128 - 1;
+    int:Signed8|int:Unsigned8 _ = -129;
+    int:Unsigned8|int:Signed8 _ = -128 - 1;
+    int:Unsigned8|int:Signed8 _ = -129;
+
+    int:Signed8|byte _ = 255 + 1;
+    int:Signed8|byte _ = 256;
+    byte|int:Signed8 _ = 255 + 1;
+    byte|int:Signed8 _ = 256;
+
+    int:Signed8|byte _ = -128 - 1;
+    int:Signed8|byte _ = -129;
+    byte|int:Signed8 _ = -128 - 1;
+    byte|int:Signed8 _ = -129;
+
+    int:Signed8|int:Unsigned16 _ = 65535 + 1;
+    int:Signed8|int:Unsigned16 _ = 65536;
+    int:Unsigned16|int:Signed8 _ = 65535 + 1;
+    int:Unsigned16|int:Signed8 _ = 65536;
+
+    int:Signed8|int:Unsigned16 _ = -128 - 1;
+    int:Signed8|int:Unsigned16 _ = -129;
+    int:Unsigned16|int:Signed8 _ = -128 - 1;
+    int:Unsigned16|int:Signed8 _ = -129;
+
+    int:Signed8|int:Unsigned32 _ = 4294967295 + 1;
+    int:Signed8|int:Unsigned32 _ = 4294967296;
+    int:Unsigned32|int:Signed8 _ = 4294967295 + 1;
+    int:Unsigned32|int:Signed8 _ = 4294967296;
+
+    int:Signed8|int:Unsigned32 _ = -128 - 1;
+    int:Signed8|int:Unsigned32 _ = -129;
+    int:Unsigned32|int:Signed8 _ = -128 - 1;
+    int:Unsigned32|int:Signed8 _ = -129;
+
+    int:Signed16|int:Signed32 _ = 2147483647 + 1;
+    int:Signed16|int:Signed32 _ = 2147483648;
+    int:Signed32|int:Signed16 _ = 2147483647 + 1;
+    int:Signed32|int:Signed16 _ = 2147483648;
+
+    int:Signed16|int:Signed32 _ = -2147483648 - 1;
+    int:Signed16|int:Signed32 _ = -2147483649;
+    int:Signed32|int:Signed16 _ = -2147483648 - 1;
+    int:Signed32|int:Signed16 _ = -2147483649;
+
+    int:Signed16|int:Unsigned8 _ = 32767 + 1;
+    int:Signed16|int:Unsigned8 _ = 32768;
+    int:Unsigned8|int:Signed16 _ = 32767 + 1;
+    int:Unsigned8|int:Signed16 _ = 32768;
+
+    int:Signed16|int:Unsigned8 _ = -32768 - 1;
+    int:Signed16|int:Unsigned8 _ = -32769;
+    int:Unsigned8|int:Signed16 _ = -32768 - 1;
+    int:Unsigned8|int:Signed16 _ = -32769;
+
+    int:Signed16|byte _ = 32767 + 1;
+    int:Signed16|byte _ = 32768;
+    byte|int:Signed16 _ = 32767 + 1;
+    byte|int:Signed16 _ = 32768;
+
+    int:Signed16|byte _ = -32768 - 1;
+    int:Signed16|byte _ = -32769;
+    byte|int:Signed16 _ = -32768 - 1;
+    byte|int:Signed16 _ = -32769;
+
+    int:Signed16|int:Unsigned16 _ = 65535 + 1;
+    int:Signed16|int:Unsigned16 _ = 65536;
+    int:Unsigned16|int:Signed16 _ = 65535 + 1;
+    int:Unsigned16|int:Signed16 _ = 65536;
+
+    int:Signed16|int:Unsigned16 _ = -32768 - 1;
+    int:Signed16|int:Unsigned16 _ = -32769;
+    int:Unsigned16|int:Signed16 _ = -32768 - 1;
+    int:Unsigned16|int:Signed16 _ = -32769;
+
+    int:Signed16|int:Unsigned32 _ = 4294967295 + 1;
+    int:Signed16|int:Unsigned32 _ = 4294967296;
+    int:Unsigned32|int:Signed16 _ = 4294967295 + 1;
+    int:Unsigned32|int:Signed16 _ = 4294967296;
+
+    int:Signed16|int:Unsigned32 _ = -32768 - 1;
+    int:Signed16|int:Unsigned32 _ = -32769;
+    int:Unsigned32|int:Signed16 _ = -32768 - 1;
+    int:Unsigned32|int:Signed16 _ = -32769;
+
+    int:Signed32|int:Unsigned8 _ = 2147483647 + 1;
+    int:Signed32|int:Unsigned8 _ = 2147483648;
+    int:Unsigned8|int:Signed32 _ = 2147483647 + 1;
+    int:Unsigned8|int:Signed32 _ = 2147483648;
+
+    int:Signed32|int:Unsigned8 _ = -2147483648 - 1;
+    int:Signed32|int:Unsigned8 _ = -2147483649;
+    int:Unsigned8|int:Signed32 _ = -2147483648 - 1;
+    int:Unsigned8|int:Signed32 _ = -2147483649;
+
+    int:Signed32|byte _ = 2147483647 + 1;
+    int:Signed32|byte _ = 2147483648;
+    byte|int:Signed32 _ = 2147483647 + 1;
+    byte|int:Signed32 _ = 2147483648;
+
+    int:Signed32|byte _ = -2147483648 - 1;
+    int:Signed32|byte _ = -2147483649;
+    byte|int:Signed32 _ = -2147483648 - 1;
+    byte|int:Signed32 _ = -2147483649;
+
+    int:Signed32|int:Unsigned16 _ = 2147483647 + 1;
+    int:Signed32|int:Unsigned16 _ = 2147483648;
+    int:Unsigned16|int:Signed32 _ = 2147483647 + 1;
+    int:Unsigned16|int:Signed32 _ = 2147483648;
+
+    int:Signed32|int:Unsigned16 _ = -2147483648 - 1;
+    int:Signed32|int:Unsigned16 _ = -2147483649;
+    int:Unsigned16|int:Signed32 _ = -2147483648 - 1;
+    int:Unsigned16|int:Signed32 _ = -2147483649;
+
+    int:Signed32|int:Unsigned32 _ = 4294967295 + 1;
+    int:Signed32|int:Unsigned32 _ = 4294967296;
+    int:Unsigned32|int:Signed32 _ = 4294967295 + 1;
+    int:Unsigned32|int:Signed32 _ = 4294967296;
+
+    int:Signed32|int:Unsigned32 _ = -2147483648 - 1;
+    int:Signed32|int:Unsigned32 _ = -2147483649;
+    int:Unsigned32|int:Signed32 _ = -2147483648 - 1;
+    int:Unsigned32|int:Signed32 _ = -2147483649;
+
+    int:Unsigned8|int:Unsigned16 _ = 65535 + 1;
+    int:Unsigned8|int:Unsigned16 _ = 65536;
+    int:Unsigned16|int:Unsigned8 _ = 65535 + 1;
+    int:Unsigned16|int:Unsigned8 _ = 65536;
+
+    int:Unsigned8|int:Unsigned32 _ = 4294967295 + 1;
+    int:Unsigned8|int:Unsigned32 _ = 4294967296;
+    int:Unsigned32|int:Unsigned8 _ = 4294967295 + 1;
+    int:Unsigned32|int:Unsigned8 _ = 4294967296;
+
+    byte|int:Unsigned16 _ = 65535 + 1;
+    byte|int:Unsigned16 _ = 65536;
+    int:Unsigned16|byte _ = 65535 + 1;
+    int:Unsigned16|byte _ = 65536;
+
+    byte|int:Unsigned32 _ = 4294967295 + 1;
+    byte|int:Unsigned32 _ = 4294967296;
+    int:Unsigned32|byte _ = 4294967295 + 1;
+    int:Unsigned32|byte _ = 4294967296;
+
+    int:Unsigned16|int:Unsigned32 _ = 4294967295 + 1;
+    int:Unsigned16|int:Unsigned32 _ = 4294967296;
+    int:Unsigned32|int:Unsigned16 _ = 4294967295 + 1;
+    int:Unsigned32|int:Unsigned16 _ = 4294967296;
+
+    IntType1 _ = 4294967295 + 1;
+    IntType1 _ = 4294967296;
+    IntType1 _ = -128 - 1;
+    IntType1 _ = -129;
+
+    IntType2 _ = 4294967295 + 1;
+    IntType2 _ = 4294967296;
+
+    IntType3 _ = 32767 + 1;
+    IntType3 _ = 32768;
+    IntType3 _ = -32768 - 1;
+    IntType3 _ = -32769;
+
+    IntType4 _ = 2147483647 + 1;
+    IntType4 _ = 2147483648;
+    IntType4 _ = -2147483648 - 1;
+    IntType4 _ = -2147483649;
+
+    int:Signed8|int:Signed32|int:Unsigned32 _ = 4294967296 + 1;
+    int:Unsigned32|int:Unsigned8|int:Signed16 _ = -32769;
+}

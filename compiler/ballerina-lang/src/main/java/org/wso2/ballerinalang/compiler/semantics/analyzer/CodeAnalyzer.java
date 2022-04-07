@@ -3733,6 +3733,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
+        boolean prevFailureHandled = this.failureHandled;
+        this.failureHandled = true;
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3748,6 +3750,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             analyzeNode(clause, data);
         }
         validateActionParentNode(queryAction.pos, queryAction);
+        this.failureHandled = prevFailureHandled;
     }
 
     @Override

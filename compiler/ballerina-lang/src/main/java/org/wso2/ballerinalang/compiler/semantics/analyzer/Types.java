@@ -1307,11 +1307,10 @@ public class Types {
     }
 
     public static BType getReferredType(BType type) {
-        BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+            return getReferredType(((BTypeReferenceType) type).referredType);
         }
-        return constraint;
+        return type;
     }
 
     boolean isSelectivelyImmutableType(BType type) {
@@ -1689,7 +1688,7 @@ public class Types {
                 BType constraint = getReferredType(((BXMLType) collectionType).constraint);
                 while (constraint.tag == TypeTags.XML) {
                     collectionType = constraint;
-                    constraint = ((BXMLType) collectionType).constraint;
+                    constraint = getReferredType(((BXMLType) collectionType).constraint);
                 }
                 switch (constraint.tag) {
                     case TypeTags.XML_ELEMENT:
@@ -3612,7 +3611,7 @@ public class Types {
 
     boolean isByteLiteralValue(Long longObject) {
 
-        return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
+        return (longObject >= BBYTE_MIN_VALUE && longObject <= BBYTE_MAX_VALUE);
     }
 
     boolean isSigned32LiteralValue(Long longObject) {
