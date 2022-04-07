@@ -114,9 +114,4 @@ public class FunctionPointersTest {
         // test any function type descriptor.
         BRunUtil.invoke(result, "test7");
     }
-
-    @Test
-    public void testGlobalFPWithDefaultValues() {
-        BRunUtil.invoke(result, "test8");
-    }
 }
