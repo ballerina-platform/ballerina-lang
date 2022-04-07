@@ -343,6 +343,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.workerReferences.clear();
+        this.returnTypes.clear();
+        this.errorTypes.clear();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         pkgNode.accept(this);
         return pkgNode;
