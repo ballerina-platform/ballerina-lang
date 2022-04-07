@@ -26,13 +26,12 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
-import org.ballerinalang.langserver.LSClientLogger;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
-import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -45,7 +44,7 @@ import java.util.concurrent.CompletableFuture;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("partialParser")
 public class PartialParserService implements ExtendedLanguageServerService {
-    private LSClientLogger clientLogger;
+    private ExtendedLanguageClient extendedLanguageClient;
 
     @Override
     public Class<?> getRemoteInterface() {
@@ -53,9 +52,8 @@ public class PartialParserService implements ExtendedLanguageServerService {
     }
 
     @Override
-    public void init(LanguageServer langServer, WorkspaceManager workspaceManager,
-                     LanguageServerContext serverContext) {
-        this.clientLogger = LSClientLogger.getInstance(serverContext);
+    public void connect(ExtendedLanguageClient client) {
+        this.extendedLanguageClient = client;
     }
 
     @JsonRequest
@@ -115,7 +113,7 @@ public class PartialParserService implements ExtendedLanguageServerService {
             formattedSourceCode = Formatter.format(statement);
         } catch (FormatterException e) {
             String msg = "[Warn] Failed to format the statement: " + statement + ", Cause: " + e.getMessage();
-            this.clientLogger.logMessage(msg);
+            extendedLanguageClient.logMessage(new MessageParams(MessageType.Warning, msg));
         }
 
         return formattedSourceCode;
