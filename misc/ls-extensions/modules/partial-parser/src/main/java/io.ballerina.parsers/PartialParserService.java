@@ -114,7 +114,8 @@ public class PartialParserService implements ExtendedLanguageServerService {
         try {
             formattedSourceCode = Formatter.format(statement);
         } catch (FormatterException e) {
-            this.clientLogger.notifyUser("Formatting", e);
+            String msg = "[Warn] Failed to format the statement: " + statement + ", Cause: " + e.getMessage();
+            this.clientLogger.logMessage(msg);
         }
 
         return formattedSourceCode;
