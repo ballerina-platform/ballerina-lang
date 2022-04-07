@@ -215,6 +215,10 @@ public class Types {
         return expr.getBType();
     }
 
+    public boolean typeIncompatible(Location pos, BType actualType, BType expType) {
+        return checkType(pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES) == symTable.semanticError;
+    }
+
     public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
