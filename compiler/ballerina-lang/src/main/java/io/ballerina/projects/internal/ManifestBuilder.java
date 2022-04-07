@@ -398,7 +398,8 @@ public class ManifestBuilder {
                     continue;
                 }
 
-                dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
+                dependencies.add(new PackageManifest.Dependency(
+                        depName, depOrg, depVersion, repository, dependencyNode.location()));
             }
         }
         return dependencies;
