@@ -744,7 +744,7 @@ public class JvmTerminatorGen {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         String encodedMethodName = Utils.encodeFunctionIdentifier(methodLookupName);
-        String packageName = JvmCodeGenUtil.getPackageName(packageID);
+        String packageName = JvmCodeGenUtil.getPackageName(callIns.calleePkg);
 
 
         int argsCount = callIns.args.size();
@@ -754,14 +754,13 @@ public class JvmTerminatorGen {
             this.loadVar(arg.variableDcl);
             i += 1;
         }
-        BIRFunctionWrapper functionWrapper;
-        if (packageName.equals(currentPackageName)) {
-            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
-        } else {
+        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
+        if (functionWrapper == null) {
             // If the callee function from different module, we need to use decoded function name as lookup key.
             functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + Utils
                     .decodeIdentifier(methodLookupName));
         }
+
         String methodDesc;
         String jvmClass;
         if (functionWrapper != null) {

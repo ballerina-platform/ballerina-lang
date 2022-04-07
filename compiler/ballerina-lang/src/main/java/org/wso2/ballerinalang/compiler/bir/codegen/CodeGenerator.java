@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
@@ -67,14 +68,14 @@ public class CodeGenerator {
 
     public CompiledJarFile generate(BLangPackage bLangPackage) {
         // generate module
-        return generate(bLangPackage.symbol);
+        return generate(bLangPackage.symbol, bLangPackage.packageID);
     }
 
-    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage) {
-        return generate(bLangTestablePackage.symbol);
+    public CompiledJarFile generateTestModule(BLangPackage bLangTestablePackage, PackageID sourcePackageID) {
+        return generate(bLangTestablePackage.symbol, sourcePackageID);
     }
 
-    private CompiledJarFile generate(BPackageSymbol packageSymbol) {
+    private CompiledJarFile generate(BPackageSymbol packageSymbol, PackageID sourcePackageID) {
 
         // Split large BIR functions into smaller methods
         largeMethodOptimizer = new LargeMethodOptimizer(symbolTable);
@@ -92,7 +93,7 @@ public class CodeGenerator {
         HashMap<String, String> originalIdentifierMap = JvmDesugarPhase.encodeModuleIdentifiers(packageSymbol.bir);
 
         // TODO Get-rid of the following assignment
-        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true);
+        packageSymbol.compiledJarFile = jvmPackageGen.generate(packageSymbol.bir, true, sourcePackageID);
 
         //Revert encoding identifier names
         JvmDesugarPhase.replaceEncodedModuleIdentifiers(packageSymbol.bir, originalIdentifierMap);

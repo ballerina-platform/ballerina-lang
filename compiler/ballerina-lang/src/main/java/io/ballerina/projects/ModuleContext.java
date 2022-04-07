@@ -427,7 +427,8 @@ class ModuleContext {
         }
 
         if (!moduleContext.testSrcDocumentIds().isEmpty()) {
-            moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
+            PackageID moduleTestCompilationId = moduleContext.descriptor().moduleTestCompilationId();
+            moduleContext.parseTestSources(pkgNode, moduleTestCompilationId, compilerContext);
         }
 
         pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);

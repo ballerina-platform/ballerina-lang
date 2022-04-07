@@ -2172,7 +2172,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return true;
         }
         if (!Symbols.isPrivate(symbol)) {
-            return env.enclPkg.symbol.pkgID == symbol.pkgID;
+            return env.enclPkg.symbol.pkgID.equals(symbol.pkgID);
         }
         if (env.enclType != null) {
             return env.enclType.getBType().tsymbol == symbol.owner;

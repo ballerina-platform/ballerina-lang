@@ -567,7 +567,7 @@ public class JvmPackageGen {
         // Generate init class. Init function should be the first function of the package, hence check first
         // function.
         BIRFunction initFunc = functions.get(0);
-        String functionName = initFunc.name.value;
+        String functionName = Utils.encodeFunctionIdentifier(initFunc.name.value);
         JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         PackageID packageID = birPackage.packageID;
@@ -578,14 +578,14 @@ public class JvmPackageGen {
 
         // Add start function
         BIRFunction startFunc = functions.get(1);
-        functionName = startFunc.name.value;
+        functionName = Utils.encodeFunctionIdentifier(startFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(startFunc, packageID, initClass));
         klass.functions.add(1, startFunc);
         count += 1;
 
         // Add stop function
         BIRFunction stopFunc = functions.get(2);
-        functionName = stopFunc.name.value;
+        functionName = Utils.encodeFunctionIdentifier(stopFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(stopFunc, packageID, initClass));
         klass.functions.add(2, stopFunc);
         count += 1;
@@ -734,21 +734,21 @@ public class JvmPackageGen {
         }
     }
 
-    private void generateDependencyList(BPackageSymbol packageSymbol) {
+    private void generateDependencyList(BPackageSymbol packageSymbol, PackageID sourcePackageID)  {
         if (packageSymbol.bir != null) {
-            generate(packageSymbol.bir, false);
+            generate(packageSymbol.bir, false, sourcePackageID);
         } else {
             for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
                 if (importPkgSymbol == null) {
                     continue;
                 }
-                generateDependencyList(importPkgSymbol);
+                generateDependencyList(importPkgSymbol, sourcePackageID);
             }
         }
         dependentModules.add(packageSymbol.pkgID);
     }
 
-    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
+    CompiledJarFile generate(BIRPackage module, boolean isEntry, PackageID sourcePackageID) {
         if (dependentModules.contains(module.packageID)) {
             return null;
         }
@@ -759,7 +759,7 @@ public class JvmPackageGen {
 
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
                     getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
-            generateDependencyList(pkgSymbol);
+            generateDependencyList(pkgSymbol, sourcePackageID);
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);

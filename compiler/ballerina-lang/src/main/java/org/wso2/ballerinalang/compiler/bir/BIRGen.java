@@ -262,21 +262,16 @@ public class BIRGen extends BLangNodeVisitor {
 
         this.birOptimizer.optimizePackage(birPkg);
         if (!astPkg.moduleContextDataHolder.skipTests() && astPkg.hasTestablePackage()) {
-            BIRPackage testBirPkg = new BIRPackage(astPkg.pos, astPkg.packageID.orgName, astPkg.packageID.pkgName,
-                    astPkg.packageID.name, astPkg.packageID.version, astPkg.packageID.sourceFileName);
-            this.env = new BIRGenEnv(testBirPkg);
-            astPkg.accept(this);
             astPkg.getTestablePkgs().forEach(testPkg -> {
-                visitBuiltinFunctions(testPkg, testPkg.initFunction);
-                visitBuiltinFunctions(testPkg, testPkg.startFunction);
-                visitBuiltinFunctions(testPkg, testPkg.stopFunction);
-                // remove imports of the main module from testable module
-                for (BLangImportPackage mod : astPkg.imports) {
-                    testPkg.imports.remove(mod);
-                }
+                BIRPackage testBirPkg = new BIRPackage(testPkg.pos, testPkg.packageID.orgName,
+                        testPkg.packageID.pkgName, testPkg.packageID.name, testPkg.packageID.version,
+                        testPkg.packageID.sourceFileName, true);
+                this.env = new BIRGenEnv(testBirPkg);
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
                 testPkg.symbol.bir = testBirPkg;
+                testBirPkg.importModules.add(new BIRNode.BIRImportModule(null, testPkg.packageID.orgName,
+                        testPkg.packageID.name, testPkg.packageID.version));
             });
         }
 
@@ -307,18 +302,6 @@ public class BIRGen extends BLangNodeVisitor {
             }
         }
         return null;
-    }
-
-    private void visitBuiltinFunctions(BLangPackage pkgNode, BLangFunction function) {
-        if (Symbols.isFlagOn(pkgNode.symbol.flags, Flags.TESTABLE)) {
-            String funcName = function.getName().value;
-            String builtinFuncName = funcName.substring(funcName.indexOf("<") + 1, funcName.indexOf(">"));
-            String modifiedFuncName = funcName.replace(builtinFuncName, "test" + builtinFuncName);
-            function.name.setValue(modifiedFuncName);
-            Name functionName = names.fromString(modifiedFuncName);
-            function.originalFuncSymbol.name = functionName;
-            function.symbol.name = functionName;
-        }
     }
 
     // Nodes
