@@ -38,6 +38,13 @@ import java.util.Optional;
 public interface SemanticModel {
 
     /**
+     * Retrieves a single instance of the Types API.
+     *
+     * @return {@link Types} instance of a given semantic context
+     */
+    Types types();
+
+    /**
      * Lookup the visible symbols at the given location.
      *
      * @param sourceFile The source file document in which to look up the position
