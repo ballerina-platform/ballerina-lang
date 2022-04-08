@@ -31,6 +31,7 @@
             <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
+            <class name="io.ballerina.semantic.api.test.SignatureTest" />
             <class name="io.ballerina.semantic.api.test.SymbolEquivalenceTest" />
             <class name="io.ballerina.semantic.api.test.SymbolFlagToQualifierMappingTest" />
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
@@ -40,6 +41,7 @@
             <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.VisitorAPITest" />
+            <class name="io.ballerina.semantic.api.test.TypesTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
