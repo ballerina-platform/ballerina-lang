@@ -1164,6 +1164,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     }
                 }
                 break;
+            case TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                for (BType memberType : tupleType.tupleTypes) {
+                    if (!isSupportedConfigType(memberType, errors, varName, unresolvedTypes)) {
+                        errors.add("tuple element type '" + memberType + "' is not supported");
+                    }
+                }
+                break;
             case TYPEREFDESC:
                 return isSupportedConfigType(Types.getReferredType(type), errors, varName,
                         unresolvedTypes);
