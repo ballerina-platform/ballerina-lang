@@ -967,6 +967,14 @@ function testToExpStringWhenFractionDigitsIsNil() {
     string d = float:toExpString(c, ());
     assertEquality("-4.536212334e+4", d);
     assertEquality("-4.536212334e+4", c.toExpString(()));
+
+    float e = 0;
+    assertEquality("0.0e+0", e.toExpString(()));
+    assertEquality("0.0e+0", 0.0.toExpString(()));
+
+    float f = 0.000;
+    assertEquality("0.0e+0", f.toExpString(()));
+    assertEquality("0.0e+0", 0.00000.toExpString(()));
 }
 
 function testToExpStringWhenFractionDigitsIsVeryLargeInt() {

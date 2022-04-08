@@ -52,8 +52,12 @@ public class ToExpString {
         // If fractionalDigits is `()`, use the minimum number of digits required to accurately represent the value.
         double xAbsValue = Math.abs(x);
         if (fractionDigits == null) {
-            int integerPart = (int) (Math.log10(xAbsValue));
-            noOfFractionDigits = BigDecimal.valueOf(xAbsValue / Math.pow(10, integerPart)).scale();
+            if (xAbsValue == 0) {
+                noOfFractionDigits = BigDecimal.valueOf(xAbsValue).scale();
+            } else {
+                int integerPart = (int) (Math.log10(xAbsValue));
+                noOfFractionDigits = BigDecimal.valueOf(xAbsValue / Math.pow(10, integerPart)).scale();
+            }
         } else {
             noOfFractionDigits = (long) fractionDigits;
         }
