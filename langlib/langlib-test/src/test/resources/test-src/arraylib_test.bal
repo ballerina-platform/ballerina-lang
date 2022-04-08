@@ -1623,7 +1623,14 @@ function fun6(int val) returns boolean {
 }
 
 function testModificationWithinEvery() {
-    _ = globalArr1.every(fun6); // runtime error
+    boolean|error res = trap globalArr1.every(fun6); // runtime error
+    assertTrue(res is error);
+
+    error err = <error>res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error ? message.toString() : message.toString();
+    assertValueEquality("{ballerina/lang.array}IndexOutOfRange", err.message());
+    assertValueEquality("array index out of range: index: 2, size: 2", detailMessage);
 }
 
 function testEvery8() {

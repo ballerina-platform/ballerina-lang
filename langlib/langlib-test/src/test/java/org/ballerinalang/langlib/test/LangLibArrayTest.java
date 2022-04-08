@@ -473,16 +473,16 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "operator '>' not defined for 'string' and 'int'", 229, 25);
         BAssertUtil.validateError(negativeResult, errorIndex++, "undefined function 'ever' in type '[int,int]'",
-                207, 16);
+                233, 16);
         BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: " +
                 "expected 'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
-                "found 'function (int) returns (int)'", 215, 22);
+                "found 'function (int) returns (int)'", 237, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'boolean'",
-                219, 13);
+                241, 13);
         BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'string'",
-                224, 19);
+                246, 19);
         BAssertUtil.validateError(negativeResult, errorIndex++, "operator '>' not defined for 'string' and 'int'",
-                229, 26);
+                251, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -493,7 +493,7 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: 'int' will not be matched to 'string'", 18, 28);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: 'int' will not be matched to 'string'", 18, 29);
+                "incompatible types: 'int' will not be matched to 'string'", 22, 29);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -568,7 +568,8 @@ public class LangLibArrayTest {
                 "testEvery6",
                 "testEvery7",
                 "testEvery8",
-                "testEvery9"
+                "testEvery9",
+                "testModificationWithinEvery"
         };
     }
 }
