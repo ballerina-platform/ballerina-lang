@@ -114,6 +114,11 @@ public class CliProviderNegativeTest {
                                               TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 0, true),
                         "error: value for configurable variable 'x' with type 'int[]' is not supported as a command " +
                                 "line argument"},
+                // Config tuple value which is not supported as cli arg
+                {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x", new BIntersectionType(ROOT_MODULE,
+                        new Type[]{}, TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_INT,
+                        PredefinedTypes.TYPE_STRING)), 0, true), "error: value for configurable variable 'x' with " +
+                        "type '[int,string]' is not supported as a command line argument"},
                 // Config record value which is not supported as cli arg
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
                         new BIntersectionType(ROOT_MODULE, new Type[]{},

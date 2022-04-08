@@ -17,3 +17,7 @@
 function testSomeNegative1() {
     _ = [1, 2].some(val => val is string); // error
 }
+
+function testEveryNegative1() {
+    _ = [1, 2].every(val => val is string); // error
+}

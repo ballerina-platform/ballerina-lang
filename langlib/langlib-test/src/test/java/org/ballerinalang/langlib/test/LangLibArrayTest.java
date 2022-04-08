@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -48,6 +49,11 @@ public class LangLibArrayTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/arraylib_test.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
     @Test
@@ -472,6 +478,17 @@ public class LangLibArrayTest {
                 "incompatible types: expected 'int', found 'string'", 224, 18);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "operator '>' not defined for 'string' and 'int'", 229, 25);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "undefined function 'ever' in type '[int,int]'",
+                233, 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: " +
+                "expected 'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (int) returns (int)'", 237, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'boolean'",
+                241, 13);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'string'",
+                246, 19);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "operator '>' not defined for 'string' and 'int'",
+                251, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -481,6 +498,8 @@ public class LangLibArrayTest {
         int errorIndex = 0;
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: 'int' will not be matched to 'string'", 18, 28);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: 'int' will not be matched to 'string'", 22, 29);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -546,7 +565,17 @@ public class LangLibArrayTest {
                 "testSome7",
                 "testSome8",
                 "testSome9",
-                "testModificationWithinSome"
+                "testModificationWithinSome",
+                "testEvery1",
+                "testEvery2",
+                "testEvery3",
+                "testEvery4",
+                "testEvery5",
+                "testEvery6",
+                "testEvery7",
+                "testEvery8",
+                "testEvery9",
+                "testModificationWithinEvery"
         };
     }
 }

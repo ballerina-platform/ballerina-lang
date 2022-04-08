@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
@@ -105,6 +106,14 @@ public class BallerinaSemanticModel implements SemanticModel {
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public Types types() {
+        return BallerinaTypes.getInstance(this.compilerContext);
     }
 
     /**
