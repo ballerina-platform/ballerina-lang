@@ -59,6 +59,12 @@ public class LangLibValueTest {
         }
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        file = null;
+    }
+
     @Test void testNegativeCases() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
         int index = 0;
@@ -492,11 +498,5 @@ public class LangLibValueTest {
     public void testDecimalToString() {
         BRunUtil.invoke(compileResult, "testDecimalZeroToString");
         BRunUtil.invoke(compileResult, "testDecimalNonZeroToString");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        compileResult = null;
-        file = null;
     }
 }
