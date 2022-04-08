@@ -1749,7 +1749,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
 
                 BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-                BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+                BType spreadOpType = checkExpr(spreadOpExpr, data);
                 spreadOpType = Types.getReferredType(spreadOpType);
 
                 switch (spreadOpType.tag) {
@@ -1803,7 +1803,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-            BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+            BType spreadOpType = checkExpr(spreadOpExpr, data);
             BType spreadOpReferredType = Types.getReferredType(spreadOpType);
 
             switch (spreadOpReferredType.tag) {
@@ -1852,7 +1852,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
 
                 BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-                BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+                BType spreadOpType = checkExpr(spreadOpExpr, data);
                 spreadOpType = Types.getReferredType(spreadOpType);
 
                 switch (spreadOpType.tag) {
@@ -1899,16 +1899,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 if (remainNonRestCount > 0) {
-                    errored |= exprIncompatible(memberTypes.get(nonRestTypeIndex), expr);
+                    errored |= exprIncompatible(memberTypes.get(nonRestTypeIndex), expr, data);
                     nonRestTypeIndex++;
                 } else {
-                    errored |= exprIncompatible(restType, expr);
+                    errored |= exprIncompatible(restType, expr, data);
                 }
                 continue;
             }
 
             BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
-            BType spreadOpType = checkExpr(spreadOpExpr, this.env);
+            BType spreadOpType = checkExpr(spreadOpExpr, data);
             BType spreadOpReferredType = Types.getReferredType(spreadOpType);
 
             switch (spreadOpReferredType.tag) {
@@ -2054,7 +2054,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangExpression e : exprs) {
             if (e.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
-                BType spreadOpExprType = checkExpr(spreadOpExpr, env, expType);
+                BType spreadOpExprType = checkExpr(spreadOpExpr, expType, data);
                 types.addAll(getListConstSpreadOpMemberTypes(e.pos, spreadOpExprType));
                 continue;
             }
