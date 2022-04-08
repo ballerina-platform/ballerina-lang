@@ -27,6 +27,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+/**
+ * The implementation of the methods used to build the XML type descriptor.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
 
     private final TypesFactory typesFactory;
@@ -49,7 +54,7 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
     public XMLTypeSymbol build() {
         BXMLType xmlType = new BXMLType(getBType(typeParam), symTable.xmlType.tsymbol);
 
-        return (XMLTypeSymbol) typesFactory.getTypeDescriptor(xmlType);
+        return (XMLTypeSymbol) typesFactory.getTypeDescriptor(xmlType, xmlType.tsymbol, true);
     }
 
     private BType getBType(TypeSymbol typeSymbol) {

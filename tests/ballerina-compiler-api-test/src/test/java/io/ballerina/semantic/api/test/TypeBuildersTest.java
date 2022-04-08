@@ -80,7 +80,7 @@ public class TypeBuildersTest {
         assertEquals(xmlTypeSymbol.typeKind(), typeDescKind);
         if (typeParam != null) {
             assertTrue(xmlTypeSymbol.typeParameter().isPresent());
-//            assertEquals(xmlTypeSymbol.typeParameter().get().signature(), typeParam.signature());
+            assertEquals(xmlTypeSymbol.typeParameter().get().signature(), typeParam.signature());
         }
 
         assertEquals(xmlTypeSymbol.signature(), signature);
@@ -91,11 +91,10 @@ public class TypeBuildersTest {
         return new Object[][] {
                 {null, XML, "xml"},
                 {types.XML, XML, "xml<xml>"},
-                // TODO: The signature should be "xml<xml:Element>"
-                {xmlSubTypes.get(0), XML, "xml<ballerina/lang.xml:0.0.0:Element>"},
-                {xmlSubTypes.get(1), XML, "xml<ballerina/lang.xml:0.0.0:Comment>"},
-                {xmlSubTypes.get(2), XML, "xml<ballerina/lang.xml:0.0.0:ProcessingInstruction>"},
-                {xmlSubTypes.get(3), XML, "xml<ballerina/lang.xml:0.0.0:Text>"},
+                {xmlSubTypes.get(0), XML, "xml<xml:Element>"},
+                {xmlSubTypes.get(1), XML, "xml<xml:Comment>"},
+                {xmlSubTypes.get(2), XML, "xml<xml:ProcessingInstruction>"},
+                {xmlSubTypes.get(3), XML, "xml<xml:Text>"},
         };
     }
 }
