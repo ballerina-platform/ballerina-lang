@@ -106,7 +106,8 @@ public isolated function abs(float x) returns float = @java:Method {
     name: "abs"
 } external;
 
-# Round a float value to a specified number of digits.
+# Rounds a float value to a specified number of digits.
+#
 # Returns the float value that is an integral multiple of 10 raised to the power of `-fractionDigits` and closest to `x`.
 # If there are two such values, choose the one whose final digit is even
 # (this is the round-to-nearest rounding mode, which is the default for IEEE and for Ballerina).

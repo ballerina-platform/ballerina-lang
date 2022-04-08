@@ -22,7 +22,6 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -176,15 +175,8 @@ public class LangLibFloatTest {
         };
     }
 
-    @Test(dataProvider = "functionsToTestRound")
-    public void testRound(String function) {
-        BRunUtil.invoke(compileResult, function);
-    }
-
-    @DataProvider
-    public  Object[] functionsToTestRound() {
-        return new String[] {
-                "testRound"
-        };
+    @Test
+    public void testRound() {
+        BRunUtil.invoke(compileResult, "testRound");
     }
 }

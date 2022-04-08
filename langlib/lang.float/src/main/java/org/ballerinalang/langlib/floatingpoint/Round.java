@@ -35,7 +35,7 @@ import java.math.RoundingMode;
 public class Round {
 
     public static double round(double x, long fractionDigits) {
-        if (isSpecialValue(x)) {
+        if (Double.isInfinite(x) || Double.isNaN(x) || x == 0.0d) {
             return x;
         }
         if (fractionDigits == 0) {
@@ -58,15 +58,9 @@ public class Round {
             if (fractionDigitsAsInt > scale) {
                 return x;
             }
-        } else {
-            if (-fractionDigitsAsInt > (xInBigDecimal.precision() - scale)) {
-                return 0;
-            }
+        } else if (-fractionDigitsAsInt > (xInBigDecimal.precision() - scale)) {
+            return 0;
         }
         return xInBigDecimal.setScale(fractionDigitsAsInt, RoundingMode.HALF_EVEN).doubleValue();
-    }
-
-    private static boolean isSpecialValue(double x) {
-        return Double.isInfinite(x) || Double.isNaN(x) || x == 0.0d;
     }
 }
