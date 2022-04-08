@@ -585,6 +585,25 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "some(function () func)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for some member of an array.\n\nThe parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.\nWhen the array is empty, returns false.\n  \n**Params**  \n- `function ()` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter `func` returns true for some member of `arr`; otherwise, false  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "some",
+      "insertText": "some(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

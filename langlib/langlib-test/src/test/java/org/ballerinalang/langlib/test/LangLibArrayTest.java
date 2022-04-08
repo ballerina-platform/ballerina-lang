@@ -461,6 +461,26 @@ public class LangLibArrayTest {
                         "found 'function[]'", 199, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected " +
                 "'ballerina/lang.array:0.0.0:AnydataType', found 'function (int) returns (int)'", 199, 26);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "undefined function 'som' in type '[int,int]'", 207, 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                        "found 'function (int) returns (int)'", 215, 21);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'int', found 'boolean'", 219, 13);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'int', found 'string'", 224, 18);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "operator '>' not defined for 'string' and 'int'", 229, 25);
+        Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
+    }
+
+    @Test
+    public void testArrayLibNegativeSemantics() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative_semantic.bal");
+        int errorIndex = 0;
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: 'int' will not be matched to 'string'", 18, 28);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -516,7 +536,17 @@ public class LangLibArrayTest {
                 "testReverseRecord",
                 "testArrayReverseEquality",
                 "testPushAfterSliceOnTuple",
-                "testUnshiftLargeValues"
+                "testUnshiftLargeValues",
+                "testSome1",
+                "testSome2",
+                "testSome3",
+                "testSome4",
+                "testSome5",
+                "testSome6",
+                "testSome7",
+                "testSome8",
+                "testSome9",
+                "testModificationWithinSome"
         };
     }
 }
