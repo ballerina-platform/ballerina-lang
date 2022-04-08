@@ -22,7 +22,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
 /**
- * Represents the set of type builders for complex types.
+ * Represents the set of type builder interfaces which are used to generate complex types in a single semantic context.
  *
  * @since 2.0.0
  */
@@ -30,8 +30,26 @@ public abstract class TypeBuilder {
 
     public XML XML_TYPE;
 
+    /**
+     * Represents the methods required to build the XML type symbol of an XML type descriptor.
+     */
     public interface XML {
+
+        /**
+         * Sets the type parameter which could be optional when building an XML type. This type parameter shall
+         * either be null, or a subtype of the XML type.
+         *
+         * @param typeParam     The optional type parameter
+         * @return The {@link XML} instance with the type parameter being set
+        */
         XML withTypeParam(TypeSymbol typeParam);
+
+        /**
+         * Sets the type parameter which could be optional when building an XML type. This type parameter shall
+         * either be null, or a subtype of the XML type.
+         *
+         * @return The {@link XMLTypeSymbol} built
+         */
         XMLTypeSymbol build();
     }
 }

@@ -62,6 +62,7 @@ public class BallerinaTypes extends Types {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Optional<Symbol> getTypeByName(String org, String moduleName, String version, String typeDefName) {
         if (org == null || moduleName == null || version == null || typeDefName == null) {
             throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: " +
@@ -88,6 +89,7 @@ public class BallerinaTypes extends Types {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
         if (org == null || moduleName == null || version == null) {
             throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: " +
@@ -121,6 +123,9 @@ public class BallerinaTypes extends Types {
         return Optional.of(Collections.unmodifiableMap(typeDefSymbols));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeBuilder builder() {
         return BallerinaTypeBuilder.getInstance(context);

@@ -21,7 +21,7 @@ package io.ballerina.compiler.api.impl.types;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
- * Implementation of the TypeBuilders.
+ * Initialize and provide the set of builders required for certain complex types within a single semantic context.
  *
  * @since 2.0.0
  */

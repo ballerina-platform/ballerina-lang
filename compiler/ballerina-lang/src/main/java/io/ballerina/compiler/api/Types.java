@@ -122,5 +122,10 @@ public abstract class Types {
      */
     public abstract Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version);
 
+    /**
+     * Retrieves a single instance of the builders used to construct more complex types.
+     *
+     * @return An instance of the {@link TypeBuilder} for a given semantic context
+     */
     public abstract TypeBuilder builder();
 }
