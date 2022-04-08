@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
@@ -146,7 +147,21 @@ public class TupleValueImpl extends AbstractArrayValue {
         List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
-        this.size = size < memCount ? memCount : (int) size;
+        if (type.getRestType() != null) {
+            int valueCount = 0;
+            for (BListInitialValueEntry listEntry : initialValues) {
+                if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
+                    valueCount++;
+                } else {
+                    BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
+                    valueCount += values.size();
+                }
+            }
+            this.size = Math.max(valueCount, memCount);
+        } else {
+            this.size = memCount;
+        }
+
         this.minSize = memCount;
         this.hasRestElement = this.tupleType.getRestType() != null;
 
@@ -157,16 +172,25 @@ public class TupleValueImpl extends AbstractArrayValue {
             this.refValues = new Object[DEFAULT_ARRAY_SIZE];
         }
 
-        for (int index = 0; index < initialValues.length; index++) {
-            addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
+        int index = 0;
+        for (BListInitialValueEntry listEntry : initialValues) {
+            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
+                addRefValue(index++, ((ListInitialValueEntry.ExpressionEntry) listEntry).value);
+            } else {
+                BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
+                BIterator<?> iterator = values.getIterator();
+                while (iterator.hasNext()) {
+                    addRefValue(index++, iterator.next());
+                }
+            }
         }
 
-        if (size >= memCount) {
+        if (index >= memCount) {
             this.typedesc = getTypedescValue(tupleType, this);
             return;
         }
 
-        for (int i = (int) size; i < memCount; i++) {
+        for (int i = index; i < memCount; i++) {
             Type memType = memTypes.get(i);
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;
