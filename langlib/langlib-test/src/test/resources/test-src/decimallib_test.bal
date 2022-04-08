@@ -123,6 +123,7 @@ function testRoundToZeroWithCast(decimal arg) {
     string roundedStr = rounded.toBalString();
     assertEquality(castedStr, roundedStr);
 }
+
 function testFloor(decimal arg) returns decimal {
     return decimals:floor(arg);
 }
