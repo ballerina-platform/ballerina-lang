@@ -39,3 +39,17 @@ function testUndefinedErrorDetailsNegative() {
     var error(reason5, msg = msg5, cause = cause5, extra = extra5) = err;
     var error FooError(reason6, msg = msg6, cause = cause6, extra = extra6) = err;
 }
+
+function testNestedNonRequiredFieldBinding() {
+    [int, FooError] t = [12, error("Error One", message = "Msg One", cause = "Cause One", fatal = false)];
+
+    int i;
+    string m;
+    any|error n;
+
+    error(m, identifier = n) = t[1];
+    [i, error(m, identifier = n)] = t;
+
+    error(m, message = n) = t[1];
+    [i, error(m, message = n)] = t;
+}

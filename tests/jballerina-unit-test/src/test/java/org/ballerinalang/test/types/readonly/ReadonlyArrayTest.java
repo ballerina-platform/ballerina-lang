@@ -36,7 +36,7 @@ public class ReadonlyArrayTest {
         result = BCompileUtil.compile("test-src/types/readonly/array_creation.bal");
     }
 
-    @Test(expectedExceptions = org.ballerinalang.core.util.exceptions.BLangRuntimeException.class,
+    @Test(expectedExceptions = io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*modification not allowed on readonly " +
                   "value.*", dataProvider = "arrayTests")
     public void testCreateArray(String funcName) {

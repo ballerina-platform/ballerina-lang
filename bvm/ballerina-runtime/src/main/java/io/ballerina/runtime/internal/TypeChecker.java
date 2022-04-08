@@ -2511,7 +2511,11 @@ public class TypeChecker {
             }
         }
 
-        for (int i = 0; i < source.size(); i++) {
+        int sourceSize = source.size();
+        if ((targetType.getState() != ArrayState.OPEN) && (sourceSize != targetType.getSize())) {
+            return false;
+        }
+        for (int i = 0; i < sourceSize; i++) {
             if (!checkIsLikeType(null, source.get(i), targetTypeElementType, unresolvedValues,
                     allowNumericConversion, null)) {
                 return false;
@@ -3213,11 +3217,17 @@ public class TypeChecker {
         if (type == null) {
             return true;
         }
-        if (type.getTag() < TypeTags.RECORD_TYPE_TAG &&
-                !(type.getTag() == TypeTags.CHAR_STRING_TAG || type.getTag() == TypeTags.NEVER_TAG)) {
+
+        int typeTag = type.getTag();
+        if (TypeTags.isXMLTypeTag(typeTag)) {
+            return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
+        }
+
+        if (typeTag < TypeTags.RECORD_TYPE_TAG &&
+                !(typeTag == TypeTags.CHAR_STRING_TAG || typeTag == TypeTags.NEVER_TAG)) {
             return true;
         }
-        switch (type.getTag()) {
+        switch (typeTag) {
             case TypeTags.STREAM_TAG:
             case TypeTags.MAP_TAG:
             case TypeTags.ANY_TAG:

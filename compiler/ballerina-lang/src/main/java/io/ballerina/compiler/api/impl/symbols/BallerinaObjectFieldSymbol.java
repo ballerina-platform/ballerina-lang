@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
@@ -53,10 +55,9 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
     private List<AnnotationSymbol> annots;
     private String signature;
     private boolean deprecated;
-    private String escapedName;
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField, SymbolKind kind) {
-        super(bField.name.value, kind, bField.symbol, context);
+        super(bField.symbol.getOriginalName().value, kind, bField.symbol, context);
         this.bField = bField;
         this.docAttachment = new BallerinaDocumentation(bField.symbol.markdownDocumentation);
         this.deprecated = Symbols.isFlagOn(bField.symbol.flags, Flags.DEPRECATED);
@@ -64,15 +65,6 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
     public BallerinaObjectFieldSymbol(CompilerContext context, BField bField) {
         this(context, bField, OBJECT_FIELD);
-    }
-
-    @Override
-    public Optional<String> getName() {
-        if (this.escapedName != null) {
-            return Optional.of(this.escapedName);
-        }
-        this.escapedName = escapeReservedKeyword(this.bField.getName().getValue());
-        return Optional.ofNullable(this.escapedName);
     }
 
     @Override
@@ -140,5 +132,15 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
         this.signature = joiner.add(this.typeDescriptor().signature()).add(this.getName().get()).toString();
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

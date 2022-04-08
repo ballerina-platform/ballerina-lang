@@ -562,7 +562,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns the float value represented by a string.\n\nparameter `s` must follow the syntax of DecimalFloatingPointNumber as defined by the Ballerina specification\nwith the following modifications\n- the DecimalFloatingPointNumber may have a leading `+` or `-` sign\n- `NaN` is allowed\n- `Infinity` is allowed with an optional leading `+` or `-` sign\n- a FloatingPointTypeSuffix is not allowed\nThis is the inverse of function `value:toString` applied to an `float`.\n  \n**Params**  \n- `string` s: string representation of a float  \n  \n**Return** `float|error`   \n- float value or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns the float value represented by a string.\n\nparameter `s` must follow the syntax of DecimalFloatingPointNumber as defined by the Ballerina specification\nwith the following modifications\n- the DecimalFloatingPointNumber may have a leading `+` or `-` sign\n- `NaN` is allowed\n- `Infinity` is allowed with an optional leading `+` or `-` sign\n- a FloatingPointTypeSuffix is not allowed\nThis is the inverse of function ``value:toString`` applied to an `float`.\n  \n**Params**  \n- `string` s: string representation of a float  \n  \n**Return** `float|error`   \n- float value or error  \n  \n"
         }
       },
       "sortText": "E",
@@ -644,6 +644,44 @@
       "sortText": "AA",
       "filterText": "fromBitsInt",
       "insertText": "fromBitsInt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toFixedString(float x, int? fractionDigits)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns a string that represents `x` using fixed-point notation.\nThe returned string will be in the same format used by `value:toString`,\nexcept that it will not include an exponent.\nIf `x` is NaN or infinite, the result will be the same as `value:toString`.\nThis will panic if `fractionDigits` is less than 0.\nIf `fractionDigits` is zero, there will be no decimal point.\nAny necessary rounding will use the roundTiesToEven rounding direction.\n  \n**Params**  \n- `float` x: float value  \n- `int?` fractionDigits: number of digits following the decimal point; `()` means to use\nthe minimum number of digits required to accurately represent the value  \n  \n**Return** `string`   \n- string representation of `x` in fixed-point notation  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "toFixedString",
+      "insertText": "toFixedString(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toExpString(float x, int? fractionDigits)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns a string that represents `x` using scientific notation.\nThe returned string will be in the same format used by `value:toString`,\nexcept that it will always include an exponent and there will be exactly\none digit before the decimal point.\nBut if `x` is NaN or infinite, the result will be the same as `value:toString`.\nThe digit before the decimal point will be zero only if all other digits\nare zero.\nThis will panic if fractionDigits is less than 0.\nIf `fractionDigits` is zero, there will be no decimal point.\nAny necessary rounding will use the roundTiesToEven rounding direction.\nThe exponent in the result uses lower-case `e`, followed by a `+` or `-` sign,\nfollowed by at least two digits, and only as many more digits as are needed\nto represent the result. If `x` is zero, the exponent is zero. A zero exponent\nis represented with a `+` sign.\n  \n**Params**  \n- `float` x: float value  \n- `int?` fractionDigits: number of digits following the decimal point; `()` means to use\nthe minimum number of digits required to accurately represent the value  \n  \n**Return** `string`   \n- string representation of `x` in scientific notation  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "filterText": "toExpString",
+      "insertText": "toExpString(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

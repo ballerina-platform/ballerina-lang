@@ -31,6 +31,7 @@
             <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
+            <class name="io.ballerina.semantic.api.test.SignatureTest" />
             <class name="io.ballerina.semantic.api.test.SymbolEquivalenceTest" />
             <class name="io.ballerina.semantic.api.test.SymbolFlagToQualifierMappingTest" />
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
@@ -39,15 +40,19 @@
             <class name="io.ballerina.semantic.api.test.TestSourcesTest" />
             <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
+            <class name="io.ballerina.semantic.api.test.VisitorAPITest" />
+            <class name="io.ballerina.semantic.api.test.TypesTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.CyclicUnionRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindModulePrefixRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsAcrossFilesTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInBindingPatternsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInClassObjectTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInConditionalStmtTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInDoStmtTest" />
+            <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInErrorBindingPatternsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInErrorConstructorTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInExprsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInFailTrtryStmtTest" />
@@ -62,7 +67,6 @@
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsOfEnumsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsWithinTargetDocumentTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.XMLRefsTest" />
-            <class name="io.ballerina.semantic.api.test.allreferences.CyclicUnionRefsTest" />
 
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByAnnotationTest" />
             <class name="io.ballerina.semantic.api.test.symbolbynode.SymbolByClassTest" />
@@ -135,6 +139,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.ErrorTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.FunctionTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ImportDeclSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.ModuleSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ObjectTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ParameterSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.RecordTypeSymbolTest" />

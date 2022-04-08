@@ -12,6 +12,7 @@ jobs:
   publish-ballerina-lang:
     name: Build and Publish Ballerina Lang
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     if: github.repository_owner == 'ballerina-platform'
     steps:
       -   name: Checkout Repository
@@ -40,7 +41,8 @@ jobs:
             publishUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
             publishPAT: ${{ secrets.BALLERINA_BOT_TOKEN }}
           run: |
-            ./gradlew clean build publish -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew clean build -x createJavadoc --scan --continue --rerun-tasks
+            ./gradlew publish
             ./gradlew createCodeCoverageReport
 
       -   name: Generate Codecov Report

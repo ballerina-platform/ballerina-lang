@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.statements.variabledef;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -48,45 +46,45 @@ public class VariableDefinitionTest {
 
     @Test
     public void testVariableDefaultValue() {
-        BValue[] returns = BRunUtil.invoke(result, "variableDefaultValue", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(result, "variableDefaultValue", new Object[0]);
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long i = ((BInteger) returns[0]).intValue();
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        long i = (long) returns.get(0);
         Assert.assertEquals(i, 0);
 
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        boolean b = ((BBoolean) returns[1]).booleanValue();
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        boolean b = (boolean) returns.get(1);
         Assert.assertFalse(b);
 
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = returns[2].stringValue();
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        String s = returns.get(2).toString();
         Assert.assertEquals(s, "");
 
-        Assert.assertSame(returns[3].getClass(), BFloat.class);
-        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertSame(returns.get(3).getClass(), Double.class);
+        double f = (double) returns.get(3);
         Assert.assertEquals(f, 0.0f, DELTA);
     }
 
     @Test
     public void testInlineVarInit() {
-        BValue[] returns = BRunUtil.invoke(result, "inlineVarInit", new BValue[0]);
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(result, "inlineVarInit", new Object[0]);
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long i = ((BInteger) returns[0]).intValue();
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        long i = (long) returns.get(0);
         Assert.assertEquals(i, 10);
 
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        boolean b = ((BBoolean) returns[1]).booleanValue();
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        boolean b = (boolean) returns.get(1);
         Assert.assertTrue(b);
 
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = returns[2].stringValue();
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        String s = returns.get(2).toString();
         Assert.assertEquals(s, "hello");
 
-        Assert.assertSame(returns[3].getClass(), BFloat.class);
-        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertSame(returns.get(3).getClass(), Double.class);
+        double f = (double) returns.get(3);
         Assert.assertEquals(f, 2.6f, DELTA);
     }
 
@@ -97,27 +95,27 @@ public class VariableDefinitionTest {
         String v4 = "newstr";
         double v5 = 68.3325f;
 
-        BValue[] args = {
-                new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
+        Object[] args = {
+                (v1), (v3), StringUtils.fromString(v4), (v5)
         };
 
-        BValue[] returns = BRunUtil.invoke(result, "updateVarValue", args);
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(result, "updateVarValue", args);
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long i = ((BInteger) returns[0]).intValue();
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        long i = (long) returns.get(0);
         Assert.assertEquals(i, v1);
 
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        boolean b = ((BBoolean) returns[1]).booleanValue();
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        boolean b = (boolean) returns.get(1);
         Assert.assertEquals(b, v3);
 
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = returns[2].stringValue();
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        String s = returns.get(2).toString();
         Assert.assertEquals(s, v4);
 
-        Assert.assertSame(returns[3].getClass(), BFloat.class);
-        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertSame(returns.get(3).getClass(), Double.class);
+        double f = (double) returns.get(3);
         Assert.assertEquals(f, v5, DELTA);
     }
 
@@ -128,33 +126,33 @@ public class VariableDefinitionTest {
         String v4 = "newstr";
         double v5 = 68.3325f;
 
-        BValue[] args = {
-                new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
+        Object[] args = {
+                (v1), (v3), StringUtils.fromString(v4), (v5)
         };
 
-        BValue[] returns = BRunUtil.invoke(result, "updateVarValue", args);
-        Assert.assertEquals(returns.length, 4);
+        BArray returns = (BArray) BRunUtil.invoke(result, "updateVarValue", args);
+        Assert.assertEquals(returns.size(), 4);
 
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        long i = ((BInteger) returns[0]).intValue();
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        long i = (long) returns.get(0);
         Assert.assertEquals(i, v1);
 
-        Assert.assertSame(returns[1].getClass(), BBoolean.class);
-        boolean b = ((BBoolean) returns[1]).booleanValue();
+        Assert.assertSame(returns.get(1).getClass(), Boolean.class);
+        boolean b = (boolean) returns.get(1);
         Assert.assertEquals(b, v3);
 
-        Assert.assertSame(returns[2].getClass(), BString.class);
-        String s = returns[2].stringValue();
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        String s = returns.get(2).toString();
         Assert.assertEquals(s, v4);
 
-        Assert.assertSame(returns[3].getClass(), BFloat.class);
-        double f = ((BFloat) returns[3]).floatValue();
+        Assert.assertSame(returns.get(3).getClass(), Double.class);
+        double f = (double) returns.get(3);
         Assert.assertEquals(f, v5, DELTA);
     }
 
     @Test(description = "Test defining var with wild card")
     public void wildCardLocalVariables() {
-        BRunUtil.invoke(result, "wildCardLocalVariables", new BValue[0]);
+        BRunUtil.invoke(result, "wildCardLocalVariables", new Object[0]);
     }
 
     @Test(description = "Test variable definition negative test cases with errors")

@@ -192,8 +192,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                  */
                 String typeName = (typeDesc == null || typeDesc.typeKind() == null) ? "" :
                         CommonUtil.getModifiedTypeName(ctx, typeDesc);
-                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
-                        typeName);
+                CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, 
+                        varSymbol.getName().orElse(""), typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
 
                 if (typeDesc != null) {
@@ -344,7 +344,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
-                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits, 
+                CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits,
                         aliasComponent);
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
@@ -540,7 +540,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     protected List<LSCompletionItem> expressionCompletions(BallerinaCompletionContext context, T node) {
         return this.expressionCompletions(context);
     }
-    
+
     protected List<LSCompletionItem> getTypeQualifierItems(BallerinaCompletionContext context) {
         // Note: here we do not add the service type qualifier since it is being added via getTypeItems call.
         return Arrays.asList(
@@ -577,7 +577,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
-    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits, 
+    private CompletionItem getModuleCompletionItem(String label, String insertText, @Nonnull List<TextEdit> txtEdits,
                                                    String prefix) {
         CompletionItem moduleCompletionItem = new CompletionItem();
         moduleCompletionItem.setLabel(label);
@@ -604,7 +604,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     private List<LSCompletionItem> populateSelfClassSymbolCompletionItems(Symbol symbol, BallerinaCompletionContext ctx,
                                                                           TypeSymbol rawType) {
         Optional<ModuleMemberDeclarationNode> moduleMember = ctx.enclosedModuleMember();
-        if (moduleMember.isEmpty() || !CommonUtil.isSelfClassSymbol(symbol, ctx, moduleMember.get())) {
+        if (moduleMember.isEmpty() || (!CommonUtil.isSelfClassSymbol(symbol, ctx, moduleMember.get())
+                && !CommonUtil.isSelfObjectSymbol(symbol, ctx.getNodeAtCursor()))) {
             return Collections.emptyList();
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
@@ -707,7 +708,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (typeSymbolAtCursor.isEmpty() || typeSymbolAtCursor.get().typeKind() != TypeDescKind.FUNCTION) {
             return Optional.empty();
         }
-        
+
         TypeSymbol symbol = typeSymbolAtCursor.get();
         FunctionTypeSymbol functionTypeSymbol = ((FunctionTypeSymbol) symbol);
         Optional<TypeSymbol> returnTypeSymbol = functionTypeSymbol.returnTypeDescriptor();
@@ -715,7 +716,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         if (returnTypeSymbol.isEmpty()) {
             return Optional.empty();
         }
-        
+
         List<String> args = new ArrayList<>();
         int argIndex = 1;
         Set<String> visibleSymbolNames = visibleSymbols
@@ -724,7 +725,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-                
+
         if (functionTypeSymbol.params().isPresent()) {
             // variable names
             for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
@@ -737,14 +738,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 argIndex++;
             }
         }
-        
+
         String functionName = "";
-        String snippet = FunctionGenerator.generateFunction(context, false, functionName, args, 
+        String snippet = FunctionGenerator.generateFunction(context, false, functionName, args,
                 returnTypeSymbol.get());
-        SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION, 
+        SnippetBlock snippetBlock = new SnippetBlock(ItemResolverConstants.ANON_FUNCTION,
                 ItemResolverConstants.FUNCTION, snippet, ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET);
         snippetBlock.setId(ItemResolverConstants.ANON_FUNCTION);
-        
+
         return Optional.of(new SnippetCompletionItem(context, snippetBlock));
     }
 

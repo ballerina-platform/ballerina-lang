@@ -244,7 +244,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.VariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
@@ -5400,6 +5399,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 }
             }
 
+            if (type == SyntaxKind.IDENTIFIER_TOKEN && text.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
+                text = text.substring(1);
+            }
+
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 Location pos = getPosition(literal);
                 validateUnicodePoints(text, pos);
@@ -5425,7 +5428,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }  else if (type == SyntaxKind.NULL_LITERAL) {
             originalValue = "null";
             typeTag = TypeTags.NIL;
-            value = "null";
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.BINARY_EXPRESSION) { // Should be base16 and base64
             typeTag = TypeTags.BYTE_ARRAY;
@@ -5559,19 +5561,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 builtInValueType.pos = getPosition(type);
                 return builtInValueType;
         }
-    }
-
-    private VariableNode createBasicVarNodeWithoutType(Location location, String identifier,
-                                                       Location identifierLocation, ExpressionNode expr) {
-        BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        bLSimpleVar.pos = location;
-        IdentifierNode name = this.createIdentifier(identifierLocation, identifier);
-        ((BLangIdentifier) name).pos = identifierLocation;
-        bLSimpleVar.setName(name);
-        if (expr != null) {
-            bLSimpleVar.setInitialExpression(expr);
-        }
-        return bLSimpleVar;
     }
 
     private BLangInvocation createBLangInvocation(Node nameNode, NodeList<FunctionArgumentNode> arguments,

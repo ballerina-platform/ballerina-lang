@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.bala.object;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -42,7 +41,7 @@ public class ObjectsWithClosuresInBalaTest {
 
     @Test(description = "Test Basic object closure")
     public void testBasicStructAsObject() {
-        BValue[] returns = BRunUtil.invoke(result, "testObjectWithClosuresFromFoo");
+        Object returns = BRunUtil.invoke(result, "testObjectWithClosuresFromFoo");
     }
 
     @AfterClass

@@ -55,20 +55,20 @@ public class TypeConverter {
     static final String ADDITIONAL_PROPERTIES = "additionalProperties";
     static final String TYPE = "type";
     // Stores already visited complex types against the type name
-    private static Map<String, VisitedType> visitedTypeMap = new HashMap<>();
+    private Map<String, VisitedType> visitedTypeMap = new HashMap<>();
 
-    public static VisitedType getVisitedType(String typeName) {
+    private VisitedType getVisitedType(String typeName) {
         if (visitedTypeMap.containsKey(typeName)) {
             return visitedTypeMap.get(typeName);
         }
         return null;
     }
 
-    public static void addVisitedTypeEntry(String typeName) {
+    public void addVisitedTypeEntry(String typeName) {
         visitedTypeMap.put(typeName, new VisitedType());
     }
 
-    public static void completeVisitedTypeEntry(String typeName, JsonObject typeNode) {
+    private void completeVisitedTypeEntry(String typeName, JsonObject typeNode) {
         VisitedType visitedType = visitedTypeMap.get(typeName);
         visitedType.setCompleted(true);
         visitedType.setTypeNode(typeNode);
@@ -80,7 +80,7 @@ public class TypeConverter {
      * @param type Ballerina type as BType
      * @return JsonObject with type details
      */
-    static JsonObject getType(BType type) {
+    JsonObject getType(BType type) {
         JsonObject typeNode = new JsonObject();
         if (TypeTags.isSimpleBasicType(type.tag)) {
             String typeVal = getSimpleType(type);
@@ -132,7 +132,7 @@ public class TypeConverter {
         return typeNode;
     }
 
-    private static void generateTableType(JsonObject typeNode, BTableType effectiveType) {
+    private void generateTableType(JsonObject typeNode, BTableType effectiveType) {
         typeNode.addProperty(TYPE, "array");
         typeNode.add("items", getType(effectiveType.getConstraint()));
     }
@@ -143,7 +143,7 @@ public class TypeConverter {
      * @param typeNode JsonObject representing type
      * @param effectiveType  BArrayType with array details
      */
-    private static void generateArrayType(JsonObject typeNode, BArrayType effectiveType) {
+    private void generateArrayType(JsonObject typeNode, BArrayType effectiveType) {
         typeNode.addProperty(TYPE, "array");
         typeNode.add("items", getType(effectiveType.getElementType()));
     }
@@ -154,7 +154,7 @@ public class TypeConverter {
      * @param effectiveType BRecordType with record details
      * @return JsonObject with record details
      */
-    private static JsonObject generateRecordType(BRecordType effectiveType) {
+    private JsonObject generateRecordType(BRecordType effectiveType) {
         JsonObject typeNode;
         LinkedHashMap<String, BField> fieldLinkedHashMap = effectiveType.getFields();
         JsonObject effectiveTypeNode = new JsonObject();
@@ -172,6 +172,15 @@ public class TypeConverter {
         if (!requiredFields.isEmpty()) {
             typeNode.add("required", requiredFields);
         }
+        // Get record type and set the type name as a property
+        if (effectiveType.getIntersectionType().isPresent()) {
+            for (BType bType : effectiveType.getIntersectionType().get().getConstituentTypes()) {
+                // Does not consider anonymous records
+                if (bType instanceof BTypeReferenceType) {
+                    typeNode.addProperty("name", bType.toString().trim());
+                }
+            }
+        }
         return typeNode;
     }
 
@@ -181,9 +190,9 @@ public class TypeConverter {
      * @param typeNode JsonObject representing type
      * @param effectiveType  BMapType with map details
      */
-    private static void generateMapType(JsonObject typeNode, BMapType effectiveType) {
+    private void generateMapType(JsonObject typeNode, BMapType effectiveType) {
         typeNode.addProperty(TYPE, "object");
-        typeNode.add("additionalProperties", getType(effectiveType.getConstraint()));
+        typeNode.add(ADDITIONAL_PROPERTIES, getType(effectiveType.getConstraint()));
     }
 
     /**
@@ -192,7 +201,7 @@ public class TypeConverter {
      * @param typeNode JsonObject representing type
      * @param effectiveType  BUnionType with union details
      */
-    private static void generateUnionType(JsonObject typeNode, BUnionType effectiveType) {
+    private void generateUnionType(JsonObject typeNode, BUnionType effectiveType) {
         LinkedHashSet<BType> members = effectiveType.getMemberTypes();
         JsonArray memberArray = new JsonArray();
         JsonArray enumArray = new JsonArray();
@@ -217,7 +226,7 @@ public class TypeConverter {
      * @param memberArray JSON array to hold non-enum union members
      * @param enumArray JSON array to hold enum union members
      */
-    private static void updateUnionMembers(LinkedHashSet<BType> members, JsonArray memberArray, JsonArray enumArray) {
+    private void updateUnionMembers(LinkedHashSet<BType> members, JsonArray memberArray, JsonArray enumArray) {
         for (BType member : members) {
             if (TypeTags.isSimpleBasicType(member.tag) ||
                     (TypeTags.INTERSECTION == member.tag && member instanceof BIntersectionType)) {

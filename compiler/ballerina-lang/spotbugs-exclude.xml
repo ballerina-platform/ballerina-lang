@@ -103,6 +103,10 @@
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE, EQ_DOESNT_OVERRIDE_EQUALS" />
     </Match>
     <Match>
+        <Class name="io.ballerina.compiler.api.Types" />
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
+    </Match>
+    <Match>
         <Class name = "org.ballerinalang.toml.model.Library"/>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
@@ -356,6 +360,10 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.CodeGeneratorManager$SourceGeneratorTask"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.CodeModifierManager$SourceModifierTask"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
     <Match>

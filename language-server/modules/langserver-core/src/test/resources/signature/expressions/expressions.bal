@@ -303,8 +303,8 @@ public client class Stub {
     public Child obj = new Child();
 
     # Create a new Stub
-    public function init(any arg1,string arg2) {
-
+    public function init(any arg1, string arg2) returns error? {
+        
     }
 
     # Returns name
@@ -412,4 +412,11 @@ int t1 = testFunctionCall()
 
 function testFunctionCall() {
 
+}
+
+// -- expression, method-call-expr
+function testLanglib() {
+    string testStr = "HelloWorld";
+    string subStr = testStr.substring();
+    string subStr = testStr.substring(1,7);
 }

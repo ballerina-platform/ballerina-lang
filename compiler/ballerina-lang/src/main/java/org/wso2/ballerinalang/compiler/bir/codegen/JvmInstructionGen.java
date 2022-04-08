@@ -1184,7 +1184,8 @@ public class JvmInstructionGen {
 
         this.mv.visitInsn(LOR);
 
-        if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+        if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag) &&
+                opType1.tag != TypeTags.UNION && opType2.tag != TypeTags.UNION) {
             generateIntToUnsignedIntConversion(this.mv,
                     getSmallestBuiltInUnsignedIntSubTypeContainingTypes(opType1, opType2));
         }
@@ -1213,7 +1214,8 @@ public class JvmInstructionGen {
 
         this.mv.visitInsn(LXOR);
 
-        if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+        if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag) &&
+            opType1.tag != TypeTags.UNION && opType2.tag != TypeTags.UNION) {
             generateIntToUnsignedIntConversion(this.mv,
                     getSmallestBuiltInUnsignedIntSubTypeContainingTypes(opType1, opType2));
         }

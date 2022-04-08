@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.types.constant;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -49,9 +47,9 @@ public class ConstantAssignmentTest {
 
     @Test(description = "Test accessing constant evaluated by an expression.")
     public void testConstantAssignmentExpression() {
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstant");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "test");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "accessConstant");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "test");
     }
 
     private void setEnv(String key, String value) {
@@ -77,30 +75,30 @@ public class ConstantAssignmentTest {
 
     @Test(description = "Test accessing constant evaluated by a function return value.")
     public void testConstantAssignmentViaFunction() {
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantViaFunction");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "dummy");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "accessConstantViaFunction");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "dummy");
     }
 
     @Test(description = "Test accessing constant evaluated by a native function return value.")
     public void testConstantAssignmentViaNativeFunction() {
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantViaNativeFunction");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "ballerina is awesome");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "accessConstantViaNativeFunction");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "ballerina is awesome");
     }
 
     @Test(description = "Test accessing constant evaluated by a integer addition expr.")
     public void testConstantAssignmentViaIntegerAddition() {
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalIntegerExpression");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 30);
+        Object returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalIntegerExpression");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns, 30L);
     }
 
     @Test(description = "Test accessing constant evaluated by another already defined constant.")
     public void testConstantAssignmentViaConstant() {
-        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalWithMultipleConst");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "dummyballerina is awesome");
+        Object returns = BRunUtil.invoke(positiveCompileResult, "accessConstantEvalWithMultipleConst");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "dummyballerina is awesome");
     }
 
     @Test

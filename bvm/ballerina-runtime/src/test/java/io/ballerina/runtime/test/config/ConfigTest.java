@@ -20,7 +20,14 @@ package io.ballerina.runtime.test.config;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -41,10 +48,12 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
+import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
 /**
  * Test cases for configuration related implementations.
@@ -58,7 +67,7 @@ public class ConfigTest {
             new BFiniteType("Colors", Set.of(StringUtils.fromString("RED")), 0),
             new BFiniteType("Colors", Set.of(StringUtils.fromString("GREEN")), 0)};
     public static final Type COLOR_ENUM_UNION = new BUnionType(COLOR_ENUM_MEMBERS, COLOR_ENUM_MEMBERS, 0, false,
-                                                               SymbolFlags.ENUM);
+            SymbolFlags.ENUM);
     public static final Type COLOR_ENUM = new BIntersectionType(module, new Type[]{}, COLOR_ENUM_UNION, 0, true);
     private final Set<Module> moduleSet = Set.of(module);
 
@@ -70,7 +79,7 @@ public class ConfigTest {
         VariableKey[] keys = {key};
         configVarMap.put(module, keys);
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
-                                                           Arrays.asList(configProvider));
+                Arrays.asList(configProvider));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
         Assert.assertTrue(expectedJClass.isInstance(configValueMap.get(key).getValue()),
                 "Invalid value provided for variable : " + key.variable);
@@ -130,8 +139,59 @@ public class ConfigTest {
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579")},
                 // Enum value given with cli
                 {new VariableKey(module, "color", COLOR_ENUM,
-                                 true), BString.class, StringUtils.fromString("GREEN"),
+                        true), BString.class, StringUtils.fromString("GREEN"),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.color=GREEN")},
+        };
+    }
+
+    @Test(dataProvider = "cli-args-not-supported-provider")
+    public void testCLIArgUnsupportedErrors(String variableName, Type type, String expectedValue, int errors) {
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey variableKey = new VariableKey(ROOT_MODULE, variableName, type, null, true);
+        configVarMap.put(ROOT_MODULE,
+                new VariableKey[]{new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, null
+                        , false), variableKey});
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new CliProvider(ROOT_MODULE, "-CintVar=22"),
+                        new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases(
+                                "UnsupportedCliConfig.toml"), Set.of(ROOT_MODULE))));
+        Map<VariableKey, ConfigValue> valueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), errors);
+        ConfigValue configValue = valueMap.get(variableKey);
+        if (configValue == null) {
+            Assert.assertNull(expectedValue);
+        } else {
+            Assert.assertEquals(configValue.getValue().toString(), expectedValue);
+        }
+
+    }
+
+    @DataProvider(name = "cli-args-not-supported-provider")
+    public Object[][] cliArgsNotSupportedDataProvider() {
+        ArrayType arrayType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT);
+        TupleType tupleType =
+                TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING),
+                        null, 0, true);
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
+        RecordType recordType = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields,
+                null, true, 6);
+        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true);
+        TableType tableType = TypeCreator.createTableType(mapType, true);
+
+        return new Object[][]{
+                {"a", new BIntersectionType(ROOT_MODULE, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY},
+                        arrayType, 0, true), "[2,3,4]", 5},
+                {"b", new BIntersectionType(ROOT_MODULE, new Type[]{tupleType, PredefinedTypes.TYPE_READONLY},
+                        tupleType, 0, true), "[5,\"hello\"]", 5},
+                {"c", new BIntersectionType(ROOT_MODULE, new Type[]{recordType, PredefinedTypes.TYPE_READONLY},
+                        recordType, 0, true), null, 7},
+                {"d", new BIntersectionType(ROOT_MODULE, new Type[]{mapType, PredefinedTypes.TYPE_READONLY},
+                        mapType, 0, true), "{\"a\":1}", 4},
+                {"e", new BIntersectionType(ROOT_MODULE, new Type[]{tableType, PredefinedTypes.TYPE_READONLY},
+                        tableType, 0, true), "[{\"aa\":2}]", 4},
         };
     }
 }

@@ -1291,7 +1291,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isolatedModuleVariableReference) {
-            if (!inLockStatement) {
+            if (inLockStatement) {
+                return;
+            }
+
+            if (recordFieldDefaultValue) {
+                dlog.error(varRefExpr.pos,
+                           DiagnosticErrorCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK_IN_RECORD_DEFAULT);
+            } else {
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK);
             }
             return;
@@ -1823,9 +1830,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv typeEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
 
+        boolean prevInLockStatement = this.inLockStatement;
+        this.inLockStatement = false;
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             analyzeNode(field, typeEnv);
         }
+        this.inLockStatement = prevInLockStatement;
 
         for (BLangSimpleVariable referencedField : recordTypeNode.includedFields) {
             analyzeNode(referencedField, typeEnv);

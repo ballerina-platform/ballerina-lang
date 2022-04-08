@@ -17,5 +17,5 @@
 import testorg/distinct_error.errors;
 
 public function main() {
-    int|DistinctError err = errors:returnDistinctErrorUnionWhichThrowsCheckedException(1, "DistinctError");
+    int|errors:DistinctError err = errors:returnDistinctErrorUnionWhichThrowsCheckedException(1, "DistinctError");
 }

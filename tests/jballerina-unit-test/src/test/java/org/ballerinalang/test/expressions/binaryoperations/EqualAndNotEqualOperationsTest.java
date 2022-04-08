@@ -16,11 +16,10 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.util.JsonParser;
-import org.ballerinalang.core.model.values.BNewArray;
-import org.ballerinalang.core.model.values.BRefType;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.JsonParser;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -80,15 +79,15 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test(description = "Test equals/unequals operation with two equal arrays", dataProvider = "equalArrayValues")
-    public void test1DArrayEqualityPositive(BNewArray i, BNewArray j) {
-        BValue[] args = {i, j};
+    public void test1DArrayEqualityPositive(Object i, Object j) {
+        Object[] args = {i, j};
         BRunUtil.invoke(result, "check1DArrayEqualityPositive", args);
     }
 
     @Test(description = "Test equals/unequals operation with two unequal arrays", dataProvider =
             "unequalArrayValues")
-    public void test1DArrayEqualityNegative(BValue i, BValue j) {
-        BValue[] args = {i, j};
+    public void test1DArrayEqualityNegative(Object i, Object j) {
+        Object[] args = {i, j};
         BRunUtil.invoke(result, "check1DArrayEqualityNegative", args);
     }
 
@@ -110,12 +109,11 @@ public class EqualAndNotEqualOperationsTest {
                 "check2DFloatArrayEqualityPositive", "check2DFloatArrayEqualityNegative",
                 "check2DStringArrayEqualityPositive", "check2DStringArrayEqualityNegative",
                 "checkComplex2DArrayEqualityPositive", "checkComplex2DArrayEqualityNegative",
-                "checkTupleEqualityPositive" , "checkTupleEqualityNegative", "checkUnionArrayPositive",
+                "checkTupleEqualityPositive", "checkTupleEqualityNegative", "checkUnionArrayPositive",
                 "checkUnionArrayNegative", "checkTupleWithUnionPositive", "checkTupleWithUnionNegative",
                 "testArrayTupleEqualityPositive", "testArrayTupleEqualityNegative"
         };
     }
-
 
     @Test(description = "Test equals/unequals operation with map values", dataProvider = "map-equality-functions")
     public void testMapValueEquality(String function) {
@@ -146,33 +144,33 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test(description = "Test equals/unequals operation with two equal json arrays", dataProvider = "equalArrayValues")
-    public void test1DJsonArrayEqualityPositive(BNewArray i, BNewArray j) {
-        BValue[] args = {i, j};
+    public void test1DJsonArrayEqualityPositive(Object i, Object j) {
+        Object[] args = {i, j};
         BRunUtil.invoke(result, "checkJsonEqualityPositive", args);
-}
+    }
 
     @Test(description = "Test equals/unequals operation with two unequal json arrays", dataProvider =
             "unequalArrayValues")
-    public void test1DJsonArrayEqualityNegative(BValue i, BValue j) {
-        BValue[] args = {i, j};
+    public void test1DJsonArrayEqualityNegative(Object i, Object j) {
+        Object[] args = {i, j};
         BRunUtil.invoke(result, "checkJsonEqualityNegative", args);
     }
 
     @Test(description = "Test equals/unequals operation with two json objects")
     public void testJsonObjectEqualityPositive() {
-        BRefType jsonVal = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
-        BRefType jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
-        BRunUtil.invoke(result, "checkJsonEqualityPositive", new BValue[]{jsonVal, jsonValTwo});
+        Object jsonVal = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
+        Object jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\"}");
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"helloTwo\": \"worldTwo\", \"hello\": \"world\"}");
-        BRunUtil.invoke(result, "checkJsonEqualityPositive", new BValue[]{jsonVal, jsonValTwo});
+        BRunUtil.invoke(result, "checkJsonEqualityPositive", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\"}");
-        BRunUtil.invoke(result, "checkJsonEqualityNegative", new BValue[]{jsonVal, jsonValTwo});
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
 
         jsonValTwo = JsonParser.parse("{\"hello\": \"world\", \"helloTwo\": \"worldTwo\", \"helloThree\": " +
-                                              "\"worldThree\"}");
-        BRunUtil.invoke(result, "checkJsonEqualityNegative", new BValue[]{jsonVal, jsonValTwo});
+                "\"worldThree\"}");
+        BRunUtil.invoke(result, "checkJsonEqualityNegative", new Object[]{jsonVal, jsonValTwo});
     }
 
     @Test(description = "Test equals/unequals operation with xml values", dataProvider = "xml-equality-functions")
@@ -209,17 +207,17 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, i++, "operator '==' not defined for 'map<int>' and 'map<float>'", 38, 21);
         validateError(resultNegative, i++, "operator '!=' not defined for 'map<int>' and 'map<float>'", 38, 33);
         validateError(resultNegative, i++, "operator '==' not defined for 'map<(string|int)>' and 'map<float>'",
-                      42, 21);
+                42, 21);
         validateError(resultNegative, i++, "operator '!=' not defined for 'map<(string|int)>' and 'map<float>'",
-                      42, 33);
+                42, 33);
         validateError(resultNegative, i++, "operator '==' not defined for '[string,int]' and '[boolean,float]'",
-                      50, 21);
+                50, 21);
         validateError(resultNegative, i++, "operator '!=' not defined for '[string,int]' and '[boolean,float]'",
-                      50, 33);
+                50, 33);
         validateError(resultNegative, i++, "operator '==' not defined for '[(float|int),int]' and '[boolean,int]'",
-                      54, 21);
+                54, 21);
         validateError(resultNegative, i++, "operator '!=' not defined for '[(float|int),int]' and '[boolean,int]'",
-                      54, 33);
+                54, 33);
         validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and 'Person'", 62, 17);
         validateError(resultNegative, i++, "operator '!=' not defined for 'Employee' and 'Person'", 62, 29);
         validateError(resultNegative, i++, "operator '==' not defined for 'EmployeeWithOptionalId' and " +
@@ -235,7 +233,7 @@ public class EqualAndNotEqualOperationsTest {
         validateError(resultNegative, i++, "operator '==' not defined for 'Employee' and '()'", 138, 9);
         validateError(resultNegative, i++, "operator '==' not defined for 'Foo' and '()'", 144, 9);
         validateError(resultNegative, i++, "operator '==' not defined for 'function () returns (string)' and '()'",
-                      150, 9);
+                150, 9);
         validateError(resultNegative, i++, "operator '!=' not defined for 'readonly' and 'map<int>'",
                 168, 12);
         validateError(resultNegative, i++, "operator '==' not defined for '[int,map<int>]' and '[int,float]'", 179,
@@ -255,37 +253,56 @@ public class EqualAndNotEqualOperationsTest {
 
     @DataProvider(name = "equalArrayValues")
     public Object[][] equalArrayValues() {
+        BString[] stringArr = {StringUtils.fromString("\"hi\""), StringUtils.fromString("\"from\""),
+                StringUtils.fromString("\"ballerina\"")};
         return new Object[][]{
-                {new BValueArray(new long[]{1, 2, 3}), new BValueArray(new long[]{1, 2, 3})},
-                {new BValueArray(new double[]{1.11, 12.2, 3.0}), new BValueArray(new double[]{1.11, 12.2, 3.0})},
-                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
-                        new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""})},
-                {new BValueArray(new int[]{0, 1}), new BValueArray(new int[]{0, 1})},
-                {new BValueArray(new byte[]{0, 25, 23}), new BValueArray(new byte[]{0, 25, 23})}
+                {ValueCreator.createArrayValue(new long[]{1, 2, 3}),
+                        ValueCreator.createArrayValue(new long[]{1, 2, 3})},
+                {ValueCreator.createArrayValue(new double[]{1.11, 12.2, 3.0}),
+                        ValueCreator.createArrayValue(new double[]{1.11, 12.2, 3.0})},
+                {ValueCreator.createArrayValue(stringArr),
+                        ValueCreator.createArrayValue(stringArr)},
+                {ValueCreator.createArrayValue(new long[]{0, 1}), ValueCreator.createArrayValue(new long[]{0, 1})},
+                {ValueCreator.createArrayValue(new byte[]{0, 25, 23}),
+                        ValueCreator.createArrayValue(new byte[]{0, 25, 23})}
         };
     }
 
     @DataProvider(name = "unequalArrayValues")
     public Object[][] unequalArrayValues() {
+        BString[] stringArr = {StringUtils.fromString("\"hi\""), StringUtils.fromString("\"from\""),
+                StringUtils.fromString("\"ballerina\"")};
+        BString[] stringArr2 = {StringUtils.fromString("\"ballerina\""), StringUtils.fromString("\"from\""),
+                StringUtils.fromString("\"hi\"")};
+        BString[] stringArr3 = {StringUtils.fromString("\"hi\""), StringUtils.fromString("\"from\""),
+                StringUtils.fromString("\"ballerina\""), StringUtils.fromString("\"!\"")};
+        BString[] stringArr4 = {StringUtils.fromString("\"first\""), StringUtils.fromString("\"hi\""),
+                StringUtils.fromString("\"from\""), StringUtils.fromString("\"ballerina\"")};
         return new Object[][]{
-                {new BValueArray(new long[]{1, 2, 3}), new BValueArray(new long[]{3, 2, 1})},
-                {new BValueArray(new long[]{1, 2, 3, 4, 5, 6}), new BValueArray(new long[]{1, 2, 3})},
-                {new BValueArray(new long[]{1, 2, 3}), new BValueArray(new long[]{1, 2, 3, 4, 5, 6})},
-                {new BValueArray(new double[]{1.11, 12.2, 3.0}), new BValueArray(new double[]{3.0, 12.2, 1.11})},
-                {new BValueArray(new double[]{1.11, 12.2, 3.0, 3.2}), new BValueArray(new double[]{1.11, 12.2, 3.0})},
-                {new BValueArray(new double[]{1.11, 12.2, 3.0}), new BValueArray(new double[]{1.11, 12.2, 3.0, 3.2})},
-                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
-                        new BValueArray(new String[]{"\"ballerina\"", "\"from\"", "\"hi\""})},
-                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\"", "\"!\""}),
-                        new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""})},
-                {new BValueArray(new String[]{"\"hi\"", "\"from\"", "\"ballerina\""}),
-                        new BValueArray(new String[]{"\"first\"", "\"hi\"", "\"from\"", "\"ballerina\""})},
-                {new BValueArray(new int[]{0, 1}), new BValueArray(new int[]{1, 0})},
-                {new BValueArray(new int[]{0, 1, 1}), new BValueArray(new int[]{0, 1})},
-                {new BValueArray(new int[]{0, 1}), new BValueArray(new int[]{0, 1, 0})},
-                {new BValueArray(new byte[]{0, 123, 22}), new BValueArray(new byte[]{0, 22, 123})},
-                {new BValueArray(new byte[]{0, 123, 22, 9}), new BValueArray(new byte[]{0, 123, 22})},
-                {new BValueArray(new byte[]{0, 123, 22}), new BValueArray(new byte[]{0, 123})}
+                {ValueCreator.createArrayValue(new long[]{1, 2, 3}),
+                        ValueCreator.createArrayValue(new long[]{3, 2, 1})},
+                {ValueCreator.createArrayValue(new long[]{1, 2, 3, 4, 5, 6}),
+                        ValueCreator.createArrayValue(new long[]{1, 2, 3})},
+                {ValueCreator.createArrayValue(new long[]{1, 2, 3}),
+                        ValueCreator.createArrayValue(new long[]{1, 2, 3, 4, 5, 6})},
+                {ValueCreator.createArrayValue(new double[]{1.11, 12.2, 3.0}),
+                        ValueCreator.createArrayValue(new double[]{3.0, 12.2, 1.11})},
+                {ValueCreator.createArrayValue(new double[]{1.11, 12.2, 3.0, 3.2}),
+                        ValueCreator.createArrayValue(new double[]{1.11, 12.2, 3.0})},
+                {ValueCreator.createArrayValue(new double[]{1.11, 12.2, 3.0}),
+                        ValueCreator.createArrayValue(new double[]{1.11, 12.2, 3.0, 3.2})},
+                {ValueCreator.createArrayValue(stringArr), ValueCreator.createArrayValue(stringArr2)},
+                {ValueCreator.createArrayValue(stringArr3), ValueCreator.createArrayValue(stringArr)},
+                {ValueCreator.createArrayValue(stringArr), ValueCreator.createArrayValue(stringArr4)},
+                {ValueCreator.createArrayValue(new long[]{0, 1}), ValueCreator.createArrayValue(new long[]{1, 0})},
+                {ValueCreator.createArrayValue(new long[]{0, 1, 1}), ValueCreator.createArrayValue(new long[]{0, 1})},
+                {ValueCreator.createArrayValue(new long[]{0, 1}), ValueCreator.createArrayValue(new long[]{0, 1, 0})},
+                {ValueCreator.createArrayValue(new byte[]{0, 123, 22}),
+                        ValueCreator.createArrayValue(new byte[]{0, 22, 123})},
+                {ValueCreator.createArrayValue(new byte[]{0, 123, 22, 9}),
+                        ValueCreator.createArrayValue(new byte[]{0, 123, 22})},
+                {ValueCreator.createArrayValue(new byte[]{0, 123, 22}),
+                        ValueCreator.createArrayValue(new byte[]{0, 123})}
         };
     }
 
@@ -309,8 +326,8 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @DataProvider
-    public  Object[] functionsWithUnionEqualityChecks() {
-        return new String[] {
+    public Object[] functionsWithUnionEqualityChecks() {
+        return new String[]{
                 "testEqualityWithFloatUnion",
                 "testNotEqualityWithFloatUnion",
                 "testExactEqualityWithFloatUnion",

@@ -219,6 +219,26 @@ public class TypedescriptorTest {
         assertEquals(((TypeReferenceTypeSymbol) type.memberTypeDescriptor()).typeDescriptor().typeKind(), OBJECT);
     }
 
+    @Test(dataProvider = "ArrayVarPosProvider")
+    public void testFixedArrayType(int line, int col, String expSignature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), ARRAY);
+        assertEquals(type.signature(), expSignature);
+    }
+
+    @DataProvider(name = "ArrayVarPosProvider")
+    public Object[][] getArrayVarPos() {
+        return new Object[][]{
+                {269, 11, "int[3]"},
+                {270, 26, "string[1][2][3][4][5]"},
+                {271, 13, "int[][2]"},
+                {272, 13, "int[2][]"},
+                {273, 23, "(int|string)[1][2]"},
+                {274, 30, "(Bar & readonly)[1][2][3]"},
+        };
+    }
+
     @Test
     public void testMapType() {
         Symbol symbol = getSymbol(49, 16);
@@ -926,7 +946,7 @@ public class TypedescriptorTest {
 
     public Object[][] getSymbolModuleInfo() {
         return new Object[][]{
-                {2, 16, "main.bal", SymbolKind.FUNCTION, "main",
+                {0, 16, "main.bal", SymbolKind.FUNCTION, "main",
                         "symbolowner/testprojmodules:0.1.0"},
                 {5, 12, "module1.bal", SymbolKind.TYPE_DEFINITION, "Int",
                         "symbolowner/testprojmodules.module1:0.1.0"},

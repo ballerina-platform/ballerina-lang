@@ -18,16 +18,13 @@
 
 package org.ballerinalang.langlib.test;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,58 +46,64 @@ public class LangLibTableTest {
         negativeResult = BCompileUtil.compile("test-src/tablelib_test_negative.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
+    }
+
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTableLength");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(compileResult, "testTableLength");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testIterator");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void getKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getValueFromKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "getValueFromKey");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testMap() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testForeach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0].stringValue(), "Chiran Granier ");
+        Object returns = BRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns.toString(), "Chiran Granier ");
     }
 
     @Test
     public void testFilter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testFilter");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testReduce() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(((BFloat) returns[0]).floatValue(), 35.5);
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 35.5d);
     }
 
     @Test
     public void testRemoveWithKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeWithKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "removeWithKey");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void removeIfHasKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKey");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "removeIfHasKey");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
@@ -120,16 +123,16 @@ public class LangLibTableTest {
 
     @Test
     public void testGetKeyList() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testGetKeyList");
-        BValueArray returns = (BValueArray) result[0];
+        Object result = BRunUtil.invoke(compileResult, "testGetKeyList");
+        BArray returns = (BArray) result;
         assertEquals(returns.size(), 4);
         assertEquals(returns.getString(0), "Chiran");
         assertEquals(returns.getString(1), "Mohan");
         assertEquals(returns.getString(2), "Gima");
         assertEquals(returns.getString(3), "Granier");
 
-        BValue[] unionReturns = BRunUtil.invoke(compileResult, "testGetKeysFromUnionConstrained");
-        BValueArray unionResult = (BValueArray) unionReturns[0];
+        Object unionReturns = BRunUtil.invoke(compileResult, "testGetKeysFromUnionConstrained");
+        BArray unionResult = (BArray) unionReturns;
         assertEquals(unionResult.size(), 2);
         assertEquals(unionResult.getString(0), "Adam");
         assertEquals(unionResult.getString(1), "Mark");
@@ -137,20 +140,20 @@ public class LangLibTableTest {
 
     @Test
     public void testRemoveAllFromTable() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeAllFromTable");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "removeAllFromTable");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTableToArray() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "tableToArray");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "tableToArray");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testNextKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNextKey");
-        assertEquals(((BInteger) returns[0]).intValue(), 101);
+        Object returns = BRunUtil.invoke(compileResult, "testNextKey");
+        assertEquals(returns, 101L);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -235,8 +238,8 @@ public class LangLibTableTest {
 
     @Test
     public void testAddData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testAddData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -286,26 +289,26 @@ public class LangLibTableTest {
 
     @Test
     public void testAddValidData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testAddValidData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAddValidData2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidData2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testAddValidData2");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAddValidDataWithMapConstrTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidDataWithMapConstrTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testAddValidDataWithMapConstrTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testPutData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -346,32 +349,32 @@ public class LangLibTableTest {
 
     @Test
     public void testPutValidData() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testPutValidData");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutValidData2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidData2");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testPutValidData2");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutValidDataWithMapConstrTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataWithMapConstrTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testPutValidDataWithMapConstrTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutWithKeyLessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testPutWithKeyLessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testAddWithKeyLessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testAddWithKeyLessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -383,26 +386,26 @@ public class LangLibTableTest {
 
     @Test
     public void testRemoveAlreadyReturnedRecordFromIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveAlreadyReturnedRecordFromIterator");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void removeIfHasKeyReturnedRecordFromIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKeyReturnedRecordFromIterator");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "removeIfHasKeyReturnedRecordFromIterator");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testChangeValueForAGivenKeyWhileIterating() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testChangeValueForAGivenKeyWhileIterating");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testRemoveThenIterate() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveThenIterate");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testRemoveThenIterate");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -464,14 +467,14 @@ public class LangLibTableTest {
 
     @Test
     public void testAddValidDataToKeylessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testAddValidDataToKeylessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testAddValidDataToKeylessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testPutValidDataToKeylessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(compileResult, "testPutValidDataToKeylessTbl");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
