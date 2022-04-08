@@ -126,7 +126,7 @@ public class LangLibFunctionTest {
         assertEquals(type.typeKind(), DECIMAL);
 
         List<String> expFunctions = List.of("abs", "max", "min", "sum", "round", "floor", "ceiling", "clone",
-                "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString",
+                "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString", "quantize",
                 "toJson", "toJsonString", "fromJsonWithType", "mergeJson", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
