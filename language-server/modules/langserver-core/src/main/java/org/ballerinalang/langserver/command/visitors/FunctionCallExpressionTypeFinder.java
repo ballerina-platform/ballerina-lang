@@ -49,8 +49,10 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -86,6 +88,20 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
         functionCallExpressionNode.accept(this);
+    }
+
+    @Override
+    public void visit(ObjectFieldNode objectFieldNode) {
+        Symbol symbol = semanticModel.symbol(objectFieldNode).orElse(null);
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
+    }
+
+    @Override
+    public void visit(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
+        Symbol symbol = semanticModel.symbol(recordFieldWithDefaultValueNode).orElse(null);
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
     }
 
     @Override
