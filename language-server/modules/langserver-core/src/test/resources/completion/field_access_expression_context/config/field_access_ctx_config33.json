@@ -578,6 +578,63 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "padStart(int len, string:Char padChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the start of a string.\nAdds sufficient `padChar` characters at the start of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "padStart",
+      "insertText": "padStart(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "padEnd(int len, string:Char padChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the end of a string.\nAdds sufficient `padChar` characters to the end of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "padEnd",
+      "insertText": "padEnd(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "padZero(int len, string:Char zeroChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nPads a string with zeros.\nThe zeros are added at the start of the string, after a `+` or `-` sign if there is one.\nSufficient zero characters are added to `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` zeroChar: the character to use for the zero; defaults to ASCII zero `0`(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with zeros  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "padZero",
+      "insertText": "padZero(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

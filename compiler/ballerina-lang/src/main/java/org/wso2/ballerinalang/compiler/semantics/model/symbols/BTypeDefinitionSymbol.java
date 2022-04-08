@@ -47,6 +47,11 @@ public class BTypeDefinitionSymbol extends BSymbol implements Annotatable {
     }
 
     @Override
+    public SymbolKind getKind() {
+        return SymbolKind.TYPE_DEF;
+    }
+
+    @Override
     public String toString() {
         if (this.pkgID == PackageID.DEFAULT ||
                 this.pkgID.equals(PackageID.ANNOTATIONS) ||

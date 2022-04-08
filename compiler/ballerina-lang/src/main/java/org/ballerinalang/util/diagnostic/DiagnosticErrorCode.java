@@ -762,7 +762,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "compound.assignment.not.allowed.with.nullable.operands"),
 
     INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK_IN_RECORD_DEFAULT(
-            "BCE4025", "invalid.isolated.variable.access.outside.lock.in.record.default")
+            "BCE4025", "invalid.isolated.variable.access.outside.lock.in.record.default"),
+    BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION("BCE4026", "binary.op.incompatible.types.int.float.division")
     ;
 
     private String diagnosticId;

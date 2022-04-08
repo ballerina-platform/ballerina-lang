@@ -294,6 +294,8 @@ types:
     seq:
       - id: name_cp_index
         type: s4
+      - id: original_name_cp_index
+        type: s4
       - id: flags
         type: s8
       - id: type_cp_index

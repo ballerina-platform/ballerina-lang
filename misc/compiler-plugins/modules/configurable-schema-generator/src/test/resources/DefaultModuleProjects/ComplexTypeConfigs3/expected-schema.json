@@ -116,7 +116,8 @@
                             "clockSkew",
                             "credentialBearer",
                             "clientConfig"
-                          ]
+                          ],
+                          "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientCredentialsGrantConfig"
                         },
                         {
                           "type": "object",
@@ -208,7 +209,8 @@
                             "clockSkew",
                             "credentialBearer",
                             "clientConfig"
-                          ]
+                          ],
+                          "name": "dilhashanazeer/complexconfigs3:0.2.0:PasswordGrantConfig"
                         },
                         {
                           "type": "object",
@@ -263,7 +265,8 @@
                             "clockSkew",
                             "credentialBearer",
                             "clientConfig"
-                          ]
+                          ],
+                          "name": "dilhashanazeer/complexconfigs3:0.2.0:RefreshTokenGrantConfig"
                         }
                       ]
                     },
@@ -289,7 +292,8 @@
                               "required": [
                                 "path",
                                 "password"
-                              ]
+                              ],
+                              "name": "dilhashanazeer/complexconfigs3:0.2.0:TrustStore"
                             },
                             {
                               "type": "string"
@@ -312,7 +316,8 @@
                               "required": [
                                 "path",
                                 "password"
-                              ]
+                              ],
+                              "name": "dilhashanazeer/complexconfigs3:0.2.0:KeyStore"
                             },
                             {
                               "type": "object",
@@ -331,7 +336,8 @@
                               "required": [
                                 "certFile",
                                 "keyFile"
-                              ]
+                              ],
+                              "name": "dilhashanazeer/complexconfigs3:0.2.0:CertKey"
                             }
                           ]
                         }
@@ -339,13 +345,15 @@
                       "additionalProperties": false,
                       "required": [
                         "disable"
-                      ]
+                      ],
+                      "name": "dilhashanazeer/complexconfigs3:0.2.0:SecureSocket"
                     }
                   },
                   "additionalProperties": false,
                   "required": [
                     "httpVersion"
-                  ]
+                  ],
+                  "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientConfiguration"
                 }
               },
               "additionalProperties": false,
@@ -359,6 +367,7 @@
                 "credentialBearer",
                 "clientConfig"
               ],
+              "name": "dilhashanazeer/complexconfigs3:0.2.0:OAuth2RefreshTokenGrantConfig",
               "description": "Set Up Google Sheets Connection"
             },
             "spreadsheetId": {
@@ -477,7 +486,8 @@
                             "clockSkew",
                             "credentialBearer",
                             "clientConfig"
-                          ]
+                          ],
+                          "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientCredentialsGrantConfig"
                         },
                         {
                           "type": "object",
@@ -569,7 +579,8 @@
                             "clockSkew",
                             "credentialBearer",
                             "clientConfig"
-                          ]
+                          ],
+                          "name": "dilhashanazeer/complexconfigs3:0.2.0:PasswordGrantConfig"
                         },
                         {
                           "type": "object",
@@ -624,7 +635,8 @@
                             "clockSkew",
                             "credentialBearer",
                             "clientConfig"
-                          ]
+                          ],
+                          "name": "dilhashanazeer/complexconfigs3:0.2.0:RefreshTokenGrantConfig"
                         }
                       ]
                     },
@@ -650,7 +662,8 @@
                               "required": [
                                 "path",
                                 "password"
-                              ]
+                              ],
+                              "name": "dilhashanazeer/complexconfigs3:0.2.0:TrustStore"
                             },
                             {
                               "type": "string"
@@ -673,7 +686,8 @@
                               "required": [
                                 "path",
                                 "password"
-                              ]
+                              ],
+                              "name": "dilhashanazeer/complexconfigs3:0.2.0:KeyStore"
                             },
                             {
                               "type": "object",
@@ -692,7 +706,8 @@
                               "required": [
                                 "certFile",
                                 "keyFile"
-                              ]
+                              ],
+                              "name": "dilhashanazeer/complexconfigs3:0.2.0:CertKey"
                             }
                           ]
                         }
@@ -700,13 +715,15 @@
                       "additionalProperties": false,
                       "required": [
                         "disable"
-                      ]
+                      ],
+                      "name": "dilhashanazeer/complexconfigs3:0.2.0:SecureSocket"
                     }
                   },
                   "additionalProperties": false,
                   "required": [
                     "httpVersion"
-                  ]
+                  ],
+                  "name": "dilhashanazeer/complexconfigs3:0.2.0:ClientConfiguration"
                 }
               },
               "additionalProperties": false,
@@ -720,6 +737,7 @@
                 "credentialBearer",
                 "clientConfig"
               ],
+              "name": "dilhashanazeer/complexconfigs3:0.2.0:OAuth2RefreshTokenGrantConfig",
               "description": "Set Up Gmail Connection"
             },
             "recipientAddress": {

@@ -125,7 +125,7 @@ public class CliProvider implements ConfigProvider {
             return getCliConfigValue(TypeConverter.stringToByte(cliArg.value));
         } catch (NumberFormatException e) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type,
-                                      cliArg.value);
+                    cliArg.value);
         } catch (BError e) {
             throw new ConfigException(CONFIG_INVALID_BYTE_RANGE, cliArg, key.variable, cliArg.value);
         }
@@ -201,6 +201,10 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsMapAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
@@ -234,7 +238,7 @@ public class CliProvider implements ConfigProvider {
             }
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
-                                  decodeIdentifier(unionType.toString()), cliArg.value);
+                decodeIdentifier(unionType.toString()), cliArg.value);
     }
 
     @Override
@@ -286,6 +290,16 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
+    public Optional<ConfigValue> getAsTupleAndMark(Module module, VariableKey key) {
+        CliArg cliArg = getCliArg(module, key);
+        if (cliArg.value == null) {
+            return Optional.empty();
+        }
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
+    }
+
+    @Override
     public void complete(RuntimeDiagnosticLog diagnosticLog) {
         Set<String> varKeySet = cliVarKeyValueMap.keySet();
         varKeySet.removeAll(markedCliKeyVariableMap.keySet());
@@ -324,7 +338,7 @@ public class CliProvider implements ConfigProvider {
             return markAndGetCliArg(key, variableKey, null);
         }
         if (rootOrgValue != null && rootModuleValue == null) {
-           return markAndGetCliArg(variableKey.variable, variableKey, rootOrgValue);
+            return markAndGetCliArg(variableKey.variable, variableKey, rootOrgValue);
 
         }
         if (rootOrgValue == null) {
@@ -349,7 +363,7 @@ public class CliProvider implements ConfigProvider {
             Module module = variableKey.module;
             String fullQualifiedKey = module.getOrg() + "." + module.getName() + "." + variableKey.variable;
             throw new ConfigException(CONFIG_CLI_VARIABLE_AMBIGUITY, variableKey.toString(), existingKey.toString(),
-                                      "-C" + fullQualifiedKey + "=" + "<value>");
+                    "-C" + fullQualifiedKey + "=" + "<value>");
         }
         markedCliKeyVariableMap.put(key, variableKey);
         return new CliArg(key, value);

@@ -762,9 +762,16 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangErrorVarRef varRefExpr) {
         find(varRefExpr.typeNode);
         find(varRefExpr.message);
-        find(varRefExpr.detail);
         find(varRefExpr.cause);
         find(varRefExpr.restVar);
+
+        if (varRefExpr.typeNode != null) {
+            find(varRefExpr.detail);
+        } else {
+            // This is to avoid cases where the binding pattern doesn't have a error type ref
+            // e.g., error (msg, cause, code=code)
+            visitNamedArgWithoutAddingSymbol(varRefExpr.detail);
+        }
     }
 
     @Override
@@ -1184,6 +1191,7 @@ public class ReferenceFinder extends BaseVisitor {
 
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : bLangErrorVariable.detail) {
             find(errorDetailEntry.valueBindingPattern);
+            addIfSameSymbol(errorDetailEntry.keySymbol, errorDetailEntry.key.pos);
         }
     }
 
@@ -1282,6 +1290,12 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     // Private methods
+
+    private void visitNamedArgWithoutAddingSymbol(List<BLangNamedArgsExpression> args) {
+        for (BLangNamedArgsExpression arg : args) {
+            find(arg.expr);
+        }
+    }
 
     private boolean addIfSameSymbol(BSymbol symbol, Location location) {
         if (symbol != null

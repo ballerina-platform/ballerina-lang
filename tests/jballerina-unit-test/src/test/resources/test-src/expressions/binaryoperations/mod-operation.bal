@@ -162,6 +162,433 @@ function testModNullable() {
     assertEqual(g % g, 0);
 }
 
+const int constInt = 5;
+
+const float constFloat = 20.5;
+
+function testModFloatInt() {
+    int a = 2;
+    int a1 = 0;
+    float b = float:Infinity;
+    float c = 4.5e-1;
+    float d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
+
+    float var4 = b % a;
+    assertEqual(var4, float:NaN);
+    float var5 = c % a;
+    assertEqual(var5, 0.45);
+    float var6 = d % a;
+    assertEqual(var6, 0.0);
+
+    float var7 = b % a1;
+    assertEqual(var7, float:NaN);
+    float var8 = c % a1;
+    assertEqual(var8, float:NaN);
+    float var9 = d % a1;
+    assertEqual(var9, float:NaN);
+
+    float var10 = b % constInt;
+    assertEqual(var10, float:NaN);
+    float var11 = c % constInt;
+    assertEqual(var11, 0.45);
+    float var12 = d % constInt;
+    assertEqual(var12, 0.0);
+
+    float var13 = constFloat % constInt;
+    assertEqual(var13, 0.5);
+
+    float var15 = constFloat % a;
+    assertEqual(var15, 0.5);
+    float var16 = constFloat % d;
+    assertEqual(var16, float:NaN);
+    
+    float var17 = c % e;
+    assertEqual(var17, 0.45);
+    float var18 = c % f;
+    assertEqual(var18, 0.45);
+}
+
+function testModFloatIntSubTypes() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -4;
+    int:Unsigned8 d = 4;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 25;
+
+    float h = 2.5;
+
+    float var8 = h % a;
+    assertEqual(var8, 0.5);
+    float var9 = h % b;
+    assertEqual(var9, 0.5);
+    float var10 = h % c;
+    assertEqual(var10, 2.5);
+    float var11 = h % d;
+    assertEqual(var11, 2.5);
+    float var12 = h % e;
+    assertEqual(var12, 2.5);
+    float var13 = h % f;
+    assertEqual(var13, 2.5);
+    float var14 = h % g;
+    assertEqual(var14, 2.5);
+}
+
+function testModFloatIntWithNullableOperands() {
+    int a = 2;
+    int? b = 4;
+    float c = 4.5e-1;
+    float? d = -10.5;
+    int? e = ();
+    float? f = ();
+
+    float? var2 = d % a;
+    assertEqual(var2, -0.5);
+
+    float? var4 = c % b;
+    assertEqual(var4, 0.45);
+
+    float? var6 = d % b;
+    assertEqual(var6, -2.5);
+
+    float? var8 = d % constInt;
+    assertEqual(var8, -0.5);
+
+    float? var9 = constFloat % b;
+    assertEqual(var9, 0.5);
+
+    float? var10 = c % e;
+    assertEqual(var10, ());
+
+    float? var11 = f % e;
+    assertEqual(var11, ());
+
+    float? var12 = f % a;
+    assertEqual(var12, ());
+
+    float? var13 = f % constInt;
+    assertEqual(var13, ());
+
+    float? var14 = constFloat % e;
+    assertEqual(var14, ());
+}
+
+function testModFloatIntSubTypeWithNullableOperands() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -5;
+    int:Unsigned8 d = 10;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 4;
+
+    int:Signed8? h = -2;
+    int:Signed16? i = ();
+    int:Signed32? j = ();
+    int:Unsigned8? k = 4;
+    int:Unsigned16? m = 5;
+    int:Unsigned32? n = 10;
+    byte? p = ();
+
+    float q = 2.5;
+    float? r = 2.5;
+
+    float? var8 = r % a;
+    assertEqual(var8, 0.5);
+    float? var9 = r % b;
+    assertEqual(var9, 0.5);
+    float? var10 = r % c;
+    assertEqual(var10, 2.5);
+    float? var11 = r % d;
+    assertEqual(var11, 2.5);
+    float? var12 = r % e;
+    assertEqual(var12, 2.5);
+    float? var13 = r % f;
+    assertEqual(var13, 2.5);
+    float? var14 = r % g;
+    assertEqual(var14, 2.5);
+
+    float? var22 = q % h;
+    assertEqual(var22, 0.5);
+    float? var23 = q % i;
+    assertEqual(var23, ());
+    float? var24 = q % j;
+    assertEqual(var24, ());
+    float? var25 = q % k;
+    assertEqual(var25, 2.5);
+    float? var26 = q % m;
+    assertEqual(var26, 2.5);
+    float? var27 = q % n;
+    assertEqual(var27, 2.5);
+    float? var28 = q % p;
+    assertEqual(var28, ());
+
+    float? var36 = r % h;
+    assertEqual(var36, 0.5);
+    float? var37 = r % i;
+    assertEqual(var37, ());
+    float? var38 = r % j;
+    assertEqual(var38, ());
+    float? var39 = r % k;
+    assertEqual(var39, 2.5);
+    float? var40 = r % m;
+    assertEqual(var40, 2.5);
+    float? var41 = r % n;
+    assertEqual(var41, 2.5);
+    float? var42 = r % p;
+    assertEqual(var42, ());
+}
+
+function testResultTypeOfModFloatIntByInfering() {
+    float a = 2.5;
+    int b = 5;
+
+    var c = a % b;
+    float var1 = c;
+    assertEqual(var1, 2.5);
+
+    var e = a % constInt;
+    float var3 = e;
+    assertEqual(var3, 2.5);
+
+    var g = constFloat % b;
+    float var5 = g;
+    assertEqual(var5, 0.5);
+
+    var i = constFloat % constInt;
+    float var7 = i;
+    assertEqual(var7, 0.5);
+}
+
+function testResultTypeOfModFloatIntForNilableOperandsByInfering() {
+    float? a = 2.5;
+    int? b = 5;
+
+    var c = a % b;
+    float? var1 = c;
+    assertEqual(var1, 2.5);
+
+    var e = a % constInt;
+    float? var3 = e;
+    assertEqual(var3, 2.5);
+
+    var g = constFloat % b;
+    float? var5 = g;
+    assertEqual(var5, 0.5);
+
+    var i = constFloat % constInt;
+    float? var7 = i;
+    assertEqual(var7, 0.5);
+}
+
+const decimal constDecimal = 20.5;
+
+function testModDecimalInt() {
+    int a = 2;
+    decimal c = 4.5e-1;
+    decimal d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
+
+    decimal var5 = c % a;
+    assertEqual(var5, 0.45d);
+    decimal var6 = d % a;
+    assertEqual(var6, 0d);
+
+    decimal var11 = c % constInt;
+    assertEqual(var11, 0.45d);
+    decimal var12 = d % constInt;
+    assertEqual(var12, 0d);
+
+    decimal var13 = constDecimal % constInt;
+    assertEqual(var13, 0.5d);
+
+    decimal var15 = constDecimal % a;
+    assertEqual(var15, 0.5d);
+    
+    decimal var17 = c % e;
+    assertEqual(var17, 0.45d);
+    decimal var18 = c % f;
+    assertEqual(var18, 0.45d);
+}
+
+function testModDecimalIntSubTypes() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -4;
+    int:Unsigned8 d = 4;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 25;
+
+    decimal h = 2.5;
+
+    decimal var8 = h % a;
+    assertEqual(var8, 0.5d);
+    decimal var9 = h % b;
+    assertEqual(var9, 0.5d);
+    decimal var10 = h % c;
+    assertEqual(var10, 2.5d);
+    decimal var11 = h % d;
+    assertEqual(var11, 2.5d);
+    decimal var12 = h % e;
+    assertEqual(var12, 2.5d);
+    decimal var13 = h % f;
+    assertEqual(var13, 2.5d);
+    decimal var14 = h % g;
+    assertEqual(var14, 2.5d);
+}
+
+function testModDecimalIntWithNullableOperands() {
+    int a = 2;
+    int? b = 4;
+    decimal c = 4.5e-1;
+    decimal? d = -10.5;
+    int? e = ();
+    decimal? f = ();
+
+    decimal? var2 = d % a;
+    assertEqual(var2, -0.5d);
+
+    decimal? var4 = c % b;
+    assertEqual(var4, 0.45d);
+
+    decimal? var6 = d % b;
+    assertEqual(var6, -2.5d);
+
+    decimal? var8 = d % constInt;
+    assertEqual(var8, -0.5d);
+
+    decimal? var9 = constDecimal % b;
+    assertEqual(var9, 0.5d);
+
+    decimal? var10 = c % e;
+    assertEqual(var10, ());
+
+    decimal? var11 = f % e;
+    assertEqual(var11, ());
+
+    decimal? var12 = f % a;
+    assertEqual(var12, ());
+
+    decimal? var13 = f % constInt;
+    assertEqual(var13, ());
+
+    decimal? var14 = constDecimal % e;
+    assertEqual(var14, ());
+}
+
+function testModDecimalIntSubTypeWithNullableOperands() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -5;
+    int:Unsigned8 d = 10;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 4;
+
+    int:Signed8? h = -2;
+    int:Signed16? i = ();
+    int:Signed32? j = ();
+    int:Unsigned8? k = 4;
+    int:Unsigned16? m = 5;
+    int:Unsigned32? n = 10;
+    byte? p = ();
+
+    decimal q = 2.5;
+    decimal? r = 2.5;
+
+    decimal? var8 = r % a;
+    assertEqual(var8, 0.5d);
+    decimal? var9 = r % b;
+    assertEqual(var9, 0.5d);
+    decimal? var10 = r % c;
+    assertEqual(var10, 2.5d);
+    decimal? var11 = r % d;
+    assertEqual(var11, 2.5d);
+    decimal? var12 = r % e;
+    assertEqual(var12, 2.5d);
+    decimal? var13 = r % f;
+    assertEqual(var13, 2.5d);
+    decimal? var14 = r % g;
+    assertEqual(var14, 2.5d);
+
+    decimal? var22 = q % h;
+    assertEqual(var22, 0.5d);
+    decimal? var23 = q % i;
+    assertEqual(var23, ());
+    decimal? var24 = q % j;
+    assertEqual(var24, ());
+    decimal? var25 = q % k;
+    assertEqual(var25, 2.5d);
+    decimal? var26 = q % m;
+    assertEqual(var26, 2.5d);
+    decimal? var27 = q % n;
+    assertEqual(var27, 2.5d);
+    decimal? var28 = q % p;
+    assertEqual(var28, ());
+
+    decimal? var36 = r % h;
+    assertEqual(var36, 0.5d);
+    decimal? var37 = r % i;
+    assertEqual(var37, ());
+    decimal? var38 = r % j;
+    assertEqual(var38, ());
+    decimal? var39 = r % k;
+    assertEqual(var39, 2.5d);
+    decimal? var40 = r % m;
+    assertEqual(var40, 2.5d);
+    decimal? var41 = r % n;
+    assertEqual(var41, 2.5d);
+    decimal? var42 = r % p;
+    assertEqual(var42, ());
+}
+
+function testResultTypeOfModDecimalIntByInfering() {
+    decimal a = 2.5;
+    int b = 5;
+
+    var c = a % b;
+    decimal var1 = c;
+    assertEqual(var1, 2.5d);
+
+    var e = a % constInt;
+    decimal var3 = e;
+    assertEqual(var3, 2.5d);
+
+    var g = constDecimal % b;
+    decimal var5 = g;
+    assertEqual(var5, 0.5d);
+
+    var i = constDecimal % constInt;
+    decimal var7 = i;
+    assertEqual(var7, 0.5d);
+}
+
+function testResultTypeOfModDecimalIntForNilableOperandsByInfering() {
+    decimal? a = 2.5;
+    int? b = 5;
+
+    var c = a % b;
+    decimal? var1 = c;
+    assertEqual(var1, 2.5d);
+
+    var e = a % constInt;
+    decimal? var3 = e;
+    assertEqual(var3, 2.5d);
+
+    var g = constDecimal % b;
+    decimal? var5 = g;
+    assertEqual(var5, 0.5d);
+
+    var i = constDecimal % constInt;
+    decimal? var7 = i;
+    assertEqual(var7, 0.5d);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
