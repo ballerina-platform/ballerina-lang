@@ -34,4 +34,9 @@ public class FloatUtils {
         }
         return null;
     }
+
+    public static boolean checkFractionDigitsWithinRange(long noOfFractionDigits) {
+        return noOfFractionDigits > Integer.MAX_VALUE ||
+                (noOfFractionDigits * Long.bitCount(noOfFractionDigits) > Integer.MAX_VALUE);
+    }
 }

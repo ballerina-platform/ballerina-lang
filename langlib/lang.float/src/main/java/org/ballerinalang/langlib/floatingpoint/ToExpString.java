@@ -38,7 +38,7 @@ public class ToExpString {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
         BString str = FloatUtils.getBStringIfInfiniteOrNaN(x);
         if (str != null) {
-            return StringUtils.fromString(StringUtils.getStringValue(x, null));
+            return str;
         }
 
         long noOfFractionDigits;
@@ -62,8 +62,7 @@ public class ToExpString {
         }
 
         // Handle very large int values since they might cause overflows.
-        if (noOfFractionDigits > Integer.MAX_VALUE ||
-                (noOfFractionDigits * Long.bitCount(noOfFractionDigits) > Integer.MAX_VALUE)) {
+        if (FloatUtils.checkFractionDigitsWithinRange(noOfFractionDigits)) {
             // Maximum value a double can represent is around 1.7*10^308.
             noOfFractionDigits = 308;
         }

@@ -53,8 +53,7 @@ public class ToFixedString {
         }
 
         // Handle very large int values since they might cause overflows.
-        if (noOfFractionDigits > Integer.MAX_VALUE ||
-                (noOfFractionDigits * Long.bitCount(noOfFractionDigits) > Integer.MAX_VALUE)) {
+        if (FloatUtils.checkFractionDigitsWithinRange(noOfFractionDigits)) {
             return StringUtils.fromString(BigDecimal.valueOf(x).toPlainString());
         }
 
