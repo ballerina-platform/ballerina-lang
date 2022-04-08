@@ -636,12 +636,18 @@ function testToFixedStringWhenFractionDigitsIsIntMax() {
 }
 
 function testToFixedStringWithMorePositiveFloats() {
+    assertEquality("45362.12", float:toFixedString(45362.12364, 2));
+    assertEquality("45362.124", float:toFixedString(45362.12364, 3));
     assertEquality("45362.1233399999982794", float:toFixedString(45362.12334, 16));
+    assertEquality("0.12", float:toFixedString(0.1237469219, 2));
+    assertEquality("0.124", float:toFixedString(0.1237469219, 3));
     assertEquality("0.1237469219000000", float:toFixedString(0.1237469219, 16));
     assertEquality("0.12374692", float:toFixedString(0.1237469219, 8));
+    assertEquality("0.012", float:toFixedString(0.0123654, 3));
     assertEquality("0.0124", float:toFixedString(0.0123654, 4));
     assertEquality("0.01236540", float:toFixedString(0.0123654, 8));
     assertEquality("0.01237", float:toFixedString(0.0123654, 5));
+    assertEquality("0.000000056", float:toFixedString(0.0000000564, 9));
     assertEquality("0.00000006", float:toFixedString(0.0000000564, 8));
     assertEquality("0.0000001", float:toFixedString(0.0000000564, 7));
     assertEquality("0.00000", float:toFixedString(0, 5));
@@ -996,12 +1002,19 @@ function testToExpStringWhenFractionDigitsIsIntMax() {
 }
 
 function testToExpStringWithMorePositiveFloats() {
+    assertEquality("4.54e+4", float:toExpString(45362.12334, 2));
+    assertEquality("4.536e+4", float:toExpString(45362.12334, 3));
     assertEquality("4.5362123339999998e+4", float:toExpString(45362.12334, 16));
+    assertEquality("1.2375e-1", float:toExpString(0.1237469219, 4));
+    assertEquality("1.237e-1", float:toExpString(0.1237469219, 3));
     assertEquality("1.2374692190000000e-1", float:toExpString(0.1237469219, 16));
     assertEquality("1.23746922e-1", float:toExpString(0.1237469219, 8));
+    assertEquality("1.237e-2", float:toExpString(0.0123654, 3));
     assertEquality("1.2365e-2", float:toExpString(0.0123654, 4));
     assertEquality("1.23654000e-2", float:toExpString(0.0123654, 8));
     assertEquality("1.23654e-2", float:toExpString(0.0123654, 5));
+    assertEquality("5.6e-8", float:toExpString(0.0000000564, 1));
+    assertEquality("6e-8", float:toExpString(0.0000000564, 0));
     assertEquality("5.64000000e-8", float:toExpString(0.0000000564, 8));
     assertEquality("5.6400000e-8", float:toExpString(0.0000000564, 7));
     assertEquality("0.00000e+0", float:toExpString(0, 5));
