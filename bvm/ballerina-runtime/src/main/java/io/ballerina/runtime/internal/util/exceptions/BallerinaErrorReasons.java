@@ -74,6 +74,8 @@ public class BallerinaErrorReasons {
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
     public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
     public static final String UNORDERED_TYPES = "UnorderedTypesError";
+    public static final String LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED =
+            "length greater that '2147483647' not yet supported";
 
     public static final BString INDEX_OUT_OF_RANGE_ERROR = StringUtils
             .fromString(INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER);
@@ -111,6 +113,8 @@ public class BallerinaErrorReasons {
     public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
     public static final BString UNSUPPORTED_DECIMAL_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
             "UnsupportedDecimalError"));
+
+    public static final String INVALID_FRACTION_DIGITS_ERROR = "InvalidFractionDigits";
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

@@ -4367,8 +4367,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr, data);
-
         SymbolEnv rhsExprEnv;
         BType lhsType;
         BType referredExpType = Types.getReferredType(binaryExpr.expectedType);
@@ -4442,8 +4440,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
-                        dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
-                                lhsType, rhsType);
+                        DiagnosticErrorCode errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES;
+                        
+                        if ((binaryExpr.opKind == OperatorKind.DIV || binaryExpr.opKind == OperatorKind.MOD) &&
+                                lhsType.tag == TypeTags.INT && 
+                                (rhsType.tag == TypeTags.DECIMAL || rhsType.tag == TypeTags.FLOAT)) {
+                            errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
+                        }
+                        
+                        dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
                     } else {
                         binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                         actualType = opSymbol.type.getReturnType();
@@ -4537,25 +4542,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             constituent = type;
         }
         return constituent;
-    }
-
-    private void checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(BLangBinaryExpr binaryExpr,
-                                                                               AnalyzerData data) {
-        if (data.expType.tag != TypeTags.DECIMAL) {
-            return;
-        }
-
-        switch (binaryExpr.opKind) {
-            case ADD:
-            case SUB:
-            case MUL:
-            case DIV:
-                checkExpr(binaryExpr.lhsExpr, data.expType, data);
-                checkExpr(binaryExpr.rhsExpr, data.expType, data);
-                break;
-            default:
-                break;
-        }
     }
 
     public void visit(BLangElvisExpr elvisExpr, AnalyzerData data) {
