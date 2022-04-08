@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -140,6 +141,7 @@ public class SymbolTable {
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
+    public final BType invokableType = new BInvokableType(null, null, null, null);
 
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
@@ -300,6 +302,15 @@ public class SymbolTable {
         this.anyAndReadonly =
                 ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types);
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
+
+        // Initialize the invokable type
+        this.invokableType.flags = Flags.ANY_FUNCTION;
+        BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
+                rootPkgSymbol.pkgID, this.invokableType, rootPkgNode.symbol.scope.owner, builtinPos, BUILTIN);
+        tSymbol.params = null;
+        tSymbol.restParam = null;
+        tSymbol.returnType = null;
+        this.invokableType.tsymbol = tSymbol;
 
         defineReadonlyCompoundType();
     }

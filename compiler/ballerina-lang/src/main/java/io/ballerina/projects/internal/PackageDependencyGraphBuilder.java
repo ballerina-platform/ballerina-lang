@@ -24,17 +24,21 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -62,7 +66,10 @@ public class PackageDependencyGraphBuilder {
     private final DependencyNode rootDepNode;
     private final Vertex rootNodeVertex;
 
+    private final List<Diagnostic> diagnosticList;
+
     public PackageDependencyGraphBuilder(PackageDescriptor rootNode, ResolutionOptions resolutionOptions) {
+        diagnosticList = new ArrayList<>();
         this.rootNodeVertex = new Vertex(rootNode.org(), rootNode.name());
         this.rootDepNode = new DependencyNode(rootNode,
                 PackageDependencyScope.DEFAULT, DependencyResolutionType.SOURCE);
@@ -91,6 +98,15 @@ public class PackageDependencyGraphBuilder {
                 new DependencyNode(node, scope, dependencyResolvedType), false);
     }
 
+    public NodeStatus addErrorNode(PackageDescriptor node,
+                                   PackageDependencyScope scope,
+                                   DependencyResolutionType dependencyResolvedType) {
+        // Add the correct version of the dependent to the graph.
+        Vertex dependentVertex = new Vertex(node.org(), node.name());
+        return addNewVertex(dependentVertex,
+                new DependencyNode(node, scope, dependencyResolvedType, true), false);
+    }
+
     public NodeStatus addUnresolvedDependency(PackageDescriptor dependent,
                                               PackageDescriptor dependency,
                                               PackageDependencyScope dependencyScope,
@@ -98,6 +114,15 @@ public class PackageDependencyGraphBuilder {
         return addDependencyInternal(dependent,
                 new DependencyNode(dependency, dependencyScope, dependencyResolvedType),
                 true);
+    }
+
+    public NodeStatus addErroneousDependency(PackageDescriptor dependent,
+                                              PackageDescriptor dependency,
+                                              PackageDependencyScope dependencyScope,
+                                              DependencyResolutionType dependencyResolvedType) {
+        return addDependencyInternal(dependent,
+                new DependencyNode(dependency, dependencyScope, dependencyResolvedType, true),
+                false);
     }
 
     public NodeStatus addResolvedDependency(PackageDescriptor dependent,
@@ -156,6 +181,10 @@ public class PackageDependencyGraphBuilder {
         return unresolvedNodes;
     }
 
+    List<Diagnostic> diagnostics() {
+        return diagnosticList;
+    }
+
     /**
      * Clean up the dependency graph by cleaning up dangling dependencies.
      */
@@ -206,6 +235,22 @@ public class PackageDependencyGraphBuilder {
         }
     }
 
+    /**
+     * Adds a new vertex if it is not added to the graph yet.
+     * Replaces/rejects the new vertex by comparing with the existing node
+     * in the dependency graph. When accepting or rejecting the new vertex the
+     * following rules are followed:
+     * 1. If the existing node is an erroneous node, reject the new node.
+     * 2. If the new node is an erroneous node, accept it.
+     * 3. If there new node version is incompatible with the existing,
+     *    create an error node and add to the graph.
+     * 4. If the new node version is greater than the existing, accept it. Else reject.
+     *
+     * @param vertex existing vertex in the graph
+     * @param newPkgDep new node to compare
+     * @param unresolved whether the vertex is unresolved
+     * @return
+     */
     private NodeStatus addNewVertex(Vertex vertex, DependencyNode newPkgDep, boolean unresolved) {
         // Adding every node to the raw graph
         if (resolutionOptions.dumpRawGraphs()) {
@@ -225,22 +270,46 @@ public class PackageDependencyGraphBuilder {
 
         // There exists another version in the graph.
         DependencyNode existingPkgDep = vertices.get(vertex);
-        PackageDescriptor resolvedPkgDesc = handleDependencyConflict(newPkgDep, existingPkgDep);
 
-        // If the existing dependency scope is DEFAULT, use it. Otherwise use the new dependency scope.
-        PackageDependencyScope depScope =
-                existingPkgDep.scope() == PackageDependencyScope.DEFAULT ?
-                        PackageDependencyScope.DEFAULT :
-                        newPkgDep.scope();
+        // If the existing dependency is an error node, we continue with the error node.
+        if (existingPkgDep.errorNode()) {
+            return NodeStatus.REJECTED;
+        }
 
-        // If the existing dependency scope is DEFAULT, use it. Otherwise use the new dependency scope.
-        DependencyResolutionType resolutionType =
-                existingPkgDep.resolutionType() == DependencyResolutionType.SOURCE ?
-                        DependencyResolutionType.SOURCE :
-                        newPkgDep.resolutionType();
+        DependencyNode resolvedPkgDep;
+        NodeStatus nodeStatus;
 
-        DependencyNode resolvedPkgDep = new DependencyNode(resolvedPkgDesc, depScope, resolutionType);
-        NodeStatus nodeStatus = getNodeStatus(vertex, existingPkgDep, newPkgDep, unresolved);
+        if (newPkgDep.errorNode()) {
+            resolvedPkgDep = newPkgDep;
+            nodeStatus = NodeStatus.ACCEPTED;
+        } else {
+            PackageDescriptor resolvedPkgDesc = handleDependencyConflict(newPkgDep, existingPkgDep);
+            if (resolvedPkgDesc == null) { // A version conflict exists. We add the a new error node.
+                resolvedPkgDep = new DependencyNode(
+                        existingPkgDep.pkgDesc(),
+                        existingPkgDep.scope(),
+                        existingPkgDep.resolutionType(),
+                        true);
+                nodeStatus = NodeStatus.ACCEPTED;
+            } else {
+                // If the existing dependency scope is DEFAULT, use it. Otherwise use the new dependency scope.
+                PackageDependencyScope depScope =
+                        existingPkgDep.scope() == PackageDependencyScope.DEFAULT ?
+                                PackageDependencyScope.DEFAULT :
+                                newPkgDep.scope();
+
+                // If the existing dependency scope is DEFAULT, use it. Otherwise use the new dependency scope.
+                DependencyResolutionType resolutionType =
+                        existingPkgDep.resolutionType() == DependencyResolutionType.SOURCE ?
+                                DependencyResolutionType.SOURCE :
+                                newPkgDep.resolutionType();
+
+                resolvedPkgDep = new DependencyNode(resolvedPkgDesc, depScope, resolutionType);
+                nodeStatus = getNodeStatus(vertex, existingPkgDep, newPkgDep, unresolved);
+            }
+        }
+
+        // Accept or reject the new package dependency depending on the node status
         if (nodeStatus == NodeStatus.ACCEPTED) {
             // Update the vertex with the new version
             vertices.put(vertex, resolvedPkgDep);
@@ -324,9 +393,16 @@ public class PackageDependencyGraphBuilder {
                 // Incompatible versions exist in the graph.
                 // TODO can we report this issue with more information. dependency graph etc.
                 // Convert this to a diagnostic
-                throw new ProjectException("Two incompatible versions exist in the dependency graph: " +
-                        existingPkgDesc.org() + "/" + existingPkgDesc.name() +
-                        " versions: " + existingPkgDesc.version() + ", " + newPkgDesc.version());
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.INCOMPATIBLE_DEPENDENCY_VERSIONS.diagnosticId(),
+                        "Two incompatible versions exist in the dependency graph: " +
+                                existingPkgDesc.org() + "/" + existingPkgDesc.name() +
+                                " versions: " + existingPkgDesc.version() + ", " + newPkgDesc.version(),
+                        DiagnosticSeverity.ERROR);
+                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                        diagnosticInfo, this.rootDepNode.pkgDesc().name().toString());
+                diagnosticList.add(diagnostic);
+                return null;
             default:
                 throw new IllegalStateException("Unsupported VersionCompatibilityResult: " + compatibilityResult);
         }
