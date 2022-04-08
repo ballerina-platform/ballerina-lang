@@ -42,9 +42,13 @@ public class ToFixedString {
     public static BString toFixedString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
         // If fractionalDigits is `()`, use the minimum number of digits required to accurately represent the value.
-        BString res = FloatUtils.getBStringValue(x, fractionDigits == null);
+        BString res = FloatUtils.getBStringValue(x);
         if (res != null) {
-            return StringUtils.fromString(StringUtils.getStringValue(x, null));
+            return res;
+        }
+
+        if (fractionDigits == null) {
+            return StringUtils.fromString(BigDecimal.valueOf(x).toPlainString());
         }
 
         long noOfFractionDigits = (long) fractionDigits;
@@ -59,7 +63,7 @@ public class ToFixedString {
         // Handle very large int values since they might cause overflows.
         if (noOfFractionDigits > Integer.MAX_VALUE ||
                 (noOfFractionDigits * Long.bitCount(noOfFractionDigits) > Integer.MAX_VALUE)) {
-            return StringUtils.fromString(StringUtils.getStringValue(x, null));
+            return StringUtils.fromString(BigDecimal.valueOf(x).toPlainString());
         }
 
         int fracDigits = (int) noOfFractionDigits;

@@ -609,6 +609,9 @@ function testToFixedStringWhenFractionDigitsIsNil() {
     string d = float:toFixedString(c, ());
     assertEquality("-5.7", d);
     assertEquality("-5.7", c.toFixedString(()));
+
+    assertEquality("12321321312321", float:toFixedString(12321321312321, ()));
+    assertEquality("12321321312321.122432123123", float:toFixedString(12321321312321.122432123123, ()));
 }
 
 function testToFixedStringWhenFractionDigitsIsVeryLargeInt() {
@@ -663,6 +666,9 @@ function testToFixedStringWithMorePositiveFloats() {
     assertEquality("0.0000001", float:toFixedString(0.0000000564F, 7));
     assertEquality("0.00000", float:toFixedString(0f, 5));
     assertEquality("0.000000000000000", float:toFixedString(0F, 15));
+
+    assertEquality("12321321312321", float:toFixedString(12321321312321, 11431241242));
+    assertEquality("12321321312321.123", float:toFixedString(12321321312321.122432123123, 11431241242));
 }
 
 function testToFixedStringWithVerySmallAndLargePositiveFloats() {

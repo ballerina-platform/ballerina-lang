@@ -42,7 +42,7 @@ public class ToExpString {
 
     public static BString toExpString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
-        BString str = FloatUtils.getBStringValue(x, false);
+        BString str = FloatUtils.getBStringValue(x);
         if (str != null) {
             return StringUtils.fromString(StringUtils.getStringValue(x, null));
         }
