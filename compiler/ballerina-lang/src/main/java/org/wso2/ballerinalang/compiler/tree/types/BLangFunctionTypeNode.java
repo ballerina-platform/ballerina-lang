@@ -24,7 +24,6 @@ import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.ArrayList;
@@ -41,15 +40,12 @@ import java.util.stream.Collectors;
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
     // BLangNodes
-    public List<BLangSimpleVariable> params = new ArrayList<>();
+    public List<BLangVariable> params = new ArrayList<>();
     public BLangVariable restParam;
     public BLangType returnTypeNode;
 
     // Parser Flags and Data
     public Set<Flag> flagSet = new HashSet<>();
-    public boolean inTypeDefinitionContext;
-    public boolean analyzed;
-
     public boolean returnsKeywordExists = false;
 
     @Override
@@ -58,7 +54,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     }
 
     @Override
-    public List<BLangSimpleVariable> getParams() {
+    public List<BLangVariable> getParams() {
         return this.params;
     }
 
@@ -110,7 +106,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
         return br.toString();
     }
 
-    private String getParamNames(List<BLangSimpleVariable> paramTypes) {
+    private String getParamNames(List<BLangVariable> paramTypes) {
         return paramTypes.stream().map(paramType -> {
             if (paramType.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 return ((UserDefinedTypeNode) paramType).getTypeName().getValue();

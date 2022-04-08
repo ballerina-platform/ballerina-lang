@@ -504,7 +504,7 @@
     {
       "label": "E2",
       "kind": "EnumMember",
-      "detail": "E2",
+      "detail": "\"E2\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -518,7 +518,7 @@
     {
       "label": "E1",
       "kind": "EnumMember",
-      "detail": "E1",
+      "detail": "\"E1\"",
       "documentation": {
         "right": {
           "kind": "markdown",
