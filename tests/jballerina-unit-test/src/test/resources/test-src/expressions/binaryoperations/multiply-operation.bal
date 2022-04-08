@@ -288,6 +288,10 @@ const int constInt = 5;
 
 const float constFloat = 20.5;
 
+type MyInt int;
+
+type MyFloat float;
+
 function testMultiplyFloatInt() {
     int a = 2;
     float b = 4.5;
@@ -295,6 +299,8 @@ function testMultiplyFloatInt() {
     float d = -10.5;
     int e = int:MAX_VALUE;
     int f = int:MIN_VALUE;
+    MyInt g = 2;
+    MyFloat h = 4.5;
 
     float var1 = a * b;
     assertEqual(var1, 9.0);
@@ -302,6 +308,8 @@ function testMultiplyFloatInt() {
     assertEqual(var2, 0.9);
     float var3 = a * d;
     assertEqual(var3, -21.0);
+    float var31 = a * h;
+    assertEqual(var31, 9.0);
 
     float var4 = b * a;
     assertEqual(var4, 9.0);
@@ -309,6 +317,8 @@ function testMultiplyFloatInt() {
     assertEqual(var5, 0.9);
     float var6 = d * a;
     assertEqual(var6, -21.0);
+    float var61 = h * a;
+    assertEqual(var61, 9.0);
 
     float var7 = constInt * b;
     assertEqual(var7, 22.5);
@@ -316,6 +326,8 @@ function testMultiplyFloatInt() {
     assertEqual(var8, 2.25);
     float var9 = constInt * d;
     assertEqual(var9, -52.5);
+    float var91 = constInt * h;
+    assertEqual(var91, 22.5);
 
     float var10 = b * constInt;
     assertEqual(var10, 22.5);
@@ -323,6 +335,8 @@ function testMultiplyFloatInt() {
     assertEqual(var11, 2.25);
     float var12 = d * constInt;
     assertEqual(var12, -52.5);
+    float var121 = h * constInt;
+    assertEqual(var121, 22.5);
 
     float var13 = constFloat * constInt;
     assertEqual(var13, 102.5);
@@ -338,6 +352,11 @@ function testMultiplyFloatInt() {
     assertEqual(var17, 4.150517416584649E19);
     float var18 = b * f;
     assertEqual(var18, -4.150517416584649E19);
+    float var19 = b * g;
+    assertEqual(var19, 9.0);
+
+    float var20 = g * h;
+    assertEqual(var20, 9.0);
 }
 
 function testMultiplyFloatIntSubTypes() {
@@ -618,6 +637,8 @@ function testMultiplyFloatIntToInfinityAndNaN() {
 
 const decimal constDecimal = 20.5;
 
+type MyDecimal decimal;
+
 function testMultiplyDecimalInt() {
     int a = 2;
     decimal b = 4.5;
@@ -625,6 +646,8 @@ function testMultiplyDecimalInt() {
     decimal d = -10.5;
     int e = int:MAX_VALUE;
     int f = int:MIN_VALUE;
+    MyInt g = 2;
+    MyDecimal h = 4.5;
 
     decimal var1 = a * b;
     assertEqual(var1, 9.00d);
@@ -632,6 +655,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var2, 0.900d);
     decimal var3 = a * d;
     assertEqual(var3, -21.00d);
+    decimal var31 = a * h;
+    assertEqual(var31, 9.00d);
 
     decimal var4 = b * a;
     assertEqual(var4, 9.00d);
@@ -639,6 +664,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var5, 0.900d);
     decimal var6 = d * a;
     assertEqual(var6, -21.00d);
+    decimal var61 = h * a;
+    assertEqual(var61, 9.00d);
 
     decimal var7 = constInt * b;
     assertEqual(var7, 22.50d);
@@ -646,6 +673,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var8, 2.250d);
     decimal var9 = constInt * d;
     assertEqual(var9, -52.50d);
+    decimal var91 = constInt * h;
+    assertEqual(var91, 22.50d);
 
     decimal var10 = b * constInt;
     assertEqual(var10, 22.50d);
@@ -653,6 +682,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var11, 2.250d);
     decimal var12 = d * constInt;
     assertEqual(var12, -52.50d);
+    decimal var121 = h * constInt;
+    assertEqual(var121, 22.50d);
 
     decimal var13 = constDecimal * constInt;
     assertEqual(var13, 102.50d);
@@ -668,6 +699,11 @@ function testMultiplyDecimalInt() {
     assertEqual(var17, 41505174165846491131.50d);
     decimal var18 = b * f;
     assertEqual(var18, -41505174165846491136.00d);
+    decimal var19 = b * g;
+    assertEqual(var19, 9.00d);
+
+    decimal var20 = g * h;
+    assertEqual(var20, 9.00d);
 }
 
 function testMultiplyDecimalIntSubTypes() {
