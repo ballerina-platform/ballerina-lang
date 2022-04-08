@@ -114,7 +114,7 @@ public class LangLibFunctionTest {
                                             "acos", "atan", "atan2", "sinh", "cosh", "tanh", "toHexString", "toBitsInt",
                                             "clone", "cloneReadOnly", "cloneWithType", "isReadOnly", "toString",
                                             "toBalString", "toJson", "toJsonString", "fromJsonWithType", "mergeJson",
-                                            "ensureType", "sum", "min", "max");
+                                            "ensureType", "sum", "min", "max", "toFixedString", "toExpString");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
