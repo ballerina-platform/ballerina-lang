@@ -18,12 +18,20 @@
 
 package org.ballerinalang.langlib.decimal;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_OVERFLOW_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.decimal:round(decimal, int).
@@ -41,13 +49,21 @@ public class Round {
     public static BDecimal round(BDecimal x, long fractionDigits) {
 
         BigDecimal value = x.value();
-        if (fractionDigits >= value.scale()) {
-            return x;
-        } else if (fractionDigits <= Integer.MIN_VALUE) {
-            BigDecimal scaledDecimal = new BigDecimal(0, MathContext.DECIMAL128);
-            return ValueCreator.createDecimalValue(scaledDecimal);
+        int scale = value.scale();
+        if (fractionDigits > 0) {
+            // scale is larger than current scale no change and will only add trailing zeros
+            if (fractionDigits >= scale) {
+                return x;
+            }
+        } else if (fractionDigits < 0) {
+            int precision = value.precision();
+            // negative scale is smaller than number of digits in integer-part result will be zero
+            if (Math.abs(fractionDigits) > (precision - scale)) {
+                BigDecimal scaledDecimal = new BigDecimal(0, MathContext.DECIMAL128);
+                return ValueCreator.createDecimalValue(scaledDecimal);
+            }
         }
-        int toIntExact = Math.toIntExact(fractionDigits); // assume no integer overflow due to
+        int toIntExact = Math.toIntExact(fractionDigits); // Now no under/overflow due to previous conditions
         BigDecimal scaledDecimal = value.setScale(toIntExact, RoundingMode.HALF_EVEN);
         return ValueCreator.createDecimalValue(scaledDecimal);
     }
