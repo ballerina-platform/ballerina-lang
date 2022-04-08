@@ -611,7 +611,7 @@ function testToFixedStringWhenFractionDigitsIsNil() {
     assertEquality("-5.7", c.toFixedString(()));
 
     assertEquality("12321321312321", float:toFixedString(12321321312321, ()));
-    assertEquality("12321321312321.122432123123", float:toFixedString(12321321312321.122432123123, ()));
+    assertEquality("12321321312321.123", float:toFixedString(12321321312321.122432123123, ()));
 }
 
 function testToFixedStringWhenFractionDigitsIsVeryLargeInt() {
