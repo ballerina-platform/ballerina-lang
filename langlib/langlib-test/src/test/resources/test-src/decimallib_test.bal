@@ -82,12 +82,8 @@ function testRunnerTestRoundToFractionDigits() {
     ];
 
     foreach RoundFullDataPoint dataPoint in data {
-        testRoundToFractionDigits(dataPoint[0], dataPoint[1], dataPoint[2]);
+        assertEquality(decimals:round(dataPoint[0], dataPoint[1]), dataPoint[2]);
     }
-}
-
-function testRoundToFractionDigits(decimal x, int fractionDigits, decimal actual) {
-    assertEquality(decimals:round(x, fractionDigits), actual);
 }
 
 function testRoundWithNamedArguments() {
