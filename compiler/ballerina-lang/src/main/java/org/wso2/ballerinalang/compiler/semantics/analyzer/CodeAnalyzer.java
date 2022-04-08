@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
@@ -2943,7 +2944,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        analyzeExprs(listConstructorExpr.exprs);
+        for (BLangExpression expr : listConstructorExpr.exprs) {
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                expr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+            }
+            analyzeExpr(expr);
+        }
     }
 
     @Override

@@ -1513,6 +1513,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                expr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
+            }
             analyzeNode(expr, env);
         }
     }
