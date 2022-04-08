@@ -147,17 +147,21 @@ public class TupleValueImpl extends AbstractArrayValue {
         List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
-        int valueCount = 0;
-        for (BListInitialValueEntry listEntry : initialValues) {
-            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
-                valueCount++;
-            } else {
-                BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
-                valueCount += values.size();
+        if (type.getRestType() != null) {
+            int valueCount = 0;
+            for (BListInitialValueEntry listEntry : initialValues) {
+                if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
+                    valueCount++;
+                } else {
+                    BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
+                    valueCount += values.size();
+                }
             }
+            this.size = Math.max(valueCount, memCount);
+        } else {
+            this.size = memCount;
         }
 
-        this.size = Math.max(valueCount, memCount);
         this.minSize = memCount;
         this.hasRestElement = this.tupleType.getRestType() != null;
 
