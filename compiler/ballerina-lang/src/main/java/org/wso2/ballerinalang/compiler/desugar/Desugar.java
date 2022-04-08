@@ -5878,11 +5878,9 @@ public class Desugar extends BLangNodeVisitor {
 
             BType expType = expr.impConversionExpr == null ? expr.getBType() : expr.impConversionExpr.getBType();
 
-            BType targetType;
-            if (isInRestType) {
-                targetType = tupleType.restType;
-            } else {
-                targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
+            BType targetType = tupleType.restType;
+            if (!isInRestType && i < tupleMemberTypeSize) {
+                targetType = tupleMemberTypes.get(i);
             }
 
             types.setImplicitCastExpr(expr, expType, targetType);
