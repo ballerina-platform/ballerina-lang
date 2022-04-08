@@ -228,3 +228,25 @@ function testSomeNegative5() {
     string[] arr = ["str1", "str2"];
     _ = arr.some(val => val > 5); // error
 }
+
+function testEveryNegative1() {
+    _ = [1, 2].ever(func1); // error
+}
+
+function testEveryNegative2() {
+    _ = [1, 2].every(func2); // error
+}
+
+function testEveryNegative3() {
+    int _ = [1, 2].every(func1); // error
+}
+
+function testEveryNegative4() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.every(func1); // error
+}
+
+function testEveryNegative5() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.every(val => val > 5); // error
+}
