@@ -30,8 +30,10 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
@@ -172,5 +174,11 @@ public class ErrorUtils {
     public static BError createInvalidDecimalError(String value) {
         throw createError(BallerinaErrorReasons.UNSUPPORTED_DECIMAL_ERROR,
                 BLangExceptionHelper.getErrorDetails(RuntimeErrors.UNSUPPORTED_DECIMAL_VALUE, value));
+    }
+
+    public static BError createInvalidFractionDigitsError() {
+        throw createError(getModulePrefixedReason(FLOAT_LANG_LIB,
+                BallerinaErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_FRACTION_DIGITS));
     }
 }

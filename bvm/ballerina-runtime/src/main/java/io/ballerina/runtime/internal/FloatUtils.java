@@ -27,7 +27,8 @@ import io.ballerina.runtime.api.values.BString;
  * @since 2201.1.0
  */
 public class FloatUtils {
-    public static BString getBStringValue(double x) {
+
+    public static BString getBStringIfInfiniteOrNaN(double x) {
         if (Double.isInfinite(x) || Double.isNaN(x)) {
             return StringUtils.fromString(StringUtils.getStringValue(x, null));
         }

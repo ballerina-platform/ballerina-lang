@@ -18,20 +18,14 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.FloatUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.float:toExpString(float, int?).
@@ -42,7 +36,7 @@ public class ToExpString {
 
     public static BString toExpString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
-        BString str = FloatUtils.getBStringValue(x);
+        BString str = FloatUtils.getBStringIfInfiniteOrNaN(x);
         if (str != null) {
             return StringUtils.fromString(StringUtils.getStringValue(x, null));
         }
@@ -64,9 +58,7 @@ public class ToExpString {
 
         // Panic if noOfFractionDigits < 0.
         if (noOfFractionDigits < 0) {
-            throw ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB,
-                    BallerinaErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_FRACTION_DIGITS));
+            throw ErrorUtils.createInvalidFractionDigitsError();
         }
 
         // Handle very large int values since they might cause overflows.
@@ -91,7 +83,6 @@ public class ToExpString {
         BigDecimal numberBigDecimal = new BigDecimal(x);
         if (xAbsValue != 0 && xAbsValue < 1) {
             numberBigDecimal  = numberBigDecimal.setScale(exponent + tens, RoundingMode.HALF_EVEN);
-
         } else {
             numberBigDecimal  = numberBigDecimal.setScale(exponent, RoundingMode.HALF_EVEN);
         }
