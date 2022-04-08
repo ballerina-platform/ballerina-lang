@@ -1,0 +1,4 @@
+digraph "asmaj/bar:2.0.0" {
+    "asmaj/bar:2.0.0" -> "asmaj/foo:0.6.0"
+    "asmaj/bar:2.0.0" -> "samjs/q:1.4.4"
+}

@@ -1458,3 +1458,103 @@ function testUnshiftLargeValues() {
     assertValueEquality(199, list[200]);
     assertValueEquality(0, list[399]);
 }
+
+function func1(int i) returns boolean {
+    return i > 2;
+}
+
+function testSome1() {
+    assertValueEquality([1, 2].some(func1), false);
+    assertValueEquality([1, 3].some(func1), true);
+    assertValueEquality([].some(func1), false);
+
+    int[] arr1 = [1, 3, 4, 5];
+    assertValueEquality(arr1.some(func1), true);
+    int[4] arr2 = [1, 3, 4, 5];
+    assertValueEquality(arr2.some(func1), true);
+    int[*] arr3 = [1, 3, 4, 5];
+    assertValueEquality(arr3.some(func1), true);
+}
+
+function func2(int|string i) returns boolean {
+    return i is string;
+}
+
+function testSome2() {
+    assertValueEquality([1, 2].some(func2), false);
+    assertValueEquality([].some(func2), false);
+    assertValueEquality([1, 2, 3, "4"].some(func2), true);
+    assertValueEquality([1, 2, 3, "4", 5].some(func2), true);
+
+    (int|string)[] arr1 = [1, "str", "str"];
+    assertValueEquality(arr1.some(func2), true);
+}
+
+function testSome3() {
+    assertValueEquality([1, "2", 3].some(val => val is string), true);
+    assertValueEquality([1, error("MSG"), 3].some(val => val is error), true);
+}
+
+function testSome4() {
+    assertValueEquality([1, 2, 3, 4].filter(val => val >= 2).some(func1), true);
+    assertValueEquality([1, 2, 3, 4].filter(val => val > 4).some(func1), false);
+}
+
+function testSome5() {
+    [int, string] arr1 = [2, "34"];
+    assertValueEquality(arr1.some(val => val is string), true);
+    [int, string, int...] arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.some(val => val is int && val > 6), false);
+}
+
+function testSome6() {
+    [int, string] & readonly arr1 = [2, "34"];
+    assertValueEquality(arr1.some(val => val is string), true);
+    [int, string, int...] & readonly arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.some(val => val is int && val > 6), false);
+}
+
+function testSome7() {
+    [int, string...] arr = [2];
+    assertValueEquality(arr.some(val => val is string), false);
+    arr.push("str1");
+    assertValueEquality(arr.some(val => val is string), true);
+}
+
+int[] globalArr = [1, 2, 3, 4];
+
+function fun3(int val) returns boolean {
+    _ = globalArr.pop();
+    return val > 3;
+}
+
+function testModificationWithinSome() {
+    boolean|error res = trap globalArr.some(fun3);
+    assertTrue(res is error);
+
+    error err = <error>res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error ? message.toString() : message.toString();
+    assertValueEquality("{ballerina/lang.array}IndexOutOfRange", err.message());
+    assertValueEquality("array index out of range: index: 2, size: 2", detailMessage);
+}
+
+function func4(map<int> val) returns boolean {
+    int? ii = val["i"];
+    return ii !is () && ii > 10;
+}
+
+function testSome8() {
+    map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
+    assertValueEquality(arr.some(func4), true);
+}
+
+function func5(map<int> val) returns boolean {
+    int? ii = val["k"];
+    return ii !is () && ii > 10;
+}
+
+function testSome9() {
+    map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
+    assertValueEquality(arr.some(func5), false);
+}
