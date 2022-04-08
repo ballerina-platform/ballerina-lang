@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
 /**
  * The code action to extract anonymous records into type defs.
  *
- * @since 2201.0.x
+ * @since 2201.0.3
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
@@ -77,7 +77,7 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-        String typeName = generateTypeName(RECORD_NAME_PREFIX, visibleSymbolNames);
+        String typeName = CommonUtil.generateTypeName(RECORD_NAME_PREFIX, visibleSymbolNames);
 
         LinePosition tlNodeStartLine = tlNode.lineRange().startLine();
         Range extractedRecordRange = new Range(CommonUtil.toPosition(tlNodeStartLine),
@@ -103,16 +103,5 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return "ExtractType";
-    }
-
-    private static String generateTypeName(String prefix, Set<String> visibleSymbolNames) {
-        String typeName = prefix;
-        int idx = 0;
-        while (visibleSymbolNames.contains(typeName)) {
-            idx++;
-            typeName = typeName + idx;
-        }
-
-        return typeName;
     }
 }

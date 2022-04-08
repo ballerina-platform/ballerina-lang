@@ -39,10 +39,12 @@ import java.util.Optional;
 /**
  * Code action to create a record for an unknown type.
  *
- * @since 2201.0.x
+ * @since 2201.0.3
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateTypeCodeAction extends AbstractCodeActionProvider {
+    
+    private static final int DIAG_PROP_UNKNOWN_TYPE_NAME_INDEX = 0;
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
@@ -52,7 +54,7 @@ public class CreateTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<Name> name = positionDetails.diagnosticProperty(0);
+        Optional<Name> name = positionDetails.diagnosticProperty(DIAG_PROP_UNKNOWN_TYPE_NAME_INDEX);
         Range diagRange = ReferencesUtil.getRange(diagnostic.location());
         Optional<NonTerminalNode> node = context.currentSyntaxTree()
                 .map(syntaxTree -> CommonUtil.findNode(diagRange, syntaxTree));
