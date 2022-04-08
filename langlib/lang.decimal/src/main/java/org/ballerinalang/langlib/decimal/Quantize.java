@@ -39,24 +39,10 @@ import java.math.RoundingMode;
 //)
 public class Quantize {
     public static BDecimal quantize(BDecimal x, BDecimal y) {
-        BigDecimal valueX = x.value();
-        int expOfX = -valueX.scale();
-        int expOfY = -y.value().scale();
-        if (expOfX > expOfY) {
-            BigDecimal quantizeValue = valueX.setScale(Math.abs(expOfY));
-            //  The maximum number of digits in the significand of 128-bit decimal (radix 10)
-            //  floating-point number equals 34
-            if (quantizeValue.precision() > 34) {
-                throw ErrorCreator.createError(BallerinaErrorReasons.INVALID_OPERATION_ERROR);
-            }
-            return ValueCreator.createDecimalValue(quantizeValue);
-        } else if (expOfX < expOfY) {
-            if (expOfY > 0) {
-                return ValueCreator.createDecimalValue(valueX.setScale(-expOfY, RoundingMode.HALF_EVEN));
-            }
-            return ValueCreator.createDecimalValue(valueX.setScale(-expOfY, RoundingMode.HALF_EVEN));
-        } else {
-            return x;
+        BigDecimal quantizeValue = x.value().setScale(y.value().scale(), RoundingMode.HALF_EVEN);
+        if (quantizeValue.precision() > 34) {
+            throw ErrorCreator.createError(BallerinaErrorReasons.INVALID_OPERATION_ERROR);
         }
+        return ValueCreator.createDecimalValue(quantizeValue);
     }
 }
