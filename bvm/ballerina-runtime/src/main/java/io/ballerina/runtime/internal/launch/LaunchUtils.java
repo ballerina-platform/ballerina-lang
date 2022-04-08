@@ -69,12 +69,11 @@ public class LaunchUtils {
 
     public static void addModuleConfigData(Map<Module, VariableKey[]> configurationData, Module m,
                                            VariableKey[] variableKeys) {
-        VariableKey[] currentVarKeys = configurationData.get(m);
-        if (variableKeys == null) {
-            configurationData.put(m, variableKeys);
+        VariableKey[] keys = configurationData.put(m, variableKeys);
+        if (keys == null) {
             return;
         }
-        configurationData.put(m, ArrayUtils.addAll(currentVarKeys, variableKeys));
+        configurationData.put(m, ArrayUtils.addAll(keys, variableKeys));
     }
 
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
