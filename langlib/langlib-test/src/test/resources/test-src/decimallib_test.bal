@@ -419,19 +419,19 @@ function testQuantize() {
 function testQuantizeFunctionWithInvalidOutput() {
     decimal|error a1 = trap decimal:quantize(12.3, 2E-35);
     assertEquality(true, a1 is error);
-    if (a1 is error) {
+    if a1 is error {
         assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
     }
 
     a1 = trap decimal:quantize(1, 2E-35);
     assertEquality(true, a1 is error);
-    if (a1 is error) {
+    if a1 is error {
         assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
     }
 
     a1 = trap decimal:quantize(1E-2, 2E-36);
     assertEquality(true, a1 is error);
-    if (a1 is error) {
+    if a1 is error {
         assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
     }
 }

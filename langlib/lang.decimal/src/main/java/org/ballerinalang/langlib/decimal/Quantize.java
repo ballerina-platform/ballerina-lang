@@ -31,12 +31,6 @@ import java.math.RoundingMode;
  *
  * @since 2201.1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.decimal", functionName = "quantize",
-//        args = {@Argument(name = "x", type = TypeKind.DECIMAL), @Argument(name = "y", type = TypeKind.DECIMAL)},
-//        returnType = {@ReturnType(type = TypeKind.DECIMAL)},
-//        isPublic = true
-//)
 public class Quantize {
     public static BDecimal quantize(BDecimal x, BDecimal y) {
         BigDecimal quantizeValue = x.value().setScale(y.value().scale(), RoundingMode.HALF_EVEN);
