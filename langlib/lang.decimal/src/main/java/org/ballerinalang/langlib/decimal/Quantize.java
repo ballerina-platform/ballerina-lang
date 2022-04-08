@@ -40,7 +40,7 @@ public class Quantize {
     public static BDecimal quantize(BDecimal x, BDecimal y) {
         BigDecimal quantizeValue = x.value().setScale(y.value().scale(), RoundingMode.HALF_EVEN);
         if (quantizeValue.precision() > MAX_DIGITS_IN_SIGNIFICAND) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.INVALID_OPERATION_ERROR);
+            throw ErrorCreator.createError(BallerinaErrorReasons.QUANTIZE_ERROR);
         }
         return ValueCreator.createDecimalValue(quantizeValue);
     }

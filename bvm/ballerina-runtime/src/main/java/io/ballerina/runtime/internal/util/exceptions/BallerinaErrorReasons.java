@@ -55,7 +55,7 @@ public class BallerinaErrorReasons {
             "DecimalExponentError"));
     public static final BString ARITHMETIC_OPERATION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
-    public static final BString INVALID_OPERATION_ERROR = getModulePrefixedReason(DECIMAL_LANG_LIB, "InvalidOperation");
+    public static final BString QUANTIZE_ERROR = getModulePrefixedReason(DECIMAL_LANG_LIB, "QuantizeError");
     public static final BString JAVA_NULL_REFERENCE_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("JavaNullReferenceError"));
     public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");

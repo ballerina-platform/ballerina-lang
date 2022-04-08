@@ -321,17 +321,23 @@ function testFromStringFunctionWithInvalidValues() {
 
 function testQuantize() {
     assertEquality(decimal:quantize(123.123, 2), 123d);
+    assertEquality(123.123d.quantize(2), 123d);
     assertEquality(decimal:quantize(123.123, 2.0), 123.1d);
+    assertEquality(123.123d.quantize(2.0), 123.1d);
     assertEquality(decimal:quantize(123.123, 2.00), 123.12d);
+    assertEquality(123.123d.quantize(2.00), 123.12d);
     assertEquality(decimal:quantize(123.123, 2.000), 123.123d);
+    assertEquality(123.123d.quantize(2.000), 123.123d);
     assertEquality(decimal:quantize(123.123, 2.0000), 123.1230d);
+    assertEquality(123.123d.quantize(2.0000), 123.1230d);
     assertEquality(decimal:quantize(123.123, 2.00000), 123.12300d);
+    assertEquality(123.123d.quantize(2.00000), 123.12300d);
     assertEquality(decimal:quantize(1.123, 2.00000000000000000000000000000000000000000000000000000), 1.123000000000000000000000000000000d);
-    assertEquality(decimal:quantize(123.123, 0.2), 123.1d);
-    assertEquality(decimal:quantize(123.123, 0.02), 123.12d);
-    assertEquality(decimal:quantize(123.123, 0.002), 123.123d);
-    assertEquality(decimal:quantize(123.123, 0.0002), 123.1230d);
-    assertEquality(decimal:quantize(123.123, 0.1E1), 123d);
+    assertEquality(decimal:quantize(x = 123.123, y = 0.2), 123.1d);
+    assertEquality(decimal:quantize(x = 123.123, y = 0.02), 123.12d);
+    assertEquality(decimal:quantize(x = 123.123, y = 0.002), 123.123d);
+    assertEquality(decimal:quantize(x = 123.123, y = 0.0002), 123.1230d);
+    assertEquality(decimal:quantize(y = 0.1E1, x = 123.123), 123d);
     assertEquality(decimal:quantize(123.123, 0.01E2), 123d);
     assertEquality(decimal:quantize(123.123, 0.001E3), 123d);
     assertEquality(decimal:quantize(123.123, 0.0001E4), 123d);
@@ -342,12 +348,19 @@ function testQuantize() {
     assertEquality(decimal:quantize(123.123, 0.00001E1), 123.1230d);
     assertEquality(decimal:quantize(123.123, 0.000001E1), 123.12300d);
     assertEquality(decimal:quantize(123, 10E0), 123d);
+    assertEquality(123d.quantize(10E0), 123d);
     assertEquality(decimal:quantize(123, 10E1), 1.2E2d);
+    assertEquality(123d.quantize(10E1), 1.2E2d);
     assertEquality(decimal:quantize(123, 10E2), 1E2d);
+    assertEquality(123d.quantize(10E2), 1E2d);
     assertEquality(decimal:quantize(123, 10E3), 0d);
+    assertEquality(123d.quantize(10E3), 0d);
     assertEquality(decimal:quantize(123, 10E4), 0d);
+    assertEquality(123d.quantize(10E4), 0d);
     assertEquality(decimal:quantize(263E2, 10E2), 263E2d);
+    assertEquality(263E2d.quantize(10E2), 263E2d);
     assertEquality(decimal:quantize(263E2, 10E3), 2.6E4d);
+    assertEquality(263E2d.quantize(10E3),  2.6E4d);
     assertEquality(decimal:quantize(255E2, 10E3), 2.6E4d);
     assertEquality(decimal:quantize(263E2, 10E4), 3E4d);
     assertEquality(decimal:quantize(263E2, 10E5), 0d);
@@ -431,51 +444,35 @@ function testQuantize() {
 function testQuantizeFunctionWithInvalidOutput() {
     decimal|error a1 = trap decimal:quantize(12.3, 2E-35);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
     a1 = trap decimal:quantize(1, 2E-35);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
     a1 = trap decimal:quantize(1E-2, 2E-36);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
     a1 = trap decimal:quantize(9.999999999999999999999999999999999E6144, 1E0);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
     a1 = trap decimal:quantize(9.999999999999999999999999999999999E6144, 1E-10);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
     a1 = trap decimal:quantize(9.999999999999999999999999999999999E6144, 1E143);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
     
     a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6176);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 
     a1 = trap decimal:quantize(0.000000000000000000000000000000000E6-6176, 1E-6175);
     assertEquality(true, a1 is error);
-    if a1 is error {
-        assertEquality("{ballerina/lang.decimal}InvalidOperation", a1.message());
-    }
+    assertEquality("{ballerina/lang.decimal}QuantizeError", (<error> a1).message());
 }
 
 function assertEquality(any|error expected, any|error actual) {
