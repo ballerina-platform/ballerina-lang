@@ -174,4 +174,9 @@ public class LangLibFloatTest {
                 "testToExpStringWithHexaDecimalFloatingPoints"
         };
     }
+
+    @Test
+    public void testRound() {
+        BRunUtil.invoke(compileResult, "testRound");
+    }
 }
