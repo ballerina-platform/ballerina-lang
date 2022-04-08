@@ -127,3 +127,8 @@ function testFiniteTypeWithUnaryMinus() {
     UnaryType2 x1 = -2;
     UnaryType3 x2 = -5;
 }
+
+function testFiniteTypeWithOutOfRangeValues() {
+    1|5.4 _ = 92233720368547758078;
+    1 _ = 92233720368547758078;
+}

@@ -47,7 +47,7 @@ function testBitwiseLeftShiftOp() {
     assertEqual(1 << a1, 0x4000000000000000);
 
     SixtiesCode a2 = 63;
-    assertEqual(1 << a2, -0x8000000000000000);
+    assertEqual(1 << a2, -9223372036854775807 - 1);
 
     SixtiesCode a3 = 64;
     assertEqual(1 << a3, 0x1);
@@ -67,7 +67,7 @@ function testBitwiseLeftShiftOp() {
     assertEqual(1 << a8, 0x4000000000000000);
 
     SixtiesConst a9 = 63;
-    assertEqual(1 << a9, -0x8000000000000000);
+    assertEqual(1 << a9, -9223372036854775807 - 1);
 
     CAI|CAD a10 = 64;
     assertEqual(1 << a10, 0x1);
@@ -76,7 +76,7 @@ function testBitwiseLeftShiftOp() {
     assertEqual(a11 << SIXTY_TWO, -0x4000000000000000);
 
     ThreeNumbers a12 = 2;
-    assertEqual(a12 << a1, -0x8000000000000000);
+    assertEqual(a12 << a1, -9223372036854775807 - 1);
 
     assertEqual(1 << 62, 0x4000000000000000);
 

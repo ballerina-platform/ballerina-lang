@@ -290,6 +290,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean failVisited;
     private boolean withinLockBlock;
     private boolean inMatchGuard;
+    private SemanticAnalyzer semanticAnalyzer;
     private SymbolTable symTable;
     private Types types;
     private BLangDiagnosticLog dlog;
@@ -335,6 +336,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.reachabilityAnalyzer = ReachabilityAnalyzer.getInstance(context);
         this.enableExperimentalFeatures = Boolean.parseBoolean(
                 CompilerOptions.getInstance(context).get(CompilerOptionName.EXPERIMENTAL));
@@ -1154,6 +1156,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             case SIMPLE_VARIABLE_REF:
                 constValAndType.put(((BLangSimpleVarRef) constPattern.expr).variableName, constPattern.getBType());
                 break;
+            case UNARY_EXPR:
+                BLangNumericLiteral newNumericLiteral = semanticAnalyzer.constructNumericLiteralFromUnaryExpr(
+                        (BLangUnaryExpr) constPattern.expr);
+                constValAndType.put(newNumericLiteral.value, null);
         }
         return constValAndType;
     }

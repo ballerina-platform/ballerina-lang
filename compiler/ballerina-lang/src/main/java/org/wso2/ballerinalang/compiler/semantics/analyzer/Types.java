@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
@@ -148,6 +149,7 @@ public class Types {
             new CompilerContext.Key<>();
     private final Unifier unifier;
 
+    private SemanticAnalyzer semanticAnalyzer;
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
@@ -171,6 +173,7 @@ public class Types {
     public Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
 
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -489,8 +492,16 @@ public class Types {
             }
             return symTable.noType;
         }
-        // After the above check, according to spec all other const-patterns should be literals.
-        BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
+        BLangLiteral constPatternLiteral;
+        if (constPatternExpr.getKind() == NodeKind.UNARY_EXPR) {
+            // Construct numeric literal for + and - numeric values in unary expression
+            constPatternLiteral = semanticAnalyzer.constructNumericLiteralFromUnaryExpr(
+                    (BLangUnaryExpr) constPatternExpr);
+        } else {
+            // After the above checks, according to spec all other const-patterns should be literals.
+            constPatternLiteral = (BLangLiteral) constPatternExpr;
+        }
+
         if (containsAnyType(constMatchPatternExprType)) {
             return matchExprType;
         } else if (containsAnyType(matchExprType)) {

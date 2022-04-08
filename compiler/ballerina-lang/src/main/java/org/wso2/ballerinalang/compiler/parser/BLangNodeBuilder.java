@@ -781,6 +781,31 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return sb.toString();
     }
 
+    private void constructValueOfLiteralFromUnaryExpr(BLangLiteral literal, BLangUnaryExpr unaryExpr) {
+        BLangExpression exprInUnary = unaryExpr.expr;
+        BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
+        Object objectValueInUnary = numericLiteralInUnary.value;
+        String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+
+        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+            strValueInUnary = "+" + strValueInUnary;
+        } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+            strValueInUnary = "-" + strValueInUnary;
+        }
+
+        if (objectValueInUnary instanceof Long) {
+            objectValueInUnary = Long.parseLong(strValueInUnary);
+        } else if (objectValueInUnary instanceof Double) {
+            objectValueInUnary = Double.parseDouble(strValueInUnary);
+        } else if (objectValueInUnary instanceof String) {
+            objectValueInUnary = strValueInUnary;
+        }
+
+        literal.value = objectValueInUnary;
+        literal.originalValue = strValueInUnary;
+        literal.setBType(exprInUnary.getBType());
+    }
+
     @Override
     public BLangNode transform(ConstantDeclarationNode constantDeclarationNode) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
@@ -805,18 +830,30 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
         // consider it.
+        // Note - This logic has been special cased for unary expressions as `+` and `-` numeric literals no longer
+        // go on the literal path but as a unary expression.
         NodeKind nodeKind = constantNode.expr.getKind();
-        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL || (nodeKind == NodeKind.UNARY_EXPR &&
+                ((BLangUnaryExpr) constantNode.expr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
+                (OperatorKind.SUB.equals(((BLangUnaryExpr) constantNode.expr).operator) ||
+                        OperatorKind.ADD.equals(((BLangUnaryExpr) constantNode.expr).operator)))) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
             // in type definitions.
 
             // Create a new literal.
-            BLangLiteral literal = nodeKind == NodeKind.LITERAL ?
-                    (BLangLiteral) TreeBuilder.createLiteralExpression() :
-                    (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
-            literal.setValue(((BLangLiteral) constantNode.expr).value);
-            literal.setOriginalValue(((BLangLiteral) constantNode.expr).originalValue);
-            literal.setBType(constantNode.expr.getBType());
+            BLangLiteral literal;
+            if (nodeKind == NodeKind.LITERAL) {
+                literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            } else {
+                literal = (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
+            }
+            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+                literal.setValue(((BLangLiteral) constantNode.expr).value);
+                literal.setOriginalValue(((BLangLiteral) constantNode.expr).originalValue);
+                literal.setBType(constantNode.expr.getBType());
+            } else {
+                constructValueOfLiteralFromUnaryExpr(literal, (BLangUnaryExpr) constantNode.expr);
+            }
             literal.isConstant = true;
 
             // Create a new finite type node.

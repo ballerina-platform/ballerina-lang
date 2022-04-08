@@ -455,23 +455,56 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
+    private Object calculateNegationForInt(BLangConstantValue value) {
+        return -1 * ((Long) (value.value));
+    }
+
+    private Object calculateNegationForFloat(BLangConstantValue value) {
+        return String.valueOf(-1 * Double.parseDouble(String.valueOf(value.value)));
+    }
+
+    private Object calculateNegationForDecimal(BLangConstantValue value) {
+        BigDecimal valDecimal = new BigDecimal(String.valueOf(value.value), MathContext.DECIMAL128);
+        BigDecimal negDecimal = new BigDecimal(String.valueOf(-1), MathContext.DECIMAL128);
+        BigDecimal resultDecimal = valDecimal.multiply(negDecimal, MathContext.DECIMAL128);
+        return resultDecimal.toPlainString();
+    }
+
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
         Object result = null;
         switch (this.currentConstSymbol.type.tag) {
             case TypeTags.INT:
-                result = -1 * ((Long) (value.value));
+                result = calculateNegationForInt(value);
                 break;
             case TypeTags.FLOAT:
-                result = String.valueOf(-1 * Double.parseDouble(String.valueOf(value.value)));
+                result = calculateNegationForFloat(value);
                 break;
             case TypeTags.DECIMAL:
-                BigDecimal valDecimal = new BigDecimal(String.valueOf(value.value), MathContext.DECIMAL128);
-                BigDecimal negDecimal = new BigDecimal(String.valueOf(-1), MathContext.DECIMAL128);
-                BigDecimal resultDecimal = valDecimal.multiply(negDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                result = calculateNegationForDecimal(value);
+                break;
+            case TypeTags.FINITE:
+                // Constants declared without a type node having union expressions containing numeric
+                // literals with `-` and `+` operators will have the `currentConstSymbol.type` as Finite type
+                switch (value.type.tag) {
+                    case TypeTags.INT:
+                        result = calculateNegationForInt(value);
+                        break;
+                    case TypeTags.FLOAT:
+                        result = calculateNegationForFloat(value);
+                        break;
+                    case TypeTags.DECIMAL:
+                        result = calculateNegationForDecimal(value);
+                        break;
+                }
                 break;
         }
-        return new BLangConstantValue(result, currentConstSymbol.type);
+
+        if (this.currentConstSymbol.type.tag == TypeTags.FINITE) {
+            BType valType = ((BFiniteType) currentConstSymbol.type).getValueSpace().iterator().next().getBType();
+            return new BLangConstantValue(result, valType);
+        } else  {
+            return new BLangConstantValue(result, currentConstSymbol.type);
+        }
     }
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {

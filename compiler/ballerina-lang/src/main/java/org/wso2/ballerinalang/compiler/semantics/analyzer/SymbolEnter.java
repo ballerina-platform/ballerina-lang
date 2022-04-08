@@ -29,6 +29,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.OrderedNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
@@ -116,6 +117,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -2242,6 +2244,16 @@ public class SymbolEnter extends BLangNodeVisitor {
                 constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
             }
 
+        } else if (nodeKind == NodeKind.UNARY_EXPR && constant.typeNode == null &&
+                ((BLangUnaryExpr) constant.expr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
+                (OperatorKind.SUB.equals(((BLangUnaryExpr) constant.expr).operator) ||
+                        OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator))) {
+            // When unary type constants with `-` or `+` operators are defined without the type,
+            // then the type of the symbol will be handled similar to handling a literal type constant
+            // defined without the type.
+            defineNode(constant.associatedTypeDefinition, env);
+            constantSymbol.type = constant.associatedTypeDefinition.symbol.type;
+            constantSymbol.literalType = ((BLangUnaryExpr) constant.expr).expr.getBType();
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;
         }

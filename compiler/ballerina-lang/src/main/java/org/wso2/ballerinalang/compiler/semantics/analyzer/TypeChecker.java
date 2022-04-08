@@ -532,6 +532,32 @@ public class TypeChecker extends BLangNodeVisitor {
         return symTable.intType;
     }
 
+    private BType clonedCheckForCompatibleLiteralType(BFiniteType finiteType, BLangLiteral literalExpr) {
+        BType resIntType = symTable.semanticError;
+        for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+            BType tempResType = clonedExprTypeChecker(literalExpr, valueExpr.getBType());
+            if (tempResType != symTable.semanticError) {
+                resIntType = tempResType;
+                break;
+            }
+        }
+        return resIntType;
+    }
+
+    private BType checkLiteralTypeCompatibilityWithFiniteType(BFiniteType finiteType, BLangLiteral literalExpr) {
+        BType compatibleType = clonedCheckForCompatibleLiteralType(finiteType, literalExpr);
+        if (compatibleType == symTable.semanticError) {
+            // Log the out of range errors since literal is not assignable
+            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
+                checkExpr(literalExpr, env, valueExpr.getBType());
+            }
+        }
+//        else {
+//            checkExpr(literalExpr, env, compatibleType);
+//        }
+        return compatibleType;
+    }
+
     private BType getIntegerLiteralType(BLangLiteral literalExpr, Object literalValue, BType expType) {
         BType expectedType = Types.getReferredType(expType);
         if (expectedType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(expectedType.tag)) {
@@ -558,7 +584,13 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.decimalType;
         } else if (expectedType.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) expectedType;
-            return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
+            // Check and set correct literal value type
+            BType compatibleType = checkLiteralTypeCompatibilityWithFiniteType(finiteType, literalExpr);
+            if (compatibleType == symTable.semanticError) {
+                return compatibleType;
+            } else {
+                return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue);
+            }
         } else if (expectedType.tag == TypeTags.UNION) {
             for (BType memType : types.getAllTypes(expectedType, true)) {
                 BType memberRefType = Types.getReferredType(memType);
@@ -8288,6 +8320,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return getConstIndex(groupExpr.expression);
             case NUMERIC_LITERAL:
                 return (Long) ((BLangLiteral) indexExpr).value;
+            case UNARY_EXPR:
+                BLangNumericLiteral numericLiteral =
+                        semanticAnalyzer.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) indexExpr);
+                return (Long) numericLiteral.value;
             default:
                 return (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;
         }
@@ -8737,6 +8773,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 return isConstExpr(groupExpr.expression);
             case SIMPLE_VARIABLE_REF:
                 return (((BLangSimpleVarRef) expression).symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT;
+            case UNARY_EXPR:
+                if (((BLangUnaryExpr) expression).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
+                        (OperatorKind.ADD.equals(((BLangUnaryExpr) expression).operator)) ||
+                (OperatorKind.SUB.equals(((BLangUnaryExpr) expression).operator))) {
+                    return isConstExpr(((BLangUnaryExpr) expression).expr);
+                } else {
+                    return false;
+                }
             default:
                 return false;
         }

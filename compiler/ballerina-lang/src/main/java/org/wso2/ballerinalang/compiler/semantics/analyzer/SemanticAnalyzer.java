@@ -327,6 +327,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateEnumMemberMetadata(pkgNode.constants);
 
+        // Then resolve user defined types
+        for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes)  {
+            if (pkgLevelNode.getKind() != NodeKind.TYPE_DEFINITION) {
+                continue;
+            }
+            analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
+        }
+
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
             NodeKind kind = pkgLevelNode.getKind();
@@ -345,6 +353,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 // This is a class defined for an object-constructor-expression (OCE). This will be analyzed when
                 // visiting the OCE in the type checker. This is a temporary workaround until we fix
                 // https://github.com/ballerina-platform/ballerina-lang/issues/27009
+                continue;
+            }
+
+            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
                 continue;
             }
 
@@ -700,7 +712,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateAnnotationAttachmentCount(conversionExpr.annAttachments);
     }
 
-    private BLangNumericLiteral replaceUnaryExprWithLiteral(BLangUnaryExpr unaryExpr) {
+    public BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
         BLangExpression exprInUnary = unaryExpr.expr;
         BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
         Object objectValueInUnary = numericLiteralInUnary.value;
@@ -750,14 +762,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     continue;
                 }
                 // Replacing unary expression with numeric literal type for + and - numeric values
-//                if (resultType != symTable.semanticError) {
-                    BLangNumericLiteral newNumericLiteral = replaceUnaryExprWithLiteral((BLangUnaryExpr) value);
-                    finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+                BLangNumericLiteral newNumericLiteral = constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+                finiteTypeNode.valueSpace.set(i, newNumericLiteral);
 
-                    // Remove unary expression and add the constructed literal
-                    newValueSpace.remove(value);
-                    newValueSpace.add(newNumericLiteral);
-//                }
+                // Remove unary expression and add the constructed literal
+                newValueSpace.remove(value);
+                newValueSpace.add(newNumericLiteral);
             } else {
                 analyzeNode(value, env);
             }
@@ -4153,21 +4163,21 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
 
         BLangExpression expression = constant.expr;
-        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
-        expression.getKind() != NodeKind.UNARY_EXPR && constant.typeNode == null) {
-            constant.setBType(symTable.semanticError);
-            dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
+
+        if (((expression.getKind() == NodeKind.UNARY_EXPR &&
+                ((BLangUnaryExpr) constant.expr).expr.getKind() != NodeKind.NUMERIC_LITERAL) &&
+                (!OperatorKind.SUB.equals(((BLangUnaryExpr) constant.expr).operator) ||
+                !OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator)) ||
+                !(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
+                expression.getKind() != NodeKind.UNARY_EXPR) &&
+                constant.typeNode == null) {
             // This has to return, because constant.symbol.type is required for further validations.
-            // ATM only special cased for unary expressions.
+            // ATM this is only special cased for unary expressions with `+` and `-` operators with numeric expressions.
+            dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
             return;
         }
 
         BType constExprType = typeChecker.checkExpr(expression, env, constant.symbol.type);
-
-        if (expression.getKind() == NodeKind.UNARY_EXPR) {
-            constant.symbol.type = constExprType;
-            constant.symbol.literalType = constExprType;
-        }
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);
