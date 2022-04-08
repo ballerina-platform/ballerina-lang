@@ -47,7 +47,7 @@ public class ToFixedString {
         long noOfFractionDigits = (long) fractionDigits;
 
         // Panic if noOfFractionDigits < 0.
-        if (noOfFractionDigits < 0 ) {
+        if (noOfFractionDigits < 0) {
             throw ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB,
                     BallerinaErrorReasons.INVALID_FRACTION_DIGITS_ERROR),
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_FRACTION_DIGITS));
