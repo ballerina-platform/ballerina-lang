@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.floatingpoint;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.FloatUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -34,13 +35,15 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 /**
  * Native implementation of lang.float:toFixedString(float, int?).
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 public class ToFixedString {
+
     public static BString toFixedString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
         // If fractionalDigits is `()`, use the minimum number of digits required to accurately represent the value.
-        if (Double.isInfinite(x) || Double.isNaN(x) || fractionDigits == null) {
+        BString res = FloatUtils.getBStringValue(x, fractionDigits == null);
+        if (res != null) {
             return StringUtils.fromString(StringUtils.getStringValue(x, null));
         }
 
@@ -53,14 +56,16 @@ public class ToFixedString {
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_FRACTION_DIGITS));
         }
 
-        if (noOfFractionDigits > Integer.MAX_VALUE) {
+        // Handle very large int values since they might cause overflows.
+        if (noOfFractionDigits > Integer.MAX_VALUE ||
+                (noOfFractionDigits * Long.bitCount(noOfFractionDigits) > Integer.MAX_VALUE)) {
             return StringUtils.fromString(StringUtils.getStringValue(x, null));
         }
 
-        int fracDig = (int) noOfFractionDigits;
+        int fracDigits = (int) noOfFractionDigits;
 
         BigDecimal numberBigDecimal = new BigDecimal(x);
-        numberBigDecimal  = numberBigDecimal.setScale(fracDig, RoundingMode.HALF_EVEN);
+        numberBigDecimal  = numberBigDecimal.setScale(fracDigits, RoundingMode.HALF_EVEN);
         return StringUtils.fromString(numberBigDecimal.toPlainString());
     }
 }

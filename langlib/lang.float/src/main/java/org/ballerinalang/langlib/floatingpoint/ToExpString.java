@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.floatingpoint;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.FloatUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -35,12 +36,14 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 /**
  * Native implementation of lang.float:toExpString(float, int?).
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 public class ToExpString {
+
     public static BString toExpString(double x, Object fractionDigits) {
         // If `x` is NaN or infinite, the result will be the same as `value:toString`.
-        if (Double.isInfinite(x) || Double.isNaN(x)) {
+        BString str = FloatUtils.getBStringValue(x, false);
+        if (str != null) {
             return StringUtils.fromString(StringUtils.getStringValue(x, null));
         }
 
@@ -62,7 +65,9 @@ public class ToExpString {
                     BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_FRACTION_DIGITS));
         }
 
-        if (noOfFractionDigits > Integer.MAX_VALUE) {
+        // Handle very large int values since they might cause overflows.
+        if (noOfFractionDigits > Integer.MAX_VALUE ||
+                (noOfFractionDigits * Long.bitCount(noOfFractionDigits) > Integer.MAX_VALUE)) {
             // Maximum value a double can represent is around 1.7*10^308.
             noOfFractionDigits = 308;
         }
@@ -79,10 +84,6 @@ public class ToExpString {
             }
         }
 
-        DecimalFormat decimalFormat = new DecimalFormat();
-        decimalFormat.setRoundingMode(RoundingMode.HALF_EVEN);
-
-
         BigDecimal numberBigDecimal = new BigDecimal(x);
         if (xAbsValue != 0 && xAbsValue < 1) {
             numberBigDecimal  = numberBigDecimal.setScale(exponent + tens, RoundingMode.HALF_EVEN);
@@ -93,7 +94,8 @@ public class ToExpString {
 
         String power = "0".repeat(exponent);
 
-        decimalFormat = new DecimalFormat("0." + power + "E0");
+        DecimalFormat decimalFormat = new DecimalFormat("0." + power + "E0");
+        decimalFormat.setRoundingMode(RoundingMode.HALF_EVEN);
         String res = decimalFormat.format(numberBigDecimal);
         int indexOfExp = res.lastIndexOf("E");
         String firstSection = res.substring(0, indexOfExp);
