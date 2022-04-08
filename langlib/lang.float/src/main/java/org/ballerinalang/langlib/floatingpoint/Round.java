@@ -53,21 +53,14 @@ public class Round {
         // Down cast can be done safely because of above condition.
         int fractionDigitsAsInt = (int) fractionDigits;
         BigDecimal xInBigDecimal = BigDecimal.valueOf(x);
-        BigDecimal xTmp = xInBigDecimal;
-        int digitsTmp = fractionDigitsAsInt;
-        if (digitsTmp > 0) {
-            while (digitsTmp-- > 0) {
-                if (xTmp.remainder(BigDecimal.ONE).compareTo(BigDecimal.ZERO) == 0) {
-                    return x;
-                }
-                xTmp = xTmp.multiply(BigDecimal.TEN);
+        int scale = xInBigDecimal.scale();
+        if (fractionDigitsAsInt > 0) {
+            if (fractionDigitsAsInt > scale) {
+                return x;
             }
         } else {
-            while (digitsTmp++ < 0) {
-                if (xTmp.compareTo(BigDecimal.ZERO) == 0) {
-                    return 0;
-                }
-                xTmp = xTmp.divide(BigDecimal.TEN, 0, RoundingMode.DOWN);
+            if (-fractionDigitsAsInt > (xInBigDecimal.precision() - scale)) {
+                return 0;
             }
         }
         return xInBigDecimal.setScale(fractionDigitsAsInt, RoundingMode.HALF_EVEN).doubleValue();
