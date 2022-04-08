@@ -76,6 +76,7 @@ import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -1383,10 +1384,10 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package instance to evaluate
+     * @param pkg {@link Package} package info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(Package pkg) {
+    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
         String orgName = "";
         if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
             orgName = pkg.packageOrg().value() + "/";
@@ -1402,7 +1403,8 @@ public class CommonUtil {
      * @param pkg     Package to be evaluated against
      * @return {@link Optional}
      */
-    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context, Package pkg) {
+    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
+                                                                         LSPackageLoader.PackageInfo pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();

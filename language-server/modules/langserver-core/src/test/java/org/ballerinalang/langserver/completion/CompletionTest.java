@@ -23,7 +23,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
-import org.ballerinalang.langserver.BallerinaLanguageServer;
+import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
@@ -33,8 +33,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -49,20 +47,13 @@ import java.util.List;
 /**
  * Completion Test Interface.
  */
-public abstract class CompletionTest {
-
-    protected Endpoint serviceEndpoint;
+public abstract class CompletionTest extends AbstractLSTest {
 
     private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
     private final String configDir = "config";
-    
-    private final Gson gson = new Gson();
 
-    @BeforeClass
-    public void init() throws Exception {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
+    private final Gson gson = new Gson();
 
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
@@ -80,12 +71,12 @@ public abstract class CompletionTest {
         boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-            // updateConfig(configJsonPath, configJsonObject, resultList, expectedList, responseItemList);
+//            updateConfig(configJsonPath, configJsonObject, resultList, expectedList, responseItemList);
             Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
 
-    private String getResponse(JsonObject configJsonObject) throws IOException {
+    protected String getResponse(JsonObject configJsonObject) throws IOException {
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         Position position = new Position();
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
@@ -97,10 +88,11 @@ public abstract class CompletionTest {
     }
 
     public String getResponse(Path sourcePath, Position position, String triggerChar) throws IOException {
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        Endpoint endpoint = getServiceEndpoint();
+        TestUtil.openDocument(endpoint, sourcePath);
         String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,
-                this.serviceEndpoint, triggerChar);
-        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+                endpoint, triggerChar);
+        TestUtil.closeDocument(endpoint, sourcePath);
         return responseString;
     }
 
@@ -122,11 +114,6 @@ public abstract class CompletionTest {
 
     public abstract String getTestResourceDir();
 
-    @AfterClass
-    public void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
-    }
-
     protected Object[][] getConfigsList() {
         if (this.testSubset().length != 0) {
             return this.testSubset();
@@ -147,7 +134,6 @@ public abstract class CompletionTest {
             return new Object[0][];
         }
     }
-    
 
     /**
      * Update the config JSON while preserving the order of the existing completion items.
@@ -165,7 +151,7 @@ public abstract class CompletionTest {
         for (JsonElement expectedItem : expectedList) {
             String expectedInsertText = expectedItem.getAsJsonObject().get("insertText").getAsString();
             String expectedKind = expectedItem.getAsJsonObject().get("kind").getAsString();
-    
+
             // Find this item in results
             int i = 0;
             for (; i < copyOfResultList.size(); i++) {
@@ -199,12 +185,11 @@ public abstract class CompletionTest {
 //        Assert.assertEquals(responseItemList.toString(), expectedItemList.toString(),
 //                "Failed Test for: " + configJsonPath);
     }
-    
+
     protected void preLoadAndInit() throws InterruptedException {
-        BallerinaLanguageServer ls = new BallerinaLanguageServer();
-        this.serviceEndpoint = TestUtil.initializeLanguageSever(ls);
+
         ServiceTemplateGenerator serviceTemplateGenerator =
-                ServiceTemplateGenerator.getInstance(ls.getServerContext());
+                ServiceTemplateGenerator.getInstance(getLanguageServer().getServerContext());
         long initTime = System.currentTimeMillis();
         while (!serviceTemplateGenerator.initialized() && System.currentTimeMillis() < initTime + 60 * 1000) {
             Thread.sleep(2000);
