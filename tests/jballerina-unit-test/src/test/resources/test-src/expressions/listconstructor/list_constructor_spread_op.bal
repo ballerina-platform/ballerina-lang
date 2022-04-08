@@ -354,6 +354,29 @@ function testSpreadOpTupleWithNeverRestDescriptor() {
     assertArrayEquality(v7, ["s", false, 0]);
 }
 
+int[] a1 = [3, 4];
+int[] a2 = [6, 7];
+int[] v1 = [1, 2, ...a1, 5, ...a2];
+
+[int, "s"] t1 = [1, "s"];
+[int, int, (int|string)...] v2 = [1, ...t1, "x"];
+
+(int|string)[*] a3 = [1, "s"];
+[int, any, (int|string)...] v3 = [1, ...a3];
+
+[(int|string), string] t2 = ["x", "y"];
+(string|int)[*] v4 = ["s", ...t2, 4, ...t2];
+
+function testSpreadOpAtModuleLevel() {
+    assertArrayEquality(v1, [1, 2, 3, 4, 5, 6, 7]);
+    assertArrayEquality(v2, [1, 1, "s", "x"]);
+    assertArrayEquality(v3, [1, 1, "s"]);
+    assertArrayEquality(v4, ["s", "x", "y", 4, "x", "y"]);
+
+    any[] v5 = ["SHH", ...v3, false];
+    assertArrayEquality(v5, ["SHH", 1, 1, "s", false]);
+}
+
 const ASSERTION_ERROR_REASON_1 = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

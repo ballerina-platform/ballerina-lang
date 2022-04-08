@@ -77,6 +77,11 @@ public class ListConstructorSpreadOperatorTest {
     }
 
     @Test
+    public void testSpreadOpAtModuleLevel() {
+        BRunUtil.invoke(result, "testSpreadOpAtModuleLevel");
+    }
+
+    @Test
     public void testSpreadOpInference() {
         BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithVar");
         BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithReadonly");
