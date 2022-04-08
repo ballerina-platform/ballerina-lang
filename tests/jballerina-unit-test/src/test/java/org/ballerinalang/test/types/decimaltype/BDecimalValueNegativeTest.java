@@ -66,12 +66,12 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 27, 22);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 27, 31);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|decimal)', found 'float'", 28, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 34, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 35, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 36, 24);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 37, 23);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 38, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 39, 17);
-        BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 41, 37);
+        BAssertUtil.validateError(negative, i++, "operator '/' not defined for 'decimal' and 'float'", 34, 17);
+        BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'decimal' and 'float'", 35, 17);
+        BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'decimal' and 'float'", 36, 17);
+        BAssertUtil.validateError(negative, i++, "operator '*' not defined for 'decimal' and 'float'", 37, 17);
+        BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'float' and 'decimal'", 38, 17);
+        BAssertUtil.validateError(negative, i++, "operator '-' not defined for 'float' and 'decimal'", 39, 17);
+        BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'decimal' and 'float'", 41, 17);
     }
 }

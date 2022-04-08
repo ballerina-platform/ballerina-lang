@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "stream<record {| anydata...; |}, error> query = "
+                    "newText": "stream<record {|anydata...;|}, error> query = "
                 }
             ]
         }

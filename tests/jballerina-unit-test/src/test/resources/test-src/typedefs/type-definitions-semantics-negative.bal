@@ -36,3 +36,9 @@ function bar() returns MyTuple => [1, ""];
 function testTypeReference() {
     function () returns int x = bar;
 }
+
+type Foo boolean|null;
+
+function testNullFiniteType() {
+    Foo _ = "null"; // error
+}

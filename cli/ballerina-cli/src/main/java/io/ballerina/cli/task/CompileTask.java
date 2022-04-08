@@ -19,7 +19,6 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
@@ -28,9 +27,13 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 
@@ -67,24 +70,50 @@ public class CompileTask implements Task {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
+            List<Diagnostic> diagnostics = new ArrayList<>();
             long start = 0;
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
-                project.currentPackage().getResolution();
+            }
+
+            project.currentPackage().getResolution();
+
+            if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
 
             // run built-in code generator compiler plugins
-            DiagnosticResult codeGenDiagnosticResult = null;
-            if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
-                // SingleFileProject cannot hold additional sources or resources
-                // and BalaProjects is a read-only project.
-                // Hence we run the code generators only for BuildProject
-                CodeGeneratorResult codeGeneratorResult = project.currentPackage().runCodeGeneratorPlugins();
-                codeGenDiagnosticResult = codeGeneratorResult.reportedDiagnostics();
+            // We only continue with next steps if package resolution does not have errors.
+            // Errors in package resolution denotes version incompatibility errors. Hence we do not continue further.
+            if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
+                if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
+                    // SingleFileProject cannot hold additional sources or resources
+                    // and BalaProjects is a read-only project.
+                    // Hence we run the code generators only for BuildProject
+                    DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
+                            .runCodeGenAndModifyPlugins();
+                    if (codeGenAndModifyDiagnosticResult != null) {
+                        diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                    }
+                }
             }
 
+            project.currentPackage().getCompilation();
+
+            // Print diagnostics and exit when version incompatibility issues are found in package resolution.
+            if (project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
+                // add resolution diagnostics
+                diagnostics.addAll(project.currentPackage().getResolution().diagnosticResult().diagnostics());
+                // add package manifest diagnostics
+                diagnostics.addAll(project.currentPackage().manifest().diagnostics().diagnostics());
+                // add dependency manifest diagnostics
+                diagnostics.addAll(project.currentPackage().dependencyManifest().diagnostics().diagnostics());
+                diagnostics.forEach(d -> err.println(d.toString()));
+                throw createLauncherException("package resolution contains errors");
+            }
+
+            // Package resolution is successful. Continue compiling the package.
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
@@ -94,16 +123,17 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
-            // Report code generator diagnostics
-            if (codeGenDiagnosticResult != null) {
-                codeGenDiagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
-            }
 
             // Report package compilation and backend diagnostics
-            DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
-            diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
-            if (diagnosticResult.hasErrors() ||
-                    (codeGenDiagnosticResult != null && codeGenDiagnosticResult.hasErrors())) {
+            diagnostics.addAll(jBallerinaBackend.diagnosticResult().diagnostics(false));
+            boolean hasErrors = false;
+            for (Diagnostic d : diagnostics) {
+                if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
+                    hasErrors = true;
+                }
+                err.println(d.toString());
+            }
+            if (hasErrors) {
                 throw createLauncherException("compilation contains errors");
             }
             project.save();

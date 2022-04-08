@@ -284,6 +284,643 @@ function testMultiplyNullable() {
     assertEqual(a36 * a36, 9d);
 }
 
+const int constInt = 5;
+
+const float constFloat = 20.5;
+
+function testMultiplyFloatInt() {
+    int a = 2;
+    float b = 4.5;
+    float c = 4.5e-1;
+    float d = -10.5;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
+
+    float var1 = a * b;
+    assertEqual(var1, 9.0);
+    float var2 = a * c;
+    assertEqual(var2, 0.9);
+    float var3 = a * d;
+    assertEqual(var3, -21.0);
+
+    float var4 = b * a;
+    assertEqual(var4, 9.0);
+    float var5 = c * a;
+    assertEqual(var5, 0.9);
+    float var6 = d * a;
+    assertEqual(var6, -21.0);
+
+    float var7 = constInt * b;
+    assertEqual(var7, 22.5);
+    float var8 = constInt * c;
+    assertEqual(var8, 2.25);
+    float var9 = constInt * d;
+    assertEqual(var9, -52.5);
+
+    float var10 = b * constInt;
+    assertEqual(var10, 22.5);
+    float var11 = c * constInt;
+    assertEqual(var11, 2.25);
+    float var12 = d * constInt;
+    assertEqual(var12, -52.5);
+
+    float var13 = constFloat * constInt;
+    assertEqual(var13, 102.5);
+    float var14 = constInt * constFloat;
+    assertEqual(var14, 102.5);
+
+    float var15 = constFloat * a;
+    assertEqual(var15, 41.0);
+    float var16 = a * constFloat;
+    assertEqual(var16, 41.0);
+
+    float var17 = b * e;
+    assertEqual(var17, 4.150517416584649E19);
+    float var18 = b * f;
+    assertEqual(var18, -4.150517416584649E19);
+}
+
+function testMultiplyFloatIntSubTypes() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -654;
+    int:Unsigned8 d = 3;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 43;
+
+    float h = 2.5;
+
+    float var1 = a * h;
+    assertEqual(var1, -5.0);
+    float var2 = b * h;
+    assertEqual(var2, 5.0);
+    float var3 = c * h;
+    assertEqual(var3, -1635.0);
+    float var4 = d * h;
+    assertEqual(var4, 7.5);
+    float var5 = e * h;
+    assertEqual(var5, 12.5);
+    float var6 = f * h;
+    assertEqual(var6, 25.0);
+    float var7 = g * h;
+    assertEqual(var7, 107.5);
+
+    float var8 = h * a;
+    assertEqual(var8, -5.0);
+    float var9 = h * b;
+    assertEqual(var9, 5.0);
+    float var10 = h * c;
+    assertEqual(var10, -1635.0);
+    float var11 = h * d;
+    assertEqual(var11, 7.5);
+    float var12 = h * e;
+    assertEqual(var12, 12.5);
+    float var13 = h * f;
+    assertEqual(var13, 25.0);
+    float var14 = h * g;
+    assertEqual(var14, 107.5);
+}
+
+function testMultiplyFloatIntWithNullableOperands() {
+    int a = 2;
+    int? b = 4;
+    float c = 4.5e-1;
+    float? d = -10.5;
+
+    float? var1 = a * d;
+    assertEqual(var1, -21.0);
+    float? var2 = d * a;
+    assertEqual(var2, -21.0);
+
+    float? var3 = b * c;
+    assertEqual(var3, 1.8);
+    float? var4 = c * b;
+    assertEqual(var4, 1.8);
+
+    float? var5 = b * d;
+    assertEqual(var5, -42.0);
+    float? var6 = d * b;
+    assertEqual(var6, -42.0);
+
+    float? var7 = constInt * d;
+    assertEqual(var7, -52.5);
+    float? var8 = d * constInt;
+    assertEqual(var8, -52.5);
+
+    float? var9 = constFloat * b;
+    assertEqual(var9, 82.0);
+    float? var10 = b * constFloat;
+    assertEqual(var10, 82.0);
+}
+
+function testMultiplyFloatIntSubTypeWithNullableOperands() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -654;
+    int:Unsigned8 d = 3;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 43;
+
+    int:Signed8? h = -2;
+    int:Signed16? i = 2;
+    int:Signed32? j = -654;
+    int:Unsigned8? k = 3;
+    int:Unsigned16? m = 5;
+    int:Unsigned32? n = 10;
+    byte? p = 43;
+
+    float q = 2.5;
+    float? r = 2.5;
+
+    float? var1 = a * r;
+    assertEqual(var1, -5.0);
+    float? var2 = b * r;
+    assertEqual(var2, 5.0);
+    float? var3 = c * r;
+    assertEqual(var3, -1635.0);
+    float? var4 = d * r;
+    assertEqual(var4, 7.5);
+    float? var5 = e * r;
+    assertEqual(var5, 12.5);
+    float? var6 = f * r;
+    assertEqual(var6, 25.0);
+    float? var7 = g * r;
+    assertEqual(var7, 107.5);
+
+    float? var8 = r * a;
+    assertEqual(var8, -5.0);
+    float? var9 = r * b;
+    assertEqual(var9, 5.0);
+    float? var10 = r * c;
+    assertEqual(var10, -1635.0);
+    float? var11 = r * d;
+    assertEqual(var11, 7.5);
+    float? var12 = r * e;
+    assertEqual(var12, 12.5);
+    float? var13 = r * f;
+    assertEqual(var13, 25.0);
+    float? var14 = r * g;
+    assertEqual(var14, 107.5);
+
+    float? var15 = h * q;
+    assertEqual(var15, -5.0);
+    float? var16 = i * q;
+    assertEqual(var16, 5.0);
+    float? var17 = j * q;
+    assertEqual(var17, -1635.0);
+    float? var18 = k * q;
+    assertEqual(var18, 7.5);
+    float? var19 = m * q;
+    assertEqual(var19, 12.5);
+    float? var20 = n * q;
+    assertEqual(var20, 25.0);
+    float? var21 = p * q;
+    assertEqual(var21, 107.5);
+
+    float? var22 = q * h;
+    assertEqual(var22, -5.0);
+    float? var23 = q * i;
+    assertEqual(var23, 5.0);
+    float? var24 = q * j;
+    assertEqual(var24, -1635.0);
+    float? var25 = q * k;
+    assertEqual(var25, 7.5);
+    float? var26 = q * m;
+    assertEqual(var26, 12.5);
+    float? var27 = q * n;
+    assertEqual(var27, 25.0);
+    float? var28 = q * p;
+    assertEqual(var28, 107.5);
+
+    float? var29 = h * r;
+    assertEqual(var29, -5.0);
+    float? var30 = i * r;
+    assertEqual(var30, 5.0);
+    float? var31 = j * r;
+    assertEqual(var31, -1635.0);
+    float? var32 = k * r;
+    assertEqual(var32, 7.5);
+    float? var33 = m * r;
+    assertEqual(var33, 12.5);
+    float? var34 = n * r;
+    assertEqual(var34, 25.0);
+    float? var35 = p * r;
+    assertEqual(var35, 107.5);
+
+    float? var36 = r * h;
+    assertEqual(var36, -5.0);
+    float? var37 = r * i;
+    assertEqual(var37, 5.0);
+    float? var38 = r * j;
+    assertEqual(var38, -1635.0);
+    float? var39 = r * k;
+    assertEqual(var39, 7.5);
+    float? var40 = r * m;
+    assertEqual(var40, 12.5);
+    float? var41 = r * n;
+    assertEqual(var41, 25.0);
+    float? var42 = r * p;
+    assertEqual(var42, 107.5);
+}
+
+function testResultTypeOfMultiplyFloatIntByInfering() {
+    float a = 2.5;
+    int b = 3;
+
+    var c = a * b;
+    float var1 = c;
+    assertEqual(var1, 7.5);
+
+    var d = b * a;
+    float var2 = d;
+    assertEqual(var2, 7.5);
+
+    var e = a * constInt;
+    float var3 = e;
+    assertEqual(var3, 12.5);
+
+    var f = constInt * a;
+    float var4 = f;
+    assertEqual(var4, 12.5);
+
+    var g = constFloat * b;
+    float var5 = g;
+    assertEqual(var5, 61.5);
+
+    var h = b * constFloat;
+    float var6 = h;
+    assertEqual(var6, 61.5);
+
+    var i = constFloat * constInt;
+    float var7 = i;
+    assertEqual(var7, 102.5);
+
+    var j = constInt * constFloat;
+    float var8 = j;
+    assertEqual(var8, 102.5);
+}
+
+function testResultTypeOfMultiplyFloatIntForNilableOperandsByInfering() {
+    float? a = 2.5;
+    int? b = 3;
+
+    var c = a * b;
+    float? var1 = c;
+    assertEqual(var1, 7.5);
+
+    var d = b * a;
+    float? var2 = d;
+    assertEqual(var2, 7.5);
+
+    var e = a * constInt;
+    float? var3 = e;
+    assertEqual(var3, 12.5);
+
+    var f = constInt * a;
+    float? var4 = f;
+    assertEqual(var4, 12.5);
+
+    var g = constFloat * b;
+    float? var5 = g;
+    assertEqual(var5, 61.5);
+
+    var h = b * constFloat;
+    float? var6 = h;
+    assertEqual(var6, 61.5);
+}
+
+function testMultiplyFloatIntToInfinityAndNaN() {
+    float a = 8388608333e+298;
+    int b = 20;
+    float c = float:Infinity;
+    float d = float:NaN;
+
+    float var1 = a * b;
+    assertEqual(var1, float:Infinity);
+
+    float var2 = b * a;
+    assertEqual(var2, float:Infinity);
+
+    float var3 = c * b;
+    assertEqual(var3, float:Infinity);
+
+    float var4 = b * c;
+    assertEqual(var4, float:Infinity);
+
+    float var5 = d * b;
+    assertEqual(var5, float:NaN);
+
+    float var6 = b * d;
+    assertEqual(var6, float:NaN);
+}
+
+const decimal constDecimal = 20.5;
+
+function testMultiplyDecimalInt() {
+    int a = 2;
+    decimal b = 4.5;
+    decimal c = 4.5e-1;
+    decimal d = -10.5;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
+
+    decimal var1 = a * b;
+    assertEqual(var1, 9.00d);
+    decimal var2 = a * c;
+    assertEqual(var2, 0.900d);
+    decimal var3 = a * d;
+    assertEqual(var3, -21.00d);
+
+    decimal var4 = b * a;
+    assertEqual(var4, 9.00d);
+    decimal var5 = c * a;
+    assertEqual(var5, 0.900d);
+    decimal var6 = d * a;
+    assertEqual(var6, -21.00d);
+
+    decimal var7 = constInt * b;
+    assertEqual(var7, 22.50d);
+    decimal var8 = constInt * c;
+    assertEqual(var8, 2.250d);
+    decimal var9 = constInt * d;
+    assertEqual(var9, -52.50d);
+
+    decimal var10 = b * constInt;
+    assertEqual(var10, 22.50d);
+    decimal var11 = c * constInt;
+    assertEqual(var11, 2.250d);
+    decimal var12 = d * constInt;
+    assertEqual(var12, -52.50d);
+
+    decimal var13 = constDecimal * constInt;
+    assertEqual(var13, 102.50d);
+    decimal var14 = constInt * constDecimal;
+    assertEqual(var14, 102.50d);
+
+    decimal var15 = constDecimal * a;
+    assertEqual(var15, 41.00d);
+    decimal var16 = a * constDecimal;
+    assertEqual(var16, 41.00d);
+    
+    decimal var17 = b * e;
+    assertEqual(var17, 41505174165846491131.50d);
+    decimal var18 = b * f;
+    assertEqual(var18, -41505174165846491136.00d);
+}
+
+function testMultiplyDecimalIntSubTypes() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -654;
+    int:Unsigned8 d = 3;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 43;
+
+    decimal h = 2.5;
+
+    decimal var1 = a * h;
+    assertEqual(var1, -5.00d);
+    decimal var2 = b * h;
+    assertEqual(var2, 5.00d);
+    decimal var3 = c * h;
+    assertEqual(var3, -1635.00d);
+    decimal var4 = d * h;
+    assertEqual(var4, 7.50d);
+    decimal var5 = e * h;
+    assertEqual(var5, 12.50d);
+    decimal var6 = f * h;
+    assertEqual(var6, 25.00d);
+    decimal var7 = g * h;
+    assertEqual(var7, 107.50d);
+
+    decimal var8 = h * a;
+    assertEqual(var8, -5.00d);
+    decimal var9 = h * b;
+    assertEqual(var9, 5.00d);
+    decimal var10 = h * c;
+    assertEqual(var10, -1635.00d);
+    decimal var11 = h * d;
+    assertEqual(var11, 7.50d);
+    decimal var12 = h * e;
+    assertEqual(var12, 12.50d);
+    decimal var13 = h * f;
+    assertEqual(var13, 25.00d);
+    decimal var14 = h * g;
+    assertEqual(var14, 107.50d);
+}
+
+function testMultiplyDecimalIntWithNullableOperands() {
+    int a = 2;
+    int? b = 4;
+    decimal c = 4.5e-1;
+    decimal? d = -10.5;
+
+    decimal? var1 = a * d;
+    assertEqual(var1, -21.00d);
+    decimal? var2 = d * a;
+    assertEqual(var2, -21.00d);
+
+    decimal? var3 = b * c;
+    assertEqual(var3, 1.80d);
+    decimal? var4 = c * b;
+    assertEqual(var4, 1.80d);
+
+    decimal? var5 = b * d;
+    assertEqual(var5, -42.00d);
+    decimal? var6 = d * b;
+    assertEqual(var6, -42.00d);
+
+    decimal? var7 = constInt * d;
+    assertEqual(var7, -52.50d);
+    decimal? var8 = d * constInt;
+    assertEqual(var8, -52.50d);
+
+    decimal? var9 = constDecimal * b;
+    assertEqual(var9, 82.00d);
+    decimal? var10 = b * constDecimal;
+    assertEqual(var10, 82.00d);
+}
+
+function testMultiplyDecimalIntSubTypeWithNullableOperands() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -654;
+    int:Unsigned8 d = 3;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 43;
+
+    int:Signed8? h = -2;
+    int:Signed16? i = 2;
+    int:Signed32? j = -654;
+    int:Unsigned8? k = 3;
+    int:Unsigned16? m = 5;
+    int:Unsigned32? n = 10;
+    byte? p = 43;
+
+    decimal q = 2.5;
+    decimal? r = 2.5;
+
+    decimal? var1 = a * r;
+    assertEqual(var1, -5.00d);
+    decimal? var2 = b * r;
+    assertEqual(var2, 5.00d);
+    decimal? var3 = c * r;
+    assertEqual(var3, -1635.00d);
+    decimal? var4 = d * r;
+    assertEqual(var4, 7.50d);
+    decimal? var5 = e * r;
+    assertEqual(var5, 12.50d);
+    decimal? var6 = f * r;
+    assertEqual(var6, 25.00d);
+    decimal? var7 = g * r;
+    assertEqual(var7, 107.50d);
+
+    decimal? var8 = r * a;
+    assertEqual(var8, -5.00d);
+    decimal? var9 = r * b;
+    assertEqual(var9, 5.00d);
+    decimal? var10 = r * c;
+    assertEqual(var10, -1635.00d);
+    decimal? var11 = r * d;
+    assertEqual(var11, 7.50d);
+    decimal? var12 = r * e;
+    assertEqual(var12, 12.50d);
+    decimal? var13 = r * f;
+    assertEqual(var13, 25.00d);
+    decimal? var14 = r * g;
+    assertEqual(var14, 107.50d);
+
+    decimal? var15 = h * q;
+    assertEqual(var15, -5.00d);
+    decimal? var16 = i * q;
+    assertEqual(var16, 5.00d);
+    decimal? var17 = j * q;
+    assertEqual(var17, -1635.00d);
+    decimal? var18 = k * q;
+    assertEqual(var18, 7.50d);
+    decimal? var19 = m * q;
+    assertEqual(var19, 12.50d);
+    decimal? var20 = n * q;
+    assertEqual(var20, 25.00d);
+    decimal? var21 = p * q;
+    assertEqual(var21, 107.50d);
+
+    decimal? var22 = q * h;
+    assertEqual(var22, -5.00d);
+    decimal? var23 = q * i;
+    assertEqual(var23, 5.00d);
+    decimal? var24 = q * j;
+    assertEqual(var24, -1635.00d);
+    decimal? var25 = q * k;
+    assertEqual(var25, 7.50d);
+    decimal? var26 = q * m;
+    assertEqual(var26, 12.50d);
+    decimal? var27 = q * n;
+    assertEqual(var27, 25.00d);
+    decimal? var28 = q * p;
+    assertEqual(var28, 107.50d);
+
+    decimal? var29 = h * r;
+    assertEqual(var29, -5.00d);
+    decimal? var30 = i * r;
+    assertEqual(var30, 5.00d);
+    decimal? var31 = j * r;
+    assertEqual(var31, -1635.00d);
+    decimal? var32 = k * r;
+    assertEqual(var32, 7.50d);
+    decimal? var33 = m * r;
+    assertEqual(var33, 12.50d);
+    decimal? var34 = n * r;
+    assertEqual(var34, 25.00d);
+    decimal? var35 = p * r;
+    assertEqual(var35, 107.50d);
+
+    decimal? var36 = r * h;
+    assertEqual(var36, -5.00d);
+    decimal? var37 = r * i;
+    assertEqual(var37, 5.00d);
+    decimal? var38 = r * j;
+    assertEqual(var38, -1635.00d);
+    decimal? var39 = r * k;
+    assertEqual(var39, 7.50d);
+    decimal? var40 = r * m;
+    assertEqual(var40, 12.50d);
+    decimal? var41 = r * n;
+    assertEqual(var41, 25.00d);
+    decimal? var42 = r * p;
+    assertEqual(var42, 107.50d);
+}
+
+function testResultTypeOfMultiplyDecimalIntByInfering() {
+    decimal a = 2.5;
+    int b = 3;
+
+    var c = a * b;
+    decimal var1 = c;
+    assertEqual(var1, 7.50d);
+
+    var d = b * a;
+    decimal var2 = d;
+    assertEqual(var2, 7.50d);
+
+    var e = a * constInt;
+    decimal var3 = e;
+    assertEqual(var3, 12.50d);
+
+    var f = constInt * a;
+    decimal var4 = f;
+    assertEqual(var4, 12.50d);
+
+    var g = constDecimal * b;
+    decimal var5 = g;
+    assertEqual(var5, 61.50d);
+
+    var h = b * constDecimal;
+    decimal var6 = h;
+    assertEqual(var6, 61.50d);
+
+    var i = constDecimal * constInt;
+    decimal var7 = i;
+    assertEqual(var7, 102.50d);
+
+    var j = constInt * constDecimal;
+    decimal var8 = j;
+    assertEqual(var8, 102.50d);
+}
+
+function testResultTypeOfMultiplyDecimalIntForNilableOperandsByInfering() {
+    decimal? a = 2.5;
+    int? b = 3;
+
+    var c = a * b;
+    decimal? var1 = c;
+    assertEqual(var1, 7.50d);
+
+    var d = b * a;
+    decimal? var2 = d;
+    assertEqual(var2, 7.50d);
+
+    var e = a * constInt;
+    decimal? var3 = e;
+    assertEqual(var3, 12.50d);
+
+    var f = constInt * a;
+    decimal? var4 = f;
+    assertEqual(var4, 12.50d);
+
+    var g = constDecimal * b;
+    decimal? var5 = g;
+    assertEqual(var5, 61.50d);
+
+    var h = b * constDecimal;
+    decimal? var6 = h;
+    assertEqual(var6, 61.50d);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

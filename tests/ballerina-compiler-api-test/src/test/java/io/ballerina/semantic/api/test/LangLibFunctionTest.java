@@ -164,7 +164,7 @@ public class LangLibFunctionTest {
                 "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                 "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                 "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                "includes", "concat");
+                "includes", "concat", "padStart", "padEnd", "padZero");
 
         assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
     }
@@ -182,7 +182,7 @@ public class LangLibFunctionTest {
                                             "toString", "toBalString", "fromBalString", "toJson", "toJsonString",
                                             "fromJsonWithType", "mergeJson", "ensureType", "fromJsonString",
                                             "fromJsonFloatString", "fromJsonDecimalString", "fromJsonStringWithType",
-                                            "includes", "concat");
+                                            "includes", "concat", "padStart", "padEnd", "padZero");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -206,7 +206,7 @@ public class LangLibFunctionTest {
         List<String> expFunctions = List.of("length", "iterator", "enumerate", "'map", "forEach", "filter",
                                             "reduce", "slice", "remove", "removeAll", "setLength", "reverse",
                                             "sort", "pop", "push", "shift", "unshift", "toString",
-                                            "toBalString", "toStream", "ensureType");
+                                            "toBalString", "toStream", "ensureType", "some", "every");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -390,7 +390,7 @@ public class LangLibFunctionTest {
                                             "setLength", "slice", "enumerate", "unshift", "'map", "indexOf",
                                             "cloneWithType", "cloneReadOnly", "toBalString", "toJson", "isReadOnly",
                                             "fromJsonWithType", "mergeJson", "clone", "ensureType", "toString",
-                                            "toJsonString");
+                                            "toJsonString", "some", "every");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }

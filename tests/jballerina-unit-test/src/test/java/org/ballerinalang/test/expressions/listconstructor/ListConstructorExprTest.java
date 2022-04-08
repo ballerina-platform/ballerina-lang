@@ -82,6 +82,7 @@ public class ListConstructorExprTest {
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 97, 23);
         BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 98, 14);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 98, 23);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(any|any[])'", 102, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
