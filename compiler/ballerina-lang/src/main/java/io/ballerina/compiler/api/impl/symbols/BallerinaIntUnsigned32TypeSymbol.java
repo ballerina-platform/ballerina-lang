@@ -32,7 +32,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaIntUnsigned32TypeSymbol extends AbstractTypeSymbol implements IntUnsigned32TypeSymbol {
+public class BallerinaIntUnsigned32TypeSymbol extends AbstractIntSubTypeSymbol implements IntUnsigned32TypeSymbol {
 
     public BallerinaIntUnsigned32TypeSymbol(CompilerContext context, BIntSubType unsigned32Type) {
         super(context, TypeDescKind.INT_UNSIGNED32, unsigned32Type);

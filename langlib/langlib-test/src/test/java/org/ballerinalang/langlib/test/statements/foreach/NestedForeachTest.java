@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -37,6 +38,11 @@ public class NestedForeachTest {
     @BeforeClass
     public void setup() {
         program = BCompileUtil.compile("test-src/statements/foreach/nested-foreach.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        program = null;
     }
 
     @Test

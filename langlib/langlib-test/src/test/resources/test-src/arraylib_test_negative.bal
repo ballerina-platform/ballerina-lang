@@ -198,3 +198,33 @@ function testLastIndexOf() {
     function (int) returns (int) d;
     int? i3 = sd.indexOf(d);
 }
+
+function func1(int val) returns boolean {
+    return val > 2;
+}
+
+function testSomeNegative1() {
+    _ = [1, 2].som(func1); // error
+}
+
+function func2(int val) returns int {
+    return val + 1;
+}
+
+function testSomeNegative2() {
+    _ = [1, 2].some(func2); // error
+}
+
+function testSomeNegative3() {
+    int _ = [1, 2].some(func1); // error
+}
+
+function testSomeNegative4() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.some(func1); // error
+}
+
+function testSomeNegative5() {
+    string[] arr = ["str1", "str2"];
+    _ = arr.some(val => val > 5); // error
+}

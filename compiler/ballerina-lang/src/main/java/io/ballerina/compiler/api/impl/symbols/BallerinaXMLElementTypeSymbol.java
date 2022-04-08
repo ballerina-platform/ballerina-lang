@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class BallerinaXMLElementTypeSymbol extends AbstractTypeSymbol implements XMLElementTypeSymbol {
+public class BallerinaXMLElementTypeSymbol extends AbstractXMLSubTypeSymbol implements XMLElementTypeSymbol {
 
     public BallerinaXMLElementTypeSymbol(CompilerContext context, BXMLSubType elementType) {
         super(context, TypeDescKind.XML_ELEMENT, elementType);
