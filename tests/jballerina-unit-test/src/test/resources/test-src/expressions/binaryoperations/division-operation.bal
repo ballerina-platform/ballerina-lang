@@ -294,6 +294,457 @@ function testDivisionNullable() {
     assertEqual(a36 / a36, 1d);
 }
 
+const int constInt = 5;
+
+const float constFloat = 20.5;
+
+function testDivisionFloatInt() {
+    int a = 2;
+    int a1 = 0;
+    float b = float:Infinity;
+    float c = 4.5e-1;
+    float d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
+
+    float var4 = b / a;
+    assertEqual(var4, float:Infinity);
+    float var5 = c / a;
+    assertEqual(var5, 0.225);
+    float var6 = d / a;
+    assertEqual(var6, 0.0);
+
+    float var7 = b / a1;
+    assertEqual(var7, float:Infinity);
+    float var8 = c / a1;
+    assertEqual(var8, float:Infinity);
+    float var9 = d / a1;
+    assertEqual(var9, float:NaN);
+
+    float var10 = b / constInt;
+    assertEqual(var10, float:Infinity);
+    float var11 = c / constInt;
+    assertEqual(var11, 0.09);
+    float var12 = d / constInt;
+    assertEqual(var12, 0.0);
+
+    float var13 = constFloat / constInt;
+    assertEqual(var13, 4.1);
+
+    float var15 = constFloat / a;
+    assertEqual(var15, 10.25);
+    float var16 = constFloat / d;
+    assertEqual(var16, float:Infinity);
+    
+    float var17 = c / e;
+    assertEqual(var17, 4.87890977618477E-20);
+    float var18 = c / f;
+    assertEqual(var18, -4.87890977618477E-20);
+}
+
+function testDivisionFloatIntSubTypes() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -4;
+    int:Unsigned8 d = 4;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 25;
+
+    float h = 2.5;
+
+    float var8 = h / a;
+    assertEqual(var8, -1.25);
+    float var9 = h / b;
+    assertEqual(var9, 1.25);
+    float var10 = h / c;
+    assertEqual(var10, -0.625);
+    float var11 = h / d;
+    assertEqual(var11, 0.625);
+    float var12 = h / e;
+    assertEqual(var12, 0.5);
+    float var13 = h / f;
+    assertEqual(var13, 0.25);
+    float var14 = h / g;
+    assertEqual(var14, 0.1);
+}
+
+function testDivisionFloatIntWithNullableOperands() {
+    int a = 2;
+    int? b = 4;
+    float c = 4.5e-1;
+    float? d = -10.5;
+    int? e = ();
+    float? f = ();
+
+    float? var2 = d / a;
+    assertEqual(var2, -5.25);
+
+    float? var4 = c / b;
+    assertEqual(var4, 0.1125);
+
+    float? var6 = d / b;
+    assertEqual(var6, -2.625);
+
+    float? var8 = d / constInt;
+    assertEqual(var8, -2.1);
+
+    float? var9 = constFloat / b;
+    assertEqual(var9, 5.125);
+
+    float? var10 = c / e;
+    assertEqual(var10, ());
+
+    float? var11 = f / e;
+    assertEqual(var11, ());
+
+    float? var12 = f / a;
+    assertEqual(var12, ());
+
+    float? var13 = f / constInt;
+    assertEqual(var13, ());
+
+    float? var14 = constFloat / e;
+    assertEqual(var14, ());
+}
+
+function testDivisionFloatIntSubTypeWithNullableOperands() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -5;
+    int:Unsigned8 d = 10;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 4;
+
+    int:Signed8? h = -2;
+    int:Signed16? i = ();
+    int:Signed32? j = ();
+    int:Unsigned8? k = 4;
+    int:Unsigned16? m = 5;
+    int:Unsigned32? n = 10;
+    byte? p = ();
+
+    float q = 2.5;
+    float? r = 2.5;
+
+    float? var8 = r / a;
+    assertEqual(var8, -1.25);
+    float? var9 = r / b;
+    assertEqual(var9, 1.25);
+    float? var10 = r / c;
+    assertEqual(var10, -0.5);
+    float? var11 = r / d;
+    assertEqual(var11, 0.25);
+    float? var12 = r / e;
+    assertEqual(var12, 0.5);
+    float? var13 = r / f;
+    assertEqual(var13, 0.25);
+    float? var14 = r / g;
+    assertEqual(var14, 0.625);
+
+    float? var22 = q / h;
+    assertEqual(var22, -1.25);
+    float? var23 = q / i;
+    assertEqual(var23, ());
+    float? var24 = q / j;
+    assertEqual(var24, ());
+    float? var25 = q / k;
+    assertEqual(var25, 0.625);
+    float? var26 = q / m;
+    assertEqual(var26, 0.5);
+    float? var27 = q / n;
+    assertEqual(var27, 0.25);
+    float? var28 = q / p;
+    assertEqual(var28, ());
+
+    float? var36 = r / h;
+    assertEqual(var36, -1.25);
+    float? var37 = r / i;
+    assertEqual(var37, ());
+    float? var38 = r / j;
+    assertEqual(var38, ());
+    float? var39 = r / k;
+    assertEqual(var39, 0.625);
+    float? var40 = r / m;
+    assertEqual(var40, 0.5);
+    float? var41 = r / n;
+    assertEqual(var41, 0.25);
+    float? var42 = r / p;
+    assertEqual(var42, ());
+}
+
+function testResultTypeOfDivisionFloatIntByInfering() {
+    float a = 2.5;
+    int b = 5;
+
+    var c = a / b;
+    float var1 = c;
+    assertEqual(var1, 0.5);
+
+    var e = a / constInt;
+    float var3 = e;
+    assertEqual(var3, 0.5);
+
+    var g = constFloat / b;
+    float var5 = g;
+    assertEqual(var5, 4.1);
+
+    var i = constFloat / constInt;
+    float var7 = i;
+    assertEqual(var7, 4.1);
+}
+
+function testResultTypeOfDivisionFloatIntForNilableOperandsByInfering() {
+    float? a = 2.5;
+    int? b = 5;
+
+    var c = a / b;
+    float? var1 = c;
+    assertEqual(var1, 0.5);
+
+    var e = a / constInt;
+    float? var3 = e;
+    assertEqual(var3, 0.5);
+
+    var g = constFloat / b;
+    float? var5 = g;
+    assertEqual(var5, 4.1);
+
+    var i = constFloat / constInt;
+    float? var7 = i;
+    assertEqual(var7, 4.1);
+}
+
+function testDivisionFloatIntToInfinityAndNaN() {
+    float a = 8388608333e+298;
+    int b = 20;
+    float c = float:Infinity;
+    float d = float:NaN;
+    int e = 0;
+
+    float var4 = c / b;
+    assertEqual(var4, float:Infinity);
+
+    float var5 = d / b;
+    assertEqual(var5, float:NaN);
+
+    float var7 = a / e;
+    assertEqual(var7, float:Infinity);
+
+    float var8 = c / e;
+    assertEqual(var8, float:Infinity);
+
+    float var9 = d / e;
+    assertEqual(var9, float:NaN);
+
+}
+
+const decimal constDecimal = 20.5;
+
+function testDivisionDecimalInt() {
+    int a = 2;
+    decimal c = 4.5e-1;
+    decimal d = 0;
+    int e = int:MAX_VALUE;
+    int f = int:MIN_VALUE;
+
+    decimal var5 = c / a;
+    assertEqual(var5, 0.225d);
+    decimal var6 = d / a;
+    assertEqual(var6, 0.0d);
+
+    decimal var11 = c / constInt;
+    assertEqual(var11, 0.09d);
+    decimal var12 = d / constInt;
+    assertEqual(var12, 0d);
+
+    decimal var13 = constDecimal / constInt;
+    assertEqual(var13, 4.1d);
+
+    decimal var15 = constDecimal / a;
+    assertEqual(var15, 10.25d);
+    
+    decimal var17 = c / e;
+    assertEqual(var17, 4.878909776184769953562510061784767E-20d);
+    decimal var18 = c / f;
+    assertEqual(var18, -4.878909776184769953033537603914738E-20d);
+}
+
+function testDivisionDecimalIntSubTypes() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -4;
+    int:Unsigned8 d = 4;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 25;
+
+    decimal h = 2.5;
+
+    decimal var8 = h / a;
+    assertEqual(var8, -1.25d);
+    decimal var9 = h / b;
+    assertEqual(var9, 1.25d);
+    decimal var10 = h / c;
+    assertEqual(var10, -0.625d);
+    decimal var11 = h / d;
+    assertEqual(var11, 0.625d);
+    decimal var12 = h / e;
+    assertEqual(var12, 0.5d);
+    decimal var13 = h / f;
+    assertEqual(var13, 0.25d);
+    decimal var14 = h / g;
+    assertEqual(var14, 0.1d);
+}
+
+function testDivisionDecimalIntWithNullableOperands() {
+    int a = 2;
+    int? b = 4;
+    decimal c = 4.5e-1;
+    decimal? d = -10.5;
+    int? e = ();
+    decimal? f = ();
+
+    decimal? var2 = d / a;
+    assertEqual(var2, -5.25d);
+
+    decimal? var4 = c / b;
+    assertEqual(var4, 0.1125d);
+
+    decimal? var6 = d / b;
+    assertEqual(var6, -2.625d);
+
+    decimal? var8 = d / constInt;
+    assertEqual(var8, -2.1d);
+
+    decimal? var9 = constDecimal / b;
+    assertEqual(var9, 5.125d);
+
+    decimal? var10 = c / e;
+    assertEqual(var10, ());
+
+    decimal? var11 = f / e;
+    assertEqual(var11, ());
+
+    decimal? var12 = f / a;
+    assertEqual(var12, ());
+
+    decimal? var13 = f / constInt;
+    assertEqual(var13, ());
+
+    decimal? var14 = constDecimal / e;
+    assertEqual(var14, ());
+}
+
+function testDivisionDecimalIntSubTypeWithNullableOperands() {
+    int:Signed8 a = -2;
+    int:Signed16 b = 2;
+    int:Signed32 c = -5;
+    int:Unsigned8 d = 10;
+    int:Unsigned16 e = 5;
+    int:Unsigned32 f = 10;
+    byte g = 4;
+
+    int:Signed8? h = -2;
+    int:Signed16? i = ();
+    int:Signed32? j = ();
+    int:Unsigned8? k = 4;
+    int:Unsigned16? m = 5;
+    int:Unsigned32? n = 10;
+    byte? p = ();
+
+    decimal q = 2.5;
+    decimal? r = 2.5;
+
+    decimal? var8 = r / a;
+    assertEqual(var8, -1.25d);
+    decimal? var9 = r / b;
+    assertEqual(var9, 1.25d);
+    decimal? var10 = r / c;
+    assertEqual(var10, -0.5d);
+    decimal? var11 = r / d;
+    assertEqual(var11, 0.25d);
+    decimal? var12 = r / e;
+    assertEqual(var12, 0.5d);
+    decimal? var13 = r / f;
+    assertEqual(var13, 0.25d);
+    decimal? var14 = r / g;
+    assertEqual(var14, 0.625d);
+
+    decimal? var22 = q / h;
+    assertEqual(var22, -1.25d);
+    decimal? var23 = q / i;
+    assertEqual(var23, ());
+    decimal? var24 = q / j;
+    assertEqual(var24, ());
+    decimal? var25 = q / k;
+    assertEqual(var25, 0.625d);
+    decimal? var26 = q / m;
+    assertEqual(var26, 0.5d);
+    decimal? var27 = q / n;
+    assertEqual(var27, 0.25d);
+    decimal? var28 = q / p;
+    assertEqual(var28, ());
+
+    decimal? var36 = r / h;
+    assertEqual(var36, -1.25d);
+    decimal? var37 = r / i;
+    assertEqual(var37, ());
+    decimal? var38 = r / j;
+    assertEqual(var38, ());
+    decimal? var39 = r / k;
+    assertEqual(var39, 0.625d);
+    decimal? var40 = r / m;
+    assertEqual(var40, 0.5d);
+    decimal? var41 = r / n;
+    assertEqual(var41, 0.25d);
+    decimal? var42 = r / p;
+    assertEqual(var42, ());
+}
+
+function testResultTypeOfDivisionDecimalIntByInfering() {
+    decimal a = 2.5;
+    int b = 5;
+
+    var c = a / b;
+    decimal var1 = c;
+    assertEqual(var1, 0.5d);
+
+    var e = a / constInt;
+    decimal var3 = e;
+    assertEqual(var3, 0.5d);
+
+    var g = constDecimal / b;
+    decimal var5 = g;
+    assertEqual(var5, 4.1d);
+
+    var i = constDecimal / constInt;
+    decimal var7 = i;
+    assertEqual(var7, 4.1d);
+}
+
+function testResultTypeOfDivisionDecimalIntForNilableOperandsByInfering() {
+    decimal? a = 2.5;
+    int? b = 5;
+
+    var c = a / b;
+    decimal? var1 = c;
+    assertEqual(var1, 0.5d);
+
+    var e = a / constInt;
+    decimal? var3 = e;
+    assertEqual(var3, 0.5d);
+
+    var g = constDecimal / b;
+    decimal? var5 = g;
+    assertEqual(var5, 4.1d);
+
+    var i = constDecimal / constInt;
+    decimal? var7 = i;
+    assertEqual(var7, 4.1d);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;
