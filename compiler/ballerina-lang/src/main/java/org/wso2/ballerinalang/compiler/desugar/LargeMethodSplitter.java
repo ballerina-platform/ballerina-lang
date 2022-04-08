@@ -217,6 +217,9 @@ public class LargeMethodSplitter {
         BLangFunction newFunc = startFunction;
         BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.body;
 
+        // last statement is the return statement
+        // excluding that other statements are just filled into new intermediate start functions sequentially
+        // each new function will have LISTENER_COUNT_PER_METHOD statements at most excluding the return statement
         for (int i = 0; i < stmts.size() - 1; i++) {
             if (i > 0 && (i % LISTENER_COUNT_PER_METHOD == 0)) {
                 generatedFunctions.add(newFunc);
@@ -227,9 +230,13 @@ public class LargeMethodSplitter {
             newFuncBody.stmts.add(stmts.get(i));
         }
 
+        // original return statement is added to the start function created last
         newFuncBody.stmts.add(stmts.get(stmts.size() - 1));
         generatedFunctions.add(newFunc);
 
+        // statement is added to each function except the last created function
+        // this is to call the function created after it and to handle the return values of those two functions
+        // so that each function will call the next function in a nested manner
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
 
@@ -252,6 +259,7 @@ public class LargeMethodSplitter {
             }
         }
 
+        // start function created last is also added to the function list
         rewriteLastSplitFunction(packageNode, env, generatedFunctions);
         startFuncIndex = 0;
         return generatedFunctions.get(0);
@@ -287,6 +295,8 @@ public class LargeMethodSplitter {
         newFuncBody.stmts.add(stmts.get(stmts.size() - 1));
         generatedFunctions.add(newFunc);
 
+        // for the stop function, splitting is done same as the start function except here
+        // here just need only to call the next created stop function because the return value is () and not ()|error
         for (int j = 0; j < generatedFunctions.size() - 1; j++) {
             BLangFunction thisFunction = generatedFunctions.get(j);
 

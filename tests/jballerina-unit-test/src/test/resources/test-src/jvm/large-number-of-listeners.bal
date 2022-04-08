@@ -14,12 +14,19 @@
 // specific language governing permissions and limitations
 // under the License.
 
+int startCount = 0;
+
+public function getStartCount() returns string {
+    return startCount.toString();
+}
+
 public class MockListener {
 
     public function init() {
     }
 
     public function 'start() returns error? {
+        startCount += 1;
     }
 
     public function gracefulStop() returns error? {
