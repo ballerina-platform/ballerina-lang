@@ -216,70 +216,21 @@ public class LangLibDecimalTest {
         };
     }
 
-    @Test(dataProvider = "decimalRoundToFractionDigitsValueProvider")
-    public void testRoundToFraction(BDecimal arg, Integer fractionDigits, String expected) {
-        Object returns = BRunUtil.invoke(compileResult, "testRoundToFractionDigits",
-                new Object[] {arg, fractionDigits});
-        assertEquals(returns, ValueCreator.createDecimalValue(expected));
+    @Test(description = "Test decimal:round with fraction digits")
+    public void testRunnerTestRoundToFractionDigits() {
+        BRunUtil.invoke(compileResult, "testRunnerTestRoundToFractionDigits");
     }
 
-    @DataProvider(name = "decimalRoundToFractionDigitsValueProvider")
-    public static Object[][] decimalRoundToFractionDigitsValueProvider() {
-        return new Object[][] {
-                {ValueCreator.createDecimalValue("-504023030303030303030.303567"), 3, "-504023030303030303030.304"},
-                {ValueCreator.createDecimalValue("-50402.303567"), 8, "-50402.303567"},
-                {ValueCreator.createDecimalValue("3.303567"), 0, "3"},
-                {ValueCreator.createDecimalValue("3234.5"), 0, "3234"},
-                {ValueCreator.createDecimalValue("3234.303567"), 0, "3234"},
-
-                {ValueCreator.createDecimalValue("3234.503567"), 0, "3235"},
-                {ValueCreator.createDecimalValue("3233.503567"), 0, "3234"},
-                {ValueCreator.createDecimalValue("-3234.303567"), 0, "-3234"},
-                {ValueCreator.createDecimalValue("-3234.5"), 0, "-3234"},
-                {ValueCreator.createDecimalValue("3.303567"), -1, "0"},
-
-                {ValueCreator.createDecimalValue("3234.303567"), -2, "3.2E+3"},
-                {ValueCreator.createDecimalValue("3234.303567"), -10, "0"},
-                {ValueCreator.createDecimalValue("3234.303567"), 7, "3234.303567"},
-                {ValueCreator.createDecimalValue("3234.303567"), 10, "3234.303567"},
-                {ValueCreator.createDecimalValue("5.5555"), 4, "5.5555"},
-
-                {ValueCreator.createDecimalValue("5.5555"), 3, "5.556"},
-                {ValueCreator.createDecimalValue("5.5555"), 2, "5.56"},
-                {ValueCreator.createDecimalValue("5.56"), 1, "5.6"},
-                {ValueCreator.createDecimalValue("5.55"), -1, "1E+1"},
-                {ValueCreator.createDecimalValue("5.55"), -200, "0"},
-
-                {ValueCreator.createDecimalValue("5.55"), Integer.MAX_VALUE, "5.55"},
-                {ValueCreator.createDecimalValue("5.55"), Integer.MIN_VALUE, "0"},
-                {ValueCreator.createDecimalValue("5.5E-2"), 3, "0.055"},
-                {ValueCreator.createDecimalValue("5.52156E2"), 3, "552.156"},
-                {ValueCreator.createDecimalValue("5.521561234452654235E2"), 15, "552.156123445265424"},
-        };
+    @Test(description = "Test decimal:round with named arguments")
+    public void testRoundWithNamedArguments() {
+        BRunUtil.invoke(compileResult, "testRoundWithNamedArguments");
     }
 
-    @Test(dataProvider = "decimalRoundToZeroAsCastValueProvider")
-    public void testRoundToZeroWithCast(BDecimal arg) {
-        BRunUtil.invoke(compileResult, "testRoundToZeroWithCast", new Object[] {arg});
+    @Test(description = "Test decimal:round with fractionDigits zero")
+    public void testRoundToZeroWithCast() {
+        BRunUtil.invoke(compileResult, "testRunnerTestRoundToZeroWithCast");
     }
 
-    @DataProvider(name = "decimalRoundToZeroAsCastValueProvider")
-    public static Object[][] decimalRoundToZeroAsCastValueProvider() {
-        return new Object[][] {
-                {ValueCreator.createDecimalValue("-50402.303567")},
-                {ValueCreator.createDecimalValue("3.303567")},
-                {ValueCreator.createDecimalValue("3234.5")},
-                {ValueCreator.createDecimalValue("3234.303567")},
-                {ValueCreator.createDecimalValue("-3234.303567")},
-                {ValueCreator.createDecimalValue("-3234.5")},
-                {ValueCreator.createDecimalValue("3.303567")},
-                {ValueCreator.createDecimalValue("3234.303567")},
-                {ValueCreator.createDecimalValue("5.5555")},
-                {ValueCreator.createDecimalValue("5.56")},
-                {ValueCreator.createDecimalValue("5.55")},
-                {ValueCreator.createDecimalValue("504023030303031.5035")}
-        };
-    }
     @Test(dataProvider = "decimalFloorValueProvider")
     public void testFloor(BDecimal arg, String expected) {
         Object returns = BRunUtil.invoke(compileResult, "testFloor", new Object[] {arg});
