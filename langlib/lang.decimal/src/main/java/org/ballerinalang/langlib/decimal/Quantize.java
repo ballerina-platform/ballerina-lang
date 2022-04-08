@@ -34,6 +34,8 @@ import java.math.RoundingMode;
 public class Quantize {
     public static BDecimal quantize(BDecimal x, BDecimal y) {
         BigDecimal quantizeValue = x.value().setScale(y.value().scale(), RoundingMode.HALF_EVEN);
+        //  The maximum number of digits in the significand(precision) of 128-bit decimal (radix 10)
+        //  floating-point number equals 34
         if (quantizeValue.precision() > 34) {
             throw ErrorCreator.createError(BallerinaErrorReasons.INVALID_OPERATION_ERROR);
         }
