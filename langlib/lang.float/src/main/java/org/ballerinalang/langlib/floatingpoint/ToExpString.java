@@ -47,7 +47,7 @@ public class ToExpString {
         double xAbsValue = Math.abs(x);
         if (fractionDigits == null) {
             if (xAbsValue == 0) {
-                noOfFractionDigits = BigDecimal.valueOf(xAbsValue).scale();
+                noOfFractionDigits = 1;
             } else {
                 int integerPart = (int) (Math.log10(xAbsValue));
                 noOfFractionDigits = BigDecimal.valueOf(xAbsValue / Math.pow(10, integerPart)).scale();
