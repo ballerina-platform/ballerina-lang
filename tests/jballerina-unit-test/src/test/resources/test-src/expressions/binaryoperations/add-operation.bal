@@ -371,6 +371,12 @@ function testStringXmlSubtypesAddition() {
     string:Char|Strings b = "d";
     Strings|Baz e = "bar";
     Bar d = "B";
+    xml l = x2 + b;
+    xml m = x2 + e;
+    xml n = x2 + d;
+    xml o = x1 + b;
+    xml p = x1 + e;
+    xml q = x1 + d;
 
     assertEquality(s + x2, xml `abctext`);
     assertEquality(x2 + s, xml `textabc`);
@@ -378,12 +384,12 @@ function testStringXmlSubtypesAddition() {
     assertEquality(x1 + c, xml `efgd`);
     assertEquality(c + x2, xml `dtext`);
     assertEquality(x2 + c, xml `textd`);
-    assertEquality(x2 + b, xml `textd`);
-    assertEquality(x2 + e, xml `textbar`);
-    assertEquality(x2 + d, xml `textB`);
-    assertEquality(x1 + b, xml `efgd`);
-    assertEquality(x1 + e, xml `efgbar`);
-    assertEquality(x1 + d, xml `efgB`);
+    assertEquality(l, xml `textd`);
+    assertEquality(m, xml `textbar`);
+    assertEquality(n, xml `textB`);
+    assertEquality(o, xml `efgd`);
+    assertEquality(p, xml `efgbar`);
+    assertEquality(q, xml `efgB`);
 }
 
 type Baz "B"|"bar";
@@ -398,15 +404,22 @@ function testStringSubtypesAddition() {
     string f = a + c;
     string g = a + b;
     string h = d + e;
+    string i = a + b + a;
+    string j = c + b;
+    string k = a + e;
+    string l = b + e;
+    string m = c + e;
+    string n = b + e + b;
+
     assertEquality(f, "abcbar");
     assertEquality(g, "abcd");
-    assertEquality(a + b + a, "abcdabc");
-    assertEquality(c + b, "bard");
-    assertEquality(a + e, "abce");
-    assertEquality(b + e, "de");
-    assertEquality(c + e, "bare");
+    assertEquality(i, "abcdabc");
+    assertEquality(j, "bard");
+    assertEquality(k, "abce");
+    assertEquality(l, "de");
+    assertEquality(m, "bare");
     assertEquality(h, "Be");
-    assertEquality(b + e + b, "ded");
+    assertEquality(n, "ded");
 }
 
 type Foo xml<'xml:Text>|xml<'xml:Comment> ;
