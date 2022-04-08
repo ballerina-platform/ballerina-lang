@@ -239,7 +239,7 @@ public class CliProvider implements ConfigProvider {
     }
 
     private Object getUnionValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
-        List<Object> matchingValues = convertAndGetValuesFromString(cliArg.value, unionType);
+        List<Object> matchingValues = getConvertibleMemberValues(cliArg.value, unionType);
         if (matchingValues.size() == 1) {
             return matchingValues.get(0);
         }
@@ -250,36 +250,37 @@ public class CliProvider implements ConfigProvider {
         throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, cliArg, key.variable, typeName);
     }
 
-    private List<Object> convertAndGetValuesFromString(String value, UnionType unionType) {
+    private List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
         List<Object> matchingValues = new ArrayList<>();
         for (Type type : unionType.getMemberTypes()) {
             switch (type.getTag()) {
                 case TypeTags.BYTE_TAG:
-                    validateAndAddValue(matchingValues, TypeConverter::stringToByte, value);
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
                     break;
                 case TypeTags.INT_TAG:
-                    validateAndAddValue(matchingValues, TypeConverter::stringToInt, value);
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToInt, value);
                     break;
                 case TypeTags.BOOLEAN_TAG:
-                    validateAndAddValue(matchingValues, TypeConverter::stringToBoolean, value);
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToBoolean, value);
                     break;
                 case TypeTags.FLOAT_TAG:
-                    validateAndAddValue(matchingValues, TypeConverter::stringToFloat, value);
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToFloat, value);
                     break;
                 case TypeTags.DECIMAL_TAG:
-                    validateAndAddValue(matchingValues, TypeConverter::stringToDecimal, value);
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToDecimal, value);
                     break;
                 case TypeTags.STRING_TAG:
-                    validateAndAddValue(matchingValues, StringUtils::fromString, value);
+                    convertAndGetValuesFromString(matchingValues, StringUtils::fromString, value);
                     break;
                 default:
-                    validateAndAddValue(matchingValues, TypeConverter::stringToXml, value);
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToXml, value);
             }
         }
         return matchingValues;
     }
 
-    private void validateAndAddValue(List<Object> matchingValues, Function<String, Object> convertFunc, String value) {
+    private void convertAndGetValuesFromString(List<Object> matchingValues, Function<String, Object> convertFunc,
+                                               String value) {
         Object unionValue;
         try {
             unionValue = convertFunc.apply(value);
