@@ -46,7 +46,7 @@ public class FiniteTypeNegativeTest {
     public void testInvalidLiteralAssignment() {
 
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 60, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 71, "Error count mismatch");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Finite', found 'string'", 33, 16);
         validateError(result, i++, "incompatible types: expected 'ByteType', found '5'", 40, 18);
@@ -107,18 +107,17 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected '2f', found '2d'", 193, 12);
         validateError(result, i++, "incompatible types: expected '3f', found '4d'", 194, 12);
         validateError(result, i++, "incompatible types: expected '3f', found '4f'", 195, 12);
-        validateError(result, i, "incompatible types: expected '3d', found '4d'", 196, 12);
-        validateError(result, i++, "incompatible types: expected '\"chiran\"', found 'int'", 119, 18);
-        validateError(result, i++, "incompatible types: expected 'IntOrNull', found 'string'", 136, 19);
-        validateError(result, i++, "incompatible types: expected 'IntOrNull', found 'IntOrNullStr'", 138, 19);
-        validateError(result, i++, "incompatible types: expected 'IntOrNull', found '(int|\"null\")'", 140, 19);
-        validateError(result, i++, "incompatible types: expected 'IntOrNull', found '\"null\"'", 142, 19);
-        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found '()'", 144, 22);
-        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found '()'", 145, 22);
-        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found 'IntOrNull'", 147, 22);
-        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found '(int|null)'", 149, 22);
-        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found 'null'", 151, 22);
-        validateError(result, i++, "incompatible types: expected 'null', found 'string'", 154, 14);
-        validateError(result, i, "incompatible types: expected '\"null\"', found '()'", 155, 16);
+        validateError(result, i++, "incompatible types: expected '3d', found '4d'", 196, 12);
+        validateError(result, i++, "incompatible types: expected 'IntOrNull', found 'string'", 213, 19);
+        validateError(result, i++, "incompatible types: expected 'IntOrNull', found 'IntOrNullStr'", 215, 19);
+        validateError(result, i++, "incompatible types: expected 'IntOrNull', found '(int|\"null\")'", 217, 19);
+        validateError(result, i++, "incompatible types: expected 'IntOrNull', found '\"null\"'", 219, 19);
+        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found '()'", 221, 22);
+        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found '()'", 222, 22);
+        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found 'IntOrNull'", 224, 22);
+        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found '(int|null)'", 226, 22);
+        validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found 'null'", 228, 22);
+        validateError(result, i++, "incompatible types: expected 'null', found 'string'", 231, 14);
+        validateError(result, i, "incompatible types: expected '\"null\"', found '()'", 232, 16);
     }
 }
