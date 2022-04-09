@@ -33,8 +33,7 @@ import java.util.HashMap;
 /**
  * Test class to test positive scenarios of testerina using a ballerina project.
  */
-public class
-MockTest extends BaseTestCase {
+public class MockTest extends BaseTestCase {
 
     private BMainInstance balClient;
     private String projectPath;
@@ -49,7 +48,7 @@ MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMocking() throws BallerinaTestException {
-        String msg1 = "9 passing";
+        String msg1 = "13 passing";
         String msg2 = "3 failing";
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,

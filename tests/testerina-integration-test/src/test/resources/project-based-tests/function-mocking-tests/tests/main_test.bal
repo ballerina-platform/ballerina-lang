@@ -184,7 +184,7 @@ public function call_Test6() {
     test:assertEquals(value, 6);
 }
 
-@test:Config { enable : false }
+@test:Config {}
 public function call_Test7() {
     test:when(mock2_intAdd).call("mockIntAdd2");
     test:assertEquals(mock2:intAdd2(10, 5), 50);
@@ -223,9 +223,7 @@ public function withArguments_Test1() {
     test:assertEquals(stringAdd("string1"), "test");
 }
 
-@test:Config {
-    enable:false
-}
+@test:Config {}
 public function callOriginal_Test1() {
     // IntAdd
     test:when(mock_intAdd).callOriginal();
@@ -241,7 +239,7 @@ public function callOriginal_Test1() {
     test:assertEquals(floatAdd(10.6, 4.5), 15.1);
 }
 
-@test:Config { enable:false }
+@test:Config {}
 public function callOriginal_Test3() {
     test:when(mock2_intAdd).callOriginal();
     test:assertEquals(mock2:intAdd2(10, 5), 15);
@@ -252,7 +250,7 @@ public function mockReplace_Test1() {
     test:assertEquals(intAdd6(10, 3, 2), 5);
 }
 
-@test:Config { enable : false }
+@test:Config {}
 public function mockReplace_Test2() {
     test:assertEquals(mock2:intSubtract7(10, 3, 2), 15);
 }

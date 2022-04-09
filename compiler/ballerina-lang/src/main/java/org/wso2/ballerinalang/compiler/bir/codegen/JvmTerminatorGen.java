@@ -764,7 +764,6 @@ public class JvmTerminatorGen {
             functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + Utils
                     .decodeIdentifier(methodLookupName));
         }
-
         String methodDesc;
         String jvmClass;
         if (functionWrapper != null) {
