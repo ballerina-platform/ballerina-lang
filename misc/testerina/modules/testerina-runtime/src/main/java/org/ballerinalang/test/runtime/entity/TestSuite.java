@@ -224,6 +224,10 @@ public class TestSuite {
         this.mockFunctionNamesMap.put(id, function);
     }
 
+    public Map<String, String> getMockFunctionNamesMap() {
+        return this.mockFunctionNamesMap;
+    }
+
     public void addTestUtilityFunction(String functionName, String functionClassName) {
         this.testUtilityFunctions.put(functionName, functionClassName);
     }
