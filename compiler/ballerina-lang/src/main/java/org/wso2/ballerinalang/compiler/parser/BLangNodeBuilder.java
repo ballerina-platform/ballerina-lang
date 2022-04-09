@@ -5013,7 +5013,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 statements.add((BLangStatement) currentStatement.apply(this));
                 if (j == lastStmtIndex) {
                     // Add an empty block statement if there are no statements following the `if` statement.
-                    statements.add((BLangBlockStmt) TreeBuilder.createBlockNode());
+                    BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+                    blockStmt.pos = getPosition(statementNodes.get(lastStmtIndex), endNode);
+                    statements.add(blockStmt);
                     break;
                 }
                 BLangBlockStmt bLBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
