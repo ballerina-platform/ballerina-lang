@@ -127,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -2428,16 +2429,22 @@ public class BIRGen extends BLangNodeVisitor {
         literal.accept(this);
         BIROperand sizeOp = this.env.targetOperand;
 
-        List<BIROperand> valueOperands = new ArrayList<>(exprs.size());
+        List<BIRNode.BIRListConstructorEntry> initialValues = new ArrayList<>(exprs.size());
 
         for (BLangExpression expr : exprs) {
-            expr.accept(this);
-            valueOperands.add(this.env.targetOperand);
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BLangListConstructorSpreadOpExpr spreadMember = (BLangListConstructorSpreadOpExpr) expr;
+                spreadMember.expr.accept(this);
+                initialValues.add(new BIRNode.BIRListConstructorSpreadMemberEntry(this.env.targetOperand));
+            } else {
+                expr.accept(this);
+                initialValues.add(new BIRNode.BIRListConstructorExprEntry(this.env.targetOperand));
+            }
         }
 
         setScopeAndEmit(
                 new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                        valueOperands));
+                        initialValues));
         this.env.targetOperand = toVarRef;
     }
 
