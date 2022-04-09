@@ -147,6 +147,7 @@ import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import javax.xml.XMLConstants;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -170,8 +171,6 @@ import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
 import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
@@ -4543,10 +4542,16 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangLambdaFunction lambdaFn : env.enclPkg.lambdaFunctions) {
             LineRange workerBodyPos = lambdaFn.function.pos.lineRange();
+            Location targetRangePos = env.node.pos;
+
+            // targetRangePos can be null only when there is a If block without an Else block before the worker node
+            if (targetRangePos == null) {
+                targetRangePos = env.node.parent.pos;
+            }
 
             if (worker.name.value.equals(lambdaFn.function.defaultWorkerName.value)
-                    && withinRange(workerVarPos, env.node.pos.lineRange())
-                    && withinRange(workerBodyPos, env.node.pos.lineRange())) {
+                    && withinRange(workerVarPos, targetRangePos.lineRange())
+                    && withinRange(workerBodyPos, targetRangePos.lineRange())) {
                 worker.setAssociatedFuncSymbol(lambdaFn.function.symbol);
                 return;
             }
