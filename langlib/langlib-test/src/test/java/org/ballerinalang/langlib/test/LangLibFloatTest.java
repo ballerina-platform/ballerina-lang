@@ -123,5 +123,60 @@ public class LangLibFloatTest {
                 "testFromStringPositive",
                 "testFromStringNegative"
         };
-    }  
+    }
+
+    @Test(dataProvider = "functionsToTestToFixedString")
+    public void testToFixedString(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestToFixedString() {
+        return new String[] {
+                "testToFixedStringWithPositiveFloat",
+                "testToFixedStringWithNegativeFloat",
+                "testToFixedStringWithInfinity",
+                "testToFixedStringWithNaN",
+                "testToFixedStringWhenFractionDigitsIsLessThanZero",
+                "testToFixedStringWhenFractionDigitsIsZero",
+                "testToFixedStringWhenFractionDigitsIsNil",
+                "testToFixedStringWhenFractionDigitsIsVeryLargeInt",
+                "testToFixedStringWhenFractionDigitsIsIntMax",
+                "testToFixedStringWithMorePositiveFloats",
+                "testToFixedStringWithMoreNegativeFloats",
+                "testToFixedStringWithVerySmallAndLargePositiveFloats",
+                "testToFixedStringWithVerySmallAndLargeNegativeFloats",
+                "testToFixedStringWithHexaDecimalFloatingPoints"
+        };
+    }
+
+    @Test(dataProvider = "functionsToTestToExpString")
+    public void testToExpString(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestToExpString() {
+        return new String[] {
+                "testToExpStringWithPositiveFloat",
+                "testToExpStringWithNegativeFloat",
+                "testToExpStringWithInfinity",
+                "testToExpStringWithNaN",
+                "testToExpStringWhenFractionDigitsIsLessThanZero",
+                "testToExpStringWhenFractionDigitsIsZero",
+                "testToExpStringWhenFractionDigitsIsNil",
+                "testToExpStringWhenFractionDigitsIsVeryLargeInt",
+                "testToExpStringWhenFractionDigitsIsIntMax",
+                "testToExpStringWithMorePositiveFloats",
+                "testToExpStringWithVerySmallAndLargePositiveFloats",
+                "testToExpStringWithMoreNegativeFloats",
+                "testToExpStringWithVerySmallAndLargeNegativeFloats",
+                "testToExpStringWithHexaDecimalFloatingPoints"
+        };
+    }
+
+    @Test
+    public void testRound() {
+        BRunUtil.invoke(compileResult, "testRound");
+    }
 }

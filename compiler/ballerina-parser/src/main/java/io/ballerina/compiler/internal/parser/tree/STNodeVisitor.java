@@ -817,6 +817,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
+    public void visit(STSpreadMemberNode spreadMemberNode) {
+        visitSyntaxNode(spreadMemberNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

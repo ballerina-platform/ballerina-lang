@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * Test cases for the lang.float library.
+ * Test cases for the lang.decimal library.
  *
  * @since 1.0
  */
@@ -222,6 +222,21 @@ public class LangLibDecimalTest {
         };
     }
 
+    @Test(description = "Test decimal:round with fraction digits")
+    public void testRunnerTestRoundToFractionDigits() {
+        BRunUtil.invoke(compileResult, "testRunnerTestRoundToFractionDigits");
+    }
+
+    @Test(description = "Test decimal:round with named arguments")
+    public void testRoundWithNamedArguments() {
+        BRunUtil.invoke(compileResult, "testRoundWithNamedArguments");
+    }
+
+    @Test(description = "Test decimal:round with fractionDigits zero")
+    public void testRoundToZeroWithCast() {
+        BRunUtil.invoke(compileResult, "testRunnerTestRoundToZeroWithCast");
+    }
+
     @Test(dataProvider = "decimalFloorValueProvider")
     public void testFloor(BDecimal arg, String expected) {
         Object returns = BRunUtil.invoke(compileResult, "testFloor", new Object[] {arg});
@@ -331,5 +346,15 @@ public class LangLibDecimalTest {
     @Test
     public void testFromStringFunctionWithInvalidValues() {
         BRunUtil.invoke(compileResult, "testFromStringFunctionWithInvalidValues");
+    }
+
+    @Test
+    public void testQuantize() {
+        BRunUtil.invoke(compileResult, "testQuantize");
+    }
+
+    @Test
+    public void testQuantizeFunctionWithInvalidOutput() {
+        BRunUtil.invoke(compileResult, "testQuantizeFunctionWithInvalidOutput");
     }
 }

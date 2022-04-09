@@ -35,11 +35,8 @@ public class FunctionMock {
         BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
         BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
         Object returnVal = caseObj.get(StringUtils.fromString("returnValue"));
-        if (returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER)) {
-            TesterinaUtils.isCallOriginal = true;
-        } else {
-            TesterinaUtils.isCallOriginal = false;
-        }
+        TesterinaUtils.isCallOriginal = returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER);
+
         MockRegistry.getInstance().registerCase(mockFunctionObj, null, args, returnVal);
         return null;
     }

@@ -372,6 +372,8 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangListConstructorExpr node, T data);
 
+    public abstract void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr node, T data);
+
     public abstract void visit(BLangLiteral node, T data);
 
     public abstract void visit(BLangMarkDownDeprecatedParametersDocumentation node, T data);

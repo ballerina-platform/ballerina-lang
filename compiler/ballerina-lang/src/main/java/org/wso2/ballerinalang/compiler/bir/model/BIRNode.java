@@ -889,6 +889,39 @@ public abstract class BIRNode {
     }
 
     /**
+     * Represents a list member entry in a list constructor expression.
+     *
+     * @since 2201.1.0
+     */
+    public abstract static class BIRListConstructorEntry {
+        public BIROperand exprOp;
+    }
+
+    /**
+     * Represents a spread member entry in a list constructor expression.
+     *
+     * @since 2201.1.0
+     */
+    public static class BIRListConstructorSpreadMemberEntry extends BIRListConstructorEntry {
+
+        public BIRListConstructorSpreadMemberEntry(BIROperand exprOp) {
+            this.exprOp = exprOp;
+        }
+    }
+
+    /**
+     * Represents an expression member entry in a list constructor expression.
+     *
+     * @since 2201.1.0
+     */
+    public static class BIRListConstructorExprEntry extends BIRListConstructorEntry {
+
+        public BIRListConstructorExprEntry(BIROperand exprOp) {
+            this.exprOp = exprOp;
+        }
+    }
+
+    /**
      * Represents a service declaration.
      *
      * @since 2.0.0

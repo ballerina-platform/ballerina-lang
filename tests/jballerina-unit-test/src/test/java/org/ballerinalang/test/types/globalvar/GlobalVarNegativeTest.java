@@ -134,8 +134,9 @@ public class GlobalVarNegativeTest {
                 "union member type '(json & readonly)' is not supported", 93, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json & readonly)" +
                 "'", 94, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string] & " +
-                "readonly)'", 97, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string,json]" +
+                " & readonly)'\n\t" +
+                "tuple element type '(json & readonly)' is not supported", 97, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

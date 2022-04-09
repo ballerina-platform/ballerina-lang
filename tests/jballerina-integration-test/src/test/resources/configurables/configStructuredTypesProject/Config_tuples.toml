@@ -1,0 +1,88 @@
+arrayTuple = [[1, 3, 5, 7, 9], [["apple", "banana", "orange"], ["ten", "twenty", "thirty"]], [[[1, 2], [3, 4]], [[1, 2], [3, 4]]]]
+simpleTuple = [278, "string", 2.3, 4.5, 2, true]
+#xmlTuple = ["<book><name>Sherlock Holmes</name></book>", "<!--I am a comment-->", "<greet>Hello!</greet>", "<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>", "xml text"]
+enumTuple = [33, "Sri Lanka"]
+mapTuple = [
+  "Foo",
+  {name = "Baz Qux", age = 22, salary = [45000.0, 150000.0], address = {number = 20, road = "Palm Grove", city = "Colombo 3"}, accounts = [{id = "1"}, {id = "2"}]},
+]
+recordTuple1 = [1, {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}}]
+recordTuple2 = [2, {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}, height = 158.4, weight = 70}]
+recordTuple3 = [3, {name = "John Doe", age = 22, height = 177, weight = 67}]
+tableTuple1 = ["Bar", [{a = "a"}, {a = 1}, {a = 2.34}, {a = false}, {a = [1, 2]}, {a = {b = "a", c = 12}}, {a = [{b = "bb"}, {c = "cc"}]}]]
+tableTuple2 = [
+  "Hello",
+  [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ],
+]
+unionTuple1 = [123, "Hello World"]
+unionTuple2 = [456, {a = 1, b = 2}]
+mapArrayTuple = [
+  "Jane",
+  [
+    {name = "John Doe", age = "22", subject = "English"},
+    {name = "Jane Doe", age = "27", subject = "Maths"},
+  ]
+]
+recordArrayTuple = [
+  "John",
+  [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ]
+]
+
+simpleRestTuple = [1, "foo", 2, 3, 4, 5]
+arrayRestTuple = [1, "ddd",["apple", "orange", "papaya"], ["red", "green", "blue"]]
+mapRestTuple = [1, "ddd", {a = true, b = "bar"}, {c = 2 , d = 12.34, e = [1,2,3]}]
+recordRestTuple = [2, "test", {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}, height = 158.4, weight = 70}, {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}}]
+tableRestTuple = ["Bar", [{a = "a"}, {a = 1}, {a = 2.34}, {a = false}, {a = [1, 2]}], [{a = {b = "a", c = 12}}, {a = [{b = "bb"}, {c = "cc"}]}]]
+enumRestTuple = [33, "Sri Lanka", "United States",  "Sri Lanka", "Sri Lanka"]
+unionRestTuple = [22, 1, "a", 2, "b" ]
+mapArrayRestTuple = ["map[]",[{a = "true", b = "bar"}, {c = "2" , d = "12.34", e = "[1,2,3]"}] , [{a = "true", b = "bar"}, {c = "2" , d = "12.34", e = "[1,2,3]"}]]
+recordArrayRestTuple = ["record[]",   [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ], [
+    {name = "John Doe", age = 22, subjects = ["English", "Science"], marks = {English = 85, Science = 90}},
+    {name = "Jane Doe", age = 27, subjects = ["Maths", "History"], marks = {Maths = 88, History = 97}},
+  ]
+]
+
+tupleArray = [[111, {a = 1, b = 2}], [222, {c = 3, d = 4}]]
+tupleOfTuple = [333, [444, {e = 5, f = 6}]]
+unionOfTuple = [444, {m = 3, n = 4}]
+
+[mapOfTuple] 
+g = [555, {h = 5, i = 6}]
+j = [666, {k = 5, l = 6}]
+
+[recordOfTuple]
+id = 777
+t = [888, {m = 7, n = 8}]
+
+[[tableOfTuple]]
+id = 999
+t = [111, {m = 9, n = 0}]
+
+[[tableOfTuple]]
+id = 222
+t = [333, {m = 1, n = 2}]
+
+[[mapArrayOfTuple]]
+g = [555, {h = 5, i = 6}]
+j = [666, {k = 5, l = 6}]
+
+[[mapArrayOfTuple]]
+a = [555, {b = 5, c = 6}]
+d = [666, {e = 5, f = 6}]
+
+[[recordArrayOfTuple]]
+id = 777
+t = [888, {m = 7, n = 8}]
+
+[[recordArrayOfTuple]]
+id = 111
+t = [222, {m = 4, n = 9}]

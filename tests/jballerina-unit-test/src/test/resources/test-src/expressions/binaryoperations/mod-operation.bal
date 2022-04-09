@@ -166,6 +166,10 @@ const int constInt = 5;
 
 const float constFloat = 20.5;
 
+type MyInt int;
+
+type MyFloat float;
+
 function testModFloatInt() {
     int a = 2;
     int a1 = 0;
@@ -174,6 +178,8 @@ function testModFloatInt() {
     float d = 0;
     int e = int:MAX_VALUE;
     int f = int:MIN_VALUE;
+    MyInt g = 2;
+    MyFloat h = 4.5;
 
     float var4 = b % a;
     assertEqual(var4, float:NaN);
@@ -181,6 +187,8 @@ function testModFloatInt() {
     assertEqual(var5, 0.45);
     float var6 = d % a;
     assertEqual(var6, 0.0);
+    float var61 = h % a;
+    assertEqual(var61, 0.5);
 
     float var7 = b % a1;
     assertEqual(var7, float:NaN);
@@ -188,6 +196,8 @@ function testModFloatInt() {
     assertEqual(var8, float:NaN);
     float var9 = d % a1;
     assertEqual(var9, float:NaN);
+    float var91 = h % a1;
+    assertEqual(var91, float:NaN);
 
     float var10 = b % constInt;
     assertEqual(var10, float:NaN);
@@ -195,6 +205,8 @@ function testModFloatInt() {
     assertEqual(var11, 0.45);
     float var12 = d % constInt;
     assertEqual(var12, 0.0);
+    float var121 = h % constInt;
+    assertEqual(var121, 4.5);
 
     float var13 = constFloat % constInt;
     assertEqual(var13, 0.5);
@@ -208,6 +220,11 @@ function testModFloatInt() {
     assertEqual(var17, 0.45);
     float var18 = c % f;
     assertEqual(var18, 0.45);
+    float var19 = c % g;
+    assertEqual(var19, 0.45);
+
+    float var20 = h % g;
+    assertEqual(var20, 0.5);
 }
 
 function testModFloatIntSubTypes() {
@@ -386,22 +403,30 @@ function testResultTypeOfModFloatIntForNilableOperandsByInfering() {
 
 const decimal constDecimal = 20.5;
 
+type MyDecimal decimal;
+
 function testModDecimalInt() {
     int a = 2;
     decimal c = 4.5e-1;
     decimal d = 0;
     int e = int:MAX_VALUE;
     int f = int:MIN_VALUE;
+    MyInt g = 2;
+    MyDecimal h = 4.5;
 
     decimal var5 = c % a;
     assertEqual(var5, 0.45d);
     decimal var6 = d % a;
     assertEqual(var6, 0d);
+    decimal var61 = h % a;
+    assertEqual(var61, 0.5d);
 
     decimal var11 = c % constInt;
     assertEqual(var11, 0.45d);
     decimal var12 = d % constInt;
     assertEqual(var12, 0d);
+    decimal var121 = h % constInt;
+    assertEqual(var121, 4.5d);
 
     decimal var13 = constDecimal % constInt;
     assertEqual(var13, 0.5d);
@@ -413,6 +438,12 @@ function testModDecimalInt() {
     assertEqual(var17, 0.45d);
     decimal var18 = c % f;
     assertEqual(var18, 0.45d);
+    
+    decimal var19 = c % g;
+    assertEqual(var19, 0.45d);
+
+    decimal var20 = h % g;
+    assertEqual(var20, 0.5d);
 }
 
 function testModDecimalIntSubTypes() {

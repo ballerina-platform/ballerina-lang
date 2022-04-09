@@ -109,6 +109,7 @@ public class MockFunctionReplaceVisitor extends ClassVisitor {
 
             generateReturnInstruction(mockFunc.getReturnType());
             super.visitLabel(label1);
+            super.visitFrame(Opcodes.F_SAME, 0, null, 0, null);
             super.visitCode();
         }
 
