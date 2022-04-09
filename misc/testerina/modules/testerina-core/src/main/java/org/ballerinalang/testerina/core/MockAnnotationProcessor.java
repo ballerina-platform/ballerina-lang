@@ -378,7 +378,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private String getQualifiedClassName(BLangTestablePackage bLangTestablePackage,
                              String pkgId, String functionName) {
         String className;
-        if (bLangTestablePackage.packageID.toString().contains(pkgId)) {
+        if (bLangTestablePackage.packageID.toString().equals(pkgId)) {
             if (bLangTestablePackage.symbol.scope.entries.containsKey(new Name(functionName))) {
                 BSymbol symbol = bLangTestablePackage.symbol.scope.entries.get(new Name(functionName)).symbol;
                 className = getClassName(bLangTestablePackage.symbol, symbol.getPosition());
