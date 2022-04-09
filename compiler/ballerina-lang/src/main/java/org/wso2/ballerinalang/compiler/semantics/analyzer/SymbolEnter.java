@@ -4544,7 +4544,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             LineRange workerBodyPos = lambdaFn.function.pos.lineRange();
             Location targetRangePos = env.node.pos;
 
-            // targetRangePos can be null only when there is a If block without an Else block before the worker node
+            // TODO: targetRangePos of a block stmt, can be null only when there is a If block without an Else block,
+            //  before the that block stmt and if there is a worker node inside that block stmt. We need to find a
+            //  better way to map the range startPos and endPos after the If block and remove this check
             if (targetRangePos == null) {
                 targetRangePos = env.node.parent.pos;
             }
