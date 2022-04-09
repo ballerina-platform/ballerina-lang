@@ -4549,7 +4549,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             //  without en else block. Its pos is not set. Setting the pos requires the exact positions of start
             //  and end after the if block. When the pos is set we can remove this check
             if (targetRangePos == null) {
-                targetRangePos = env.node.parent.pos;
+                targetRangePos = env.enclInvokable.pos;
             }
 
             if (worker.name.value.equals(lambdaFn.function.defaultWorkerName.value)
