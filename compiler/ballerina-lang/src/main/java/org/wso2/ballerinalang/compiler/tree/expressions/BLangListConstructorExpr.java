@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
@@ -149,6 +150,44 @@ public class BLangListConstructorExpr extends BLangExpression implements ListCon
         @Override
         public void accept(BLangNodeVisitor visitor) {
             visitor.visit(this);
+        }
+    }
+
+    /**
+     * Implementation of list constructor spread operator.
+     *
+     * @since 2201.1.0
+     */
+    public static class BLangListConstructorSpreadOpExpr extends BLangExpression {
+
+        public BLangExpression expr;
+
+        public BLangExpression getExpression() {
+            return expr;
+        }
+
+        public void setExpression(ExpressionNode expr) {
+            this.expr = (BLangExpression) expr;
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return NodeKind.LIST_CONSTRUCTOR_SPREAD_OP;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
         }
     }
 }

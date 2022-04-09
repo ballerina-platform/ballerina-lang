@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
@@ -221,24 +223,96 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<ConfigValue> getAsUnionAndMark(Module module, VariableKey key) {
-        // Only `enum` type is supported
+        CliArg cliArg = getCliArg(module, key);
         BUnionType unionType = (BUnionType) ((BIntersectionType) key.type).getEffectiveType();
-        if (!SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM)) {
+        boolean isEnum = SymbolFlags.isFlagOn(unionType.getFlags(), SymbolFlags.ENUM);
+        if (!isEnum && !containsSupportedMembers(unionType)) {
             throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, unionType);
         }
-        CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
         }
+        if (isEnum) {
+            return getCliConfigValue(getFiniteValue(key, unionType, cliArg));
+        }
+        return getCliConfigValue(getUnionValue(key, unionType, cliArg));
+    }
+
+    private Object getUnionValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
+        List<Object> matchingValues = getConvertibleMemberValues(cliArg.value, unionType);
+        if (matchingValues.size() == 1) {
+            return matchingValues.get(0);
+        }
+        String typeName = decodeIdentifier(unionType.toString());
+        if (matchingValues.isEmpty()) {
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, typeName, cliArg.value);
+        }
+        throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, cliArg, key.variable, typeName);
+    }
+
+    private List<Object> getConvertibleMemberValues(String value, UnionType unionType) {
+        List<Object> matchingValues = new ArrayList<>();
+        for (Type type : unionType.getMemberTypes()) {
+            switch (type.getTag()) {
+                case TypeTags.BYTE_TAG:
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToByte, value);
+                    break;
+                case TypeTags.INT_TAG:
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToInt, value);
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToBoolean, value);
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToFloat, value);
+                    break;
+                case TypeTags.DECIMAL_TAG:
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToDecimal, value);
+                    break;
+                case TypeTags.STRING_TAG:
+                    convertAndGetValuesFromString(matchingValues, StringUtils::fromString, value);
+                    break;
+                default:
+                    convertAndGetValuesFromString(matchingValues, TypeConverter::stringToXml, value);
+            }
+        }
+        return matchingValues;
+    }
+
+    private void convertAndGetValuesFromString(List<Object> matchingValues, Function<String, Object> convertFunc,
+                                               String value) {
+        Object unionValue;
+        try {
+            unionValue = convertFunc.apply(value);
+        } catch (NumberFormatException | BError e) {
+            return;
+        }
+        matchingValues.add(unionValue);
+    }
+
+    private BString getFiniteValue(VariableKey key, BUnionType unionType, CliArg cliArg) {
         BString stringVal = StringUtils.fromString(cliArg.value);
         List<Type> memberTypes = unionType.getMemberTypes();
         for (Type type : memberTypes) {
             if (((BFiniteType) type).valueSpace.contains(stringVal)) {
-                return getCliConfigValue(stringVal);
+                return stringVal;
             }
         }
         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable,
                 decodeIdentifier(unionType.toString()), cliArg.value);
+    }
+
+    private boolean containsSupportedMembers(BUnionType unionType) {
+        for (Type memberType : unionType.getMemberTypes()) {
+            if (!isCliSupported(memberType.getTag())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isCliSupported(int tag) {
+        return tag <= TypeTags.BOOLEAN_TAG || TypeTags.isXMLTypeTag(tag);
     }
 
     @Override

@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
@@ -54,6 +55,7 @@ public class BallerinaErrorReasons {
             "DecimalExponentError"));
     public static final BString ARITHMETIC_OPERATION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
+    public static final BString QUANTIZE_ERROR = getModulePrefixedReason(DECIMAL_LANG_LIB, "QuantizeError");
     public static final BString JAVA_NULL_REFERENCE_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("JavaNullReferenceError"));
     public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");
@@ -113,6 +115,8 @@ public class BallerinaErrorReasons {
     public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
     public static final BString UNSUPPORTED_DECIMAL_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
             "UnsupportedDecimalError"));
+
+    public static final String INVALID_FRACTION_DIGITS_ERROR = "InvalidFractionDigits";
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
