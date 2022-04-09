@@ -273,7 +273,7 @@ public class Main {
 
     private static byte[] replaceMethodBody(Method method, Method mockMethod) {
         Class<?> clazz = method.getDeclaringClass();
-        ClassReader cr = null;
+        ClassReader cr;
         try {
             cr = new ClassReader(requireNonNull(
                     clazz.getResourceAsStream(clazz.getSimpleName() + ".class")));
@@ -282,17 +282,16 @@ public class Main {
                     + clazz.getSimpleName());
         }
 
-        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
                 Type.getMethodDescriptor(method), mockMethod);
-        assert cr != null;
         cr.accept(cv, 0);
         return cw.toByteArray();
     }
 
     private static byte[] replaceMethodBody(byte[] classFile, Method method, Method mockMethod) {
         ClassReader cr = new ClassReader(classFile);
-        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
                 Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);
