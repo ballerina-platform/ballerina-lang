@@ -46,7 +46,7 @@ public class FiniteTypeNegativeTest {
     public void testInvalidLiteralAssignment() {
 
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 19, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 21, "Error count mismatch");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Finite', found 'string'", 33, 16);
         validateError(result, i++, "incompatible types: expected 'ByteType', found '5'", 40, 18);
@@ -67,7 +67,7 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'chiran', found 'int'", 119, 18);
         validateError(result, i++, "incompatible types: expected 'UnaryType2', found 'int'", 127, 21);
         validateError(result, i++, "incompatible types: expected 'UnaryType3', found 'int'", 128, 21);
-        validateError(result, i++, "incompatible types: expected '1|5.4f', found 'float'", 132, 21);
-        validateError(result, i, "'92233720368547758078' is out of range", 133, 21);
+        validateError(result, i++, "incompatible types: expected '1|5.4f', found 'float'", 132, 15);
+        validateError(result, i, "'92233720368547758078' is out of range", 133, 11);
     }
 }

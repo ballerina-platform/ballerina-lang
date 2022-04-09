@@ -3567,8 +3567,14 @@ public class Types {
                 double baseDoubleVal = Double.parseDouble(baseValueStr);
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
-                    candidateDoubleVal = ((Long) candidateValue).doubleValue();
-                    return baseDoubleVal == candidateDoubleVal;
+                    if (candidateLiteral.value instanceof Double) {
+                        // out of range value for int but in range for float
+                        candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
+                        return baseDoubleVal == candidateDoubleVal;
+                    } else {
+                        candidateDoubleVal = ((Long) candidateValue).doubleValue();
+                        return baseDoubleVal == candidateDoubleVal;
+                    }
                 } else if (candidateTypeTag == TypeTags.FLOAT) {
                     candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
                     return baseDoubleVal == candidateDoubleVal;
@@ -3578,8 +3584,18 @@ public class Types {
                 BigDecimal baseDecimalVal = NumericLiteralSupport.parseBigDecimal(baseValue);
                 BigDecimal candidateDecimalVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
-                    candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
-                    return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                    if (candidateLiteral.value instanceof String) {
+                        // out of range value for int but in range for decimal
+                        candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
+                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                    } else if (candidateLiteral.value instanceof Double) {
+                        // out of range value for int in range for decimal and float
+                        candidateDecimalVal = new BigDecimal((Double) candidateValue, MathContext.DECIMAL128);
+                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                    } else {
+                        candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
+                        return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
+                    }
                 } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
                         candidateTypeTag == TypeTags.DECIMAL) {
                     if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(candidateValue))) {

@@ -496,12 +496,18 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.BYTE)) {
             setLiteralValueForFiniteType(literalExpr, symTable.byteType);
             return symTable.byteType;
-        } else if (literalExpr.value instanceof Double) {
-            setLiteralValueForFiniteType(literalExpr, symTable.floatType);
-            return symTable.floatType;
-        } else if (literalExpr.value instanceof String) {
-            setLiteralValueForFiniteType(literalExpr, symTable.decimalType);
-            return symTable.decimalType;
+        } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.FLOAT)) {
+            if (!(literalExpr.value instanceof Long)) {
+                // to prevent eg: 1f|1d|2d f2 = 1; from passing
+                setLiteralValueForFiniteType(literalExpr, symTable.floatType);
+                return symTable.floatType;
+            }
+        } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.DECIMAL)) {
+            if (!(literalExpr.value instanceof Long) && !(literalExpr.value instanceof Double)) {
+                // to prevent eg: 1f|1d|2d f2 = 2; from passing
+                setLiteralValueForFiniteType(literalExpr, symTable.decimalType);
+                return symTable.decimalType;
+            }
         } else {
             for (int tag = TypeTags.SIGNED32_INT; tag <= TypeTags.UNSIGNED8_INT; tag++) {
                 if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
@@ -529,13 +535,38 @@ public class TypeChecker extends BLangNodeVisitor {
             literalExpr.value = String.valueOf(literalValue);
             return type;
         }
-        return symTable.intType;
+
+        if (literalValue instanceof Double) {
+            return symTable.floatType;
+        } else if (literalValue instanceof String) {
+            return symTable.decimalType;
+        } else {
+            return symTable.intType;
+        }
     }
 
-    private BType clonedCheckForCompatibleLiteralType(BFiniteType finiteType, BLangLiteral literalExpr) {
+    private BType clonedIntTypeChecker(BLangLiteral literalExpr, Object literalValue, BType expType) {
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        this.nonErrorLoggingCheck = true;
+        int prevErrorCount = this.dlog.errorCount();
+        this.dlog.resetErrorCount();
+        this.dlog.mute();
+
+        BType exprCompatibleType = getIntegerLiteralType(nodeCloner.cloneNode(literalExpr), literalValue, expType);
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        this.dlog.setErrorCount(prevErrorCount);
+
+        if (!prevNonErrorLoggingCheck) {
+            this.dlog.unmute();
+        }
+        return exprCompatibleType;
+    }
+
+    private BType clonedCheckForCompatibleLiteralType(BFiniteType finiteType, BLangLiteral literalExpr,
+                                                      Object literalValue) {
         BType resIntType = symTable.semanticError;
         for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-            BType tempResType = clonedExprTypeChecker(literalExpr, valueExpr.getBType());
+            BType tempResType = clonedIntTypeChecker(literalExpr, literalValue, valueExpr.getBType());
             if (tempResType != symTable.semanticError) {
                 resIntType = tempResType;
                 break;
@@ -544,17 +575,11 @@ public class TypeChecker extends BLangNodeVisitor {
         return resIntType;
     }
 
-    private BType checkLiteralTypeCompatibilityWithFiniteType(BFiniteType finiteType, BLangLiteral literalExpr) {
-        BType compatibleType = clonedCheckForCompatibleLiteralType(finiteType, literalExpr);
+    private BType checkIfLiteralIsOutOfRange(BFiniteType finiteType, BLangLiteral literalExpr, Object literalValue) {
+        BType compatibleType = clonedCheckForCompatibleLiteralType(finiteType, literalExpr, literalValue);
         if (compatibleType == symTable.semanticError) {
-            // Log the out of range errors since literal is not assignable
-            for (BLangExpression valueExpr : finiteType.getValueSpace()) {
-                checkExpr(literalExpr, env, valueExpr.getBType());
-            }
+            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue);
         }
-//        else {
-//            checkExpr(literalExpr, env, compatibleType);
-//        }
         return compatibleType;
     }
 
@@ -584,8 +609,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.decimalType;
         } else if (expectedType.tag == TypeTags.FINITE) {
             BFiniteType finiteType = (BFiniteType) expectedType;
-            // Check and set correct literal value type
-            BType compatibleType = checkLiteralTypeCompatibilityWithFiniteType(finiteType, literalExpr);
+            BType compatibleType = checkIfLiteralIsOutOfRange(finiteType, literalExpr, literalValue);
             if (compatibleType == symTable.semanticError) {
                 return compatibleType;
             } else {
