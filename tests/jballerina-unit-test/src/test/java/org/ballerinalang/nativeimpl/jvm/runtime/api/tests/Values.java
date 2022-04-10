@@ -243,11 +243,4 @@ public class Values {
         values[1] = "abc";
         return ValueCreator.createRecordValue(map, values);
     }
-
-    public static BMap<BString, Object> getRecordWithRestFieldsNegative2() {
-        Object[] values = new Object[2];
-        values[0] = 1;
-        values[1] = "abc";
-        return ValueCreator.createRecordValue(null, values);
-    }
 }

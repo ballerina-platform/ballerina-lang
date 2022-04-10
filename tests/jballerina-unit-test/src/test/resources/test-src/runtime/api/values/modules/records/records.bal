@@ -72,7 +72,3 @@ public function getReadonlyRecordNegative(string recordName) returns record{} = 
 public function getRecordWithRestFieldsNegative() returns record{} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
-
-public function getRecordWithRestFieldsNegative2() returns record{} = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
-} external;

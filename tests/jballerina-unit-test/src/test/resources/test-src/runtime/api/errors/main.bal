@@ -57,9 +57,6 @@ public function main() {
 
     err = trap errors:getDistinctErrorWithNullDetailNegative("error message");
     test:assertValueEqual(err.message(), "No such error: error message");
-
-    err = trap errors:getDistinctErrorWithNullDetailNegative2("error message");
-    test:assertValueEqual(err.message(), "java.lang.NullPointerException");
 }
 
 function testTypeIds() {
@@ -69,4 +66,3 @@ function testTypeIds() {
     test:assertValueEqual(types[0], "UserError");
     test:assertValueEqual(types[1], "GenericError");
 }
-
