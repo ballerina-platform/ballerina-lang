@@ -159,6 +159,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -5790,6 +5791,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorSpreadOpExpr listConstructorSpreadOpExpr) {
+        listConstructorSpreadOpExpr.expr = rewriteExpr(listConstructorSpreadOpExpr.expr);
+        result = listConstructorSpreadOpExpr;
+    }
+
+    @Override
     public void visit(BLangListConstructorExpr listConstructor) {
         listConstructor.exprs = rewriteExprs(listConstructor.exprs);
         BLangExpression expr;
@@ -5848,12 +5855,41 @@ public class Desugar extends BLangNodeVisitor {
         List<BType> tupleMemberTypes = tupleType.tupleTypes;
         int tupleMemberTypeSize = tupleMemberTypes.size();
         int tupleExprSize = exprs.size();
-        for (int i = 0; i < tupleExprSize; i++) {
-            BLangExpression expr = exprs.get(i);
+
+        boolean isInRestType = false;
+        int i = 0;
+        for (BLangExpression expr: exprs) {
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BType spreadOpType = ((BLangListConstructorSpreadOpExpr) expr).expr.getBType();
+                spreadOpType = Types.getReferredType(spreadOpType);
+                if (spreadOpType.tag == TypeTags.ARRAY) {
+                    BArrayType spreadOpBArray = (BArrayType) spreadOpType;
+                    if (spreadOpBArray.size >= 0) {
+                        i += spreadOpBArray.size;
+                        continue;
+                    }
+                } else {
+                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    if (types.isFixedLengthTuple(spreadOpTuple)) {
+                        i += spreadOpTuple.tupleTypes.size();
+                        continue;
+                    }
+                }
+                isInRestType = true;
+                continue;
+            }
+
             BType expType = expr.impConversionExpr == null ? expr.getBType() : expr.impConversionExpr.getBType();
-            BType targetType = i < tupleMemberTypeSize ? tupleMemberTypes.get(i) : tupleType.restType;
+
+            BType targetType = tupleType.restType;
+            if (!isInRestType && i < tupleMemberTypeSize) {
+                targetType = tupleMemberTypes.get(i);
+            }
+
             types.setImplicitCastExpr(expr, expType, targetType);
+            i++;
         }
+
         tupleLiteral.exprs = rewriteExprs(tupleLiteral.exprs);
         result = tupleLiteral;
     }

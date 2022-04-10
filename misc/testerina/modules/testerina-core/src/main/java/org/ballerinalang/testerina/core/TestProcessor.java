@@ -69,6 +69,7 @@ public class TestProcessor {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
+    private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -81,6 +82,10 @@ public class TestProcessor {
     private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
     private static final String TEST_PREFIX = "test";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
+    private static final String MODULE = "moduleName";
+    private static final String FUNCTION = "functionName";
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_DELIMITER = "~";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
@@ -157,6 +162,7 @@ public class TestProcessor {
         }
 
         addUtilityFunctions(module, testSuite);
+        populateMockFunctionNamesMap(testSuite);
         processAnnotations(module, testSuite);
         testSuite.sort();
         return testSuite;
@@ -206,18 +212,18 @@ public class TestProcessor {
      *
      * @param annotationSymbol AnnotationSymbol
      * @param syntaxTreeMap    Map<String, SyntaxTree>
-     * @param function         String
+     * @param name         String
      * @return AnnotationNode
      */
     private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<Document, SyntaxTree> syntaxTreeMap,
-                                             String function) {
+                                             String name) {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
                 for (Node node : modulePartNode.members()) {
                     if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                         String functionName = ((FunctionDefinitionNode) node).functionName().text();
-                        if (functionName.equals(function)) {
+                        if (functionName.equals(name)) {
                             Optional<MetadataNode> optionalMetadataNode = ((FunctionDefinitionNode) node).metadata();
                             if (optionalMetadataNode.isPresent()) {
                                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
@@ -329,6 +335,13 @@ public class TestProcessor {
                         className);
                 testSuite.addTestUtilityFunction(functionName, functionClassName);
             }
+        }
+    }
+
+    private void populateMockFunctionNamesMap(TestSuite testSuite) {
+        Map<String, String> mockFunctionsSourceMap = registry.getMockFunctionSourceMap();
+        for (Map.Entry<String, String> entry : mockFunctionsSourceMap.entrySet()) {
+            testSuite.addMockFunction(entry.getKey(), entry.getValue());
         }
     }
 
