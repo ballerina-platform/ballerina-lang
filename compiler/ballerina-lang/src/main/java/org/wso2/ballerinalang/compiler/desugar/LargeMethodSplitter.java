@@ -219,7 +219,7 @@ public class LargeMethodSplitter {
 
         // last statement is the return statement
         // excluding that other statements are just filled into new intermediate start functions sequentially
-        // each new function will have LISTENER_COUNT_PER_METHOD statements at most excluding the return statement
+        // each new function will have MAX_LISTENER_COUNT_PER_METHOD statements at most excluding the return statement
         for (int i = 0; i < stmts.size() - 1; i++) {
             if (i > 0 && (i % MAX_LISTENER_COUNT_PER_METHOD == 0)) {
                 generatedFunctions.add(newFunc);
