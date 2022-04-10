@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
-import static org.wso2.ballerinalang.compiler.util.Constants.LISTENER_COUNT_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.util.Constants.MAX_LISTENER_COUNT_PER_METHOD;
 
 /**
  * Split large init, start, stop BLangFunctions into several smaller functions.
@@ -221,7 +221,7 @@ public class LargeMethodSplitter {
         // excluding that other statements are just filled into new intermediate start functions sequentially
         // each new function will have LISTENER_COUNT_PER_METHOD statements at most excluding the return statement
         for (int i = 0; i < stmts.size() - 1; i++) {
-            if (i > 0 && (i % LISTENER_COUNT_PER_METHOD == 0)) {
+            if (i > 0 && (i % MAX_LISTENER_COUNT_PER_METHOD == 0)) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateStartFunction(packageNode, env);
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
@@ -283,7 +283,7 @@ public class LargeMethodSplitter {
         BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.body;
 
         for (int i = 0; i < stmts.size() - 1; i++) {
-            if (i > 0 && (i % LISTENER_COUNT_PER_METHOD == 0)) {
+            if (i > 0 && (i % MAX_LISTENER_COUNT_PER_METHOD == 0)) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateStopFunction(packageNode, env);
                 newFuncBody = (BLangBlockFunctionBody) newFunc.body;
