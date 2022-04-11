@@ -25,6 +25,7 @@ import java.util.ArrayList;
  * @since 3.0.0
  */
 public class ListAtomicType implements AtomicType {
+
     public final FixedLengthArray members;
     public final SemType rest;
 
@@ -38,5 +39,10 @@ public class ListAtomicType implements AtomicType {
 
     public static ListAtomicType from(FixedLengthArray members, SemType rest) {
         return new ListAtomicType(members, rest);
+    }
+
+    // For comparator
+    public int getFixedLength() {
+        return members.fixedLength;
     }
 }

@@ -35,6 +35,7 @@ import io.ballerina.types.subtypedata.IntSubtype;
 import io.ballerina.types.subtypedata.Range;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import static io.ballerina.types.Common.shallowCopyTypes;
@@ -163,6 +164,7 @@ public class ListCommonOps {
     // for each tuple t in `neg`, v is not in t.
     // `neg` represents a set of negated list types.
     // Precondition is that each of `members` is not empty.
+    // ListConjunction is sorted in decreasing order of fixedLength
     // This is formula Phi' in section 7.3.1 of Alain Frisch's PhD thesis,
     // generalized to tuples of arbitrary length.
     static boolean listInhabited(Context cx, FixedLengthArray members, SemType rest, ListConjunction neg) {
@@ -172,28 +174,42 @@ public class ListCommonOps {
             int len = members.fixedLength;
             ListAtomicType nt = neg.listType;
             int negLen = nt.members.fixedLength;
+            if (negLen < len ? Core.isNever(nt.rest) : (len < negLen && Core.isNever(rest))) {
+                // Either
+                // - the negative has a fixed length that is shorter than the minimum
+                // length of the positive, or
+                // - the positive has a fixed length that is shorter than the minimum
+                // length of the negative.
+                // In either case this negative cannot cancel out the positive,
+                // so we can just skip over this negative.
+                return listInhabited(cx, members, rest, neg.next);
+            }
             if (len < negLen) {
-                if (Core.isNever(rest)) {
-                    return listInhabited(cx, members, rest, neg.next);
-                }
-                // For list shapes with length less than negLen,
-                // this neg type is not relevant.
+                // Note in this case we know positive rest is not never.
+
+                // Explore the possibility of shapes that are not matched
+                // by the negative because their lengths are less than negLen.
+
+                // First a shape with exactly len members
+                // No need to copy members here
                 if (listInhabited(cx, members, NEVER, neg.next)) {
                     return true;
                 }
                 // Check list types with fixedLength >= `len` and  < `negLen`
-                for (int i = len; i < Integer.min(negLen, neg.maxInitialLen + 1); i++) {
+                if (negLen - len > 200) {
+                    System.exit(1);
+                    // [jBallerina] may need to change
+                    // panic error("fixed length too big " + negLen.toString());
+                }
+                for (int i = len + 1; i < negLen; i++) {
                     FixedLengthArray s = fixedArrayShallowCopy(members);
                     fixedArrayFill(s, i, rest);
                     if (listInhabited(cx, s, NEVER, neg.next)) {
                         return true;
                     }
                 }
-            } else if (negLen < len && Core.isNever(nt.rest)) {
-                return listInhabited(cx, members, rest, neg.next);
             }
-            // Now we have negLen <= len.
-
+            // Now we need to explore the possibility of shapes with length >= neglen
             // This is the heart of the algorithm.
             // For [v0, v1] not to be in [t0,t1], there are two possibilities
             // (1) v0 is not in t0, or
@@ -213,28 +229,26 @@ public class ListCommonOps {
             // SemType d1 = diff(s[1], t[1]);
             // return !isEmpty(cx, d1) &&  tupleInhabited(cx, [s[0], d1], neg.rest);
             // We can generalize this to tuples of arbitrary length.
-            int maxInitialLen = Integer.max(members.initial.size(), neg.maxInitialLen);
-            for (int i = 0; i < maxInitialLen; i++) {
+
+            // The key point here that because ListConjunction is sorted in decreasing order, the negs handle every
+            // index >= negLen in the same way i.e. for every N in neg, for every i, j >= negLen, N[i] = N[j].
+            // Define two indices i, j to be equivalent iff for type T that is the positive and any of the negatives,
+            // T[i] = T[j]. The value of maxLen here sufficient that the set { i | 0 <= i < maxLen } will contain
+            // at least one index from each equivalence class.
+
+            int maxLen = Integer.max(len + 1, negLen + 1);
+            if (maxLen > 200) {
+                System.exit(1);
+                // [jBallerina] may need to change
+                //panic error("fixed length too big " + maxLen.toString());
+            }
+            for (int i = 0; i < maxLen; i++) {
                 SemType d = diff(listMemberAt(members, rest, i), listMemberAt(nt.members, nt.rest, i));
                 if (!isEmpty(cx, d)) {
                     FixedLengthArray s = fixedArrayReplace(members, i, d, rest);
                     if (listInhabited(cx, s, rest, neg.next)) {
                         return true;
                     }
-                }
-            }
-            SemType rd = diff(rest, nt.rest);
-            if (!isEmpty(cx, rd)) {
-                // We have checked the possibilities of existence of a shape in list with
-                // fixedLength >= 0 and < maxInitialLen.
-                // Now check the existence of a shape with at least `maxInitialLen` members.
-                FixedLengthArray s = members;
-                if (len < maxInitialLen) {
-                    s = fixedArrayShallowCopy(members);
-                    fixedArrayFill(s, maxInitialLen, rest);
-                }
-                if (listInhabited(cx, s, rd, neg.next)) {
-                    return true;
                 }
             }
             // This is correct for length 0, because we know that the length of the
@@ -316,14 +330,24 @@ public class ListCommonOps {
     }
 
     static ListConjunction listConjunction(Context cx, Conjunction con) {
-        if (con != null) {
-            ListAtomicType listType = cx.listAtomType(con.atom);
-            int len = listType.members.initial.size();
-            ListConjunction next = listConjunction(cx, con.next);
-            int maxInitialLen = next == null ? len : Integer.max(len, next.maxInitialLen);
-            return ListConjunction.from(listType, maxInitialLen, next);
+        Conjunction c = con;
+        ArrayList<ListAtomicType> atoms = new ArrayList<>();
+        while (c != null) {
+            atoms.add(cx.listAtomType(c.atom));
+            c = c.next;
         }
-        return null;
+        // This is in ascending order.
+        // It gets reversed as we cons it up.
+        // atoms = from var a in atoms let int len = a.members.fixedLength order by len select a;
+        atoms.sort(Comparator.comparing(ListAtomicType::getFixedLength));
+        ListConjunction next = null;
+        int maxInitialLen = 0;
+        for (var listType : atoms) {
+            maxInitialLen = Integer.max(maxInitialLen, listType.members.initial.size());
+            ListConjunction lc = ListConjunction.from(listType, maxInitialLen, next);
+            next = lc;
+        }
+        return next;
     }
 
 
