@@ -801,7 +801,7 @@ public class ValueCreator {
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
 
-        RuntimeUtils.validateBMapValues(valueMap);
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
 
@@ -817,7 +817,7 @@ public class ValueCreator {
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
                                                                   Map<String, Object> valueMap) {
-        RuntimeUtils.validateBMapValues(valueMap);
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
         MapValueImpl<BString, Object> bmap = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
         bmap.freezeDirect();
@@ -832,7 +832,7 @@ public class ValueCreator {
      * @return value of the record.
      */
     public static BMap<BString, Object> createRecordValue(BMap<BString, Object> record, Object... values) {
-        RuntimeUtils.validateBMapValues(record);
+        record = RuntimeUtils.validateBMapValues(record);
         return ValueUtils.createRecordValue(record, values);
     }
 

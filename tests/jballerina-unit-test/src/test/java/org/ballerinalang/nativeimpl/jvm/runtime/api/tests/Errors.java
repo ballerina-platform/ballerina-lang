@@ -97,4 +97,13 @@ public class Errors {
         return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("msg"),
                 null, null);
     }
+
+    public static BError getErrorWithNullDetailNegative(BString msg) {
+        return ErrorCreator.createError(msg, (BMap<BString, Object>) null);
+    }
+
+    public static BError getDistinctErrorWithNullDetailNegative2(BString msg) {
+        String typeIdName = "RuntimeError";
+        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, (BMap<BString, Object>) null);
+    }
 }

@@ -57,6 +57,12 @@ public function main() {
 
     err = trap errors:getDistinctErrorWithNullDetailNegative("error message");
     test:assertValueEqual(err.message(), "No such error: error message");
+
+    err = trap errors:getErrorWithNullDetailNegative("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getDistinctErrorWithNullDetailNegative2("error message");
+    test:assertValueEqual(err.message(), "error message");
 }
 
 function testTypeIds() {

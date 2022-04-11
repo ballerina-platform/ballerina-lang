@@ -60,7 +60,7 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(BString message, BMap<BString, Object> details) {
-        RuntimeUtils.validateErrorDetails(details);
+        details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(message, details);
     }
 
@@ -106,7 +106,7 @@ public class ErrorCreator {
      * @return new error
      */
     public static BError createError(Type type, BString message, BError cause, BMap<BString, Object> details) {
-        RuntimeUtils.validateErrorDetails(details);
+        details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(type, message, cause, details);
     }
 
@@ -156,7 +156,7 @@ public class ErrorCreator {
      */
     public static BError createError(Module module, String errorTypeName,
                                      BString message, BError cause, BMap<BString, Object> details) {
-        RuntimeUtils.validateErrorDetails(details);
+        details = RuntimeUtils.validateErrorDetails(details);
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
         return valueCreator.createErrorValue(errorTypeName, message, cause, details);
     }
@@ -189,7 +189,7 @@ public class ErrorCreator {
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
                                              BMap<BString, Object> details) {
-        RuntimeUtils.validateErrorDetails(details);
+        details = RuntimeUtils.validateErrorDetails(details);
         return new ErrorValue(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker
                 .getType(details)), message, null, details, typeIdName, typeIdPkg);
     }

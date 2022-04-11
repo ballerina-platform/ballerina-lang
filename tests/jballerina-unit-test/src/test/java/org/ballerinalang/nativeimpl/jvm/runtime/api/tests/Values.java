@@ -224,6 +224,14 @@ public class Values {
         return ValueCreator.createRecordValue(recordModule, recordName.getValue(), map);
     }
 
+    public static BMap<BString, Object> getRecordNegative2(BString recordName) {
+        ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+        Map<String, Object> map = Map.ofEntries(
+                Map.entry("arrList", arrayList)
+        );
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), null);
+    }
+
     public static BMap<BString, Object> getReadonlyRecordNegative(BString recordName) {
         Map<String, Integer> map = Map.ofEntries(
                 Map.entry("a", 1),

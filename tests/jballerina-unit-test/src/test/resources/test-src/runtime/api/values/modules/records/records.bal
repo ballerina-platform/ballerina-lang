@@ -65,6 +65,10 @@ public function getRecordNegative(string recordName) returns record{} = @java:Me
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
+public function getRecordNegative2(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
 public function getReadonlyRecordNegative(string recordName) returns record{} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
