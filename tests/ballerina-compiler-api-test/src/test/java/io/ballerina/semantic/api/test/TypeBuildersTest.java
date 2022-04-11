@@ -21,6 +21,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
@@ -101,6 +103,22 @@ public class TypeBuildersTest {
                 {xmlSubTypes.get(1), XML, XML_COMMENT, "xml<xml:Comment>"},
                 {xmlSubTypes.get(2), XML, XML_PROCESSING_INSTRUCTION, "xml<xml:ProcessingInstruction>"},
                 {xmlSubTypes.get(3), XML, XML_TEXT, "xml<xml:Text>"},
+        };
+    }
+
+    @Test(dataProvider = "mapTypeBuilderProvider")
+    public void testMapTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
+        TypeBuilder builder = types.builder();
+        MapTypeSymbol mapTypeSymbol = builder.MAP_TYPE.withTypeParam(typeParam).build();
+        assertEquals(mapTypeSymbol.typeKind(), typeDescKind);
+        assertEquals(mapTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "mapTypeBuilderProvider")
+    private Object[][] getMapTypeBuilders() {
+        return new Object[][] {
+                {types.ANY, MAP, "map<any>"},
+                {types.INT, MAP, "map<int>"},
         };
     }
 }
