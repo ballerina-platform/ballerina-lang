@@ -31,7 +31,8 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAccessExpressionNode> {
+public class FieldAccessExpressionNodeContext 
+        extends AbstractFieldAccessExpressionNodeContext<FieldAccessExpressionNode> {
     public FieldAccessExpressionNodeContext() {
         super(FieldAccessExpressionNode.class);
     }

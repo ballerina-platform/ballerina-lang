@@ -23,6 +23,34 @@ public function main() {
     testRemoteFunctionParameters();
     testFunctionToString();
     testParamTypesString();
+    testConstituentTypes();
+    testTypeIds();
+}
+
+function testConstituentTypes() {
+    int[] arr = [1, 2, 3];
+    string[] types = objects:getConstituentTypes(arr.cloneReadOnly());
+    test:assertEquals(types.length(), 2);
+    test:assertEquals(types[0], "int[]");
+    test:assertEquals(types[1], "readonly");
+}
+
+function testTypeIds() {
+    // object type
+    objects:Apple apple = new("red");
+    string[] types = objects:getTypeIds(apple);
+    test:assertEquals(types.length(), 3);
+    test:assertEquals(types[0], "Apple");
+    test:assertEquals(types[1], "Fruit");
+    test:assertEquals(types[2], "Common");
+
+    // service type
+    objects:Collection collection = new("waruna");
+    types = objects:getTypeIds(collection);
+    test:assertEquals(types.length(), 3);
+    test:assertEquals(types[0], "Common");
+    test:assertEquals(types[1], "Collection");
+    test:assertEquals(types[2], "Iterable");
 }
 
 function testFunctionToString() {

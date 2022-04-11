@@ -1,0 +1,42 @@
+{
+  "line": 8,
+  "character": 34,
+  "expected": [
+    {
+      "title": "Implement method 'getName'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 8
+            },
+            "end": {
+              "line": 10,
+              "character": 8
+            }
+          },
+          "newText": "\n            function getName() returns string {\n                return \"\";\n            }\n        "
+        }
+      ]
+    },
+    {
+      "title": "Implement method 'getId'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 8
+            },
+            "end": {
+              "line": 10,
+              "character": 8
+            }
+          },
+          "newText": "\n            function getId() returns int {\n                return 0;\n            }\n        "
+        }
+      ]
+    }
+  ]
+}

@@ -36,15 +36,28 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -62,14 +75,17 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.common.constants.PatternConstants;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.elements.Flag;
@@ -84,20 +100,18 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -121,7 +135,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SY
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
 
 /**
- * Common utils to be reuse in language server implementation.
+ * Common utils to be reused in language server implementation.
  */
 public class CommonUtil {
 
@@ -139,23 +153,35 @@ public class CommonUtil {
 
     public static final String BALLERINA_CMD;
 
+    public static final String URI_SCHEME_BALA = "bala";
+    public static final String URI_SCHEME_EXPR = "expr";
+    public static final String URI_SCHEME_FILE = "file";
+    public static final String LANGUAGE_ID_BALLERINA = "ballerina";
+    public static final String LANGUAGE_ID_TOML = "toml";
+
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
 
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
     public static final String SDK_VERSION = System.getProperty("ballerina.version");
 
+    public static final String EXPR_SCHEME = "expr";
+
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
             "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
-    public static final List<String> BALLERINA_KEYWORDS;
+    public static final List<String> BALLERINA_KEYWORDS = SyntaxInfo.keywords();
 
-    private static final String SELF_KW = "self";
+    public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
+            SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
+            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
+
+    public static final String SELF_KW = "self";
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
-    
-    private static final int MAX_DEPTH = 1;
+
+    private static final int MAX_DEPTH = 2;
 
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
@@ -163,7 +189,6 @@ public class CommonUtil {
         COMPILE_OFFLINE = !Boolean.parseBoolean(onlineCompilation);
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "bal" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
-        BALLERINA_KEYWORDS = getBallerinaKeywords();
     }
 
     private CommonUtil() {
@@ -235,11 +260,16 @@ public class CommonUtil {
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName);
         if (!alias.isEmpty()) {
-            builder.append(" as ").append(alias).append(" ");
+            builder.append(" as ").append(alias);
         }
         builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
 
         return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
+    }
+
+    public static Optional<String> getDefaultPlaceholderForType(TypeSymbol bType) {
+        return getDefaultValueForType(bType)
+                .map(defaultValue -> defaultValue.replace("}", "\\}"));
     }
 
     /**
@@ -251,10 +281,10 @@ public class CommonUtil {
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
         return getDefaultValueForType(bType, 1);
     }
-    
+
     private static Optional<String> getDefaultValueForType(TypeSymbol bType, int depth) {
         String typeString;
-        
+
         if (bType == null) {
             return Optional.empty();
         }
@@ -262,12 +292,6 @@ public class CommonUtil {
         TypeSymbol rawType = getRawType(bType);
         TypeDescKind typeKind = rawType.typeKind();
         switch (typeKind) {
-            case FLOAT:
-                typeString = Float.toString(0);
-                break;
-            case BOOLEAN:
-                typeString = Boolean.toString(false);
-                break;
             case TUPLE:
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
                 String memberTypes = tupleType.memberTypeDescriptors().stream()
@@ -279,7 +303,7 @@ public class CommonUtil {
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("") 
+                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("")
                             + "]";
                 } else {
                     typeString = "[]";
@@ -298,9 +322,6 @@ public class CommonUtil {
                                 getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse(""))
                         .collect(Collectors.joining(", "));
                 typeString += "}";
-                break;
-            case MAP:
-                typeString = "{}";
                 break;
             case OBJECT:
                 if (depth > MAX_DEPTH) {
@@ -362,40 +383,77 @@ public class CommonUtil {
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
-                if (errorType.typeKind() == TypeDescKind.RECORD) {
-                    errorString.append(", ");
-                    errorString.append(getMandatoryRecordFields((RecordTypeSymbol) errorType).stream()
-                            .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                    + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
-                                    .orElse(""))
-                            .collect(Collectors.joining(", ")));
+                if (errorType.typeKind() == TypeDescKind.RECORD && depth <= MAX_DEPTH) {
+                    List<RecordFieldSymbol> mandatoryFields = getMandatoryRecordFields((RecordTypeSymbol) errorType);
+                    if (!mandatoryFields.isEmpty()) {
+                        errorString.append(", ");
+                        errorString.append(mandatoryFields.stream()
+                                .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
+                                        + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
+                                        .orElse(""))
+                                .collect(Collectors.joining(", ")));
+                    }
                 }
                 errorString.append(")");
                 typeString = errorString.toString();
                 break;
+            case SINGLETON:
+                typeString = rawType.signature();
+                break;
+            case MAP:
+            case FLOAT:
+            case BOOLEAN:
             case STREAM:
-                typeString = "new ()";
+            case XML:
+            case DECIMAL:
+            default:
+                return getDefaultValueForTypeDescKind(typeKind);
+        }
+
+        return Optional.of(typeString);
+    }
+
+    /**
+     * Used to get the default values for a {@link TypeDescKind}. {@link #getDefaultValueForType(TypeSymbol)}
+     * is preferred over this function. This function should be used as a compliment to .
+     *
+     * @param typeKind Type desc kind
+     * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
+     */
+    public static Optional<String> getDefaultValueForTypeDescKind(TypeDescKind typeKind) {
+        String defaultValue = null;
+        switch (typeKind) {
+            case FLOAT:
+                defaultValue = Float.toString(0);
+                break;
+            case BOOLEAN:
+                defaultValue = Boolean.toString(false);
+                break;
+            case MAP:
+                defaultValue = "{}";
+                break;
+            case STREAM:
+                defaultValue = "new ()";
                 break;
             case XML:
-                typeString = "xml ``";
+                defaultValue = "xml ``";
                 break;
             case DECIMAL:
-                typeString = Integer.toString(0);
+                defaultValue = Integer.toString(0);
                 break;
             default:
                 if (typeKind.isIntegerType()) {
-                    typeString = Integer.toString(0);
+                    defaultValue = Integer.toString(0);
                     break;
                 }
 
                 if (typeKind.isStringType()) {
-                    typeString = "\"\"";
+                    defaultValue = "\"\"";
                     break;
                 }
-
-                return Optional.empty();
         }
-        return Optional.ofNullable(typeString);
+        return Optional.ofNullable(defaultValue);
     }
 
     /**
@@ -442,17 +500,16 @@ public class CommonUtil {
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
      * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
-     * @return {@link LSCompletionItem}   Completion Item to fill all the options
+     * @return {@link Optional}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
+    public static Optional<LSCompletionItem> getFillAllStructFieldsItem(BallerinaCompletionContext context,
                                                               Map<String, RecordFieldSymbol> fields,
                                                               Pair<TypeSymbol, TypeSymbol> symbol) {
-
         List<String> fieldEntries = new ArrayList<>();
 
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-            if (!entry.getValue().isOptional()) {
+            if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
                 requiredFields.put(entry.getKey(), entry.getValue());
             }
         }
@@ -474,26 +531,20 @@ public class CommonUtil {
                         + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
                 fieldEntries.add(fieldEntry);
             }
-        } else {
-            label = "Fill " + detail + " Optional Fields";
-            for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-                String fieldEntry = entry.getKey()
-                        + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
-                fieldEntries.add(fieldEntry);
-            }
+
+            String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
+            CompletionItem completionItem = new CompletionItem();
+            completionItem.setFilterText("fill");
+            completionItem.setLabel(label);
+            completionItem.setInsertText(insertText);
+            completionItem.setDetail(detail);
+            completionItem.setKind(CompletionItemKind.Property);
+            completionItem.setSortText(Priority.PRIORITY110.toString());
+
+            return Optional.of(new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER));
         }
 
-        String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setFilterText("fill");
-        completionItem.setLabel(label);
-        completionItem.setInsertText(insertText);
-        completionItem.setDetail(detail);
-        completionItem.setKind(CompletionItemKind.Property);
-        completionItem.setSortText(Priority.PRIORITY110.toString());
-
-        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER);
+        return Optional.empty();
     }
 
     /**
@@ -636,7 +687,7 @@ public class CommonUtil {
             insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
         } else {
             insertText.append("${").append(fieldId).append(":")
-                    .append(getDefaultValueForType(bField.typeDescriptor()).orElse(" ")).append("}");
+                    .append(getDefaultPlaceholderForType(bField.typeDescriptor()).orElse(" ")).append("}");
         }
 
         return insertText.toString();
@@ -719,7 +770,7 @@ public class CommonUtil {
      * @return random argument name
      */
     public static String generateVariableName(Symbol symbol, TypeSymbol typeSymbol, Set<String> names) {
-        // In some scenarios the compiler sends the symbol name as empty string. Hence add the check
+        // In some scenarios the compiler sends the symbol name as empty string. Hence, add the check
         if (symbol != null && symbol.getName().isPresent() && !symbol.getName().get().isEmpty()) {
             // Start naming with symbol-name
             return generateVariableName(1, symbol.getName().get(), names);
@@ -771,7 +822,7 @@ public class CommonUtil {
                 List<String> restParts = Arrays.stream(parts, 1, parts.length).collect(Collectors.toList());
                 newName = parts[0] + StringUtils.capitalize(String.join("", restParts));
             }
-            // If empty, revert back to original name
+            // If empty, revert to original name
             if (newName.isEmpty()) {
                 newName = name;
             }
@@ -837,7 +888,7 @@ public class CommonUtil {
      */
     public static String generateParameterName(String arg, int position, TypeSymbol type, Set<String> visibleNames) {
         String newName;
-        if (arg.isEmpty() || !isValidIdentifier(arg)) {
+        if (arg.isEmpty() || !SyntaxInfo.isIdentifier(arg)) {
             String typeName = type != null ? type.typeKind().getName() : "";
             if (!typeName.isEmpty()) {
                 newName = typeName.substring(0, 1).toLowerCase(Locale.getDefault());
@@ -958,17 +1009,13 @@ public class CommonUtil {
     }
 
     /**
-     * Checks if the provided identifier is valid as per the ballerina specification.
+     * Escapes the escape characters present in an identifier.
      *
-     * @param identifier Identifier to be checked for validity
-     * @return True, if the identifier is valid as per the ballerina specification
+     * @param identifier Identifier
+     * @return The identifier with escape characters escaped
      */
-    public static boolean isValidIdentifier(String identifier) {
-        if (identifier == null || identifier.isEmpty()) {
-            return false;
-        }
-
-        return identifier.matches(PatternConstants.IDENTIFIER_PATTERN);
+    public static String escapeEscapeCharsInIdentifier(String identifier) {
+        return identifier.replaceAll("\\\\", "\\\\\\\\");
     }
 
     /**
@@ -986,12 +1033,12 @@ public class CommonUtil {
         if (!moduleID.equals(currentModuleId)) {
             boolean preDeclaredLangLib = moduleID.orgName().equals(BALLERINA_ORG_NAME) &&
                     PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
-            String moduleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
-            String[] moduleParts = moduleName.split("/");
+            String escapeModuleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
+            String[] moduleParts = escapeModuleName.split("/");
             String orgName = moduleParts[0];
-            String alias = moduleParts[1];
+            String moduleName = moduleParts[1];
 
-            pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
+            pkgPrefix = moduleName.replaceAll(".*\\.", "");
             pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
@@ -1003,13 +1050,17 @@ public class CommonUtil {
             if (existingModuleImports.size() == 1) {
                 ImportDeclarationNode importDeclarationNode = existingModuleImports.get(0);
                 if (importDeclarationNode.prefix().isPresent()) {
-                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
+                    pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
+            } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
+                pkgPrefix = getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
             }
-
+            CodeActionModuleId codeActionModuleId =
+                    CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());
             if (importsAcceptor != null && !preDeclaredLangLib) {
-                importsAcceptor.getAcceptor(context).accept(orgName, alias);
+                importsAcceptor.getAcceptor(context).accept(orgName, codeActionModuleId);
             }
+            return pkgPrefix + ":";
         }
         return pkgPrefix;
     }
@@ -1026,7 +1077,7 @@ public class CommonUtil {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(aliasLastPart) && !preDeclaredLangLib) {
                     aliasLastPart = "'" + aliasLastPart;
                 }
-                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining());
+                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining("."));
                 alias = aliasPart + "." + aliasLastPart;
             } else {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(alias) && !preDeclaredLangLib) {
@@ -1039,38 +1090,88 @@ public class CommonUtil {
     }
 
     /**
-     * Node comparator to compare the nodes by position.
+     * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
+     * we convert it to file scheme and provide a valid Path.
+     *
+     * @param fileUri file uri
+     * @return {@link Optional} Path from the URI
      */
-    public static class BLangNodeComparator implements Comparator<BLangNode> {
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public int compare(BLangNode node1, BLangNode node2) {
-            // TODO: Fix?
-            Location node1Loc = node1.getPosition();
-            Location node2Loc = node2.getPosition();
-            if (node1Loc == null || node2Loc == null) {
-                return -1;
+    public static Optional<Path> getPathFromURI(String fileUri) {
+        URI uri = URI.create(fileUri);
+        String scheme = uri.getScheme();
+        try {
+            if (EXPR_SCHEME.equals(uri.getScheme()) || URI_SCHEME_BALA.equals(uri.getScheme())) {
+                scheme = URI_SCHEME_FILE;
             }
-            return node1Loc.lineRange().startLine().line() - node2Loc.lineRange().startLine().line();
+            URI converted = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+            return Optional.of(Paths.get(converted));
+        } catch (URISyntaxException e) {
+            return Optional.empty();
         }
     }
 
     /**
-     * Get the path from given string URI.
+     * Check if the provided path should be readonly. Paths residing in ballerina home and home repo are considered as
+     * such.
      *
-     * @param uri file uri
-     * @return {@link Optional} Path from the URI
+     * @param filePath Path to be checked
+     * @return True if the provided path should be readonly
      */
-    public static Optional<Path> getPathFromURI(String uri) {
-        try {
-            return Optional.of(Paths.get(new URL(uri).toURI()));
-        } catch (URISyntaxException | MalformedURLException e) {
-            // ignore
+    public static boolean isWriteProtectedPath(Path filePath) {
+        Path homeReposPath = RepoUtils.createAndGetHomeReposPath();
+        Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Paths.get(CommonUtil.BALLERINA_HOME) : null;
+
+        return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome);
+    }
+
+    /**
+     * Check and convert the URI scheme of the provided fileUri from bala (if it's bala) to file.
+     *
+     * @param fileUri URI to be converted.
+     * @return URI with file scheme
+     * @throws URISyntaxException URI parsing errors
+     */
+    public static String convertUriSchemeFromBala(String fileUri) throws URISyntaxException {
+        URI uri = URI.create(fileUri);
+        if (URI_SCHEME_BALA.equals(uri.getScheme())) {
+            URI converted = new URI(URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                    uri.getPath(), uri.getQuery(), uri.getFragment());
+            return converted.toString();
         }
-        return Optional.empty();
+        return fileUri;
+    }
+
+    /**
+     * Get the URI with bala scheme for provided path. This method checks if the LS client supports bala scheme first.
+     *
+     * @param serverContext Language server context
+     * @param filePath      File path
+     * @return URI with bala scheme
+     * @throws URISyntaxException URI creation errors
+     */
+    public static String getBalaUriForPath(LanguageServerContext serverContext,
+                                           Path filePath) throws URISyntaxException {
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (clientCapabilities.getInitializationOptions().isBalaSchemeSupported()) {
+            return getUriForPath(filePath, URI_SCHEME_BALA);
+        }
+        return filePath.toUri().toString();
+    }
+
+    /**
+     * Returns the URI with bala scheme for the provided file path.
+     *
+     * @param filePath File path
+     * @param scheme   URI Scheme
+     * @return URI with the given scheme
+     * @throws URISyntaxException URI parsing errors
+     */
+    public static String getUriForPath(Path filePath, String scheme) throws URISyntaxException {
+        URI uri = filePath.toUri();
+        uri = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+                uri.getPath(), uri.getQuery(), uri.getFragment());
+        return uri.toString();
     }
 
     /**
@@ -1096,16 +1197,17 @@ public class CommonUtil {
      * @param syntaxTree {@link SyntaxTree}
      * @return {@link NonTerminalNode}
      */
-    public static NonTerminalNode findNode(Symbol symbol, SyntaxTree syntaxTree) {
+    public static Optional<NonTerminalNode> findNode(Symbol symbol, SyntaxTree syntaxTree) {
         if (symbol.getLocation().isEmpty()) {
-            return null;
+            return Optional.empty();
         }
 
         TextDocument textDocument = syntaxTree.textDocument();
         LineRange symbolRange = symbol.getLocation().get().lineRange();
         int start = textDocument.textPositionFrom(symbolRange.startLine());
         int end = textDocument.textPositionFrom(symbolRange.endLine());
-        return ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
+        return Optional.ofNullable(((ModulePartNode) syntaxTree.rootNode())
+                .findNode(TextRange.from(start, end - start), true));
     }
 
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
@@ -1226,19 +1328,37 @@ public class CommonUtil {
                 .findFirst();
     }
 
+    /**
+     * Returns the type name (derived from signature) with version infromation removed.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol
+     * @return Signature
+     */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
         String typeSignature = typeSymbol.signature();
-        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(typeSignature);
+        return getModifiedSignature(context, typeSignature);
+    }
+
+    /**
+     * Given a signature, this method will remove the version information from the signature.
+     *
+     * @param context   Context
+     * @param signature Signature to be modified.
+     * @return Modified signature
+     */
+    public static String getModifiedSignature(DocumentServiceContext context, String signature) {
+        Matcher matcher = TYPE_NAME_DECOMPOSE_PATTERN.matcher(signature);
         while (matcher.find()) {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
             String matchedString = matcher.group();
             String modulePrefix = getModulePrefix(context, orgName, moduleName);
             String replaceText = modulePrefix.isEmpty() ? matchedString + Names.VERSION_SEPARATOR : matchedString;
-            typeSignature = typeSignature.replace(replaceText, modulePrefix);
+            signature = signature.replace(replaceText, modulePrefix);
         }
 
-        return typeSignature;
+        return signature;
     }
 
     public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
@@ -1266,10 +1386,6 @@ public class CommonUtil {
         return modNameComponents[modNameComponents.length - 1];
     }
 
-    public static boolean isKeyword(String token) {
-        return CommonUtil.BALLERINA_KEYWORDS.contains(token);
-    }
-
     /**
      * Escape a given value.
      *
@@ -1277,7 +1393,7 @@ public class CommonUtil {
      * @return {@link String}
      */
     public static String escapeReservedKeyword(String value) {
-        if (isKeyword(value)) {
+        if (SyntaxInfo.isKeyword(value)) {
             return "'" + value;
         }
 
@@ -1306,28 +1422,6 @@ public class CommonUtil {
         return module.moduleName().packageName().value() + Names.DOT.getValue() + module.moduleName().moduleNamePart();
     }
 
-    private static List<String> getBallerinaKeywords() {
-        // NOTE: This is a temporary fix to retrieve lexer defined keywords until we comeup with a proper api.
-        // Related discussion can be found in https://github.com/ballerina-platform/ballerina-lang/discussions/28827
-        try {
-            Class<?> aClass = Class.forName("io.ballerina.compiler.internal.parser.LexerTerminals");
-            return Arrays.stream(aClass.getDeclaredFields())
-                    .filter(field -> field.getModifiers() == (Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL)
-                            && (field.getType() == String.class))
-                    .map(field -> {
-                        try {
-                            return field.get(null).toString();
-                        } catch (IllegalAccessException e) {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        } catch (ClassNotFoundException e) {
-            return Collections.emptyList();
-        }
-    }
-
     /**
      * Given the cursor position information, returns the expected ParameterSymbol
      * information corresponding to the FunctionTypeSymbol instance.
@@ -1340,18 +1434,72 @@ public class CommonUtil {
     public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
                                                                            PositionedOperationContext ctx,
                                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        int argIndex = -1;
-        for (Node child : node.arguments()) {
-            if (child.textRange().endOffset() < cursorPosition) {
-                argIndex += 1;
-            }
-        }
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
-        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Remote method call action node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           RemoteMethodCallActionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Method call expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           MethodCallExpressionNode node) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Implicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> args = node.parenthesizedArgList();
+        if (args.isEmpty()) {
             return Optional.empty();
         }
-        return Optional.of(params.get().get(argIndex + 1));
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.get().arguments());
+    }
+
+    /**
+     * Given the cursor position information, returns the expected ParameterSymbol
+     * information corresponding to the FunctionTypeSymbol instance.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param node               Explicit new expression node.
+     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     */
+    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                           PositionedOperationContext ctx,
+                                                                           ExplicitNewExpressionNode node) {
+        ParenthesizedArgList args = node.parenthesizedArgList();
+        return resolveParameterSymbol(functionTypeSymbol, ctx, args.arguments());
     }
 
     /**
@@ -1363,11 +1511,60 @@ public class CommonUtil {
      */
     public static Boolean isInFunctionCallParameterContext(PositionedOperationContext ctx,
                                                            FunctionCallExpressionNode node) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        return (!node.openParenToken().isMissing())
-                && (node.openParenToken().textRange().endOffset() <= cursorPosition)
-                && (!node.closeParenToken().isMissing())
-                && (cursorPosition <= node.closeParenToken().textRange().startOffset());
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node MethodCallExpressionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         MethodCallExpressionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInMethodCallParameterContext(PositionedOperationContext ctx,
+                                                         RemoteMethodCallActionNode node) {
+        return isWithinParenthesis(ctx, node.openParenToken(), node.closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ImplicitNewExpressionNode node) {
+        Optional<ParenthesizedArgList> argList = node.parenthesizedArgList();
+        if (argList.isEmpty()) {
+            return false;
+        }
+        return isWithinParenthesis(ctx, argList.get().openParenToken(), argList.get().closeParenToken());
+    }
+
+    /**
+     * Check if the cursor is positioned in a method call expression parameter context.
+     *
+     * @param ctx  PositionedOperationContext
+     * @param node RemoteMethodCallActionNode
+     * @return {@link Boolean} whether the cursor is in parameter context.
+     */
+    public static Boolean isInNewExpressionParameterContext(PositionedOperationContext ctx,
+                                                            ExplicitNewExpressionNode node) {
+        ParenthesizedArgList argList = node.parenthesizedArgList();
+        return isWithinParenthesis(ctx, argList.openParenToken(), argList.closeParenToken());
     }
 
     /**
@@ -1426,6 +1623,22 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the symbol is an object symbol with self as the name.
+     *
+     * @param symbol               Symbol
+     * @param nodeAtCursor         Node
+     * @return {@link Boolean} whether the symbol is a self object symbol.
+     */
+    public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
+        Node currentNode = nodeAtCursor;
+        while (currentNode != null && currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
+            currentNode = currentNode.parent();
+        }
+        return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                && symbol.getName().orElse("").equals(SELF_KW);
+    }
+
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
@@ -1454,5 +1667,219 @@ public class CommonUtil {
                 symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
                 || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
                 && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
+    }
+
+    /**
+     * Provided a set of arguments and parameters, returns the list of argument names that has been already defined.
+     *
+     * @param context          Completion context.
+     * @param params           List of expected parameter symbols.
+     * @param argumentNodeList Argument list.
+     * @return {@link List<String>} already defined argument names.
+     */
+    public static List<String> getDefinedArgumentNames(BallerinaCompletionContext context,
+                                                       List<ParameterSymbol> params,
+                                                       SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        List<String> existingArgNames = new ArrayList<>();
+        int cursorPosition = context.getCursorPositionInTree();
+        int index = 1;
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            int endOffset = textRange.endOffset();
+            if ((startOffset > cursorPosition || endOffset < cursorPosition)) {
+                if (child.kind() == SyntaxKind.NAMED_ARG) {
+                    existingArgNames.add(((NamedArgumentNode) child).argumentName().name().text());
+                } else if (child.kind() == SyntaxKind.POSITIONAL_ARG && index - 1 < params.size()) {
+                    ParameterSymbol parameterSymbol = params.get(index - 1);
+                    existingArgNames.add(parameterSymbol.getName().orElse(""));
+                }
+            }
+            index++;
+        }
+        return existingArgNames;
+    }
+
+    /**
+     * Provided a node, returns the list of possible qualifiers of that node.
+     *
+     * @param node node.
+     * @return {@link List<Token>} qualifiers list.
+     */
+    public static List<Token> getQualifiersOfNode(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = new ArrayList<>();
+        switch (node.kind()) {
+            case FUNCTION_TYPE_DESC:
+                ((FunctionTypeDescriptorNode) node).qualifierList().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_TYPE_DESC:
+                ((ObjectTypeDescriptorNode) node).objectTypeQualifiers().stream().forEach(qualifiers::add);
+                break;
+            case OBJECT_FIELD:
+                ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                objectFieldNode.visibilityQualifier().ifPresent(qualifiers::add);
+                objectFieldNode.qualifierList().stream().forEach(qualifiers::add);
+                break;
+            case MODULE_VAR_DECL:
+                ModuleVariableDeclarationNode moduleVar = (ModuleVariableDeclarationNode) node;
+                Optional<Token> visibilityQualifier = moduleVar.visibilityQualifier();
+                visibilityQualifier.ifPresent(qualifiers::add);
+                moduleVar.qualifiers().forEach(qualifiers::add);
+                Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                getQualifiersAtCursor(context).stream()
+                        .filter(qual -> !qualKinds.contains(qual.kind())).forEach(qualifiers::add);
+
+                //Add leading invalid tokens of type binding pattern if there are no visible qualifiers.
+                if (qualifiers.isEmpty()) {
+                    moduleVar.typedBindingPattern().leadingInvalidTokens().stream()
+                            .filter(token -> QUALIFIER_KINDS.contains(token.kind())).forEach(qualifiers::add);
+                }
+                break;
+            case MODULE_PART:
+                List<Token> qualsAtCursor = getQualifiersAtCursor(context);
+                Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+                context.getNodeAtCursor().leadingInvalidTokens().stream()
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
+                qualifiers.addAll(qualsAtCursor);
+                return qualifiers;
+            default:
+        }
+        //Qualifiers are identified as invalid tokens by the parser in some cases.
+        Set<SyntaxKind> qualKinds = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
+        node.leadingInvalidTokens().stream()
+                .filter(token -> QUALIFIER_KINDS.contains(token.kind())
+                        && !qualKinds.contains(token.kind())).forEach(qualifiers::add);
+        return qualifiers;
+    }
+
+    /**
+     * Get the qualifiers of the module part context node.
+     *
+     * @param context completion context.
+     * @return {@link List<Token> } the list of qualifiers.
+     */
+    public static List<Token> getQualifiersAtCursor(BallerinaCompletionContext context) {
+        List<Token> qualifiers = new ArrayList<>();
+        Token tokenAtCursor = context.getTokenAtCursor();
+        if (CommonUtil.QUALIFIER_KINDS.contains(tokenAtCursor.kind())) {
+            qualifiers.add(tokenAtCursor);
+            return qualifiers;
+        }
+        List<Minutiae> tokensFromMinutiae = new ArrayList<>();
+        context.getTokenAtCursor().leadingMinutiae().forEach(minutiae -> {
+            if (minutiae.kind() != SyntaxKind.WHITESPACE_MINUTIAE
+                    && minutiae.kind() != SyntaxKind.END_OF_LINE_MINUTIAE) {
+                tokensFromMinutiae.add(minutiae);
+            }
+        });
+        if (tokensFromMinutiae.isEmpty()) {
+            return qualifiers;
+        }
+        Minutiae tokenValueAtCursor = tokensFromMinutiae.get(tokensFromMinutiae.size() - 1);
+        tokenValueAtCursor.invalidTokenMinutiaeNode().ifPresent(invalidTokenMinutiaeNode -> {
+            Token token = invalidTokenMinutiaeNode.invalidToken();
+            if (CommonUtil.QUALIFIER_KINDS.contains(token.kind())) {
+                qualifiers.add(token);
+            }
+        });
+        return qualifiers;
+    }
+
+    /**
+     * Check whether the completion item type belongs to the types list passed.
+     *
+     * @param lsCItem   Completion item
+     * @param typesList List of types
+     * @return {@link Boolean}
+     */
+    public static boolean isCompletionItemOfType(LSCompletionItem lsCItem, List<TypeDescKind> typesList) {
+
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL) {
+            return false;
+        }
+
+        Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().orElse(null);
+        Optional<TypeSymbol> typeDesc = SymbolUtil.getTypeDescriptor(symbol);
+
+        if (typeDesc.isPresent()) {
+            TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
+            return typesList.contains(rawType.typeKind());
+        }
+        return false;
+    }
+
+    private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        return (!openParen.isMissing())
+                && (openParen.textRange().endOffset() <= cursorPosition)
+                && (!closedParen.isMissing())
+                && (cursorPosition <= closedParen.textRange().startOffset());
+    }
+
+    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                    PositionedOperationContext ctx,
+                                                                    SeparatedNodeList<FunctionArgumentNode> arguments) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = -1;
+        for (Node child : arguments) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
+        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
+        if (params.isEmpty() || params.get().size() < argIndex + 2) {
+            return Optional.empty();
+        }
+        return Optional.of(params.get().get(argIndex + 1));
+    }
+
+    /**
+     * Check if the cursor is positioned in call expression context so that named arg
+     * completions can be suggested.
+     *
+     * @param context          completion context.
+     * @param argumentNodeList argument node list.
+     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
+     */
+    public static boolean isValidNamedArgContext(BallerinaCompletionContext context,
+                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            if (startOffset > cursorPosition
+                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
+        URI original = URI.create(uri);
+        try {
+            return new URI(workspaceManager.uriScheme(),
+                    original.getSchemeSpecificPart(),
+                    original.getFragment()).toString();
+        } catch (URISyntaxException e) {
+            return uri;
+        }
+    }
+
+    /**
+     * Given a node (currentNode) start looking up the parent ladder until the given predicate is satisfied.
+     *
+     * @param currentNode Node to start looking
+     * @param predicate   to be satisfied
+     * @return {@link Optional}
+     */
+    public static Optional<Node> getMatchingNode(Node currentNode, Predicate<Node> predicate) {
+        Node evalNode = currentNode;
+        while (evalNode != null && !predicate.test(evalNode)) {
+            evalNode = evalNode.parent();
+        }
+
+        return Optional.ofNullable(evalNode);
     }
 }

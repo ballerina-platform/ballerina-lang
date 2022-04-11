@@ -49,7 +49,7 @@ public class DocumentSymbolTest {
     }
 
     @DataProvider
-    public Object[] testDataProvider() {
+    public Object[] testDataProvider() {    
         return new Object[]{"config1.json", "config2.json"};
     }
 

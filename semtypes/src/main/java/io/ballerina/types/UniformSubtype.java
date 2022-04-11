@@ -24,14 +24,14 @@ package io.ballerina.types;
  */
 public class UniformSubtype {
     public final UniformTypeCode uniformTypeCode;
-    public final SubtypeData subtypeData;
+    public final ProperSubtypeData subtypeData;
 
-    private UniformSubtype(UniformTypeCode uniformTypeCode, SubtypeData subtypeData) {
+    private UniformSubtype(UniformTypeCode uniformTypeCode, ProperSubtypeData properSubtypeData) {
         this.uniformTypeCode = uniformTypeCode;
-        this.subtypeData = subtypeData;
+        this.subtypeData = properSubtypeData;
     }
 
-    public static UniformSubtype from(UniformTypeCode typeCode, SubtypeData data) {
+    public static UniformSubtype from(UniformTypeCode typeCode, ProperSubtypeData data) {
         return new UniformSubtype(typeCode, data);
     }
 }

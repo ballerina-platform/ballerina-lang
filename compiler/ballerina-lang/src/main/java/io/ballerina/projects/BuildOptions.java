@@ -26,14 +26,16 @@ public class BuildOptions {
     private Boolean dumpBuildTime;
     private Boolean skipTests;
     private CompilationOptions compilationOptions;
+    private String targetDir;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
-                 CompilationOptions compilationOptions) {
+                 CompilationOptions compilationOptions, String targetPath) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
         this.skipTests = skipTests;
         this.compilationOptions = compilationOptions;
+        this.targetDir = targetPath;
     }
 
     public boolean testReport() {
@@ -49,7 +51,8 @@ public class BuildOptions {
     }
 
     public boolean skipTests() {
-        return toBooleanDefaultIfNull(this.skipTests);
+        // By default, the tests will be skipped
+        return toBooleanTrueIfNull(this.skipTests);
     }
 
     public boolean offlineBuild() {
@@ -84,6 +87,10 @@ public class BuildOptions {
         return this.compilationOptions;
     }
 
+    public boolean exportOpenAPI() {
+        return this.compilationOptions.exportOpenAPI();
+    }
+
     /**
      * Merge the given build options by favoring theirs if there are conflicts.
      *
@@ -91,20 +98,53 @@ public class BuildOptions {
      * @return a new {@code BuildOptions} instance that contains our options and their options
      */
     public BuildOptions acceptTheirs(BuildOptions theirOptions) {
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
         if (theirOptions.skipTests != null) {
-            this.skipTests = theirOptions.skipTests;
+            buildOptionsBuilder.setSkipTests(theirOptions.skipTests);
+        } else {
+            buildOptionsBuilder.setSkipTests(this.skipTests);
         }
         if (theirOptions.codeCoverage != null) {
-            this.codeCoverage = theirOptions.codeCoverage;
+            buildOptionsBuilder.setCodeCoverage(theirOptions.codeCoverage);
+        } else {
+            buildOptionsBuilder.setCodeCoverage(this.codeCoverage);
         }
         if (theirOptions.testReport != null) {
-            this.testReport = theirOptions.testReport;
+            buildOptionsBuilder.setTestReport(theirOptions.testReport);
+        } else {
+            buildOptionsBuilder.setTestReport(this.testReport);
         }
         if (theirOptions.dumpBuildTime != null) {
-            this.dumpBuildTime = theirOptions.dumpBuildTime;
+            buildOptionsBuilder.setDumpBuildTime(theirOptions.dumpBuildTime);
+        } else {
+            buildOptionsBuilder.setDumpBuildTime(this.dumpBuildTime);
         }
-        this.compilationOptions = compilationOptions.acceptTheirs(theirOptions.compilationOptions());
-        return this;
+        if (theirOptions.targetDir != null) {
+            buildOptionsBuilder.targetDir(theirOptions.targetDir);
+        } else {
+            buildOptionsBuilder.targetDir(this.targetDir);
+        }
+
+        CompilationOptions compilationOptions = this.compilationOptions.acceptTheirs(theirOptions.compilationOptions());
+        buildOptionsBuilder.setOffline(compilationOptions.offlineBuild);
+        buildOptionsBuilder.setExperimental(compilationOptions.experimental);
+        buildOptionsBuilder.setObservabilityIncluded(compilationOptions.observabilityIncluded);
+        buildOptionsBuilder.setDumpBir(compilationOptions.dumpBir);
+        buildOptionsBuilder.setDumpBirFile(compilationOptions.dumpBirFile);
+        buildOptionsBuilder.setDumpGraph(compilationOptions.dumpGraph);
+        buildOptionsBuilder.setDumpRawGraphs(compilationOptions.dumpRawGraphs);
+        buildOptionsBuilder.setCloud(compilationOptions.cloud);
+        buildOptionsBuilder.setListConflictedClasses(compilationOptions.listConflictedClasses);
+        buildOptionsBuilder.setSticky(compilationOptions.sticky);
+        buildOptionsBuilder.setConfigSchemaGen(compilationOptions.configSchemaGen);
+        buildOptionsBuilder.setExportOpenAPI(compilationOptions.exportOpenAPI);
+        buildOptionsBuilder.setSemType(compilationOptions.semtype());
+
+        return buildOptionsBuilder.build();
+    }
+
+    public static BuildOptionsBuilder builder() {
+        return new BuildOptionsBuilder();
     }
 
     private boolean toBooleanDefaultIfNull(Boolean bool) {
@@ -114,6 +154,17 @@ public class BuildOptions {
         return bool;
     }
 
+    private boolean toBooleanTrueIfNull(Boolean bool) {
+        if (bool == null) {
+            return true;
+        }
+        return bool;
+    }
+
+    public String getTargetPath() {
+        return targetDir;
+    }
+
     /**
      * Enum to represent build options.
      */
@@ -121,10 +172,10 @@ public class BuildOptions {
         SKIP_TESTS("skipTests"),
         TEST_REPORT("testReport"),
         CODE_COVERAGE("codeCoverage"),
-        DUMP_BUILD_TIME("dumpBuildTime")
-        ;
+        DUMP_BUILD_TIME("dumpBuildTime"),
+        TARGET_DIR("targetDir");
 
-        private String name;
+        private final String name;
 
         OptionName(String name) {
             this.name = name;
@@ -133,6 +184,119 @@ public class BuildOptions {
         @Override
         public String toString() {
             return name;
+        }
+    }
+
+    /**
+     * A builder for the {@code BuildOptions}.
+     *
+     * @since 2.0.0
+     */
+    public static class BuildOptionsBuilder {
+        private Boolean testReport;
+        private Boolean codeCoverage;
+        private Boolean dumpBuildTime;
+        private Boolean skipTests;
+        private String targetPath;
+        private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
+
+        private BuildOptionsBuilder() {
+            compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder setTestReport(Boolean value) {
+            testReport = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setCodeCoverage(Boolean value) {
+            codeCoverage = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBuildTime(Boolean value) {
+            dumpBuildTime = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setSkipTests(Boolean value) {
+            skipTests = value;
+            return this;
+        }
+
+        public BuildOptionsBuilder setSticky(Boolean value) {
+            compilationOptionsBuilder.setSticky(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setListConflictedClasses(Boolean value) {
+            compilationOptionsBuilder.setListConflictedClasses(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setOffline(Boolean value) {
+            compilationOptionsBuilder.setOffline(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExperimental(Boolean value) {
+            compilationOptionsBuilder.setExperimental(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setObservabilityIncluded(Boolean value) {
+            compilationOptionsBuilder.setObservabilityIncluded(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setCloud(String value) {
+            compilationOptionsBuilder.setCloud(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBir(Boolean value) {
+            compilationOptionsBuilder.setDumpBir(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpBirFile(Boolean value) {
+            compilationOptionsBuilder.setDumpBirFile(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpGraph(Boolean value) {
+            compilationOptionsBuilder.setDumpGraph(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setDumpRawGraphs(Boolean value) {
+            compilationOptionsBuilder.setDumpRawGraphs(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder targetDir(String path) {
+            targetPath = path;
+            return this;
+        }
+
+        public BuildOptionsBuilder setConfigSchemaGen(Boolean value) {
+            compilationOptionsBuilder.setConfigSchemaGen(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setExportOpenAPI(Boolean value) {
+            compilationOptionsBuilder.setExportOpenAPI(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setSemType(Boolean value) {
+            compilationOptionsBuilder.setSemtype(value);
+            return this;
+        }
+
+        public BuildOptions build() {
+            CompilationOptions compilationOptions = compilationOptionsBuilder.build();
+            return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests, compilationOptions, targetPath);
         }
     }
 }

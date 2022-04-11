@@ -116,4 +116,28 @@ public class StringSubtype implements ProperSubtypeData {
                 NonCharStringSubtype.from(true, new EnumerableString[]{}));
         return PredefinedType.uniformSubtype(UniformTypeCode.UT_STRING, st);
     }
+
+    /**
+     * Describes the relationship between a StringSubtype and a list of strings
+     * How the StringSubtype covers the list and vice versa.
+     * type StringSubtypeListCoverage record {|
+     *     // true if the StringSubtype is a subtype of the type containing the strings in the lists
+     *     boolean isSubtype;
+     *     // contains the index in order of each member of the list that is in the StringSubtype
+     *     int[] indices;
+     * |};
+     */
+    public static class StringSubtypeListCoverage {
+        public final boolean isSubtype;
+        public final int[] indices;
+
+        public StringSubtypeListCoverage(boolean isSubtype, int[] indices) {
+            this.isSubtype = isSubtype;
+            this.indices = indices;
+        }
+
+        public static StringSubtypeListCoverage from(boolean isSubtype, int[] indices) {
+            return new StringSubtypeListCoverage(isSubtype, indices);
+        }
+    }
 }

@@ -221,11 +221,11 @@ public class IntersectionTypeTest {
                 "incompatible types: expected 'DistinctErrorAndSingleDistinctError', " +
                         "found 'DistinctErrorAndSingleDistinctError2'", 39, 11);
         validateError(result, index++,
-                "incompatible types: expected 'error<map<ballerina/lang.value:1.0.0:Cloneable>>', " +
+                "incompatible types: expected 'error<map<ballerina/lang.value:0.0.0:Cloneable>>', " +
                         "found 'SingleDistinctError'", 41, 31);
         validateError(result, index++,
                 "incompatible types: expected 'SingleDistinctError', " +
-                        "found 'error<map<ballerina/lang.value:1.0.0:Cloneable>>'", 42, 10);
+                        "found 'error<map<ballerina/lang.value:0.0.0:Cloneable>>'", 42, 10);
 
         assertEquals(result.getErrorCount(), index);
     }
@@ -238,7 +238,7 @@ public class IntersectionTypeTest {
         validateError(result, index++, "unsupported intersection 'int & string'", 17, 8);
         validateError(result, index++, "unsupported intersection 'int & int'", 18, 9);
         validateError(result, index++,
-                "unsupported intersection 'function()returns(int) & function()returns(2 | 3)'", 19, 9);
+                "unsupported intersection 'function()returns(int) & function()returns(2|3|4.0f|-50d|\"a\")'", 19, 9);
         validateError(result, index++, "unsupported intersection 'int & int'", 21, 1);
         validateError(result, index++, "unknown type 'A'", 23, 14);
         validateError(result, index++, "unknown type 'II'", 23, 19);

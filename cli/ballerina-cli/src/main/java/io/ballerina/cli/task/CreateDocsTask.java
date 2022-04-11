@@ -45,7 +45,7 @@ public class CreateDocsTask implements Task {
 
     @Override
     public void execute(Project project) {
-        Path sourceRootPath = project.sourceRoot();
+        Path sourceRootPath = project.targetDir();
         Target target;
         if (outputPath == null) {
             try {

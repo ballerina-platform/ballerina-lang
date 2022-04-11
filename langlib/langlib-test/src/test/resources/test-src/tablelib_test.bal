@@ -213,6 +213,9 @@ function getWithInvalidKey() returns boolean {
 }
 
 function testMap() returns boolean {
+    string expected = "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
+                      "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
+                      "{\"name\":\"Granier\",\"department\":\"HR\"}]";
     boolean testPassed = true;
     Person[] personList = getPersonList();
 
@@ -222,9 +225,19 @@ function testMap() returns boolean {
 
     Employee[] tableToList = empTab.toArray();
     testPassed = testPassed && tableToList.length() == 4;
-    testPassed = testPassed && empTab.toString() == "[{\"name\":\"Chiran\",\"department\":\"HR\"}," +
-        "{\"name\":\"Mohan\",\"department\":\"HR\"},{\"name\":\"Gima\",\"department\":\"HR\"}," +
-        "{\"name\":\"Granier\",\"department\":\"HR\"}]";
+    testPassed = testPassed && empTab.toString() == expected;
+
+    function (Person) returns Employee arrowExpr = (person) => {name: person.name, department : "HR"};
+
+    empTab = tab.'map(arrowExpr);
+    tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == expected;
+
+    empTab = tab.'map((person) => <Employee>{name: person.name, department : "HR"});
+    tableToList = empTab.toArray();
+    testPassed = testPassed && tableToList.length() == 4;
+    testPassed = testPassed && empTab.toString() == expected;
 
     return testPassed;
 }
@@ -282,8 +295,64 @@ function removeIfHasKey() returns boolean {
     return removedPerson1 == () && removedPerson2?.name == "Chiran";
 }
 
-function testHasKey() returns boolean {
-    return tab.hasKey("Mohan");
+type age record {
+    int|string? age;
+};
+
+type NewPerson record {
+  string name;
+  readonly age age;
+};
+
+type NewPersonalTable table<NewPerson> key(age);
+
+function testHasKey() {
+    table<record { readonly int|string|float? k; }> key(k) tbl1 = table[];
+    tbl1.add({k: 0});
+    tbl1.add({k: 5});
+    tbl1.add({k: -31});
+    tbl1.add({k: "10"});
+    tbl1.add({k: 100.05});
+    assertFalse(tbl1.hasKey(()));
+    assertFalse(tbl1.hasKey(30));
+    assertTrue(tbl1.hasKey(0));
+    assertTrue(tbl1.hasKey(-31));
+    assertTrue(tbl1.hasKey(5));
+    assertFalse(tbl1.hasKey(10));
+    assertFalse(tbl1.hasKey("100.05"));
+
+    NewPersonalTable tbl2 = table key(age) [{ name: "Chiran", age: {age: ()}},
+        { name: "Mohan", age: {age: 54} },
+        { name: "Gima", age: {age: "34"} },
+        { name: "Granier", age: {age: "65"} }];
+    assertFalse(tbl2.hasKey({age: 0}));
+    assertFalse(tbl2.hasKey({age: 34}));
+    assertTrue(tbl2.hasKey({age: 54}));
+    assertTrue(tbl2.hasKey({age: "65"}));
+}
+
+function testHashCollisionHandlingScenarios() {
+    table<record { readonly int|string|float? k; }> key(k) tbl1 = table[];
+    tbl1.add({k: 0});
+    tbl1.add({k: 5});
+    tbl1.add({k: -31});
+    tbl1.add({k: "10"});
+    tbl1.add({k: 100.05});
+    tbl1.add({k: ()});
+    tbl1.add({k: 30});
+
+    record { readonly int|string|float? k; } a = tbl1.get(0);
+    record { readonly int|string|float? k; } b = tbl1.get(30);
+
+    assertEquals(a.k, 0);
+    assertEquals(b.k, 30);
+
+    record { readonly int|string|float? k; } c = tbl1.remove(0);
+    record { readonly int|string|float? k; } d = tbl1.remove(30);
+
+    assertEquals(c.k, 0);
+    assertEquals(d.k, 30);
+
 }
 
 function testGetKeyList() returns any[] {
@@ -712,6 +781,88 @@ function testGetKeysFromUnionConstrained() returns any[] {
       { name: "Mark", department: "HR" }
     ];
     return tab.keys();
+}
+
+type KeylessPersonTable table<Person>;
+
+function testKeylessTableForeach() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
+function testKeylessReadOnlyTableForeach() {
+    KeylessPersonTable & readonly personTable = table [
+      { name: "Harry", age: 14 },
+      { name: "Hermione", age: 28 },
+      { name: "Ron", age: 11 },
+      { name: "Draco", age: 23 }
+    ];
+
+    int ageSum = 0;
+    personTable.forEach(function(Person person) {
+        ageSum += person.age;
+    });
+    assertTrue(ageSum == 76);
+}
+
+type R record {|
+    readonly int|float|decimal|boolean v;
+    int code;
+|};
+
+type Tab table<R> key(v);
+
+function testGetValue() {
+    Tab t = table [
+            {v: 0, code: 0},
+            {v: 1d, code: 1},
+            {v: false, code: 3},
+            {v: 2.0, code: 4}
+        ];
+
+    R r1 = {"v":1d,"code":1};
+    R r2 = {v: false, code: 3};
+
+    assertEquals(t[0f], ());
+    assertEquals(t[1d], r1);
+    assertEquals(t[false], r2);
+    assertEquals(t[2], ());
+}
+
+function testReduceForKeylessTables() {
+    KeylessPersonTable personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
+}
+
+function testReduceForKeylessReadOnlyTables() {
+    KeylessPersonTable & readonly personTable = table [
+          { name: "Harry", age: 14 },
+          { name: "Hermione", age: 28 },
+          { name: "Ron", age: 11 },
+          { name: "Draco", age: 23 }
+    ];
+    float avg = personTable.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / <float>tab.length();
+                           }, 0.0);
+    assertEquals(19.0, avg);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -70,6 +70,14 @@ public class MathUtils {
         }
     }
 
+    public static long addExact(long num1, long num2, BString errorMsg) {
+        try {
+            return Math.addExact(num1, num2);
+        } catch (ArithmeticException e) {
+            throw ErrorUtils.createIntOverflowError(errorMsg);
+        }
+    }
+
     public static long subtractExact(long num1, long num2) {
         try {
             return Math.subtractExact(num1, num2);

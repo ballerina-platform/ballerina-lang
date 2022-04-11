@@ -18,6 +18,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -26,6 +27,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -49,6 +51,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -72,6 +75,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -95,6 +99,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -118,6 +123,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -255,6 +261,51 @@
       "sortText": "B",
       "filterText": "on",
       "insertText": "on ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isolated",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "isolated",
+      "insertText": "isolated ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "class",
+      "insertText": "class ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "class",
+      "insertText": "class ${1:className} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

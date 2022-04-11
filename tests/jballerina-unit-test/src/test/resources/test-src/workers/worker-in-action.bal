@@ -87,7 +87,7 @@ function test1(int c) returns error|() {
     }
     int b = 9;
 
-    if (true) {
+    if (0 < 1) {
         error e = error("error occurred");
         return e;
     }

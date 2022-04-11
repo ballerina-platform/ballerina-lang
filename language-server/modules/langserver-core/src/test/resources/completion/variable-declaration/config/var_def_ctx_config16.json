@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 1,
+    "character": 20
+  },
+  "source": "variable-declaration/source/var_def_ctx_source16.bal",
+  "items": [
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "object",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "object",
+      "insertText": "object {${1}}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

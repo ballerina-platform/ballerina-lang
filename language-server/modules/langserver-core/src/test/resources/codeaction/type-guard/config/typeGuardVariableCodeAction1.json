@@ -1,0 +1,24 @@
+{
+    "line": 7,
+    "character": 17,
+    "expected": [
+        {
+            "title": "Type guard variable 'val'",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 7,
+                            "character": 45
+                        },
+                        "end": {
+                            "line": 7,
+                            "character": 45
+                        }
+                    },
+                    "newText": "\n    if val is string {\n\n    } else if val is int {\n\n    } else {\n\n    }\n"
+                }
+            ]
+        }
+    ]
+}

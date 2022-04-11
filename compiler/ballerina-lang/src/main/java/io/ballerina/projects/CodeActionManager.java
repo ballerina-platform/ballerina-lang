@@ -17,15 +17,14 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
+import io.ballerina.projects.plugins.codeaction.CodeActionException;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
-import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,24 +57,32 @@ public class CodeActionManager {
      * Get all available code actions for the provided diagnostic from all available compiler plugins.
      *
      * @param context Code action context
-     * @return List of available code actions
+     * @return Result object containing available code actions and errors occurred while processing codeactions.
      */
-    public List<CodeActionInfo> codeActions(CodeActionContext context) {
-        List<CodeActionInfo> commands = new LinkedList<>();
+    public CodeActionResult codeActions(CodeActionContext context) {
+        CodeActionResult result = new CodeActionResult();
         codeActionsMap.getOrDefault(context.diagnostic().diagnosticInfo().code(), Collections.emptyList())
-                .forEach(codeActionDescriptor ->
-                        codeActionDescriptor.codeAction().codeActionInfo(context).stream()
+                .forEach(codeActionDescriptor -> {
+                    String codeActionName = getModifiedCodeActionName(
+                            context.diagnostic().diagnosticInfo().code(),
+                            codeActionDescriptor.compilerPluginInfo(),
+                            codeActionDescriptor.codeAction().name());
+                    try {
+                        codeActionDescriptor.codeAction()
+                                .codeActionInfo(context).stream()
                                 .peek(codeActionInfo -> {
                                     // We change the provider name with package prefix
-                                    codeActionInfo.setProviderName(getModifiedCodeActionName(
-                                            context.diagnostic().diagnosticInfo().code(),
-                                            codeActionDescriptor.compilerPluginInfo(),
-                                            codeActionDescriptor.codeAction().name()));
+                                    codeActionInfo.setProviderName(codeActionName);
                                     codeActionInfo.setArguments(codeActionInfo.getArguments());
                                 })
-                                .forEach(commands::add));
+                                .forEach(result::addCodeAction);
+                    } catch (Throwable t) {
+                        CodeActionException ex = new CodeActionException(codeActionName, t);
+                        result.addError(ex);
+                    }
+                });
 
-        return commands;
+        return result;
     }
 
     /**

@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -33,6 +32,7 @@ import org.testng.annotations.Test;
 public class StringTemplateLiteralTest {
 
     private CompileResult result;
+
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/string/string-template-literal.bal");
@@ -40,267 +40,267 @@ public class StringTemplateLiteralTest {
 
     @Test
     public void testStringTemplateWithText1() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText1", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "`");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText1", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "`");
     }
 
     @Test
     public void testStringTemplateWithText2() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText2", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "\\\\");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText2", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "\\\\");
     }
 
     @Test
     public void testStringTemplateWithText3() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText3", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "\\{");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText3", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "\\{");
     }
 
     @Test
     public void testStringTemplateWithText4() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText4", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{{");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText4", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "{{");
     }
 
     @Test
     public void testStringTemplateWithText5() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText5", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "$\\{");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText5", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "$\\{");
     }
 
     @Test
     public void testStringTemplateWithText6() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText6", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "}");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText6", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "}");
 
     }
 
     @Test
     public void testStringTemplateWithText7() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText7", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "}}");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText7", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "}}");
     }
 
     @Test
     public void testStringTemplateWithText8() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText8", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "}}}");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText8", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "}}}");
     }
 
     @Test
     public void testStringTemplateWithText9() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText9", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText9", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello");
     }
 
     @Test
     public void testStringTemplateWithText10() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText10", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText10", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Ballerina");
     }
 
     @Test
     public void testStringTemplateWithText11() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText11", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText11", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello Ballerina");
     }
 
     @Test
     public void testStringTemplateWithText12() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText12", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Ballerina !!!");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText12", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Ballerina !!!");
     }
 
     @Test
     public void testStringTemplateWithText13() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText13", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello Ballerina !!!");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText13", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello Ballerina !!!");
     }
 
     @Test
     public void testStringTemplateWithText14() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText14", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello Smith, John");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText14", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello Smith, John");
     }
 
     @Test
     public void testStringTemplateWithText15() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText15", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello Smith, John !!!");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText15", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello Smith, John !!!");
     }
 
     @Test
     public void testStringTemplateWithText16() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText16", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Count = 10");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText16", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Count = 10");
     }
 
     @Test
     public void testStringTemplateWithText17() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText17", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "$\\{count}");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText17", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "$\\{count}");
     }
 
     @Test
     public void testStringTemplateWithText18() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText18", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "\\\\10");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText18", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "\\\\10");
     }
 
     @Test
     public void testStringTemplateWithText19() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText19", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Path = \\\\root");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText19", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Path = \\\\root");
     }
 
     @Test
     public void testStringTemplateWithText20() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText20", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Path = \\\\");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText20", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Path = \\\\");
     }
 
     @Test
     public void testStringTemplateWithText21() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText21", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText21", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello John Smith !!!");
     }
 
     @Test
     public void testStringTemplateWithText22() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText22", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText22", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello John Smith !!!");
     }
 
     @Test
     public void testStringTemplateWithText23() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithText23", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hello John Smith !!!");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithText23", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hello John Smith !!!");
     }
 
     @Test
     public void testEmptyStringTemplate() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "emptyStringTemplate", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "emptyStringTemplate", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "");
     }
 
     @Test
     public void concatStringTemplateExprs() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "concatStringTemplateExprs", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "FirstName: John. Second name: Doe");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "concatStringTemplateExprs", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "FirstName: John. Second name: Doe");
     }
 
     @Test
     public void stringTemplateEscapeChars() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateEscapeChars", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "\\n\\r\\b\\t\\f\\'\\\"`\\{\\\\");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateEscapeChars", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "\\n\\r\\b\\t\\f\\'\\\"`\\{\\\\");
     }
 
     @Test
     public void stringTemplateStartsWithDollar() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateStartsWithDollar", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "$$$$ A 8 B");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateStartsWithDollar", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "$$$$ A 8 B");
     }
 
     @Test
     public void stringTemplateEndsWithDollar() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateEndsWithDollar", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "A 8 B $$$$");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateEndsWithDollar", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "A 8 B $$$$");
     }
 
     @Test
     public void stringTemplateWithOnlyDollar() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithOnlyDollar", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "$$$$$$$$$");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithOnlyDollar", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "$$$$$$$$$");
     }
 
     @Test
     public void stringTemplateDollarFollowedByEscapedLeftBrace() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateDollarFollowedByEscapedLeftBrace", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hi $$$$\\{ 25 End");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateDollarFollowedByEscapedLeftBrace", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hi $$$$\\{ 25 End");
     }
 
     @Test
     public void stringTemplateDollarFollowedByRightBrace() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateDollarFollowedByRightBrace", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Hi $$$$}}} 25 End");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateDollarFollowedByRightBrace", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Hi $$$$}}} 25 End");
     }
 
     @Test
     public void stringTemplateWithBraces() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "stringTemplateWithBraces", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{{{{4 + 4}}}}}}}}}}");
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "stringTemplateWithBraces", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "{{{{4 + 4}}}}}}}}}}");
     }
 
     @Test
     public void testComplexStringTemplateExpr() {
-        BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(result, "complexStringTemplateExpr", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object[] args = {};
+        Object returns = BRunUtil.invoke(result, "complexStringTemplateExpr", args);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(),
                 "Hello \\n$\\\\$$\\{Dummy\\tText\\`\\\\test Ballerina endText\\\\{{{{{innerStartText 7 }}!!!");
     }
 
@@ -312,6 +312,11 @@ public class StringTemplateLiteralTest {
     @Test(description = "Test numeric escapes inside string template")
     public void testNumericEscapes() {
         BRunUtil.invoke(result, "testNumericEscapes");
+    }
+
+    @Test
+    public void testStringTemplateWithFiniteType() {
+        BRunUtil.invoke(result, "testStringTemplateWithFiniteType");
     }
 
     @AfterClass

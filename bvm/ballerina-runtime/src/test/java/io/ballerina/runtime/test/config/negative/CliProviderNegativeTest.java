@@ -21,8 +21,13 @@ package io.ballerina.runtime.test.config.negative;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.FiniteType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -36,7 +41,9 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM;
 
 /**
@@ -93,6 +100,10 @@ public class CliProviderNegativeTest {
                 {new String[]{"-Cmyorg.mod.x = 27.5 "}, "myorg", "mod", "x", PredefinedTypes.TYPE_DECIMAL,
                         "error: [myorg.mod.x= 27.5 ] configurable variable 'x' is expected to be of type 'decimal', " +
                                 "but found ' 27.5 '"},
+                {new String[]{"-Cmyorg.mod.x =99999999.9e9999999999"}, "myorg", "mod", "x",
+                        PredefinedTypes.TYPE_DECIMAL,
+                        "error: [myorg.mod.x=99999999.9e9999999999] configurable variable 'x' is expected to be of " +
+                                "type 'decimal', but found '99999999.9e9999999999'"},
                 // Config byte value with invalid byte range
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
                         "error: [myorg.mod.x=345] value provided for byte variable 'x' is out of range. Expected " +
@@ -141,12 +152,12 @@ public class CliProviderNegativeTest {
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
         Map<VariableKey, ConfigValue> varKeyValueMap =  configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getWarningCount(), 2);
-        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
-                            "warning: [myorg.mod.z=27.5] unused command line argument");
+                            "error: [myorg.mod.z=27.5] unused command line argument");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
-                            "warning: [myorg.mod.y=apple] unused command line argument");
+                            "error: [myorg.mod.y=apple] unused command line argument");
         Assert.assertEquals(varKeyValueMap.get(x).getValue(), 123L);
     }
 
@@ -194,5 +205,36 @@ public class CliProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
                 "variable 'intVar' clashes with multiple command line arguments [intVar=321, rootMod.intVar=123]");
+    }
+
+    @Test(dataProvider = "finite-error-provider")
+    public void testInvalidFiniteType(Set<Object> values, String errorMsg) {
+        FiniteType type = TypeCreator.createFiniteType("Finite", values, 0);
+        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{type,
+                PredefinedTypes.TYPE_READONLY}, type, 1, true);
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, "finiteVar", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar}));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
+                diagnosticLog, List.of(new CliProvider(ROOT_MODULE, "-CfiniteVar=3.23")));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), errorMsg);
+    }
+
+    @DataProvider(name = "finite-error-provider")
+    public Object[] getFiniteConfigData() {
+        BString strVal1 = fromString("test");
+        BString strVal2 = fromString("3.23");
+        BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        return new Object[][]{
+                {Set.of(strVal1, 3.23d, decimalVal), "error: [finiteVar=3.23] ambiguous target types " +
+                        "found for configurable variable 'finiteVar' with type 'Finite'"},
+                {Set.of(strVal1, 1.34d, 1L), "error: [finiteVar=3.23] configurable variable 'finiteVar' is " +
+                        "expected to be of type 'Finite', but found '3.23'"},
+                {Set.of(strVal2, 3.23d, 1.34d), "error: [finiteVar=3.23] ambiguous target types " +
+                        "found for configurable variable 'finiteVar' with type 'Finite'"},
+        };
     }
 }

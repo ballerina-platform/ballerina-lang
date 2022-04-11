@@ -28,6 +28,11 @@ public class MappingAtomicType implements AtomicType {
     public final SemType[] types;
     public final SemType rest;
 
+    public static final MappingAtomicType MAPPING_ATOMIC_TOP =
+            from(new String[]{}, new SemType[]{}, PredefinedType.TOP);
+    public static final MappingAtomicType MAPPING_ATOMIC_READONLY =
+            from(new String[]{}, new SemType[]{}, PredefinedType.READONLY);
+
     public static final MappingAtomicType MAPPING_SUBTYPE_RO =
             new MappingAtomicType(new String[]{}, new SemType[]{}, PredefinedType.READONLY);
 

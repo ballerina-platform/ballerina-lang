@@ -128,3 +128,53 @@ service on new udp:Listener(8080) {
 public function deprecatedFunction() {
     
 }
+
+public type MyType record {|
+    int arg1;
+    string arg2;
+|};
+
+public type ObjectType object {
+    public function attach();
+};
+
+type OtherType string;
+
+public MyType modVar1 = {arg1:10, arg2:""};
+
+public int _ = 10;
+
+public const string myConst = "CONSTANT";
+
+public enum KIND {
+    KIND1,
+    KIND2
+}
+
+string ballerina = "http://ballerina.io";
+
+xmlns ballerina as bal;
+
+xmlns "http://ballerina.io";
+
+public listener http:ListenerType myListener = new(8080);
+
+type AnnotationType1 record {|
+    string prop1;
+    string prop2;
+    string ...;
+|};
+
+type AnnotationType2 record {|
+    boolean prop1;
+|};
+
+public const annotation AnnotationType1 MyAnnotation1 on function;
+
+public const annotation AnnotationType2 MyAnnotation2 on service;
+
+type MyObjectType object {
+    public function function1();
+    public function function2();
+}
+

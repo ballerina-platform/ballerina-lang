@@ -409,7 +409,6 @@ function add_panic(int i, int j) returns int {
         error err = error("err from panic" );
         panic err;
     }
-    return k;
 }
 
 public function sleep(int millis) = @java:Method {

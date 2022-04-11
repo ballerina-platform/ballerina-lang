@@ -94,7 +94,7 @@ function testAssertJsonValues() {
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
     "\nexpected: '{\"name\":\"John Doe New\",\"age\":25,\"address\":" +
-    "{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka...'\nactual\t: '" +
+    "{\"city\":\"Colombo\"," + "\"country\":\"Sri Lanka\n\"}}'\nactual\t: '" +
     "{\"name\":\"John Doe\",\"age\":25,\"address\":{\"city\":\"Colombo\"," +
     "\"country\":\"Sri Lanka\"}}'\n \nDiff\t:\n\nkey: name\n \nexpected " +
     "value\t: John Doe New\nactual value\t: John Doe");
@@ -108,9 +108,9 @@ function testAssertJsonInJson() {
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
     "\nexpected: '{\"name\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100," +
-    "\"physics\":90,\"status\":{\"pass\":false...'\nactual\t: '" +
+    "\"physics\":90,\"status\":{\"pass\":false\n}}}'\nactual\t: '" +
     "{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90," +
-    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n\nkey: age\n \nexpected " +
+    "\"status\":{\"pass\":tru\ne}}}'\n \nDiff\t:\n\nkey: age\n \nexpected " +
     "value\t: <int> 21\nactual value\t: <string> 21\n\nkey: marks.status." +
     "pass\n \nexpected value\t: false\nactual value\t: true");
 }
@@ -121,11 +121,20 @@ function testAssertLongJsonValues() {
     json bioData2 = {name:"John Doe New", age:25, designation: "SSE", address:{city:"Colombo", country:"Sri Lanka"}};
     error? err = trap test:assertEquals(bioData, bioData2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name\":\"John Doe New\"," +
-    "\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\nactual\t: '{\"name\":" +
-    "\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",...'\n \n" +
-    "Diff\t:\n\nkey: name\n \nexpected value\t: John Doe New\nactual value\t: John Doe Old\n\n" +
-    "key: address.country\n \nexpected value\t: Sri Lanka\nactual value\t: Sri Lankaa");
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
+    "\nexpected: " +
+    "'{\"name\":\"John Doe New\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",\n" +
+    "\"country\":\"Sri Lanka\"}}'" +
+    "\nactual\t: " +
+    "'{\"name\":\"John Doe Old\",\"age\":25,\"designation\":\"SSE\",\"address\":{\"city\":\"Colombo\",\n" +
+    "\"country\":\"Sri Lankaa\"}}'" +
+    "\n \nDiff\t:" +
+    "\n\nkey: name\n " +
+    "\nexpected value\t: John Doe New" +
+    "\nactual value\t: John Doe Old" +
+    "\n\nkey: address.country\n " +
+    "\nexpected value\t: Sri Lanka" +
+    "\nactual value\t: Sri Lankaa");
 }
 
 @test:Config {}
@@ -135,12 +144,17 @@ function testAssertJsonWithKeyDiff() {
     error? err = trap test:assertEquals(j1, j2);
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
-    "\nexpected: '{\"name2\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100," +
-    "\"physics\":90,\"status\":{\"pass2\":fal...'\nactual\t: '" +
-    "{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90," +
-    "\"status\":{\"pass\":tru...'\n \nDiff\t:\n\nexpected keys\t: name2, " +
-    "marks.status.pass2\nactual keys\t: name, marks.status.pass\n\n" +
-    "key: age\n \nexpected value\t: <int> 21\nactual value\t: <string> 21\n");
+    "\nexpected: " +
+    "'{\"name2\":\"Anne\",\"age\":21,\"marks\":{\"maths\":100," +
+    "\"physics\":90,\"status\":{\"pass2\":fal\nse}}}'" +
+    "\nactual\t: " +
+    "'{\"name\":\"Anne\",\"age\":\"21\",\"marks\":{\"maths\":100,\"physics\":90," +
+    "\"status\":{\"pass\":tru\ne}}}'" +
+    "\n \nDiff\t:" +
+    "\n\nexpected keys\t: name2, marks.status.pass2" +
+    "\nactual keys\t: name, marks.status.pass" +
+    "\n\nkey: age\n " +
+    "\nexpected value\t: <int> 21\nactual value\t: <string> 21\n");
 }
 
 @test:Config {}
@@ -151,14 +165,18 @@ function testAssertJsonWithCount() {
     marks: {maths: 10, physics: 40, chemistry: 50, english: 55, status: {pass:false}}};
     error? err = trap test:assertEquals(j1, j2);
     error result = <error>err;
-    test:assertEquals(result.message().toString(), "Assertion Failed!\n \nexpected: '{\"name2\":\"Anne\",\"age\":21," +
-    "\"marks\":{\"maths\":10,\"physics\":40,\"chemistry\":50,\"englis...'\nactual\t: '{\"name\":\"Anne\",\"age\":" +
-    "\"21\",\"marks\":{\"maths\":99,\"physics\":80,\"chemistry\":70,\"engli...'\n \nDiff\t:\n\nexpected keys\t: " +
+    test:assertEquals(result.message().toString(), "Assertion Failed!\n " +
+    "\nexpected: '{\"name2\":\"Anne\",\"age\":21," +
+    "\"marks\":{\"maths\":10,\"physics\":40,\"chemistry\":50,\"englis\n" +
+    "h\":55,\"status\":{\"pass\":false}}}'" +
+    "\nactual\t: '{\"name\":\"Anne\",\"age\":\"21\"," +
+    "\"marks\":{\"maths\":99,\"physics\":80,\"chemistry\":70,\"engli\n" +
+    "sh\":95,\"status\":{\"pass\":true}}}'" +
+    "\n \nDiff\t:\n\nexpected keys\t: " +
     "name2\nactual keys\t: name\n\nkey: age\n \nexpected value\t: <int> 21\nactual value\t: <string> 21\n\n" +
     "key: marks.maths\n \nexpected value\t: 10\nactual value\t: 99\n\nkey: marks.physics\n \nexpected value\t: 40\n" +
     "actual value\t: 80\n\nkey: marks.chemistry\n \nexpected value\t: 50\nactual value\t: 70\n\nkey: " +
-    "marks.english\n \nexpected value\t: 55\nactual value\t: 95\n\nkey: marks.status.pass\n \nexpected value\t: false\n" +
-    "actual value\t: true\n \nTotal value mismatches: 6\n");
+    "marks.english\n \nexpected value\t: 55\nactual value\t: 95\n\nkey: marks.status.pass\n \nexpected value\t: false\nactual value\t: true\n \nTotal value mismatches: 6\n");
 }
 
 @test:Config {}
@@ -218,9 +236,11 @@ function testAssertRecords() {
     error? err = trap test:assertEquals(theRevenant, theRevenantNew);
     error result = <error>err;
     test:assertEquals(result.message().toString(), "Assertion Failed!\n \n" +
-    "expected: '{\"title\":\"The Revenant\",\"year\":\"2020\",\"released\":\"08 Jan 2020\",\"writer\":{\"fname\"...'" +
-    "\nactual\t: '{\"title\":\"The Revenant\",\"year\":\"2015\",\"released\":\"08 Jan 2016\",\"writer\":{\"fname\"" +
-    "...'\n \nDiff\t:\n\nkey: year\n \nexpected value\t: 2020\nactual value\t: 2015\n\nkey: released\n \n" +
+    "expected: '{\"title\":\"The Revenant\",\"year\":\"2020\",\"released\":\"08 Jan 2020\",\"writer\":{\"fname\"\n" +
+    ":\"Michael\",\"lname\":\"Punke\",\"age\":35}}'" +
+    "\nactual\t: '{\"title\":\"The Revenant\",\"year\":\"2015\",\"released\":\"08 Jan 2016\",\"writer\":{\"fname\"\n" +
+    ":\"Michael\",\"lname\":\"Punke\",\"age\":30}}'" +
+    "\n \nDiff\t:\n\nkey: year\n \nexpected value\t: 2020\nactual value\t: 2015\n\nkey: released\n \n" +
     "expected value\t: 08 Jan 2020\nactual value\t: 08 Jan 2016\n\nkey: writer.age\n \nexpected value\t: 35\n" +
     "actual value\t: 30");
 }

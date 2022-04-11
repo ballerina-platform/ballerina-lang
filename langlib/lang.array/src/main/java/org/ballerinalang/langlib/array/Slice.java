@@ -78,7 +78,7 @@ public class Slice {
                 }
 
                 UnionType unionType = TypeCreator.createUnionType(memTypes);
-                ArrayType slicedArrType = TypeCreator.createArrayType(unionType, (int) (endIndex - startIndex));
+                ArrayType slicedArrType = TypeCreator.createArrayType(unionType);
                 slicedArr = ValueCreator.createArrayValue(slicedArrType);
 
                 for (long i = startIndex, j = 0; i < endIndex; i++, j++) {

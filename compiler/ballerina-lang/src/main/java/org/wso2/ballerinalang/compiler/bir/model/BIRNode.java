@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,12 +112,14 @@ public abstract class BIRNode {
         public Name name;
         public Name originalName;
         public String metaVarName;
+        public String jvmVarName;
         public VarKind kind;
         public VarScope scope;
         public boolean ignoreVariable;
         public BIRBasicBlock endBB;
         public BIRBasicBlock startBB;
         public int insOffset;
+        public boolean onlyUsedInSingleBB;
 
         // Stores the scope of the current instruction with respect to local variables.
         public BirScope insScope;
@@ -132,6 +133,7 @@ public abstract class BIRNode {
             this.scope = scope;
             this.kind = kind;
             this.metaVarName = metaVarName;
+            this.jvmVarName = name.value.replace("%", "_");
         }
 
         public BIRVariableDcl(Location pos, BType type, Name name, VarScope scope,
@@ -183,11 +185,13 @@ public abstract class BIRNode {
     public static class BIRParameter extends BIRNode {
         public Name name;
         public long flags;
+        public List<BIRAnnotation> annotAttachmentSymbols;
 
         public BIRParameter(Location pos, Name name, long flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
+            this.annotAttachmentSymbols = new ArrayList<>();
         }
 
         @Override
@@ -310,7 +314,7 @@ public abstract class BIRNode {
         /**
          * Variable used for parameters of this function.
          */
-        public Map<BIRFunctionParameter, List<BIRBasicBlock>>  parameters;
+        public List<BIRFunctionParameter>  parameters;
 
         /**
          * List of basic blocks in this function.
@@ -341,7 +345,7 @@ public abstract class BIRNode {
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
                            BIRParameter restParam, int argsCount, List<BIRVariableDcl> localVars,
-                           BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
+                           BIRVariableDcl returnVariable, List<BIRFunctionParameter> parameters,
                            List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
                            ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
@@ -377,7 +381,7 @@ public abstract class BIRNode {
             this.flags = flags;
             this.type = type;
             this.localVars = new ArrayList<>();
-            this.parameters = new LinkedHashMap<>();
+            this.parameters = new ArrayList<>();
             this.requiredParams = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();
@@ -469,11 +473,11 @@ public abstract class BIRNode {
 
         public BType type;
 
-        public boolean isLabel;
-
         public boolean isBuiltin;
 
         public List<BType> referencedTypes;
+
+        public BType referenceType;
 
         public SymbolOrigin origin;
 
@@ -485,13 +489,12 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isLabel, boolean isBuiltin,
+        public BIRTypeDefinition(Location pos, Name internalName, long flags, boolean isBuiltin,
                                  BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin, Name name,
                                  Name originalName) {
             super(pos);
             this.internalName = internalName;
             this.flags = flags;
-            this.isLabel = isLabel;
             this.isBuiltin = isBuiltin;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
@@ -502,9 +505,9 @@ public abstract class BIRNode {
             this.annotAttachments = new ArrayList<>();
         }
 
-        public BIRTypeDefinition(Location pos, Name name, Name originalName, long flags, boolean isLabel,
-                                 boolean isBuiltin, BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
-            this(pos, name, flags, isLabel, isBuiltin, type, attachedFuncs, origin, name, originalName);
+        public BIRTypeDefinition(Location pos, Name name, Name originalName, long flags, boolean isBuiltin,
+                                 BType type, List<BIRFunction> attachedFuncs, SymbolOrigin origin) {
+            this(pos, name, flags, isBuiltin, type, attachedFuncs, origin, name, originalName);
         }
 
         @Override
@@ -610,6 +613,11 @@ public abstract class BIRNode {
          * Type of the annotation body.
          */
         public BType annotationType;
+
+        /**
+         * Temporary packageID field for when BIRAnnotation is used to identify attachments.
+         */
+        public PackageID packageID;
 
         public BIRAnnotation(Location pos, Name name, Name originalName, long flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {

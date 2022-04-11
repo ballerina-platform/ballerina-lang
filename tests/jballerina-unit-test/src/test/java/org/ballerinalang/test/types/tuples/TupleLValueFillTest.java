@@ -18,7 +18,7 @@
  */
 package org.ballerinalang.test.types.tuples;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -64,6 +64,16 @@ public class TupleLValueFillTest {
                   "length 1 cannot be expanded into tuple of length 3 without filler values.*")
     public void testRecordsWithoutFillerValues2() {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
+    }
+
+    @Test
+    public void testNillableTupleType() {
+        BRunUtil.invoke(compileResult, "testNillableTupleType");
+    }
+
+    @Test
+    public void testTupleInUnionTypes() {
+        BRunUtil.invoke(compileResult, "testTupleInUnionTypes");
     }
 
     @AfterClass

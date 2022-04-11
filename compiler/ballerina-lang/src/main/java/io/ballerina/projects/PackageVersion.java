@@ -19,13 +19,21 @@ package io.ballerina.projects;
 
 import java.util.Objects;
 
+import static io.ballerina.projects.util.ProjectConstants.BUILTIN_PACKAGE_VERSION_STR;
+
 /**
  * Represents the name of a {@code Package}.
  *
  * @since 2.0.0
  */
 public class PackageVersion {
+
     private final SemanticVersion version;
+
+    /**
+     * The version of all built-in packages.
+     */
+    public static final PackageVersion BUILTIN_PACKAGE_VERSION = PackageVersion.from(BUILTIN_PACKAGE_VERSION_STR);
 
     private PackageVersion(SemanticVersion version) {
         this.version = version;

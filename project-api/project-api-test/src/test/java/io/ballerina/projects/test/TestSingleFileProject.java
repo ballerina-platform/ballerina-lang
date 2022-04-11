@@ -18,7 +18,6 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -27,12 +26,17 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,7 +58,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.load(projectPath);
+            project = TestUtils.loadSingleFileProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -70,12 +74,28 @@ public class TestSingleFileProject {
 
     }
 
+    @Test (description = "tests if the target directory for single files is resolved properly")
+    public void testSingleFileTargetDirectory() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
+        SingleFileProject project = null;
+        try {
+            project = TestUtils.loadSingleFileProject(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+
+        Path targetDirPath = project.targetDir();
+        Assert.assertNotNull(targetDirPath);
+        Assert.assertTrue(targetDirPath.toFile().exists());
+        Assert.assertEquals(Paths.get(System.getProperty("java.io.tmpdir")), targetDirPath.getParent());
+    }
+
     @Test (description = "tests loading a valid standalone Ballerina file")
     public void testLoadSingleFileInProject() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("util").resolve("file-util.bal");
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.load(projectPath);
+            project = TestUtils.loadSingleFileProject(projectPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -96,7 +116,7 @@ public class TestSingleFileProject {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("svc.bal");
         try {
-            SingleFileProject.load(projectPath);
+            TestUtils.loadSingleFileProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
@@ -105,7 +125,7 @@ public class TestSingleFileProject {
 
         projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal");
         try {
-            SingleFileProject.load(projectPath);
+            TestUtils.loadSingleFileProject(projectPath);
             Assert.fail("expected an invalid project exception");
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("The source file '" + projectPath +
@@ -124,7 +144,7 @@ public class TestSingleFileProject {
         }
 
         // Verify expected default buildOptions
-        Assert.assertFalse(project.buildOptions().skipTests());
+        Assert.assertTrue(project.buildOptions().skipTests());
         Assert.assertFalse(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
@@ -136,12 +156,12 @@ public class TestSingleFileProject {
     public void testOverrideBuildOptions() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main.bal");
         SingleFileProject project = null;
-        BuildOptions buildOptions = new BuildOptionsBuilder()
-                .skipTests(true)
-                .observabilityIncluded(true)
+        BuildOptions buildOptions = BuildOptions.builder()
+                .setSkipTests(true)
+                .setObservabilityIncluded(true)
                 .build();
         try {
-            project = SingleFileProject.load(projectPath, buildOptions);
+            project = TestUtils.loadSingleFileProject(projectPath, buildOptions);
         } catch (Exception e) {
             Assert.fail(e.getMessage());
         }
@@ -150,7 +170,6 @@ public class TestSingleFileProject {
         Assert.assertTrue(project.buildOptions().skipTests());
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
-        Assert.assertFalse(project.buildOptions().offlineBuild());
         Assert.assertFalse(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
@@ -162,7 +181,7 @@ public class TestSingleFileProject {
         String newContent = "import ballerina/io;\n";
 
         // Load the project from document filepath
-        SingleFileProject singleFileProject = SingleFileProject.load(filePath);
+        SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(filePath);
 
         // get the
         // document ID
@@ -209,7 +228,7 @@ public class TestSingleFileProject {
         // 2) Initialize the project instance
         SingleFileProject project = null;
         try {
-            project = SingleFileProject.load(projectPath);
+            project = TestUtils.loadSingleFileProject(projectPath);
         } catch (Exception e) {
             Assert.assertTrue(e.getMessage().contains("does not have read permissions"));
         }
@@ -223,7 +242,7 @@ public class TestSingleFileProject {
         Path filePath = RESOURCE_DIRECTORY.resolve("single_file").resolve("main_with_error.bal");
 
         // Load the project from document filepath
-        SingleFileProject project = SingleFileProject.load(filePath);
+        SingleFileProject project = TestUtils.loadSingleFileProject(filePath);
         // 2) Load the package
         Package currentPackage = project.currentPackage();
 
@@ -237,6 +256,82 @@ public class TestSingleFileProject {
         Assert.assertEquals(
                 compilation.diagnosticResult().diagnostics().stream().findFirst().get().location().lineRange()
                         .filePath(), "main_with_error.bal");
+    }
+
+    @Test
+    public void testProjectRefresh() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("single-file")
+                .resolve("main.bal");
+        SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(projectDirPath);
+        PackageCompilation compilation = singleFileProject.currentPackage().getCompilation();
+        int errorCount = compilation.diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount, 3);
+
+        BCompileUtil.compileAndCacheBala("projects_for_refresh_tests/package_refresh_two_v2");
+        int errorCount2 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount2, 3);
+
+        singleFileProject.clearCaches();
+        int errorCount3 = singleFileProject.currentPackage().getCompilation().diagnosticResult().errorCount();
+        Assert.assertEquals(errorCount3, 0);
+    }
+
+    @Test
+    public void testProjectDuplicate() {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("single-file")
+                .resolve("main.bal");
+        SingleFileProject project = TestUtils.loadSingleFileProject(projectDirPath);
+        Project duplicate = project.duplicate();
+        Assert.assertEquals(duplicate.kind(), ProjectKind.SINGLE_FILE_PROJECT);
+
+        Assert.assertNotSame(project, duplicate);
+        Assert.assertNotSame(project.currentPackage().project(), duplicate.currentPackage().project());
+        Assert.assertNotSame(
+                project.currentPackage().project().buildOptions(), duplicate.currentPackage().project().buildOptions());
+        Assert.assertNotSame(project.projectEnvironmentContext(),
+                duplicate.projectEnvironmentContext());
+        Assert.assertNotSame(project.projectEnvironmentContext().getService(CompilerContext.class),
+                duplicate.projectEnvironmentContext().getService(CompilerContext.class));
+        Assert.assertNotSame(
+                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)),
+                PackageCache.getInstance(duplicate.projectEnvironmentContext().getService(CompilerContext.class)));
+
+        Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());
+        Assert.assertEquals(project.currentPackage().packageId(), duplicate.currentPackage().packageId());
+        Assert.assertEquals(project.currentPackage().getDefaultModule().moduleId(),
+                duplicate.currentPackage().getDefaultModule().moduleId());
+
+        Assert.assertNotSame(project.currentPackage().getDefaultModule(),
+                duplicate.currentPackage().getDefaultModule());
+        Assert.assertNotSame(project.currentPackage().getDefaultModule().project(),
+                duplicate.currentPackage().getDefaultModule().project());
+        Assert.assertNotSame(project.currentPackage().getDefaultModule().packageInstance(),
+                duplicate.currentPackage().getDefaultModule().packageInstance());
+
+        Assert.assertEquals(project.currentPackage().getDefaultModule().descriptor(),
+                duplicate.currentPackage().getDefaultModule().descriptor());
+        Assert.assertEquals(project.currentPackage().getDefaultModule().moduleMd().isPresent(),
+                duplicate.currentPackage().getDefaultModule().moduleMd().isPresent());
+
+        DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().stream().findFirst().get();
+        Assert.assertEquals(documentId,
+                duplicate.currentPackage().getDefaultModule().documentIds().stream().findFirst().get());
+
+        Assert.assertNotSame(project.currentPackage().getDefaultModule().document(documentId),
+                duplicate.currentPackage().getDefaultModule().document(documentId));
+        Assert.assertNotSame(project.currentPackage().getDefaultModule().document(documentId).module(),
+                duplicate.currentPackage().getDefaultModule().document(documentId).module());
+        Assert.assertNotSame(project.currentPackage().getDefaultModule().document(documentId).syntaxTree(),
+                duplicate.currentPackage().getDefaultModule().document(documentId).syntaxTree());
+
+        Assert.assertEquals(project.currentPackage().getDefaultModule().document(documentId).name(),
+                duplicate.currentPackage().getDefaultModule().document(documentId).name());
+        Assert.assertEquals(
+                project.currentPackage().getDefaultModule().document(documentId).syntaxTree().toSourceCode(),
+                duplicate.currentPackage().getDefaultModule().document(documentId).syntaxTree().toSourceCode());
+
+        project.currentPackage().getCompilation();
+        duplicate.currentPackage().getCompilation();
     }
 
     @AfterClass(alwaysRun = true)

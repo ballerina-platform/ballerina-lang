@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -67,7 +68,7 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
         if (!hasErrorType(typeDescriptor.get())) {
             String commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
             return Collections.singletonList(
-                    createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri)
+                    createCodeAction(commandTitle, getIgnoreCodeActionEdits(pos), uri, CodeActionKind.QuickFix)
             );
         }
         return Collections.emptyList();

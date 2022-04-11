@@ -160,3 +160,18 @@ public type Person2 record {
         string country;
     |} address;
 };
+
+const LENGTH = 5;
+
+function testConstArrLen() {
+    int[LENGTH] a;
+}
+
+function testFunction() {
+    string l = "";
+    var [fName, fBody] = parseField(l);
+}
+
+function parseField(string val) returns [string, int] {
+    return [val, 10];
+}

@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -45,21 +46,25 @@ public class VariableDeclarationNodeContext extends NodeWithRHSInitializerProvid
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, VariableDeclarationNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node.initializer().isPresent() && onExpressionContext(context, node)) {
-            List<LSCompletionItem> completionItems
-                    = this.initializerContextCompletions(context, node.typedBindingPattern().typeDescriptor());
+            completionItems.addAll(this.initializerContextCompletions(context,
+                    node.typedBindingPattern().typeDescriptor(), node.initializer().get()));
             this.sort(context, node, completionItems);
-
+            return completionItems;
+        } else if (onSuggestionsAfterQualifiers(context, node)) {
+            /*
+                Covers following
+                (1) <qualifier(s)> <cursor>
+                (2) <qualifier(s)> x<cursor>
+                currently the qualifier can be isolated/transactional.
+            */
+            completionItems.addAll(getCompletionItemsOnQualifiers(node, context));
+            this.sort(context, node, completionItems);
             return completionItems;
         } else if (this.onVariableNameContext(context, node)) {
             return Collections.emptyList();
         }
-
-        /*
-        Following is to support the example temporarily.
-        (1) isolated <cursor>
-        (2) isolated s<cursor>
-         */
         return CompletionUtil.route(context, node.parent());
     }
 

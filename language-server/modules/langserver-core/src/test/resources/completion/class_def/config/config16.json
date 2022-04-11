@@ -96,15 +96,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "init function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "P",
-      "filterText": "init_function",
-      "insertText": "function init(${1:any arg}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -272,6 +263,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "O",
+      "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
@@ -280,6 +272,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
+      "filterText": "test",
       "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -303,6 +296,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
+      "filterText": "array",
       "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -326,6 +320,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
+      "filterText": "java",
       "insertText": "java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -349,6 +344,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
+      "filterText": "value",
       "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -372,6 +368,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "R",
+      "filterText": "runtime",
       "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -500,6 +497,15 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "init function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "filterText": "init_function",
+      "insertText": "function init(${1}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

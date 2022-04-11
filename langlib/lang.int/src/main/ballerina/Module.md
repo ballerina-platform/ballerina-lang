@@ -1,3 +1,3 @@
-## Module Overview
+## Module overview
 
-The `lang.int` module corresponds to basic type int.
+The `lang.int` module corresponds to the `int` basic type.

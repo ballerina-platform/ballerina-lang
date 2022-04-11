@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -51,14 +52,14 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++, "unknown type 'Animal'", 22, 5);
         validateError(result, indx++, "incompatible types: expected '(anydata|json)', found 'Bar'", 31, 21);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 49, 17);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 50, 17);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'MyError'", 50, 17);
         validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 53, 15);
-        validateError(result, indx++, "incompatible types: expected 'anydata', found 'error'", 54, 15);
+        validateError(result, indx++, "incompatible types: expected 'anydata', found 'MyError'", 54, 15);
         validateError(result, indx++,
-                      "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
-                      59, 26);
+                "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
+                59, 26);
         validateError(result, indx++,
-                "undefined field 'toValue' in record 'Teacher'",
+                "function invocation on type 'Teacher' is not supported",
                 68, 27);
         assertEquals(result.getErrorCount(), indx);
     }
@@ -71,7 +72,7 @@ public class OpenRecordNegativeTest {
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor",
-            groups = { "disableOnOldParser" })
+            groups = {"disableOnOldParser"})
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
         assertEquals(result.getErrorCount(), 0);
@@ -80,15 +81,14 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
-        String errMsg =
-                "invalid method call expression: expected a function type, but found 'function" +
-                        " (string,string) returns (string)?'";
+        String errMsg1 = "function invocation on type 'Person' is not supported";
+        String errMsg2 = "function invocation on type 'PersonB' is not supported";
         int indx = 0;
 
-        validateError(compileResult, indx++, errMsg, 28, 17);
-        validateError(compileResult, indx++, errMsg, 33, 17);
-        validateError(compileResult, indx++, errMsg, 47, 17);
-        validateError(compileResult, indx++, errMsg, 53, 17);
+        validateError(compileResult, indx++, errMsg1, 28, 21);
+        validateError(compileResult, indx++, errMsg1, 33, 21);
+        validateError(compileResult, indx++, errMsg2, 47, 21);
+        validateError(compileResult, indx++, errMsg2, 53, 21);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 
@@ -98,9 +98,9 @@ public class OpenRecordNegativeTest {
         assertEquals(result.getErrorCount(), 5);
         int index = 0;
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 37,
-                      24);
+                24);
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 38,
-                      24);
+                24);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
         validateError(result, index, "ambiguous type '(A|B|C)'", 74, 25);
@@ -120,11 +120,13 @@ public class OpenRecordNegativeTest {
     public void testUninitRecordAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_uninit_access.bal");
         int index = 0;
+        validateWarning(compileResult, index++, "unused variable 'name'", 24, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 24, 19);
         validateError(compileResult, index++, "variable 'p' is not initialized", 27, 5);
         validateError(compileResult, index++, "variable 'p' is not initialized", 28, 5);
-        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 42);
+        validateError(compileResult, index++, "variable 'p' is not initialized", 30, 41);
         validateError(compileResult, index++, "variable 'p4' is not initialized", 52, 12);
-        assertEquals(compileResult.getErrorCount(), index);
+        assertEquals(compileResult.getErrorCount(), index - 1);
+        assertEquals(compileResult.getWarnCount(), 1);
     }
 }

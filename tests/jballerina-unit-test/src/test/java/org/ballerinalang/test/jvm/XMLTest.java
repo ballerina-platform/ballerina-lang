@@ -17,12 +17,11 @@
  */
 package org.ballerinalang.test.jvm;
 
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.core.model.values.BXML;
-import org.ballerinalang.core.model.values.BXMLItem;
-import org.ballerinalang.core.model.values.BXMLSequence;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlItem;
+import io.ballerina.runtime.api.values.BXmlSequence;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -53,157 +52,180 @@ public class XMLTest {
 
     @Test
     public void testBasicXML() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testXML", new BValue[] {});
-        Assert.assertEquals(result[0].stringValue(),
+        Object val = BRunUtil.invoke(compileResult, "testXML");
+        BArray result = (BArray) val;
+        Assert.assertEquals(result.get(0).toString(),
                 "<ns0:foo xmlns:ns0=\"http://wso2.com/\" xmlns:ns1=\"http://ballerinalang.org/\" " +
                         "a=\"hello world\" ns0:b=\"active\"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>");
-        Assert.assertEquals(result[1].stringValue(),
-                "{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://wso2.com/\", " +
-                        "\"a\":\"hello world\", " +
-                        "\"{http://www.w3.org/2000/xmlns/}ns1\":\"http://ballerinalang.org/\", " +
-                        "\"{http://wso2.com/}b\":\"active\"}");
-        Assert.assertEquals(result[2].stringValue(), "active");
-        Assert.assertEquals(result[3].stringValue(),
+        Assert.assertEquals(result.get(1).toString(),
+                "{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://wso2.com/\",\"a\":\"hello world\",\"{http://www.w3" +
+                        ".org/2000/xmlns/}ns1\":\"http://ballerinalang.org/\",\"{http://wso2.com/}b\":\"active\"}");
+        Assert.assertEquals(result.get(2).toString(), "active");
+        Assert.assertEquals(result.get(3).toString(),
                 "<ns1:bar1 xmlns:ns1=\"http://ballerinalang.org/\">hello1</ns1:bar1><bar2>hello2</bar2>");
     }
 
     @Test
     public void testElementLiteralWithNamespaces() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object val = BRunUtil.invoke(literalWithNamespacesResult, "testElementLiteralWithNamespaces");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof BXml);
+        Assert.assertEquals(returns.get(0).toString(),
                 "<root xmlns=\"http://ballerina.com/\" " +
                         "xmlns:ns0=\"http://ballerina.com/a\" ns0:id=\"456\">" +
                         "<foo>123</foo>" +
                         "<bar xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar></root>");
 
-        Assert.assertTrue(returns[1] instanceof BXML);
-        BXMLSequence seq = (BXMLSequence) returns[1];
-        Assert.assertEquals(seq.stringValue(),
+        Assert.assertTrue(returns.get(1) instanceof BXml);
+        BXmlSequence seq = (BXmlSequence) returns.get(1);
+        Assert.assertEquals(seq.toString(),
                 "<foo xmlns=\"http://ballerina.com/\">123</foo>" +
                         "<bar xmlns=\"http://ballerina.com/\" " +
                         "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar>");
 
-        BValueArray items = seq.value();
+        BArray items = (BArray) seq.value();
         Assert.assertEquals(items.size(), 2);
     }
 
     @Test
     public void testElementWithQualifiedName() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<root>hello</root>");
+        Object val = BRunUtil.invoke(literalWithNamespacesResult, "testElementWithQualifiedName");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof BXml);
+        Assert.assertEquals(returns.get(0).toString(), "<root>hello</root>");
 
-        Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(),
+        Assert.assertTrue(returns.get(1) instanceof BXml);
+        Assert.assertEquals(returns.get(1).toString(),
                 "<root xmlns=\"http://ballerina.com/\">hello</root>");
 
-        Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(),
-                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
+        Assert.assertTrue(returns.get(2) instanceof BXml);
+        Assert.assertEquals(returns.get(2).toString(),
+                "<ns1:root xmlns=\"http://ballerina.com/\" xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:root>");
     }
 
     @Test
     public void testDefineInlineNamespace() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineNamespace");
+        Assert.assertTrue(returns instanceof BXml);
+        Assert.assertEquals(returns.toString(),
                 "<nsx:foo xmlns:nsx=\"http://wso2.com\" nsx:id=\"123\">hello</nsx:foo>");
     }
 
     @Test
     public void testDefineInlineDefaultNamespace() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object val = BRunUtil.invoke(literalWithNamespacesResult, "testDefineInlineDefaultNamespace");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof BXml);
+        Assert.assertEquals(returns.get(0).toString(),
                 "<foo xmlns=\"http://ballerina.com/default/namespace\" xmlns:nsx=\"http://wso2.com/aaa\">hello</foo>");
 
-        Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(),
+        Assert.assertTrue(returns.get(1) instanceof BXml);
+        Assert.assertEquals(returns.get(1).toString(),
                 "<foo xmlns=\"http://wso2.com\" xmlns:nsx=\"http://wso2.com/aaa\">hello</foo>");
     }
 
     @Test
     public void testUsingNamespcesOfParent() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent");
-        Assert.assertTrue(returns[0] instanceof BXMLItem);
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testUsingNamespcesOfParent");
+        Assert.assertTrue(returns instanceof BXmlItem);
 
-        Assert.assertEquals(returns[0].stringValue(),
+        Assert.assertEquals(returns.toString(),
                 "<root xmlns:ns0=\"http://ballerinalang.com/\"><ns0:foo>hello</ns0:foo></root>");
     }
 
     @Test
     public void testComplexXMLLiteral() throws IOException {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
-        Assert.assertTrue(returns[0] instanceof BXMLItem);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testComplexXMLLiteral");
+        Assert.assertTrue(returns instanceof BXmlItem);
+        Assert.assertEquals(returns.toString(),
                 BFileUtil.readFileAsString("src/test/resources/test-src/jvm/sampleXML.txt"));
     }
 
     @Test
     public void testNamespaceDclr() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testNamespaceDclr");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a2}foo");
+        Object val = BRunUtil.invoke(literalWithNamespacesResult, "testNamespaceDclr");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "{http://sample.com/wso2/a2}foo");
 
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/b2}foo");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "{http://sample.com/wso2/b2}foo");
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/d2}foo");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "{http://sample.com/wso2/d2}foo");
     }
 
     @Test
     public void testInnerScopeNamespaceDclr() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testInnerScopeNamespaceDclr");
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "{http://ballerina.com/b}foo");
+        Object val = BRunUtil.invoke(literalWithNamespacesResult, "testInnerScopeNamespaceDclr");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "{http://ballerina.com/b}foo");
 
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/a3}foo");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "{http://sample.com/wso2/a3}foo");
 
-        Assert.assertTrue(returns[2] instanceof BString);
-        Assert.assertEquals(returns[2].stringValue(), "{http://ballerina.com/b}foo");
+        Assert.assertTrue(returns.get(2) instanceof BString);
+        Assert.assertEquals(returns.get(2).toString(), "{http://ballerina.com/b}foo");
     }
 
     @Test
     public void testObjectLevelXML() {
-        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(),
+        Object returns = BRunUtil.invoke(literalWithNamespacesResult, "testObjectLevelXML");
+        Assert.assertTrue(returns instanceof BXml);
+        Assert.assertEquals(returns.toString(),
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
     }
 
     @Test
     public void testXmlNavigation() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlNavigation");
-        Assert.assertEquals(returns[0].stringValue(),
+        Object val = BRunUtil.invoke(compileResult, "testXmlNavigation");
+        BArray returns = (BArray) val;
+        Assert.assertEquals(returns.get(0).toString(),
                 "<fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1><fname><foo>5</foo>" +
                         "<bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2>apple");
-        Assert.assertEquals(returns[1].stringValue(), "<fname><foo>1</foo><bar>2</bar></fname>");
-        Assert.assertEquals(returns[2].stringValue(), "<foo>1</foo><foo>5</foo>");
-        Assert.assertEquals(returns[3].stringValue(), "");
-        Assert.assertEquals(returns[4].stringValue(), "");
-        Assert.assertEquals(returns[5].stringValue(), "<foo>1</foo><foo>5</foo>");
-        Assert.assertEquals(returns[6].stringValue(), "<bar>2</bar><bar>4</bar><bar>6</bar><bar>8</bar>");
-        Assert.assertEquals(returns[7].stringValue(),
+        Assert.assertEquals(returns.get(1).toString(), "<fname><foo>1</foo><bar>2</bar></fname>");
+        Assert.assertEquals(returns.get(2).toString(), "<foo>1</foo><foo>5</foo>");
+        Assert.assertEquals(returns.get(3).toString(), "");
+        Assert.assertEquals(returns.get(4).toString(), "");
+        Assert.assertEquals(returns.get(5).toString(), "<foo>1</foo><foo>5</foo>");
+        Assert.assertEquals(returns.get(6).toString(), "<bar>2</bar><bar>4</bar><bar>6</bar><bar>8</bar>");
+        Assert.assertEquals(returns.get(7).toString(),
                 "<foo>1</foo><bar>2</bar><foo>3</foo><bar>4</bar><foo>5</foo><bar>6</bar><foo>7</foo><bar>8</bar>");
     }
 
     @Test(description = "Test interpolating xml when there are extra dollar signs")
     public void testXMLLiteralWithExtraDollarSigns() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testDollarSignOnXMLLiteralTemplate");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<foo id=\"hello $5\">hello</foo>");
-        Assert.assertEquals(returns[1].stringValue(), "<foo id=\"hello $$5\">$hello</foo>");
-        Assert.assertEquals(returns[2].stringValue(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
+        Object val = BRunUtil.invoke(compileResult, "testDollarSignOnXMLLiteralTemplate");
+        BArray returns = (BArray) val;
+        Assert.assertTrue(returns.get(0) instanceof BXml);
+        Assert.assertEquals(returns.get(0).toString(), "<foo id=\"hello $5\">hello</foo>");
+        Assert.assertEquals(returns.get(1).toString(), "<foo id=\"hello $$5\">$hello</foo>");
+        Assert.assertEquals(returns.get(2).toString(), "<foo id=\"hello $$ 5\">$$ hello</foo>");
     }
 
     @Test
     public void testGetGlobalXML() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetGlobalXML");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<test><name>ballerina</name></test>");
+        Object returns = BRunUtil.invoke(compileResult, "testGetGlobalXML");
+        Assert.assertTrue(returns instanceof BXml);
+        Assert.assertEquals(returns.toString(), "<test><name>ballerina</name></test>");
+    }
+
+    @Test
+    public void testXMLWithNumericEscapes() {
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testXMLWithNumericEscapes");
+        Assert.assertEquals(returns.size(), 10);
+        Assert.assertTrue(returns.get(0) instanceof BXml);
+        Assert.assertEquals(returns.get(0).toString(), "\\u{61}");
+        Assert.assertEquals(returns.get(1).toString(), "\\u{61}ppl\\\\u{65}");
+        Assert.assertEquals(returns.get(2).toString(), "A \\u{5C} B");
+        Assert.assertEquals(returns.get(3).toString(), "A \\\\u{5C} B");
+        Assert.assertEquals(returns.get(4).toString(), "\"\\u{D800}\"");
+        Assert.assertEquals(returns.get(5).toString(), "\\u{DFFF}\"\\u{DFFF}\"");
+        Assert.assertEquals(returns.get(6).toString(), "\"\\u{12FFFF} ABC \\u{DFFF} DEF \\u{DAFF}\"");
+        Assert.assertEquals(returns.get(7).toString(), "\\u{12FFFF} ABC \\u{DFFFAAA} DEF \\u{FFFFFFF}");
+        Assert.assertEquals(returns.get(8).toString(), "\\u{001B[");
+        Assert.assertEquals(returns.get(9).toString(), "\"\\u{001B[\"");
     }
 
     @AfterClass

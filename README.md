@@ -1,13 +1,24 @@
   [![Ballerina daily build](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/daily_build.yml/badge.svg)](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/daily_build.yml)
+  [![Trivy](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/ballerina-platform/ballerina-lang/actions/workflows/trivy-scan.yml)
   [![GitHub (pre-)release](https://img.shields.io/github/release/ballerina-platform/ballerina-lang/all.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
   [![codecov](https://codecov.io/gh/ballerina-platform/ballerina-lang/branch/master/graph/badge.svg)](https://codecov.io/gh/ballerina-platform/ballerina-lang)
+  ![Twitter Follow](https://img.shields.io/twitter/follow/ballerinalang?style=social)
 
-# The Ballerina Programming Language
+# The Ballerina programming language
 
-Ballerina is an open source programming language and platform for cloud-era application programmers to easily write software that just works.
+[Ballerina](https://ballerina.io/) is a statically typed, open-source cloud-native programming language developed
+and supported by [WSO2](https://wso2.com/).
+
+With Ballerina, you could easily develop microservices, API endpoints and integrations,
+and any other application for the cloud. Additionally, Ballerina has all the general-purpose
+functionalities you could expect from a modern programming language.
+
+With Ballerina's compiler-level built-in support for widely used data types such
+as JSON and XML, your focus on handling structured data, network service interactions,
+and dealing with concurrency is made much more effective.
 
 #### Providing and consuming services
 It has inherently concurrent first-class language constructs for providing and consuming services.
@@ -19,29 +30,36 @@ Sequence diagram based graphical view shows the most fundamental aspect of the s
 It allows for looser coupling between distributed components and eliminates the friction of data binding.
 
 #### Metadata
-Extensible metadata enables easy integration of Ballerina programs with cloud platforms. 
+Extensible metadata enables easy integration of Ballerina programs with cloud platforms.
+You could directly generate Docker and Kubernetes artifacts straight away from
+the source code.
 
 ## Getting started
 
 You can use one of the following options to try out Ballerina.
 
-* [Quick Tour](https://ballerina.io/learn/quick-tour/)
+* [Setting up Ballerina](https://ballerina.io/learn/installing-ballerina/setting-up-ballerina/)
 * [Ballerina by Example](https://ballerina.io/learn/by-example/) 
-* [Playground](https://play.ballerina.io/)
+* [Ballerina Playground](https://play.ballerina.io/)
 
 ## Downloading and installing
 
-For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/learn/installing-ballerina/).
+For instructions on downloading and installing, see [Ballerina Downloads](https://ballerina.io/downloads/).
 
-## Building from source
+## Installation options
 
-For prerequisites and instructions on building from source, see [Installing from source](https://ballerina.io/learn/getting-started/installing-ballerina/#building-from-source).
+For more installation options, see [Installation options](https://ballerina.io/learn/installing-ballerina/installation-options/).
+
+## Get the VS Code extension
+
+Try out Ballerina's development capabilities using [the Ballerina extension for Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina).
 
 ## Reporting issues and security flaws
 
 Report an issue in the relevant repo out of the GitHub repos listed below. 
 
->**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack Channel](#https://ballerina-platform.slack.com/).
+>**Tip:** If you are unsure whether you have found a bug, search the existing issues in the corresponding repo on 
+> GitHub and raise it in the [Ballerina Slack channel](https://ballerina-platform.slack.com/).
   - Compiler, runtime, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
   - Standard library: <a href="https://github.com/ballerina-platform/ballerina-standard-library/issues">ballerina-standard-library</a> repo
   - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
@@ -62,6 +80,6 @@ Ballerina code is distributed under [Apache license 2.0](https://github.com/ball
 ## Useful links
 
 * The ballerina-dev@googlegroups.com mailing list is for discussing code changes to the Ballerina project.
-* Chat live with us on our [Slack channel](https://ballerina.io/community/slack/).
+* Chat live with us on our [Slack channel](https://ballerina.io/community/slack/) and engage with the [Ballerina community](https://ballerina.io/community/).
 * Technical questions should be posted on Stack Overflow with the [#ballerina](https://stackoverflow.com/questions/tagged/ballerina) tag.
 * Ballerina performance test results are available [here](performance/benchmarks/summary.md).

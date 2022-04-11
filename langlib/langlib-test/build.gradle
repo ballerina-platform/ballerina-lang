@@ -23,13 +23,11 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 dependencies {
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
 
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(path: ':ballerina-runtime')
     testCompile 'org.testng:testng'
-    testCompile 'com.h2database:h2'
 
     testRuntime 'org.slf4j:slf4j-jdk14'
 }

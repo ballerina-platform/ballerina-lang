@@ -32,6 +32,8 @@ import io.ballerina.types.subtypedata.BddNode;
 
 import java.io.PrintStream;
 
+import static io.ballerina.types.Conjunction.and;
+
 /**
  * Function specific methods operate on SubtypeData.
  *
@@ -92,9 +94,9 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
             FunctionAtomicType st = cx.functionAtomType(bn.atom);
             SemType sd = st.paramType;
             SemType sr = st.retType;
-            return functionBddIsEmpty(cx, bn.left, Core.union(s, sd), Conjunction.from(bn.atom, pos), neg)
+            return functionBddIsEmpty(cx, bn.left, Core.union(s, sd), and(bn.atom, pos), neg)
                     && functionBddIsEmpty(cx, bn.middle, s, pos, neg)
-                    && functionBddIsEmpty(cx, bn.right, s, pos, Conjunction.from(bn.atom, neg));
+                    && functionBddIsEmpty(cx, bn.right, s, pos, and(bn.atom, neg));
         }
     }
 

@@ -18,7 +18,12 @@
 
 package io.ballerina.shell.parser.trials;
 
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.parser.TrialTreeParser;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -27,6 +32,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
+import java.util.Collection;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -44,14 +50,14 @@ import java.util.concurrent.TimeoutException;
  */
 public class GetErrorMessageTrial extends TreeParserTrial {
     private static final int ERROR_TIMEOUT_MULTIPLIER = 10;
-    private static final Set<String> MODULE_LEVEL_ERROR_CODES = Set.of("BCE0007", "BCE0646");
+    private static final Set<String> INVALID_TOKENS = Set.of("'if'", "'while'", "'foreach'", "'worker'");
 
     public GetErrorMessageTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
 
     @Override
-    public Node parse(String source) throws ParserTrialFailedException {
+    public Collection<Node> parse(String source) throws ParserTrialFailedException {
         ExecutorService executor = Executors.newFixedThreadPool(1);
         Future<?> future = executor.submit(() -> processSource(source));
         executor.shutdown();
@@ -74,7 +80,7 @@ public class GetErrorMessageTrial extends TreeParserTrial {
     }
 
     /**
-     * Process a invalid source and throw relevant error.
+     * Process an invalid source and throw relevant error.
      * This would be run under a timing threshold.
      * So this has to detect the error within that constraint.
      *
@@ -82,23 +88,33 @@ public class GetErrorMessageTrial extends TreeParserTrial {
      */
     private void processSource(String source) {
         try {
-            TextDocument document = TextDocuments.from(String.format("function main(){%n%s%n}", source));
+            TextDocument document = TextDocuments.from(source);
             SyntaxTree tree = SyntaxTree.from(document);
-            for (Diagnostic diagnostic : tree.diagnostics()) {
-                DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
-                if (diagnosticInfo.severity() == DiagnosticSeverity.ERROR) {
-                    if (!MODULE_LEVEL_ERROR_CODES.contains(diagnosticInfo.code())) {
-                        throw new ParserTrialFailedException(tree.textDocument(), diagnostic);
-                    }
-                    break;
-                }
-            }
+            ModulePartNode node = tree.rootNode();
+            NodeList<ModuleMemberDeclarationNode> members = node.members();
+            for (Node member : members) {
+                for (Diagnostic diagnostic : member.diagnostics()) {
+                    if (diagnostic.diagnosticInfo().code().equals("BCE0600")
+                            && INVALID_TOKENS.contains(diagnostic.message().split(" ")[2])) {
+                        FunctionBodyBlockNode functionBodyBlockNode =
+                                NodeParser.parseFunctionBodyBlock("{" + member.toSourceCode() + "}");
+                        if (!functionBodyBlockNode.hasDiagnostics()) {
+                            break;
+                        }
 
-            // We got to parse as a top level module dcln
-            tree = SyntaxTree.from(TextDocuments.from(source));
-            for (Diagnostic diagnostic : tree.diagnostics()) {
-                if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
-                    throw new ParserTrialFailedException(tree.textDocument(), diagnostic);
+                        for (Diagnostic bodyBlockDiagnostic : functionBodyBlockNode.diagnostics()) {
+                            DiagnosticInfo diagnosticInfo = bodyBlockDiagnostic.diagnosticInfo();
+                            if (diagnosticInfo.severity() == DiagnosticSeverity.ERROR) {
+                                throw new ParserTrialFailedException(tree.textDocument(), bodyBlockDiagnostic);
+                            }
+                        }
+                    } else {
+                        for (Diagnostic treeDiagnostic : tree.diagnostics()) {
+                            if (treeDiagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
+                                throw new ParserTrialFailedException(tree.textDocument(), treeDiagnostic);
+                            }
+                        }
+                    }
                 }
             }
         } catch (ParserTrialFailedException e) {

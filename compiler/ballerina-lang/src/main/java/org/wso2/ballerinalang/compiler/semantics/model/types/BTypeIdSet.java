@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -208,7 +209,8 @@ public class BTypeIdSet {
 
         @Override
         public int hashCode() {
-            return this.packageID.hashCode() * 31 + this.name.hashCode();
+            return CompilerUtils.getPackageIDStringWithMajorVersion(this.packageID).hashCode() * 31 +
+                    this.name.hashCode();
         }
 
         @Override
@@ -219,7 +221,9 @@ public class BTypeIdSet {
 
             if (obj instanceof BTypeId) {
                 BTypeId that = (BTypeId) obj;
-                return this.name.equals(that.name) && this.packageID.equals(that.packageID);
+                return this.name.equals(that.name) &&
+                        CompilerUtils.getPackageIDStringWithMajorVersion(this.packageID).equals(
+                                CompilerUtils.getPackageIDStringWithMajorVersion(that.packageID));
             }
             return false;
         }

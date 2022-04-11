@@ -28,7 +28,6 @@ configurations {
 }
 
 dependencies {
-    implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-cli')   

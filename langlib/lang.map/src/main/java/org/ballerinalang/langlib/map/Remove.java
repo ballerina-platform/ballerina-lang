@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -46,11 +48,11 @@ public class Remove {
             } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
                 throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
                                                StringUtils.fromString(
-                                                        "Failed to remove element from map: " + e.getDetail()));
+                                                        "failed to remove element from map: " + e.getDetail()));
             }
         }
 
-        throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                .fromString("cannot find key '" + k + "'"));
+        throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
+                BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, k));
     }
 }

@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` port"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "Listener(${1})",
       "insertTextFormat": "Snippet",
       "command": {

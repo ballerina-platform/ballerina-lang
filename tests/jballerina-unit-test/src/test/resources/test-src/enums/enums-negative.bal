@@ -42,12 +42,13 @@ public enum LiftStatus {
     OPEN,
     OPEN,
     CLOSED = "0",
-    HOLD
+    HOLD = "HO" + "D"
 }
 
 public enum TrailStatus {
     OPEN,
-    CLOSED
+    CLOSED,
+    HOLD = "h" + "d"
 }
 
 function testBasicEnumSupportNegative() {
@@ -59,4 +60,29 @@ function testEnumAsType() {
     Shape c = EMINEM;
     Artist e = "Adele";
     ED p = "EMINEM";
+}
+
+const string A = x;
+const B = 1;
+
+enum E1 {
+    A = "1",
+    B = "1"
+}
+
+public enum NodeType {
+    A =
+}
+
+public enum CyclicRef1 {
+    CYCLIC1 = CYCLIC2,
+    CYCLIC2 = CYCLIC1
+}
+
+const string D = E;
+const string E = D;
+
+public enum CyclicRef2 {
+    D,
+    E
 }

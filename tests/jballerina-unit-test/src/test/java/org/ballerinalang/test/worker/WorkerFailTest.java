@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateWarning;
 
 /**
  * Negative worker related tests.
@@ -42,7 +43,7 @@ public class WorkerFailTest {
     public void invalidWorkSendWithoutWorker() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-worksend-without-worker.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "undefined worker 'worker1'", 3, 12);
+        validateError(result, 0, "undefined worker 'worker1'", 3, 11);
     }
 
     @Test
@@ -57,7 +58,7 @@ public class WorkerFailTest {
     public void invalidReceiveBeforeWorkers() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-before-workers.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "undefined worker 'w1'", 2, 12);
+        validateError(result, 0, "undefined worker 'w1'", 2, 11);
     }
 
     @Test
@@ -104,27 +105,33 @@ public class WorkerFailTest {
     public void invalidReceiveWithErrorUnionReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid_receive_with_union_error_return_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
-        validateError(result, 0, "incompatible types: expected 'TrxError?', found 'FooError?'", 46, 29);
-        validateError(result, 1, "incompatible types: expected 'TrxError?', " +
-                                          "found '(FooError|TrxError)?'", 47, 19);
-        validateError(result, 2, "incompatible types: expected '()', found '(FooError|TrxError)?'", 48, 16);
+        int index = 0;
+        validateWarning(result, index++, "unused variable 'j'", 29, 9);
+        validateError(result, index++, "unreachable code", 37, 13);
+        validateWarning(result, index++, "unused variable 'success'", 47, 9);
+        validateError(result, index++, "incompatible types: expected 'TrxError?', found 'FooError?'", 47, 29);
+        validateError(result, index++, "incompatible types: expected 'TrxError?', " +
+                                          "found '(FooError|TrxError)?'", 48, 19);
+        validateError(result, index++, "incompatible types: expected '()', found '(FooError|TrxError)?'", 49, 16);
+        Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
     @Test
     public void testSendReceiveMismatch() {
         CompileResult result = BCompileUtil.compile("test-src/workers/send_receive_mismatch_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "incompatible types: expected 'string', found 'int'", 25, 21);
+        validateError(result, 0, "incompatible types: expected 'string', found 'int'", 25, 20);
     }
 
     @Test
     public void testSyncSendReceiveMismatch() {
         CompileResult result = BCompileUtil.compile("test-src/workers/sync_send_receive_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getWarnCount(), 1);
         validateError(result, 0, "variable assignment is required", 33, 9);
-        validateError(result, 1, "incompatible types: expected 'int', found '(E1|int)'", 37, 18);
-        validateError(result, 2, "incompatible types: expected 'string', found '(E1|E2|string)'", 42, 20);
+        validateError(result, 1, "incompatible types: expected 'int', found '(E1|int)'", 38, 17);
+        validateError(result, 2, "incompatible types: expected 'string', found '(E1|E2|string)'", 43, 20);
+        validateWarning(result, 3, "unused variable 'err'", 47, 5);
     }
 
     @Test
@@ -165,20 +172,21 @@ public class WorkerFailTest {
     @Test
     public void invalidReceiveWithCheckWithNonError() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-receive-with-check.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        validateError(result, 0, "invalid usage of the 'check' expression operator: no expression type is " +
+        Assert.assertEquals(result.getWarnCount(), 3);
+        validateWarning(result, 0, "invalid usage of the 'check' expression operator: no expression type is " +
                 "equivalent to error type", 10, 21);
-        validateError(result, 1, "invalid usage of the 'check' expression operator: no expression type is " +
+        validateWarning(result, 1, "unused variable 'j'", 23, 7);
+        validateWarning(result, 2, "invalid usage of the 'check' expression operator: no expression type is " +
                 "equivalent to error type", 23, 21);
     }
 
     @Test
     public void invalidReceiveWithCheckpanic() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid_receive_with_checkpanic_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        validateError(result, 0, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
+        Assert.assertEquals(result.getWarnCount(), 2);
+        validateWarning(result, 0, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
                 "equivalent to error type", 23, 31);
-        validateError(result, 1, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
+        validateWarning(result, 1, "invalid usage of the 'checkpanic' expression operator: no expression type is " +
                 "equivalent to error type", 33, 31);
     }
 

@@ -76,6 +76,7 @@ public class ValueUtils {
         BMap<BString, Object> record = createRecordValue(packageId, recordTypeName);
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             Object val = fieldEntry.getValue();
+            // TODO: Remove the following String to BString conversion.
             if (val instanceof String) {
                 val = StringUtils.fromString((String) val);
             }
@@ -122,7 +123,6 @@ public class ValueUtils {
         io.ballerina.runtime.internal.values.ValueCreator
                 valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
                 .getLookupKey(packageId));
-        Object[] fields = new Object[fieldValues.length * 2];
 
         // Here the variables are initialized with default values
         Scheduler scheduler = null;
@@ -130,11 +130,6 @@ public class ValueUtils {
         boolean prevBlockedOnExtern = false;
         BObject objectValue;
 
-        // Adding boolean values for each arg
-        for (int i = 0, j = 0; i < fieldValues.length; i++) {
-            fields[j++] = fieldValues[i];
-            fields[j++] = true;
-        }
         try {
             // Check for non-blocking call
             if (currentStrand != null) {
@@ -145,7 +140,7 @@ public class ValueUtils {
                 currentStrand.setState(State.RUNNABLE);
             }
             objectValue = valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
-                                                         null, fields);
+                                                         null, fieldValues);
         } finally {
             if (currentStrand != null) {
                 currentStrand.blockedOnExtern = prevBlockedOnExtern;
@@ -170,7 +165,6 @@ public class ValueUtils {
         return xml;
     }
 
-
     /**
      * Provide the Typedesc Value with the singleton type with a value.
      * @param value Ballerina value
@@ -192,4 +186,5 @@ public class ValueUtils {
         }
         return new TypedescValueImpl(type);
     }
+
 }

@@ -1,0 +1,4 @@
+[package]
+org = "samjs"
+name = "package_o"
+version = "1.0.2"

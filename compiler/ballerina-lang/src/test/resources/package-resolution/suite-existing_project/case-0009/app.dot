@@ -1,0 +1,7 @@
+digraph "samejs/app:0.1.0" {
+    "ballerina/protobuf"
+    "ballerina/auth"
+
+    "ballerina/protobuf"
+    "ballerina/protobuf.types.duration"
+}

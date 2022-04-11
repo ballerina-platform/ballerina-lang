@@ -17,14 +17,14 @@
 import testorgthree/isolation;
 
 isolated function testInvalidNonIsolatedFunctionCallInIsolatedFunction() {
-    int a = isolation:nonIsolatedFunction();
+    int _ = isolation:nonIsolatedFunction();
 
     isolation:NonIsolatedClass b = new; // OK
-    int j = b.getI();
+    int _ = b.getI();
 
-    isolation:NonIsolatedClassWithNonIsolatedInit c = new;
+    isolation:NonIsolatedClassWithNonIsolatedInit _ = new;
 
-    isolation:IsolatedClassWithExplicitNonIsolatedInit d = new (isolated object {
+    isolation:IsolatedClassWithExplicitNonIsolatedInit _ = new (isolated object {
                                                                     public final int i = 1;
                                                                     public final boolean j = true;
                                                                 });

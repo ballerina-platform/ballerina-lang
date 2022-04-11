@@ -17,9 +17,6 @@
  */
 package org.ballerinalang.test.types.nullable;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -45,31 +42,31 @@ public class NullableTypeTest {
 
     @Test(description = "Test basics of nullable types")
     public void testNullableTypeBasics1() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullableTypeBasics1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5, "Invalid int value returned.");
+        Object returns = BRunUtil.invoke(result, "testNullableTypeBasics1", new Object[]{});
+
+        Assert.assertSame(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, 5L, "Invalid int value returned.");
     }
 
     @Test(description = "Test basics of nullable types")
     public void testNullableTypeBasics2() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullableTypeBasics2", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(returns[0]);
+        Object returns = BRunUtil.invoke(result, "testNullableTypeBasics2", new Object[]{});
+
+        Assert.assertNull(returns);
     }
 
     @Test(description = "Test basics of nullable types")
     public void testNullableArrayTypes1() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullableArrayTypes1", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.0, "Invalid float value returned.");
+        Object returns = BRunUtil.invoke(result, "testNullableArrayTypes1", new Object[]{});
+
+        Assert.assertSame(returns.getClass(), Double.class);
+        Assert.assertEquals(returns, 1.0, "Invalid float value returned.");
     }
 
     @Test(description = "Test referring to a user defined type in a type test")
     public void testNilableTypeInTypeTest() {
-        BValue[] returns = BRunUtil.invoke(result, "testNilableTypeInTypeTest");
-        Assert.assertEquals(returns[0].stringValue(), "mixed");
+        Object returns = BRunUtil.invoke(result, "testNilableTypeInTypeTest");
+        Assert.assertEquals(returns.toString(), "mixed");
     }
 
     @Test(description = "Test iterating over an array of optional typed values")

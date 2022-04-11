@@ -27,7 +27,7 @@ import io.ballerina.projects.plugins.CompilerPlugin;
 class CompilerPluginInfo {
 
     protected final CompilerPlugin compilerPlugin;
-    private CompilerPluginKind kind;
+    private final CompilerPluginKind kind;
 
     protected CompilerPluginInfo(CompilerPlugin compilerPlugin, CompilerPluginKind kind) {
         this.compilerPlugin = compilerPlugin;

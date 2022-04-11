@@ -81,6 +81,8 @@ public class ModuleErrorVariableTest {
         validateError(compileResultNegetive, index++,
                 "invalid record binding pattern with type '[int]'", 53, 33);
         validateError(compileResultNegetive, index++,
+                "cannot bind undefined error detail field 'fieldD'", 53, 44);
+        validateError(compileResultNegetive, index++,
                 "missing error detail arg for error detail field 'fieldB'", 56, 9);
         assertEquals(compileResultNegetive.getErrorCount(), index);
     }
@@ -100,7 +102,7 @@ public class ModuleErrorVariableTest {
                 "test-src/statements/vardeclr/module_error_var_decl_annotation_negetive.bal");
         int index = 0;
         validateError(compileResult, index++,
-                "annotation 'ballerina/lang.annotations:1.0.0:deprecated' is not allowed on var", 20, 1);
+                "annotation 'ballerina/lang.annotations:0.0.0:deprecated' is not allowed on var", 20, 1);
         assertEquals(compileResult.getErrorCount(), index);
     }
 

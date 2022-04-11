@@ -16,7 +16,8 @@
 
 package org.ballerinalang.debugadapter;
 
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.debugadapter.evaluation.BImport;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,21 +30,36 @@ import java.util.Map;
 public class EvaluationContext {
 
     private final SuspendedContext suspendedContext;
-    private Map<String, ModuleSymbol> resolvedImports = new HashMap<>();
+    private Map<String, BImport> resolvedImports;
+    private String expression;
 
     public EvaluationContext(SuspendedContext suspendedContext) {
         this.suspendedContext = suspendedContext;
+        this.resolvedImports = new HashMap<>();
     }
 
     public SuspendedContext getSuspendedContext() {
         return suspendedContext;
     }
 
-    public Map<String, ModuleSymbol> getResolvedImports() {
+    public Map<String, BImport> getResolvedImports() {
         return resolvedImports;
     }
 
-    public void setResolvedImports(Map<String, ModuleSymbol> resolvedImports) {
+    public void setResolvedImports(Map<String, BImport> resolvedImports) {
         this.resolvedImports = resolvedImports;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public void setExpression(String expression) {
+        expression = expression.trim();
+        if (expression.endsWith(SyntaxKind.SEMICOLON_TOKEN.stringValue())) {
+            this.expression = expression.substring(0, expression.length() - 1);
+        } else {
+            this.expression = expression;
+        }
     }
 }

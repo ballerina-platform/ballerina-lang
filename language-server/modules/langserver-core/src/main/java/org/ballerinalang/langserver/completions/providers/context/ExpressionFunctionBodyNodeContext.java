@@ -49,7 +49,7 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef);
             completionItems.addAll(this.getCompletionItemList(expressionContextEntries, ctx));
@@ -85,7 +85,7 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 }

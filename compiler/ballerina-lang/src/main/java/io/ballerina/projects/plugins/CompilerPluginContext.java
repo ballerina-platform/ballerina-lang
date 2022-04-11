@@ -34,6 +34,20 @@ public interface CompilerPluginContext {
     void addCodeAnalyzer(CodeAnalyzer codeAnalyzer);
 
     /**
+     * Add a {@code CodeGenerator} instance to the current compilation.
+     *
+     * @param codeGenerator the {@code CodeGenerator} instance
+     */
+    void addCodeGenerator(CodeGenerator codeGenerator);
+
+    /**
+     * Add a {@code CodeModifier} instance to the current compilation.
+     *
+     * @param codeModifier the {@code CodeModifier} instance
+     */
+    void addCodeModifier(CodeModifier codeModifier);
+
+    /**
      * Add a {@code CompilerLifecycleListener} instance to the current compilation.
      *
      * @param lifecycleListener the {@code CompilerLifecycleListener} instance

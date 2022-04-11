@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.object;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -43,93 +43,93 @@ public class ObjectEquivalencyTest {
     @Test(description = "Test equivalence of objects that are in the same package and the members are visible at " +
             "module level or above.")
     public void testObjectEquivalenceWhenFieldsHaveModuleVisibility() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEquivalenceWhenFieldsHaveModuleVisibility");
-        Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
+        Object returns = BRunUtil.invoke(compileResult, "testObjectEquivalenceWhenFieldsHaveModuleVisibility");
+        Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalence of of objects that are in the same package and all the members are public")
     public void testObjectEquivalenceWhenFieldsHavePublicVisibility() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEquivalenceWhenFieldsHavePublicVisibility");
-        Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
+        Object returns = BRunUtil.invoke(compileResult, "testObjectEquivalenceWhenFieldsHavePublicVisibility");
+        Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalence of public objects that are in the same package. " +
             "Equivalency test is performed in another package.")
     public void testEqOfPublicObjectsInBala() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInBala");
-        Assert.assertEquals(returns[0].stringValue(), "234-56-7890:employee");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInBala");
+        Assert.assertEquals(returns.toString(), "234-56-7890:employee");
     }
 
     @Test(description = "Test equivalency of public objects that are in two different packages")
     public void testEqOfPublicObjects() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjects");
-        Assert.assertEquals(returns[0].stringValue(), "234-56-1234:employee");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjects");
+        Assert.assertEquals(returns.toString(), "234-56-1234:employee");
     }
 
     @Test(description = "Test equivalency of public objects that are in two different packages")
     public void testEqOfPublicObjects2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjects2");
-        Assert.assertEquals(returns[0].stringValue(), "234-56-3345:employee");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjects2");
+        Assert.assertEquals(returns.toString(), "234-56-3345:employee");
     }
 
     @Test(description = "Test runtime equivalency of objects")
     public void testNonPublicTypedescEq() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNonPublicTypedescEq");
-        Assert.assertEquals(returns[0].stringValue(), "ttt");
+        Object returns = BRunUtil.invoke(compileResult, "testNonPublicTypedescEq");
+        Assert.assertEquals(returns.toString(), "ttt");
     }
 
     @Test(description = "Test runtime equivalency of public objects")
     public void testEqOfPublicObjectsInSamePackage() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInSamePackage");
-        Assert.assertEquals(returns[0].stringValue(), "Skyhigh");
+        Object returns = BRunUtil.invoke(compileResult, "testEqOfPublicObjectsInSamePackage");
+        Assert.assertEquals(returns.toString(), "Skyhigh");
     }
 
     @Test(description = "Test runtime equivalency of public objects")
     public void testRuntimeEqPublicObjects() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicObjects");
-        Assert.assertEquals(returns[0].stringValue(), "Skytop");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicObjects");
+        Assert.assertEquals(returns.toString(), "Skytop");
     }
 
     @Test(description = "Test runtime equivalency of object")
     public void testRuntimeEqPublicObjects1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicObjects1");
-        Assert.assertEquals(returns[0].stringValue(), "Brandon:userPFoo");
+        Object returns = BRunUtil.invoke(compileResult, "testRuntimeEqPublicObjects1");
+        Assert.assertEquals(returns.toString(), "Brandon:userPFoo");
     }
 
     @Test(description = "Test object equivalency as an argument")
     public void testObjectEquivalencyWithArguments() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEquivalencyWithArguments");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectEquivalencyWithArguments");
 
-        Assert.assertEquals(returns[0].stringValue(), "ENG2CMB");
-        Assert.assertEquals(returns[1].stringValue(), "1CMB");
-        Assert.assertEquals(returns[2].stringValue(), "ENG2CMB");
+        Assert.assertEquals(returns.get(0).toString(), "ENG2CMB");
+        Assert.assertEquals(returns.get(1).toString(), "1CMB");
+        Assert.assertEquals(returns.get(2).toString(), "ENG2CMB");
     }
 
     @Test(description = "Test tuple equivalency with object equivalency ")
     public void testTupleMatchWithObjectEquivalency() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTupleMatchWithObjectEquivalency");
-        Assert.assertEquals(returns[0].stringValue(), "SUCCESS");
+        Object returns = BRunUtil.invoke(compileResult, "testTupleMatchWithObjectEquivalency");
+        Assert.assertEquals(returns.toString(), "SUCCESS");
     }
 
     @Test
     public void testObjectEqualityWithDefaultConstructor() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEqualityWithDefaultConstructor");
-        Assert.assertEquals(returns[0].stringValue(), "{name:\"\", id:\"\"}");
-        Assert.assertEquals(returns[1].stringValue(), "{name:\"\", id:\"\"}");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectEqualityWithDefaultConstructor");
+        Assert.assertEquals(returns.get(0).toString(), "{name:, id:}");
+        Assert.assertEquals(returns.get(1).toString(), "{name:, id:}");
     }
 
     @Test
     public void testObjectEqualityWithRecursiveTypes() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectEqualityWithRecursiveTypes");
-        Assert.assertEquals(returns[0].stringValue(), "{field:\"value A\"}");
-        Assert.assertEquals(returns[1].stringValue(), "{field:\"value B\"}");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectEqualityWithRecursiveTypes");
+        Assert.assertEquals(returns.get(0).toString(), "{field:value A}");
+        Assert.assertEquals(returns.get(1).toString(), "{field:value B}");
     }
 
     @Test
     public void testObjectMemberOrder() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testObjectMemberOrder");
-        Assert.assertEquals(returns[0].stringValue(), "{age:45, name:\"Doe\", address:\"\"}");
-        Assert.assertEquals(returns[1].stringValue(), "{age:35, name:\"John\", address:\"\"}");
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testObjectMemberOrder");
+        Assert.assertEquals(returns.get(0).toString(), "{age:45, name:Doe, address:}");
+        Assert.assertEquals(returns.get(1).toString(), "{age:35, name:John, address:}");
     }
 
     @Test(description = "Test inherent type violation with nil value.",

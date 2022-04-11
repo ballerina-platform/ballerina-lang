@@ -14,6 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
+public type Pet record {
+    int id;
+    string name;
+    Type 'type;
+};
+
+public type Type record {
+    string 'type;
+    Owner owner;
+}?;
+
+public type Owner record {
+    string name;
+    string[]? address;
+};
+
 public client class Student {
 
     remote function getName(string firstName, string lastName = "") returns string|error {

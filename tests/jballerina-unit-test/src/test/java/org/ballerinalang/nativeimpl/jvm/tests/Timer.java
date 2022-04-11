@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.internal.values.ObjectValue;
 
@@ -36,7 +37,8 @@ public class Timer {
         new Thread(() -> {
             for (int i = 0; i < count; i++) {
                 sleep(interval);
-                runtime.invokeMethodAsync(object, "exec", null, null, null);
+                runtime.invokeMethodAsyncConcurrently(object, "exec", null, null, null, null,
+                                                      PredefinedTypes.TYPE_NULL);
             }
         }).start();
     }

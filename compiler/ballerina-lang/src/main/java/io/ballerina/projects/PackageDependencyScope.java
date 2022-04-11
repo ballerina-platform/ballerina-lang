@@ -28,9 +28,29 @@ public enum PackageDependencyScope {
     /**
      * These dependencies are available for both source and test sources.
      */
-    DEFAULT,
+    DEFAULT(""),
     /**
      * These dependencies are only available for test sources.
      */
-    TEST_ONLY
+    TEST_ONLY("testOnly");
+
+    private final String value;
+
+    PackageDependencyScope(String value) {
+        this.value = value;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public static PackageDependencyScope fromString(String value) {
+        if (value == null || value.isEmpty()) {
+            return DEFAULT;
+        } else if (TEST_ONLY.value.equals(value)) {
+            return TEST_ONLY;
+        } else {
+            throw new IllegalStateException("Unsupported package dependency scope: `" + value + "`");
+        }
+    }
 }

@@ -16,9 +16,6 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,54 +42,52 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test int greater than, less than expression")
     public void testIntRangeExpr() {
-        BValue[] args = {new BInteger(0)};
-        BValue[] returns = BRunUtil.invoke(result, "testIntRanges", args);
+        Object[] args = {(0)};
+        Object returns = BRunUtil.invoke(result, "testIntRanges", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 1;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BInteger(50)};
+        args = new Object[]{(50)};
         returns = BRunUtil.invoke(result, "testIntRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 2;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BInteger(200)};
+        args = new Object[]{(200)};
         returns = BRunUtil.invoke(result, "testIntRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 3;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Test float greater than, less than expression")
     public void testFloatRangeExpr() {
-        BValue[] args = {new BFloat(-123.8f)};
-        BValue[] returns = BRunUtil.invoke(result, "testFloatRanges", args);
+        Object[] args = {(-123.8f)};
+        Object returns = BRunUtil.invoke(result, "testFloatRanges", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns.getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns;
         long expected = 1;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BFloat(75.4f)};
+        args = new Object[]{(75.4f)};
         returns = BRunUtil.invoke(result, "testFloatRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 2;
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BFloat(321.45f)};
+        args = new Object[]{(321.45f)};
         returns = BRunUtil.invoke(result, "testFloatRanges", args);
 
-        actual = ((BInteger) returns[0]).intValue();
+        actual = (long) returns;
         expected = 3;
         Assert.assertEquals(actual, expected);
     }
@@ -100,7 +95,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 88);
+        Assert.assertEquals(resultNegative.getErrorCount(), 89);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -182,14 +177,16 @@ public class GreaterLessThanOperationTest {
                 "and '(int|string)'", 146, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '(int|string)' " +
                 "and '(int|string)'", 147, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2|3|4|5.23f[]' " +
-                "and '1|2|3|4|5.23f[]'", 155, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2|3|4|5.23f[]' " +
-                "and '1|2|3|4|5.23f[]'", 156, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2|3|4|5.23f[]' " +
-                "and '1|2|3|4|5.23f[]'", 157, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2|3|4|5.23f[]' " +
-                "and '1|2|3|4|5.23f[]'", 158, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'NumberSet[]' " +
+                "and 'NumberSet[]'", 155, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'NumberSet[]' " +
+                "and 'NumberSet[]'", 156, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for " +
+                "'NumberSet[]' and 'NumberSet[]'", 157, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for " +
+                "'NumberSet[]' and 'NumberSet[]'", 158, 18);
+        BAssertUtil.validateError(resultNegative, index++, "incompatible types: expected 'OneOrTwo', found " +
+                "'int'", 167, 21);
         BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'OneOrTwo[]' and " +
                 "'OneOrTwo[]'", 169, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'OneOrTwo[]' and " +
@@ -206,37 +203,37 @@ public class GreaterLessThanOperationTest {
                 "'FloatOrString'", 183, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'FloatOrString' and " +
                 "'FloatOrString'", 184, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2' and '10|11'",
-                194, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2' and '10|11'",
-                195, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2' and '10|11'",
-                196, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2' and '10|11'",
-                197, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'FiveOrSix' and '1|2'",
-                209, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'FiveOrSix' and '1|2'",
-                210, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'FiveOrSix' and '1|2'",
-                211, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'FiveOrSix' and '1|2'",
-                212, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2' and '1|2?'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'TwoInts' and " +
+                        "'StringTenOrEleven'", 194, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'TwoInts' and " +
+                        "'StringTenOrEleven'", 195, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'TwoInts' and " +
+                        "'StringTenOrEleven'", 196, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'TwoInts' and " +
+                        "'StringTenOrEleven'", 197, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'FiveOrSix' and " +
+                        "'TwoInts'", 209, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'FiveOrSix' and " +
+                        "'TwoInts'", 210, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'FiveOrSix' and " +
+                        "'TwoInts'", 211, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'FiveOrSix' and " +
+                        "'TwoInts'", 212, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'TwoInts' and 'TwoInts?'",
                 219, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2' and '1|2?'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'TwoInts' and 'TwoInts?'",
                 220, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2' and '1|2?'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'TwoInts' and 'TwoInts?'",
                 221, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2' and '1|2?'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'TwoInts' and 'TwoInts?'",
                 222, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2' and 'string'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'TwoInts' and 'string'",
                 229, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2' and 'string'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'TwoInts' and 'string'",
                 230, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2' and 'string'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'TwoInts' and 'string'",
                 231, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2' and 'string'",
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'TwoInts' and 'string'",
                 232, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'string?' and 'string'",
                 239, 18);

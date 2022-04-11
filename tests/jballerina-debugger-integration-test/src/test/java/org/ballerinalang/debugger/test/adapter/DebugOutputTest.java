@@ -32,6 +32,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -50,7 +51,7 @@ public class DebugOutputTest extends BaseTestCase {
 
     @Test(description = "Debug output test for Ballerina programs with runtime errors")
     public void testProgramOutput() throws BallerinaTestException {
-        String filePath = debugTestRunner.testEntryFilePath;
+        Path filePath = debugTestRunner.testEntryFilePath;
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(filePath, 19));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 

@@ -40,14 +40,14 @@ public class IdentifierTest {
 
     @DataProvider(name = "errorAsIdentifierFunctions")
     public Object[][] errorAsIdentifierFunctions() {
-        return new Object[][] {
-                { "testErrorNamedDefaultArgument" },
-                { "testErrorAsObjectField" },
-                { "testErrorDataWithErrorField" },
-                { "testErrorConstructorWithErrorField" },
-                { "testErrorNamedIncludedParam" },
-                { "testErrorNamedRequiredParam" },
-                { "testErrorNamedRestParam" },
+        return new Object[][]{
+                {"testErrorNamedDefaultArgument"},
+                {"testErrorAsObjectField"},
+                {"testErrorDataWithErrorField"},
+                {"testErrorConstructorWithErrorField"},
+                {"testErrorNamedIncludedParam"},
+                {"testErrorNamedRequiredParam"},
+                {"testErrorNamedRestParam"},
         };
     }
 
@@ -80,8 +80,8 @@ public class IdentifierTest {
     }
 
     @DataProvider(name = "functionsWithSelfAsIdentifier")
-    public  Object[] functionsWithSelfAsIdentifier() {
-        return new String[] {
+    public Object[] functionsWithSelfAsIdentifier() {
+        return new String[]{
                 "testFuncWithSelfAsParamName",
                 "testSelfAsIdentifier"
         };

@@ -1,0 +1,24 @@
+{
+  "line": 0,
+  "character": 0,
+  "expected": [
+    {
+      "title": "Convert to public function",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "public "
+        }
+      ]
+    }
+  ]
+}

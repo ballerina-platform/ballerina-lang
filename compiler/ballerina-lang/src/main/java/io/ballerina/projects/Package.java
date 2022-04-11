@@ -1,14 +1,17 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -140,12 +143,16 @@ public class Package {
         return this.packageContext.getPackageCompilation();
     }
 
-    public PackageCompilation getCompilation(CompilationOptions compilationOptions) {
+    PackageCompilation getCompilation(CompilationOptions compilationOptions) {
         return this.packageContext.getPackageCompilation(compilationOptions);
     }
 
     public PackageResolution getResolution() {
         return this.packageContext.getResolution();
+    }
+
+    public PackageResolution getResolution(CompilationOptions compilationOptions) {
+        return this.packageContext.getResolution(compilationOptions);
     }
 
     public DependencyGraph<ModuleId> moduleDependencyGraph() {
@@ -203,6 +210,145 @@ public class Package {
             );
         }
         return this.packageMd;
+    }
+
+    Package duplicate(Project project) {
+        return new Package(packageContext.duplicate(project), project);
+    }
+
+    /**
+     * Run {@code CodeGenerator} and {@code CodeModifier} tasks in engaged {@code CompilerPlugin}s.
+     * <p>
+     * Returns a collected diagnostics reported by the code generator and code modifier tasks
+     * in form of a {@code DiagnosticResult} instance.
+     * <p>
+     * Here is a sample usage of this API: <pre>
+     *   Project project = BuildProject.load(Paths.get(...));
+     *   Package currentPackage = project.currentPackage();
+     *   DiagnosticResult diagnosticsResult = currentPackage.runCodeGenAndModifyPlugins();
+     *
+     *   // Compile the package with generated files.
+     *   PackageCompilation compilation = packageWithGenFiles.getCompilation();
+     *   </pre>
+     * <p>
+     * This method does not run other tasks such as {@code CodeAnalyzer}s in engaged compiler plugins.
+     *
+     * @return a {@code DiagnosticResult} instance
+     */
+    public DiagnosticResult runCodeGenAndModifyPlugins() {
+        PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
+        if (cachedCompilation != null) {
+            // Check whether there are engaged code modifiers, if not return
+            CompilerPluginManager compilerPluginManager = cachedCompilation.compilerPluginManager();
+            if (compilerPluginManager.engagedCodeGeneratorCount() == 0
+                    && compilerPluginManager.engagedCodeModifierCount() == 0) {
+                return new DefaultDiagnosticResult(Collections.emptyList());
+            }
+        }
+
+        // There are engaged compiler plugins or there is no cached compilation. We have to compile anyway
+        CompilationOptions compOptions = CompilationOptions.builder()
+                .withCodeGenerators(true)
+                .withCodeModifiers(true)
+                .build();
+        CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        if (compilerPluginManager.engagedCodeGeneratorCount() > 0) {
+            CodeGeneratorManager codeGeneratorManager = compilerPluginManager.getCodeGeneratorManager();
+            CodeGeneratorResult codeGeneratorResult = codeGeneratorManager.runCodeGenerators(this);
+            diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().allDiagnostics);
+        }
+
+        if (compilerPluginManager.engagedCodeModifierCount() > 0) {
+            CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
+            CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(this);
+            diagnostics.addAll(codeModifierResult.reportedDiagnostics().allDiagnostics);
+        }
+        return new DefaultDiagnosticResult(diagnostics);
+    }
+
+    /**
+     * Run {@code CodeGenerator} tasks in engaged {@code CompilerPlugin}s.
+     * <p>
+     * Returns a new package instances with generated files and a collected diagnostics
+     * reported by the code generator tasks in form of a {@code CodeGeneratorResult} instance.
+     * <p>
+     * Here is a sample usage of this API: <pre>
+     *   Project project = BuildProject.load(Paths.get(...));
+     *   Package currentPackage = project.currentPackage();
+     *   Package packageWithGenFiles = currentPackage.runCodeGeneratorPlugins();
+     *
+     *   // Compile the package with generated files.
+     *   PackageCompilation compilation = packageWithGenFiles.getCompilation();
+     *   </pre>
+     * <p>
+     * This method does not run other tasks such as {@code CodeAnalyzer}s in engaged compiler plugins.
+     *
+     * @return a {@code CodeGeneratorResult} instance
+     */
+    public CodeGeneratorResult runCodeGeneratorPlugins() {
+        PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
+        if (cachedCompilation != null) {
+            // Check whether there are engaged code generators, if not return
+            CompilerPluginManager compilerPluginManager = cachedCompilation.compilerPluginManager();
+            if (compilerPluginManager.engagedCodeGeneratorCount() == 0) {
+                return new CodeGeneratorResult(null, Collections.emptyList());
+            }
+        }
+
+        // There are engaged code generators or there is no cached compilation. We have to compile anyway
+        CompilationOptions compOptions = CompilationOptions.builder().withCodeGenerators(true).build();
+        // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
+        // TODO How about PackageResolution
+        CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
+        if (compilerPluginManager.engagedCodeGeneratorCount() == 0) {
+            return new CodeGeneratorResult(null, Collections.emptyList());
+        }
+
+        CodeGeneratorManager codeGeneratorManager = compilerPluginManager.getCodeGeneratorManager();
+        return codeGeneratorManager.runCodeGenerators(this);
+    }
+
+    /**
+     * Run {@code CodeModifier} tasks in engaged {@code CompilerPlugin}s.
+     * <p>
+     * Returns a new package instances with modified files and a collected diagnostics
+     * reported by the code modifier tasks in form of a {@code CodeModifierResult} instance.
+     * <p>
+     * Here is a sample usage of this API: <pre>
+     *   Project project = BuildProject.load(Paths.get(...));
+     *   Package currentPackage = project.currentPackage();
+     *   Package packageWithGenFiles = currentPackage.runCodeModifierPlugins();
+     *
+     *   // Compile the package with generated files.
+     *   PackageCompilation compilation = packageWithGenFiles.getCompilation();
+     *   </pre>
+     * <p>
+     * This method does not run other tasks such as {@code CodeAnalyzer}s in engaged compiler plugins.
+     *
+     * @return a {@code CodeModifierResult} instance
+     */
+    public CodeModifierResult runCodeModifierPlugins() {
+        PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
+        if (cachedCompilation != null) {
+            // Check whether there are engaged code modifiers, if not return
+            CompilerPluginManager compilerPluginManager = cachedCompilation.compilerPluginManager();
+            if (compilerPluginManager.engagedCodeModifierCount() == 0) {
+                return new CodeModifierResult(null, Collections.emptyList());
+            }
+        }
+
+        // There are engaged code modifiers or there is no cached compilation. We have to compile anyway
+        CompilationOptions compOptions = CompilationOptions.builder().withCodeModifiers(true).build();
+        // TODO We can avoid this compilation. Move CompilerPluginManagers out of the PackageCompilation
+        // TODO How about PackageResolution
+        CompilerPluginManager compilerPluginManager = this.getCompilation(compOptions).compilerPluginManager();
+        if (compilerPluginManager.engagedCodeModifierCount() == 0) {
+            return new CodeModifierResult(null, Collections.emptyList());
+        }
+
+        CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
+        return codeModifierManager.runCodeModifiers(this);
     }
 
     /**
@@ -439,6 +585,11 @@ public class Package {
                 CompilerContext compilerContext = project.projectEnvironmentContext()
                         .getService(CompilerContext.class);
                 PackageCache packageCache = PackageCache.getInstance(compilerContext);
+
+                io.ballerina.projects.environment.PackageCache environmentPackageCache =
+                        project.projectEnvironmentContext().environment().getService(
+                        io.ballerina.projects.environment.PackageCache.class);
+
                 for (ResolvedPackageDependency dependency : diff) {
                     for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
                         if (!dependency.packageInstance().descriptor().isLangLibPackage()) {
@@ -446,8 +597,9 @@ public class Package {
                             PackageID packageID = module.descriptor().moduleCompilationId();
                             // remove the module from the compiler packageCache
                             packageCache.remove(packageID);
-                            // we need to also reset the module in the project environment packageCache
-                            // to make the module recompile and add symbols
+                            // reset the module in the project environment packageCache to make the module recompile
+                            // and add symbols
+                            environmentPackageCache.removePackage(module.moduleId().packageId());
                             module.moduleContext().setCompilationState(null);
                         }
                     }
@@ -463,7 +615,7 @@ public class Package {
             this.packageManifest = manifestBuilder.packageManifest();
             BuildOptions newBuildOptions;
             if (manifestBuilder.buildOptions() == null) {
-                newBuildOptions = new BuildOptionsBuilder().build();
+                newBuildOptions = BuildOptions.builder().build();
             } else {
                 newBuildOptions = manifestBuilder.buildOptions();
             }
@@ -473,7 +625,8 @@ public class Package {
 
         private void updateDependencyManifest() {
             DependencyManifestBuilder manifestBuilder = DependencyManifestBuilder.from(
-                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null));
+                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
+                     project.currentPackage().descriptor());
             this.dependencyManifest = manifestBuilder.dependencyManifest();
         }
 
@@ -498,10 +651,20 @@ public class Package {
                     testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
                 }
 
+                Map<DocumentId, ResourceContext> resourceMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.resourceIds()) {
+                    resourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
+                }
+
+                Map<DocumentId, ResourceContext> testResourceMap = new HashMap<>();
+                for (DocumentId documentId : oldModuleContext.testResourceIds()) {
+                    testResourceMap.put(documentId, oldModuleContext.resourceContext(documentId));
+                }
+
                 moduleContextSet.add(new ModuleContext(this.project, moduleId, moduleDescriptor,
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
-                        oldModuleContext.moduleDescDependencies()));
+                        oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
             }
             updateModules(moduleContextSet);
         }

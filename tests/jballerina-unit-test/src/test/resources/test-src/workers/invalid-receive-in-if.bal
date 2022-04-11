@@ -7,7 +7,7 @@ public function main() {
     }
 
     worker w2 {
-      if(false){
+      if (0 > 1) {
           int j = <- w1;
       }
     }

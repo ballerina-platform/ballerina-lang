@@ -20,6 +20,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * A parent context to hold information related to an operation performed against a position.
@@ -45,9 +46,9 @@ public interface PositionedActionContext {
     /**
      * Get the cursor position.
      *
-     * @return {@link LinePosition}
+     * @return Optional {@link LinePosition}
      */
-    LinePosition cursorPosition();
+    Optional<LinePosition> cursorPosition();
 
     /**
      * Get the current document where the given file URI resides.

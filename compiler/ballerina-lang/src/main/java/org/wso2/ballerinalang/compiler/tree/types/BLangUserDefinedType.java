@@ -24,6 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.HashSet;
@@ -33,8 +35,12 @@ import java.util.Set;
  * @since 0.94
  */
 public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNode {
+
+    // BLangNodes
     public BLangIdentifier pkgAlias;
     public BLangIdentifier typeName;
+
+    // Semantic Data
     public BSymbol symbol;
 
     public BLangUserDefinedType() {
@@ -69,6 +75,16 @@ public class BLangUserDefinedType extends BLangType implements UserDefinedTypeNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

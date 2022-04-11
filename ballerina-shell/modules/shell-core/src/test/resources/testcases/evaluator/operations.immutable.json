@@ -61,7 +61,11 @@
   },
   {
     "description": "Clone immutable and check ref eq.",
-    "code": "map<string|int> m3 = m2.cloneReadOnly(); m2 === m3",
+    "code": "map<string|int> m3 = m2.cloneReadOnly();"
+  },
+  {
+    "description": "Clone immutable and check ref eq - get value.",
+    "code": "m2 === m3",
     "expr": "true"
   },
   {
@@ -70,7 +74,11 @@
   },
   {
     "description": "Clone and check for type.",
-    "code": "var immutableClonedVal = m5.cloneReadOnly(); immutableClonedVal is map<string>",
+    "code": "var immutableClonedVal = m5.cloneReadOnly();"
+  },
+  {
+    "description": "Clone and check for type - get value.",
+    "code": "immutableClonedVal is map<string>",
     "expr": "true"
   }
 ]

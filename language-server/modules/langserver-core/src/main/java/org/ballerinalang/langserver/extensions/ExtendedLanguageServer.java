@@ -15,13 +15,12 @@
  */
 package org.ballerinalang.langserver.extensions;
 
-import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentService;
-import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
-import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
-import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
-import org.eclipse.lsp4j.jsonrpc.services.JsonDelegate;
+import org.ballerinalang.langserver.commons.registration.BallerinaInitializeParams;
+import org.ballerinalang.langserver.commons.registration.BallerinaInitializeResult;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.services.LanguageServer;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Extended Language Server interface which includes ballerina document services.
@@ -29,14 +28,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
  * @since 0.981.2
  */
 public interface ExtendedLanguageServer extends LanguageServer {
-    @JsonDelegate
-    BallerinaDocumentService getBallerinaDocumentService();
-    @JsonDelegate
-    BallerinaConnectorService getBallerinaConnectorService();
-    @JsonDelegate
-    BallerinaExampleService getBallerinaExampleService();
-    @JsonDelegate
-    BallerinaSymbolService getBallerinaSymbolService();
-    @JsonDelegate
-    BallerinaPackageService getBallerinaPackageService();
+
+    @JsonRequest
+    CompletableFuture<BallerinaInitializeResult> initBalServices(BallerinaInitializeParams params);
 }

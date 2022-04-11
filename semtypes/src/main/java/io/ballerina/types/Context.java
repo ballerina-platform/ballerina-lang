@@ -26,17 +26,32 @@ import java.util.Map;
  * @since 3.0.0
  */
 public class Context {
-    private final Env env;
+    public final Env env;
     public final Map<Bdd, BddMemo> functionMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> listMemo = new HashMap<>();
     public final Map<Bdd, BddMemo> mappingMemo = new HashMap<>();
+
+    private static volatile Context instance;
+    public SemType anydataMemo;
 
     private Context(Env env) {
         this.env = env;
     }
 
-    static Context from(Env env) {
-        return new Context(env);
+    public static Context from(Env env) {
+        if (instance == null) {
+            synchronized (Context.class) {
+                if (instance == null) {
+                    instance = new Context(env);
+                }
+            }
+        }
+        if (instance.env == env) {
+            return instance;
+        } else {
+            instance = new Context(env);
+        }
+        return instance;
     }
 
     public ListAtomicType listAtomType(Atom atom) {

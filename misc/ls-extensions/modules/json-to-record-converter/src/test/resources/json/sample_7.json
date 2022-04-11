@@ -1,0 +1,13 @@
+{
+  "name": "John",
+  "school": "Everton High",
+  "age": 17,
+  "address": {
+    "city": {
+      "name": "Colombo",
+      "code": "8000"
+    },
+    "country": "LK",
+    "Lane": "L1"
+  }
+}

@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.internal.repositories;
 
+import com.github.zafarkhaja.semver.UnexpectedCharacterException;
+import com.github.zafarkhaja.semver.Version;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleDescriptor;
@@ -30,26 +32,24 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
-import io.ballerina.projects.environment.PackageLockingMode;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.BalaFiles;
-import io.ballerina.projects.internal.ImportModuleRequest;
-import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -93,12 +93,12 @@ public class FileSystemRepository extends AbstractPackageRepository {
     }
 
     @Override
-    public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+    public Optional<Package> getPackage(ResolutionRequest request, ResolutionOptions options) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        String packageName = resolutionRequest.packageName().value();
-        String orgName = resolutionRequest.orgName().value();
-        String version = resolutionRequest.version().isPresent() ?
-                resolutionRequest.version().get().toString() : "0.0.0";
+        String packageName = request.packageName().value();
+        String orgName = request.orgName().value();
+        String version = request.version().isPresent() ?
+                request.version().get().toString() : "0.0.0";
 
         Path balaPath = getPackagePath(orgName, packageName, version);
         if (!Files.exists(balaPath)) {
@@ -113,10 +113,18 @@ public class FileSystemRepository extends AbstractPackageRepository {
     }
 
     @Override
-    public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
+    public boolean isPackageExists(PackageOrg org,
+                                   PackageName name,
+                                   PackageVersion version) {
+        Path balaPath = getPackagePath(org.value(), name.value(), version.value().toString());
+        return Files.exists(balaPath);
+    }
+
+    @Override
+    public Collection<PackageVersion> getPackageVersions(ResolutionRequest request, ResolutionOptions options) {
         // if version and org name is empty we add empty string so we return empty package anyway
-        return getPackageVersions(resolutionRequest.orgName(), resolutionRequest.packageName(),
-                resolutionRequest.version().orElse(null));
+        return getPackageVersions(request.orgName(), request.packageName(),
+                request.version().orElse(null));
     }
 
     /**
@@ -164,79 +172,6 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return packagesMap;
     }
 
-    @Override
-    public List<ImportModuleResponse> resolvePackageNames(List<ImportModuleRequest> importModuleRequests) {
-        List<ImportModuleResponse> importModuleResponseList = new ArrayList<>();
-        for (ImportModuleRequest importModuleRequest : importModuleRequests) {
-            ImportModuleResponse importModuleLoadResponse = getImportModuleLoadResponse(importModuleRequest);
-            importModuleResponseList.add(importModuleLoadResponse);
-        }
-        return importModuleResponseList;
-    }
-
-    private ImportModuleResponse getImportModuleLoadResponse(ImportModuleRequest importModuleRequest) {
-        // Check if the imported module is available in a possible package locked in the Dependencies.toml
-        for (PackageDescriptor possiblePackage : importModuleRequest.possiblePackages()) {
-            List<PackageVersion> packageVersions = getCompatiblePackageVersions(
-                    possiblePackage, PackageLockingMode.SOFT);
-            ImportModuleResponse importModuleResponse = getImportModuleResponse(
-                    importModuleRequest, possiblePackage.name(), packageVersions);
-            if (importModuleResponse != null) {
-                return importModuleResponse;
-            }
-        }
-
-        // If the module is not found in the possible packages locked in the Dependencies.toml
-        // we continue looking for the module in the remaining possible packages.
-        List<PackageName> existing = importModuleRequest.possiblePackages().stream().map(PackageDescriptor::name)
-                .collect(Collectors.toList());
-        List<PackageName> remainingPackageNames = ProjectUtils.getPossiblePackageNames(
-                importModuleRequest.packageOrg(), importModuleRequest.moduleName()).stream()
-                .filter(o -> !existing.contains(o)).collect(Collectors.toList());
-
-        for (PackageName possiblePackageName : remainingPackageNames) {
-            List<PackageVersion> packageVersions = getPackageVersions(importModuleRequest.packageOrg(),
-                    possiblePackageName, null);
-
-            ImportModuleResponse importModuleResponse = getImportModuleResponse(
-                    importModuleRequest, possiblePackageName, packageVersions);
-            if (importModuleResponse != null) {
-                return importModuleResponse;
-            }
-        }
-        return new ImportModuleResponse(importModuleRequest);
-    }
-
-    private ImportModuleResponse getImportModuleResponse(ImportModuleRequest importModuleRequest,
-                                                         PackageName packageName,
-                                                         List<PackageVersion> packageVersions) {
-        Comparator<PackageVersion> comparator = (v1, v2) -> {
-
-            PackageVersion latest = getLatest(v1, v2);
-            if (v1 == latest) {
-                return -1;
-            }
-            return 1;
-        };
-        packageVersions.sort(comparator);
-
-        for (PackageVersion packageVersion : packageVersions) {
-            Path balaPath = getPackagePath(importModuleRequest.packageOrg().toString(),
-                    packageName.toString(), packageVersion.toString());
-            BalaFiles.DependencyGraphResult packageDependencyGraph =
-                    BalaFiles.createPackageDependencyGraph(balaPath);
-            Set<ModuleDescriptor> moduleDescriptors = packageDependencyGraph.moduleDependencies().keySet();
-            for (ModuleDescriptor moduleDescriptor : moduleDescriptors) {
-                if (importModuleRequest.moduleName().equals(moduleDescriptor.name().toString())) {
-                    PackageDescriptor packageDescriptor = PackageDescriptor
-                            .from(importModuleRequest.packageOrg(), packageName, packageVersion);
-                    return new ImportModuleResponse(packageDescriptor, importModuleRequest);
-                }
-            }
-        }
-        return null;
-    }
-
     protected List<PackageVersion> getPackageVersions(PackageOrg org, PackageName name, PackageVersion version) {
         List<Path> versions = new ArrayList<>();
         try {
@@ -249,7 +184,71 @@ public class FileSystemRepository extends AbstractPackageRepository {
         } catch (IOException e) {
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
+
+        versions.removeAll(getIncompatibleVer(versions, org, name));
         return pathToVersions(versions);
+    }
+
+    protected List<Path> getIncompatibleVer(List<Path> versions, PackageOrg org, PackageName name) {
+        List<Path> incompatibleVersions = new ArrayList<>();
+
+        if (!versions.isEmpty()) {
+            for (Path ver : versions) {
+                Path pkgJsonPath = getPackagePath(org.value(), name.value(),
+                        Optional.of(ver.getFileName()).get().toFile().getName()).resolve(ProjectConstants.PACKAGE_JSON);
+                if (Files.exists(pkgJsonPath)) {
+                    String packageVer = BalaFiles.readPkgJson(pkgJsonPath).getBallerinaVersion();
+                    String packVer = RepoUtils.getBallerinaShortVersion();
+                    if (!isCompatible(packageVer, packVer)) {
+                        incompatibleVersions.add(ver);
+                    }
+                } else {
+                    incompatibleVersions.add(ver);
+                }
+            }
+        }
+
+        return incompatibleVersions;
+    }
+
+    /**
+     * Returns if a package is compatible with the current platform version
+     * (ballerinaShortVersion of the current distribution).
+     *
+     * A package is considered to be compatible with the current platform
+     * if the platform version that the package is built on has the same major
+     * version and is not greater than the version of the current platform.
+     *
+     * slbeta versions are considered compatible which is a special case.
+     * TODO: we can check if this is necessary after the SL GA
+     *
+     * @param pkgBalVer version of the platform that the package is built on
+     * @param distBalVer version of the current platform
+     *
+     * @return true if compatible
+     */
+    private boolean isCompatible(String pkgBalVer, String distBalVer) {
+        if (pkgBalVer.equals(distBalVer) || pkgBalVer.startsWith("slbeta")) {
+            return true;
+        }
+        Version pkgSemVer;
+        Version distSemVer;
+        try {
+            pkgSemVer = Version.valueOf(pkgBalVer);
+            distSemVer = Version.valueOf(distBalVer);
+
+            if (pkgSemVer.getMajorVersion() == distSemVer.getMajorVersion()) {
+                if (pkgSemVer.getMinorVersion() == distSemVer.getMinorVersion()) {
+                    return true;
+                }
+                return !pkgSemVer.greaterThan(distSemVer);
+            }
+        } catch (UnexpectedCharacterException ignore) {
+            // SemVer incompatible versions will throw this exception.
+            // Catching this is mainly to handle slalpha versions
+        }
+
+        return false;
     }
 
     @Override
@@ -259,6 +258,15 @@ public class FileSystemRepository extends AbstractPackageRepository {
         Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
         BalaFiles.DependencyGraphResult dependencyGraphResult = BalaFiles.createPackageDependencyGraph(balaPath);
         return dependencyGraphResult.packageDependencyGraph();
+    }
+
+    @Override
+    public Collection<ModuleDescriptor> getModules(PackageOrg org,
+                                                      PackageName name,
+                                                      PackageVersion version) {
+        Path balaPath = getPackagePath(org.toString(), name.toString(), version.toString());
+        BalaFiles.DependencyGraphResult dependencyGraphResult = BalaFiles.createPackageDependencyGraph(balaPath);
+        return dependencyGraphResult.moduleDependencies().keySet();
     }
 
     protected Path getPackagePath(String org, String name, String version) {

@@ -5,37 +5,57 @@
       "name": "project",
       "modules": [
         {
-          "name": "services",
-          "functions": [],
-          "services": [
-            {
-              "name": "hello",
-              "filePath": "hello.bal",
-              "resources": [
-                {
-                  "name": "get satyHello",
-                  "filePath": "hello.bal",
-                  "startLine": 8,
-                  "startColumn": 22,
-                  "endLine": 8,
-                  "endColumn": 25
-                }
-              ]
-            }
-          ]
-        },
-        {
           "functions": [
             {
               "name": "main",
               "filePath": "main.bal",
               "startLine": 3,
-              "startColumn": 16,
-              "endLine": 3,
-              "endColumn": 20
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 1
             }
           ],
-          "services": []
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": []
+        },
+        {
+          "functions": [],
+          "services": [
+            {
+              "name": "/hello ",
+              "resources": [
+                {
+                  "name": "get",
+                  "filePath": "hello.bal",
+                  "startLine": 8,
+                  "startColumn": 4,
+                  "endLine": 10,
+                  "endColumn": 5
+                }
+              ],
+              "filePath": "hello.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 11,
+              "endColumn": 1
+            }
+          ],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "name": "services"
         }
       ]
     },
@@ -44,32 +64,48 @@
       "name": "project_functions",
       "modules": [
         {
-          "name": "storage",
           "functions": [
             {
               "name": "initDatabase",
               "filePath": "db.bal",
               "startLine": 0,
-              "startColumn": 16,
-              "endLine": 0,
-              "endColumn": 28
+              "startColumn": 0,
+              "endLine": 2,
+              "endColumn": 1
             }
           ],
-          "services": []
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "name": "storage"
         },
         {
-          "name": "services",
           "functions": [
             {
               "name": "runServices",
               "filePath": "svc.bal",
               "startLine": 3,
-              "startColumn": 16,
-              "endLine": 3,
-              "endColumn": 27
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 1
             }
           ],
-          "services": []
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "name": "services"
         },
         {
           "functions": [
@@ -77,12 +113,20 @@
               "name": "main",
               "filePath": "main.bal",
               "startLine": 3,
-              "startColumn": 16,
-              "endLine": 3,
-              "endColumn": 20
+              "startColumn": 0,
+              "endLine": 6,
+              "endColumn": 1
             }
           ],
-          "services": []
+          "services": [],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": []
         }
       ]
     },
@@ -91,63 +135,108 @@
       "name": "project_services",
       "modules": [
         {
-          "name": "hello_service",
           "functions": [],
           "services": [
             {
-              "name": "hello",
-              "filePath": "hello.bal",
+              "name": "/ ",
               "resources": [
                 {
-                  "name": "get satyHello",
-                  "filePath": "hello.bal",
-                  "startLine": 8,
-                  "startColumn": 22,
-                  "endLine": 8,
-                  "endColumn": 25
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name": "db_service",
-          "functions": [],
-          "services": [
-            {
-              "name": "process",
-              "filePath": "db.bal",
-              "resources": [
-                {
-                  "name": "post connect",
-                  "filePath": "db.bal",
-                  "startLine": 5,
-                  "startColumn": 22,
-                  "endLine": 5,
-                  "endColumn": 26
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "functions": [],
-          "services": [
-            {
-              "name": "",
-              "filePath": "main.bal",
-              "resources": [
-                {
-                  "name": "get welcome",
+                  "name": "get",
                   "filePath": "main.bal",
                   "startLine": 8,
-                  "startColumn": 22,
-                  "endLine": 8,
-                  "endColumn": 25
+                  "startColumn": 4,
+                  "endLine": 10,
+                  "endColumn": 5
                 }
-              ]
+              ],
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 11,
+              "endColumn": 1
             }
-          ]
+          ],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": []
+        },
+        {
+          "functions": [],
+          "services": [
+            {
+              "name": "\"process\" ",
+              "resources": [
+                {
+                  "name": "post",
+                  "filePath": "db.bal",
+                  "startLine": 5,
+                  "startColumn": 4,
+                  "endLine": 7,
+                  "endColumn": 5
+                }
+              ],
+              "filePath": "db.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 8,
+              "endColumn": 1
+            }
+          ],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [],
+          "moduleVariables": [],
+          "name": "db_service"
+        },
+        {
+          "functions": [],
+          "services": [
+            {
+              "name": "/hello ",
+              "resources": [
+                {
+                  "name": "get",
+                  "filePath": "hello.bal",
+                  "startLine": 10,
+                  "startColumn": 4,
+                  "endLine": 12,
+                  "endColumn": 5
+                }
+              ],
+              "filePath": "hello.bal",
+              "startLine": 5,
+              "startColumn": 0,
+              "endLine": 13,
+              "endColumn": 1
+            }
+          ],
+          "records": [],
+          "objects": [],
+          "classes": [],
+          "types": [],
+          "constants": [],
+          "enums": [],
+          "listeners": [
+            {
+              "name": "helloEp",
+              "filePath": "hello.bal",
+              "startLine": 2,
+              "startColumn": 0,
+              "endLine": 2,
+              "endColumn": 44
+            }
+          ],
+          "moduleVariables": [],
+          "name": "hello_service"
         }
       ]
     },
@@ -160,26 +249,127 @@
             {
               "name": "main",
               "filePath": "main.bal",
-              "startLine": 3,
-              "startColumn": 16,
-              "endLine": 3,
-              "endColumn": 20
+              "startLine": 44,
+              "startColumn": 0,
+              "endLine": 46,
+              "endColumn": 1
             }
           ],
           "services": [
             {
-              "name": "hey",
-              "filePath": "main.bal",
+              "name": "/hey ",
               "resources": [
                 {
-                  "name": "get satyHello",
+                  "name": "get",
                   "filePath": "main.bal",
-                  "startLine": 9,
-                  "startColumn": 22,
-                  "endLine": 9,
-                  "endColumn": 25
+                  "startLine": 50,
+                  "startColumn": 4,
+                  "endLine": 52,
+                  "endColumn": 5
                 }
-              ]
+              ],
+              "filePath": "main.bal",
+              "startLine": 48,
+              "startColumn": 0,
+              "endLine": 53,
+              "endColumn": 1
+            }
+          ],
+          "records": [
+            {
+              "name": "Coordinates",
+              "filePath": "main.bal",
+              "startLine": 12,
+              "startColumn": 0,
+              "endLine": 15,
+              "endColumn": 3
+            }
+          ],
+          "objects": [
+            {
+              "name": "Address",
+              "filePath": "main.bal",
+              "startLine": 33,
+              "startColumn": 0,
+              "endLine": 38,
+              "endColumn": 2
+            }
+          ],
+          "classes": [
+            {
+              "name": "Person",
+              "functions": [
+                {
+                  "name": "init",
+                  "filePath": "main.bal",
+                  "startLine": 28,
+                  "startColumn": 4,
+                  "endLine": 30,
+                  "endColumn": 5
+                }
+              ],
+              "filePath": "main.bal",
+              "startLine": 25,
+              "startColumn": 0,
+              "endLine": 31,
+              "endColumn": 1
+            }
+          ],
+          "types": [
+            {
+              "name": "SampleError",
+              "filePath": "main.bal",
+              "startLine": 40,
+              "startColumn": 0,
+              "endLine": 40,
+              "endColumn": 40
+            },
+            {
+              "name": "CountryCode",
+              "filePath": "main.bal",
+              "startLine": 42,
+              "startColumn": 0,
+              "endLine": 42,
+              "endColumn": 35
+            }
+          ],
+          "constants": [
+            {
+              "name": "BALLERINA",
+              "filePath": "main.bal",
+              "startLine": 10,
+              "startColumn": 0,
+              "endLine": 10,
+              "endColumn": 30
+            }
+          ],
+          "enums": [
+            {
+              "name": "Color",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 0,
+              "endLine": 8,
+              "endColumn": 1
+            }
+          ],
+          "listeners": [],
+          "moduleVariables": [
+            {
+              "name": "modLevelVariable ",
+              "filePath": "main.bal",
+              "startLine": 17,
+              "startColumn": 0,
+              "endLine": 21,
+              "endColumn": 23
+            },
+            {
+              "name": "enableRemote ",
+              "filePath": "main.bal",
+              "startLine": 23,
+              "startColumn": 0,
+              "endLine": 23,
+              "endColumn": 41
             }
           ]
         }

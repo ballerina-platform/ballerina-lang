@@ -56,9 +56,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
  * Extern function lang.values:cloneWithType.
@@ -66,8 +66,6 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMP
  * @since 2.0
  */
 public class CloneWithType {
-
-    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
     public static Object cloneWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
@@ -89,7 +87,7 @@ public class CloneWithType {
         } catch (BError e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 
@@ -105,18 +103,18 @@ public class CloneWithType {
             if (targetType.isNilable()) {
                 return null;
             }
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
                     BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
+
+        List<String> errors = new ArrayList<>();
         Set<Type> convertibleTypes;
-        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
+        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false,
+                new ArrayList<>(), errors, allowAmbiguity);
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
-            throw createConversionError(value, targetType);
-        } else if (!allowAmbiguity && convertibleTypes.size() > 1 && !convertibleTypes.contains(sourceType) &&
-                !TypeConverter.hasIntegerSubTypes(convertibleTypes)) {
-            throw createAmbiguousConversionError(value, targetType);
+            throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
         Type matchingType;
@@ -143,7 +141,7 @@ public class CloneWithType {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
+            throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
                                          BLangExceptionHelper
                                                  .getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, value.getType())
                                                  .getValue());
@@ -174,7 +172,7 @@ public class CloneWithType {
                 break;
             default:
                 // should never reach here
-                throw CloneUtils.createConversionError(value, targetType);
+                throw createConversionError(value, targetType);
         }
 
         unresolvedValues.remove(typeValuePair);
@@ -193,7 +191,7 @@ public class CloneWithType {
                     initialValues[count++] = ValueCreator
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                 }
-                return ValueCreator.createMapValue(targetType, initialValues);
+                return ValueCreator.createMapValue((MapType) targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
 
@@ -218,7 +216,7 @@ public class CloneWithType {
                 break;
         }
         // should never reach here
-        throw CloneUtils.createConversionError(map, targetType);
+        throw createConversionError(map, targetType);
     }
 
     private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
@@ -290,7 +288,7 @@ public class CloneWithType {
                 break;
         }
         // should never reach here
-        throw CloneUtils.createConversionError(array, targetType);
+        throw createConversionError(array, targetType);
     }
 
     private static Object convertTable(BTable<?, ?> bTable, Type targetType,
@@ -312,18 +310,4 @@ public class CloneWithType {
         }
         return ValueCreator.createTableValue(tableType, data, fieldNames);
     }
-
-    private static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                        TypeChecker.getType(inputValue), targetType));
-    }
-
-    private static BError createAmbiguousConversionError(Object inputValue, Type targetType) {
-        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType)
-                                   .concat(StringUtils.fromString(": ".concat(CloneWithType.AMBIGUOUS_TARGET))));
-    }
-
 }

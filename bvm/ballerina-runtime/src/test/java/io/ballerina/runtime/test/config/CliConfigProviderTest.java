@@ -20,8 +20,13 @@ package io.ballerina.runtime.test.config;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -34,6 +39,10 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import static io.ballerina.runtime.api.utils.StringUtils.fromString;
+import static io.ballerina.runtime.test.TestUtils.getIntersectionType;
 
 /**
  * Test cases specific for configuration provided via cli.
@@ -115,4 +124,62 @@ public class CliConfigProviderTest {
         Assert.assertEquals(configValueMap.get(b).getValue(), StringUtils.fromString("bbb"));
         Assert.assertEquals(configValueMap.get(c).getValue(), StringUtils.fromString("ccc"));
     }
+
+    @Test(dataProvider = "finite-data-provider")
+    public void testCliProviderFiniteType(String variableName, Type type, Object expectedValues, String cliArg) {
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, variableName, type, false);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar})), diagnosticLog
+                        , List.of(new CliProvider(ROOT_MODULE, cliArg)));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object value = configValueMap.get(finiteVar).getValue();
+        Assert.assertEquals(expectedValues, value);
+    }
+
+    @DataProvider(name = "finite-data-provider")
+    public Object[][] finiteDataProvider() {
+        String typeName = "Singleton";
+        BString strVal = fromString("test");
+        BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        FiniteType stringFinite = TypeCreator.createFiniteType(typeName, Set.of(strVal), 0);
+        FiniteType intFinite = TypeCreator.createFiniteType(typeName, Set.of(2L), 0);
+        FiniteType floatFinite = TypeCreator.createFiniteType(typeName, Set.of(2.2d), 0);
+        FiniteType decimalFinite = TypeCreator.createFiniteType(typeName, Set.of(decimalVal), 0);
+        FiniteType booleanFinite = TypeCreator.createFiniteType(typeName, Set.of(true), 0);
+        FiniteType unionFinite1 = TypeCreator.createFiniteType(typeName, Set.of(strVal, 1.34d, decimalVal), 0);
+        FiniteType unionFinite2 = TypeCreator.createFiniteType(typeName, Set.of(3.24d, decimalVal), 0);
+        FiniteType unionFinite3 = TypeCreator.createFiniteType(typeName, Set.of(3.23d, decimalVal, strVal), 0);
+        return new Object[][]{
+                {"intSingleton", intFinite, 2L, "-CintSingleton=2"},
+                {"floatSingleton", floatFinite, 2.2d, "-CfloatSingleton=2.2"},
+                {"decimalSingleton", decimalFinite, decimalVal, "-CdecimalSingleton=3.23"},
+                {"booleanSingleton", booleanFinite, true, "-CbooleanSingleton=true"},
+                {"unionVar1", unionFinite1, 1.34d, "-CunionVar1=1.34"},
+                {"unionVar2", unionFinite2, decimalVal, "-CunionVar2=3.23"},
+                {"unionVar3", unionFinite3, strVal, "-CunionVar3=test"},
+                {"stringSingleton", getIntersectionType(ROOT_MODULE, stringFinite), strVal, "-CstringSingleton=test"},
+                {"intSingleton", getIntersectionType(ROOT_MODULE, intFinite), 2L, "-CintSingleton=2"},
+                {"floatSingleton", getIntersectionType(ROOT_MODULE, floatFinite), 2.2d, "-CfloatSingleton=2.2"},
+                {"decimalSingleton", getIntersectionType(ROOT_MODULE, decimalFinite), decimalVal,
+                        "-CdecimalSingleton=3.23"},
+                {"booleanSingleton", getIntersectionType(ROOT_MODULE, booleanFinite), true, "-CbooleanSingleton=true"},
+                {"unionVar1", getIntersectionType(ROOT_MODULE, unionFinite1), 1.34d, "-CunionVar1=1.34"},
+                {"unionVar2", getIntersectionType(ROOT_MODULE, unionFinite2), decimalVal, "-CunionVar2=3.23"},
+                {"unionVar3", getIntersectionType(ROOT_MODULE, unionFinite3), strVal, "-CunionVar3=test"},
+        };
+    }
+
+    @Test
+    public void testCliProviderFiniteTypeOptional() {
+        VariableKey finiteVar = new VariableKey(ROOT_MODULE, "intSingleton", TypeCreator.createFiniteType("Singleton",
+                Set.of(2L), 0), false);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{finiteVar})), diagnosticLog
+                        , List.of(new CliProvider(ROOT_MODULE, "-CunionVar1=1.34")));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Assert.assertFalse(configValueMap.containsKey(finiteVar));
+    }
+
 }

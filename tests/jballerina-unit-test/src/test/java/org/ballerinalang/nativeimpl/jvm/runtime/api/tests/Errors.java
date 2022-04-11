@@ -19,12 +19,19 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.types.ErrorType;
+import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+
+import java.util.List;
 
 /**
  * This class contains a set of utility methods required for runtime api @{@link ErrorCreator} testing.
@@ -37,10 +44,22 @@ public class Errors {
 
     public static BError getError(BString errorName) {
         BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
-        errorDetails.put(StringUtils.fromString("cause"), "Person age cannot be negative");
+        errorDetails.put(StringUtils.fromString("cause"), StringUtils.fromString("Person age cannot be negative"));
         return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("Invalid age"),
                                         ErrorCreator.createError(StringUtils.fromString("Invalid data given")),
                                         errorDetails);
     }
 
+    public static BArray getTypeIds(BError error) {
+        List<TypeId> typeIds = ((ErrorType) error.getType()).getTypeIdSet().getIds();
+        int size = typeIds.size();
+        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
+                size), size);
+        int index = 0;
+        for (TypeId typeId : typeIds) {
+            arrayValue.add(index, StringUtils.fromString(typeId.getName()));
+            index++;
+        }
+        return arrayValue;
+    }
 }

@@ -59,7 +59,9 @@ public class ItemResolverConstants {
     public static final String DESCENDING = "descending";
     public static final String DEFAULT = "default";
     public static final String ROLLBACK = "rollback";
+    public static final String INIT = "init";
 
+    public static final String ANON_FUNCTION = "function (..) {..}";
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function <name>();";
     public static final String MAIN_FUNCTION = "public main function";
@@ -154,4 +156,5 @@ public class ItemResolverConstants {
     public static final String CONST_KEYWORD = "const";
     public static final String RECORD_KEYWORD = "record";
     public static final String OBJECT_KEYWORD = "object";
+    public static final String OUTER_KEYWORD = "outer";
 }

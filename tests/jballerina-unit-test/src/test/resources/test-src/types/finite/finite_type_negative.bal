@@ -108,3 +108,49 @@ function testFiniteTypesWithDiscriminatedMembers() returns [any, any, any, any, 
     return [a, b, c, d, e];
 }
 
+type Foo 1f|1d|2d;
+type Foo2 1|1d|2d;
+type Foo4 1|decimal|2f;
+
+function testFiniteTypeWithNumericValues() {
+    Foo f2 = 2;
+    Foo2 f3 = 2;
+    Foo4 f5 = 3;
+    "chiran" x = 5;
+}
+
+type IntOrNull int|null;
+type IntOrNullStr int|"null";
+
+function testNullFiniteType() {
+    IntOrNull a = 1; // OK
+    IntOrNullStr b = 1; // OK
+
+    int|null c = 1;
+    int|"null" d = 1;
+    null e = null;
+    "null" f = "null";
+
+    IntOrNull _ = null; // OK
+    IntOrNull _ = (); // OK
+    IntOrNull _ = "null"; // error
+    IntOrNull _ = a; // OK
+    IntOrNull _ = b; // error
+    IntOrNull _ = c; // OK
+    IntOrNull _ = d; // error
+    IntOrNull _ = e; // OK
+    IntOrNull _ = f; // error
+
+    IntOrNullStr _ = null; // error
+    IntOrNullStr _ = (); // error
+    IntOrNullStr _ = "null"; // OK
+    IntOrNullStr _ = a; // error
+    IntOrNullStr _ = b; // OK
+    IntOrNullStr _ = c; // error
+    IntOrNullStr _ = d; // OK
+    IntOrNullStr _ = e; // error
+    IntOrNullStr _ = f; // OK
+
+    null _ = "null"; // error
+    "null" _ = null; // error
+}

@@ -21,9 +21,9 @@ function getCallStacktoStringTest() {
     runtime:StackFrame[] stackFrames = runtime:getStackTrace();
     assertEquality(stackFrames.length(), 3);
     assertEquality("callableName: externGetStackTrace moduleName: ballerina.lang.runtime.0 fileName: runtime.bal " +
-                    "lineNumber: 95", stackFrames[0].toString());
+                    "lineNumber: 93", stackFrames[0].toString());
     assertEquality("callableName: getStackTrace moduleName: ballerina.lang.runtime.0 fileName: runtime.bal " +
-                    "lineNumber: 85", stackFrames[1].toString());
+                    "lineNumber: 82", stackFrames[1].toString());
     assertEquality("callableName: getCallStacktoStringTest  fileName: runtimelib_test.bal lineNumber: 21",
                     stackFrames[2].toString());
 
@@ -36,7 +36,7 @@ function getCallStacktoStringTest() {
     assertEquality("getStackTrace", callableName);
     assertEquality("ballerina.lang.runtime.0", moduleName);
     assertEquality("runtime.bal", fileName);
-    assertEquality(85, lineNumber);
+    assertEquality(82, lineNumber);
 
     java:StackFrameImpl stackFrame2 = <java:StackFrameImpl> stackFrames[2];
     callableName = stackFrame2.callableName;
@@ -48,6 +48,17 @@ function getCallStacktoStringTest() {
     assertEquality((), moduleName);
     assertEquality("runtimelib_test.bal", fileName);
     assertEquality(21, lineNumber);
+}
+
+function testSleepDecimalValue() {
+    decimal delay = 2.5;
+    runtime:sleep(delay);
+
+    delay = -1321930131998892321.123;
+    runtime:sleep(delay);
+
+    delay = 0.0;
+    runtime:sleep(delay);
 }
 
 function assertEquality(any|error expected, any|error actual) {

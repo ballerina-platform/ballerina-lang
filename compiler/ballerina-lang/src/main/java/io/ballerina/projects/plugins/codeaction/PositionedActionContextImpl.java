@@ -20,6 +20,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Abstract implementation of {@link PositionedActionContext}.
@@ -28,11 +29,11 @@ import java.nio.file.Path;
  */
 public abstract class PositionedActionContextImpl implements PositionedActionContext {
 
-    private String fileUri;
-    private Path filePath;
-    private LinePosition cursorPosition;
-    private Document document;
-    private SemanticModel semanticModel;
+    private final String fileUri;
+    private final Path filePath;
+    private final LinePosition cursorPosition;
+    private final Document document;
+    private final SemanticModel semanticModel;
 
     protected PositionedActionContextImpl(String fileUri, Path filePath, LinePosition cursorPosition,
                                         Document document, SemanticModel semanticModel) {
@@ -54,8 +55,8 @@ public abstract class PositionedActionContextImpl implements PositionedActionCon
     }
 
     @Override
-    public LinePosition cursorPosition() {
-        return cursorPosition;
+    public Optional<LinePosition> cursorPosition() {
+        return Optional.ofNullable(cursorPosition);
     }
 
     @Override
