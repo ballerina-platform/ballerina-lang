@@ -1575,7 +1575,8 @@ public class CommonUtil {
         // We can be in required params or rest params
         if (parameterSymbols.get().size() > argIndex) {
             return Optional.of(parameterSymbols.get().get(argIndex));
-        } else if (restParam.isPresent()) {
+        } 
+        if (restParam.isPresent()) {
             return Optional.of(restParam.get());
         }
         return Optional.empty();
@@ -1640,8 +1641,7 @@ public class CommonUtil {
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(methodCallExprNode.expression()));
         return typeSymbol.flatMap(value -> value.langLibMethods().stream()
-                .filter(method -> method.getName().isPresent() &&
-                        method.getName().get().equals(typeRefNode.name().text()))
+                .filter(method -> method.getName().orElse("").equals(typeRefNode.name().text()))
                 .findFirst()
                 .map(FunctionSymbol::typeDescriptor));
     }
