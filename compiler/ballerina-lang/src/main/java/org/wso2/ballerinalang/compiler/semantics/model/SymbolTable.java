@@ -475,7 +475,7 @@ public class SymbolTable {
         defineIntFloatingPointArithmeticOperations();
 
         defineNilableIntFloatingPointArithmeticOperations();
-        
+
         // Binary bitwise operators for nullable integer types
         defineNilableIntegerBitwiseAndOperations();
         defineNilableIntegerBitwiseOrAndXorOperations(OperatorKind.BITWISE_OR);
@@ -731,7 +731,7 @@ public class SymbolTable {
         for (int i = 0; i < intTypes.length; i++) {
             nilableIntTypes[i] = getNilableBType(intTypes[i]);
         }
-        
+
         for (BType intType : intTypes) {
             defineBinaryOperator(OperatorKind.MUL, nullableDecimal, intType, nullableDecimal);
             defineBinaryOperator(OperatorKind.MUL, intType, nullableDecimal, nullableDecimal);
@@ -752,7 +752,7 @@ public class SymbolTable {
             defineBinaryOperator(OperatorKind.MUL, nilableIntType, decimalType, nullableDecimal);
             defineBinaryOperator(OperatorKind.MUL, nilableIntType, nullableDecimal, nullableDecimal);
             defineBinaryOperator(OperatorKind.MUL, nullableDecimal, nilableIntType, nullableDecimal);
-            
+
             defineBinaryOperator(OperatorKind.DIV, floatType, nilableIntType, nullableFloat);
             defineBinaryOperator(OperatorKind.DIV, nullableFloat, nilableIntType, nullableFloat);
             defineBinaryOperator(OperatorKind.DIV, decimalType, nilableIntType, nullableDecimal);
@@ -764,7 +764,7 @@ public class SymbolTable {
             defineBinaryOperator(OperatorKind.MOD, nullableDecimal, nilableIntType, nullableDecimal);
         }
     }
-    
+
     private void defineNilableIntegerArithmeticOperations() {
         BType[] intTypes = {intType, byteType, signed32IntType, signed16IntType, signed8IntType, unsigned32IntType,
                 unsigned16IntType,
@@ -785,21 +785,6 @@ public class SymbolTable {
                 defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intOptional);
                 defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intOptional);
                 defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
-            }
-        }
-
-        for (BType lhs : intTypes) {
-            for (BUnionType rhs : nilableIntTypes) {
-                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.ADD, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.SUB, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.DIV, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.MUL, rhs, lhs, intOptional);
-                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
-                defineBinaryOperator(OperatorKind.MOD, rhs, lhs, intOptional);
             }
         }
     }
