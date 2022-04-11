@@ -183,7 +183,7 @@ public class Main {
     }
 
     public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths) {
-        String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getPackageID(),
+        String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getTestPackageID(),
                 suite.getVersion(), suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
 
         Class<?> testClass;
