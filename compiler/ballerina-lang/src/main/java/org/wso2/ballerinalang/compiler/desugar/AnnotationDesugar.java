@@ -31,12 +31,15 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ConstantValueResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -130,6 +133,7 @@ public class AnnotationDesugar {
     private final Types types;
     private final Names names;
     private SymbolResolver symResolver;
+    private ConstantValueResolver constantValueResolver;
 
     public static AnnotationDesugar getInstance(CompilerContext context) {
         AnnotationDesugar annotationDesugar = context.get(ANNOTATION_DESUGAR_KEY);
@@ -146,6 +150,7 @@ public class AnnotationDesugar {
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
+        this.constantValueResolver = ConstantValueResolver.getInstance(context);
     }
 
     /**
@@ -178,7 +183,7 @@ public class AnnotationDesugar {
             boolean normalMode = true;
             BLangClassDefinition classDef = (BLangClassDefinition) topLevelNode;
             if (isServiceDeclaration(classDef)) {
-                addIntrospectionInfoAnnotation(classDef);
+                addIntrospectionInfoAnnotation(classDef, env2);
             }
 
             PackageID pkgID = classDef.symbol.pkgID;
@@ -289,7 +294,7 @@ public class AnnotationDesugar {
         return serviceClass.getFlags().contains(Flag.SERVICE) && serviceClass.isServiceDecl;
     }
 
-    private void addIntrospectionInfoAnnotation(BLangClassDefinition serviceClass) {
+    private void addIntrospectionInfoAnnotation(BLangClassDefinition serviceClass, SymbolEnv env) {
         Location position = serviceClass.pos;
 
         // Create Annotation Attachment.
@@ -319,6 +324,7 @@ public class AnnotationDesugar {
                 pkgEnv, names.fromString(SERVICE_INTROSPECTION_INFO_REC));
         BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
         literalNode.setBType(bStructSymbol.type);
+        literalNode.typeChecked = true;
 
         //Add Root Descriptor
         BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
@@ -329,12 +335,14 @@ public class AnnotationDesugar {
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = SERVICE_NAME;
         keyLiteral.setBType(symTable.stringType);
+        keyLiteral.typeChecked = true;
 
         // create annotation field value for `name`
         BLangLiteral valueLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         valueLiteral.setBType(symTable.stringType);
         valueLiteral.value = generateServiceHashCode(serviceClass);
         valueLiteral.pos = position;
+        valueLiteral.typeChecked = true;
 
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
         BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv,
@@ -347,8 +355,11 @@ public class AnnotationDesugar {
             descriptorKeyValue.valueExpr = valueLiteral;
         }
 
+        symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
+
         // add generated annotation to the service definition
         serviceClass.addAnnotationAttachment(annoAttachment);
+        ((BClassSymbol) serviceClass.symbol).addAnnotation(annoAttachment.annotationAttachmentSymbol);
     }
 
     private String generateServiceHashCode(BLangClassDefinition serviceClass) {
@@ -467,7 +478,7 @@ public class AnnotationDesugar {
             PackageID pkgID = function.symbol.pkgID;
             BSymbol owner = function.symbol.owner;
             if (function.symbol.name.getValue().equals("main")) {
-                addVarArgsAnnotation(function);
+                addVarArgsAnnotation(function, env);
             }
 
             if (function.flagSet.contains(Flag.WORKER)) {
@@ -669,7 +680,7 @@ public class AnnotationDesugar {
         return lambdaFunction;
     }
 
-    private void addVarArgsAnnotation(BLangFunction mainFunc) {
+    private void addVarArgsAnnotation(BLangFunction mainFunc, SymbolEnv env) {
         if (mainFunc.symbol.getParameters().isEmpty() && mainFunc.symbol.restParam == null) {
             return;
         }
@@ -698,6 +709,7 @@ public class AnnotationDesugar {
         BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
         BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
         literalNode.setBType(annTypeSymbol.type);
+        literalNode.typeChecked = true;
 
         //Add Root Descriptor
         BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
@@ -707,16 +719,19 @@ public class AnnotationDesugar {
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ARG_NAMES;
         keyLiteral.setBType(symTable.stringType);
+        keyLiteral.typeChecked = true;
 
         BLangListConstructorExpr.BLangArrayLiteral valueLiteral = (BLangListConstructorExpr.BLangArrayLiteral)
                 TreeBuilder.createArrayLiteralExpressionNode();
         valueLiteral.setBType(new BArrayType(symTable.stringType));
+        valueLiteral.typeChecked = true;
         valueLiteral.pos = pos;
 
         for (BVarSymbol varSymbol : mainFunc.symbol.getParameters()) {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
             str.value = varSymbol.name.value;
             str.setBType(symTable.stringType);
+            str.typeChecked = true;
             valueLiteral.exprs.add(str);
         }
 
@@ -724,6 +739,7 @@ public class AnnotationDesugar {
             BLangLiteral str = (BLangLiteral) TreeBuilder.createLiteralExpression();
             str.value = mainFunc.symbol.restParam.name.value;
             str.setBType(symTable.stringType);
+            str.typeChecked = true;
             valueLiteral.exprs.add(str);
         }
         descriptorKeyValue.key = new BLangRecordLiteral.BLangRecordKey(keyLiteral);
@@ -735,6 +751,10 @@ public class AnnotationDesugar {
         if (valueLiteral != null) {
             descriptorKeyValue.valueExpr = valueLiteral;
         }
+
+        symResolver.populateAnnotationAttachmentSymbol(annoAttachment, env, constantValueResolver);
+        ((List<BAnnotationAttachmentSymbol>) mainFunc.symbol.getAnnotations()).add(
+                annoAttachment.annotationAttachmentSymbol);
     }
 
     private BLangFunction defineFunction(Location pos, PackageID pkgID, BSymbol owner) {
