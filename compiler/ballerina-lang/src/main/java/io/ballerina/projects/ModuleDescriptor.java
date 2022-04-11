@@ -32,6 +32,7 @@ public class ModuleDescriptor {
     private final PackageDescriptor packageDesc;
 
     private final PackageID moduleCompilationId;
+    private final PackageID moduleTestCompilationId;
 
     private ModuleDescriptor(ModuleName moduleName, PackageDescriptor packageDesc) {
         this.moduleName = moduleName;
@@ -39,10 +40,14 @@ public class ModuleDescriptor {
 
         if (packageDesc.name().value().equals(".") && packageDesc.org().anonymous()) {
             moduleCompilationId = PackageID.DEFAULT;
+            moduleTestCompilationId = moduleCompilationId;
         } else {
             moduleCompilationId = new PackageID(new Name(packageDesc.org().value()),
                     new Name(packageDesc.name().value()), new Name(moduleName.toString()),
                     new Name(packageDesc.version().toString()), null);
+            moduleTestCompilationId = new PackageID(new Name(packageDesc.org().value()),
+                    new Name(packageDesc.name().value()), new Name(moduleName.toString()),
+                    new Name(packageDesc.version().toString()), null, true);
         }
     }
 
@@ -68,6 +73,10 @@ public class ModuleDescriptor {
 
     PackageID moduleCompilationId() {
         return moduleCompilationId;
+    }
+
+    public PackageID moduleTestCompilationId() {
+        return moduleTestCompilationId;
     }
 
     @Override

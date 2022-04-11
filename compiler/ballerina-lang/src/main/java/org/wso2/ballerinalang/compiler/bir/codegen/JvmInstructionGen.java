@@ -239,7 +239,6 @@ public class JvmInstructionGen {
     private final MethodVisitor mv;
     private final BIRVarToJVMIndexMap indexMap;
     private final String currentPackageName;
-    private final PackageID currentPackage;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
     private final JvmCastGen jvmCastGen;
@@ -254,7 +253,6 @@ public class JvmInstructionGen {
                              CompilerContext compilerContext) {
         this.mv = mv;
         this.indexMap = indexMap;
-        this.currentPackage = currentPackage;
         this.jvmPackageGen = jvmPackageGen;
         this.jvmTypeGen = jvmTypeGen;
         this.symbolTable = jvmPackageGen.symbolTable;
@@ -493,7 +491,9 @@ public class JvmInstructionGen {
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
         if (varDcl.kind == VarKind.GLOBAL) {
             String varName = varDcl.name.value;
-            String className = jvmPackageGen.lookupGlobalVarClassName(currentPackageName, varName);
+            PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
+            String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
+            String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
@@ -1673,7 +1673,7 @@ public class JvmInstructionGen {
             className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectNewIns.externalPackageId),
                                               objectNewIns.objectName);
         } else {
-            className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(currentPackage),
+            className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID),
                                               objectNewIns.def.internalName.value);
         }
 
