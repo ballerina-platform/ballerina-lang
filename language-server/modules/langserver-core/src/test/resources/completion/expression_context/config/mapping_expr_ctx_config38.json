@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "Internal.fField1",
       "sortText": "K",
-      "insertText": "fField1: ${2:0}",
+      "insertText": "fField1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "Internal",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "fField2: 0,\nfField1: 0",
+      "insertText": "fField2: ${1:0},\nfField1: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

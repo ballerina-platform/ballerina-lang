@@ -335,6 +335,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_s");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
+        Path cacheDir = testBuildDirectory.resolve("repo").resolve("bala").resolve("adv_res").resolve("package_r");
+        Files.deleteIfExists(cacheDir);
+
         // project --> package_protobuf:0.6.0
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
@@ -422,7 +425,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // User caches package_m:1_3_0-beta.1
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
         // User caches package_m:1_3_0-beta.1 to local repository
-        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
         // Cache package_n
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_n_2_0_0",
                 testDistCacheDirectory, projectEnvironmentBuilder);
@@ -534,6 +537,12 @@ public class PackageResolutionIntegrationTests extends BaseTest {
     public void afterClass() throws IOException {
         Path advResBalaDir = testBuildDirectory.resolve("user-home").resolve("repositories")
                 .resolve("central.ballerina.io").resolve("bala").resolve("adv_res");
+        Files.walk(advResBalaDir)
+                .map(Path::toFile)
+                .sorted((o1, o2) -> -o1.compareTo(o2))
+                .forEach(File::delete);
+        advResBalaDir = testBuildDirectory.resolve("user-home").resolve("repositories")
+                .resolve("local").resolve("bala").resolve("adv_res");
         Files.walk(advResBalaDir)
                 .map(Path::toFile)
                 .sorted((o1, o2) -> -o1.compareTo(o2))

@@ -164,7 +164,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.CHAR_STRING_TAG:
                 this.bStringValues = new BString[initialArraySize];
                 if (arrayType.getState() == ArrayState.CLOSED) {
-                    fillerValueCheck(initialArraySize, initialArraySize);
                     fillValues(initialArraySize);
                 }
                 break;
@@ -177,7 +176,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 this.refValues = new Object[initialArraySize];
                 if (arrayType.getState() == ArrayState.CLOSED) {
-                    fillerValueCheck(initialArraySize, initialArraySize);
                     fillValues(initialArraySize);
                 }
         }
