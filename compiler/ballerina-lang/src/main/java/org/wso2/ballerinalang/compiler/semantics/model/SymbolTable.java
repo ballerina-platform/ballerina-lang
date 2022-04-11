@@ -709,6 +709,21 @@ public class SymbolTable {
                 defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
             }
         }
+
+        for (BType lhs : intTypes) {
+            for (BUnionType rhs : nilableIntTypes) {
+                defineBinaryOperator(OperatorKind.ADD, lhs, rhs, intOptional);
+                defineBinaryOperator(OperatorKind.ADD, rhs, lhs, intOptional);
+                defineBinaryOperator(OperatorKind.SUB, lhs, rhs, intOptional);
+                defineBinaryOperator(OperatorKind.SUB, rhs, lhs, intOptional);
+                defineBinaryOperator(OperatorKind.DIV, lhs, rhs, intOptional);
+                defineBinaryOperator(OperatorKind.DIV, rhs, lhs, intOptional);
+                defineBinaryOperator(OperatorKind.MUL, lhs, rhs, intOptional);
+                defineBinaryOperator(OperatorKind.MUL, rhs, lhs, intOptional);
+                defineBinaryOperator(OperatorKind.MOD, lhs, rhs, intOptional);
+                defineBinaryOperator(OperatorKind.MOD, rhs, lhs, intOptional);
+            }
+        }
     }
 
     private void defineIntegerBitwiseAndOperations() {
