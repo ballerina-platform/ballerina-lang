@@ -54,7 +54,7 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
     public XMLTypeSymbol build() {
         BXMLType xmlType = new BXMLType(getBType(typeParam), symTable.xmlType.tsymbol);
 
-        return (XMLTypeSymbol) typesFactory.getTypeDescriptor(xmlType, xmlType.tsymbol, true);
+        return (XMLTypeSymbol) typesFactory.getTypeDescriptor(xmlType);
     }
 
     private BType getBType(TypeSymbol typeSymbol) {

@@ -39,6 +39,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_PROCESSING_INSTRUCTION;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_TEXT;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -75,11 +79,13 @@ public class TypeBuildersTest {
     }
 
     @Test(dataProvider = "xmlTypeBuilderProvider")
-    public void testXMLTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
+    public void testXMLTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, TypeDescKind typeParamDescKind,
+                                   String signature) {
         XMLTypeSymbol xmlTypeSymbol = builder.XML_TYPE.withTypeParam(typeParam).build();
         assertEquals(xmlTypeSymbol.typeKind(), typeDescKind);
         if (typeParam != null) {
             assertTrue(xmlTypeSymbol.typeParameter().isPresent());
+            assertEquals(xmlTypeSymbol.typeParameter().get().typeKind(), typeParamDescKind);
             assertEquals(xmlTypeSymbol.typeParameter().get().signature(), typeParam.signature());
         }
 
@@ -89,12 +95,12 @@ public class TypeBuildersTest {
     @DataProvider(name = "xmlTypeBuilderProvider")
     private Object[][] getXMLTypeBuilders() {
         return new Object[][] {
-                {null, XML, "xml"},
-                {types.XML, XML, "xml<xml>"},
-                {xmlSubTypes.get(0), XML, "xml<xml:Element>"},
-                {xmlSubTypes.get(1), XML, "xml<xml:Comment>"},
-                {xmlSubTypes.get(2), XML, "xml<xml:ProcessingInstruction>"},
-                {xmlSubTypes.get(3), XML, "xml<xml:Text>"},
+                {null, XML, null, "xml"},
+                {types.XML, XML, XML, "xml<xml>"},
+                {xmlSubTypes.get(0), XML, XML_ELEMENT, "xml<xml:Element>"},
+                {xmlSubTypes.get(1), XML, XML_COMMENT, "xml<xml:Comment>"},
+                {xmlSubTypes.get(2), XML, XML_PROCESSING_INSTRUCTION, "xml<xml:ProcessingInstruction>"},
+                {xmlSubTypes.get(3), XML, XML_TEXT, "xml<xml:Text>"},
         };
     }
 }
