@@ -215,6 +215,10 @@ public class Types {
         return expr.getBType();
     }
 
+    public boolean typeIncompatible(Location pos, BType actualType, BType expType) {
+        return checkType(pos, actualType, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES) == symTable.semanticError;
+    }
+
     public BType checkType(Location pos,
                            BType actualType,
                            BType expType,
@@ -6061,6 +6065,10 @@ public class Types {
         }
 
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
+    }
+
+    public boolean isFixedLengthTuple(BTupleType bTupleType) {
+        return bTupleType.restType == null || isNeverTypeOrStructureTypeWithARequiredNeverMember(bTupleType.restType);
     }
 
     public boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {

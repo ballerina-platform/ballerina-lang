@@ -36,6 +36,7 @@ public class JvmConstants {
     public static final String B_FUNCTION_POINTER = "io/ballerina/runtime/api/values/BFunctionPointer";
     public static final String B_MAP = "io/ballerina/runtime/api/values/BMap";
     public static final String B_OBJECT = "io/ballerina/runtime/api/values/BObject";
+    public static final String B_ARRAY = "io/ballerina/runtime/api/values/BArray";
 
     // jvm runtime values related classes
     public static final String MAP_VALUE = "io/ballerina/runtime/internal/values/MapValue";
@@ -89,6 +90,8 @@ public class JvmConstants {
     public static final String LIST_INITIAL_VALUE_ENTRY = "io/ballerina/runtime/internal/values/ListInitialValueEntry";
     public static final String LIST_INITIAL_EXPRESSION_ENTRY =
             "io/ballerina/runtime/internal/values/ListInitialValueEntry$ExpressionEntry";
+    public static final String LIST_INITIAL_SPREAD_ENTRY =
+            "io/ballerina/runtime/internal/values/ListInitialValueEntry$SpreadEntry";
 
     // types related classes
     public static final String TYPE = "io/ballerina/runtime/api/types/Type";

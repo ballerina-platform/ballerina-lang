@@ -185,9 +185,11 @@ public class BasicTupleTest {
         Assert.assertEquals(resultNegative.getErrorCount(), 40);
         int i = 0;
         BAssertUtil.validateError(
-                resultNegative, i++, "tuple and expression size does not match", 18, 32);
+                resultNegative, i++,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value", 18, 32);
         BAssertUtil.validateError(
-                resultNegative, i++, "tuple and expression size does not match", 19, 41);
+                resultNegative, i++,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value", 19, 41);
         BAssertUtil.validateError(
                 resultNegative, i++, "ambiguous type '([int,boolean,string]|[any,boolean,string])?'", 34, 63);
         BAssertUtil.validateError(
@@ -226,7 +228,8 @@ public class BasicTupleTest {
     @Test(description = "Test negatives of index based access of tuple type")
     public void testNegativesOfTupleType() {
         int i = 16;
-        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 114, 38);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid usage of list constructor: type 'NoFillerObject' does not have a filler value", 114, 38);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '-1'", 119, 16);
         BAssertUtil.validateError(resultNegative, i++, "list index out of range: index: '3'", 120, 16);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'string'", 122, 16);

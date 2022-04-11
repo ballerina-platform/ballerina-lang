@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -123,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangJSONArrayLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangTupleLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -230,10 +230,6 @@ public class BIRGen extends BLangNodeVisitor {
     // This is to cache the lockstmt to BIR Lock
     private Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
 
-    // Required variables for Mock function implementation
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
-    private static final String MOCK_FN_DELIMITER = "~";
-
     private Unifier unifier;
 
     private BirScope currentScope;
@@ -283,10 +279,6 @@ public class BIRGen extends BLangNodeVisitor {
                 testPkg.accept(this);
                 this.birOptimizer.optimizePackage(testBirPkg);
                 testPkg.symbol.bir = testBirPkg;
-                Map<String, String> mockFunctionMap = astPkg.getTestablePkg().getMockFunctionNamesMap();
-                if (!mockFunctionMap.isEmpty()) {
-                    replaceMockedFunctions(testBirPkg, mockFunctionMap, astPkg.packageID);
-                }
             });
         }
 
@@ -328,55 +320,6 @@ public class BIRGen extends BLangNodeVisitor {
             Name functionName = names.fromString(modifiedFuncName);
             function.originalFuncSymbol.name = functionName;
             function.symbol.name = functionName;
-        }
-    }
-
-    private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap, PackageID packageID) {
-        // Replace Mocked function calls in every function
-        replaceFunctions(birPkg.functions, mockFunctionMap, packageID);
-
-        // Replace Mocked Function calls in every service
-        if (birPkg.typeDefs.size() != 0) {
-            for (BIRTypeDefinition typeDef : birPkg.typeDefs) {
-                if (typeDef.type instanceof BObjectType) {
-                    replaceFunctions(typeDef.attachedFuncs, mockFunctionMap, packageID);
-                }
-            }
-        }
-    }
-
-    private void replaceFunctions(List<BIRFunction> functionList,
-                                  Map<String, String> mockFunctionMap,
-                                  PackageID packageID) {
-        // Loop through all defined BIRFunctions in functionList
-        for (BIRFunction function : functionList) {
-            List<BIRBasicBlock> basicBlocks = function.basicBlocks;
-            for (BIRBasicBlock basicBlock : basicBlocks) {
-                BIRTerminator bbTerminator = basicBlock.terminator;
-                if (bbTerminator.kind.equals(InstructionKind.CALL)) {
-                    //We get the callee and the name and generate 'calleepackage#name'
-                    BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
-
-                    String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
-                            + callTerminator.name.toString();
-
-                    String legacyKey = callTerminator.calleePkg.toString() + MOCK_FN_DELIMITER
-                            + callTerminator.name.toString();
-
-                    // If function in basic block exists in the MockFunctionMap
-                    if (mockFunctionMap.containsKey(functionKey)) {
-                        // Replace the function call with the equivalent $MOCK_ substitiute
-                        String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
-                        callTerminator.name = new Name(desugarFunction);
-                        callTerminator.calleePkg = packageID;
-                    } else if (mockFunctionMap.get(legacyKey) != null) {
-                        // Just "get" the reference. If this doesnt work then it doesnt exist
-                        String mockfunctionName = mockFunctionMap.get(legacyKey);
-                        callTerminator.name = new Name(mockfunctionName);
-                        callTerminator.calleePkg = packageID;
-                    }
-                }
-            }
         }
     }
 
@@ -2559,16 +2502,22 @@ public class BIRGen extends BLangNodeVisitor {
         literal.accept(this);
         BIROperand sizeOp = this.env.targetOperand;
 
-        List<BIROperand> valueOperands = new ArrayList<>(exprs.size());
+        List<BIRNode.BIRListConstructorEntry> initialValues = new ArrayList<>(exprs.size());
 
         for (BLangExpression expr : exprs) {
-            expr.accept(this);
-            valueOperands.add(this.env.targetOperand);
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BLangListConstructorSpreadOpExpr spreadMember = (BLangListConstructorSpreadOpExpr) expr;
+                spreadMember.expr.accept(this);
+                initialValues.add(new BIRNode.BIRListConstructorSpreadMemberEntry(this.env.targetOperand));
+            } else {
+                expr.accept(this);
+                initialValues.add(new BIRNode.BIRListConstructorExprEntry(this.env.targetOperand));
+            }
         }
 
         setScopeAndEmit(
                 new BIRNonTerminator.NewArray(listConstructorExpr.pos, listConstructorExprType, toVarRef, sizeOp,
-                        valueOperands));
+                        initialValues));
         this.env.targetOperand = toVarRef;
     }
 
