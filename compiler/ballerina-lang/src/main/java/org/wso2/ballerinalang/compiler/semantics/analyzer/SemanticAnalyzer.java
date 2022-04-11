@@ -328,11 +328,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         validateEnumMemberMetadata(pkgNode.constants);
 
         // Then resolve user defined types
-        for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes)  {
-            if (pkgLevelNode.getKind() != NodeKind.TYPE_DEFINITION) {
-                continue;
+        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++)  {
+            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
+                analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), pkgEnv);
             }
-            analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
         }
 
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
