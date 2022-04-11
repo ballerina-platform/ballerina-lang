@@ -1,4 +1,5 @@
 [package]
+name = "PKG_NAME"
 distribution = "DIST_VERSION"
 
 [build-options]

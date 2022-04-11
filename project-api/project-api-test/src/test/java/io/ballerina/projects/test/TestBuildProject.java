@@ -60,6 +60,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -83,6 +84,8 @@ import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.loadProject;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
+import static io.ballerina.projects.test.TestUtils.writeContent;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -1761,24 +1764,6 @@ public class TestBuildProject extends BaseTest {
         return resources;
     }
 
-    private static BuildProject loadBuildProject(Path projectPath) {
-        return loadBuildProject(projectPath, null);
-    }
-
-    private static BuildProject loadBuildProject(Path projectPath, BuildOptions buildOptions) {
-        BuildProject buildProject = null;
-        try {
-            if (buildOptions == null) {
-                buildProject = TestUtils.loadBuildProject(projectPath);
-            } else {
-                buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
-            }
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        return buildProject;
-    }
-
     @Test
     public void testProjectClearCaches() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
@@ -1897,9 +1882,102 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(targetDirPath, expectedPath);
     }
 
+    @DataProvider(name = "provideBallerinaTomlContentForUpdates")
+    public Object[][] provideBallerinaTomlContentForUpdates() {
+        String myPkgDir = "my-package";
+        String numericPkgDir = "1994";
+
+        String content1 =
+                "";
+        String updatedContent1 =
+                "[package]\n" +
+                        "name = \"my_package\"";
+
+        String content2 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]";
+        String updatedContent2 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "name = \"my_package\"";
+
+        String content3 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "org = \"winery\"\n" +
+                        "version = \"2.0.0\"";
+        String updatedContent3 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "name = \"my_package\"\n" +
+                        "org = \"winery\"\n" +
+                        "version = \"2.0.0\"";
+
+        String content4 =
+                "";
+        String updatedContent4 =
+                "[package]\n" +
+                        "name = \"app1994\"";
+
+        return new Object[][]{
+                {myPkgDir, content1, updatedContent1},
+                {myPkgDir, content2, updatedContent2},
+                {myPkgDir, content3, updatedContent3},
+                {numericPkgDir, content4, updatedContent4}
+        };
+    }
+
+    @Test(description = "tests updating package name in Ballerina.toml by project save method",
+            dataProvider = "provideBallerinaTomlContentForUpdates")
+    public void testUpdatingBallerinaTomlPackageName(String projectDir, String balTomlContent,
+                                                     String updatedBalTomlContent)
+            throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_config_file_updates").resolve(projectDir);
+
+        // write content to the Ballerina.toml
+        writeContent(projectPath.resolve(BALLERINA_TOML), balTomlContent);
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
+        // 2) Check compilation diagnostics
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+
+        // Test the content
+        Assert.assertEquals(Files.readString(projectPath.resolve(BALLERINA_TOML)).trim(), updatedBalTomlContent);
+
+        // Clean project directory
+        writeContent(projectPath.resolve(BALLERINA_TOML), "");
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+    }
+
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
         TestUtils.resetPermissions(projectPath);
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath) {
+        return loadBuildProject(projectPath, null);
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath, BuildOptions buildOptions) {
+        BuildProject buildProject = null;
+        try {
+            if (buildOptions == null) {
+                buildProject = TestUtils.loadBuildProject(projectPath);
+            } else {
+                buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        return buildProject;
     }
 }

@@ -20,6 +20,7 @@ package io.ballerina.projects.directory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DocumentId;
@@ -36,14 +37,20 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.BalaFiles;
+import io.ballerina.projects.internal.ManifestUtils;
 import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.toml.semantic.TomlType;
+import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,6 +63,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
@@ -217,8 +225,8 @@ public class BuildProject extends Project {
     public void save() {
         Path buildFilePath = this.targetDir().resolve(BUILD_FILE);
         boolean shouldUpdate = this.currentPackage().getResolution().autoUpdate();
-        // if build file does not exists
 
+        // if build file does not exists
         if (!buildFilePath.toFile().exists()) {
             createBuildFile(buildFilePath);
             writeBuildFile(buildFilePath);
@@ -242,6 +250,9 @@ public class BuildProject extends Project {
                 writeBuildFile(buildFilePath);
             }
         }
+
+        // write package name to Ballerina.toml
+        writePackageNameInBallerinaToml();
     }
 
     private void writeDependencies() {
@@ -432,6 +443,93 @@ public class BuildProject extends Project {
             // ignore
         }
     }
+
+    private void writePackageNameInBallerinaToml() {
+        Path ballerinaTomlPath = this.currentPackage().project().sourceRoot().resolve(BALLERINA_TOML);
+        String packageName = this.currentPackage().descriptor().name().value();
+        Optional<BallerinaToml> ballerinaToml = this.currentPackage().ballerinaToml();
+        if (ballerinaToml.isPresent()) {
+            TomlTableNode tomlAstNode = ballerinaToml.get().tomlAstNode();
+            if (tomlAstNode.entries().isEmpty()) {
+                // write package name with [package]
+                writePackageTableArrayWithPackageName(ballerinaTomlPath, packageName);
+                return;
+            }
+
+            TopLevelNode topLevelPkgNode = tomlAstNode.entries().get("package");
+            if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
+                // write package name with [package]
+                writePackageTableArrayWithPackageName(ballerinaTomlPath, packageName);
+                return;
+            }
+
+            TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
+            if (pkgNode.entries().isEmpty()) {
+                // write package name to existing [package]
+                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, packageName);
+                return;
+            }
+
+            TopLevelNode topLevelNode = pkgNode.entries().get("name");
+            if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
+                // write package name to existing [package]
+                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, packageName);
+                return;
+            }
+            String ballerinaTomlPkgName = ManifestUtils.getStringFromTomlTableNode(topLevelNode);
+            if (ballerinaTomlPkgName == null) {
+                // write package name to existing [package]
+                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, packageName);
+            }
+            // if package name available
+            // do nothing
+        }
+    }
+
+    private void writePackageTableArrayWithPackageName(Path ballerinaTomlPath, String packageName) {
+        StringBuilder content = new StringBuilder();
+        boolean packageAdded = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(ballerinaTomlPath)))) {
+            String line = reader.readLine();
+            while (line != null) {
+                content.append(line).append("\n");
+                if (!packageAdded && !line.trim().startsWith("#")) {
+                    content.append("[package]\nname = \"").append(packageName).append("\"").append("\n");
+                    packageAdded = true;
+                }
+                // read next line
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Writing to 'Ballerina.toml' failed");
+        }
+
+        // Write updated content to Ballerina.toml
+        writeContent(ballerinaTomlPath, String.valueOf(content).trim());
+    }
+
+    private void writePackageNameInsideExistingPackageTable(Path ballerinaTomlPath, String packageName) {
+        StringBuilder content = new StringBuilder();
+        boolean packageNameAdded = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(ballerinaTomlPath)))) {
+            String line = reader.readLine();
+            while (line != null) {
+                content.append(line).append("\n");
+                if (!packageNameAdded && line.trim().contains("[package]")) {
+                    content.append("name = \"").append(packageName).append("\"").append("\n");
+                    packageNameAdded = true;
+                }
+                // read next line
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Writing to 'Ballerina.toml' failed");
+        }
+
+        // Write updated content to Ballerina.toml
+        writeContent(ballerinaTomlPath, String.valueOf(content).trim());
+    }
+
 
     @Override
     public Path targetDir() {

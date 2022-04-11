@@ -55,6 +55,7 @@ public class InitCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
+                "name = \"" + projectPath.getFileName().toString() + "\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
@@ -243,8 +244,10 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
 
-        Assert.assertTrue(readOutput().contains("unallowed characters in the project name were replaced by " +
-                "underscores when deriving the package name. Edit the Ballerina.toml to change it."));
+        String initLog = readOutput();
+        Assert.assertEquals(initLog, "package name is derived as 'my_app'. " +
+                "Edit the Ballerina.toml to change it.\n\n" +
+                "Created new package 'my_app'.\n");
     }
 
     @Test(description = "Test init command with invalid project name")
