@@ -3930,6 +3930,12 @@ public class Types {
             if (((BLangLiteral) memberLiteral).value == null) {
                 return literalExpr.value == null;
             }
+
+            // If the literal which needs to be tested is from finite type and the type of the any member literal
+            // is not the same type, the literal cannot be assignable to finite type.
+            if (literalExpr.isFiniteContext && memberLiteral.getBType().tag != literalExpr.getBType().tag) {
+                return false;
+            }
             // Check whether the literal that needs to be tested is assignable to any of the member literal in the
             // value space.
             return checkLiteralAssignabilityBasedOnType((BLangLiteral) memberLiteral, literalExpr);
@@ -4012,8 +4018,7 @@ public class Types {
                 }
                 double baseDoubleVal = Double.parseDouble(baseValueStr);
                 double candidateDoubleVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
-                        !candidateLiteral.isFiniteContext) {
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     candidateDoubleVal = ((Long) candidateValue).doubleValue();
                     return baseDoubleVal == candidateDoubleVal;
                 } else if (candidateTypeTag == TypeTags.FLOAT) {
@@ -4024,12 +4029,11 @@ public class Types {
             case TypeTags.DECIMAL:
                 BigDecimal baseDecimalVal = NumericLiteralSupport.parseBigDecimal(baseValue);
                 BigDecimal candidateDecimalVal;
-                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant &&
-                        !candidateLiteral.isFiniteContext) {
+                if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     candidateDecimalVal = new BigDecimal((long) candidateValue, MathContext.DECIMAL128);
                     return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
-                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant &&
-                        !candidateLiteral.isFiniteContext || candidateTypeTag == TypeTags.DECIMAL) {
+                } else if (candidateTypeTag == TypeTags.FLOAT && !candidateLiteral.isConstant ||
+                        candidateTypeTag == TypeTags.DECIMAL) {
                     if (NumericLiteralSupport.isFloatDiscriminated(String.valueOf(candidateValue))) {
                         return false;
                     }
