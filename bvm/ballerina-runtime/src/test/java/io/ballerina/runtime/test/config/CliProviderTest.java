@@ -24,9 +24,11 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -47,7 +49,7 @@ import static io.ballerina.runtime.test.TestUtils.getIntersectionType;
 /**
  * Test cases specific for configuration provided via cli.
  */
-public class CliConfigProviderTest {
+public class CliProviderTest {
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1");
 
@@ -65,9 +67,8 @@ public class CliConfigProviderTest {
                 new VariableKey(module, variableName, type, true),
         };
         configVarMap.put(module, keys);
-        ConfigResolver configResolver = new ConfigResolver(configVarMap,
-                                                           diagnosticLog,
-                                                           List.of(new CliProvider(ROOT_MODULE, arg)));
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
+                List.of(new CliProvider(ROOT_MODULE, arg)));
         Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
@@ -182,4 +183,56 @@ public class CliConfigProviderTest {
         Assert.assertFalse(configValueMap.containsKey(finiteVar));
     }
 
+    @Test(dataProvider = "union-data-provider")
+    public void testCliProviderUnionType(String variableName, Type type, Object expectedValues, String cliArg) {
+        VariableKey unionVar = new VariableKey(ROOT_MODULE, variableName, type, false);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{unionVar})), diagnosticLog
+                        , List.of(new CliProvider(ROOT_MODULE, cliArg)));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object value = configValueMap.get(unionVar).getValue();
+        Assert.assertEquals(expectedValues, value);
+    }
+
+    @DataProvider(name = "union-data-provider")
+    public Object[][] unionDataProvider() {
+        BString strVal = fromString("test");
+        BDecimal decimalVal = ValueCreator.createDecimalValue("3.23");
+        UnionType stringInt =
+                TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_STRING, PredefinedTypes.TYPE_INT), true);
+        UnionType intFloat = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_FLOAT), true);
+        UnionType intBoolean = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_BOOLEAN), true);
+        UnionType byteBoolean =
+                TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_BYTE), true);
+        UnionType intDecimal = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_DECIMAL), true);
+        UnionType floatBoolen = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_FLOAT,
+                PredefinedTypes.TYPE_BOOLEAN), true);
+        return new Object[][]{
+                {"stringInt", getIntersectionType(ROOT_MODULE, stringInt), strVal, "-CstringInt=test"},
+                {"intFloat", getIntersectionType(ROOT_MODULE, intFloat), 2.2d, "-CintFloat=2.2"},
+                {"byteBoolean", getIntersectionType(ROOT_MODULE, byteBoolean), 222, "-CbyteBoolean=222"},
+                {"intBoolean", getIntersectionType(ROOT_MODULE, intBoolean), 2L, "-CintBoolean=2"},
+                {"intDecimal", getIntersectionType(ROOT_MODULE, intDecimal), decimalVal, "-CintDecimal=3.23"},
+                {"floatBoolen", getIntersectionType(ROOT_MODULE, floatBoolen), true, "-CfloatBoolen=true"},
+        };
+    }
+
+    @Test
+    public void testCliProviderXmlUnionType() {
+        BXml xmlVal = ValueCreator.createXmlComment(StringUtils.fromString("I am a comment"));
+        UnionType intXml = TypeCreator.createUnionType(List.of(PredefinedTypes.TYPE_INT,
+                PredefinedTypes.TYPE_XML), true);
+        VariableKey unionVar = new VariableKey(ROOT_MODULE, "intXml", getIntersectionType(ROOT_MODULE, intXml), false);
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver =
+                new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{unionVar})), diagnosticLog
+                        , List.of(new CliProvider(ROOT_MODULE, "-CintXml=<!--I am a comment-->")));
+        Map<VariableKey, ConfigValue> configValueMap = configResolver.resolveConfigs();
+        Object value = configValueMap.get(unionVar).getValue();
+        Assert.assertEquals(xmlVal.toString(), value.toString());
+    }
 }

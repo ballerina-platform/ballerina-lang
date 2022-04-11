@@ -4543,10 +4543,18 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangLambdaFunction lambdaFn : env.enclPkg.lambdaFunctions) {
             LineRange workerBodyPos = lambdaFn.function.pos.lineRange();
+            Location targetRangePos = env.node.pos;
+
+            // TODO: targetRangePos is null, because we create a block stmt to group the statement after a If block
+            //  without en else block. Its pos is not set. Setting the pos requires the exact positions of start
+            //  and end after the if block. When the pos is set we can remove this check
+            if (targetRangePos == null) {
+                targetRangePos = env.enclInvokable.pos;
+            }
 
             if (worker.name.value.equals(lambdaFn.function.defaultWorkerName.value)
-                    && withinRange(workerVarPos, env.node.pos.lineRange())
-                    && withinRange(workerBodyPos, env.node.pos.lineRange())) {
+                    && withinRange(workerVarPos, targetRangePos.lineRange())
+                    && withinRange(workerBodyPos, targetRangePos.lineRange())) {
                 worker.setAssociatedFuncSymbol(lambdaFn.function.symbol);
                 return;
             }

@@ -532,8 +532,8 @@ public class BIROptimizer {
             this.optimizeNode(birNewArray.lhsOp, this.env);
             this.optimizeNode(birNewArray.sizeOp, this.env);
 
-            for (BIROperand value : birNewArray.values) {
-                this.optimizeNode(value, this.env);
+            for (BIRNode.BIRListConstructorEntry listValueEntry : birNewArray.values) {
+                this.optimizeNode(listValueEntry.exprOp, this.env);
             }
         }
 
