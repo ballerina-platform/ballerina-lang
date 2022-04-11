@@ -203,6 +203,26 @@ public class ProjectUtils {
     }
 
     /**
+     * Remove first character of the given string.
+     *
+     * @param aString given string
+     * @return string removed last character
+     */
+    public static String removeFirstChar(String aString) {
+        return aString.substring(1);
+    }
+
+    public static String getPackageValidationError(String packageName) {
+        if (!validateDotSeparatedIdentifiers(packageName)) {
+            return "Package name can only contain alphanumerics and underscores.";
+        } else if (!validateInitialNumericsOfName(packageName)) {
+            return "Package name cannot have initial numeric characters.";
+        } else {
+            return getValidateUnderscoreError(packageName, "Package");
+        }
+    }
+
+    /**
      * Get specific error message when organization, package or module name has initial, trailing or
      * consecutive underscores.
      *
@@ -281,13 +301,18 @@ public class ProjectUtils {
             packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
 
-        // if package name is starting with underscore or numeric character, prepend `app` / `lib`
-        if (packageName.startsWith("_") || packageName.matches("[0-9].*")) {
+        // if package name is starting with numeric character, prepend `app` / `lib`
+        if (packageName.matches("[0-9].*")) {
             if (template.equalsIgnoreCase("lib")) {
                 packageName = "lib" + packageName;
             } else {
                 packageName = "app" + packageName;
             }
+        }
+
+        // if package name is starting with underscore remove it
+        if (packageName.startsWith("_")) {
+            packageName = removeFirstChar(packageName);
         }
 
         // if package name has consecutive underscores, replace them with a single underscore

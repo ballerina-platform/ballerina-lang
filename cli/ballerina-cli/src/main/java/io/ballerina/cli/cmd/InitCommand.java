@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.getPackageValidationError;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 
@@ -116,7 +117,7 @@ public class InitCommand implements BLauncherCmd {
             if (!ProjectUtils.validatePackageName(packageName)) {
                 CommandUtil.printError(errStream,
                         "invalid package name : '" + packageName + "' :\n" +
-                                "Package name can only contain alphanumerics and underscores.",
+                                getPackageValidationError(packageName),
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -135,7 +136,7 @@ public class InitCommand implements BLauncherCmd {
         }
 
         if (!ProjectUtils.validatePackageName(packageName)) {
-            errStream.println("package name is derived as '" + packageName
+            errStream.println("package name is derived as '" + guessPkgName(packageName, "app")
                     + "'. Edit the Ballerina.toml to change it.");
             errStream.println();
         }

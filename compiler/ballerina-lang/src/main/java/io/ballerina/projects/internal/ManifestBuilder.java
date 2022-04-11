@@ -30,7 +30,6 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
@@ -58,7 +57,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,8 +66,6 @@ import static io.ballerina.projects.internal.ManifestUtils.getStringFromTomlTabl
 import static io.ballerina.projects.util.ProjectUtils.defaultName;
 import static io.ballerina.projects.util.ProjectUtils.defaultOrg;
 import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
-import static io.ballerina.projects.util.ProjectUtils.guessOrgName;
-import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 
 /**
  * Build Manifest using toml files.
