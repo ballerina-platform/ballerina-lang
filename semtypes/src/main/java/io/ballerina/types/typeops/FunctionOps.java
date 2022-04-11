@@ -106,7 +106,7 @@ public class FunctionOps extends CommonOps implements UniformTypeOps {
         if (pos == null) {
             return PredefinedType.NEVER;
         }
-        return Core.union(cx.functionAtomType(pos.atom).retType, functionUnionParams(cx, pos.next));
+        return Core.union(cx.functionAtomType(pos.atom).paramType, functionUnionParams(cx, pos.next));
     }
 
     private static SemType functionIntersectRet(Context cx, Conjunction pos) {
