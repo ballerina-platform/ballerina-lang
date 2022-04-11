@@ -45,7 +45,6 @@ public class BLangRecordTypeNode extends BLangStructureTypeNode implements Recor
     }
 
     public BLangRecordTypeNode(int includedFieldCount, BLangType restField) {
-
         super(includedFieldCount);
         restFieldType = restField;
     }

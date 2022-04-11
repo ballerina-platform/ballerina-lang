@@ -260,11 +260,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
-
-        this.importedPackages = new ArrayList<>();
-        this.unknownTypeRefs = new HashSet<>();
         this.intersectionTypes = new ArrayList<>();
-        this.typeToTypeDef = new HashMap<>();
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
@@ -435,7 +431,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def fields (if any)
         defineFields(typeAndClassDefs, pkgEnv);
-//        List<BLangNode> orderedList = reorderTypeDefsAndClasses(typeAndClassDefs, pkgEnv);
         populateTypeToTypeDefMap(typeAndClassDefs);
         defineDependentFields(typeAndClassDefs, pkgEnv);
 
@@ -480,6 +475,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {
+        typeToTypeDef = new HashMap<>(typeDefNodes.size());
         for (BLangNode typeDef : typeDefNodes) {
             if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
                 BLangTypeDefinition typeDefNode = (BLangTypeDefinition) typeDef;
@@ -3505,7 +3501,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         resolveFields(recordType, recordTypeNode);
         resolveFieldsIncluded(recordType, recordTypeNode);
 
-//        resolveRestFieldType(recordTypeNode, recordType);
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
             dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
@@ -3529,34 +3524,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
-        fieldTypes.add(recordType.restFieldType);
-        symResolver.markParameterizedType(recordType, fieldTypes);
-    }
-
-    private void resolveRestFieldType(BLangRecordTypeNode recordTypeNode, BRecordType recordType) {
-        recordType.sealed = recordTypeNode.sealed;
-        if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
-            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
-            return;
-        }
-
-        LinkedHashMap<String, BField> fields = recordType.fields;
-        List<BType> fieldTypes = new ArrayList<>(fields.size());
-        for (BField field : fields.values()) {
-            fieldTypes.add(field.type);
-        }
-
-        if (recordTypeNode.restFieldType == null) {
-            symResolver.markParameterizedType(recordType, fieldTypes);
-            if (recordTypeNode.sealed) {
-                recordType.restFieldType = symTable.noType;
-                return;
-            }
-            recordType.restFieldType = symTable.anydataType;
-            return;
-        }
-
-        recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, recordTypeNode.typeDefEnv);
         fieldTypes.add(recordType.restFieldType);
         symResolver.markParameterizedType(recordType, fieldTypes);
     }
@@ -3892,9 +3859,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
         }
-
-        // todo: check for class fields and object fields
-        //defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
     private void defineFieldsOfObjectOrRecordTypeDef(BLangTypeDefinition typeDef, SymbolEnv pkgEnv) {
