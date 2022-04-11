@@ -21,7 +21,6 @@ package org.ballerinalang.test.bala.record;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -53,5 +52,7 @@ public class RecordInBalaTest {
         BRunUtil.invoke(typeResolution, "testCreatingAComplexRecordWithIncludingType");
         BRunUtil.invoke(typeResolution, "testCreatingComplexRecordWithIncludedType");
         BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeWithActualTypes");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBala");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBalaWithCM");
     }
 }

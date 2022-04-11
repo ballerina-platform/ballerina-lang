@@ -48,6 +48,55 @@ function testCreatingComplexRecWithIncTypeWithActualTypes() {
     assertValueEquality(255, <int>lmtCodedMessage.code);
 }
 
+public type JobSchedulerWithCurrentModuleCM record {
+    string gridId?;
+    *Records:JobRequest;
+    CodedMessageNew[] reasons?;
+};
+
+public type JobSchedulerNew record {
+    string gridId?;
+    *Records:JobRequest;
+    Records:CodedMessage[] reasons?;
+};
+
+public type CodedMessageNew record {
+    string code?;
+    string message?;
+};
+
+function testCreatingComplexRecWithIncTypeFromBala() {
+    Records:CodedMessage codm = {
+        message: "FirstCodedMessage",
+        code: "FirstCode"
+    };
+
+    JobSchedulerNew joq = {
+        reasons: [codm]
+    };
+
+    var codedMsgList = <Records:CodedMessage[]>joq.reasons;
+    var codedMessage = <Records:CodedMessage>codedMsgList[0];
+    assertValueEquality("FirstCodedMessage", codedMessage.message);
+    assertValueEquality("FirstCode", codedMessage.code);
+}
+
+function testCreatingComplexRecWithIncTypeFromBalaWithCM() {
+    CodedMessageNew codm = {
+        message: "FirstCodedMessage",
+        code: "FirstCode"
+    };
+
+    JobSchedulerWithCurrentModuleCM joq = {
+        reasons: [codm]
+    };
+
+    var codedMsgList = <CodedMessageNew[]>joq.reasons;
+    var codedMessage = <CodedMessageNew>codedMsgList[0];
+    assertValueEquality("FirstCodedMessage", codedMessage.message);
+    assertValueEquality("FirstCode", codedMessage.code);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
