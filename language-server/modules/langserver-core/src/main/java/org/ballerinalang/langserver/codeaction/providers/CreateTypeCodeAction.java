@@ -87,7 +87,8 @@ public class CreateTypeCodeAction extends AbstractCodeActionProvider {
         sb.append(CommonUtil.LINE_SEPARATOR);
 
         String title = String.format("Create record '%s'", name.get().getValue());
-        CodeAction codeAction = createCodeAction(title, List.of(new TextEdit(range, sb.toString())), context.fileUri(), CodeActionKind.QuickFix);
+        CodeAction codeAction = createCodeAction(title, List.of(new TextEdit(range, sb.toString())),
+                context.fileUri(), CodeActionKind.QuickFix);
         return List.of(codeAction);
     }
 
