@@ -183,7 +183,7 @@ public class Main {
     }
 
     public static void replaceMockedFunctions(TestSuite suite, List<String> jarFilePaths) {
-        String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getPackageID(),
+        String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(), suite.getTestPackageID(),
                 suite.getVersion(), suite.getPackageID().replace(".", FILE_NAME_PERIOD_SEPARATOR));
 
         Class<?> testClass;
@@ -281,7 +281,6 @@ public class Main {
             throw new BallerinaTestException("failed to get the class reader object for the class "
                     + clazz.getSimpleName());
         }
-
         ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
                 Type.getMethodDescriptor(method), mockMethod);
