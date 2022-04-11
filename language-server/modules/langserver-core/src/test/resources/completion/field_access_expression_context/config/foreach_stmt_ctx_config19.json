@@ -127,7 +127,7 @@
       }
     },
     {
-      "label": "next(stream<int, stream:CompletionType> stm)",
+      "label": "next()",
       "kind": "Function",
       "detail": "record {| stream:Type value; |}|stream:CompletionType",
       "documentation": {
@@ -138,15 +138,11 @@
       },
       "sortText": "CD",
       "filterText": "next",
-      "insertText": "next(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "next()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "iterator(stream<int, stream:CompletionType> stm)",
+      "label": "iterator()",
       "kind": "Function",
       "detail": "object {public isolated function next() returns record {| stream:Type value; |}|stream:CompletionType;}",
       "documentation": {
@@ -157,15 +153,11 @@
       },
       "sortText": "CD",
       "filterText": "iterator",
-      "insertText": "iterator(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "close(stream<int, stream:CompletionType> stm)",
+      "label": "close()",
       "kind": "Function",
       "detail": "stream:CompletionType?",
       "documentation": {
@@ -176,15 +168,11 @@
       },
       "sortText": "CD",
       "filterText": "close",
-      "insertText": "close(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "close()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString(any v)",
+      "label": "toBalString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -195,15 +183,11 @@
       },
       "sortText": "CD",
       "filterText": "toBalString",
-      "insertText": "toBalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toString(any v)",
+      "label": "toString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -214,12 +198,8 @@
       },
       "sortText": "CD",
       "filterText": "toString",
-      "insertText": "toString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

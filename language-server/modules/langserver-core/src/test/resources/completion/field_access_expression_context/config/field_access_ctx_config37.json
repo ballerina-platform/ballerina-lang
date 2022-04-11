@@ -25,7 +25,7 @@
       }
     },
     {
-      "label": "cause(error e)",
+      "label": "cause()",
       "kind": "Function",
       "detail": "error?",
       "documentation": {
@@ -36,15 +36,11 @@
       },
       "sortText": "AD",
       "filterText": "cause",
-      "insertText": "cause(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "cause()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString(error e)",
+      "label": "toBalString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -55,15 +51,11 @@
       },
       "sortText": "CD",
       "filterText": "toBalString",
-      "insertText": "toBalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toString(error e)",
+      "label": "toString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -74,15 +66,11 @@
       },
       "sortText": "CD",
       "filterText": "toString",
-      "insertText": "toString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "detail(error:$anonType$_0 e)",
+      "label": "detail()",
       "kind": "Function",
       "detail": "error:DetailType & readonly",
       "documentation": {
@@ -93,15 +81,11 @@
       },
       "sortText": "CD",
       "filterText": "detail",
-      "insertText": "detail(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "detail()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "stackTrace(error e)",
+      "label": "stackTrace()",
       "kind": "Function",
       "detail": "error:StackFrame[]",
       "documentation": {
@@ -112,15 +96,11 @@
       },
       "sortText": "CD",
       "filterText": "stackTrace",
-      "insertText": "stackTrace(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "stackTrace()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "message(error e)",
+      "label": "message()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -131,15 +111,11 @@
       },
       "sortText": "CD",
       "filterText": "message",
-      "insertText": "message(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "message()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly(value:CloneableType v)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
       "documentation": {
@@ -150,15 +126,11 @@
       },
       "sortText": "CD",
       "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone(value:CloneableType v)",
+      "label": "clone()",
       "kind": "Function",
       "detail": "value:CloneableType",
       "documentation": {
@@ -169,12 +141,8 @@
       },
       "sortText": "CD",
       "filterText": "clone",
-      "insertText": "clone(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

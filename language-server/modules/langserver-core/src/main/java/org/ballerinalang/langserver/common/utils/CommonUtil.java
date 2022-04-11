@@ -1285,9 +1285,9 @@ public class CommonUtil {
     /**
      * Returns the file path.
      *
-     * @param symbol    symbol
-     * @param project   ballerina project
-     * @param context   service operation context
+     * @param symbol  symbol
+     * @param project ballerina project
+     * @param context service operation context
      * @return file path
      */
     public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
@@ -2049,6 +2049,51 @@ public class CommonUtil {
      */
     public static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
         List<String> args = new ArrayList<>();
+        Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> params = CommonUtil.getFunctionParameters(symbol, ctx);
+        List<ParameterSymbol> reqParams = params.getLeft();
+        for (ParameterSymbol param : reqParams) {
+            args.add(getParamTypeAndNamePair(param, ctx).orElse(""));
+        }
+        if (params.getRight().isPresent()) {
+            args.add(getParamTypeAndNamePair(params.getRight().get(), ctx).orElse(""));
+        }
+        return args;
+    }
+
+    /**
+     * Get the parameter type and name pair given the paramter symbol.
+     *
+     * @param param parameter symbol.
+     * @param ctx   Lang Server Operation context
+     * @return {@link Optional<String>} Type and name pair.
+     */
+    public static Optional<String> getParamTypeAndNamePair(ParameterSymbol param, BallerinaCompletionContext ctx) {
+
+        if (param.paramKind() == ParameterKind.REST) {
+            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
+            return Optional.of(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+                    + (param.getName().isEmpty() ? "" : "... "
+                    + param.getName().get()));
+        }
+
+        if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
+            return Optional.empty();
+        } else {
+            return Optional.of(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
+                    (param.getName().isEmpty() ? "" : " " + param.getName().get()));
+        }
+    }
+
+    /**
+     * Get the list of function parameters from the invokable symbol.
+     *
+     * @param symbol Invokable symbol to extract the parameters
+     * @param ctx    Lang Server Operation context
+     * @return Pair of list of parameter symbols and rest parameter symbol.
+     */
+    public static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getFunctionParameters(
+                    FunctionSymbol symbol, BallerinaCompletionContext ctx) {
         boolean skipFirstParam = skipFirstParam(ctx, symbol);
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
         Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
@@ -2056,31 +2101,15 @@ public class CommonUtil {
 
         if (functionTypeDesc.params().isPresent()) {
             List<ParameterSymbol> params = functionTypeDesc.params().get();
-            if (params.size() > 1 && skipFirstParam) {
-                parameterDefs.addAll(params.subList(1, params.size()));
+            if (skipFirstParam) {
+                if (params.size() > 1) {
+                    parameterDefs.addAll(params.subList(1, params.size()));
+                }
             } else {
                 parameterDefs.addAll(params);
             }
         }
-
-        for (ParameterSymbol param : parameterDefs) {
-            if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
-                // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
-                args.add("");
-            } else {
-                args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.getName().isEmpty() ? ""
-                        : " " + param.getName().get()));
-            }
-        }
-
-        restParam.ifPresent(param -> {
-            // Rest param is represented as an array type symbol
-            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
-            args.add(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
-                    + (param.getName().isEmpty() ? "" : "... "
-                    + param.getName().get()));
-        });
-        return (!args.isEmpty()) ? args : new ArrayList<>();
+        return Pair.of(parameterDefs, restParam);
     }
 
     /**

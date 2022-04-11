@@ -272,7 +272,7 @@
       }
     },
     {
-      "label": "keys(map<any|error> m)",
+      "label": "keys()",
       "kind": "Function",
       "detail": "string[]",
       "documentation": {
@@ -283,15 +283,11 @@
       },
       "sortText": "CD",
       "filterText": "keys",
-      "insertText": "keys(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "keys()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "length(map<any|error> m)",
+      "label": "length()",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -302,15 +298,11 @@
       },
       "sortText": "CD",
       "filterText": "length",
-      "insertText": "length(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "iterator(map<map:Type> m)",
+      "label": "iterator()",
       "kind": "Function",
       "detail": "object {public isolated function next() returns record {| map:Type value; |}?;}",
       "documentation": {
@@ -321,15 +313,11 @@
       },
       "sortText": "CD",
       "filterText": "iterator",
-      "insertText": "iterator(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "entries(map<map:Type> m)",
+      "label": "entries()",
       "kind": "Function",
       "detail": "map<[string, map:Type]>",
       "documentation": {
@@ -340,15 +328,11 @@
       },
       "sortText": "CD",
       "filterText": "entries",
-      "insertText": "entries(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "entries()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "removeAll(map<any|error> m)",
+      "label": "removeAll()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -359,15 +343,11 @@
       },
       "sortText": "CD",
       "filterText": "removeAll",
-      "insertText": "removeAll(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "removeAll()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toArray(map<map:Type> m)",
+      "label": "toArray()",
       "kind": "Function",
       "detail": "map:Type[]",
       "documentation": {
@@ -378,15 +358,11 @@
       },
       "sortText": "CD",
       "filterText": "toArray",
-      "insertText": "toArray(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toArray()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly(value:CloneableType v)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
       "documentation": {
@@ -397,15 +373,11 @@
       },
       "sortText": "CD",
       "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString(any v)",
+      "label": "toBalString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -416,15 +388,11 @@
       },
       "sortText": "CD",
       "filterText": "toBalString",
-      "insertText": "toBalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJson(anydata v)",
+      "label": "toJson()",
       "kind": "Function",
       "detail": "json",
       "documentation": {
@@ -435,15 +403,11 @@
       },
       "sortText": "CD",
       "filterText": "toJson",
-      "insertText": "toJson(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "isReadOnly(anydata v)",
+      "label": "isReadOnly()",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
@@ -454,15 +418,11 @@
       },
       "sortText": "CD",
       "filterText": "isReadOnly",
-      "insertText": "isReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone(value:CloneableType v)",
+      "label": "clone()",
       "kind": "Function",
       "detail": "value:CloneableType",
       "documentation": {
@@ -473,15 +433,11 @@
       },
       "sortText": "CD",
       "filterText": "clone",
-      "insertText": "clone(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toString(any v)",
+      "label": "toString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -492,15 +448,11 @@
       },
       "sortText": "CD",
       "filterText": "toString",
-      "insertText": "toString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJsonString(anydata v)",
+      "label": "toJsonString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -511,12 +463,8 @@
       },
       "sortText": "CD",
       "filterText": "toJsonString",
-      "insertText": "toJsonString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

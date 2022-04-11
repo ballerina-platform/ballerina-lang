@@ -191,7 +191,7 @@
       }
     },
     {
-      "label": "length(table<map<any|error>> t)",
+      "label": "length()",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -202,15 +202,11 @@
       },
       "sortText": "CD",
       "filterText": "length",
-      "insertText": "length(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "iterator(table<Employee> t)",
+      "label": "iterator()",
       "kind": "Function",
       "detail": "object {public isolated function next() returns record {| table:MapType value; |}?;}",
       "documentation": {
@@ -221,15 +217,11 @@
       },
       "sortText": "CD",
       "filterText": "iterator",
-      "insertText": "iterator(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "removeAll(table<map<any|error>> t)",
+      "label": "removeAll()",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -240,15 +232,11 @@
       },
       "sortText": "CD",
       "filterText": "removeAll",
-      "insertText": "removeAll(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "removeAll()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toArray(table<Employee> t)",
+      "label": "toArray()",
       "kind": "Function",
       "detail": "Employee[]",
       "documentation": {
@@ -259,15 +247,11 @@
       },
       "sortText": "CD",
       "filterText": "toArray",
-      "insertText": "toArray(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toArray()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly(value:CloneableType v)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
       "documentation": {
@@ -278,15 +262,11 @@
       },
       "sortText": "CD",
       "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString(any v)",
+      "label": "toBalString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -297,15 +277,11 @@
       },
       "sortText": "CD",
       "filterText": "toBalString",
-      "insertText": "toBalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJson(anydata v)",
+      "label": "toJson()",
       "kind": "Function",
       "detail": "json",
       "documentation": {
@@ -316,15 +292,11 @@
       },
       "sortText": "CD",
       "filterText": "toJson",
-      "insertText": "toJson(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "isReadOnly(anydata v)",
+      "label": "isReadOnly()",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
@@ -335,15 +307,11 @@
       },
       "sortText": "CD",
       "filterText": "isReadOnly",
-      "insertText": "isReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone(value:CloneableType v)",
+      "label": "clone()",
       "kind": "Function",
       "detail": "value:CloneableType",
       "documentation": {
@@ -354,15 +322,11 @@
       },
       "sortText": "CD",
       "filterText": "clone",
-      "insertText": "clone(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toString(any v)",
+      "label": "toString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -373,15 +337,11 @@
       },
       "sortText": "CD",
       "filterText": "toString",
-      "insertText": "toString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJsonString(anydata v)",
+      "label": "toJsonString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -392,12 +352,8 @@
       },
       "sortText": "CD",
       "filterText": "toJsonString",
-      "insertText": "toJsonString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

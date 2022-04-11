@@ -6,7 +6,7 @@
   "source": "field_access_expression_context/source/field_access_ctx_source16.bal",
   "items": [
     {
-      "label": "min(int n, int... ns)",
+      "label": "min(int... ns)",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -25,7 +25,7 @@
       }
     },
     {
-      "label": "max(int n, int... ns)",
+      "label": "max(int... ns)",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -139,7 +139,7 @@
       }
     },
     {
-      "label": "abs(int n)",
+      "label": "abs()",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -150,15 +150,11 @@
       },
       "sortText": "CD",
       "filterText": "abs",
-      "insertText": "abs(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "abs()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toHexString(int n)",
+      "label": "toHexString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -169,15 +165,11 @@
       },
       "sortText": "CD",
       "filterText": "toHexString",
-      "insertText": "toHexString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toHexString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly(value:CloneableType v)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
       "documentation": {
@@ -188,15 +180,11 @@
       },
       "sortText": "CD",
       "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString(any v)",
+      "label": "toBalString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -207,15 +195,11 @@
       },
       "sortText": "CD",
       "filterText": "toBalString",
-      "insertText": "toBalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJson(anydata v)",
+      "label": "toJson()",
       "kind": "Function",
       "detail": "json",
       "documentation": {
@@ -226,15 +210,11 @@
       },
       "sortText": "CD",
       "filterText": "toJson",
-      "insertText": "toJson(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "isReadOnly(anydata v)",
+      "label": "isReadOnly()",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
@@ -245,15 +225,11 @@
       },
       "sortText": "CD",
       "filterText": "isReadOnly",
-      "insertText": "isReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone(value:CloneableType v)",
+      "label": "clone()",
       "kind": "Function",
       "detail": "value:CloneableType",
       "documentation": {
@@ -264,15 +240,11 @@
       },
       "sortText": "CD",
       "filterText": "clone",
-      "insertText": "clone(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toString(any v)",
+      "label": "toString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -283,15 +255,11 @@
       },
       "sortText": "CD",
       "filterText": "toString",
-      "insertText": "toString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJsonString(anydata v)",
+      "label": "toJsonString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -302,12 +270,8 @@
       },
       "sortText": "CD",
       "filterText": "toJsonString",
-      "insertText": "toJsonString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

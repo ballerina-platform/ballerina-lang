@@ -191,7 +191,7 @@
       }
     },
     {
-      "label": "'join(string separator, string... strs)",
+      "label": "'join(string... strs)",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -362,7 +362,7 @@
       }
     },
     {
-      "label": "toBytes(string str)",
+      "label": "toBytes()",
       "kind": "Function",
       "detail": "byte[]",
       "documentation": {
@@ -373,15 +373,11 @@
       },
       "sortText": "CD",
       "filterText": "toBytes",
-      "insertText": "toBytes(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toBytes()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "length(string str)",
+      "label": "length()",
       "kind": "Function",
       "detail": "int",
       "documentation": {
@@ -392,15 +388,11 @@
       },
       "sortText": "CD",
       "filterText": "length",
-      "insertText": "length(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toCodePointInts(string str)",
+      "label": "toCodePointInts()",
       "kind": "Function",
       "detail": "int[]",
       "documentation": {
@@ -411,15 +403,11 @@
       },
       "sortText": "CD",
       "filterText": "toCodePointInts",
-      "insertText": "toCodePointInts(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toCodePointInts()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toUpperAscii(string str)",
+      "label": "toUpperAscii()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -430,15 +418,11 @@
       },
       "sortText": "CD",
       "filterText": "toUpperAscii",
-      "insertText": "toUpperAscii(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toUpperAscii()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "iterator(string str)",
+      "label": "iterator()",
       "kind": "Function",
       "detail": "object {public isolated function next() returns record {| string:Char value; |}?;}",
       "documentation": {
@@ -449,15 +433,11 @@
       },
       "sortText": "CD",
       "filterText": "iterator",
-      "insertText": "iterator(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "iterator()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "trim(string str)",
+      "label": "trim()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -468,15 +448,11 @@
       },
       "sortText": "CD",
       "filterText": "trim",
-      "insertText": "trim(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "trim()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toLowerAscii(string str)",
+      "label": "toLowerAscii()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -487,15 +463,11 @@
       },
       "sortText": "CD",
       "filterText": "toLowerAscii",
-      "insertText": "toLowerAscii(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toLowerAscii()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonString(string str)",
+      "label": "fromJsonString()",
       "kind": "Function",
       "detail": "json|error",
       "documentation": {
@@ -506,15 +478,11 @@
       },
       "sortText": "CD",
       "filterText": "fromJsonString",
-      "insertText": "fromJsonString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "fromJsonString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromBalString(string s)",
+      "label": "fromBalString()",
       "kind": "Function",
       "detail": "anydata|error",
       "documentation": {
@@ -525,15 +493,11 @@
       },
       "sortText": "CD",
       "filterText": "fromBalString",
-      "insertText": "fromBalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "fromBalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonFloatString(string str)",
+      "label": "fromJsonFloatString()",
       "kind": "Function",
       "detail": "value:JsonFloat|error",
       "documentation": {
@@ -544,15 +508,11 @@
       },
       "sortText": "CD",
       "filterText": "fromJsonFloatString",
-      "insertText": "fromJsonFloatString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "fromJsonFloatString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonDecimalString(string str)",
+      "label": "fromJsonDecimalString()",
       "kind": "Function",
       "detail": "value:JsonDecimal|error",
       "documentation": {
@@ -563,15 +523,11 @@
       },
       "sortText": "CD",
       "filterText": "fromJsonDecimalString",
-      "insertText": "fromJsonDecimalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "fromJsonDecimalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "cloneReadOnly(value:CloneableType v)",
+      "label": "cloneReadOnly()",
       "kind": "Function",
       "detail": "value:CloneableType & readonly",
       "documentation": {
@@ -582,15 +538,11 @@
       },
       "sortText": "CD",
       "filterText": "cloneReadOnly",
-      "insertText": "cloneReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toBalString(any v)",
+      "label": "toBalString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -601,15 +553,11 @@
       },
       "sortText": "CD",
       "filterText": "toBalString",
-      "insertText": "toBalString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJson(anydata v)",
+      "label": "toJson()",
       "kind": "Function",
       "detail": "json",
       "documentation": {
@@ -620,15 +568,11 @@
       },
       "sortText": "CD",
       "filterText": "toJson",
-      "insertText": "toJson(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "isReadOnly(anydata v)",
+      "label": "isReadOnly()",
       "kind": "Function",
       "detail": "boolean",
       "documentation": {
@@ -639,15 +583,11 @@
       },
       "sortText": "CD",
       "filterText": "isReadOnly",
-      "insertText": "isReadOnly(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "clone(value:CloneableType v)",
+      "label": "clone()",
       "kind": "Function",
       "detail": "value:CloneableType",
       "documentation": {
@@ -658,15 +598,11 @@
       },
       "sortText": "CD",
       "filterText": "clone",
-      "insertText": "clone(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toString(any v)",
+      "label": "toString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -677,15 +613,11 @@
       },
       "sortText": "CD",
       "filterText": "toString",
-      "insertText": "toString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "toJsonString(anydata v)",
+      "label": "toJsonString()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -696,12 +628,8 @@
       },
       "sortText": "CD",
       "filterText": "toJsonString",
-      "insertText": "toJsonString(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
