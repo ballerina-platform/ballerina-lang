@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.ballerinalang.langserver.AbstractLSTest;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -35,8 +36,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -49,14 +48,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 /**
  * Test Cases for CodeActions.
  *
  * @since 2.0.0
  */
-public abstract class AbstractCodeActionTest {
-    public Endpoint serviceEndpoint;
+public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
     private final JsonParser parser = new JsonParser();
 
@@ -64,27 +61,22 @@ public abstract class AbstractCodeActionTest {
 
     private static final WorkspaceManager workspaceManager
             = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
-    
-    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
 
-    @BeforeClass
-    public void init() throws Exception {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
+    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
 
     @Test(dataProvider = "codeaction-data-provider")
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         String configJsonPath = getConfigJsonPath(config);
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        TestUtil.openDocument(getServiceEndpoint(), sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
-                                    configJsonObject.get("character").getAsInt());
+                configJsonObject.get("character").getAsInt());
         diags = diags.stream().
                 filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
@@ -164,11 +156,11 @@ public abstract class AbstractCodeActionTest {
                     "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr
                             + " in " + sourcePath);
         }
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+        TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
     }
 
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
-        return TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        return TestUtil.getCodeActionResponse(getServiceEndpoint(), sourcePath.toString(), range, codeActionContext);
     }
 
     /**
@@ -178,10 +170,11 @@ public abstract class AbstractCodeActionTest {
      * @param source Source file name
      */
     public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        Endpoint endpoint = getServiceEndpoint();
         String configJsonPath = getConfigJsonPath(config);
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        TestUtil.openDocument(endpoint, sourcePath);
 
         // Filter diagnostics for the cursor position
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
@@ -195,7 +188,7 @@ public abstract class AbstractCodeActionTest {
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
         Range range = new Range(pos, pos);
-        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), range, codeActionContext);
         for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
             JsonObject expected = element.getAsJsonObject();
             String notExpectedTitle = expected.get("title").getAsString();
@@ -217,11 +210,6 @@ public abstract class AbstractCodeActionTest {
     private String getConfigJsonPath(String configFilePath) {
         return "codeaction" + File.separator + getResourceDir() + File.separator + "config" + File.separator +
                 configFilePath;
-    }
-
-    @AfterClass
-    public void cleanupLanguageServer() {
-        TestUtil.shutdownLanguageServer(this.serviceEndpoint);
     }
 
     private JsonObject getResponseJson(String response) {

@@ -78,6 +78,8 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
 
                 {"createUndefinedFunctionInRecord.json", "createUndefinedFunctionInRecord.bal"},
                 {"createUndefinedFunctionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
+                {"createUndefinedFunctionInRecordField1.json", "createUndefinedFunctionInRecordField.bal"},
+                {"createUndefinedFunctionInObjectField1.json", "createUndefinedFunctionInObjectField.bal"},
 
                 {"projectCreateUndefinedFunction1.json", "testproject/main.bal"},
                 {"projectCreateUndefinedFunction2.json", "testproject/main.bal"},
