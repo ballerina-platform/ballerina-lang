@@ -505,7 +505,7 @@ public class BuildProject extends Project {
         }
 
         // Write updated content to Ballerina.toml
-        writeContent(ballerinaTomlPath, String.valueOf(content).trim() + "\n");
+        writeContent(ballerinaTomlPath, String.valueOf(content).trim());
     }
 
     private void writePackageNameInsideExistingPackageTable(Path ballerinaTomlPath, String packageName) {
@@ -515,7 +515,7 @@ public class BuildProject extends Project {
             String line = reader.readLine();
             while (line != null) {
                 content.append(line).append("\n");
-                if (!packageNameAdded && !line.trim().contains("[package]")) {
+                if (!packageNameAdded && line.trim().contains("[package]")) {
                     content.append("name = \"").append(packageName).append("\"").append("\n");
                     packageNameAdded = true;
                 }
@@ -527,7 +527,7 @@ public class BuildProject extends Project {
         }
 
         // Write updated content to Ballerina.toml
-        writeContent(ballerinaTomlPath, String.valueOf(content).trim() + "\n");
+        writeContent(ballerinaTomlPath, String.valueOf(content).trim());
     }
 
 
