@@ -16,9 +16,12 @@
 package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.formatter.core.Formatter;
@@ -63,13 +66,22 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         RecordTypeDescriptorNode node = (RecordTypeDescriptorNode) posDetails.matchedTopLevelNode();
-        if (node.parent().kind() == SyntaxKind.TYPE_DEFINITION) {
+        if (node.parent().kind() == SyntaxKind.TYPE_DEFINITION || context.currentSyntaxTree().isEmpty()) {
             return Collections.emptyList();
         }
 
         Node tlNode = node;
         while (tlNode.parent().kind() != SyntaxKind.MODULE_PART) {
             tlNode = tlNode.parent();
+        }
+
+        LinePosition lastTypeDefPosition = tlNode.lineRange().endLine();
+        SyntaxTree syntaxTree = context.currentSyntaxTree().get();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        for (ModuleMemberDeclarationNode member : modulePartNode.members()) {
+            if (member.kind() == SyntaxKind.TYPE_DEFINITION) {
+                lastTypeDefPosition = member.lineRange().endLine();
+            }
         }
 
         Set<String> visibleSymbolNames = context.visibleSymbols(context.cursorPosition()).stream()
@@ -79,13 +91,13 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
                 .collect(Collectors.toSet());
         String typeName = CommonUtil.generateTypeName(RECORD_NAME_PREFIX, visibleSymbolNames);
 
-        LinePosition tlNodeStartLine = tlNode.lineRange().startLine();
-        Range extractedRecordRange = new Range(CommonUtil.toPosition(tlNodeStartLine),
-                CommonUtil.toPosition(tlNodeStartLine));
+        Range extractedRecordRange = new Range(CommonUtil.toPosition(lastTypeDefPosition),
+                CommonUtil.toPosition(lastTypeDefPosition));
         Range originalNodeRange = new Range(CommonUtil.toPosition(node.lineRange().startLine()),
                 CommonUtil.toPosition(node.lineRange().endLine()));
 
-        String typeDesc = String.format("type %s %s;%n%n", typeName, node.toSourceCode());
+        // Create type def text
+        String typeDesc = String.format("type %s %s;", typeName, node.toSourceCode());
         try {
             typeDesc = Formatter.format(typeDesc);
         } catch (FormatterException e) {
@@ -93,6 +105,9 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
                     "Failed to format extracted source: " + typeDesc, e, null, (Position) null);
             return Collections.emptyList();
         }
+
+        typeDesc = String.format("%n%n%s", typeDesc);
+        
         TextEdit typeDescEdit = new TextEdit(extractedRecordRange, typeDesc);
         TextEdit replaceEdit = new TextEdit(originalNodeRange, typeName);
         CodeAction codeAction = createCodeAction(CommandConstants.EXTRACT_TYPE, List.of(typeDescEdit, replaceEdit),
