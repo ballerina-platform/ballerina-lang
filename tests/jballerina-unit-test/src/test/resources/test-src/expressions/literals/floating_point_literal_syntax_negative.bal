@@ -91,4 +91,8 @@ function testMissingDigitAfterExponentIndicator() {
     _ = 0XP6;
     _ = 0xp-6;
     _ = 0XP-6;
+    
+    10f _ = 100Ef;
+    0XA _ = 0XAAP+;
+    0XA _ = 0XP+0;
 }

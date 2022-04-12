@@ -5346,18 +5346,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
                 kind = NodeKind.DECIMAL_FLOATING_POINT_LITERAL;
                 typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
-                String val = textValue;
-                
-                // Remove exponent indicator if it is not followed by a digit
-                if (val.matches(".*[eE][+-]?[fd]?")) {
-                    val = val.replaceAll("[eE][+-]?", "");
-                }
-                
                 if (isFiniteType) {
-                    value = val.replaceAll("[fd+]", "");
+                    value = textValue.replaceAll("[fd+]", "");
                     originalValue = textValue.replace("+", "");
                 } else {
-                    value = val;
+                    value = textValue;
                     originalValue = textValue;
                 }
             } else {
@@ -5935,16 +5928,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private String getHexNodeValue(String value) {
-        // Remove exponent indicator if it is not followed by a digit
-        if (value.matches(".*[pP][+-]?")) {
-            value = value.replaceAll("[pP][+-]?", "");
-        }
-        
-        // Add 0 if there is no hex digit precedes hex indicator
-        if (value.matches("0[xX][pP].*")) {
-            value = value.replaceAll("[pP]", "0p");
-        }
-        
         if (!(value.contains("p") || value.contains("P"))) {
             value = value + "p0";
         }

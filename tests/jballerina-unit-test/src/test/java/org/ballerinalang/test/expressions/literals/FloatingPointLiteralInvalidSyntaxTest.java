@@ -35,14 +35,18 @@ public class FloatingPointLiteralInvalidSyntaxTest {
     public void testMissingDigitAfterExponentIndicator() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/literals/floating_point_literal_syntax_negative.bal");
-        int expectedErrorCount = 76;
+        int expectedErrorCount = 79;
         Assert.assertEquals(negativeResult.getErrorCount(), expectedErrorCount);
-        for (int i = 0; i < expectedErrorCount - 4; i++) {
+        for (int i = 0; i < expectedErrorCount - 7; i++) {
             validateError(negativeResult, i, "missing digit after exponent indicator", i + 18, 9);
         }
 
-        for (int i = 72; i < expectedErrorCount; i++) {
+        for (int i = 72; i < expectedErrorCount - 3; i++) {
             validateError(negativeResult, i, "missing hex number after hex indicator", i + 18, 9);
         }
+
+        validateError(negativeResult, 76, "missing digit after exponent indicator", 95, 13);
+        validateError(negativeResult, 77, "missing digit after exponent indicator", 96, 13);
+        validateError(negativeResult, 78, "missing hex number after hex indicator", 97, 13);
     }
 }
