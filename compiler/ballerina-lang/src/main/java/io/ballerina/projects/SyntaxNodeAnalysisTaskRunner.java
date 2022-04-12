@@ -59,12 +59,6 @@ class SyntaxNodeAnalysisTaskRunner {
             runTasks(documentContext.syntaxTree(), moduleContext.moduleId(),
                     srcDocumentId, reportedDiagnostics);
         }
-
-        for (DocumentId testSrcDocumentId : moduleContext.testSrcDocumentIds()) {
-            DocumentContext testSrcDocumentContext = moduleContext.documentContext(testSrcDocumentId);
-            runTasks(testSrcDocumentContext.syntaxTree(), moduleContext.moduleId(),
-                    testSrcDocumentId, reportedDiagnostics);
-        }
     }
 
     private void runTasks(SyntaxTree syntaxTree,
