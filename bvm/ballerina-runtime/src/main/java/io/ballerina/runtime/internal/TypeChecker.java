@@ -64,6 +64,7 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamValue;
+import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
@@ -75,7 +76,6 @@ import io.ballerina.runtime.internal.values.XmlSequence;
 import io.ballerina.runtime.internal.values.XmlText;
 import io.ballerina.runtime.internal.values.XmlValue;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -3412,16 +3412,11 @@ public class TypeChecker {
             }
         }
 
-        if (firstElement instanceof String) {
-            // check empty string for strings, and 0.0 for decimals
-            return containsElement(finiteTypeValueSpace, "\"\"");
-        } else if (firstElement instanceof Byte
-                || firstElement instanceof Integer
-                || firstElement instanceof Long) {
+        if (firstElement instanceof StringValue) {
+            return containsElement(finiteTypeValueSpace, "");
+        } else if ((firstElement instanceof Long) || (firstElement instanceof DecimalValue)) {
             return containsElement(finiteTypeValueSpace, "0");
-        } else if (firstElement instanceof Float
-                || firstElement instanceof Double
-                || firstElement instanceof BigDecimal) {
+        } else if (firstElement instanceof Double) {
             return containsElement(finiteTypeValueSpace, "0.0");
         } else if (firstElement instanceof Boolean) {
             return containsElement(finiteTypeValueSpace, "false");
