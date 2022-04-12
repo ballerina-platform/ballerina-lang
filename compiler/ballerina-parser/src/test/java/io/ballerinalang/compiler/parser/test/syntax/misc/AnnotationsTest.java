@@ -77,4 +77,9 @@ public class AnnotationsTest extends AbstractMiscTest {
     public void testAnnotAttachmentAtEOF() {
         testFile("annotations/annotations_source_10.bal", "annotations/annotations_assert_10.json");
     }
+
+    @Test
+    public void testAnnotAtExprLevelRecovery() {
+        testFile("annotations/annotations_source_11.bal", "annotations/annotations_assert_11.json");
+    }
 }
