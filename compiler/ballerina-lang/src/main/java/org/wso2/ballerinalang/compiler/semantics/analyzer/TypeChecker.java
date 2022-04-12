@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -6789,6 +6790,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
+        List<BRecordType> incRecords = new ArrayList<>();
+        List<BLangExpression> namedArgs = new ArrayList<>();
         int i = 0;
         for (; i < nonRestArgCount; i++) {
             BLangExpression arg = nonRestArgs.get(i);
@@ -6816,6 +6819,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
+                    addToIncRecords(param, incRecords);
                     checkTypeParamExpr(arg, param.type, iExpr.langLibInvocation, data);
                     valueProvidedParams.add(param);
                     requiredParams.remove(param);
@@ -6835,6 +6839,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
+                addToIncRecords(varSym, incRecords);
+                namedArgs.add(arg);
                 requiredParams.remove(varSym);
                 requiredIncRecordParams.remove(varSym);
                 if (valueProvidedParams.contains(varSym)) {
@@ -6846,7 +6852,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 valueProvidedParams.add(varSym);
             }
         }
-
+        checkSameNamedArgsInIncRecords(namedArgs, incRecords);
         BVarSymbol restParam = invokableTypeSymbol.restParam;
 
         boolean errored = false;
@@ -7022,6 +7028,27 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return this.generateFutureType(invokableSymbol, retType);
         } else {
             return retType;
+        }
+    }
+
+    private void addToIncRecords(BVarSymbol param, List<BRecordType> incRecords) {
+        if (SymbolFlags.isFlagOn(param.flags, Flags.INCLUDED)) {
+            incRecords.add((BRecordType) Types.getReferredType(param.type));
+        }
+    }
+
+    // If there is a named-arg or positional-arg corresponding to an included-record-param,
+    // it is an error for a named-arg to specify a field of that included-record-param.
+    private void checkSameNamedArgsInIncRecords(List<BLangExpression> namedArgs, List<BRecordType> incRecords) {
+        for (BLangExpression namedArg : namedArgs) {
+            String argName = ((NamedArgNode) namedArg).getName().value;
+            for (BRecordType record : incRecords) {
+                if (record.fields.containsKey(argName)) {
+                    dlog.error(namedArg.pos, DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_WITH_INCLUDED_RECORD_PARAM,
+                            argName, record.tsymbol.name);
+                    break;
+                }
+            }
         }
     }
 

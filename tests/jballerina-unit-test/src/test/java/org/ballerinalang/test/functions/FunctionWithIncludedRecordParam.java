@@ -67,6 +67,8 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 144, 63);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'id'", 161, 53);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'name'", 161, 72);
+        BAssertUtil.validateError(result, i++, "named-arg 'name' not allowed with included-record-param 'Options'",
+                166, 42);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 166, 49);
         BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 169, 15);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int[]', found 'int'", 179, 36);
@@ -78,6 +80,42 @@ public class FunctionWithIncludedRecordParam {
                 "defaultable parameter not allowed after included record parameters", 190, 69);
         BAssertUtil.validateError(result, i++,
                 "defaultable parameter not allowed after included record parameters", 194, 81);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'id' not allowed with included-record-param 'Record1'", 217, 9);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'id' not allowed with included-record-param 'Record1'", 218, 38);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'name' not allowed with included-record-param 'Record1'", 219, 38);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'name' not allowed with included-record-param 'Record1'", 220, 28);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'name' not allowed with included-record-param 'Record1'", 221, 38);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'id' not allowed with included-record-param 'Record2'", 223, 9);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'id' not allowed with included-record-param 'Record2'", 224, 31);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'name' not allowed with included-record-param 'Record2'", 225, 31);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'idNew' not allowed with included-record-param 'Record3'", 239, 38);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'idNew' not allowed with included-record-param 'Record3'", 240, 38);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'idNew' not allowed with included-record-param 'Record3'", 241, 43);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'idNew' not allowed with included-record-param 'Record3'", 242, 36);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'id' not allowed with included-record-param 'Record2'", 242, 48);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'id' not allowed with included-record-param 'Record2'", 243, 9);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'idNew' not allowed with included-record-param 'Record3'", 244, 9);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'idNew' not allowed with included-record-param 'Record3'", 245, 9);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'id' not allowed with included-record-param 'Record2'", 245, 20);
+        BAssertUtil.validateError(result, i++,
+                "named-arg 'rec' not allowed with included-record-param 'Record4'", 259, 9);
         Assert.assertEquals(i, result.getErrorCount());
     }
 
