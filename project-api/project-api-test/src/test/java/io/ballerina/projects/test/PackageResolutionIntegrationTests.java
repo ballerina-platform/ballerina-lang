@@ -586,7 +586,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML)));
     }
 
-    @Test(enabled = false, description = "Update direct local dependency resolution")
+    @Test(description = "Update direct local dependency resolution")
     public void testUpdatedDirectLocalDependencyResolution(ITestContext ctx) throws IOException {
          /*
         Updated version of packahe_h to 0.1.1, rebuilt and pushed to local repository
@@ -641,6 +641,41 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies2.toml")));
+    }
+
+    @Test(enabled = false)
+    private void testUpdatedLocalandCentralDependencyResolution(ITestContext ctx) throws IOException {
+        /*
+            Local repository packages (published, but patched with the same version) as indirect dependencies
+
+            - Push package_i:0.1.0 to central
+            - Make changes to the api of package_i and pushed to local repo with same version
+            - Build package_a:
+                 package_h and package_i both resolved from local repo since those are mentioned in the Ballerina.toml
+                 of package_a
+                 Removed package_i from Dependencies.toml of package_a
+                    Transitive dependency package_i resolved from central, even though it was mentioned as
+                    local dependency in package_h Ballerina.toml
+         */
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_ad");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        // Push project_ad --> package_ae --> package_af_central
+
+        // push package_af_central to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_af_central"));
+
+        // push package_af_local to local
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_af_local"));
+
+        // push package_ae to local
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_ae"));
+
+        // Build project_ad
+        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
     }
 
     @AfterMethod
