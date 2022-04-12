@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -40,6 +41,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
@@ -119,6 +122,30 @@ public class TypeBuildersTest {
         return new Object[][] {
                 {types.ANY, MAP, "map<any>"},
                 {types.INT, MAP, "map<int>"},
+        };
+    }
+
+    @Test(dataProvider = "streamTypeBuilderProvider")
+    public void testStreamTypeBuilder(TypeSymbol vType, TypeSymbol cType, TypeDescKind typeDescKind,String signature) {
+        TypeBuilder builder = types.builder();
+        StreamTypeSymbol streamTypeSymbol = builder.STREAM_TYPE.withValueType(vType).withCompletionType(cType).build();
+        assertEquals(streamTypeSymbol.typeKind(), typeDescKind);
+        assertEquals(streamTypeSymbol.typeParameter(), vType);
+
+        if (cType.typeKind() != NIL) {
+            assertEquals(streamTypeSymbol.completionValueTypeParameter().signature(), cType.signature());
+        }
+
+        assertEquals(streamTypeSymbol.signature(), signature);
+
+    }
+
+    @DataProvider(name = "streamTypeBuilderProvider")
+    private Object[][] getStreamTypeBuilder() {
+        return new Object[][] {
+                {types.FLOAT, types.INT, STREAM, "stream<float, int>"},
+                {types.BYTE, types.STRING, STREAM, "stream<byte, string>"},
+                {types.ANY, types.NIL, STREAM, "stream<any>"},
         };
     }
 }
