@@ -47,10 +47,9 @@ public abstract class TypeBuilder {
         XML withTypeParam(TypeSymbol typeParam);
 
         /**
-         * Sets the type parameter which could be optional when building an XML type. This type parameter shall
-         * either be null, or a subtype of the XML type.
+         * Builds the XML type descriptor with a semantically valid type parameter.
          *
-         * @return The {@link XMLTypeSymbol} built
+         * @return The built {@link XMLTypeSymbol}
          */
         XMLTypeSymbol build();
     }

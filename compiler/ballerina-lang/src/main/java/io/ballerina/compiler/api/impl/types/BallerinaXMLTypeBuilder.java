@@ -43,6 +43,9 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
         symTable = SymbolTable.getInstance(context);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TypeBuilder.XML withTypeParam(TypeSymbol typeParam) {
         this.typeParam = typeParam;
@@ -50,6 +53,9 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public XMLTypeSymbol build() {
         BXMLType xmlType = new BXMLType(getBType(typeParam), symTable.xmlType.tsymbol);
