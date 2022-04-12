@@ -443,7 +443,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
+                    metadata = addMetadataNotAttachedDiagnostic((STMetadataNode) metadata);
                     return createMissingSimpleVarDecl(metadata, true);
                 }
                 return null;
@@ -499,7 +499,7 @@ public class BallerinaParser extends AbstractParser {
         return parseTopLevelNode(metadata, publicQualifier);
     }
 
-    private STNode addMissingConstructDiagnostic(STMetadataNode metadata) {
+    private STNode addMetadataNotAttachedDiagnostic(STMetadataNode metadata) {
         STNode docString = metadata.documentationString;
         if (docString != null) {
             docString = SyntaxErrors.addDiagnostic(docString,
@@ -507,10 +507,15 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNodeList annotList = (STNodeList) metadata.annotations;
-        STNode annotations = SyntaxErrors.updateAllNodesInNodeListWithDiagnostic(annotList,
-                DiagnosticErrorCode.ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT);
+        STNode annotations = addAnnotNotAttachedDiagnostic(annotList);
 
         return STNodeFactory.createMetadataNode(docString, annotations);
+    }
+
+    private STNode addAnnotNotAttachedDiagnostic(STNodeList annotList) {
+        STNode annotations = SyntaxErrors.updateAllNodesInNodeListWithDiagnostic(annotList,
+                DiagnosticErrorCode.ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT);
+        return annotations;
     }
 
     /**
@@ -4809,7 +4814,7 @@ public class BallerinaParser extends AbstractParser {
         simpleNameRef = modifyNodeWithInvalidTokenList(qualifiers, simpleNameRef);
 
         if (metadata != null) {
-            metadata = addMissingConstructDiagnostic((STMetadataNode) metadata);
+            metadata = addMetadataNotAttachedDiagnostic((STMetadataNode) metadata);
         }
 
         return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList,
@@ -5071,6 +5076,13 @@ public class BallerinaParser extends AbstractParser {
         parseExprQualifiers(qualifiers);
         STToken nextToken = peek();
 
+        STNodeList annotNodeList = (STNodeList) annots;
+        if (!annotNodeList.isEmpty() && !isAnnotAllowedExprStart(nextToken)) {
+            annots = addAnnotNotAttachedDiagnostic(annotNodeList);
+            STNode qualifierNodeList = createObjectTypeQualNodeList(qualifiers);
+            return createMissingObjectConstructor(annots, qualifierNodeList);
+        }
+
         // Whenever a new expression start is added, make sure to
         // add relevant entries in isValidExprStart and validateExprAnnotsAndQualifiers methods.
         validateExprAnnotsAndQualifiers(nextToken, annots, qualifiers);
@@ -5163,6 +5175,18 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
+        STNode objectKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OBJECT_KEYWORD,
+                DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD);
+        STNode openBrace = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OPEN_BRACE_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN);
+        STNode closeBrace = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_BRACE_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN);
+        return STNodeFactory.createObjectConstructorExpressionNode(annots, qualifierNodeList, objectKeyword,
+                STNodeFactory.createEmptyNode(), openBrace, STNodeFactory.createEmptyNodeList(),
+                closeBrace);
+    }
+
     private STNode parseQualifiedIdentifierOrExpression(boolean isInConditionalExpr, boolean isRhsExpr) {
         STToken preDeclaredPrefix = consume();
         STToken nextNextToken = getNextNextToken();
@@ -5217,6 +5241,17 @@ public class BallerinaParser extends AbstractParser {
                     reportInvalidExpressionAnnots(annots, qualifiers);
                     reportInvalidQualifierList(qualifiers);
                 }
+        }
+    }
+
+    private boolean isAnnotAllowedExprStart(STToken nextToken) {
+        switch (nextToken.kind) {
+            case START_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case OBJECT_KEYWORD:
+                return true;
+            default:
+                return false;
         }
     }
 
