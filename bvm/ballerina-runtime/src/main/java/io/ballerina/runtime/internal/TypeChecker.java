@@ -3298,8 +3298,11 @@ public class TypeChecker {
             // non finite types are available and checked
             Iterator<Type> iterator = nonFiniteTypes.iterator();
             Type firstMember;
+            Type nextMember;
             for (firstMember = iterator.next(); iterator.hasNext(); ) {
-                if (!isSameType(firstMember, iterator.next())) {
+                nextMember = iterator.next();
+                if ((!isSameType(firstMember, nextMember)) &&
+                        !(isIntegerSubType(firstMember) && isIntegerSubType(nextMember))) {
                     return false;
                 }
             }
@@ -3327,6 +3330,11 @@ public class TypeChecker {
                 return false;
             }
         }
+    }
+
+    private static boolean isIntegerSubType(Type type) {
+        int typeTag = type.getTag();
+        return TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.BYTE_TAG;
     }
 
     private static boolean isFillerValueOfFiniteTypeBasicType(Object value) {
