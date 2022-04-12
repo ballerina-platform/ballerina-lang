@@ -19,6 +19,7 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
@@ -31,6 +32,7 @@ public abstract class TypeBuilder {
 
     public XML XML_TYPE;
     public MAP MAP_TYPE;
+    public STREAM STREAM_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -74,5 +76,17 @@ public abstract class TypeBuilder {
          * @return The {@link MapTypeSymbol} built
          */
         MapTypeSymbol build();
+    }
+
+    /**
+     * Represents the methods required to build the Stream type symbol of a Stream type descriptor.
+     */
+    public interface STREAM {
+
+        STREAM withValueType(TypeSymbol valueType);
+
+        STREAM withCompletionType(TypeSymbol completionType);
+
+        StreamTypeSymbol build();
     }
 }

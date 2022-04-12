@@ -32,6 +32,7 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         context.put(TYPE_BUILDER_KEY, this);
         this.XML_TYPE = new BallerinaXMLTypeBuilder(context);
         this.MAP_TYPE = new BallerinaMapTypeBuilder(context);
+        this.STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
     }
 
     public static TypeBuilder getInstance(CompilerContext context) {
