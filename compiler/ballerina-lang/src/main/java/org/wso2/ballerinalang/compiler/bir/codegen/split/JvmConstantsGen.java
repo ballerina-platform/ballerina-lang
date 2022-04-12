@@ -33,7 +33,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Map;
@@ -59,7 +58,7 @@ public class JvmConstantsGen {
 
     public final BTypeHashComparator bTypeHashComparator;
 
-    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, CompilerContext compilerContext,
+    public JvmConstantsGen(BIRNode.BIRPackage module, String moduleInitClass, Types types,
                            TypeHashVisitor typeHashVisitor) {
         this.bTypeHashComparator = new BTypeHashComparator(typeHashVisitor);
         this.stringConstantsGen = new JvmBStringConstantsGen(module.packageID);
@@ -67,8 +66,7 @@ public class JvmConstantsGen {
         this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator);
-        this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID,
-                bTypeHashComparator, Types.getInstance(compilerContext));
+        this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID, bTypeHashComparator, types);
     }
 
     public String getBStringConstantVar(String value) {

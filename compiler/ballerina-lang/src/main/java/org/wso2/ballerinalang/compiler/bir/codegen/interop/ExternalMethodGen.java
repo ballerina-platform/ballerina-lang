@@ -37,10 +37,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -70,11 +70,11 @@ public class ExternalMethodGen {
                                                   JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
                                                  JvmConstantsGen jvmConstantsGen,
                                                   String moduleClassName, AsyncDataCollector lambdaGenMetadata,
-                                                  CompilerContext compilerContext) {
+                                                  Types types) {
         if (birFunc instanceof JFieldBIRFunction) {
             genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
                                      jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                     moduleClassName, lambdaGenMetadata, compilerContext);
+                                     moduleClassName, lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                          moduleClassName, attachedType, lambdaGenMetadata);

@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -47,7 +48,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -138,10 +138,10 @@ public class JvmValueGen {
     private final JvmObjectGen jvmObjectGen;
     private final JvmRecordGen jvmRecordGen;
     private final TypeHashVisitor typeHashVisitor;
-    private final CompilerContext compilerContext;
+    private final Types types;
 
     JvmValueGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, MethodGen methodGen,
-                TypeHashVisitor typeHashVisitor, CompilerContext compilerContext) {
+                TypeHashVisitor typeHashVisitor, Types types) {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.methodGen = methodGen;
@@ -149,7 +149,7 @@ public class JvmValueGen {
         this.jvmRecordGen = new JvmRecordGen(jvmPackageGen.symbolTable);
         this.jvmObjectGen = new JvmObjectGen();
         this.typeHashVisitor = typeHashVisitor;
-        this.compilerContext = compilerContext;
+        this.types = types;
     }
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRNode.BIRPackage module, InitMethodGen initMethodGen,
@@ -360,7 +360,7 @@ public class JvmValueGen {
             cw.visitSource(className, null);
         }
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
-        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, compilerContext);
+        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                 RECORD_VALUE_CLASS,
@@ -568,7 +568,7 @@ public class JvmValueGen {
         cw.visitSource(typeDef.pos.lineRange().filePath(), null);
 
         JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
-        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, compilerContext);
+        JvmCastGen jvmCastGen = new JvmCastGen(jvmPackageGen.symbolTable, jvmTypeGen, types);
         LambdaGen lambdaGen = new LambdaGen(jvmPackageGen, jvmCastGen);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{B_OBJECT});
 

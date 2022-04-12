@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -44,6 +45,7 @@ public class CodeGenerator {
     private PackageCache packageCache;
     private BLangDiagnosticLog dlog;
     private CompilerContext compilerContext;
+    private Types types;
     private LargeMethodOptimizer largeMethodOptimizer;
 
     private CodeGenerator(CompilerContext compilerContext) {
@@ -52,6 +54,7 @@ public class CodeGenerator {
         this.symbolTable = SymbolTable.getInstance(compilerContext);
         this.packageCache = PackageCache.getInstance(compilerContext);
         this.dlog = BLangDiagnosticLog.getInstance(compilerContext);
+        this.types = Types.getInstance(compilerContext);
         this.compilerContext = compilerContext;
     }
 
@@ -84,7 +87,7 @@ public class CodeGenerator {
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
         dlog.setCurrentPackageId(packageSymbol.pkgID);
-        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, compilerContext);
+        final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
 
         populateExternalMap(jvmPackageGen);
 

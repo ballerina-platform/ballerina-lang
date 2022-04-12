@@ -50,11 +50,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -144,12 +144,12 @@ public class MethodGen {
     private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
-    private final CompilerContext compilerContext;
+    private final Types types;
 
-    public MethodGen(JvmPackageGen jvmPackageGen, CompilerContext compilerContext) {
+    public MethodGen(JvmPackageGen jvmPackageGen, Types types) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.compilerContext = compilerContext;
+        this.types = types;
     }
 
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
@@ -158,7 +158,7 @@ public class MethodGen {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                                                          jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
-                                                         asyncDataCollector, compilerContext);
+                                                         asyncDataCollector, types);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
                                attachedType, asyncDataCollector);
@@ -224,8 +224,7 @@ public class MethodGen {
         addCasesForBasicBlocks(func, funcName, labelGen, labels, states);
 
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
-                                                          jvmCastGen, jvmConstantsGen, asyncDataCollector,
-                                                          compilerContext);
+                                                          jvmCastGen, jvmConstantsGen, asyncDataCollector, types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);

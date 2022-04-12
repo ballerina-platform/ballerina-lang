@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -140,10 +139,10 @@ public class JvmCastGen {
     private final JvmTypeGen jvmTypeGen;
     private final Types types;
 
-    public JvmCastGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, CompilerContext compilerContext) {
+    public JvmCastGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, Types types) {
         this.symbolTable = symbolTable;
         this.jvmTypeGen = jvmTypeGen;
-        this.types = Types.getInstance(compilerContext);
+        this.types = types;
     }
 
     void generatePlatformCheckCast(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BType sourceType,
