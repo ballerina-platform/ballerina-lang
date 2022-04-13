@@ -825,14 +825,7 @@ public class ImmutableTypeCloner {
         BType effectiveType = immutableType.effectiveType;
         int tag = effectiveType.tag;
 
-        if (tag == TypeTags.TUPLE || tag == TypeTags.UNION) {
-            // Type definitions are added for tuples and unions only if they are cyclic. If they are cyclic they have
-            // to have a name.
-            Name name = effectiveType.tsymbol.name;
-            if (name == null || name.value.isEmpty()) {
-                return true;
-            }
-        } else if (tag != TypeTags.RECORD && tag != TypeTags.OBJECT) {
+        if (tag != TypeTags.TUPLE && tag != TypeTags.UNION && tag != TypeTags.RECORD && tag != TypeTags.OBJECT) {
             return true;
         }
 
