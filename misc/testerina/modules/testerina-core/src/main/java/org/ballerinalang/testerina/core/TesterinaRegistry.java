@@ -36,6 +36,7 @@ public class TesterinaRegistry {
     private List<String> groups = new ArrayList<>();
     private boolean shouldIncludeGroups;
     private Map<String, TestSuite> testSuites = new HashMap<>();
+    private Map<String, String> mockFunctionSourceMap = new HashMap<>();
 
     // This is use to keep track of packages that are already inited.
     private List<String> initializedPackages = new ArrayList<>();
@@ -103,5 +104,13 @@ public class TesterinaRegistry {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public void addMockFunctionsSourceMap(String key, String value) {
+        this.mockFunctionSourceMap.put(key, value);
+    }
+
+    public Map<String, String> getMockFunctionSourceMap() {
+        return this.mockFunctionSourceMap;
     }
  }

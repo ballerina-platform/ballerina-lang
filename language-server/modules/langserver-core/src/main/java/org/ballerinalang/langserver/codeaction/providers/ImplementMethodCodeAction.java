@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
@@ -50,7 +51,8 @@ public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction
             if (positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).isPresent()) {
                 String commandTitle = String.format(CommandConstants.IMPLEMENT_FUNCS_TITLE,
                         positionDetails.diagnosticProperty(DIAG_PROPERTY_NAME_INDEX).get());
-                CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
+                CodeAction quickFixCodeAction = createCodeAction(commandTitle, edits, context.fileUri(),
+                        CodeActionKind.QuickFix);
                 quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList(diagnostic)));
                 return Collections.singletonList(quickFixCodeAction);
             }

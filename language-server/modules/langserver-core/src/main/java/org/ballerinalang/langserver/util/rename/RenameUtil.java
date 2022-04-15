@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.util.rename;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
@@ -55,6 +57,7 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -162,19 +165,44 @@ public class RenameUtil {
             List<Location> locations = entry.getValue();
             for (Location location : locations) {
                 String uri = ReferencesUtil.getUriFromLocation(module, location);
-                List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
                 Range editRange = ReferencesUtil.getRange(location);
+
+                // CHeck for field binding pattern var name nodes in references
+                // Ex: 
+                //      type Person record { string name; int id; };
+                //      Person p = {name: "name1", id: 1};
+                //      var {name, id} = p;
+                // Here var named name in mapping binding pattern need to be handled as a special case
+                Path path = ReferencesUtil.getPathFromLocation(module, location);
+                Optional<FieldBindingPatternVarnameNode> bindingPatternVarNode = context.workspace().syntaxTree(path)
+                        .map(syntaxTree -> CommonUtil.findNode(editRange, syntaxTree))
+                        .flatMap(RenameUtil::getFieldBindingPatternVarNameNode);
+
+                List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
                 if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
-                    String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
+                    String escapedInsertText = CommonUtil.escapeReservedKeyword(newName);
+                    String insertText = newName;
+                    // Prepare insert text for both cases separately
+                    if (bindingPatternVarNode.isPresent()) {
+                        String currentName = bindingPatternVarNode.get().variableName().name().text();
+                        escapedInsertText = currentName + ": " + escapedInsertText;
+                        insertText = currentName + ": " + insertText;
+                    }
                     textEdits.add(new AnnotatedTextEdit(editRange,
-                            escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
+                            escapedInsertText, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
                     textEdits.add(new AnnotatedTextEdit(editRange,
-                            newName, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
+                            insertText, RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
                 } else {
-                    textEdits.add(new TextEdit(editRange, newName));
+                    String insertText = newName;
+                    if (bindingPatternVarNode.isPresent()) {
+                        String currentName = bindingPatternVarNode.get().variableName().name().text();
+                        insertText = currentName + ": " + insertText;
+                    }
+                    textEdits.add(new TextEdit(editRange, insertText));
                 }
             }
         }
+        
         return changes;
     }
 
@@ -215,6 +243,19 @@ public class RenameUtil {
         int cursor = context.getCursorPositionInTree();
         return importPrefixNode.prefix().textRange().startOffset() <= cursor &&
                 cursor <= importPrefixNode.prefix().textRange().endOffset();
+    }
+    
+    private static Optional<FieldBindingPatternVarnameNode> getFieldBindingPatternVarNameNode(NonTerminalNode node) {
+        if (node.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                node.parent().kind() != SyntaxKind.FIELD_BINDING_PATTERN) {
+            return Optional.empty();
+        }
+
+        FieldBindingPatternNode fieldBindingPatternNode = (FieldBindingPatternNode) node.parent();
+        if (fieldBindingPatternNode instanceof FieldBindingPatternVarnameNode) {
+            return Optional.of((FieldBindingPatternVarnameNode) fieldBindingPatternNode);
+        }
+        return Optional.empty();
     }
 
     private static boolean onImportDeclarationNode(ReferencesContext context, NonTerminalNode node) {

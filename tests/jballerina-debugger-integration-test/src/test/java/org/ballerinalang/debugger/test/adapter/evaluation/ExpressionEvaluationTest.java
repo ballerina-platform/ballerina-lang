@@ -805,7 +805,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
                         "                degree: degreeName," +
                         "                graduationYear: graduationYear" +
                         "    };",
-                "stream<map>", "stream");
+                "stream<map<(any|error)>>", "stream");
 
         // Query join expression evaluation
         debugTestRunner.assertExpression(context, "from var student in gradStudentList" +

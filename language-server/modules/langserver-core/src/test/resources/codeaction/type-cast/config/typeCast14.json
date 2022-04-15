@@ -1,0 +1,24 @@
+{
+  "line": 129,
+  "character": 25,
+  "expected": [
+    {
+      "title": "Add type cast to assignment",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 129,
+              "character": 24
+            },
+            "end": {
+              "line": 129,
+              "character": 24
+            }
+          },
+          "newText": "<future<string>>"
+        }
+      ]
+    }
+  ]
+}

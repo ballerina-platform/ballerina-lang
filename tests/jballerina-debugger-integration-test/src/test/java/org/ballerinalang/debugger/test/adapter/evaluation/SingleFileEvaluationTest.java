@@ -52,7 +52,7 @@ public class SingleFileEvaluationTest extends ExpressionEvaluationTest {
         super.variableReferenceEvaluationTest();
 
         // Todo - move to common evaluation test suite after fixing the value string
-        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "record {| readonly John name; |} & readonly",
+        debugTestRunner.assertExpression(context, GLOBAL_VAR_03, "record {| readonly \"John\" name; |} & readonly",
                 "record");
     }
 }

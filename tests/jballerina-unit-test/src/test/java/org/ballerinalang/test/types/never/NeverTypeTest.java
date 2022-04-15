@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.types.never;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -43,7 +43,6 @@ public class NeverTypeTest {
         negativeCompileResult = BCompileUtil.compile("test-src/types/never/never-type-negative.bal");
         runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
     }
-
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: Panic occured in function with never return.*")
@@ -156,19 +155,19 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected '(int|string)', found 'xml<never>'", 152, 21);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type " +
-                        "'never' or equivalent to type 'never'", 156, 5);
+                "'never' or equivalent to type 'never'", 156, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 159, 1);
+                "or equivalent to type 'never'", 159, 1);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot declare a constant with type 'never', " +
                 "expected a subtype of 'anydata' that is not 'never'", 161, 7);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'never', found '()'",
                 161, 17);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 164, 5);
+                "or equivalent to type 'never'", 164, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 165, 5);
+                "or equivalent to type 'never'", 165, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
-                        "cannot be of type 'never' or equivalent to type 'never'", 173, 16);
+                "cannot be of type 'never' or equivalent to type 'never'", 173, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
                 "cannot be of type 'never' or equivalent to type 'never'", 176, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
@@ -200,6 +199,14 @@ public class NeverTypeTest {
                 "'record {| never x?; never y?; anydata...; |}', found 'record {| never x?; anydata...; |}'", 244, 39);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
                 "'record {| never x?; anydata...; |}', found 'record {| anydata...; |}'", 247, 29);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| int x; |}', found 'record {| never...; |} & readonly'", 252, 30);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| never...; |} & readonly', found 'record {| int x?; |}'", 255, 35);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| |} & readonly', found 'record {| int x; never?...; |}'", 258, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected " +
+                "'record {| int x; never...; |}', found 'record {| |} & readonly'", 261, 41);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -235,10 +242,9 @@ public class NeverTypeTest {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithMethodCallExpr");
     }
 
-
     @Test(dataProvider = "dataToTestNeverTypeWithIterator", description = "Test never type with iterator")
     public void testNeverTypeWithIterator(String functionName) {
-       BRunUtil.invoke(neverTypeTestResult, functionName);
+        BRunUtil.invoke(neverTypeTestResult, functionName);
     }
 
     @DataProvider
@@ -294,7 +300,6 @@ public class NeverTypeTest {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithRestParamsAndFields");
     }
 
-
     @Test(description = "Test never type in remote method return type of service object")
     public void testNeverWithServiceObjFunc() {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithServiceObjFunc");
@@ -326,7 +331,8 @@ public class NeverTypeTest {
                 "testNeverRuntime11",
                 "testNeverRuntime12",
                 "testNeverWithAnyAndAnydataRuntime",
-                "testNeverFieldTypeCheck"
+                "testNeverFieldTypeCheck",
+                "testNeverRestFieldType"
         };
     }
 

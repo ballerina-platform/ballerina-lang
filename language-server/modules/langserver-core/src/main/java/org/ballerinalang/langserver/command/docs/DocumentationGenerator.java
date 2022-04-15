@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -117,6 +118,9 @@ public class DocumentationGenerator {
             case CLASS_DEFINITION: {
                 return Optional.of(generateClassDocumentation((ClassDefinitionNode) node, syntaxTree));
             }
+            case MODULE_VAR_DECL: {
+                return Optional.of(generateModuleVarDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
+            }
             default:
                 break;
         }
@@ -160,6 +164,24 @@ public class DocumentationGenerator {
         }
         String desc = String.format("Description%n");
         return new DocAttachmentInfo(desc, docStart, getPadding(serviceDeclrNode, syntaxTree));
+    }
+
+    /**
+     * Generate documentation for service node.
+     *
+     * @param varDeclarationNode service declaration node
+     * @param syntaxTree       syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
+     */
+    private static DocAttachmentInfo generateModuleVarDocumentation(ModuleVariableDeclarationNode varDeclarationNode,
+                                                                  SyntaxTree syntaxTree) {
+        Optional<MetadataNode> metadata = varDeclarationNode.metadata();
+        Position docStart = CommonUtil.toRange(varDeclarationNode.lineRange()).getStart();
+        if (metadata.isPresent() && !metadata.get().annotations().isEmpty()) {
+            docStart = CommonUtil.toRange(metadata.get().annotations().get(0).lineRange()).getStart();
+        }
+        String desc = String.format("Description%n");
+        return new DocAttachmentInfo(desc, docStart, getPadding(varDeclarationNode, syntaxTree));
     }
 
     /**

@@ -18,6 +18,7 @@
 package io.ballerina.compiler.api.impl;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeReferenceTypeSymbol;
@@ -105,6 +106,14 @@ public class BallerinaSemanticModel implements SemanticModel {
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.typesFactory = TypesFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
+    }
+
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
+    public Types types() {
+        return BallerinaTypes.getInstance(this.compilerContext);
     }
 
     /**
@@ -309,8 +318,7 @@ public class BallerinaSemanticModel implements SemanticModel {
 
     private BType getDeterminedType(BLangNode node, LineRange range) {
         if (node.getKind() == NodeKind.INVOCATION && node.getDeterminedType().getKind() == TypeKind.FUTURE) {
-            BLangInvocation.BLangActionInvocation invocationNode = (BLangInvocation.BLangActionInvocation) node;
-
+            BLangInvocation invocationNode = (BLangInvocation) node;
             if (invocationNode.isAsync()
                     && PositionUtil.withinBlock(range.startLine(), invocationNode.getName().getPosition())) {
 
@@ -405,7 +413,9 @@ public class BallerinaSemanticModel implements SemanticModel {
             return false;
         }
 
-        if (symbol.owner.getKind() == SymbolKind.PACKAGE || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+        if (symbol.owner.getKind() == SymbolKind.OBJECT
+                || symbol.owner.getKind() == SymbolKind.PACKAGE
+                || Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
             return true;
         }
 
@@ -503,14 +513,21 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbolEnvScopeOwner = symbolEnv.scope.owner;
         BSymbol symbol = scopeEntry.symbol;
 
-        // Checks if the enclosed node is within a worker declaration body and the encountered symbol is the same
+        if (isIgnorableSelfSymbol(name, symbol, symbolEnvScopeOwner)) {
+            return;
+        }
+
+        // Checks
+        // 1. if the enclosed node is within a worker declaration body and the encountered symbol is the same
         // worker that is being declared.
-        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol)) {
+        // 2. if the cursor within a class-field declaration and the particular symbol is a class-method.
+        if (isWithinCurrentWorker(symbolEnvScopeOwner.flags, symbolEnv.enclEnv, symbol) ||
+                isCursorWithinClassFieldDecl(symbolEnvScopeOwner.flags) && isClassMemberMethod(symbol))  {
             return;
         }
 
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
-                && !isServiceDeclSymbol(symbol)
+                && !isServiceDeclSymbol(symbol) && !isResourceFunction(symbol)
                 && (symbol.getKind() != SymbolKind.PACKAGE || isPackageImportedOnTheCompUnit(symbol, compUnitName))) {
             Symbol compiledSymbol;
             // TODO: Fix #31808 and remove this if-check
@@ -556,12 +573,29 @@ public class BallerinaSemanticModel implements SemanticModel {
         return false;
     }
 
+    private boolean isCursorWithinClassFieldDecl(long symbolEnvScopeOwnerFlags) {
+        return Symbols.isFlagOn(symbolEnvScopeOwnerFlags, Flags.CLASS);
+    }
+
+    private boolean isClassMemberMethod(BSymbol symbol) {
+        return symbol.getKind() == SymbolKind.FUNCTION && Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)
+                && Symbols.isFlagOn(symbol.owner.flags, Flags.CLASS);
+    }
+
     private boolean isFieldSymbol(Symbol symbol) {
         return symbol.kind() == CLASS_FIELD || symbol.kind() == OBJECT_FIELD || symbol.kind() == RECORD_FIELD;
     }
 
     private boolean isServiceDeclSymbol(BSymbol symbol) {
         return symbol.kind == SymbolKind.SERVICE;
+    }
+
+    private boolean isResourceFunction(BSymbol symbol) {
+        return Symbols.isFlagOn(symbol.flags, Flags.RESOURCE);
+    }
+
+    private boolean isIgnorableSelfSymbol(Name name, BSymbol symbol, BSymbol symbolEnvScopeOwner) {
+        return name.value.equals("self") && !symbol.owner.owner.equals(symbolEnvScopeOwner.owner);
     }
 
     private boolean isFilteredVarSymbol(BSymbol symbol, Set<DiagnosticState> states) {

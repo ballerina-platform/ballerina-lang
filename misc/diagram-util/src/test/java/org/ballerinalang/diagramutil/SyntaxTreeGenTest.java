@@ -116,6 +116,78 @@ public class SyntaxTreeGenTest {
                 Assert.fail("Additional endpoint has been found");
             }
         });
+
+        // Validate local endpoint in visible endpoints
+        JsonObject localEndpoint = visibleEndpoints.get(0).getAsJsonObject();
+        Assert.assertEquals(localEndpoint.get("typeName").getAsString(), "MyMainClient");
+        Assert.assertEquals(localEndpoint.get("name").getAsString(), "clientEndpoint");
+        Assert.assertEquals(localEndpoint.get("orgName").getAsString(), "marcus");
+        Assert.assertEquals(localEndpoint.get("packageName").getAsString(), "test");
+        Assert.assertEquals(localEndpoint.get("moduleName").getAsString(), "test");
+        Assert.assertEquals(localEndpoint.get("version").getAsString(), "0.1.0");
+        Assert.assertEquals(localEndpoint.get("isModuleVar").getAsString(), "false");
+
+        // Validate external endpoint in visible endpoints
+        JsonObject moduleEndpoint = visibleEndpoints.get(2).getAsJsonObject();
+        Assert.assertEquals(moduleEndpoint.get("typeName").getAsString(), "MyMainClient");
+        Assert.assertEquals(moduleEndpoint.get("name").getAsString(), "myClient");
+        Assert.assertEquals(moduleEndpoint.get("orgName").getAsString(), "marcus");
+        Assert.assertEquals(moduleEndpoint.get("packageName").getAsString(), "test");
+        Assert.assertEquals(moduleEndpoint.get("moduleName").getAsString(), "test");
+        Assert.assertEquals(moduleEndpoint.get("version").getAsString(), "0.1.0");
+        Assert.assertEquals(moduleEndpoint.get("isModuleVar").getAsString(), "true");
+        Assert.assertEquals(moduleEndpoint.get("isExternal").getAsString(), "true");
+
+        // Validate module var statement
+        Assert.assertTrue(moduleVar.get("typeData").getAsJsonObject().get("symbol").getAsJsonObject()
+                .get("moduleID").isJsonObject());
+        JsonObject moduleVarModuleId = moduleVar.get("typeData").getAsJsonObject().get("symbol").getAsJsonObject()
+                .get("moduleID").getAsJsonObject();
+        Assert.assertEquals(moduleVarModuleId.get("orgName").getAsString(), "marcus");
+        Assert.assertEquals(moduleVarModuleId.get("packageName").getAsString(), "test");
+        Assert.assertEquals(moduleVarModuleId.get("moduleName").getAsString(), "test");
+        Assert.assertEquals(moduleVarModuleId.get("version").getAsString(), "0.1.0");
+
+        // Validate local var statement
+        Assert.assertTrue(functionBody.get("statements").getAsJsonArray().get(0).isJsonObject());
+        JsonObject localVarStmt = functionBody.get("statements").getAsJsonArray().get(0).getAsJsonObject();
+        Assert.assertEquals(localVarStmt.get("kind").getAsString(), "LocalVarDecl");
+        Assert.assertTrue(localVarStmt.get("typeData").getAsJsonObject().get("symbol").getAsJsonObject()
+                .get("moduleID").isJsonObject());
+        JsonObject localVarModuleId = localVarStmt.get("typeData").getAsJsonObject().get("symbol").getAsJsonObject()
+                .get("moduleID").getAsJsonObject();
+        Assert.assertEquals(localVarModuleId.get("orgName").getAsString(), "marcus");
+        Assert.assertEquals(localVarModuleId.get("packageName").getAsString(), "test");
+        Assert.assertEquals(localVarModuleId.get("moduleName").getAsString(), "test");
+        Assert.assertEquals(localVarModuleId.get("version").getAsString(), "0.1.0");
+
+        // Validate assignment statement
+        Assert.assertTrue(functionBody.get("statements").getAsJsonArray().get(4).isJsonObject());
+        JsonObject assignmentStmt = functionBody.get("statements").getAsJsonArray().get(4).getAsJsonObject();
+        Assert.assertEquals(assignmentStmt.get("kind").getAsString(), "AssignmentStatement");
+        Assert.assertTrue(assignmentStmt.get("varRef").getAsJsonObject().get("typeData").getAsJsonObject()
+                .get("symbol").getAsJsonObject().get("moduleID").isJsonObject());
+        JsonObject asgmtModuleId = assignmentStmt.get("varRef").getAsJsonObject().get("typeData").getAsJsonObject()
+                .get("symbol").getAsJsonObject().get("moduleID").getAsJsonObject();
+        Assert.assertEquals(asgmtModuleId.get("orgName").getAsString(), "marcus");
+        Assert.assertEquals(asgmtModuleId.get("packageName").getAsString(), "test");
+        Assert.assertEquals(asgmtModuleId.get("moduleName").getAsString(), "test");
+        Assert.assertEquals(asgmtModuleId.get("version").getAsString(), "0.1.0");
+
+        // Validate required param
+        JsonObject delFunction = members.get(3).getAsJsonObject();
+        Assert.assertTrue(delFunction.get("functionSignature").getAsJsonObject().get("parameters")
+                .getAsJsonArray().get(0).isJsonObject());
+        JsonObject requiredParam = delFunction.get("functionSignature").getAsJsonObject().get("parameters")
+                .getAsJsonArray().get(0).getAsJsonObject();
+        Assert.assertTrue(requiredParam.get("typeData").getAsJsonObject().get("symbol").getAsJsonObject()
+                .get("moduleID").isJsonObject());
+        JsonObject reqParamModuleId = requiredParam.get("typeData").getAsJsonObject().get("symbol").getAsJsonObject()
+                .get("moduleID").getAsJsonObject();
+        Assert.assertEquals(reqParamModuleId.get("orgName").getAsString(), "marcus");
+        Assert.assertEquals(reqParamModuleId.get("packageName").getAsString(), "test");
+        Assert.assertEquals(reqParamModuleId.get("moduleName").getAsString(), "test");
+        Assert.assertEquals(reqParamModuleId.get("version").getAsString(), "0.1.0");
     }
 
     @Test(description = "Generate ST for client outside a main bal file.")
@@ -155,6 +227,10 @@ public class SyntaxTreeGenTest {
             if (endpoint.get("name").getAsString().equals("clientEndpoint")
                     || endpoint.get("name").getAsString().equals("myClient")) {
                 Assert.assertTrue(true);
+                Assert.assertEquals(endpoint.get("orgName").getAsString(), "marcus");
+                Assert.assertEquals(endpoint.get("packageName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("moduleName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("version").getAsString(), "0.1.0");
             } else {
                 Assert.fail("Additional endpoint has been found");
             }
@@ -204,6 +280,10 @@ public class SyntaxTreeGenTest {
             JsonObject endpoint = jsonElement.getAsJsonObject();
             if (endpoint.get("name").getAsString().equals("myClient")) {
                 Assert.assertTrue(true);
+                Assert.assertEquals(endpoint.get("orgName").getAsString(), "marcus");
+                Assert.assertEquals(endpoint.get("packageName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("moduleName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("version").getAsString(), "0.1.0");
             } else {
                 Assert.fail("Additional endpoint has been found");
             }
@@ -248,6 +328,10 @@ public class SyntaxTreeGenTest {
             JsonObject endpoint = jsonElement.getAsJsonObject();
             if (endpoint.get("name").getAsString().equals("myClient")) {
                 Assert.assertTrue(true);
+                Assert.assertEquals(endpoint.get("orgName").getAsString(), "marcus");
+                Assert.assertEquals(endpoint.get("packageName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("moduleName").getAsString(), "test");
+                Assert.assertEquals(endpoint.get("version").getAsString(), "0.1.0");
             } else {
                 Assert.fail("Additional endpoint has been found");
             }

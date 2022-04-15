@@ -187,6 +187,36 @@ function testResetTypeNarrowingForCompoundAssignment() {
     }
 }
 
+function testResetTypeNarrowing() {
+    int a = 10;
+    if a > 0 {
+        return;
+    }
+    error? errors = error("");
+    if errors is error {
+        return;
+    }
+    if a is int {
+        errors = error("");
+    }
+}
+
+function testResetTypeNarrowingWithBlockStmt() {
+    int a = 10;
+    if a > 0 {
+        return;
+    }
+    {
+        error? errors = error("");
+        if errors is error {
+            return;
+        }
+        if a is int {
+            errors = error("");
+        }
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

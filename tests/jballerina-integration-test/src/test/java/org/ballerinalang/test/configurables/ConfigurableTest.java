@@ -269,13 +269,33 @@ public class ConfigurableTest extends BaseTest {
                 {"configRecordArray", "Config_record_arrays.toml"},
                 {"configTableType", "Config_tables.toml"},
                 {"configMapType", "Config_maps.toml"},
-                {"configComplexXml", "Config_xml.toml"}
+                {"configComplexXml", "Config_xml.toml"},
+                {"configTupleType", "Config_tuples.toml"},
+                {"configRecordType", "Config_records_inline.toml"},
+                {"configOpenRecord", "Config_open_records_inline.toml"},
+                {"defaultValuesRecord", "Config_default_values_inline.toml"},
+                {"configRecordArray", "Config_record_arrays_inline.toml"},
+                {"configTableType", "Config_tables_inline.toml"},
+                {"configMapType", "Config_maps_inline.toml"},
+                {"configComplexXml", "Config_xml_inline.toml"},
+                {"configTupleType", "Config_tuples_inline.toml"},
+
         };
     }
 
     @Test
     public void testLargeNoOfConfigVariables() throws BallerinaTestException {
         executeBalCommand("/largeProject", "main", null);
+    }
+
+    @Test
+    public void testModuleAmbiguityWithModuleNameAsBallerina() throws BallerinaTestException {
+        LogLeecher errorLog = new LogLeecher("error: [Config.toml:(1:1,1:13)] the module name 'ballerina' clashes " +
+                "with an imported organization name. Please provide the module name as '[ballerina.ballerina]'", ERROR);
+        bMainInstance.runMain("run", new String[]{}, null, new String[]{},
+                new LogLeecher[]{errorLog},
+                Paths.get(testFileLocation, "testAmbiguousCases", "moduleNamedBallerina").toString());
+        errorLog.waitForText(5000);
     }
 
     /**
@@ -285,9 +305,7 @@ public class ConfigurableTest extends BaseTest {
      */
     private Map<String, String> addEnvironmentVariables(Map<String, String> pathVariables) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        for (Map.Entry<String, String> pathVariable :pathVariables.entrySet()) {
-            envVariables.put(pathVariable.getKey(), pathVariable.getValue());
-        }
+        envVariables.putAll(pathVariables);
         return envVariables;
     }
 }

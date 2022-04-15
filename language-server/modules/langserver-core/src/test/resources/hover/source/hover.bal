@@ -300,3 +300,11 @@ function testFunction5() {
 public type Err1 error;
 
 Err1 myErr = error Err1("trxErr", data = "test");
+
+# Test function
+#
+# + param1 - param1 
+# + param2 - Name details
+public function testParameter(string param1, Name param2) {
+    Name name1 = param2;
+}

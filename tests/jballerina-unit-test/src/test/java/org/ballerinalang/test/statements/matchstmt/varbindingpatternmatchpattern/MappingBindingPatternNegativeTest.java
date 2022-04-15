@@ -60,6 +60,7 @@ public class MappingBindingPatternNegativeTest {
         BAssertUtil.validateWarning(warningResult, ++i, unreachablePattern, 42, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'a'", 42, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'b'", 42, 9);
+        BAssertUtil.validateWarning(warningResult, ++i, "unreachable pattern", 44, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'b'", 44, 9);
         BAssertUtil.validateWarning(warningResult, ++i, unreachablePattern, 46, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'b'", 46, 9);
@@ -110,6 +111,8 @@ public class MappingBindingPatternNegativeTest {
                 "found 'record {| never i?; never...; |}'", 74, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
                 "found 'record {| int i?; never...; |}'", 77, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found " +
+                "'map<int> & readonly'", 89, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

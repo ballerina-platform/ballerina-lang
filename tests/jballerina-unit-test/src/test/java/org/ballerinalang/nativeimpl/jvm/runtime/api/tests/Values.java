@@ -20,13 +20,17 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
@@ -36,16 +40,20 @@ import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BFunctionType;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -57,6 +65,7 @@ public class Values {
 
     private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
     private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
+    private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -150,7 +159,96 @@ public class Values {
         return arrayValue;
     }
 
+    public static Object getMapValue() {
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA));
+        mapValue.put(StringUtils.fromString("a"), 5);
+        return mapValue;
+    }
+
+    public static BMap<BString, Object> getMapValueWithInitialValues() {
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("aa"), StringUtils.fromString("55")), ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("bb"), StringUtils.fromString("66"))};
+        return ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA), mapInitialValueEntries);
+    }
+
+    public static Object getRecordValue() {
+        Field stringField = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", 1);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", stringField));
+        RecordType recordType = TypeCreator.createRecordType("Student", null, 1, fields,
+                null, true, 6);
+        BMap<BString, Object> recordValue = ValueCreator.createRecordValue(recordType);
+        recordValue.populateInitialValue(StringUtils.fromString("name"), StringUtils.fromString("nameOfStudent"));
+        return recordValue;
+    }
+
+    public static BMap<BString, Object> getRecordValueWithInitialValues() {
+        Map<String, Field> fieldMap = new HashMap<>();
+        fieldMap.put("name", TypeCreator
+                .createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        fieldMap.put("id", TypeCreator
+                .createField(PredefinedTypes.TYPE_INT, "id", SymbolFlags.REQUIRED + SymbolFlags.PUBLIC));
+        RecordType recordType = TypeCreator.createRecordType("Details", null, SymbolFlags.READONLY
+                , fieldMap, null, true, 0);
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("studentName")),
+                ValueCreator.createKeyFieldEntry(StringUtils.fromString("id"), 123L)};
+        return ValueCreator.createRecordValue(recordType, mapInitialValueEntries);
+    }
+
+    public static BObject getInvalidObject(BString objectName) {
+        return ValueCreator.createObjectValue(invalidValueModule, objectName.getValue());
+    }
+
+    public static BMap<BString, Object> getInvalidRecord(BString recordName) {
+        return ValueCreator.createRecordValue(invalidValueModule, recordName.getValue());
+    }
+
+    public static BError getInvalidError(BString errorName) {
+        BString errorMsg = StringUtils.fromString("error message!");
+        return ErrorCreator.createError(invalidValueModule, errorName.getValue(), errorMsg,
+                ErrorCreator.createError(errorMsg), ValueCreator.createMapValue());
+    }
+
     public static BString decodeIdentifier(BString identifier) {
         return StringUtils.fromString(IdentifierUtils.decodeIdentifier(identifier.getValue()));
+    }
+
+    public static BMap<BString, Object> getRecordNegative(BString recordName) {
+        ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+        Map<String, Object> map = Map.ofEntries(
+                Map.entry("arrList", arrayList)
+        );
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), map);
+    }
+
+    public static BMap<BString, Object> getRecordNegative2(BString recordName) {
+        ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
+        Map<String, Object> map = Map.ofEntries(
+                Map.entry("arrList", arrayList)
+        );
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), null);
+    }
+
+    public static BMap<BString, Object> getReadonlyRecordNegative(BString recordName) {
+        Map<String, Integer> map = Map.ofEntries(
+                Map.entry("a", 1),
+                Map.entry("b", 2)
+        );
+        Map<String, Object> valueMap = Map.ofEntries(
+                Map.entry("valueMap", map)
+        );
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), valueMap);
+    }
+
+    public static BMap<BString, Object> getRecordWithRestFieldsNegative() {
+        BMap<BString, Object> map = ValueCreator.createMapValue();
+        map.put(StringUtils.fromString("key"), "map value");
+        Object[] values = new Object[2];
+        values[0] = 1;
+        values[1] = "abc";
+        return ValueCreator.createRecordValue(map, values);
     }
 }

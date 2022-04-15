@@ -18,8 +18,9 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,119 +45,119 @@ public class MultipleFromClauseWithVarTypeTest {
 
     @Test(description = "Test multiple select clauses - simple variable definition statement ")
     public void testMultipleSelectClausesWithSimpleVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleSelectClausesWithSimpleVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleSelectClausesWithSimpleVariable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 6, "Expected events are not received");
+        Assert.assertEquals(returnValues.size(), 6, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
-        BMap<String, BValue> person4 = (BMap<String, BValue>) returnValues[3];
-        BMap<String, BValue> person5 = (BMap<String, BValue>) returnValues[4];
-        BMap<String, BValue> person6 = (BMap<String, BValue>) returnValues[5];
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> person2 = (BMap<String, Object>) returnValues.get(1);
+        BMap<String, Object> person3 = (BMap<String, Object>) returnValues.get(2);
+        BMap<String, Object> person4 = (BMap<String, Object>) returnValues.get(3);
+        BMap<String, Object> person5 = (BMap<String, Object>) returnValues.get(4);
+        BMap<String, Object> person6 = (BMap<String, Object>) returnValues.get(5);
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person2.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person2.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person2.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person2.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person2.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
 
-        Assert.assertEquals(person3.get("firstName").stringValue(), "Ranjan");
-        Assert.assertEquals(person3.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person3.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person3.get(StringUtils.fromString("firstName")).toString(), "Ranjan");
+        Assert.assertEquals(person3.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person3.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person4.get("firstName").stringValue(), "Ranjan");
-        Assert.assertEquals(person4.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person4.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person4.get(StringUtils.fromString("firstName")).toString(), "Ranjan");
+        Assert.assertEquals(person4.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person4.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
 
-        Assert.assertEquals(person5.get("firstName").stringValue(), "John");
-        Assert.assertEquals(person5.get("lastName").stringValue(), "David");
-        Assert.assertEquals(person5.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person5.get(StringUtils.fromString("firstName")).toString(), "John");
+        Assert.assertEquals(person5.get(StringUtils.fromString("lastName")).toString(), "David");
+        Assert.assertEquals(person5.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person6.get("firstName").stringValue(), "John");
-        Assert.assertEquals(person6.get("lastName").stringValue(), "David");
-        Assert.assertEquals(person6.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person6.get(StringUtils.fromString("firstName")).toString(), "John");
+        Assert.assertEquals(person6.get(StringUtils.fromString("lastName")).toString(), "David");
+        Assert.assertEquals(person6.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
     }
 
     @Test(description = "Test multiple select clauses - record variable definition statement ")
     public void testMultipleSelectClausesWithRecordVariable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariable");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 6, "Expected events are not received");
+        Assert.assertEquals(returnValues.size(), 6, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
-        BMap<String, BValue> person4 = (BMap<String, BValue>) returnValues[3];
-        BMap<String, BValue> person5 = (BMap<String, BValue>) returnValues[4];
-        BMap<String, BValue> person6 = (BMap<String, BValue>) returnValues[5];
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> person2 = (BMap<String, Object>) returnValues.get(1);
+        BMap<String, Object> person3 = (BMap<String, Object>) returnValues.get(2);
+        BMap<String, Object> person4 = (BMap<String, Object>) returnValues.get(3);
+        BMap<String, Object> person5 = (BMap<String, Object>) returnValues.get(4);
+        BMap<String, Object> person6 = (BMap<String, Object>) returnValues.get(5);
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person2.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person2.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person2.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person2.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person2.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
 
-        Assert.assertEquals(person3.get("firstName").stringValue(), "Ranjan");
-        Assert.assertEquals(person3.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person3.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person3.get(StringUtils.fromString("firstName")).toString(), "Ranjan");
+        Assert.assertEquals(person3.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person3.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person4.get("firstName").stringValue(), "Ranjan");
-        Assert.assertEquals(person4.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person4.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person4.get(StringUtils.fromString("firstName")).toString(), "Ranjan");
+        Assert.assertEquals(person4.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person4.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
 
-        Assert.assertEquals(person5.get("firstName").stringValue(), "John");
-        Assert.assertEquals(person5.get("lastName").stringValue(), "David");
-        Assert.assertEquals(person5.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person5.get(StringUtils.fromString("firstName")).toString(), "John");
+        Assert.assertEquals(person5.get(StringUtils.fromString("lastName")).toString(), "David");
+        Assert.assertEquals(person5.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person6.get("firstName").stringValue(), "John");
-        Assert.assertEquals(person6.get("lastName").stringValue(), "David");
-        Assert.assertEquals(person6.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person6.get(StringUtils.fromString("firstName")).toString(), "John");
+        Assert.assertEquals(person6.get(StringUtils.fromString("lastName")).toString(), "David");
+        Assert.assertEquals(person6.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
     }
 
     @Test(description = "Test multiple select clauses - record variable definition statement v2")
     public void testMultipleSelectClausesWithRecordVariableV2() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariableV2");
+        BArray returnValues = (BArray) BRunUtil.invoke(result, "testMultipleSelectClausesWithRecordVariableV2");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 6, "Expected events are not received");
+        Assert.assertEquals(returnValues.size(), 6, "Expected events are not received");
 
-        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
-        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
-        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
-        BMap<String, BValue> person4 = (BMap<String, BValue>) returnValues[3];
-        BMap<String, BValue> person5 = (BMap<String, BValue>) returnValues[4];
-        BMap<String, BValue> person6 = (BMap<String, BValue>) returnValues[5];
+        BMap<String, Object> person1 = (BMap<String, Object>) returnValues.get(0);
+        BMap<String, Object> person2 = (BMap<String, Object>) returnValues.get(1);
+        BMap<String, Object> person3 = (BMap<String, Object>) returnValues.get(2);
+        BMap<String, Object> person4 = (BMap<String, Object>) returnValues.get(3);
+        BMap<String, Object> person5 = (BMap<String, Object>) returnValues.get(4);
+        BMap<String, Object> person6 = (BMap<String, Object>) returnValues.get(5);
 
-        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person1.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person1.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person1.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person1.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person1.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person2.get("firstName").stringValue(), "Alex");
-        Assert.assertEquals(person2.get("lastName").stringValue(), "George");
-        Assert.assertEquals(person2.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person2.get(StringUtils.fromString("firstName")).toString(), "Alex");
+        Assert.assertEquals(person2.get(StringUtils.fromString("lastName")).toString(), "George");
+        Assert.assertEquals(person2.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
 
-        Assert.assertEquals(person3.get("firstName").stringValue(), "Ranjan");
-        Assert.assertEquals(person3.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person3.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person3.get(StringUtils.fromString("firstName")).toString(), "Ranjan");
+        Assert.assertEquals(person3.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person3.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person4.get("firstName").stringValue(), "Ranjan");
-        Assert.assertEquals(person4.get("lastName").stringValue(), "Fonseka");
-        Assert.assertEquals(person4.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person4.get(StringUtils.fromString("firstName")).toString(), "Ranjan");
+        Assert.assertEquals(person4.get(StringUtils.fromString("lastName")).toString(), "Fonseka");
+        Assert.assertEquals(person4.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
 
-        Assert.assertEquals(person5.get("firstName").stringValue(), "John");
-        Assert.assertEquals(person5.get("lastName").stringValue(), "David");
-        Assert.assertEquals(person5.get("deptAccess").stringValue(), "HR");
+        Assert.assertEquals(person5.get(StringUtils.fromString("firstName")).toString(), "John");
+        Assert.assertEquals(person5.get(StringUtils.fromString("lastName")).toString(), "David");
+        Assert.assertEquals(person5.get(StringUtils.fromString("deptAccess")).toString(), "HR");
 
-        Assert.assertEquals(person6.get("firstName").stringValue(), "John");
-        Assert.assertEquals(person6.get("lastName").stringValue(), "David");
-        Assert.assertEquals(person6.get("deptAccess").stringValue(), "Operations");
+        Assert.assertEquals(person6.get(StringUtils.fromString("firstName")).toString(), "John");
+        Assert.assertEquals(person6.get(StringUtils.fromString("lastName")).toString(), "David");
+        Assert.assertEquals(person6.get(StringUtils.fromString("deptAccess")).toString(), "Operations");
     }
 
     @AfterClass

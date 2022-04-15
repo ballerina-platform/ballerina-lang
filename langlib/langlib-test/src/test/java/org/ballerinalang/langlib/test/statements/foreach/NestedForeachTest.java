@@ -18,11 +18,11 @@
 
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -40,49 +40,48 @@ public class NestedForeachTest {
         program = BCompileUtil.compile("test-src/statements/foreach/nested-foreach.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+    }
+
     @Test
     public void test2LevelNestedForeachWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "test2LevelNestedForeachWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "1:A 1:B 1:C 2:A 2:B 2:C 3:A 3:B 3:C ");
+        Object returns = BRunUtil.invoke(program, "test2LevelNestedForeachWithoutType");
+        Assert.assertEquals(returns.toString(), "1:A 1:B 1:C 2:A 2:B 2:C 3:A 3:B 3:C ");
     }
 
     @Test
     public void test2LevelNestedForeachWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "test2LevelNestedForeachWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "1:A 1:B 1:C 2:A 2:B 2:C 3:A 3:B 3:C ");
+        Object returns = BRunUtil.invoke(program, "test2LevelNestedForeachWithType");
+        Assert.assertEquals(returns.toString(), "1:A 1:B 1:C 2:A 2:B 2:C 3:A 3:B 3:C ");
     }
 
     @Test
     public void test3LevelNestedForeachWithoutType() {
-        BValue[] returns = BRunUtil.invoke(program, "test3LevelNestedForeachWithoutType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "1:A:10.0 1:A:11.0 1:A:12.0 1:B:10.0 1:B:11.0 1:B:12.0 1:C:10.0" +
+        Object returns = BRunUtil.invoke(program, "test3LevelNestedForeachWithoutType");
+        Assert.assertEquals(returns.toString(), "1:A:10.0 1:A:11.0 1:A:12.0 1:B:10.0 1:B:11.0 1:B:12.0 1:C:10.0" +
                 " 1:C:11.0 1:C:12.0 2:A:10.0 2:A:11.0 2:A:12.0 2:B:10.0 2:B:11.0 2:B:12.0 2:C:10.0 2:C:11.0 2:C:12.0 " +
                 "3:A:10.0 3:A:11.0 3:A:12.0 3:B:10.0 3:B:11.0 3:B:12.0 3:C:10.0 3:C:11.0 3:C:12.0 ");
     }
 
     @Test
     public void test3LevelNestedForeachWithType() {
-        BValue[] returns = BRunUtil.invoke(program, "test3LevelNestedForeachWithType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "1:A:10.0 1:A:11.0 1:A:12.0 1:B:10.0 1:B:11.0 1:B:12.0 1:C:10.0" +
+        Object returns = BRunUtil.invoke(program, "test3LevelNestedForeachWithType");
+        Assert.assertEquals(returns.toString(), "1:A:10.0 1:A:11.0 1:A:12.0 1:B:10.0 1:B:11.0 1:B:12.0 1:C:10.0" +
                 " 1:C:11.0 1:C:12.0 2:A:10.0 2:A:11.0 2:A:12.0 2:B:10.0 2:B:11.0 2:B:12.0 2:C:10.0 2:C:11.0 2:C:12.0 " +
                 "3:A:10.0 3:A:11.0 3:A:12.0 3:B:10.0 3:B:11.0 3:B:12.0 3:C:10.0 3:C:11.0 3:C:12.0 ");
     }
 
     @Test
     public void testNestedForeachWithBreak1() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedForeachWithBreak1");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "innerouter");
+        Object returns = BRunUtil.invoke(program, "testNestedForeachWithBreak1");
+        Assert.assertEquals(returns.toString(), "innerouter");
     }
 
     @Test
     public void testNestedForeachWithBreak2() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedForeachWithBreak2");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "level4level3level2level1");
+        Object returns = BRunUtil.invoke(program, "testNestedForeachWithBreak2");
+        Assert.assertEquals(returns.toString(), "level4level3level2level1");
     }
 }

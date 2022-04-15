@@ -18,10 +18,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,6 +40,11 @@ public class ForeachErrorHandlingTests {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach_error_handling.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        program = null;
+    }
+    
     @Test
     public void testArrayForeachAndTrap() {
         BRunUtil.invoke(program, "testArrayForeachAndTrap");

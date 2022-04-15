@@ -34,7 +34,6 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -292,10 +291,11 @@ public class ServiceTemplateGenerator {
      * @param lsContext Language Server Context.
      */
     private void loadListenersFromDistribution(LanguageServerContext lsContext) {
-        List<Package> packages = LSPackageLoader.getInstance(lsContext).getDistributionRepoPackages();
+        List<LSPackageLoader.PackageInfo> packages = LSPackageLoader.getInstance(lsContext)
+                .getDistributionRepoPackages();
         packages.forEach(distPackage -> {
             String orgName = CommonUtil.escapeModuleName(distPackage.packageOrg().value());
-            Project project = ProjectLoader.loadProject(distPackage.project().sourceRoot());
+            Project project = ProjectLoader.loadProject(distPackage.sourceRoot());
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             project.currentPackage().modules().forEach(module -> {
 
@@ -396,7 +396,7 @@ public class ServiceTemplateGenerator {
                             parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
-                        CommonUtil.getDefaultValueForType(parameterSymbol.typeDescriptor()).orElse("") + "}");
+                        CommonUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor()).orElse("") + "}");
                 snippetIndex += 1;
             }
             listenerInitArgs = String.join(",", args);
@@ -471,7 +471,7 @@ public class ServiceTemplateGenerator {
         if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = methodSymbol.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                Optional<String> defaultReturnValueForType = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+                Optional<String> defaultReturnValueForType = CommonUtil.getDefaultPlaceholderForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (CommonKeys.PARANTHESES_KEY.equals(defaultReturnValue)) {

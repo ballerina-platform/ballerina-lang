@@ -286,10 +286,10 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewArray extends BIRNonTerminator {
         public BIROperand sizeOp;
         public BType type;
-        public List<BIROperand> values;
+        public List<BIRListConstructorEntry> values;
 
         public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand sizeOp,
-                        List<BIROperand> values) {
+                        List<BIRListConstructorEntry> values) {
             super(location, InstructionKind.NEW_ARRAY);
             this.type = type;
             this.lhsOp = lhsOp;
@@ -307,8 +307,8 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             BIROperand[] operands = new BIROperand[values.size() + 1];
             int i = 0;
             operands[i++] = sizeOp;
-            for (BIROperand operand : values) {
-                operands[i++] = operand;
+            for (BIRListConstructorEntry listValueEntry : values) {
+                operands[i++] = listValueEntry.exprOp;
             }
             return operands;
         }

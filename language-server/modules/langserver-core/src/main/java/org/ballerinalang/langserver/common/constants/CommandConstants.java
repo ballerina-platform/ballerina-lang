@@ -147,4 +147,8 @@ public class CommandConstants {
     public static final String REMOVE_UNREACHABLE_CODE_TITLE = "Remove unreachable code";
 
     public static final String IGNORE_UNUSED_VAR_TITLE = "Ignore unused variable";
+
+    public static final String IMPLEMENT_ALL = "Implement all";
+
+    public static final String MAKE_CONSTRUCT_PUBLIC = "Convert '%s' to public";
 }

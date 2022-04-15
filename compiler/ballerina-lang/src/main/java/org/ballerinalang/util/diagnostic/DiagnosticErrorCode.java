@@ -173,6 +173,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     FLOAT_TOO_LARGE("BCE2129", "float.too.large"),
     FLOAT_TOO_SMALL("BCE2130", "float.too.small"),
     CONSTANT_CYCLIC_REFERENCE("BCE2131", "constant.cyclic.reference"),
+    INCOMPATIBLE_TYPES_LIST_SPREAD_OP("BCE2132", "incompatible.types.list.spread.op"),
+    INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED("BCE2133", "invalid.spread.operator.fixed.length.list.expected"),
+    INVALID_SPREAD_OP_FIXED_MEMBER_EXPECTED("BCE2134", "invalid.spread.operator.fixed.member.expected"),
+    CANNOT_INFER_TYPE_FROM_SPREAD_OP("BCE2135", "cannot.infer.type.from.spread.op"),
+    TUPLE_AND_EXPRESSION_SIZE_DOES_NOT_MATCH("BCE2136", "tuple.and.expression.size.does.not.match"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),
@@ -759,7 +764,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SERVICE_DOES_NOT_IMPLEMENT_REQUIRED_CONSTRUCTS("BCE4022", "service.decl.does.not.implement.required.constructs"),
     INVALID_ASSIGNMENT_TO_NARROWED_VAR_IN_QUERY_ACTION("BCE4023", "invalid.assignment.to.narrowed.var.in.query.action"),
     COMPOUND_ASSIGNMENT_NOT_ALLOWED_WITH_NULLABLE_OPERANDS("BCE4024",
-            "compound.assignment.not.allowed.with.nullable.operands")
+            "compound.assignment.not.allowed.with.nullable.operands"),
+
+    INVALID_ISOLATED_VARIABLE_ACCESS_OUTSIDE_LOCK_IN_RECORD_DEFAULT(
+            "BCE4025", "invalid.isolated.variable.access.outside.lock.in.record.default"),
+    BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION("BCE4026", "binary.op.incompatible.types.int.float.division")
     ;
 
     private String diagnosticId;

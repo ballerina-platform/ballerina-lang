@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -50,69 +48,61 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test query expr returning a stream ")
     public void testSimpleQueryReturnStream() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testSimpleQueryReturnStream");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expr with stream in from clause returning a stream ")
     public void testStreamInFromClauseWithReturnStream() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
     public void testMultipleFromWhereAndLetReturnStream() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testMultipleFromWhereAndLetReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testMultipleFromWhereAndLetReturnStream");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expr with inner join returning a stream ")
     public void testInnerJoinAndLimitReturnStream() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream");
+        Object returnValues = BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expr returning table")
     public void testSimpleQueryExprReturnTable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExprReturnTable");
+        Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprReturnTable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
     public void testTableWithDuplicateKeys() {
 
-        BValue[] returnValues = BRunUtil.invoke(result, "testTableWithDuplicateKeys");
+        Object returnValues = BRunUtil.invoke(result, "testTableWithDuplicateKeys");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-
-        BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "{ballerina/lang.table}KeyConstraintViolation " +
-                "{\"message\":\"a value found for key '[1,\"Melina\"]'\"}");
+        BError expectedError = (BError) returnValues;
+        Assert.assertEquals(expectedError.toString(), "error(\"{ballerina/lang.table}KeyConstraintViolation\"," +
+                "message=\"a value found for key '[1,\"Melina\"]'\")");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
     public void testTableNoDuplicatesAndOnConflictReturnTable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testTableNoDuplicatesAndOnConflictReturnTable");
+        Object returnValues = BRunUtil.invoke(result, "testTableNoDuplicatesAndOnConflictReturnTable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
@@ -132,21 +122,19 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
     public void testQueryExprWithLimitClauseReturnTable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitClauseReturnTable");
+        Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitClauseReturnTable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
     public void testKeyLessTableWithReturnTable() {
         BRunUtil.invoke(result, "testKeyLessTableWithReturnTable");
-        BValue[] returnValues = BRunUtil.invoke(result, "testKeyLessTableWithReturnTable");
+        Object returnValues = BRunUtil.invoke(result, "testKeyLessTableWithReturnTable");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+        Assert.assertTrue((Boolean) returnValues);
     }
 
     @Test(description = "Test negative scenarios for query expr with query construct type")

@@ -20,11 +20,16 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.IdentifierLiteralNode;
 import io.ballerina.toml.syntax.tree.InlineTableNode;
+import io.ballerina.toml.syntax.tree.NodeFactory;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,7 +50,7 @@ public class TomlInlineTableValueNode extends TomlValueNode {
      * Get a single element of the array based on the Index.
      *
      * @param index index of the element
-     * @param <T> Type of the element
+     * @param <T>   Type of the element
      * @return Element object
      */
     public <T extends TopLevelNode> T get(int index) {
@@ -100,5 +105,24 @@ public class TomlInlineTableValueNode extends TomlValueNode {
             list.add(element.toNativeObject());
         }
         return list;
+    }
+
+    public TomlTableNode toTable() {
+        Map<String, TopLevelNode> table = new LinkedHashMap<>();
+        for (TopLevelNode node : elements) {
+            table.put(node.key().name(), node);
+        }
+        return new TomlTableNode((InlineTableNode) this.externalTreeNode(), generateKey(), false,
+                this.location(), table);
+    }
+
+    private TomlKeyNode generateKey() {
+        String tableKey = "__inline_value";
+        IdentifierLiteralNode key =
+                NodeFactory.createIdentifierLiteralNode(NodeFactory.createIdentifierToken(tableKey));
+        TomlKeyEntryNode root = new TomlKeyEntryNode(key, new TomlUnquotedKeyNode(key, tableKey, this.location()));
+        List<TomlKeyEntryNode> tomlKeyEntryNodes = Collections.singletonList(root);
+        return new TomlKeyNode(NodeFactory.createKeyNode(NodeFactory.createSeparatedNodeList(key)),
+                tomlKeyEntryNodes, this.location());
     }
 }

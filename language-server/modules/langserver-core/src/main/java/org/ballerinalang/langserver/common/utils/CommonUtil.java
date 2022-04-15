@@ -61,10 +61,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -73,6 +76,7 @@ import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -111,6 +115,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +124,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -181,8 +185,6 @@ public class CommonUtil {
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
-    private static final int MAX_DEPTH = 2;
-
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
         String onlineCompilation = System.getProperty("ls.compilation.online");
@@ -202,6 +204,16 @@ public class CommonUtil {
      */
     public static Range toRange(LineRange lineRange) {
         return new Range(toPosition(lineRange.startLine()), toPosition(lineRange.endLine()));
+    }
+
+    /**
+     * Convert the syntax-node line position into a lsp4j range.
+     *
+     * @param linePosition - line position.
+     * @return {@link Range} converted range
+     */
+    public static Range toRange(LinePosition linePosition) {
+        return new Range(toPosition(linePosition), toPosition(linePosition));
     }
 
     /**
@@ -270,16 +282,31 @@ public class CommonUtil {
     /**
      * Get the default value for the given BType.
      *
+     * @param bType  Type descriptor to get the default value
+     * @param offset snippet offset.
+     * @return {@link String}   Default value as a String
+     */
+    public static Optional<String> getDefaultValueForType(TypeSymbol bType, int offset) {
+        return getDefaultValueForType(bType, true, offset);
+    }
+
+    public static Optional<String> getDefaultPlaceholderForType(TypeSymbol bType) {
+        return getDefaultValueForType(bType)
+                .map(defaultValue -> defaultValue.replace("}", "\\}"));
+    }
+
+    /**
+     * Get the default value for the given BType.
+     *
      * @param bType Type descriptor to get the default value
      * @return {@link String}   Default value as a String
      */
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
-        return getDefaultValueForType(bType, 1);
+        return getDefaultValueForType(bType, false, -1);
     }
 
-    private static Optional<String> getDefaultValueForType(TypeSymbol bType, int depth) {
-        String typeString;
-
+    private static Optional<String> getDefaultValueForType(TypeSymbol bType, boolean isSnippet, int offset) {
+        String valueString;
         if (bType == null) {
             return Optional.empty();
         }
@@ -289,67 +316,85 @@ public class CommonUtil {
         switch (typeKind) {
             case TUPLE:
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
-                String memberTypes = tupleType.memberTypeDescriptors().stream()
-                        .map(member -> getDefaultValueForType(member, depth + 1).orElse(""))
-                        .collect(Collectors.joining(", "));
-                typeString = "[" + memberTypes + "]";
+                List<String> memberDefaultValues = tupleType.memberTypeDescriptors().stream()
+                        .map(member -> getDefaultValueForTypeDescKind(member).orElse(""))
+                        .collect(Collectors.toList());
+
+                if (memberDefaultValues.isEmpty()) {
+                    valueString = isSnippet ? "[${" + offset + "}]" : "[]";
+                    break;
+                }
+                List<String> memberSnippets = new ArrayList<>();
+                int memberOffset = offset;
+                for (String value : memberDefaultValues) {
+                    memberSnippets.add(isSnippet ? generateSnippetEntry(value, memberOffset) : value);
+                    memberOffset++;
+                }
+                valueString = "[" + String.join(", ", memberSnippets) + "]";
                 break;
             case ARRAY:
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("")
-                            + "]";
-                } else {
-                    typeString = "[]";
+                    String value = getDefaultValueForTypeDescKind(arrayType.memberTypeDescriptor())
+                            .orElse("");
+                    valueString = "[" + (isSnippet ? generateSnippetEntry(value, offset) : value) + "]";
+                    break;
                 }
+                valueString = isSnippet ? "[${" + offset + "}]" : "[]";
                 break;
             case RECORD:
-                if (depth > MAX_DEPTH) {
-                    return Optional.of("{}");
-                }
                 // TODO: Here we have disregarded the formatting of the record fields. Need to consider that in future
                 RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rawType;
-                typeString = "{";
-                typeString += getMandatoryRecordFields(recordTypeSymbol).stream()
+                List<String> fieldInsertText = new ArrayList<>();
+                int count = offset;
+                valueString = "{";
+                List<RecordFieldSymbol> mandatoryFieldSymbols = getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
-                        .map(recordFieldSymbol -> recordFieldSymbol.getName().get() + ": " +
-                                getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse(""))
-                        .collect(Collectors.joining(", "));
-                typeString += "}";
+                        .collect(Collectors.toList());
+                for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
+                    String value = getDefaultValueForTypeDescKind(CommonUtil.getRawType(mandatoryField
+                            .typeDescriptor())).orElse("");
+                    fieldInsertText.add(mandatoryField.getName().get() + ": "
+                            + (isSnippet ? generateSnippetEntry(value, count) : value));
+                    count++;
+                }
+                valueString += String.join(", ", fieldInsertText);
+                valueString += "}";
                 break;
             case OBJECT:
-                if (depth > MAX_DEPTH) {
-                    return Optional.of("");
-                }
                 ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
                 if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
                     ClassSymbol classSymbol = (ClassSymbol) objectTypeSymbol;
                     if (classSymbol.initMethod().isPresent()) {
                         List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().params().get();
-                        String text = params.stream()
-                                .map(param -> getDefaultValueForType(param.typeDescriptor(), depth + 1).orElse(""))
-                                .collect(Collectors.joining(", "));
-                        typeString = "new (" + text + ")";
+                        int snippetIndex = offset;
+                        List<String> paramSnippets = new ArrayList<>();
+                        for (ParameterSymbol param : params) {
+                            String value =
+                                    getDefaultValueForTypeDescKind(CommonUtil.getRawType(param.typeDescriptor()))
+                                            .orElse("");
+                            paramSnippets.add(isSnippet ? generateSnippetEntry(value, snippetIndex) : value);
+                            snippetIndex++;
+                        }
+                        valueString = "new (" + String.join(", ", paramSnippets) + ")";
                     } else {
-                        typeString = "new ()";
+                        valueString = isSnippet ? "${" + offset + ":new ()}" : "new ()";
                     }
                 } else {
-                    typeString = "object {}";
+                    valueString = isSnippet ? "${" + offset + ":object {}}" : "object {}";
                 }
                 break;
             case UNION:
-                if (depth > MAX_DEPTH) {
-                    return Optional.of("");
-                }
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
                 List<TypeSymbol> nilMembers = members.stream()
                         .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
                 if (nilMembers.isEmpty()) {
-                    typeString = getDefaultValueForType(members.get(0), depth + 1).orElse("");
+                    valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(members.get(0))).orElse("");
+                    valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 } else {
-                    return Optional.of("()");
+                    return Optional.of(isSnippet ? generateSnippetEntry("()", offset) : "()");
                 }
                 break;
             case INTERSECTION:
@@ -359,53 +404,67 @@ public class CommonUtil {
                     // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
                     // further checks here. Get the member type from intersection which is not readonly and get its 
                     // default value
-                    typeString = "()";
+                    valueString = isSnippet ? generateSnippetEntry("()", offset) : "()";
                     Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
                             .memberTypeDescriptors().stream()
                             .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
                             .findAny();
                     if (memberType.isPresent()) {
-                        typeString = getDefaultValueForType(memberType.get(), depth + 1).orElse("");
+                        valueString =
+                                getDefaultValueForTypeDescKind(CommonUtil.getRawType(memberType.get())).orElse("");
+                        valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                     }
                 } else {
-                    typeString = getDefaultValueForType(effectiveType, depth + 1).orElse("");
+                    valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(effectiveType))
+                            .orElse("");
+                    valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 }
                 break;
             case TABLE:
                 TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
-                typeString = "table [" + getDefaultValueForType(rowType, depth + 1).orElse("") + "]";
+                String rowValue = getDefaultValueForTypeDescKind(rowType).orElse("");
+                valueString = "table [" + (isSnippet ? generateSnippetEntry(rowValue, offset) : rowValue) + "]";
                 break;
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
-                if (errorType.typeKind() == TypeDescKind.RECORD && depth <= MAX_DEPTH) {
+                if (errorType.typeKind() == TypeDescKind.RECORD) {
                     List<RecordFieldSymbol> mandatoryFields = getMandatoryRecordFields((RecordTypeSymbol) errorType);
                     if (!mandatoryFields.isEmpty()) {
                         errorString.append(", ");
-                        errorString.append(mandatoryFields.stream()
-                                .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                        + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
-                                        .orElse(""))
-                                .collect(Collectors.joining(", ")));
+                        List<String> detailFieldSnippets = new ArrayList<>();
+                        int index = offset;
+                        for (RecordFieldSymbol field : mandatoryFields) {
+                            String defValue =
+                                    getDefaultValueForTypeDescKind(CommonUtil.getRawType(field.typeDescriptor()))
+                                            .orElse("");
+                            detailFieldSnippets.add(field.getName().get()
+                                    + " = " + (isSnippet ? generateSnippetEntry(defValue, index) : defValue));
+                            index++;
+                        }
+                        errorString.append(String.join(", ", detailFieldSnippets));
                     }
                 }
                 errorString.append(")");
-                typeString = errorString.toString();
+                valueString = errorString.toString();
                 break;
             case SINGLETON:
-                typeString = rawType.signature();
+                valueString = rawType.signature();
+                valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 break;
-            case MAP:
-            case FLOAT:
-            case BOOLEAN:
-            case STREAM:
-            case XML:
-            case DECIMAL:
             default:
-                return getDefaultValueForTypeDescKind(typeKind);
+                Optional<String> value = getDefaultValueForTypeDescKind(typeKind);
+                if (value.isEmpty()) {
+                    return value;
+                }
+                return isSnippet ? Optional.of(generateSnippetEntry(value.get(), offset)) : value;
         }
 
-        return Optional.of(typeString);
+        return Optional.of(valueString);
+    }
+
+    private static String generateSnippetEntry(String value, int offset) {
+        return "${" + offset + ":" + value + "}";
     }
 
     /**
@@ -425,6 +484,7 @@ public class CommonUtil {
             case BOOLEAN:
                 defaultValue = Boolean.toString(false);
                 break;
+            case RECORD:
             case MAP:
                 defaultValue = "{}";
                 break;
@@ -437,16 +497,42 @@ public class CommonUtil {
             case DECIMAL:
                 defaultValue = Integer.toString(0);
                 break;
+            case ARRAY:
+                defaultValue = "[]";
+                break;
+            case SINGLETON:
+                defaultValue = "\"\"";
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     defaultValue = Integer.toString(0);
                     break;
-                }
-
-                if (typeKind.isStringType()) {
+                } else if (typeKind.isStringType()) {
                     defaultValue = "\"\"";
                     break;
                 }
+        }
+        return Optional.ofNullable(defaultValue);
+    }
+
+    /**
+     * Used to get the default values for {@link TypeDescKind} of a {@link TypeSymbol}.
+     * {@link #getDefaultValueForType(TypeSymbol)} is preferred over this function.
+     * This function should be used as a compliment to .
+     *
+     * @param typeSymbol Type symbol
+     * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
+     */
+    public static Optional<String> getDefaultValueForTypeDescKind(TypeSymbol typeSymbol) {
+        String defaultValue;
+        TypeDescKind typeKind = typeSymbol.typeKind();
+        switch (typeKind) {
+            case SINGLETON:
+                defaultValue = typeSymbol.signature();
+                break;
+            default:
+                defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
         }
         return Optional.ofNullable(defaultValue);
     }
@@ -463,11 +549,9 @@ public class CommonUtil {
                                                                        Map<String, RecordFieldSymbol> fields,
                                                                        Pair<TypeSymbol, TypeSymbol> symbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
-            fieldCounter.getAndIncrement();
             String insertText =
-                    getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
+                    getRecordFieldCompletionInsertText(field, 1);
 
             String detail;
             if (symbol.getLeft().getName().isPresent()) {
@@ -495,17 +579,16 @@ public class CommonUtil {
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
      * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
-     * @return {@link LSCompletionItem}   Completion Item to fill all the options
+     * @return {@link Optional}   Completion Item to fill all the options
      */
-    public static LSCompletionItem getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              Map<String, RecordFieldSymbol> fields,
-                                                              Pair<TypeSymbol, TypeSymbol> symbol) {
-
+    public static Optional<LSCompletionItem> getFillAllStructFieldsItem(BallerinaCompletionContext context,
+                                                                        Map<String, RecordFieldSymbol> fields,
+                                                                        Pair<TypeSymbol, TypeSymbol> symbol) {
         List<String> fieldEntries = new ArrayList<>();
 
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-            if (!entry.getValue().isOptional()) {
+            if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
                 requiredFields.put(entry.getKey(), entry.getValue());
             }
         }
@@ -521,32 +604,28 @@ public class CommonUtil {
         }
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
+            int count = 1;
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
+                        + getDefaultValueForType(entry.getValue().typeDescriptor(), count).orElse(" ");
                 fieldEntries.add(fieldEntry);
+                count++;
             }
-        } else {
-            label = "Fill " + detail + " Optional Fields";
-            for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-                String fieldEntry = entry.getKey()
-                        + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
-                fieldEntries.add(fieldEntry);
-            }
+
+            String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
+            CompletionItem completionItem = new CompletionItem();
+            completionItem.setFilterText("fill");
+            completionItem.setLabel(label);
+            completionItem.setInsertText(insertText);
+            completionItem.setDetail(detail);
+            completionItem.setKind(CompletionItemKind.Property);
+            completionItem.setSortText(Priority.PRIORITY110.toString());
+
+            return Optional.of(new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER));
         }
 
-        String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setFilterText("fill");
-        completionItem.setLabel(label);
-        completionItem.setInsertText(insertText);
-        completionItem.setDetail(detail);
-        completionItem.setKind(CompletionItemKind.Property);
-        completionItem.setSortText(Priority.PRIORITY110.toString());
-
-        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER);
+        return Optional.empty();
     }
 
     /**
@@ -647,51 +726,13 @@ public class CommonUtil {
     /**
      * Get the completion item insert text for a BField.
      *
-     * @param bField  BField to evaluate
-     * @param parents Parent record field symbols
+     * @param bField BField to evaluate
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
-                                                            List<RecordFieldSymbol> parents,
-                                                            int tabOffset, int fieldId) {
-        TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
+    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
+
         StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
-        if (fieldType.typeKind() == TypeDescKind.RECORD) {
-            List<RecordFieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
-            if (requiredFields.isEmpty()) {
-                insertText.append("{").append("${").append(fieldId).append("}}");
-                return insertText.toString();
-            }
-            insertText.append("{").append(LINE_SEPARATOR);
-            List<String> requiredFieldInsertTexts = new ArrayList<>();
-
-            for (int i = 0; i < requiredFields.size(); i++) {
-                // If the field refers to the same type as bField or a parent of bField, 
-                // it results in a stack overflow error. Avoiding that using the following check
-                RecordFieldSymbol field = requiredFields.get(i);
-                if (!parents.contains(field)) {
-                    List<RecordFieldSymbol> newParentsList = new ArrayList<>(parents);
-                    newParentsList.add(field);
-                    String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
-                            getRecordFieldCompletionInsertText(field, newParentsList, tabOffset + 1, i + 1);
-                    requiredFieldInsertTexts.add(fieldText);
-                } else {
-                    return bField.getName().get() + ": {}";
-                }
-            }
-            insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
-            insertText.append(LINE_SEPARATOR)
-                    .append(String.join("", Collections.nCopies(tabOffset, "\t")))
-                    .append("}");
-        } else if (fieldType.typeKind() == TypeDescKind.ARRAY) {
-            insertText.append("[").append("${").append(fieldId).append("}").append("]");
-        } else if (fieldType.typeKind().isStringType()) {
-            insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
-        } else {
-            insertText.append("${").append(fieldId).append(":")
-                    .append(getDefaultValueForType(bField.typeDescriptor()).orElse(" ")).append("}");
-        }
-
+        insertText.append(getDefaultValueForType(bField.typeDescriptor(), tabOffset).orElse(" "));
         return insertText.toString();
     }
 
@@ -1177,6 +1218,67 @@ public class CommonUtil {
     }
 
     /**
+     * Returns the file path.
+     *
+     * @param orgName    organization name
+     * @param moduleName module name
+     * @param project    ballerina project
+     * @param symbol     symbol
+     * @param context    service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
+                                                          Project project, Symbol symbol,
+                                                          DocumentServiceContext context) {
+        if (symbol.getLocation().isEmpty()) {
+            return Optional.empty();
+        }
+        Collection<ResolvedPackageDependency> dependencies =
+                project.currentPackage().getResolution().dependencyGraph().getNodes();
+        Optional<Path> filepath = Optional.empty();
+        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        for (ResolvedPackageDependency depNode : dependencies) {
+            Package depPackage = depNode.packageInstance();
+            for (ModuleId moduleId : depPackage.moduleIds()) {
+                if (depPackage.packageOrg().value().equals(orgName) &&
+                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
+                    Module module = depPackage.module(moduleId);
+                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
+                    documentIds.addAll(module.testDocumentIds());
+                    for (DocumentId docId : documentIds) {
+                        if (module.document(docId).name().equals(sourceFile)) {
+                            filepath =
+                                    module.project().documentPath(docId);
+                            break;
+                        }
+                    }
+                }
+                // Check for the cancellation after each of the module visit
+                context.checkCancelled();
+            }
+        }
+        return filepath;
+    }
+
+    /**
+     * Returns the file path.
+     *
+     * @param symbol    symbol
+     * @param project   ballerina project
+     * @param context   service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
+        if (symbol.getModule().isEmpty()) {
+            return Optional.empty();
+        }
+        ModuleID moduleID = symbol.getModule().get().id();
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return getFilePathForDependency(orgName, moduleName, project, symbol, context);
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -1282,10 +1384,10 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package instance to evaluate
+     * @param pkg {@link Package} package info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(Package pkg) {
+    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
         String orgName = "";
         if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
             orgName = pkg.packageOrg().value() + "/";
@@ -1301,7 +1403,8 @@ public class CommonUtil {
      * @param pkg     Package to be evaluated against
      * @return {@link Optional}
      */
-    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context, Package pkg) {
+    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
+                                                                         LSPackageLoader.PackageInfo pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
@@ -1625,6 +1728,22 @@ public class CommonUtil {
     }
 
     /**
+     * Check if the symbol is an object symbol with self as the name.
+     *
+     * @param symbol       Symbol
+     * @param nodeAtCursor Node
+     * @return {@link Boolean} whether the symbol is a self object symbol.
+     */
+    public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
+        Node currentNode = nodeAtCursor;
+        while (currentNode != null && currentNode.kind() != SyntaxKind.OBJECT_CONSTRUCTOR) {
+            currentNode = currentNode.parent();
+        }
+        return currentNode != null && currentNode.kind() == SyntaxKind.OBJECT_CONSTRUCTOR
+                && symbol.getName().orElse("").equals(SELF_KW);
+    }
+
+    /**
      * Check if the cursor is positioned in a lock statement node context.
      *
      * @param context Completion context.
@@ -1853,4 +1972,30 @@ public class CommonUtil {
         }
     }
 
+    /**
+     * Given a node (currentNode) start looking up the parent ladder until the given predicate is satisfied.
+     *
+     * @param currentNode Node to start looking
+     * @param predicate   to be satisfied
+     * @return {@link Optional}
+     */
+    public static Optional<Node> getMatchingNode(Node currentNode, Predicate<Node> predicate) {
+        Node evalNode = currentNode;
+        while (evalNode != null && !predicate.test(evalNode)) {
+            evalNode = evalNode.parent();
+        }
+
+        return Optional.ofNullable(evalNode);
+    }
+
+    /**
+     * Check if a given offset is with in the range of a given node.
+     *
+     * @param node
+     * @param offset
+     * @return
+     */
+    public static boolean isWithInRange(Node node, int offset) {
+        return node.textRange().startOffset() <= offset && offset <= node.textRange().endOffset();
+    }
 }

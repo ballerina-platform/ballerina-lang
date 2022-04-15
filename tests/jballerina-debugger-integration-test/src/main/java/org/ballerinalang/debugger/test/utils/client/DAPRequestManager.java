@@ -313,7 +313,7 @@ public class DAPRequestManager {
     }
 
     public void breakpoint(BreakpointEventArguments args) {
-        // Todo
+        clientConnector.getServerEventHolder().addBreakpointEvent(args);
     }
 
     public void module(ModuleEventArguments args) {

@@ -20,6 +20,7 @@ package org.ballerinalang.test.expressions.trap;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -45,5 +46,11 @@ public class TrapOperatorTest {
                         "no expression type is equivalent to error type", 29, 56);
         Assert.assertEquals(negative.getWarnCount(), 2);
         Assert.assertEquals(negative.getErrorCount(), i - 2);
+    }
+
+    @Test
+    public void testTrapExpression() {
+        CompileResult result = BCompileUtil.compile("test-src/expressions/trap/trap-expr.bal");
+        BRunUtil.invoke(result, "trapInsideFunctionArg");
     }
 }

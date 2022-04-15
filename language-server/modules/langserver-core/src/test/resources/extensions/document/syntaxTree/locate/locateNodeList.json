@@ -71,13 +71,13 @@
           {
             "kind": "IdentifierToken",
             "isToken": true,
-            "value": "io",
+            "value": "module1",
             "isMissing": false,
             "position": {
               "startLine": 0,
               "startColumn": 17,
               "endLine": 0,
-              "endColumn": 19
+              "endColumn": 24
             },
             "leadingMinutiae": [],
             "trailingMinutiae": []
@@ -90,9 +90,9 @@
           "isMissing": false,
           "position": {
             "startLine": 0,
-            "startColumn": 19,
+            "startColumn": 24,
             "endLine": 0,
-            "endColumn": 20
+            "endColumn": 25
           },
           "leadingMinutiae": [],
           "trailingMinutiae": [
@@ -103,7 +103,7 @@
             }
           ]
         },
-        "source": "import ballerina/io;\n",
+        "source": "import ballerina/module1;\n",
         "syntaxDiagnostics": [],
         "leadingMinutiae": [],
         "trailingMinutiae": [
@@ -117,18 +117,25 @@
           "startLine": 0,
           "startColumn": 0,
           "endLine": 0,
-          "endColumn": 20
+          "endColumn": 25
         },
         "typeData": {
-          "diagnostics": [
-            {
-              "message": "cannot resolve module 'ballerina/io'",
-              "diagnosticInfo": {
-                "code": "BCE2003",
-                "severity": "ERROR"
-              }
+          "symbol": {
+            "moduleID": {
+              "orgName": "ballerina",
+              "packageName": "module1",
+              "moduleName": "module1",
+              "version": "0.1.0"
+            },
+            "kind": "MODULE",
+            "id": {
+              "orgName": "ballerina",
+              "packageName": "module1",
+              "moduleName": "module1",
+              "version": "0.1.0"
             }
-          ]
+          },
+          "diagnostics": []
         }
       }
     ],
@@ -395,6 +402,7 @@
                       "deprecated": false,
                       "moduleID": {
                         "orgName": "$anon",
+                        "packageName": ".",
                         "moduleName": ".",
                         "version": "0.0.0"
                       },
@@ -430,6 +438,7 @@
                     "deprecated": false,
                     "moduleID": {
                       "orgName": "$anon",
+                      "packageName": ".",
                       "moduleName": ".",
                       "version": "0.0.0"
                     },
@@ -441,7 +450,7 @@
               "equalsToken": {
                 "kind": "EqualToken",
                 "isToken": true,
-                "value": "=",
+                "value": "\u003d",
                 "isMissing": false,
                 "position": {
                   "startLine": 3,
@@ -513,7 +522,7 @@
                   }
                 ]
               },
-              "source": "    int x = 10;\n",
+              "source": "    int x \u003d 10;\n",
               "syntaxDiagnostics": [],
               "leadingMinutiae": [
                 {
@@ -545,6 +554,7 @@
                   "deprecated": false,
                   "moduleID": {
                     "orgName": "$anon",
+                    "packageName": ".",
                     "moduleName": ".",
                     "version": "0.0.0"
                   },
@@ -670,6 +680,7 @@
                       "deprecated": false,
                       "moduleID": {
                         "orgName": "$anon",
+                        "packageName": ".",
                         "moduleName": ".",
                         "version": "0.0.0"
                       },
@@ -705,6 +716,7 @@
                     "deprecated": false,
                     "moduleID": {
                       "orgName": "$anon",
+                      "packageName": ".",
                       "moduleName": ".",
                       "version": "0.0.0"
                     },
@@ -716,7 +728,7 @@
               "equalsToken": {
                 "kind": "EqualToken",
                 "isToken": true,
-                "value": "=",
+                "value": "\u003d",
                 "isMissing": false,
                 "position": {
                   "startLine": 4,
@@ -788,7 +800,7 @@
                   }
                 ]
               },
-              "source": "    int y = 20;\n",
+              "source": "    int y \u003d 20;\n",
               "syntaxDiagnostics": [],
               "leadingMinutiae": [
                 {
@@ -820,6 +832,7 @@
                   "deprecated": false,
                   "moduleID": {
                     "orgName": "$anon",
+                    "packageName": ".",
                     "moduleName": ".",
                     "version": "0.0.0"
                   },
@@ -837,13 +850,13 @@
                   "modulePrefix": {
                     "kind": "IdentifierToken",
                     "isToken": true,
-                    "value": "io",
+                    "value": "module1",
                     "isMissing": false,
                     "position": {
                       "startLine": 5,
                       "startColumn": 4,
                       "endLine": 5,
-                      "endColumn": 6
+                      "endColumn": 11
                     },
                     "leadingMinutiae": [
                       {
@@ -861,9 +874,9 @@
                     "isMissing": false,
                     "position": {
                       "startLine": 5,
-                      "startColumn": 6,
+                      "startColumn": 11,
                       "endLine": 5,
-                      "endColumn": 7
+                      "endColumn": 12
                     },
                     "leadingMinutiae": [],
                     "trailingMinutiae": []
@@ -871,18 +884,18 @@
                   "identifier": {
                     "kind": "IdentifierToken",
                     "isToken": true,
-                    "value": "print",
+                    "value": "function3",
                     "isMissing": false,
                     "position": {
                       "startLine": 5,
-                      "startColumn": 7,
+                      "startColumn": 12,
                       "endLine": 5,
-                      "endColumn": 12
+                      "endColumn": 21
                     },
                     "leadingMinutiae": [],
                     "trailingMinutiae": []
                   },
-                  "source": "    io:print",
+                  "source": "    module1:function3",
                   "syntaxDiagnostics": [],
                   "leadingMinutiae": [
                     {
@@ -896,13 +909,24 @@
                     "startLine": 5,
                     "startColumn": 4,
                     "endLine": 5,
-                    "endColumn": 12
+                    "endColumn": 21
                   },
                   "typeData": {
                     "typeSymbol": {
-                      "typeKind": "CompilationError",
+                      "typeKind": "int",
                       "kind": "TYPE",
-                      "signature": "$CompilationError$"
+                      "signature": "int"
+                    },
+                    "symbol": {
+                      "external": false,
+                      "deprecated": false,
+                      "moduleID": {
+                        "orgName": "ballerina",
+                        "packageName": "module1",
+                        "moduleName": "module1",
+                        "version": "0.1.0"
+                      },
+                      "kind": "FUNCTION"
                     },
                     "diagnostics": []
                   }
@@ -914,9 +938,9 @@
                   "isMissing": false,
                   "position": {
                     "startLine": 5,
-                    "startColumn": 12,
+                    "startColumn": 21,
                     "endLine": 5,
-                    "endColumn": 13
+                    "endColumn": 22
                   },
                   "leadingMinutiae": [],
                   "trailingMinutiae": []
@@ -933,9 +957,9 @@
                         "isMissing": false,
                         "position": {
                           "startLine": 5,
-                          "startColumn": 13,
+                          "startColumn": 22,
                           "endLine": 5,
-                          "endColumn": 14
+                          "endColumn": 23
                         },
                         "leadingMinutiae": [],
                         "trailingMinutiae": []
@@ -946,9 +970,9 @@
                       "trailingMinutiae": [],
                       "position": {
                         "startLine": 5,
-                        "startColumn": 13,
+                        "startColumn": 22,
                         "endLine": 5,
-                        "endColumn": 14
+                        "endColumn": 23
                       },
                       "typeData": {
                         "typeSymbol": {
@@ -960,6 +984,7 @@
                           "deprecated": false,
                           "moduleID": {
                             "orgName": "$anon",
+                            "packageName": ".",
                             "moduleName": ".",
                             "version": "0.0.0"
                           },
@@ -974,9 +999,9 @@
                     "trailingMinutiae": [],
                     "position": {
                       "startLine": 5,
-                      "startColumn": 13,
+                      "startColumn": 22,
                       "endLine": 5,
-                      "endColumn": 14
+                      "endColumn": 23
                     },
                     "typeData": {
                       "typeSymbol": {
@@ -988,6 +1013,7 @@
                         "deprecated": false,
                         "moduleID": {
                           "orgName": "$anon",
+                          "packageName": ".",
                           "moduleName": ".",
                           "version": "0.0.0"
                         },
@@ -1003,9 +1029,9 @@
                     "isMissing": false,
                     "position": {
                       "startLine": 5,
-                      "startColumn": 14,
+                      "startColumn": 23,
                       "endLine": 5,
-                      "endColumn": 15
+                      "endColumn": 24
                     },
                     "leadingMinutiae": [],
                     "trailingMinutiae": [
@@ -1027,9 +1053,9 @@
                         "isMissing": false,
                         "position": {
                           "startLine": 5,
-                          "startColumn": 16,
+                          "startColumn": 25,
                           "endLine": 5,
-                          "endColumn": 17
+                          "endColumn": 26
                         },
                         "leadingMinutiae": [],
                         "trailingMinutiae": []
@@ -1040,9 +1066,9 @@
                       "trailingMinutiae": [],
                       "position": {
                         "startLine": 5,
-                        "startColumn": 16,
+                        "startColumn": 25,
                         "endLine": 5,
-                        "endColumn": 17
+                        "endColumn": 26
                       },
                       "typeData": {
                         "typeSymbol": {
@@ -1054,6 +1080,7 @@
                           "deprecated": false,
                           "moduleID": {
                             "orgName": "$anon",
+                            "packageName": ".",
                             "moduleName": ".",
                             "version": "0.0.0"
                           },
@@ -1068,9 +1095,9 @@
                     "trailingMinutiae": [],
                     "position": {
                       "startLine": 5,
-                      "startColumn": 16,
+                      "startColumn": 25,
                       "endLine": 5,
-                      "endColumn": 17
+                      "endColumn": 26
                     },
                     "typeData": {
                       "typeSymbol": {
@@ -1082,6 +1109,7 @@
                         "deprecated": false,
                         "moduleID": {
                           "orgName": "$anon",
+                          "packageName": ".",
                           "moduleName": ".",
                           "version": "0.0.0"
                         },
@@ -1098,14 +1126,14 @@
                   "isMissing": false,
                   "position": {
                     "startLine": 5,
-                    "startColumn": 17,
+                    "startColumn": 26,
                     "endLine": 5,
-                    "endColumn": 18
+                    "endColumn": 27
                   },
                   "leadingMinutiae": [],
                   "trailingMinutiae": []
                 },
-                "source": "    io:print(x, y)",
+                "source": "    module1:function3(x, y)",
                 "syntaxDiagnostics": [],
                 "leadingMinutiae": [
                   {
@@ -1119,30 +1147,26 @@
                   "startLine": 5,
                   "startColumn": 4,
                   "endLine": 5,
-                  "endColumn": 18
+                  "endColumn": 27
                 },
                 "typeData": {
                   "typeSymbol": {
-                    "typeKind": "CompilationError",
+                    "typeKind": "int",
                     "kind": "TYPE",
-                    "signature": "$CompilationError$"
+                    "signature": "int"
                   },
-                  "diagnostics": [
-                    {
-                      "message": "undefined function 'print'",
-                      "diagnosticInfo": {
-                        "code": "BCE2011",
-                        "severity": "ERROR"
-                      }
+                  "symbol": {
+                    "external": false,
+                    "deprecated": false,
+                    "moduleID": {
+                      "orgName": "ballerina",
+                      "packageName": "module1",
+                      "moduleName": "module1",
+                      "version": "0.1.0"
                     },
-                    {
-                      "message": "undefined module 'io'",
-                      "diagnosticInfo": {
-                        "code": "BCE2000",
-                        "severity": "ERROR"
-                      }
-                    }
-                  ]
+                    "kind": "FUNCTION"
+                  },
+                  "diagnostics": []
                 }
               },
               "semicolonToken": {
@@ -1152,9 +1176,9 @@
                 "isMissing": false,
                 "position": {
                   "startLine": 5,
-                  "startColumn": 18,
+                  "startColumn": 27,
                   "endLine": 5,
-                  "endColumn": 19
+                  "endColumn": 28
                 },
                 "leadingMinutiae": [],
                 "trailingMinutiae": [
@@ -1165,7 +1189,7 @@
                   }
                 ]
               },
-              "source": "    io:print(x, y);\n",
+              "source": "    module1:function3(x, y);\n",
               "syntaxDiagnostics": [],
               "leadingMinutiae": [
                 {
@@ -1185,26 +1209,19 @@
                 "startLine": 5,
                 "startColumn": 4,
                 "endLine": 5,
-                "endColumn": 19
+                "endColumn": 28
               },
               "typeData": {
                 "typeSymbol": {
-                  "typeKind": "CompilationError",
+                  "typeKind": "int",
                   "kind": "TYPE",
-                  "signature": "$CompilationError$"
+                  "signature": "int"
                 },
                 "diagnostics": [
                   {
-                    "message": "undefined function 'print'",
+                    "message": "variable assignment is required",
                     "diagnosticInfo": {
-                      "code": "BCE2011",
-                      "severity": "ERROR"
-                    }
-                  },
-                  {
-                    "message": "undefined module 'io'",
-                    "diagnosticInfo": {
-                      "code": "BCE2000",
+                      "code": "BCE2526",
                       "severity": "ERROR"
                     }
                   }
@@ -1232,7 +1249,7 @@
               }
             ]
           },
-          "source": "{\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+          "source": "{\n    int x \u003d 10;\n    int y \u003d 20;\n    module1:function3(x, y);\n}\n",
           "syntaxDiagnostics": [],
           "leadingMinutiae": [],
           "trailingMinutiae": [
@@ -1251,16 +1268,9 @@
           "typeData": {
             "diagnostics": [
               {
-                "message": "undefined function 'print'",
+                "message": "variable assignment is required",
                 "diagnosticInfo": {
-                  "code": "BCE2011",
-                  "severity": "ERROR"
-                }
-              },
-              {
-                "message": "undefined module 'io'",
-                "diagnosticInfo": {
-                  "code": "BCE2000",
+                  "code": "BCE2526",
                   "severity": "ERROR"
                 }
               }
@@ -1269,7 +1279,7 @@
           "isNodePath": true,
           "isLocatedNode": true
         },
-        "source": "\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+        "source": "\npublic function bar() {\n    int x \u003d 10;\n    int y \u003d 20;\n    module1:function3(x, y);\n}\n",
         "syntaxDiagnostics": [],
         "leadingMinutiae": [
           {
@@ -1297,6 +1307,7 @@
             "deprecated": false,
             "moduleID": {
               "orgName": "$anon",
+              "packageName": ".",
               "moduleName": ".",
               "version": "0.0.0"
             },
@@ -1304,16 +1315,9 @@
           },
           "diagnostics": [
             {
-              "message": "undefined function 'print'",
+              "message": "variable assignment is required",
               "diagnosticInfo": {
-                "code": "BCE2011",
-                "severity": "ERROR"
-              }
-            },
-            {
-              "message": "undefined module 'io'",
-              "diagnosticInfo": {
-                "code": "BCE2000",
+                "code": "BCE2526",
                 "severity": "ERROR"
               }
             }
@@ -1336,7 +1340,7 @@
       "leadingMinutiae": [],
       "trailingMinutiae": []
     },
-    "source": "import ballerina/io;\n\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+    "source": "import ballerina/module1;\n\npublic function bar() {\n    int x \u003d 10;\n    int y \u003d 20;\n    module1:function3(x, y);\n}\n",
     "kind": "ModulePart",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
@@ -1350,23 +1354,9 @@
     "typeData": {
       "diagnostics": [
         {
-          "message": "cannot resolve module 'ballerina/io'",
+          "message": "variable assignment is required",
           "diagnosticInfo": {
-            "code": "BCE2003",
-            "severity": "ERROR"
-          }
-        },
-        {
-          "message": "undefined function 'print'",
-          "diagnosticInfo": {
-            "code": "BCE2011",
-            "severity": "ERROR"
-          }
-        },
-        {
-          "message": "undefined module 'io'",
-          "diagnosticInfo": {
-            "code": "BCE2000",
+            "code": "BCE2526",
             "severity": "ERROR"
           }
         }
@@ -1374,6 +1364,6 @@
     },
     "isNodePath": true
   },
-  "source": "import ballerina/io;\n\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
+  "source": "import ballerina/module1;\n\npublic function bar() {\n    int x \u003d 10;\n    int y \u003d 20;\n    module1:function3(x, y);\n}\n",
   "parseSuccess": true
 }

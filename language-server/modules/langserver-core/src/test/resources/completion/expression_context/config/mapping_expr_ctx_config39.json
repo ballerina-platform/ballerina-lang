@@ -23,53 +23,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "rec3Field2",
-      "kind": "Field",
-      "detail": "Rec3.rec3Field2",
-      "sortText": "K",
-      "insertText": "rec3Field2: ${2:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Fill Rec3 Required Fields",
-      "kind": "Property",
-      "detail": "Rec3",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "rec3Field1: 0,\nrec3Field2: 0",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "rec1Field1",
       "kind": "Field",
       "detail": "Rec1.rec1Field1",
       "sortText": "K",
       "insertText": "rec1Field1: ${1:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1Field2",
-      "kind": "Field",
-      "detail": "Rec1.rec1Field2",
-      "sortText": "K",
-      "insertText": "rec1Field2: ${2:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rec1Field3",
-      "kind": "Field",
-      "detail": "Rec1.rec1Field3",
-      "sortText": "K",
-      "insertText": "rec1Field3: ${3:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Fill Rec1 Required Fields",
-      "kind": "Property",
-      "detail": "Rec1",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "rec1Field1: 0,\nrec1Field2: 0",
       "insertTextFormat": "Snippet"
     },
     {
@@ -81,11 +39,36 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "rec1Field2",
+      "kind": "Field",
+      "detail": "Rec1.rec1Field2",
+      "sortText": "K",
+      "insertText": "rec1Field2: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec1Field3",
+      "kind": "Field",
+      "detail": "Rec1.rec1Field3",
+      "sortText": "K",
+      "insertText": "rec1Field3: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Rec1 Required Fields",
+      "kind": "Property",
+      "detail": "Rec1",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "rec1Field1: ${1:0},\nrec1Field2: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "rec2Field3",
       "kind": "Field",
       "detail": "Rec2.rec2Field3",
       "sortText": "K",
-      "insertText": "rec2Field3: ${2:0}",
+      "insertText": "rec2Field3: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -93,7 +76,7 @@
       "kind": "Field",
       "detail": "Rec2.rec2Field1",
       "sortText": "K",
-      "insertText": "rec2Field1: ${3:0}",
+      "insertText": "rec2Field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -102,32 +85,49 @@
       "detail": "Rec2",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "rec2Field2: 0,\nrec2Field3: 0,\nrec2Field1: 0",
+      "insertText": "rec2Field2: ${1:0},\nrec2Field3: ${2:0},\nrec2Field1: ${3:0}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "anonField2",
       "kind": "Field",
-      "detail": "(record {| int anonField1; string anonField2; anydata...; |}).anonField2",
+      "detail": "(record {|int anonField1; string anonField2; anydata...;|}).anonField2",
       "sortText": "K",
-      "insertText": "anonField2: \"${1}\"",
+      "insertText": "anonField2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "anonField1",
       "kind": "Field",
-      "detail": "(record {| int anonField1; string anonField2; anydata...; |}).anonField1",
+      "detail": "(record {|int anonField1; string anonField2; anydata...;|}).anonField1",
       "sortText": "K",
-      "insertText": "anonField1: ${2:0}",
+      "insertText": "anonField1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {| int anonField1; string anonField2; anydata...; |} Required Fields",
+      "label": "Fill record {|int anonField1; string anonField2; anydata...;|} Required Fields",
       "kind": "Property",
-      "detail": "record {| int anonField1; string anonField2; anydata...; |}",
+      "detail": "record {|int anonField1; string anonField2; anydata...;|}",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "anonField2: \"\",\nanonField1: 0",
+      "insertText": "anonField2: ${1:\"\"},\nanonField1: ${2:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "rec3Field2",
+      "kind": "Field",
+      "detail": "Rec3.rec3Field2",
+      "sortText": "K",
+      "insertText": "rec3Field2: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Rec3 Required Fields",
+      "kind": "Property",
+      "detail": "Rec3",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "rec3Field1: ${1:0},\nrec3Field2: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

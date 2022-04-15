@@ -65,17 +65,14 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
 
     public TypeGuardCodeAction() {
         super(Arrays.asList(CodeActionNodeType.LOCAL_VARIABLE,
-                            CodeActionNodeType.ASSIGNMENT));
+                CodeActionNodeType.ASSIGNMENT));
     }
 
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
         NonTerminalNode matchedNode = posDetails.matchedStatementNode();
-        boolean isAssignment = matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT;
-        boolean isVarDeclr = matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL;
-        // Skip, if not a var declaration or assignment
-        if (!isVarDeclr && !isAssignment) {
+        if (!isInValidContext(matchedNode, context)) {
             return Collections.emptyList();
         }
 
@@ -105,7 +102,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
-        return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
     }
 
     @Override
@@ -175,10 +172,26 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
         Document srcFile = context.currentDocument().orElseThrow();
         Optional<Symbol> symbol = semanticModel.symbol(srcFile,
-                                                       assignmentStmtNode.varRef().lineRange().startLine());
+                assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }
         return Optional.of((VariableSymbol) symbol.get());
     }
+
+    private boolean isInValidContext(NonTerminalNode matchedNode, CodeActionContext context) {
+
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
+            return false;
+        }
+        Node node = null;
+        if (matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
+            node = ((AssignmentStatementNode) matchedNode).varRef();
+        } else if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            node = ((VariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
+        }
+        return node != null &&  CommonUtil.isWithInRange(node, context.cursorPositionInTree());
+    }
+    
 }

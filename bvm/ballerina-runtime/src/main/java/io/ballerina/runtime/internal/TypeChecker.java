@@ -1149,13 +1149,15 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
 
-        // Unsealed records are not equivalent to sealed records. But vice-versa is allowed.
-        if (targetType.sealed && !sourceRecordType.sealed) {
+        // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But
+        // vice-versa is allowed.
+        if (targetType.sealed && !sourceRecordType.sealed && (sourceRecordType.restFieldType == null ||
+                sourceRecordType.restFieldType.getTag() != TypeTags.NEVER_TAG)) {
             return false;
         }
 
-        // If both are sealed (one is sealed means other is also sealed) check the rest field type
-        if (!sourceRecordType.sealed &&
+        // If both are sealed check the rest field type
+        if (!sourceRecordType.sealed && !targetType.sealed &&
                 !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
             return false;
         }
@@ -1302,11 +1304,15 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
 
-        if (targetType.sealed && !sourceRecordType.sealed) {
+        // Unsealed records are not equivalent to sealed records, unless their rest field type is 'never'. But
+        // vice-versa is allowed.
+        if (targetType.sealed && !sourceRecordType.sealed && (sourceRecordType.restFieldType == null ||
+                sourceRecordType.restFieldType.getTag() != TypeTags.NEVER_TAG)) {
             return false;
         }
 
-        if (!sourceRecordType.sealed &&
+        // If both are sealed check the rest field type
+        if (!sourceRecordType.sealed && !targetType.sealed &&
                 !checkIsType(sourceRecordType.restFieldType, targetType.restFieldType, unresolvedTypes)) {
             return false;
         }
@@ -2505,7 +2511,11 @@ public class TypeChecker {
             }
         }
 
-        for (int i = 0; i < source.size(); i++) {
+        int sourceSize = source.size();
+        if ((targetType.getState() != ArrayState.OPEN) && (sourceSize != targetType.getSize())) {
+            return false;
+        }
+        for (int i = 0; i < sourceSize; i++) {
             if (!checkIsLikeType(null, source.get(i), targetTypeElementType, unresolvedValues,
                     allowNumericConversion, null)) {
                 return false;
@@ -3207,11 +3217,17 @@ public class TypeChecker {
         if (type == null) {
             return true;
         }
-        if (type.getTag() < TypeTags.RECORD_TYPE_TAG &&
-                !(type.getTag() == TypeTags.CHAR_STRING_TAG || type.getTag() == TypeTags.NEVER_TAG)) {
+
+        int typeTag = type.getTag();
+        if (TypeTags.isXMLTypeTag(typeTag)) {
+            return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
+        }
+
+        if (typeTag < TypeTags.RECORD_TYPE_TAG &&
+                !(typeTag == TypeTags.CHAR_STRING_TAG || typeTag == TypeTags.NEVER_TAG)) {
             return true;
         }
-        switch (type.getTag()) {
+        switch (typeTag) {
             case TypeTags.STREAM_TAG:
             case TypeTags.MAP_TAG:
             case TypeTags.ANY_TAG:

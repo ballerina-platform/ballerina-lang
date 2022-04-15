@@ -48,8 +48,10 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -69,6 +71,7 @@ public class TestProcessor {
     private static final String AFTER_SUITE_ANNOTATION_NAME = "AfterSuite";
     private static final String BEFORE_EACH_ANNOTATION_NAME = "BeforeEach";
     private static final String AFTER_EACH_ANNOTATION_NAME = "AfterEach";
+    private static final String MOCK_ANNOTATION_NAME = "Mock";
     private static final String BEFORE_FUNCTION = "before";
     private static final String AFTER_FUNCTION = "after";
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
@@ -81,6 +84,10 @@ public class TestProcessor {
     private static final String AFTER_GROUPS_ANNOTATION_NAME = "AfterGroups";
     private static final String TEST_PREFIX = "test";
     private static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
+    private static final String MODULE = "moduleName";
+    private static final String FUNCTION = "functionName";
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_DELIMITER = "~";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
@@ -140,9 +147,11 @@ public class TestProcessor {
      * @return TestSuite
      */
     private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
-        TestSuite testSuite = new TestSuite(module.descriptor().name().toString(),
-                module.descriptor().packageName().toString(),
-                module.descriptor().org().value(), module.descriptor().version().toString());
+        PackageID packageID = module.descriptor().moduleTestCompilationId();
+        String testModuleName = packageID.isTestPkg ? packageID.name.value + Names.TEST_PACKAGE : packageID.name.value;
+        TestSuite testSuite = new TestSuite(module.descriptor().name().toString(), testModuleName,
+                module.descriptor().packageName().toString(), module.descriptor().org().value(),
+                module.descriptor().version().toString());
         TesterinaRegistry.getInstance().getTestSuites().put(
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
@@ -157,6 +166,7 @@ public class TestProcessor {
         }
 
         addUtilityFunctions(module, testSuite);
+        populateMockFunctionNamesMap(testSuite);
         processAnnotations(module, testSuite);
         testSuite.sort();
         return testSuite;
@@ -206,18 +216,18 @@ public class TestProcessor {
      *
      * @param annotationSymbol AnnotationSymbol
      * @param syntaxTreeMap    Map<String, SyntaxTree>
-     * @param function         String
+     * @param name         String
      * @return AnnotationNode
      */
     private AnnotationNode getAnnotationNode(AnnotationSymbol annotationSymbol, Map<Document, SyntaxTree> syntaxTreeMap,
-                                             String function) {
+                                             String name) {
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
             if (syntaxTreeEntry.getValue().containsModulePart()) {
                 ModulePartNode modulePartNode = syntaxTreeMap.get(syntaxTreeEntry.getKey()).rootNode();
                 for (Node node : modulePartNode.members()) {
                     if (node.kind() == SyntaxKind.FUNCTION_DEFINITION) {
                         String functionName = ((FunctionDefinitionNode) node).functionName().text();
-                        if (functionName.equals(function)) {
+                        if (functionName.equals(name)) {
                             Optional<MetadataNode> optionalMetadataNode = ((FunctionDefinitionNode) node).metadata();
                             if (optionalMetadataNode.isPresent()) {
                                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
@@ -318,17 +328,28 @@ public class TestProcessor {
             }
             if (isUtility) {
                 // Remove the duplicated annotations.
+                boolean testable = functionSymbol.getModule().get().id().isTestable();
+                PackageID moduleTestCompilationId = module.descriptor().moduleTestCompilationId();
+                String testModuleName = testable ? moduleTestCompilationId.name.value + Names.TEST_PACKAGE :
+                        moduleTestCompilationId.name.value;
                 String className = pos.lineRange().filePath()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
                         .replace("/", ProjectConstants.DOT);
                 String functionClassName = JarResolver.getQualifiedClassName(
                         module.descriptor().org().value(),
-                        module.descriptor().name().toString(),
+                        testModuleName,
                         module.descriptor().version().toString(),
                         className);
                 testSuite.addTestUtilityFunction(functionName, functionClassName);
             }
+        }
+    }
+
+    private void populateMockFunctionNamesMap(TestSuite testSuite) {
+        Map<String, String> mockFunctionsSourceMap = registry.getMockFunctionSourceMap();
+        for (Map.Entry<String, String> entry : mockFunctionsSourceMap.entrySet()) {
+            testSuite.addMockFunction(entry.getKey(), entry.getValue());
         }
     }
 

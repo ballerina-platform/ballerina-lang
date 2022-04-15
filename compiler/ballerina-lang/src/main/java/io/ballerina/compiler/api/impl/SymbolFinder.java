@@ -430,6 +430,7 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangRetry retryNode) {
         lookupNode(retryNode.retryBody);
         lookupNode(retryNode.retrySpec);
+        lookupNode(retryNode.onFailClause);
     }
 
     @Override
@@ -1179,7 +1180,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
 
-        if (this.symbolAtCursor == null) {
+        if (this.symbolAtCursor == null && tableType.tableType != null) {
             this.symbolAtCursor = tableType.tableType.tsymbol;
         }
     }

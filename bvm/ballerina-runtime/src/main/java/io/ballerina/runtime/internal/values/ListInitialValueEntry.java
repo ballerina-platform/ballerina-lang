@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 
 /**
@@ -38,6 +39,20 @@ public abstract class ListInitialValueEntry implements BListInitialValueEntry {
 
         public ExpressionEntry(Object value) {
             this.value = value;
+        }
+    }
+
+    /**
+     * Represents an initial spread member entry in a list constructor expression.
+     *
+     * @since 2201.1.0
+     */
+    public static class SpreadEntry extends ListInitialValueEntry {
+
+        public BArray values;
+
+        public SpreadEntry(BArray arrayValue) {
+            this.values = arrayValue;
         }
     }
 }
