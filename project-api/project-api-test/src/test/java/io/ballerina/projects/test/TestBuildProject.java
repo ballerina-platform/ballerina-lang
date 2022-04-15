@@ -1950,12 +1950,47 @@ public class TestBuildProject extends BaseTest {
                         "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
                         "visibility = \"private\"";
 
+        String content6 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"winery\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+        String updatedContent6 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"winery\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+
+        String content7 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "name = \"winery\"";
+        String updatedContent7 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"winery\"\n" +
+                        "version = \"0.1.0\"";
+
         return new Object[][]{
                 {myPkgDir, content1, updatedContent1},
                 {myPkgDir, content2, updatedContent2},
                 {myPkgDir, content3, updatedContent3},
                 {numericPkgDir, content4, updatedContent4},
-                {numericPkgDir, content5, updatedContent5}
+                {numericPkgDir, content5, updatedContent5},
+                {numericPkgDir, content6, updatedContent6},
+                {myPkgDir, content7, updatedContent7}
         };
     }
 

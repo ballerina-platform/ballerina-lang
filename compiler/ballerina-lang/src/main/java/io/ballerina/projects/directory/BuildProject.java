@@ -475,15 +475,21 @@ public class BuildProject extends Project {
                 return;
             }
 
-            TopLevelNode topLevelNode = pkgNode.entries().get("name");
-            if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
-                // write package name to existing [package]
+            TopLevelNode pkgNameNode = pkgNode.entries().get("name");
+            TopLevelNode pkgOrgNode = pkgNode.entries().get("org");
+            TopLevelNode pkgVersionNode = pkgNode.entries().get("version");
+            if (pkgNameNode == null || pkgOrgNode == null || pkgVersionNode == null
+                    || pkgNameNode.kind() == TomlType.NONE || pkgOrgNode.kind() == TomlType.NONE
+                    || pkgVersionNode.kind() == TomlType.NONE) {
+                // write package org, name and version to existing [package]
                 writePackageNameInsideExistingPackageTable(ballerinaTomlPath, org, packageName, version);
                 return;
             }
-            String ballerinaTomlPkgName = ManifestUtils.getStringFromTomlTableNode(topLevelNode);
-            if (ballerinaTomlPkgName == null) {
-                // write package name to existing [package]
+            String ballerinaTomlPkgName = ManifestUtils.getStringFromTomlTableNode(pkgNameNode);
+            String ballerinaTomlPkgOrg = ManifestUtils.getStringFromTomlTableNode(pkgNameNode);
+            String ballerinaTomlPkgVersion = ManifestUtils.getStringFromTomlTableNode(pkgNameNode);
+            if (ballerinaTomlPkgName == null || ballerinaTomlPkgOrg == null || ballerinaTomlPkgVersion == null) {
+                // write package org, name and version to existing [package]
                 writePackageNameInsideExistingPackageTable(ballerinaTomlPath, org, packageName, version);
             }
             // if package name available
