@@ -446,47 +446,53 @@ public class BuildProject extends Project {
 
     private void writePackageNameInBallerinaToml() {
         Path ballerinaTomlPath = this.currentPackage().project().sourceRoot().resolve(BALLERINA_TOML);
+        String org = this.currentPackage().descriptor().org().value();
         String packageName = this.currentPackage().descriptor().name().value();
+        String version = this.currentPackage().descriptor().version().value().toString();
         Optional<BallerinaToml> ballerinaToml = this.currentPackage().ballerinaToml();
         if (ballerinaToml.isPresent()) {
             TomlTableNode tomlAstNode = ballerinaToml.get().tomlAstNode();
             if (tomlAstNode.entries().isEmpty()) {
-                // write package name with [package]
-                writePackageTableArrayWithPackageName(ballerinaTomlPath, packageName);
+                // Empty Ballerina.toml file
+                // write org, package name & version with [package]
+                writePackageTableArrayWithPackageName(ballerinaTomlPath, org, packageName, version);
                 return;
             }
 
             TopLevelNode topLevelPkgNode = tomlAstNode.entries().get("package");
             if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
-                // write package name with [package]
-                writePackageTableArrayWithPackageName(ballerinaTomlPath, packageName);
+                // No [package] section in Ballerina.toml
+                // write org, package name & version with [package]
+                writePackageTableArrayWithPackageName(ballerinaTomlPath, org, packageName, version);
                 return;
             }
 
             TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
             if (pkgNode.entries().isEmpty()) {
-                // write package name to existing [package]
-                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, packageName);
+                // [package] section is there, but no entries
+                // write org, package name & version to existing [package]
+                writePackageNameInsideExistingEmptyPackageTable(ballerinaTomlPath, org, packageName, version);
                 return;
             }
 
             TopLevelNode topLevelNode = pkgNode.entries().get("name");
             if (topLevelNode == null || topLevelNode.kind() == TomlType.NONE) {
                 // write package name to existing [package]
-                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, packageName);
+                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, org, packageName, version);
                 return;
             }
             String ballerinaTomlPkgName = ManifestUtils.getStringFromTomlTableNode(topLevelNode);
             if (ballerinaTomlPkgName == null) {
                 // write package name to existing [package]
-                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, packageName);
+                writePackageNameInsideExistingPackageTable(ballerinaTomlPath, org, packageName, version);
             }
             // if package name available
             // do nothing
         }
     }
 
-    private void writePackageTableArrayWithPackageName(Path ballerinaTomlPath, String packageName) {
+    private void writePackageTableArrayWithPackageName(Path ballerinaTomlPath, String org,
+                                                       String packageName, String version) {
         StringBuilder content = new StringBuilder();
         boolean packageAdded = false;
         try (BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(ballerinaTomlPath)))) {
@@ -494,7 +500,10 @@ public class BuildProject extends Project {
             while (line != null) {
                 content.append(line).append("\n");
                 if (!packageAdded && !line.trim().startsWith("#")) {
-                    content.append("[package]\nname = \"").append(packageName).append("\"").append("\n");
+                    content.append("[package]\n");
+                    content.append("org = \"").append(org).append("\"\n");
+                    content.append("name = \"").append(packageName).append("\"\n");
+                    content.append("version = \"").append(version).append("\"\n\n");
                     packageAdded = true;
                 }
                 // read next line
@@ -508,7 +517,8 @@ public class BuildProject extends Project {
         writeContent(ballerinaTomlPath, String.valueOf(content).trim());
     }
 
-    private void writePackageNameInsideExistingPackageTable(Path ballerinaTomlPath, String packageName) {
+    private void writePackageNameInsideExistingEmptyPackageTable(Path ballerinaTomlPath, String org,
+                                                                 String packageName, String version) {
         StringBuilder content = new StringBuilder();
         boolean packageNameAdded = false;
         try (BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(ballerinaTomlPath)))) {
@@ -516,7 +526,9 @@ public class BuildProject extends Project {
             while (line != null) {
                 content.append(line).append("\n");
                 if (!packageNameAdded && line.trim().contains("[package]")) {
-                    content.append("name = \"").append(packageName).append("\"").append("\n");
+                    content.append("org = \"").append(org).append("\"\n");
+                    content.append("name = \"").append(packageName).append("\"\n");
+                    content.append("version = \"").append(version).append("\"\n\n");
                     packageNameAdded = true;
                 }
                 // read next line
@@ -530,6 +542,44 @@ public class BuildProject extends Project {
         writeContent(ballerinaTomlPath, String.valueOf(content).trim());
     }
 
+    private void writePackageNameInsideExistingPackageTable(Path ballerinaTomlPath, String org,
+                                                            String packageName, String version) {
+        StringBuilder content = new StringBuilder();
+        boolean packageNameAdded = false;
+        boolean packageSection = false;
+        try (BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(ballerinaTomlPath)))) {
+            String line = reader.readLine();
+            while (line != null) {
+                String lineWithoutSpaces = line.replaceAll("\\s", "");
+                if (packageSection &&
+                        (lineWithoutSpaces.contains("org") ||
+                                lineWithoutSpaces.contains("name") ||
+                                lineWithoutSpaces.contains("version"))) {
+                    // read next line
+                    line = reader.readLine();
+                    continue;
+                }
+                content.append(line).append("\n");
+                if (!packageNameAdded && line.trim().contains("[package]")) {
+                    content.append("org = \"").append(org).append("\"\n");
+                    content.append("name = \"").append(packageName).append("\"\n");
+                    content.append("version = \"").append(version).append("\"\n");
+                    packageNameAdded = true;
+                    packageSection = true;
+                }
+                if (line.trim().isEmpty()) {
+                    packageSection = false;
+                }
+                // read next line
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            throw new ProjectException("Writing to 'Ballerina.toml' failed");
+        }
+
+        // Write updated content to Ballerina.toml
+        writeContent(ballerinaTomlPath, String.valueOf(content).trim());
+    }
 
     @Override
     public Path targetDir() {

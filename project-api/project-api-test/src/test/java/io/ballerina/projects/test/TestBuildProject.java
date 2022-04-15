@@ -92,6 +92,7 @@ import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -1886,12 +1887,15 @@ public class TestBuildProject extends BaseTest {
     public Object[][] provideBallerinaTomlContentForUpdates() {
         String myPkgDir = "my-package";
         String numericPkgDir = "1994";
+        System.setProperty(USER_NAME, "testuserorg");
 
         String content1 =
                 "";
         String updatedContent1 =
                 "[package]\n" +
-                        "name = \"my_package\"";
+                        "org = \"testuserorg\"\n" +
+                        "name = \"my_package\"\n" +
+                        "version = \"0.1.0\"";
 
         String content2 =
                 "# this is a comment\n" +
@@ -1901,7 +1905,9 @@ public class TestBuildProject extends BaseTest {
                 "# this is a comment\n" +
                         "\n" +
                         "[package]\n" +
-                        "name = \"my_package\"";
+                        "org = \"testuserorg\"\n" +
+                        "name = \"my_package\"\n" +
+                        "version = \"0.1.0\"";
 
         String content3 =
                 "# this is a comment\n" +
@@ -1913,21 +1919,43 @@ public class TestBuildProject extends BaseTest {
                 "# this is a comment\n" +
                         "\n" +
                         "[package]\n" +
-                        "name = \"my_package\"\n" +
                         "org = \"winery\"\n" +
+                        "name = \"my_package\"\n" +
                         "version = \"2.0.0\"";
 
         String content4 =
                 "";
         String updatedContent4 =
                 "[package]\n" +
-                        "name = \"app1994\"";
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"";
+
+        String content5 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+        String updatedContent5 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
 
         return new Object[][]{
                 {myPkgDir, content1, updatedContent1},
                 {myPkgDir, content2, updatedContent2},
                 {myPkgDir, content3, updatedContent3},
-                {numericPkgDir, content4, updatedContent4}
+                {numericPkgDir, content4, updatedContent4},
+                {numericPkgDir, content5, updatedContent5}
         };
     }
 

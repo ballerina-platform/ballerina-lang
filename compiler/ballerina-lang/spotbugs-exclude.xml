@@ -392,6 +392,11 @@
     </Match>
     <Match>
         <Class name="io.ballerina.projects.directory.BuildProject" />
+        <Method name="writePackageNameInsideExistingEmptyPackageTable"/>
+        <Bug pattern="DM_DEFAULT_ENCODING" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.directory.BuildProject" />
         <Method name="writePackageNameInsideExistingPackageTable"/>
         <Bug pattern="DM_DEFAULT_ENCODING" />
     </Match>
