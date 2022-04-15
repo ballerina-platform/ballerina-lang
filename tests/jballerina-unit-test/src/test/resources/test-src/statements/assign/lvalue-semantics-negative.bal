@@ -78,3 +78,22 @@ function testInvalidRecordFieldAccessLvExpr() {
     f.m["two"] = 2;
     f.e.x = "ddd";
 }
+
+function testListMemberAccessLvExprWithIntBuiltInSubTypeKeyExprNegative() {
+    int[] a = [];
+    byte b = 0;
+    a[b] = ""; // error: incompatible types: expected 'int', found 'string'
+
+    int:Signed32 c = 0;
+    a[c] = true; // error: incompatible types: expected 'int', found 'boolean'
+}
+
+function testRecordMemberAccessLvExprWithStringCharKeyExprNegative() {
+    record {|
+        int:Signed8 a;
+        int:Signed8 b;
+        int:Signed8 cd;
+    |} r = {a: 1, b: 2, cd: 3};
+    string:Char a = "a";
+    r[a] = 200; // error: incompatible types: expected 'int:Signed8', found 'int'
+}

@@ -1,0 +1,9 @@
+{
+  "name": "John",
+  "school": "Everton High",
+  "age": 17,
+  "contributions": {
+    "donations": [],
+    "subscription": null
+  }
+}
