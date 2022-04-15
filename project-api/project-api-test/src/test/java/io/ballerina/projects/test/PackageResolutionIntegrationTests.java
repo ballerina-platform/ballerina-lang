@@ -556,7 +556,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML)));
     }
 
-    @Test()
+    @Test(enabled = false)
     public void testUnpublishedTransitiveDependency(ITestContext ctx) throws IOException {
         /*
             project_ac ---> package_ac ---> package_ad
@@ -641,6 +641,52 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies2.toml")));
+    }
+
+    @Test(description = "Update local repository packages as direct dependencies")
+    private void testLocalRepositoryPackagesAsDirectDependencies(ITestContext ctx) throws IOException {
+        /*
+        project_ae ---> package_ag 2.0.0 (central) ---> package_ah 2.0.0 (central)
+        project_ae ---> package_ag 2.0.0 (local) ---> package_ah 2.0.0 (central)
+        project_ae ---> package_ai 1.0.0 (central)
+        */
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_ae");
+        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
+
+        // cache package_ah to central
+        // cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ah"));
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_ah",
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        
+        // cache package_ai to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ai"));
+
+        // cache package_ag to central
+        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ag_central"));
+
+        // Build project_ae
+        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
+                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies1.toml")));
+
+        // cache package_ag to local
+        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_ag_local"));
+
+
+        // User deletes the build file
+        deleteDependenciesTomlAndBuildFile(projectDirPath);
+
+        // Build project_ae
+        buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        buildProject.save();
+        failIfDiagnosticsExists(buildProject);
+
+        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
+                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies1.toml")));
     }
 
     @Test(enabled = false)

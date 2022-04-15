@@ -1,0 +1,16 @@
+[package]
+org = "adv_res"
+name = "project_ae"
+version = "1.0.0"
+
+[[dependency]]
+org="adv_res"
+name="package_ag"
+version="2.0.0"
+repository="local"
+
+
+[[dependency]]
+org="adv_res"
+name="package_ai"
+version="1.0.0"

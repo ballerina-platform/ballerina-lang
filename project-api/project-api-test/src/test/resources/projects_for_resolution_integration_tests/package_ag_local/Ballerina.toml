@@ -1,0 +1,10 @@
+[package]
+org = "adv_res"
+name = "package_ag"
+version = "2.0.0"
+export = ["package_ag"]
+
+[[dependency]]
+org="adv_res"
+name="package_ah"
+version="2.0.0"
