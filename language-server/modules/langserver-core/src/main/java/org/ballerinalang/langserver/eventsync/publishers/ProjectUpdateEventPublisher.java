@@ -17,14 +17,14 @@
  */
 package org.ballerinalang.langserver.eventsync.publishers;
 
+import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
-import org.ballerinalang.langserver.eventsync.EventPublisher;
+import org.ballerinalang.langserver.eventsync.AbstractEventPublisher;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -32,29 +32,22 @@ import java.util.concurrent.TimeUnit;
 /**
  * Publishes the project update event.
  *
- * @since 2201.1.0
+ * @since 2201.2.0
  */
-public class ProjectUpdateEventPublisher implements EventPublisher {
+@JavaSPIService("org.ballerinalang.langserver.eventsync.EventPublisher")
+public class ProjectUpdateEventPublisher extends AbstractEventPublisher {
     public static final String NAME = "Project Update Event";
-    public static List<EventSubscriber> publisherSubscribersList = new ArrayList();
     private CompletableFuture<Boolean> latestScheduled = null;
     private static final long DIAGNOSTIC_DELAY = 1;
-
+    
     @Override
-    public List<EventSubscriber> getSubscribers() {
-        return publisherSubscribersList;
+    public PublisherKind getKind() {
+        return PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER;
     }
 
     @Override
     public String getName() {
         return NAME;
-    }
-
-    @Override
-    public void subscribe(EventSubscriber subscriber) {
-        if (!publisherSubscribersList.contains(subscriber)) {
-            publisherSubscribersList.add(subscriber);
-        }
     }
 
     // ToDo: whether we need unsubscribe
@@ -74,7 +67,6 @@ public class ProjectUpdateEventPublisher implements EventPublisher {
         CompletableFuture<Boolean> scheduledFuture = CompletableFuture.supplyAsync(() -> true, delayedExecutor);
         latestScheduled = scheduledFuture;
         
-        publisherSubscribersList.
-                forEach(subscriber -> subscriber.onNotificationArrived(client, context, serverContext, scheduledFuture));
+        subscribers.forEach(subscriber -> subscriber.onEvent(client, context, serverContext, scheduledFuture));
     }
 }

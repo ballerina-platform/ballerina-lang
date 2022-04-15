@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.eventsync;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.List;
 /**
  * Represents the language server event publisher.
  *
- * @since 2201.1.0
+ * @since 2201.2.0
  */
 public interface EventPublisher {
     
@@ -38,6 +39,7 @@ public interface EventPublisher {
      */
     List<EventSubscriber> getSubscribers();
 
+    PublisherKind getKind();
     /**
      * @return name of the Event Publisher.
      */

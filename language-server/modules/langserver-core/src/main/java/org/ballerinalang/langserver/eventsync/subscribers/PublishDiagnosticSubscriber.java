@@ -32,21 +32,27 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Publishes diagnostics.
  *
- * @since 2201.1.0
+ * @since 2201.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber")
 public class PublishDiagnosticSubscriber implements EventSubscriber {
+    public static final String NAME = "Publish Diagnostic Subscriber";
 
     @Override
-    public List<PublisherKind> getPublisherKinds() {
+    public List<PublisherKind> publisherKinds() {
         return Collections.singletonList(PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER);
     }
     
     @Override
-    public void onNotificationArrived(ExtendedLanguageClient client, DocumentServiceContext context,
-                                      LanguageServerContext languageServerContext,
-                                      CompletableFuture<Boolean> scheduledFuture) {
+    public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
+                        LanguageServerContext languageServerContext,
+                        CompletableFuture<Boolean> scheduledFuture) {
         DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(languageServerContext);
         diagnosticsHelper.schedulePublishDiagnostics(client, context, scheduledFuture);
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

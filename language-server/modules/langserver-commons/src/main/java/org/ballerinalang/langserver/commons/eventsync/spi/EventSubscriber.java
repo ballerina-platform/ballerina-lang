@@ -28,7 +28,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Represents the language server event subscriber.
  *
- * @since 2201.1.0
+ * @since 2201.2.0
  */
 public interface EventSubscriber {
 
@@ -37,9 +37,11 @@ public interface EventSubscriber {
      *
      * @return {@link List<PublisherKind>} List of PublisherKinds.
      */
-    List<PublisherKind> getPublisherKinds();
+    List<PublisherKind> publisherKinds();
     
-    void onNotificationArrived(ExtendedLanguageClient client, DocumentServiceContext context,
-                               LanguageServerContext languageServerContext,
-                               CompletableFuture<Boolean> latestScheduled);
+    void onEvent(ExtendedLanguageClient client, DocumentServiceContext context, 
+                 LanguageServerContext languageServerContext,
+                 CompletableFuture<Boolean> latestScheduled);
+    
+    String getName();
 }

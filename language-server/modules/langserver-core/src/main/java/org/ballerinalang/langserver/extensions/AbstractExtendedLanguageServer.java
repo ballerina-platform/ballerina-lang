@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.eventsync.publishers.ProjectUpdateEventPublisher;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxyImpl;
 import org.eclipse.lsp4j.Position;
@@ -51,11 +50,9 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
     private final Multimap<String, Endpoint> extensionServices = LinkedListMultimap.create();
     protected final LanguageServerContext serverContext;
     protected BallerinaWorkspaceManagerProxy workspaceManagerProxy;
-    protected ProjectUpdateEventPublisher projectUpdateEventPublisher;
 
     public AbstractExtendedLanguageServer(LanguageServerContext serverContext) {
         this.workspaceManagerProxy = new BallerinaWorkspaceManagerProxyImpl(serverContext);
-        this.projectUpdateEventPublisher = new ProjectUpdateEventPublisher();
         this.serverContext = serverContext;
         ServiceLoader<ExtendedLanguageServerService> serviceLoader = ServiceLoader.load(
                 ExtendedLanguageServerService.class);

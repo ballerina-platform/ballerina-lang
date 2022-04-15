@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.util;
 import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.PackageCompilation;
 import org.ballerinalang.langserver.LSClientLogger;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -39,7 +38,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * A collection of utilities related to LS client.
@@ -53,44 +51,8 @@ public class LSClientUtil {
     private LSClientUtil() {
 
     }
-
-    /**
-     * Calculates the commands dynamically added by compiler plugins of imported modules and register the new ones in
-     * LS client side.
-     *
-     * @param context           Document service context
-     * @param scheduledFuture   Boolean Completable Future
-     */
-    public static synchronized void checkAndRegisterCommands(DocumentServiceContext context, 
-                                                             CompletableFuture<Boolean> scheduledFuture) {
-        LanguageServerContext serverContext = context.languageServercontext();
-        LSClientLogger clientLogger = LSClientLogger.getInstance(serverContext);
-
-        ServerCapabilities serverCapabilities = serverContext.get(ServerCapabilities.class);
-        if (serverCapabilities.getExecuteCommandProvider() == null) {
-            clientLogger.logTrace("Not registering commands: server isn't a execute commands provider");
-            return;
-        }
-
-        if (!isDynamicCommandRegistrationSupported(serverContext)) {
-            clientLogger.logTrace("Not registering commands: client doesn't support dynamic commands registration");
-            return;
-        }
-        scheduledFuture
-                .thenApplyAsync(aBoolean -> context.workspace().waitAndGetPackageCompilation(context.filePath()))
-                .thenAccept(compilation -> compilation.ifPresent(pkgCompilation -> 
-                        compileAndRegisterCommands(serverContext, clientLogger, serverCapabilities, pkgCompilation)));
-    }
-
-    /**
-     * Compile and register commands.
-     * 
-     * @param serverContext         Language Server Context
-     * @param clientLogger          LS Client Logger
-     * @param serverCapabilities    Server Capabilities
-     * @param compilation           Package Compilation
-     */
-    private static void compileAndRegisterCommands(LanguageServerContext serverContext, 
+    
+    public static void compileAndRegisterCommands(LanguageServerContext serverContext, 
                                                    LSClientLogger clientLogger, 
                                                    ServerCapabilities serverCapabilities,
                                                    PackageCompilation compilation) {
@@ -203,7 +165,7 @@ public class LSClientUtil {
     }
 
     /**
-     * Whether the client supports the prepare rename operation.
+     * Whether the client supports the prepare-rename operation.
      * 
      * @param clientCapabilities {@link ClientCapabilities}
      * @return whether the client supports prepareRename or not

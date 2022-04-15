@@ -15,28 +15,34 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.commons.eventsync;
+package org.ballerinalang.langserver.eventsync;
+
+import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Exception for Language Server Event Subscribers.
+ * Represents the language server abstract event publisher.
  *
- * @since 2201.1.0
+ * @since 2201.2.0
  */
-public class LSSubscriberException extends Exception {
-    public LSSubscriberException(String message) {
-        super(message);
+public abstract class AbstractEventPublisher implements EventPublisher {
+
+    protected List<EventSubscriber> subscribers = new ArrayList();
+
+    @Override
+    public List<EventSubscriber> getSubscribers() {
+        return subscribers;
     }
 
-    public LSSubscriberException(String message, Throwable cause) {
-        super(message, cause);
+    @Override
+    public void subscribe(EventSubscriber subscriber) {
+        subscribers.add(subscriber);
     }
 
-    public LSSubscriberException(Throwable cause) {
-        super(cause);
-    }
+    @Override
+    public void unsubscribe(EventSubscriber subscriber) {
 
-    public LSSubscriberException(String message, Throwable cause, boolean enableSuppression,
-                                 boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }
