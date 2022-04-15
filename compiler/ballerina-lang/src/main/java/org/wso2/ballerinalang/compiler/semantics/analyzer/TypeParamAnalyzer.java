@@ -513,7 +513,7 @@ public class TypeParamAnalyzer {
         if (expType.keyTypeConstraint != null) {
             if (actualType.keyTypeConstraint != null) {
                 findTypeParam(loc, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
-            } else if (actualType.fieldNameList != null) {
+            } else if (actualType.fieldNameList != null && !actualType.fieldNameList.isEmpty()) {
                 List<BType> memberTypes = new ArrayList<>();
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))

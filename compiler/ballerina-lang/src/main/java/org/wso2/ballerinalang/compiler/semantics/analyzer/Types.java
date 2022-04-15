@@ -941,7 +941,8 @@ public class Types {
             return false;
         }
 
-        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
+        if (targetTableType.keyTypeConstraint == null && (targetTableType.fieldNameList == null ||
+                targetTableType.fieldNameList.isEmpty())) {
             return true;
         }
 
@@ -952,7 +953,7 @@ public class Types {
                 return true;
             }
 
-            if (sourceTableType.fieldNameList == null) {
+            if (sourceTableType.fieldNameList == null || sourceTableType.fieldNameList.isEmpty()) {
                 return false;
             }
 

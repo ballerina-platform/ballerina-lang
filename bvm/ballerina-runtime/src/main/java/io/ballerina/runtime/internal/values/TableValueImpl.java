@@ -110,7 +110,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.indexToKeyMap = new LinkedHashMap<>();
         this.fieldNames = type.getFieldNames();
         this.keyValues = new LinkedHashMap<>();
-        if (type.getFieldNames() != null) {
+        if (type.getFieldNames() != null && type.getFieldNames().length != 0) {
             this.valueHolder = new KeyHashValueHolder();
         } else {
             this.valueHolder = new ValueHolder();

@@ -1384,7 +1384,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         if (Types.getReferredType(constraintType).tag == TypeTags.MAP &&
-                (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
+                ((tableType.fieldNameList != null && !tableType.fieldNameList.isEmpty()) ||
+                        tableType.keyTypeConstraint != null) &&
                 !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(tableType.keyPos,
                     DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
