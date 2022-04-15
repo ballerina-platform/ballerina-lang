@@ -94,7 +94,6 @@ public class ErrorValue extends BError implements RefValue {
         this.message = message;
         this.cause = cause;
         this.details = details;
-        ((BErrorType) type).setDetailType(TypeChecker.getType(details));
         this.typedesc = new TypedescValueImpl(type);
     }
 
@@ -108,7 +107,6 @@ public class ErrorValue extends BError implements RefValue {
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
         ((BErrorType) type).setTypeIdSet(typeIdSet);
-        ((BErrorType) type).setDetailType(TypeChecker.getType(details));
         this.typedesc = new TypedescValueImpl(type);
     }
 
