@@ -325,7 +325,6 @@ import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createState
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariableRef;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
-import static org.wso2.ballerinalang.compiler.util.Constants.INIT_METHOD_SPLIT_SIZE;
 import static org.wso2.ballerinalang.compiler.util.Names.GENERATED_INIT_SUFFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.GEN_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.util.Names.IGNORE;
@@ -379,6 +378,7 @@ public class Desugar extends BLangNodeVisitor {
     private Unifier unifier;
     private MockDesugar mockDesugar;
     private ClassClosureDesugar classClosureDesugar;
+    private LargeMethodSplitter largeMethodSplitter;
 
     public Stack<BLangLockStmt> enclLocks = new Stack<>();
     private BLangOnFailClause onFailClause;
@@ -395,7 +395,6 @@ public class Desugar extends BLangNodeVisitor {
     private int recordCount = 0;
     private int errorCount = 0;
     private int annonVarCount = 0;
-    private int initFuncIndex = 0;
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
@@ -436,6 +435,7 @@ public class Desugar extends BLangNodeVisitor {
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
         this.code2CloudDesugar = Code2CloudDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
+        this.largeMethodSplitter = LargeMethodSplitter.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
         this.names = Names.getInstance(context);
@@ -690,7 +690,7 @@ public class Desugar extends BLangNodeVisitor {
      * @param bLangFunction function node
      * @param env           Symbol environment
      */
-    private void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
+    protected void createInvokableSymbol(BLangFunction bLangFunction, SymbolEnv env) {
         BType returnType = bLangFunction.returnTypeNode.getBType() == null ?
                 symResolver.resolveTypeNode(bLangFunction.returnTypeNode, env) :
                 bLangFunction.returnTypeNode.getBType();
@@ -771,7 +771,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
-        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+        desugarAnnotations(pkgNode);
 
         // Add invocation for user specified module init function (`init()`) if present and return.
         addUserDefinedModuleInitInvocationAndReturn(pkgNode);
@@ -791,7 +791,10 @@ public class Desugar extends BLangNodeVisitor {
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.startFunction.body);
         addNilReturnStatement((BLangBlockFunctionBody) pkgNode.stopFunction.body);
 
-        pkgNode.initFunction = splitInitFunction(pkgNode, env);
+        if (isJvmTarget) {
+            largeMethodSplitter.splitLargeFunctions(pkgNode, env);
+        }
+
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
@@ -801,11 +804,38 @@ public class Desugar extends BLangNodeVisitor {
         closureDesugar.visit(pkgNode);
 
         for (BLangTestablePackage testablePkg : pkgNode.getTestablePkgs()) {
+            annotationDesugar.initializeAnnotationMap(testablePkg);
             rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
-        initFuncIndex = 0;
         result = pkgNode;
+    }
+
+    private void desugarAnnotations(BLangPackage pkgNode) {
+        List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+
+        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+
+        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            if (prevTypeDefinitions.contains(typeDef)) {
+                continue;
+            }
+
+            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                continue;
+            }
+            BSymbol symbol = typeDef.symbol;
+            BSymbol typeSymbol = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol : symbol;
+            if (typeSymbol.tag != SymTag.RECORD) {
+                continue;
+            }
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+            recordTypeNode.initFunction = rewrite(
+                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
+                    env);
+            pkgNode.functions.add(recordTypeNode.initFunction);
+            pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
+        }
     }
 
     private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
@@ -8257,7 +8287,7 @@ public class Desugar extends BLangNodeVisitor {
         return blockNode;
     }
 
-    private BLangInvocation createInvocationNode(String functionName, List<BLangExpression> args, BType retType) {
+    protected BLangInvocation createInvocationNode(String functionName, List<BLangExpression> args, BType retType) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         name.setLiteral(false);
@@ -10054,127 +10084,6 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(stmtExpr);
     }
 
-    /**
-     * Split packahe init function into several smaller functions.
-     *
-     * @param packageNode package node
-     * @param env symbol environment
-     * @return initial init function but trimmed in size
-     */
-    private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
-        int methodSize = INIT_METHOD_SPLIT_SIZE;
-        BLangBlockFunctionBody funcBody = (BLangBlockFunctionBody) packageNode.initFunction.body;
-        if (!isJvmTarget) {
-            return packageNode.initFunction;
-        }
-        BLangFunction initFunction = packageNode.initFunction;
-
-        List<BLangFunction> generatedFunctions = new ArrayList<>();
-        List<BLangStatement> stmts = new ArrayList<>(funcBody.stmts);
-        funcBody.stmts.clear();
-        BLangFunction newFunc = initFunction;
-        BLangBlockFunctionBody newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-
-        // until we get to a varDef, stmts are independent, divide it based on methodSize
-        int varDefIndex = 0;
-        for (int i = 0; i < stmts.size(); i++) {
-            BLangStatement statement = stmts.get(i);
-            if (statement.getKind() == NodeKind.VARIABLE_DEF) {
-                break;
-            }
-            varDefIndex++;
-            if (i > 0 && (i % methodSize == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
-                generatedFunctions.add(newFunc);
-                newFunc = createIntermediateInitFunction(packageNode, env);
-                newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
-            }
-
-            newFuncBody.stmts.add(stmts.get(i));
-        }
-
-        // from a varDef to a service constructor, those stmts should be within single method
-        List<BLangStatement> chunkStmts = new ArrayList<>();
-        for (int i = varDefIndex; i < stmts.size(); i++) {
-            BLangStatement stmt = stmts.get(i);
-            chunkStmts.add(stmt);
-            varDefIndex++;
-            if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).expr.getKind() == NodeKind.SERVICE_CONSTRUCTOR) &&
-                    (newFuncBody.stmts.size() + chunkStmts.size() > methodSize)) {
-                // enf of current chunk
-                if (newFuncBody.stmts.size() + chunkStmts.size() > methodSize) {
-                    generatedFunctions.add(newFunc);
-                    newFunc = createIntermediateInitFunction(packageNode, env);
-                    newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                    symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
-                }
-                newFuncBody.stmts.addAll(chunkStmts);
-                chunkStmts.clear();
-            } else if ((stmt.getKind() == NodeKind.ASSIGNMENT) &&
-                    (((BLangAssignment) stmt).varRef instanceof BLangPackageVarRef) &&
-                    Symbols.isFlagOn(((BLangPackageVarRef) ((BLangAssignment) stmt).varRef).varSymbol.flags,
-                            Flags.LISTENER)
-            ) {
-                // this is where listener registrations starts, they are independent stmts
-                break;
-            }
-        }
-        newFuncBody.stmts.addAll(chunkStmts);
-
-        // rest of the statements can be split without chunks
-        for (int i = varDefIndex; i < stmts.size(); i++) {
-            if (i > 0 && i % methodSize == 0) {
-                generatedFunctions.add(newFunc);
-                newFunc = createIntermediateInitFunction(packageNode, env);
-                newFuncBody = (BLangBlockFunctionBody) newFunc.body;
-                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
-            }
-            newFuncBody.stmts.add(stmts.get(i));
-        }
-
-        generatedFunctions.add(newFunc);
-
-        for (int j = 0; j < generatedFunctions.size() - 1; j++) {
-            BLangFunction thisFunction = generatedFunctions.get(j);
-
-            BLangCheckedExpr checkedExpr =
-                    ASTBuilderUtil.createCheckExpr(initFunction.pos,
-                                                   createInvocationNode(generatedFunctions.get(j + 1).name.value,
-                                                                        new ArrayList<>(), symTable.errorOrNilType),
-                                                   symTable.nilType);
-            checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
-
-            BLangExpressionStmt expressionStmt = ASTBuilderUtil
-                    .createExpressionStmt(thisFunction.pos, (BLangBlockFunctionBody) thisFunction.body);
-            expressionStmt.expr = checkedExpr;
-            expressionStmt.expr.pos = initFunction.pos;
-
-            if (j > 0) { // skip init func
-                thisFunction = rewrite(thisFunction, env);
-                packageNode.functions.add(thisFunction);
-                packageNode.topLevelNodes.add(thisFunction);
-            }
-        }
-
-        if (generatedFunctions.size() > 1) {
-            // add last func
-            BLangFunction lastFunc = generatedFunctions.get(generatedFunctions.size() - 1);
-            lastFunc = rewrite(lastFunc, env);
-            packageNode.functions.add(lastFunc);
-            packageNode.topLevelNodes.add(lastFunc);
-        }
-
-        return generatedFunctions.get(0);
-    }
-
-    private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
-        if (statement.getKind() == NodeKind.ASSIGNMENT) {
-            return isMappingOrObjectConstructorOrObjInit(((BLangAssignment) statement).getExpression());
-        }
-        return false;
-    }
-
     protected boolean isMappingOrObjectConstructorOrObjInit(BLangExpression expression) {
         switch (expression.getKind()) {
             case TYPE_INIT_EXPR:
@@ -10188,23 +10097,6 @@ public class Desugar extends BLangNodeVisitor {
             default:
                 return false;
         }
-    }
-
-    /**
-     * Create an intermediate package init function.
-     *
-     * @param pkgNode package node
-     * @param env     symbol environment of package
-     */
-    private BLangFunction createIntermediateInitFunction(BLangPackage pkgNode, SymbolEnv env) {
-        String alias = pkgNode.symbol.pkgID.toString();
-        BLangFunction initFunction = ASTBuilderUtil
-                .createInitFunctionWithErrorOrNilReturn(pkgNode.pos, alias,
-                                                        new Name(Names.INIT_FUNCTION_SUFFIX.value
-                                                                + this.initFuncIndex++), symTable);
-        // Create invokable symbol for init function
-        createInvokableSymbol(initFunction, env);
-        return initFunction;
     }
 
     private BType getRestType(BInvokableSymbol invokableSymbol) {
