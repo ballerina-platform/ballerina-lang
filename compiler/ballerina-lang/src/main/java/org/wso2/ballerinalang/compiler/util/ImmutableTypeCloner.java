@@ -811,12 +811,16 @@ public class ImmutableTypeCloner {
     private static boolean isDefinedInCurrentModuleInCurrentCompilation(SymbolEnv env, BType mutableType,
                                                                         BIntersectionType immutableType,
                                                                         Set<BType> unresolvedTypes) {
-        if (env == null || unresolvedTypes.contains(mutableType)) {
+        if (env == null) {
             return true;
         }
 
         if (!immutableType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
             return false;
+        }
+
+        if (unresolvedTypes.contains(mutableType)) {
+            return true;
         }
 
         // When sources are recompiled even though there may be an immutable type defined in the current module there
