@@ -30,6 +30,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+
 /**
  * Test cases for bal init command.
  *
@@ -44,6 +46,7 @@ public class InitCommandTest extends BaseCommandTest {
         Path balFile = projectPath.resolve("data.bal");
         Files.createFile(balFile);
 
+        System.setProperty(USER_NAME, "testuserorg");
         String[] args = {};
         InitCommand initCommand = new InitCommand(projectPath, printStream, false);
         new CommandLine(initCommand).parse(args);
@@ -55,11 +58,13 @@ public class InitCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
                 "name = \"" + projectPath.getFileName().toString() + "\"\n" +
+                "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedContent));
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
 
         Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
         Assert.assertFalse(Files.exists(testPath));

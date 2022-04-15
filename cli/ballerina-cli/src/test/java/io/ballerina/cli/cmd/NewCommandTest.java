@@ -39,6 +39,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
  * Test cases for bal new command.
@@ -70,6 +71,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Create a new project")
     public void testNewCommand() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
         String[] args = {"project_name"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parse(args);
@@ -85,11 +87,13 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
                 "name = \"" + args[0] + "\"\n" +
+                "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedContent));
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -102,6 +106,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Test new command with main template")
     public void testNewCommandWithMain() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
         String[] args = {"main_sample", "-t", "main"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parse(args);
@@ -120,11 +125,13 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
                 "name = \"" + args[0] + "\"\n" +
+                "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedContent));
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
