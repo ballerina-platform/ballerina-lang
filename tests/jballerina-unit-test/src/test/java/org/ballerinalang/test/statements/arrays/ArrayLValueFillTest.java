@@ -28,6 +28,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
@@ -45,21 +46,6 @@ public class ArrayLValueFillTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/array_lvalue_fill_test.bal");
-    }
-
-    @Test
-    public void testSimpleBasic2DArrays() {
-        BRunUtil.invoke(compileResult, "testSimpleBasic2DArrays");
-    }
-
-    @Test
-    public void testRecordArrays() {
-        BRunUtil.invoke(compileResult, "testRecordArrays");
-    }
-
-    @Test
-    public void test2DRecordArrays() {
-        BRunUtil.invoke(compileResult, "test2DRecordArrays");
     }
 
     @Test
@@ -135,36 +121,6 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
     }
 
-    @Test
-    public void testArraysInRecordFields() {
-        BRunUtil.invoke(compileResult, "testArraysInRecordFields");
-    }
-
-    @Test
-    public void testArraysInObjectFields() {
-        BRunUtil.invoke(compileResult, "testArraysInObjectFields");
-    }
-
-    @Test
-    public void testArraysInUnionTypes() {
-        BRunUtil.invoke(compileResult, "testArraysInUnionTypes");
-    }
-
-    @Test
-    public void testArraysOfTuples() {
-        BRunUtil.invoke(compileResult, "testArraysOfTuples");
-    }
-
-    @Test
-    public void test2DArrayInATuple() {
-        BRunUtil.invoke(compileResult, "test2DArrayInATuple");
-    }
-
-    @Test
-    public void testFiniteTyped2DArrays() {
-        BRunUtil.invoke(compileResult, "testFiniteTyped2DArrays");
-    }
-
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
@@ -173,9 +129,26 @@ public class ArrayLValueFillTest {
         BRunUtil.invoke(compileResult, "testNoDefFiniteTyped2DArrays");
     }
 
-    @Test
-    public void testMapArrayAsAnLValue() {
-        BRunUtil.invoke(compileResult, "testMapArrayAsAnLValue");
+    @Test(dataProvider = "arrayFillerValueTestFunctions")
+    public void testArrayFillerValues(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider(name = "arrayFillerValueTestFunctions")
+    public Object[] arrayFillerValueTestFunctions() {
+        return new String[]{
+                "testSimpleBasic2DArrays",
+                "testRecordArrays",
+                "test2DRecordArrays",
+                "testArraysInRecordFields",
+                "testArraysInObjectFields",
+                "testArraysInUnionTypes",
+                "testArraysOfTuples",
+                "test2DArrayInATuple",
+                "testFiniteTyped2DArrays",
+                "testMapArrayAsAnLValue",
+                "testMDArrayFillerValues"
+        };
     }
 
     @AfterClass
