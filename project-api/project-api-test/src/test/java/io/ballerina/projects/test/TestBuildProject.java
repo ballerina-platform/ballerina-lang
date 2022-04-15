@@ -1983,6 +1983,80 @@ public class TestBuildProject extends BaseTest {
                         "name = \"winery\"\n" +
                         "version = \"0.1.0\"";
 
+        String content8 =
+                "[package]\n" +
+                        "version = \"1.1.0\"\n" +
+                        "distribution = \"2201.0.3-SNAPSHOT\"\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        String updatedContent8 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"1.1.0\"\n" +
+                        "distribution = \"2201.0.3-SNAPSHOT\"\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+
+        String content9 =
+                "[package]\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        String updatedContent9 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+
+        String content10 =
+                "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        String updatedContent10 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+
         return new Object[][]{
                 {myPkgDir, content1, updatedContent1},
                 {myPkgDir, content2, updatedContent2},
@@ -1990,7 +2064,10 @@ public class TestBuildProject extends BaseTest {
                 {numericPkgDir, content4, updatedContent4},
                 {numericPkgDir, content5, updatedContent5},
                 {numericPkgDir, content6, updatedContent6},
-                {myPkgDir, content7, updatedContent7}
+                {myPkgDir, content7, updatedContent7},
+                {numericPkgDir, content8, updatedContent8},
+                {numericPkgDir, content9, updatedContent9},
+                {numericPkgDir, content10, updatedContent10},
         };
     }
 

@@ -504,7 +504,6 @@ public class BuildProject extends Project {
         try (BufferedReader reader = new BufferedReader(new FileReader(String.valueOf(ballerinaTomlPath)))) {
             String line = reader.readLine();
             while (line != null) {
-                content.append(line).append("\n");
                 if (!packageAdded && !line.trim().startsWith("#")) {
                     content.append("[package]\n");
                     content.append("org = \"").append(org).append("\"\n");
@@ -512,6 +511,7 @@ public class BuildProject extends Project {
                     content.append("version = \"").append(version).append("\"\n\n");
                     packageAdded = true;
                 }
+                content.append(line).append("\n");
                 // read next line
                 line = reader.readLine();
             }
