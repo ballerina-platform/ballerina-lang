@@ -35,7 +35,7 @@
       "kind": "Field",
       "detail": "Rec2.rec2Field3",
       "sortText": "K",
-      "insertText": "rec2Field3: ${2:0}",
+      "insertText": "rec2Field3: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -43,7 +43,7 @@
       "kind": "Field",
       "detail": "Rec2.rec2Field1",
       "sortText": "K",
-      "insertText": "rec2Field1: ${3:0}",
+      "insertText": "rec2Field1: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -52,7 +52,7 @@
       "detail": "Rec2",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "rec2Field2: 0,\nrec2Field3: 0,\nrec2Field1: 0",
+      "insertText": "rec2Field2: ${1:0},\nrec2Field3: ${2:0},\nrec2Field1: ${3:0}",
       "insertTextFormat": "Snippet"
     }
   ]
