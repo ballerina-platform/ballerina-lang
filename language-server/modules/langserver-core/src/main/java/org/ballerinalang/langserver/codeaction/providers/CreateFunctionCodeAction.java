@@ -22,8 +22,10 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
@@ -62,11 +64,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNDEFINED_FUNCTION)) || positionDetails.matchedNode() == null) {
-            return Collections.emptyList();
-        }
-
-        Optional<FunctionCallExpressionNode> callExpr =
+        Optional<FunctionCallExpressionNode> callExpr = 
                 checkAndGetFunctionCallExpressionNode(positionDetails.matchedNode());
 
         if (callExpr.isEmpty() || isInvalidReturnType(context, callExpr.get())) {
@@ -98,6 +96,20 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public boolean validate(Diagnostic diagnostic,
+                            DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        if (!diagnostic.message().startsWith(UNDEFINED_FUNCTION) || positionDetails.matchedNode() == null) {
+            return false;
+        }
+        
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
+        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(), 
+                context.cursorPosition()), syntaxTree);
+        return CodeActionNodeValidator.validate(matchedNode);
     }
 
     /**

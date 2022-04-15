@@ -83,6 +83,8 @@ public class CompilerPluginTests {
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_code_modify_add_function");
         BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_diagnostic_init_function");
+        BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/records");
     }
 
@@ -371,6 +373,28 @@ public class CompilerPluginTests {
 
         // Check direct package dependencies count is 1
         Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");
+    }
+
+    @Test
+    public void testCodeAnalyzerCompilerPluginForTestSources() {
+        Package currentPackage = loadPackage("package_plugin_diagnostic_user_1");
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        diagnosticResult.diagnostics().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 5,
+                "Unexpected number of compilation diagnostics");
+
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [main.bal:(3:8,3:16)] main");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [main.bal:(6:1,6:9)] foo");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [main.bal:(9:1,9:9)] bar");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [tests/test.bal:(3:1,3:9)] testFoo");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+                "INFO [tests/test.bal:(6:1,6:9)] testYee");
     }
 
     public void assertDiagnostics(Package currentPackage) {
