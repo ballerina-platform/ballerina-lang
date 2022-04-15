@@ -33,6 +33,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FailStatementNode;
@@ -67,6 +68,7 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Finds the expected {@link TypeSymbol} of a provided {@link FunctionCallExpressionNode} node. This will try its
@@ -242,7 +244,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             checkAndSetTypeDescResult(TypeDescKind.STRING);
             return;
         }
-        
+
         Optional<List<ParameterSymbol>> params = getParameterSymbols();
         if (params.isEmpty() || params.get().isEmpty()) {
             return;
@@ -315,7 +317,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             checkAndSetTypeResult(fieldSymbol.typeDescriptor());
             return;
         }
-        
+
         Optional<List<ParameterSymbol>> params = getParameterSymbols();
         if (params.isEmpty()) {
             return;
@@ -419,6 +421,23 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        Optional<TypeSymbol> typeSymbol = Stream.of(semanticModel.typeOf(conditionalExpressionNode.middleExpression()),
+                        semanticModel.typeOf(conditionalExpressionNode.endExpression()))
+                .filter(type -> type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR)
+                .map(Optional::get).findFirst();
+
+        if (typeSymbol.isPresent()) {
+            checkAndSetTypeResult(typeSymbol.get());
+            if (!resultFound) {
+                checkAndSetTypeDescResult(typeSymbol.get().typeKind());
+            }
+        } else {
+            conditionalExpressionNode.parent().accept(this);
+        }
+    }
+
+    @Override
     protected void visitSyntaxNode(Node node) {
         // Do nothing
     }
@@ -433,7 +452,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             resultFound = true;
         }
     }
-    
+
     private void checkAndSetTypeDescResult(TypeDescKind typeDescKind) {
         if (typeDescKind == null) {
             return;
@@ -443,7 +462,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         this.returnTypeDescKind = typeDescKind;
         this.resultFound = true;
     }
-    
+
     private void resetResult() {
         this.returnTypeDescKind = null;
         this.returnTypeSymbol = null;
