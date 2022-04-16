@@ -1642,3 +1642,85 @@ function testEvery9() {
     map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
     assertValueEquality(arr.every(func5), false);
 }
+
+type T string|int;
+
+function testArrSortWithNamedArgs1() {
+    [string, T][] arr = [["a", "100"], ["b", "100"], ["d", "10"], ["c", "100"], ["e", "100"]];
+    [string, T][] sortedArr = arr.sort(direction = array:DESCENDING, key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["e","100"], ["d","10"], ["c","100"], ["b","100"], ["a","100"]], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["e","100"], ["d","10"], ["c","100"], ["b","100"], ["a","100"]], sortedArr);
+
+    sortedArr = arr.sort(key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["a","100"], ["b","100"], ["c","100"], ["d","10"], ["e","100"]], sortedArr);
+
+    sortedArr = array:sort(arr, key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["a","100"], ["b","100"], ["c","100"], ["d","10"], ["e","100"]], sortedArr);
+}
+
+function testArrSortWithNamedArgs2() {
+    int[] arr = [1, 10, 3, 100, 0, -1, 10];
+    int[] sortedArr = arr.sort(direction = array:DESCENDING);
+    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING);
+    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
+
+    sortedArr = arr.sort(key = isolated function(int e) returns int {
+        return e;
+    });
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+
+    sortedArr = array:sort(arr, key = isolated function(int e) returns int {
+        return e;
+    });
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:ASCENDING, key = isolated function(int e) returns int {
+        return e;
+    });
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = ());
+    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
+
+    sortedArr = arr.sort(key = ());
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+}
+
+function testArrSortWithNamedArgs3() {
+    (int|string)[] arr = [1, "ABC", 10, "ADS", 0, "DES", "AAD"];
+    (int|string)[] sortedArr = arr.sort(direction = array:ASCENDING, key = isolated function(int|string e) returns string {
+        if e is int {
+            return "XYZ";
+        }
+        return e;
+    });
+    assertValueEquality(["AAD", "ABC", "ADS", "DES", 1, 10, 0], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:ASCENDING, key = isolated function(int|string e) returns string {
+        if e is int {
+            return "XYZ";
+        }
+        return e;
+    });
+    assertValueEquality(["AAD", "ABC", "ADS", "DES", 1, 10, 0], sortedArr);
+
+    sortedArr = arr.sort(key = isolated function(int|string e) returns string {
+        if e is int {
+            return "AAA";
+        }
+        return e;
+    });
+    assertValueEquality([1, 10, 0, "AAD", "ABC", "ADS", "DES"], sortedArr);
+}
