@@ -68,6 +68,7 @@ public class DocCommand implements BLauncherCmd {
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
     public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
@@ -76,6 +77,7 @@ public class DocCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
