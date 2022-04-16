@@ -68,6 +68,7 @@ public class TestCommand implements BLauncherCmd {
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
     public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
@@ -75,6 +76,7 @@ public class TestCommand implements BLauncherCmd {
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
     public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -84,6 +86,7 @@ public class TestCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.dumpBuildTime = dumpBuildTime;
+        this.offline = true;
     }
 
     public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -95,6 +98,7 @@ public class TestCommand implements BLauncherCmd {
         this.testReport = testReport;
         this.coverage = coverage;
         this.coverageFormat = coverageFormat;
+        this.offline = true;
     }
 
     public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -105,6 +109,7 @@ public class TestCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
         this.testReport = testReport;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
