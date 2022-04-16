@@ -1,4 +1,7 @@
 [package]
+org = "myOrg"
+name = "conflictedJarsProject"
+version = "0.1.0"
 distribution = "2201.0.0"
 
 [[dependency]]
