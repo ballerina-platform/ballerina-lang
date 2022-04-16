@@ -99,6 +99,7 @@ public class PackCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.offline = true;
     }
 
     public PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -109,6 +110,7 @@ public class PackCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @Override
