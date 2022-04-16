@@ -1,5 +1,5 @@
 Compiling source
-	_org/conflictedJarsProject:0.1.0
+	myOrg/conflictedJarsProject:0.1.0
 
 Generating executable
 	warning: Detected conflicting jar files:
