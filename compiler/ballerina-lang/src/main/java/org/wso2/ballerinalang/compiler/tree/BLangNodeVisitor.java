@@ -86,8 +86,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
@@ -738,14 +736,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangMatchExprPatternClause bLangMatchExprPatternClause) {
         throw new AssertionError();
     }
 

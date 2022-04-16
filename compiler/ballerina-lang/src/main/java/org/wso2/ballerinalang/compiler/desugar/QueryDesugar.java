@@ -92,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -1810,19 +1809,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
         this.acceptNode(assignableExpr.lhsExpr);
-    }
-
-    @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        this.acceptNode(bLangMatchExpression.expr);
-        bLangMatchExpression.patternClauses.forEach(pattern -> {
-            this.acceptNode(pattern.expr);
-            this.acceptNode(pattern.variable);
-        });
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
     }
 
     @Override

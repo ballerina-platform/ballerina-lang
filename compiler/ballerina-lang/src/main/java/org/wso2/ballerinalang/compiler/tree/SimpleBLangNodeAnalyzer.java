@@ -74,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -776,18 +775,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangMarkdownReturnParameterDocumentation node, T data) {
         analyzeNode(node, data);
-    }
-
-    public void visit(BLangMatchExpression node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.expr, data);
-        visitNode(node.patternClauses, data);
-    }
-
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.expr, data);
-        visitNode(node.variable, data);
     }
 
     public void visit(BLangMatchGuard node, T data) {

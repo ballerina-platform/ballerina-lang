@@ -132,8 +132,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -5482,34 +5480,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression, AnalyzerData data) {
-        SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), data.env);
-        checkExpr(bLangMatchExpression.expr, matchExprEnv, data);
-
-        // Type check and resolve patterns and their expressions
-        bLangMatchExpression.patternClauses.forEach(pattern -> {
-            if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
-                symbolEnter.defineNode(pattern.variable, matchExprEnv);
-            }
-            checkExpr(pattern.expr, matchExprEnv, data.expType, data);
-            pattern.variable.setBType(symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv));
-        });
-
-        LinkedHashSet<BType> matchExprTypes = getMatchExpressionTypes(bLangMatchExpression);
-
-        BType actualType;
-        if (matchExprTypes.contains(symTable.semanticError)) {
-            actualType = symTable.semanticError;
-        } else if (matchExprTypes.size() == 1) {
-            actualType = matchExprTypes.toArray(new BType[0])[0];
-        } else {
-            actualType = BUnionType.create(null, matchExprTypes);
-        }
-
-        data.resultType = types.checkType(bLangMatchExpression, actualType, data.expType);
-    }
-
-    @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
         data.checkWithinQueryExpr = isWithinQuery(data);
         visitCheckAndCheckPanicExpr(checkedExpr, data);
@@ -8730,41 +8700,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             return Lists.of(type);
         }
-    }
-
-    private LinkedHashSet<BType> getMatchExpressionTypes(BLangMatchExpression bLangMatchExpression) {
-        List<BType> exprTypes = getTypesList(bLangMatchExpression.expr.getBType());
-        LinkedHashSet<BType> matchExprTypes = new LinkedHashSet<>();
-        for (BType type : exprTypes) {
-            boolean assignable = false;
-            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
-                BType patternExprType = pattern.expr.getBType();
-
-                // Type of the pattern expression, becomes one of the types of the whole but expression
-                matchExprTypes.addAll(getTypesList(patternExprType));
-
-                if (type.tag == TypeTags.SEMANTIC_ERROR || patternExprType.tag == TypeTags.SEMANTIC_ERROR) {
-                    return new LinkedHashSet<BType>() {
-                        {
-                            add(symTable.semanticError);
-                        }
-                    };
-                }
-
-                assignable = this.types.isAssignable(type, pattern.variable.getBType());
-                if (assignable) {
-                    break;
-                }
-            }
-
-            // If the matching expr type is not matching to any pattern, it becomes one of the types
-            // returned by the whole but expression
-            if (!assignable) {
-                matchExprTypes.add(type);
-            }
-        }
-
-        return matchExprTypes;
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {
