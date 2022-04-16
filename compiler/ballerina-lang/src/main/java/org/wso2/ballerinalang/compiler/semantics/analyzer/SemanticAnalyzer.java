@@ -4651,6 +4651,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) lhsExpr).symbol;
+
+        if (Symbols.isFlagOn(varSymbol.flags, Flags.FINAL)) {
+            return;
+        }
+
         if (varSymbol.originalSymbol == null) {
             return;
         }
