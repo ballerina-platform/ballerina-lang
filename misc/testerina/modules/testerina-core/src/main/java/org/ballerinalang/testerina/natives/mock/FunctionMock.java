@@ -12,6 +12,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.natives.Executor;
 
 import java.lang.reflect.Method;
@@ -34,6 +35,8 @@ public class FunctionMock {
         BObject mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
         BArray args = caseObj.getArrayValue(StringUtils.fromString("args"));
         Object returnVal = caseObj.get(StringUtils.fromString("returnValue"));
+        TesterinaUtils.isCallOriginal = returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER);
+
         MockRegistry.getInstance().registerCase(mockFunctionObj, null, args, returnVal);
         return null;
     }

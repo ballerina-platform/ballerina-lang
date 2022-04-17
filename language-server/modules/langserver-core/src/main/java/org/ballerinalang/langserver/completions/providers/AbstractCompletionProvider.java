@@ -44,7 +44,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
@@ -329,7 +328,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         // Generate completion items for the distribution repo packages excluding the pre-declared lang-libs
-        List<Package> packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
+        List<LSPackageLoader.PackageInfo> packages = 
+                LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
             String orgName = CommonUtil.escapeModuleName(pkg.packageOrg().value());

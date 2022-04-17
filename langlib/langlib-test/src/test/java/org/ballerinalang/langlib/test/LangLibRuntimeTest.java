@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.test;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,6 +37,11 @@ public class LangLibRuntimeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/runtimelib_test.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
     @Test

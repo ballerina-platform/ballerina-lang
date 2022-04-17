@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -42,6 +43,11 @@ public class LangLibFloatTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/floatlib_test.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
     @Test
@@ -117,5 +123,60 @@ public class LangLibFloatTest {
                 "testFromStringPositive",
                 "testFromStringNegative"
         };
-    }  
+    }
+
+    @Test(dataProvider = "functionsToTestToFixedString")
+    public void testToFixedString(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestToFixedString() {
+        return new String[] {
+                "testToFixedStringWithPositiveFloat",
+                "testToFixedStringWithNegativeFloat",
+                "testToFixedStringWithInfinity",
+                "testToFixedStringWithNaN",
+                "testToFixedStringWhenFractionDigitsIsLessThanZero",
+                "testToFixedStringWhenFractionDigitsIsZero",
+                "testToFixedStringWhenFractionDigitsIsNil",
+                "testToFixedStringWhenFractionDigitsIsVeryLargeInt",
+                "testToFixedStringWhenFractionDigitsIsIntMax",
+                "testToFixedStringWithMorePositiveFloats",
+                "testToFixedStringWithMoreNegativeFloats",
+                "testToFixedStringWithVerySmallAndLargePositiveFloats",
+                "testToFixedStringWithVerySmallAndLargeNegativeFloats",
+                "testToFixedStringWithHexaDecimalFloatingPoints"
+        };
+    }
+
+    @Test(dataProvider = "functionsToTestToExpString")
+    public void testToExpString(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestToExpString() {
+        return new String[] {
+                "testToExpStringWithPositiveFloat",
+                "testToExpStringWithNegativeFloat",
+                "testToExpStringWithInfinity",
+                "testToExpStringWithNaN",
+                "testToExpStringWhenFractionDigitsIsLessThanZero",
+                "testToExpStringWhenFractionDigitsIsZero",
+                "testToExpStringWhenFractionDigitsIsNil",
+                "testToExpStringWhenFractionDigitsIsVeryLargeInt",
+                "testToExpStringWhenFractionDigitsIsIntMax",
+                "testToExpStringWithMorePositiveFloats",
+                "testToExpStringWithVerySmallAndLargePositiveFloats",
+                "testToExpStringWithMoreNegativeFloats",
+                "testToExpStringWithVerySmallAndLargeNegativeFloats",
+                "testToExpStringWithHexaDecimalFloatingPoints"
+        };
+    }
+
+    @Test
+    public void testRound() {
+        BRunUtil.invoke(compileResult, "testRound");
+    }
 }

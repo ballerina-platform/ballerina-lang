@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -56,6 +57,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -173,11 +175,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Optional<NonTerminalNode> enclosingNode = findEnclosingModulePartNode(fnCallExprNode.get());
         Range insertRange;
         if (enclosingNode.isPresent()) {
-            LineRange endLineRange = enclosingNode.get().lineRange();
-            newLineAtEnd = false;
-            insertRange = new Range(new Position(endLineRange.endLine().line(), endLineRange.endLine().offset()),
-                    new Position(endLineRange.endLine().line(), endLineRange.endLine().offset()));
-
+            newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
+            insertRange = CommonUtil.toRange(enclosingNode.get().lineRange().endLine());
         } else {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }
@@ -195,10 +194,10 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         // on that, we need to use separate APIs.
         String function;
         if (returnTypeSymbol.isPresent()) {
-            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+            function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
                     args, returnTypeSymbol.get(), isIsolated);
         } else if (returnTypeDescKind.isPresent()) {
-            function = FunctionGenerator.generateFunction(docServiceContext, !newLineAtEnd, functionName,
+            function = FunctionGenerator.generateFunction(docServiceContext, newLineAtEnd, functionName,
                     args, returnTypeDescKind.get(), isIsolated);
         } else {
             return Collections.emptyList();
@@ -226,5 +225,15 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             reference = reference.parent();
         }
         return Optional.empty();
+    }
+
+    private boolean addNewLineAtEnd(Node enclosingNode) {
+        Iterator<Node> iterator = enclosingNode.parent().children().iterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().lineRange().startLine().line() == enclosingNode.lineRange().endLine().line() + 1) {
+                return true;
+            }
+        }
+        return false;
     }
 }
