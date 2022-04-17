@@ -77,7 +77,7 @@ public class PackageUtils {
         buildOptionsBuilder
                 .setCodeCoverage(false)
                 .setExperimental(false)
-                .setOffline(true)
+                .setOffline(false)
                 .setSkipTests(true)
                 .setTestReport(false)
                 .setObservabilityIncluded(false)

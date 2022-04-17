@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.semver.checker.exceptions;
+package org.ballerinalang.semver.checker.exception;
 
 /**
  * Base class for all exceptions in the Ballerina server checker tool.

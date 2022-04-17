@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,10 @@ repositories {
     mavenCentral()
 }
 
-configurations {
-    dist {
-        transitive false
-    }
-    dependency {
-        transitive false
-    }
-    libs
-}
-
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
-    implementation "io.github.java-diff-utils:java-diff-utils:${project.javaDiffUtilsVersion}"
+    implementation project(':central-client')
     testCompile 'org.testng:testng'
 }
 

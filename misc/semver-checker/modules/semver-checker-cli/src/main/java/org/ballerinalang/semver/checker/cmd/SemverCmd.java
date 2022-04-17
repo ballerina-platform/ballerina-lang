@@ -20,7 +20,6 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.semver.checker.SemverChecker;
-import org.ballerinalang.semver.checker.exceptions.BallerinaSemverToolException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -68,18 +67,17 @@ public class SemverCmd implements BLauncherCmd {
         }
 
         try {
-            if (!argList.isEmpty()) {
+            if (argList != null && !argList.isEmpty()) {
                 this.projectPath = Paths.get(argList.get(0));
             }
 
             SemverChecker semverChecker = new SemverChecker(projectPath);
+            semverChecker.getSuggestedVersion();
         } catch (InvalidPathException e) {
-            throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool. ", e);
-        } catch (BallerinaSemverToolException e) {
-            throw LauncherUtils.createLauncherException("semver checker execution failed due to: " + e.getMessage());
+            throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool: ", e);
         } catch (Throwable t) {
-            throw LauncherUtils.createLauncherException("semver checker execution failed due to an unhandled exception",
-                    t);
+            throw LauncherUtils.createLauncherException("semver checker execution failed due to an unhandled " +
+                    "exception: ", t);
         }
     }
 

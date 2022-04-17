@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Module;
 import org.ballerinalang.semver.checker.diff.DiffExtractor;
@@ -66,7 +67,7 @@ public class ModuleComparator implements IComparator {
     private void extractModuleLevelDefinitions(Module module, boolean isNewModule) {
         module.documentIds().forEach(documentId -> {
             SyntaxTree documentST = module.document(documentId).syntaxTree();
-            if (documentST.containsModulePart()) {
+            if (documentST.rootNode() == null || (documentST.rootNode().kind() != SyntaxKind.MODULE_PART)) {
                 return;
             }
 
