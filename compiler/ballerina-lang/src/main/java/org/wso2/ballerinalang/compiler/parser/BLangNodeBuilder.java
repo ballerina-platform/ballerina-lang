@@ -174,6 +174,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
+import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
@@ -327,6 +328,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAct
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
@@ -1349,7 +1351,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
-        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode());
+        BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode(), true);
         bLangFiniteTypeNode.pos = simpleLiteral.pos;
         bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
         return bLangFiniteTypeNode;
@@ -1980,9 +1982,23 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         List<BLangExpression> argExprList = new ArrayList<>();
         BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
                 TreeBuilder.createListConstructorExpressionNode();
-        for (Node expr : listConstructorExprNode.expressions()) {
-            argExprList.add(createExpression(expr));
+
+        for (Node listMember : listConstructorExprNode.expressions()) {
+            BLangExpression memberExpr;
+            if (listMember.kind() == SyntaxKind.SPREAD_MEMBER) {
+                Node spreadMemberExpr = ((SpreadMemberNode) listMember).expression();
+                BLangExpression bLangExpr = createExpression(spreadMemberExpr);
+
+                BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+                spreadOpExpr.setExpression(bLangExpr);
+                spreadOpExpr.pos = getPosition(spreadMemberExpr);
+                memberExpr = spreadOpExpr;
+            } else {
+                memberExpr = createExpression(listMember);
+            }
+            argExprList.add(memberExpr);
         }
+
         listConstructorExpr.exprs = argExprList;
         listConstructorExpr.pos = getPosition(listConstructorExprNode);
         return listConstructorExpr;

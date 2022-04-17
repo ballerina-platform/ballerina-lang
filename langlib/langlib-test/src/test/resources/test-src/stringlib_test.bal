@@ -219,6 +219,363 @@ function concatNonBMP(string prefix, string expected) {
     assertEquals(expected, prefix + s);
 }
 
+const string constString1 = "abc";
+const string constString2 = "123";
+const string constString3 = "+1.21";
+const string constString4 = "-3.121";
+const string constString5 = " a a ";
+const string constString6 = "#";
+
+string & readonly roString1 = "--121";
+string & readonly roString2 = "+-121";
+
+string:Char char1 = "\u{0051}";
+string:Char char2 = "\u{002b}";
+
+string:Char & readonly roChar = "\u{002b}";
+
+function getString() returns string {
+    return "-987";
+}
+
+function getChar() returns string:Char {
+    return "-";
+}
+
+function testPadStart() {
+    string str = "123";
+    string y1 = str.padStart(0, " ");
+    assertEquals("123", y1);
+
+    string y2 = str.padStart(3);
+    assertEquals("123", y2);
+
+    string y3 = str.padStart(4);
+    assertEquals(" 123", y3);
+
+    string y4 = str.padStart(5, " ");
+    assertEquals("  123", y4);
+
+    string y5 = str.padStart(5);
+    assertEquals("  123", y5);
+
+    string y6 = str.padStart(30, "-");
+    assertEquals("---------------------------123", y6);
+
+    string y7 = constString1.padStart(5, <string:Char> constString6);
+    assertEquals("##abc", y7);
+
+    string y8 = constString4.padStart(10);
+    assertEquals("    -3.121", y8);
+
+    string y9 = roString1.padStart(6, "0");
+    assertEquals("0--121", y9);
+
+    string y10 = char1.padStart(5, char2);
+    assertEquals("++++Q", y10);
+
+    string y11 = getString().padStart(5, getChar());
+    assertEquals("--987", y11);
+
+    string y12 = getChar().padStart(5, getChar());
+    assertEquals("-----", y12);
+
+    string y13 = roChar.padStart(5, roChar);
+    assertEquals("+++++", y13);
+
+    string y14 = roChar.padStart(5);
+    assertEquals("    +", y14);
+
+    string y15 = getString().padStart(5);
+    assertEquals(" -987", y15);
+
+    string y16 = getChar().padStart(5);
+    assertEquals("    -", y16);
+
+    string y17 = "\u{0043}\u{00f3}".padStart(30, "\u{0048}");
+    assertEquals("HHHHHHHHHHHHHHHHHHHHHHHHHHHHCó", y17);
+
+    string y18 = "\u{00ee}".padStart(30, "\u{00c8}");
+    assertEquals("ÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈî", y18);
+
+    string y19 = "\u{00c3}".padStart(30);
+    assertEquals("                             Ã", y19);
+
+    string y20 = "ලලල".padStart(6, "ස");
+    assertEquals("සසසලලල", y20);
+
+    string y21 = "සිංහල".padStart(30);
+    assertEquals("                         සිංහල", y21);
+
+    string y27 = constString3.padStart(0xa);
+    assertEquals("     +1.21", y27);
+
+    string y28 = constString3.padStart(0x1a);
+    assertEquals("                     +1.21", y28);
+
+    string y29 = constString3.padStart(-0xaaffa);
+    assertEquals("+1.21", y29);
+
+    string y30 = constString3.padStart(-1213);
+    assertEquals("+1.21", y30);
+
+    int:Signed32 i1 = 6;
+    string y31 = roString2.padStart(i1, "0");
+    assertEquals("0+-121", y31);
+
+    int:Unsigned32 i2 = 6;
+    string y32 = roString2.padStart(i2, "0");
+    assertEquals("0+-121", y32);
+
+    byte i3 = 6;
+    string y33 = "+ABC".padStart(i3, "0");
+    assertEquals("00+ABC", y33);
+
+    int:Signed8 i4 = 6;
+    string y34 = " +ABC".padStart(i4);
+    assertEquals("  +ABC", y34);
+
+    int:Unsigned8 i5 = 6;
+    string y35 = " -ABC".padStart(i5);
+    assertEquals("  -ABC", y35);
+
+    string y36 = "".padStart(-3);
+    assertEquals("", y36);
+
+    string y37 = "".padStart(0);
+    assertEquals("", y37);
+
+    string y38 = "".padStart(3);
+    assertEquals("   ", y38);
+}
+
+function testPadEnd() {
+    string str = "123";
+    string y1 = str.padEnd(0, " ");
+    assertEquals("123", y1);
+
+    string y2 = str.padEnd(3);
+    assertEquals("123", y2);
+
+    string y3 = str.padEnd(4);
+    assertEquals("123 ", y3);
+
+    string y4 = str.padEnd(5, " ");
+    assertEquals("123  ", y4);
+
+    string y5 = str.padEnd(5);
+    assertEquals("123  ", y5);
+
+    string y6 = str.padEnd(30, "-");
+    assertEquals("123---------------------------", y6);
+
+    string y7 = constString2.padEnd(5, <string:Char> constString6);
+    assertEquals("123##", y7);
+
+    string y8 = constString3.padEnd(10);
+    assertEquals("+1.21     ", y8);
+
+    string y9 = roString2.padEnd(6, "0");
+    assertEquals("+-1210", y9);
+
+    string y10 = char1.padEnd(5, char2);
+    assertEquals("Q++++", y10);
+
+    string y11 = getString().padEnd(5, getChar());
+    assertEquals("-987-", y11);
+
+    string y12 = getChar().padEnd(5, getChar());
+    assertEquals("-----", y12);
+
+    string y13 = roChar.padEnd(5, roChar);
+    assertEquals("+++++", y13);
+
+    string y14 = roChar.padEnd(5);
+    assertEquals("+    ", y14);
+
+    string y15 = getString().padEnd(5);
+    assertEquals("-987 ", y15);
+
+    string y16 = getChar().padEnd(5);
+    assertEquals("-    ", y16);
+
+    string y17 = "\u{0043}\u{00f3}".padEnd(30, "\u{0048}");
+    assertEquals("CóHHHHHHHHHHHHHHHHHHHHHHHHHHHH", y17);
+
+    string y18 = "\u{00ee}".padEnd(30, "\u{00c8}");
+    assertEquals("îÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈ", y18);
+
+    string y19 = "\u{00c3}".padEnd(30);
+    assertEquals("Ã                             ", y19);
+
+    string y20 = "සිංහල".padEnd(30, "ල");
+    assertEquals("සිංහලලලලලලලලලලලලලලලලලලලලලලලලලල", y20);
+
+    string y21 = "සිංහල".padEnd(30);
+    assertEquals("සිංහල                         ", y21);
+
+    string y27 = constString3.padEnd(0xa);
+    assertEquals("+1.21     ", y27);
+
+    string y28 = constString3.padEnd(0x1a);
+    assertEquals("+1.21                     ", y28);
+
+    string y29 = constString3.padEnd(-0xaaffa);
+    assertEquals("+1.21", y29);
+
+    string y30 = constString3.padEnd(-1213);
+    assertEquals("+1.21", y30);
+
+    int:Signed32 i1 = 6;
+    string y31 = roString2.padEnd(i1, "0");
+    assertEquals("+-1210", y31);
+
+    int:Unsigned32 i2 = 6;
+    string y32 = roString2.padEnd(i2, "0");
+    assertEquals("+-1210", y32);
+
+    byte i3 = 6;
+    string y33 = "+ABC".padEnd(i3, "0");
+    assertEquals("+ABC00", y33);
+
+    int:Signed8 i4 = 6;
+    string y34 = " +ABC".padEnd(i4);
+    assertEquals(" +ABC ", y34);
+
+    int:Unsigned8 i5 = 6;
+    string y35 = " -ABC".padEnd(i5);
+    assertEquals(" -ABC ", y35);
+
+    string y36 = "".padEnd(-3);
+    assertEquals("", y36);
+
+    string y37 = "".padEnd(0);
+    assertEquals("", y37);
+
+    string y38 = "".padEnd(3);
+    assertEquals("   ", y38);
+}
+
+function testPadZero() {
+    string str = "123";
+    string y1 = str.padZero(0, " ");
+    assertEquals("123", y1);
+
+    string y2 = str.padZero(3);
+    assertEquals("123", y2);
+
+    string y3 = str.padZero(4);
+    assertEquals("0123", y3);
+
+    string y4 = str.padZero(5, " ");
+    assertEquals("  123", y4);
+
+    string y5 = str.padZero(5);
+    assertEquals("00123", y5);
+
+    string str2 = "+123";
+    string str3 = "--123";
+    string y6 = str2.padZero(5);
+    assertEquals("+0123", y6);
+    string y7 = str3.padZero(6);
+    assertEquals("-0-123", y7);
+    string y8 = str2.padZero(5, " ");
+    assertEquals("+ 123", y8);
+    string y9 = str3.padZero(6, "+");
+    assertEquals("-+-123", y9);
+    string y10 = str2.padZero(5);
+    assertEquals("+0123", y10);
+
+    string y11 = "-123".padZero(30, "+");
+    assertEquals("-++++++++++++++++++++++++++123", y11);
+
+    string y12 = constString2.padZero(5, <string:Char> constString6);
+    assertEquals("##123", y12);
+
+    string y13 = constString3.padZero(10);
+    assertEquals("+000001.21", y13);
+
+    string y14 = roString2.padZero(6, "0");
+    assertEquals("+0-121", y14);
+
+    string y15 = char1.padZero(5, char2);
+    assertEquals("++++Q", y15);
+
+    string y16 = getString().padZero(5, getChar());
+    assertEquals("--987", y16);
+
+    string y17 = getChar().padZero(5, getChar());
+    assertEquals("-----", y17);
+
+    string y18 = roChar.padZero(5, roChar);
+    assertEquals("+++++", y18);
+
+    string y19 = roChar.padZero(5);
+    assertEquals("+0000", y19);
+
+    string y20 = getString().padZero(5);
+    assertEquals("-0987", y20);
+
+    string y21 = getChar().padZero(5);
+    assertEquals("-0000", y21);
+
+    string y22 = "\u{0043}\u{00f3}".padZero(30, "\u{0048}");
+    assertEquals("HHHHHHHHHHHHHHHHHHHHHHHHHHHHCó", y22);
+
+    string y23 = "\u{00ee}".padZero(30, "\u{00c8}");
+    assertEquals("ÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈÈî", y23);
+
+    string y24 = "\u{00c3}".padZero(30);
+    assertEquals("00000000000000000000000000000Ã", y24);
+
+    string y25 = "සිංහල".padZero(30, "ල");
+    assertEquals("ලලලලලලලලලලලලලලලලලලලලලලලලලසිංහල", y25);
+
+    string y26 = "සිංහල".padZero(30);
+    assertEquals("0000000000000000000000000සිංහල", y26);
+
+    string y27 = constString3.padZero(0xa);
+    assertEquals("+000001.21", y27);
+
+    string y28 = constString3.padZero(0x1a);
+    assertEquals("+0000000000000000000001.21", y28);
+
+    string y29 = constString3.padZero(-0xaaffa);
+    assertEquals("+1.21", y29);
+
+    string y30 = constString3.padZero(-1213);
+    assertEquals("+1.21", y30);
+
+    int:Signed32 i1 = 6;
+    string y31 = roString2.padZero(i1, "0");
+    assertEquals("+0-121", y31);
+
+    int:Unsigned32 i2 = 6;
+    string y32 = roString2.padZero(i2, "0");
+    assertEquals("+0-121", y32);
+
+    byte i3 = 6;
+    string y33 = "+ABC".padZero(i3, "0");
+    assertEquals("+00ABC", y33);
+
+    int:Signed8 i4 = 6;
+    string y34 = " +ABC".padZero(i4);
+    assertEquals("0 +ABC", y34);
+
+    int:Unsigned8 i5 = 6;
+    string y35 = " -ABC".padZero(i5);
+    assertEquals("0 -ABC", y35);
+
+    string y36 = "".padZero(-3);
+    assertEquals("", y36);
+
+    string y37 = "".padZero(0);
+    assertEquals("", y37);
+
+    string y38 = "".padZero(3);
+    assertEquals("000", y38);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {

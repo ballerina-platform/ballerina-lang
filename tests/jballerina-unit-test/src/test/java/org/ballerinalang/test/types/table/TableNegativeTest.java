@@ -127,4 +127,38 @@ public class TableNegativeTest {
         validateError(compileResult, index, "incompatible types: expected 'int'," +
                 " found 'table<record {| (0|1|2|3) a; |}>'", 324, 13);
     }
+
+    @Test
+    public void testTableKeyViolations() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table_key_violations.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        int index = 0;
+
+        validateError(compileResult, index++, "duplicate key found in table row key('id') : '13'",
+                9, 9);
+        validateError(compileResult, index++, "duplicate key found in table row key('id, firstName') : '13, Foo'",
+                15, 9);
+        validateError(compileResult, index++, "duplicate key found in table row key('id') "
+                        + ": 'BLangXMLElementLiteral: <BLangXMLQName: () id> </BLangXMLQName: () id> [][123]'",
+                45, 9);
+        validateError(compileResult, index++, "duplicate key found in table row key('id') : " +
+                        "'BLangXMLElementLiteral: <BLangXMLQName: (p) id> </BLangXMLQName: (p) id> " +
+                        "[BLangXMLAttribute: BLangXMLQName: (xmlns) p=BLangXMLQuotedString: (DOUBLE_QUOTE) " +
+                        "[http://sample.com/wso2/e]][BLangXMLProcInsLiteral: [data], BLangXMLCommentLiteral: " +
+                        "[Contents], BLangXMLElementLiteral: <BLangXMLQName: (p) empId> " +
+                        "</BLangXMLQName: (p) empId> [][5005]]'",
+                54, 9);
+        validateError(compileResult, index++, "duplicate key found in table row key('firstName') : '<string> " +
+                        "(name is string && ! invalid?(BLangStringTemplateLiteral: [Hello , name, !!!]):James)'",
+                64, 9);
+        validateError(compileResult, index++, "duplicate key found in table row key('id') : '[5005, 5006]'",
+                76, 5);
+        validateError(compileResult, index++, "duplicate key found in table row key('id') : ' '",
+                102, 9);
+        validateError(compileResult, index++, "duplicate key found in table row key('id') : " +
+                        "'<(byte[] & readonly)> (base16 `5A`)'",
+                128, 9);
+        validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
+                136, 9);
+    }
 }

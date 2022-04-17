@@ -1,0 +1,11 @@
+digraph "example1" {
+    "asmaj/app:0.1.0" -> "asmaj/foo:0.7.0"
+    "asmaj/app:0.1.0" -> "ballerina/io:1.0.2"
+    "asmaj/app:0.1.0" -> "asmaj/bar:1.2.4"
+    "asmaj/bar:1.2.4" -> "asmaj/foo:0.7.0"
+    "asmaj/bar:1.2.4" -> "samjs/p:1.3.4"
+    "asmaj/bar:1.2.4" -> "samjs/q:1.4.4"
+
+    // Errors
+    "asmaj/foo:0.7.0" [error = true]
+}

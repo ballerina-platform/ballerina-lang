@@ -129,6 +129,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
@@ -549,7 +550,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (expectedType.tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(expectedType.tag)) {
             return getIntLiteralType(expType, literalValue);
         } else if (expectedType.tag == TypeTags.FLOAT) {
-            literalExpr.value = ((Long) literalValue).doubleValue();
+            if (literalValue instanceof Long) {
+                literalExpr.value = ((Long) literalValue).doubleValue();
+            }
             return symTable.floatType;
         } else if (expectedType.tag == TypeTags.DECIMAL) {
             literalExpr.value = String.valueOf(literalValue);
@@ -1647,20 +1650,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return checkReadOnlyListType(listConstructor, data);
             case TypeTags.TYPEDESC:
                 // i.e typedesc t = [int, string]
-                List<BType> results = new ArrayList<>();
                 listConstructor.isTypedescExpr = true;
-                for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                    results.add(checkExpr(listConstructor.exprs.get(i), symTable.noType, data));
-                }
                 List<BType> actualTypes = new ArrayList<>();
-                for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                    final BLangExpression expr = listConstructor.exprs.get(i);
+                for (BLangExpression expr : listConstructor.exprs) {
+                    if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                        BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+                        BType spreadOpExprType = checkExpr(spreadOpExpr, symTable.noType, data);
+                        actualTypes.addAll(getListConstSpreadOpMemberTypes(expr.pos, spreadOpExprType));
+                        continue;
+                    }
+
+                    BType resultType = checkExpr(expr, symTable.noType, data);
                     if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
                         actualTypes.add(((BLangTypedescExpr) expr).resolvedType);
                     } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                         actualTypes.add(((BLangSimpleVarRef) expr).symbol.type);
                     } else {
-                        actualTypes.add(results.get(i));
+                        actualTypes.add(resultType);
                     }
                 }
                 if (actualTypes.size() == 1) {
@@ -1686,6 +1692,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         return symTable.semanticError;
+    }
+
+    private List<BType> getListConstSpreadOpMemberTypes(Location spreadMemberPos, BType spreadOpExprType) {
+        spreadOpExprType = Types.getReferredType(spreadOpExprType);
+
+        List<BType> memTypes = new ArrayList<>();
+        if (spreadOpExprType.tag == TypeTags.TUPLE && types.isFixedLengthTuple((BTupleType) spreadOpExprType)) {
+            memTypes.addAll(((BTupleType) spreadOpExprType).tupleTypes);
+        } else if (spreadOpExprType.tag == TypeTags.ARRAY &&
+                ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
+            BArrayType bArrayType = (BArrayType) spreadOpExprType;
+            for (int i = 0; i < bArrayType.size; i++) {
+                memTypes.add(bArrayType.eType);
+            }
+        } else {
+            dlog.error(spreadMemberPos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
+            memTypes.add(symTable.semanticError);
+        }
+
+        return memTypes;
     }
 
     private BType getListConstructorCompatibleNonUnionType(BType type, AnalyzerData data) {
@@ -1716,30 +1742,98 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkArrayType(BLangListConstructorExpr listConstructor, BArrayType arrayType, AnalyzerData data) {
+        int listExprSize = 0;
+        if (arrayType.state != BArrayState.OPEN) {
+            for (BLangExpression expr : listConstructor.exprs) {
+                if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                    listExprSize++;
+                    continue;
+                }
+
+                BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+                BType spreadOpType = checkExpr(spreadOpExpr, data);
+                spreadOpType = Types.getReferredType(spreadOpType);
+
+                switch (spreadOpType.tag) {
+                    case TypeTags.ARRAY:
+                        int arraySize = ((BArrayType) spreadOpType).size;
+                        if (arraySize >= 0) {
+                            listExprSize += arraySize;
+                            continue;
+                        }
+
+                        dlog.error(spreadOpExpr.pos,
+                                DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED);
+                        return symTable.semanticError;
+                    case TypeTags.TUPLE:
+                        BTupleType tType = (BTupleType) spreadOpType;
+                        if (types.isFixedLengthTuple(tType)) {
+                            listExprSize += tType.tupleTypes.size();
+                            continue;
+                        }
+
+                        dlog.error(spreadOpExpr.pos,
+                                DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED);
+                        return symTable.semanticError;
+                }
+            }
+        }
+
         BType eType = arrayType.eType;
 
         if (arrayType.state == BArrayState.INFERRED) {
-            arrayType.size = listConstructor.exprs.size();
+            arrayType.size = listExprSize;
             arrayType.state = BArrayState.CLOSED;
-        } else if ((arrayType.state != BArrayState.OPEN) && (arrayType.size != listConstructor.exprs.size())) {
-            if (arrayType.size < listConstructor.exprs.size()) {
-                dlog.error(listConstructor.pos,
-                        DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
-                        listConstructor.exprs.size());
+        } else if (arrayType.state != BArrayState.OPEN && arrayType.size != listExprSize) {
+            if (arrayType.size < listExprSize) {
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size,
+                        listExprSize);
                 return symTable.semanticError;
             }
 
             if (!types.hasFillerValue(eType)) {
-                dlog.error(listConstructor.pos,
-                        DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE, data.expType);
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE,
+                        data.expType);
                 return symTable.semanticError;
             }
         }
 
         boolean errored = false;
         for (BLangExpression expr : listConstructor.exprs) {
-            if (exprIncompatible(eType, expr, data) && !errored) {
-                errored = true;
+            if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                errored |= exprIncompatible(eType, expr, data);
+                continue;
+            }
+
+            BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+            BType spreadOpType = checkExpr(spreadOpExpr, data);
+            BType spreadOpReferredType = Types.getReferredType(spreadOpType);
+
+            switch (spreadOpReferredType.tag) {
+                case TypeTags.ARRAY:
+                    BType spreadOpeType = ((BArrayType) spreadOpReferredType).eType;
+                    if (types.typeIncompatible(spreadOpExpr.pos, spreadOpeType, eType)) {
+                        return symTable.semanticError;
+                    }
+                    break;
+                case TypeTags.TUPLE:
+                    BTupleType spreadOpTuple = (BTupleType) spreadOpReferredType;
+                    List<BType> tupleTypes = spreadOpTuple.tupleTypes;
+                    for (BType tupleMemberType : tupleTypes) {
+                        if (types.typeIncompatible(spreadOpExpr.pos, tupleMemberType, eType)) {
+                            return symTable.semanticError;
+                        }
+                    }
+
+                    if (!types.isFixedLengthTuple(spreadOpTuple)) {
+                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.restType, eType)) {
+                            return symTable.semanticError;
+                        }
+                    }
+                    break;
+                default:
+                    dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_LIST_SPREAD_OP, spreadOpType);
+                    return symTable.semanticError;
             }
         }
 
@@ -1749,40 +1843,166 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType checkTupleType(BLangListConstructorExpr listConstructor, BTupleType tupleType, AnalyzerData data) {
         List<BLangExpression> exprs = listConstructor.exprs;
         List<BType> memberTypes = tupleType.tupleTypes;
+        int memberTypeSize = memberTypes.size();
         BType restType = tupleType.restType;
 
-        int listExprSize = exprs.size();
-        int memberTypeSize = memberTypes.size();
+        if (types.isFixedLengthTuple(tupleType)) {
+            int listExprSize = 0;
+            for (BLangExpression expr : exprs) {
+                if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                    listExprSize++;
+                    continue;
+                }
 
-        if (listExprSize < memberTypeSize) {
-            for (int i = listExprSize; i < memberTypeSize; i++) {
-                if (!types.hasFillerValue(memberTypes.get(i))) {
-                    dlog.error(listConstructor.pos, DiagnosticErrorCode.SYNTAX_ERROR,
-                            "tuple and expression size does not match");
-                    return symTable.semanticError;
+                BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+                BType spreadOpType = checkExpr(spreadOpExpr, data);
+                spreadOpType = Types.getReferredType(spreadOpType);
+
+                switch (spreadOpType.tag) {
+                    case TypeTags.ARRAY:
+                        int arraySize = ((BArrayType) spreadOpType).size;
+                        if (arraySize >= 0) {
+                            listExprSize += arraySize;
+                            continue;
+                        }
+
+                        dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED);
+                        return symTable.semanticError;
+                    case TypeTags.TUPLE:
+                        BTupleType tType = (BTupleType) spreadOpType;
+                        if (types.isFixedLengthTuple(tType)) {
+                            listExprSize += tType.tupleTypes.size();
+                            continue;
+                        }
+
+                        dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED);
+                        return symTable.semanticError;
                 }
             }
-        } else if (listExprSize > memberTypeSize && restType == null) {
-            dlog.error(listConstructor.pos, DiagnosticErrorCode.SYNTAX_ERROR,
-                    "tuple and expression size does not match");
-            return symTable.semanticError;
+
+            if (listExprSize < memberTypeSize) {
+                for (int i = listExprSize; i < memberTypeSize; i++) {
+                    if (!types.hasFillerValue(memberTypes.get(i))) {
+                        dlog.error(listConstructor.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE,
+                                memberTypes.get(i));
+                        return symTable.semanticError;
+                    }
+                }
+            } else if (listExprSize > memberTypeSize) {
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.TUPLE_AND_EXPRESSION_SIZE_DOES_NOT_MATCH);
+                return symTable.semanticError;
+            }
         }
 
         boolean errored = false;
+        int nonRestTypeIndex = 0;
 
-        int nonRestCountToCheck = listExprSize < memberTypeSize ? listExprSize : memberTypeSize;
+        for (BLangExpression expr : exprs) {
+            int remainNonRestCount = memberTypeSize - nonRestTypeIndex;
 
-        for (int i = 0; i < nonRestCountToCheck; i++) {
-            if (exprIncompatible(memberTypes.get(i), exprs.get(i), data) && !errored) {
-                errored = true;
+            if (expr.getKind() != NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                if (remainNonRestCount > 0) {
+                    errored |= exprIncompatible(memberTypes.get(nonRestTypeIndex), expr, data);
+                    nonRestTypeIndex++;
+                } else {
+                    errored |= exprIncompatible(restType, expr, data);
+                }
+                continue;
+            }
+
+            BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+            BType spreadOpType = checkExpr(spreadOpExpr, data);
+            BType spreadOpReferredType = Types.getReferredType(spreadOpType);
+
+            switch (spreadOpReferredType.tag) {
+                case TypeTags.ARRAY:
+                    BArrayType spreadOpArray = (BArrayType) spreadOpReferredType;
+                    if (spreadOpArray.state == BArrayState.CLOSED) {
+                        for (int i = 0; i < spreadOpArray.size && nonRestTypeIndex < memberTypeSize;
+                             i++, nonRestTypeIndex++) {
+                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpArray.eType,
+                                    memberTypes.get(nonRestTypeIndex))) {
+                                return symTable.semanticError;
+                            }
+                        }
+
+                        if (remainNonRestCount < spreadOpArray.size) {
+                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpArray.eType, restType)) {
+                                return symTable.semanticError;
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (remainNonRestCount > 0) {
+                        dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_MEMBER_EXPECTED,
+                                memberTypes.get(nonRestTypeIndex));
+                        return symTable.semanticError;
+                    }
+
+                    if (types.typeIncompatible(spreadOpExpr.pos, spreadOpArray.eType, restType)) {
+                        return symTable.semanticError;
+                    }
+                    break;
+                case TypeTags.TUPLE:
+                    BTupleType spreadOpTuple = (BTupleType) spreadOpReferredType;
+                    int spreadOpMemberTypeSize = spreadOpTuple.tupleTypes.size();
+
+                    if (types.isFixedLengthTuple(spreadOpTuple)) {
+                        for (int i = 0; i < spreadOpMemberTypeSize && nonRestTypeIndex < memberTypeSize;
+                             i++, nonRestTypeIndex++) {
+                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.tupleTypes.get(i),
+                                    memberTypes.get(nonRestTypeIndex))) {
+                                return symTable.semanticError;
+                            }
+                        }
+
+                        for (int i = remainNonRestCount; i < spreadOpMemberTypeSize; i++) {
+                            if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.tupleTypes.get(i), restType)) {
+                                return symTable.semanticError;
+                            }
+                        }
+                        continue;
+                    }
+
+                    if (spreadOpMemberTypeSize < remainNonRestCount) {
+                        dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_MEMBER_EXPECTED,
+                                memberTypes.get(nonRestTypeIndex + spreadOpMemberTypeSize));
+                        return symTable.semanticError;
+                    }
+
+                    for (int i = 0; nonRestTypeIndex < memberTypeSize; i++, nonRestTypeIndex++) {
+                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.tupleTypes.get(i),
+                                memberTypes.get(nonRestTypeIndex))) {
+                            return symTable.semanticError;
+                        }
+                    }
+
+                    for (int i = nonRestTypeIndex; i < spreadOpMemberTypeSize; i++) {
+                        if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.tupleTypes.get(i), restType)) {
+                            return symTable.semanticError;
+                        }
+                    }
+
+                    if (types.typeIncompatible(spreadOpExpr.pos, spreadOpTuple.restType, restType)) {
+                        return symTable.semanticError;
+                    }
+                    break;
+                default:
+                    dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES_LIST_SPREAD_OP, spreadOpType);
+                    return symTable.semanticError;
             }
         }
 
-        for (int i = nonRestCountToCheck; i < exprs.size(); i++) {
-            if (exprIncompatible(restType, exprs.get(i), data) && !errored) {
-                errored = true;
+        while (nonRestTypeIndex < memberTypeSize) {
+            if (!types.hasFillerValue(memberTypes.get(nonRestTypeIndex))) {
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE,
+                        memberTypes.get(nonRestTypeIndex));
+                return symTable.semanticError;
             }
+            nonRestTypeIndex++;
         }
+
         return errored ? symTable.semanticError : tupleType;
     }
 
@@ -1797,6 +2017,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         for (BLangExpression expr : listConstructor.exprs) {
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                expr = ((BLangListConstructorSpreadOpExpr) expr).expr;
+            }
+
             if (exprIncompatible(symTable.readonlyType, expr, data)) {
                 return symTable.semanticError;
             }
@@ -1831,6 +2055,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.env = env;
         data.expType = expType;
         for (BLangExpression e : exprs) {
+            if (e.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
+                BType spreadOpExprType = checkExpr(spreadOpExpr, expType, data);
+                types.addAll(getListConstSpreadOpMemberTypes(e.pos, spreadOpExprType));
+                continue;
+            }
+
             checkExpr(e, expType, data);
             types.add(data.resultType);
         }
@@ -4367,8 +4598,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return;
         }
 
-        checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr, data);
-
         SymbolEnv rhsExprEnv;
         BType lhsType;
         BType referredExpType = Types.getReferredType(binaryExpr.expectedType);
@@ -4442,8 +4671,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     if (opSymbol == symTable.notFoundSymbol) {
-                        dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
-                                lhsType, rhsType);
+                        DiagnosticErrorCode errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES;
+
+                        if ((binaryExpr.opKind == OperatorKind.DIV || binaryExpr.opKind == OperatorKind.MOD) &&
+                                lhsType.tag == TypeTags.INT &&
+                                (rhsType.tag == TypeTags.DECIMAL || rhsType.tag == TypeTags.FLOAT)) {
+                            errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
+                        }
+
+                        dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
                     } else {
                         binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                         actualType = opSymbol.type.getReturnType();
@@ -4537,25 +4773,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             constituent = type;
         }
         return constituent;
-    }
-
-    private void checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(BLangBinaryExpr binaryExpr,
-                                                                               AnalyzerData data) {
-        if (data.expType.tag != TypeTags.DECIMAL) {
-            return;
-        }
-
-        switch (binaryExpr.opKind) {
-            case ADD:
-            case SUB:
-            case MUL:
-            case DIV:
-                checkExpr(binaryExpr.lhsExpr, data.expType, data);
-                checkExpr(binaryExpr.rhsExpr, data.expType, data);
-                break;
-            default:
-                break;
-        }
     }
 
     public void visit(BLangElvisExpr elvisExpr, AnalyzerData data) {
@@ -6751,7 +6968,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         restType = data.resultType;
                     }
                 }
-            } else {
+            } else if (listTypeRestArg.tag == TypeTags.TUPLE) {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
                 List<BType> tupleMemberTypes = tupleType.tupleTypes;
                 BType tupleRestType = tupleType.restType;
@@ -6766,6 +6983,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         restType = data.resultType;
                     }
                 }
+            } else {
+                for (BLangExpression restArg : iExpr.restArgs) {
+                    checkExpr(restArg, symTable.semanticError, data);
+                }
+                data.resultType = symTable.semanticError;
             }
         }
 
@@ -7918,8 +8140,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             actualType = checkMappingIndexBasedAccess(indexBasedAccessExpr, varRefType, data);
 
             if (actualType == symTable.semanticError) {
-                if (Types.getReferredType(indexExpr.getBType()).tag == TypeTags.STRING
-                        && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     String fieldName = getConstFieldName(indexExpr);
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD,
                             fieldName, indexBasedAccessExpr.expr.getBType());
@@ -7944,7 +8165,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             indexBasedAccessExpr.originalType = actualType;
 
             if (actualType == symTable.semanticError) {
-                if (indexExpr.getBType().tag == TypeTags.INT && isConstExpr(indexExpr)) {
+                if (isConstExpr(indexExpr)) {
                     dlog.error(indexBasedAccessExpr.indexExpr.pos,
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
                     return actualType;
@@ -8085,16 +8306,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType checkArrayIndexBasedAccess(BLangIndexBasedAccess indexBasedAccess, BType indexExprType,
                                              BArrayType arrayType) {
         BType actualType = symTable.semanticError;
-        switch (indexExprType.tag) {
-            case TypeTags.INT:
-                BLangExpression indexExpr = indexBasedAccess.indexExpr;
-                if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
-                    actualType = arrayType.eType;
-                    break;
-                }
-                Long indexVal = getConstIndex(indexExpr);
-                actualType = indexVal >= arrayType.size || indexVal < 0 ? symTable.semanticError : arrayType.eType;
-                break;
+
+        int tag = indexExprType.tag;
+
+        if (tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(tag)) {
+            BLangExpression indexExpr = indexBasedAccess.indexExpr;
+            if (!isConstExpr(indexExpr) || arrayType.state == BArrayState.OPEN) {
+                return arrayType.eType;
+            }
+            Long indexVal = getConstIndex(indexExpr);
+            return indexVal >= arrayType.size || indexVal < 0 ? symTable.semanticError : arrayType.eType;
+        }
+
+        switch (tag) {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) indexExprType;
                 boolean validIndexExists = false;
@@ -8174,17 +8398,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType checkTupleIndexBasedAccess(BLangIndexBasedAccess accessExpr, BTupleType tuple, BType currentType) {
         BType actualType = symTable.semanticError;
         BLangExpression indexExpr = accessExpr.indexExpr;
-        switch (currentType.tag) {
-            case TypeTags.INT:
-                if (isConstExpr(indexExpr)) {
-                    actualType = checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
-                } else {
-                    BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
-                    LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
-                    actualType = tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null,
-                                                                                                           tupleTypes);
-                }
-                break;
+
+        int tag = currentType.tag;
+
+        if (tag == TypeTags.BYTE || TypeTags.isIntegerTypeTag(tag)) {
+            if (isConstExpr(indexExpr)) {
+                return checkTupleFieldType(tuple, getConstIndex(indexExpr).intValue());
+            }
+
+            BTupleType tupleExpr = (BTupleType) accessExpr.expr.getBType();
+            LinkedHashSet<BType> tupleTypes = collectTupleFieldTypes(tupleExpr, new LinkedHashSet<>());
+            return tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
+        }
+
+        switch (tag) {
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) currentType;
                 LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
@@ -8306,6 +8533,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BLangExpression indexExpr = accessExpr.indexExpr;
         switch (currentType.tag) {
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
                 if (isConstExpr(indexExpr)) {
                     String fieldName = Utils.escapeSpecialCharacters(getConstFieldName(indexExpr));
                     actualType = checkRecordRequiredFieldAccess(accessExpr, names.fromString(fieldName), record, data);

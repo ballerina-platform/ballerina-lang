@@ -18,18 +18,23 @@
 package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyManifest;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion.VersionCompatibilityResult;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,14 +48,17 @@ import static io.ballerina.projects.PackageVersion.BUILTIN_PACKAGE_VERSION;
  */
 public class BlendedManifest {
     private final PackageContainer<Dependency> depContainer;
+    private final DiagnosticResult diagnosticResult;
 
-    private BlendedManifest(PackageContainer<Dependency> pkgContainer) {
+    private BlendedManifest(PackageContainer<Dependency> pkgContainer, DiagnosticResult diagnosticResult) {
         this.depContainer = pkgContainer;
+        this.diagnosticResult = diagnosticResult;
     }
 
     public static BlendedManifest from(DependencyManifest dependencyManifest,
                                        PackageManifest packageManifest,
                                        AbstractPackageRepository localPackageRepository) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
         PackageContainer<Dependency> depContainer = new PackageContainer<>();
         for (DependencyManifest.Package pkgInDepManifest : dependencyManifest.packages()) {
             PackageOrg pkgOrg = pkgInDepManifest.org();
@@ -75,6 +83,15 @@ public class BlendedManifest {
                 }
                 if (!localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
                         depInPkgManifest.version())) {
+                    var diagnosticInfo = new DiagnosticInfo(
+                            ProjectDiagnosticErrorCode.PACKAGE_NOT_FOUND.diagnosticId(),
+                            "Dependency version (" + depInPkgManifest.version() +
+                                    ") cannot be found in the local repository. " +
+                                    "org: `" + depInPkgManifest.org() + "` name: " + depInPkgManifest.name() + "",
+                            DiagnosticSeverity.WARNING);
+                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                            diagnosticInfo, depInPkgManifest.location().orElseThrow());
+                    diagnostics.add(diagnostic);
                     continue;
                 }
             } else {
@@ -103,17 +120,25 @@ public class BlendedManifest {
                             moduleNames(depInPkgManifest, localPackageRepository), DependencyOrigin.USER_SPECIFIED);
                     depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
                 } else if (compatibilityResult == VersionCompatibilityResult.INCOMPATIBLE) {
-                    // TODO update with proper diagnostics
-                    // TODO report a diagnostic, skip this version and continue.
-                    throw new ProjectException("Dependency version (" + depInPkgManifest.version() + ") " +
-                            "specified in Ballerina.toml is incompatible with the " +
-                            "dependency version (" + existingDep.version + ") locked in Dependencies.toml. " +
-                            "org: `" + existingDep.org() + "` name: " + existingDep.name() + "");
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                            ProjectDiagnosticErrorCode.INCOMPATIBLE_DEPENDENCY_VERSIONS.diagnosticId(),
+                            "Dependency version (" + depInPkgManifest.version() + ") " +
+                                    "is incompatible with the version locked in Dependencies.toml ("
+                                    + existingDep.version + "). " +
+                                    "org: `" + existingDep.org() + "` name: " + existingDep.name() + "",
+                            DiagnosticSeverity.ERROR);
+                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                            diagnosticInfo, depInPkgManifest.location().orElseThrow());
+                    diagnostics.add(diagnostic);
+                    Dependency newDep = new Dependency(existingDep.org(), existingDep.name(),
+                            existingDep.version(), existingDep.relation, existingDep.repository,
+                            existingDep.modules, existingDep.origin, true);
+                    depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), newDep);
                 }
             }
         }
 
-        return new BlendedManifest(depContainer);
+        return new BlendedManifest(depContainer, new DefaultDiagnosticResult(diagnostics));
     }
 
     private static DependencyRelation getRelation(boolean isTransitive) {
@@ -175,6 +200,10 @@ public class BlendedManifest {
                 .collect(Collectors.toList());
     }
 
+    public DiagnosticResult diagnosticResult() {
+        return diagnosticResult;
+    }
+
     /**
      * Represents a local dependency package.
      *
@@ -188,6 +217,7 @@ public class BlendedManifest {
         private final Repository repository;
         private final Collection<String> modules;
         private final DependencyOrigin origin;
+        private final boolean isError;
 
 
         private Dependency(PackageOrg org,
@@ -203,6 +233,25 @@ public class BlendedManifest {
             this.relation = relation;
             this.modules = modules;
             this.origin = origin;
+            this.isError = false;
+        }
+
+        private Dependency(PackageOrg org,
+                           PackageName name,
+                           PackageVersion version,
+                           DependencyRelation relation,
+                           Repository repository,
+                           Collection<String> modules,
+                           DependencyOrigin origin,
+                           boolean isError) {
+            this.org = org;
+            this.name = name;
+            this.version = version;
+            this.repository = repository;
+            this.relation = relation;
+            this.modules = modules;
+            this.origin = origin;
+            this.isError = isError;
         }
 
         public PackageName name() {
@@ -235,6 +284,10 @@ public class BlendedManifest {
 
         public Collection<String> moduleNames() {
             return modules;
+        }
+
+        public boolean isError() {
+            return isError;
         }
     }
 
