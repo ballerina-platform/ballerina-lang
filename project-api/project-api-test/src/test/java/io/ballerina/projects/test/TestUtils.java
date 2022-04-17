@@ -21,6 +21,7 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
@@ -31,6 +32,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -179,5 +181,13 @@ public class TestUtils {
 
     public static boolean isWindows() {
         return (OS.contains("win"));
+    }
+
+    static void writeContent(Path filePath, String content) {
+        try {
+            Files.write(filePath, Collections.singleton(content));
+        } catch (IOException e) {
+            throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
+        }
     }
 }

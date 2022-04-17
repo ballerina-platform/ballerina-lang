@@ -531,10 +531,10 @@ public class CommandUtil {
         if (template.equalsIgnoreCase("lib")) {
             initLibPackage(path, packageName);
             Path source = path.resolve("lib.bal");
-            Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
+            Files.move(source, source.resolveSibling(guessPkgName(packageName, template) + ".bal"),
                     StandardCopyOption.REPLACE_EXISTING);
         } else {
-            initPackage(path);
+            initPackage(path, packageName);
         }
         createDefaultGitignore(path);
         createDefaultDevContainer(path);
@@ -632,13 +632,16 @@ public class CommandUtil {
      * @param path Project path
      * @throws IOException If any IO exception occurred
      */
-    public static void initPackage(Path path) throws IOException {
+    public static void initPackage(Path path, String packageName) throws IOException {
         Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createFile(ballerinaToml);
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         // replace manifest distribution with a guessed value
-        defaultManifest = defaultManifest.replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        defaultManifest = defaultManifest
+                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
+                .replaceAll(PKG_NAME, packageName)
+                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
