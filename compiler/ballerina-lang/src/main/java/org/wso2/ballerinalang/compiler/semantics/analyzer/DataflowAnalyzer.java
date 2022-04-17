@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -1452,7 +1453,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = invocationExpr.symbol;
         this.unusedLocalVariables.remove(symbol);
 
-        if (!isGlobalVarsInitialized(invocationExpr.pos)) {
+        if (symbol.owner == getEnclPkgSymbol(env) && !isGlobalVarsInitialized(invocationExpr.pos)) {
             return;
         }
         if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
@@ -2634,6 +2635,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         OperatorKind opKind = ((BLangBinaryExpr) collection).opKind;
         return opKind != OperatorKind.HALF_OPEN_RANGE && opKind != OperatorKind.CLOSED_RANGE;
+    }
+
+    private BPackageSymbol getEnclPkgSymbol(SymbolEnv env) {
+        BLangPackage enclPkg = env.enclPkg;
+
+        if (enclPkg != null) {
+            return enclPkg.symbol;
+        }
+
+        SymbolEnv enclEnv = env.enclEnv;
+        if (enclEnv == null) {
+            return null;
+        }
+
+        return getEnclPkgSymbol(enclEnv);
     }
 
     private enum InitStatus {
