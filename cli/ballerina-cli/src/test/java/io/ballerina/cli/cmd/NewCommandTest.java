@@ -229,9 +229,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Assert.assertTrue(readOutput().contains("package name is derived as '" + derivedPkgName + "'. " +
+        String buildOutput = readOutput().replaceAll("\r", "");
+        Assert.assertEquals(buildOutput, "package name is derived as '" + derivedPkgName + "'. " +
                 "Edit the Ballerina.toml to change it.\n\n" +
-                "Created new package '" + derivedPkgName + "' at " + projectName + ".\n"));
+                "Created new package '" + derivedPkgName + "' at " + projectName + ".\n");
     }
 
     @Test(description = "Test new command with invalid template")

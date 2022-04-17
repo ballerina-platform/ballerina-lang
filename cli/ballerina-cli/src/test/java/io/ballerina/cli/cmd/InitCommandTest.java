@@ -249,7 +249,7 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
 
-        String initLog = readOutput();
+        String initLog = readOutput().replaceAll("\r", "");
         Assert.assertEquals(initLog, "package name is derived as 'my_app'. " +
                 "Edit the Ballerina.toml to change it.\n\n" +
                 "Created new package 'my_app'.\n");
