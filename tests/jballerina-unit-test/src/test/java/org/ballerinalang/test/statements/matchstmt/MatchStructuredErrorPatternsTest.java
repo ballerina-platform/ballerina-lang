@@ -208,7 +208,6 @@ public class MatchStructuredErrorPatternsTest {
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 79, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 79, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'rest'", 79, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, unreachablePattern, 80, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'extra'", 80, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'reason'", 80, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'message'", 84, 9);

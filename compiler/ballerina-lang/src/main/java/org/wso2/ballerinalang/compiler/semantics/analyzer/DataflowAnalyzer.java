@@ -985,7 +985,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
-        listConstructorExpr.exprs.forEach(expr -> analyzeNode(expr, env));
+        for (BLangExpression expr : listConstructorExpr.exprs) {
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                expr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
+            }
+            analyzeNode(expr, env);
+        }
     }
 
     @Override

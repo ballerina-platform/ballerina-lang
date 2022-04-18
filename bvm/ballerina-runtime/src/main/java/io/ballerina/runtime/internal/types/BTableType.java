@@ -156,4 +156,9 @@ public class BTableType extends BType implements TableType {
     public void setIntersectionType(IntersectionType intersectionType) {
         this.intersectionType = intersectionType;
     }
+
+    @Override
+    public boolean isAnydata() {
+        return this.constraint.isAnydata();
+    }
 }

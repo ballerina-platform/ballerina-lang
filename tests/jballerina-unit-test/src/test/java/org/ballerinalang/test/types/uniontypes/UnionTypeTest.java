@@ -123,7 +123,7 @@ public class UnionTypeTest {
     @Test(description = "Test negative cases")
     public void testAmbiguousAssignment() {
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 7);
+        Assert.assertEquals(negativeResult.getErrorCount(), 8);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|ClosedFoo)'", 43, 30);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '" +
@@ -133,9 +133,11 @@ public class UnionTypeTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SomeTypes', found 'int'",
                 55, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(string:Char|int)', " +
-                "found 'string'", 56, 26);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'SomeTypes2', found 'string'",
+                        "found 'string'", 56, 26);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SomeTypes2', found 'string'",
                 57, 21);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected '(boolean|null)', found 'string'",
+                61, 22);
     }
 
     @Test(description = "Test nullable check")

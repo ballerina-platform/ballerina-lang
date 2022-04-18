@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
@@ -1308,6 +1309,14 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.exprs = cloneList(source.exprs);
         clone.isTypedescExpr = source.isTypedescExpr;
         clone.typedescType = source.typedescType;
+    }
+
+    @Override
+    public void visit(BLangListConstructorSpreadOpExpr source) {
+        BLangListConstructorSpreadOpExpr clone = new BLangListConstructorSpreadOpExpr();
+        source.cloneRef = clone;
+        clone.pos = source.pos;
+        clone.expr = clone(source.expr);
     }
 
     public void visit(BLangTableConstructorExpr source) {

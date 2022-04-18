@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.compiler.api.symbols.DiagnosticState;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BWorkerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -3271,6 +3273,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 } else {
                     boundVar.setBType(entryField.type);
                 }
+                errorDetailEntry.keySymbol = entryField.symbol;
             } else {
                 if (recordType.sealed) {
                     dlog.error(errorVariable.pos, DiagnosticErrorCode.INVALID_ERROR_BINDING_PATTERN,
@@ -4521,6 +4524,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, type,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             varSymbol.kind = SymbolKind.FUNCTION;
+        } else if (Symbols.isFlagOn(flags, Flags.WORKER)) {
+            varSymbol = new BWorkerSymbol(flags, varName, env.enclPkg.symbol.pkgID, type, env.scope.owner, location,
+                                          isInternal ? VIRTUAL : getOrigin(varName));
+            resolveAssociatedWorkerFunc((BWorkerSymbol) varSymbol, env);
         } else {
             varSymbol = new BVarSymbol(flags, varName, env.enclPkg.symbol.pkgID, type, env.scope.owner, location,
                                        isInternal ? VIRTUAL : getOrigin(varName));
@@ -4529,6 +4536,32 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         return varSymbol;
+    }
+
+    private void resolveAssociatedWorkerFunc(BWorkerSymbol worker, SymbolEnv env) {
+        LineRange workerVarPos = worker.pos.lineRange();
+
+        for (BLangLambdaFunction lambdaFn : env.enclPkg.lambdaFunctions) {
+            LineRange workerBodyPos = lambdaFn.function.pos.lineRange();
+            Location targetRangePos = env.node.pos;
+
+            // TODO: targetRangePos is null, because we create a block stmt to group the statement after a If block
+            //  without en else block. Its pos is not set. Setting the pos requires the exact positions of start
+            //  and end after the if block. When the pos is set we can remove this check
+            if (targetRangePos == null) {
+                targetRangePos = env.enclInvokable.pos;
+            }
+
+            if (worker.name.value.equals(lambdaFn.function.defaultWorkerName.value)
+                    && withinRange(workerVarPos, targetRangePos.lineRange())
+                    && withinRange(workerBodyPos, targetRangePos.lineRange())) {
+                worker.setAssociatedFuncSymbol(lambdaFn.function.symbol);
+                return;
+            }
+        }
+
+        throw new IllegalStateException(
+                "Matching function node not found for worker: " + worker.name.value + " at " + worker.pos);
     }
 
     private void defineObjectInitFunction(BLangObjectTypeNode object, SymbolEnv conEnv) {
@@ -5138,6 +5171,22 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
         return false;
+    }
+
+    private boolean withinRange(LineRange srcRange, LineRange targetRange) {
+        int startLine = srcRange.startLine().line();
+        int startOffset = srcRange.startLine().offset();
+        int endLine = srcRange.endLine().line();
+        int endOffset = srcRange.endLine().offset();
+
+        int enclStartLine = targetRange.startLine().line();
+        int enclEndLine = targetRange.endLine().line();
+        int enclStartOffset = targetRange.startLine().offset();
+        int enclEndOffset = targetRange.endLine().offset();
+
+        return targetRange.filePath().equals(srcRange.filePath())
+                && (startLine == enclStartLine && startOffset >= enclStartOffset || startLine > enclStartLine)
+                && (endLine == enclEndLine && endOffset <= enclEndOffset || endLine < enclEndLine);
     }
 
     /**

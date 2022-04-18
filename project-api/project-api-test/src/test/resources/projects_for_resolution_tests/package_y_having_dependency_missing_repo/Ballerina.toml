@@ -13,3 +13,9 @@ org="ccc"
 name="ddd"
 version="1.2.3"
 repository="local"
+
+[[dependency]]
+org="ccc"
+name="eee"
+version="1.2.0"
+repository="invalid"

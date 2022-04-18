@@ -61,10 +61,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -73,6 +76,7 @@ import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -111,6 +115,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -199,6 +204,16 @@ public class CommonUtil {
      */
     public static Range toRange(LineRange lineRange) {
         return new Range(toPosition(lineRange.startLine()), toPosition(lineRange.endLine()));
+    }
+
+    /**
+     * Convert the syntax-node line position into a lsp4j range.
+     *
+     * @param linePosition - line position.
+     * @return {@link Range} converted range
+     */
+    public static Range toRange(LinePosition linePosition) {
+        return new Range(toPosition(linePosition), toPosition(linePosition));
     }
 
     /**
@@ -1203,6 +1218,67 @@ public class CommonUtil {
     }
 
     /**
+     * Returns the file path.
+     *
+     * @param orgName    organization name
+     * @param moduleName module name
+     * @param project    ballerina project
+     * @param symbol     symbol
+     * @param context    service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
+                                                          Project project, Symbol symbol,
+                                                          DocumentServiceContext context) {
+        if (symbol.getLocation().isEmpty()) {
+            return Optional.empty();
+        }
+        Collection<ResolvedPackageDependency> dependencies =
+                project.currentPackage().getResolution().dependencyGraph().getNodes();
+        Optional<Path> filepath = Optional.empty();
+        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        for (ResolvedPackageDependency depNode : dependencies) {
+            Package depPackage = depNode.packageInstance();
+            for (ModuleId moduleId : depPackage.moduleIds()) {
+                if (depPackage.packageOrg().value().equals(orgName) &&
+                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
+                    Module module = depPackage.module(moduleId);
+                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
+                    documentIds.addAll(module.testDocumentIds());
+                    for (DocumentId docId : documentIds) {
+                        if (module.document(docId).name().equals(sourceFile)) {
+                            filepath =
+                                    module.project().documentPath(docId);
+                            break;
+                        }
+                    }
+                }
+                // Check for the cancellation after each of the module visit
+                context.checkCancelled();
+            }
+        }
+        return filepath;
+    }
+
+    /**
+     * Returns the file path.
+     *
+     * @param symbol    symbol
+     * @param project   ballerina project
+     * @param context   service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
+        if (symbol.getModule().isEmpty()) {
+            return Optional.empty();
+        }
+        ModuleID moduleID = symbol.getModule().get().id();
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return getFilePathForDependency(orgName, moduleName, project, symbol, context);
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -1308,10 +1384,10 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package instance to evaluate
+     * @param pkg {@link Package} package info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(Package pkg) {
+    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
         String orgName = "";
         if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
             orgName = pkg.packageOrg().value() + "/";
@@ -1327,7 +1403,8 @@ public class CommonUtil {
      * @param pkg     Package to be evaluated against
      * @return {@link Optional}
      */
-    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context, Package pkg) {
+    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
+                                                                         LSPackageLoader.PackageInfo pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
@@ -1912,8 +1989,8 @@ public class CommonUtil {
     }
 
     /**
-     * Check if a given offset is with in the range of a given node. 
-     * 
+     * Check if a given offset is with in the range of a given node.
+     *
      * @param node
      * @param offset
      * @return

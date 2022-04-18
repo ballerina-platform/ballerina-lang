@@ -661,7 +661,7 @@ function testUnreachabilityWithFailStmtInsideIf2() returns error? {
         string _ = "ballerina"; // unreachable code
     }
 
-    string _ = "ballerina"; // unreachable code
+    string _ = "ballerina";
 }
 
 function testUnreachableCodeAfterPanic() {
@@ -746,7 +746,7 @@ function testUnreachabilityWitContinueStmtInSideWhile() {
 function testUnreachabilityWitContinueStmtInSideWhile2() {
     while false {
         continue; // unreachable code
-        int _ = 5; // issue #34734
+        int _ = 5;
         testFunction();
     }
 }
@@ -1038,7 +1038,7 @@ function testUnreachabilityWithFailStmtInsideWhile2() returns error? {
     }
 
     string _ = "ballerina"; // unreachable code
-    string _ = "ballerina"; // unreachable code issue #34734
+    string _ = "ballerina";
 }
 
 function testUnreachableCodeAfterPanicInsideWhile() {
