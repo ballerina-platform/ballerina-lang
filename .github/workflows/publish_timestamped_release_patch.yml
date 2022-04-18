@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - 2201.0.x
-      - 2201.0.3-stage-new
 
   workflow_dispatch:
 
