@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
-import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
+import static io.ballerina.projects.util.ProjectUtils.guessModuleName;
 
 /**
  * This class represents the "bal add" command.
@@ -142,6 +142,16 @@ public class AddCommand implements BLauncherCmd {
             return;
         }
 
+        if (!ProjectUtils.validateInitialNumericsOfName(moduleName)) {
+            CommandUtil.printError(errStream,
+                    "invalid module name : '" + moduleName + "' :\n" +
+                            "Module name cannot have initial numeric characters.",
+                    null,
+                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // Check if the module already exists
         if (ProjectUtils.isModuleExist(projectPath, moduleName)) {
             CommandUtil.printError(errStream,
@@ -220,7 +230,7 @@ public class AddCommand implements BLauncherCmd {
         // --- main.bal       <- Contains default main method.
         CommandUtil.applyTemplate(modulePath, template);
         Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
-        Files.move(source, source.resolveSibling(guessPkgName(moduleName) + ".bal"),
+        Files.move(source, source.resolveSibling(guessModuleName(moduleName) + ".bal"),
                 StandardCopyOption.REPLACE_EXISTING);
     }
 
