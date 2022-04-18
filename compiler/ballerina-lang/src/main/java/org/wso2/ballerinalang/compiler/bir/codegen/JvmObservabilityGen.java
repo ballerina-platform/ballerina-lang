@@ -25,6 +25,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
+import org.wso2.ballerinalang.compiler.bir.model.ArgumentState;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -172,11 +174,11 @@ class JvmObservabilityGen {
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
                     if (DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
-                        BIRNode.BIRAnnotationRecordValue annotationRecordValue = (BIRNode.BIRAnnotationRecordValue)
-                                annotationAttachment.annotValues.get(0);
-                        Map<String, BIRNode.BIRAnnotationValue> annotationMap =
-                                annotationRecordValue.annotValueEntryMap;
-                        serviceName = ((BIRNode.BIRAnnotationLiteralValue) annotationMap.get("label")).value.toString();
+                        BIRNode.ConstValue annotValue =
+                                ((BIRNode.BIRConstAnnotationAttachment) annotationAttachment).annotValue;
+                        Map<String, BIRNode.ConstValue> annotationMap =
+                                (Map<String, BIRNode.ConstValue>) annotValue.value;
+                        serviceName = annotationMap.get("label").value.toString();
                         break;
                     }
                 }
@@ -317,8 +319,8 @@ class JvmObservabilityGen {
             // Creating the lambda for this async call
             BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
             List<BType> argTypes = new ArrayList<>();
-            for (BIROperand arg : asyncCallIns.args) {
-                BType type = arg.variableDcl.type;
+            for (BIRArgument birArgument : asyncCallIns.args) {
+                BType type = birArgument.variableDcl.type;
                 argTypes.add(type);
             }
             Name lambdaName = new Name("$lambda$observability" + lambdaIndex++ + "$" +
@@ -344,9 +346,10 @@ class JvmObservabilityGen {
             invokableSymbol.retType = funcReturnVariableDcl.type;
             invokableSymbol.kind = SymbolKind.FUNCTION;
             List<BVarSymbol> list = new ArrayList<>();
-            for (BIROperand arg : asyncCallIns.args) {
-                BVarSymbol bVarSymbol = new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                                                       invokableSymbol, arg.pos, VIRTUAL);
+            for (BIRArgument birArgument : asyncCallIns.args) {
+                BVarSymbol bVarSymbol = new BVarSymbol(0, birArgument.variableDcl.name, currentPkgId,
+                        birArgument.variableDcl.type,
+                        invokableSymbol, birArgument.pos, VIRTUAL);
                 list.add(bVarSymbol);
             }
             invokableSymbol.params = list;
@@ -357,10 +360,10 @@ class JvmObservabilityGen {
             }
 
             // Creating and adding function parameters
-            List<BIROperand> funcParamOperands = new ArrayList<>();
+            List<BIRArgument> funcParamOperands = new ArrayList<>();
             Name selfArgName = new Name("%self");
             for (int i = 0; i < asyncCallIns.args.size(); i++) {
-                BIROperand arg = asyncCallIns.args.get(i);
+                BIRArgument arg = asyncCallIns.args.get(i);
                 BIRFunctionParameter funcParam;
                 if (arg.variableDcl.kind == VarKind.SELF) {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
@@ -370,11 +373,11 @@ class JvmObservabilityGen {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
                             argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
                     desugaredFunc.localVars.add(funcParam);
-                    desugaredFunc.parameters.add(funcParam);
+                    desugaredFunc.parameters.put(funcParam, Collections.emptyList());
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
                     desugaredFunc.argsCount++;
                 }
-                funcParamOperands.add(new BIROperand(funcParam));
+                funcParamOperands.add(new BIRArgument(ArgumentState.PROVIDED, funcParam));
             }
 
             // Generating function body
@@ -390,8 +393,8 @@ class JvmObservabilityGen {
             asyncCallIns.calleePkg = currentPkgId;
             asyncCallIns.isVirtual = attachedTypeDef != null;
             if (attachedTypeDef != null) {
-                asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type, selfArgName,
-                                                                           VarScope.FUNCTION, VarKind.SELF)));
+                asyncCallIns.args.add(0, new BIRArgument(ArgumentState.PROVIDED, new BIRVariableDcl(
+                                      attachedTypeDef.type, selfArgName, VarScope.FUNCTION, VarKind.SELF)));
             }
         }
     }
@@ -935,7 +938,7 @@ class JvmObservabilityGen {
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
             if (OBSERVABLE_ANNOTATION.equals(
                     JvmCodeGenUtil.getPackageName(
-                            new PackageID(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)) +
+                            new PackageID(annot.annotPkgId.orgName, annot.annotPkgId.name, Names.EMPTY)) +
                             annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;

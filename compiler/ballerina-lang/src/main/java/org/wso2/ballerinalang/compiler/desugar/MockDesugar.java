@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -75,8 +74,6 @@ public class MockDesugar {
     private BLangFunction originalFunction;
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
-
-    public static final String MOCK_FUNCTION = "$MOCK_";
 
     private MockDesugar(CompilerContext context) {
         context.put(MOCK_DESUGAR_KEY, this);
@@ -149,7 +146,7 @@ public class MockDesugar {
         }
 
         // Set the function name to $MOCK_<functionName>
-        functionName = MOCK_FUNCTION + functionName;
+        functionName = "$MOCK_" + functionName;
 
         // Create the Base function with the name
         BLangFunction generatedMock = ASTBuilderUtil.createFunction(bLangPackage.pos, functionName);
@@ -158,11 +155,9 @@ public class MockDesugar {
             generatedMock.requiredParams = generateRequiredParams();        // Required Params
             generatedMock.restParam = generateRestParam();                  // Rest Param
             generatedMock.returnTypeNode = generateReturnTypeNode();        // Return Type Node
+            generatedMock.body = generateBody();                            // Body
             generatedMock.setBType(generateSymbolInvokableType());             // Invokable Type
-            BInvokableSymbol symbol = generateSymbol(functionName);
-            symbol.scope = new Scope(symbol);
-            generatedMock.symbol = symbol;                                  // Invokable Symbol
-            generatedMock.body = generateBody(symbol);                      // Body
+            generatedMock.symbol = generateSymbol(functionName);            // Invokable Symbol
         } else {
             throw new IllegalStateException("Mock Function and Function to Mock cannot be null");
         }
@@ -298,9 +293,9 @@ public class MockDesugar {
         return bInvokableType;
     }
 
-    private BLangFunctionBody generateBody(BInvokableSymbol symbol) {
+    private BLangFunctionBody generateBody() {
         BLangFunctionBody body = ASTBuilderUtil.createBlockFunctionBody(bLangPackage.pos, generateStatements());
-        body.scope = new Scope(symbol);
+        body.scope = bLangPackage.symbol.scope;
         return body;
     }
 

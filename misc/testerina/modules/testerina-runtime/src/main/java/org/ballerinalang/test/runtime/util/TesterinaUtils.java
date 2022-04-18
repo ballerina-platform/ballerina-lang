@@ -60,6 +60,8 @@ public class TesterinaUtils {
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
 
+    public static boolean isCallOriginal;
+
     /**
      * Cleans up any remaining testerina metadata.
      *
@@ -372,4 +374,7 @@ public class TesterinaUtils {
         return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
     }
 
+    public static boolean isCallOriginal() {
+        return isCallOriginal;
+    }
 }

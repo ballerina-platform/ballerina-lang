@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
-import org.ballerinalang.model.tree.NodeKind;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +25,7 @@ import java.util.Map;
  */
 public class BLangTestablePackage extends BLangPackage {
 
+    public BLangPackage parent;
     // Semantic Data
     //Map to maintain all the mock functions
     private Map<String, String> mockFunctionNamesMap = new HashMap<>();
@@ -46,10 +45,5 @@ public class BLangTestablePackage extends BLangPackage {
     @Override
     public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
         return modifier.transform(this, props);
-    }
-
-    @Override
-    public NodeKind getKind() {
-        return NodeKind.TESTABLE_PACKAGE;
     }
 }

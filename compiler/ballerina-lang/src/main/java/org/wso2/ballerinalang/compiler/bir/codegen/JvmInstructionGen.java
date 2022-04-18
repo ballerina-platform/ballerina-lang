@@ -136,6 +136,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTIL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_UNSIGNED_INT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INITIAL_EXPRESSION_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INITIAL_SPREAD_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_KEY_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
@@ -194,6 +196,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_WITH_INITIAL_VALUES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR_WITH_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIST_INITIAL_EXPRESSION_ENTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIST_INITIAL_SPREAD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TUPLE;
@@ -236,7 +239,6 @@ public class JvmInstructionGen {
     private final MethodVisitor mv;
     private final BIRVarToJVMIndexMap indexMap;
     private final String currentPackageName;
-    private final PackageID currentPackage;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
     private final JvmCastGen jvmCastGen;
@@ -251,7 +253,6 @@ public class JvmInstructionGen {
                              CompilerContext compilerContext) {
         this.mv = mv;
         this.indexMap = indexMap;
-        this.currentPackage = currentPackage;
         this.jvmPackageGen = jvmPackageGen;
         this.jvmTypeGen = jvmTypeGen;
         this.symbolTable = jvmPackageGen.symbolTable;
@@ -490,7 +491,9 @@ public class JvmInstructionGen {
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
         if (varDcl.kind == VarKind.GLOBAL) {
             String varName = varDcl.name.value;
-            String className = jvmPackageGen.lookupGlobalVarClassName(currentPackageName, varName);
+            PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
+            String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
+            String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
@@ -1670,7 +1673,7 @@ public class JvmInstructionGen {
             className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectNewIns.externalPackageId),
                                               objectNewIns.objectName);
         } else {
-            className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(currentPackage),
+            className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID),
                                               objectNewIns.def.internalName.value);
         }
 
@@ -1998,30 +2001,49 @@ public class JvmInstructionGen {
     }
 
     private void loadListInitialValues(BIRNonTerminator.NewArray arrayNewIns) {
-        List<BIROperand> initialValues = arrayNewIns.values;
+        List<BIRNode.BIRListConstructorEntry> initialValues = arrayNewIns.values;
         mv.visitLdcInsn((long) initialValues.size());
         mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, LIST_INITIAL_EXPRESSION_ENTRY);
+        mv.visitTypeInsn(ANEWARRAY, LIST_INITIAL_VALUE_ENTRY);
 
         int i = 0;
-        for (BIROperand initialValueOp : initialValues) {
+        for (BIRNode.BIRListConstructorEntry initialValueOp : initialValues) {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
             i += 1;
 
-            mv.visitTypeInsn(NEW, LIST_INITIAL_EXPRESSION_ENTRY);
-            mv.visitInsn(DUP);
-
-            BIRNode.BIRVariableDcl varDecl = initialValueOp.variableDcl;
-            this.loadVar(varDecl);
-            jvmCastGen.addBoxInsn(this.mv, varDecl.type);
-
-            mv.visitMethodInsn(INVOKESPECIAL, LIST_INITIAL_EXPRESSION_ENTRY, JVM_INIT_METHOD,
-                               INIT_LIST_INITIAL_EXPRESSION_ENTRY, false);
+            if (initialValueOp instanceof BIRNode.BIRListConstructorExprEntry) {
+                createExprEntry(initialValueOp);
+            } else {
+                createSpreadEntry(initialValueOp);
+            }
 
             mv.visitInsn(AASTORE);
         }
+    }
+
+    private void createExprEntry(BIRNode.BIRListConstructorEntry initialValueOp) {
+        mv.visitTypeInsn(NEW, LIST_INITIAL_EXPRESSION_ENTRY);
+        mv.visitInsn(DUP);
+
+        BIRNode.BIRVariableDcl varDecl = initialValueOp.exprOp.variableDcl;
+        this.loadVar(varDecl);
+        jvmCastGen.addBoxInsn(this.mv, varDecl.type);
+
+        mv.visitMethodInsn(INVOKESPECIAL, LIST_INITIAL_EXPRESSION_ENTRY, JVM_INIT_METHOD,
+                INIT_LIST_INITIAL_EXPRESSION_ENTRY, false);
+    }
+
+    private void createSpreadEntry(BIRNode.BIRListConstructorEntry initialValueOp) {
+        mv.visitTypeInsn(NEW, LIST_INITIAL_SPREAD_ENTRY);
+        mv.visitInsn(DUP);
+
+        BIRNode.BIRVariableDcl varDecl = initialValueOp.exprOp.variableDcl;
+        this.loadVar(varDecl);
+
+        mv.visitMethodInsn(INVOKESPECIAL, LIST_INITIAL_SPREAD_ENTRY, JVM_INIT_METHOD, INIT_LIST_INITIAL_SPREAD_ENTRY,
+                false);
     }
 
     void generateInstructions(int localVarOffset, BIRInstruction inst) {

@@ -1441,8 +1441,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeInit typeInitExpr) {
-        BInvokableSymbol initInvocationSymbol =
-                                        (BInvokableSymbol) ((BLangInvocation) typeInitExpr.initInvocation).symbol;
+        BInvokableSymbol initInvocationSymbol = (BInvokableSymbol) typeInitExpr.initInvocation.symbol;
         if (initInvocationSymbol != null && !isIsolated(initInvocationSymbol.flags)) {
             analyzeFunctionForInference(initInvocationSymbol);
 
@@ -1521,6 +1520,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         for (BLangExpression expr : listConstructorExpr.exprs) {
+            if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                expr = ((BLangListConstructorExpr.BLangListConstructorSpreadOpExpr) expr).expr;
+            }
             analyzeNode(expr, env);
         }
     }

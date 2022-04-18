@@ -827,6 +827,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
+    public void visit(SpreadMemberNode spreadMemberNode) {
+        visitSyntaxNode(spreadMemberNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

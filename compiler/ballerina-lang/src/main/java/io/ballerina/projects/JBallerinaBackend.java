@@ -50,7 +50,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,6 +57,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,7 +85,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
-    private static final PrintStream out = System.out;
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -98,7 +97,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
-    private List<JarConflict> conflictedJars;
+    private final List<JarConflict> conflictedJars;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
@@ -380,8 +379,13 @@ public class JBallerinaBackend extends CompilerBackend {
                 new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())))) {
             writeManifest(manifest, outStream);
 
+            // Sort jar libraries list to avoid inconsistent jar reporting
+            List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
+                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
+                    .collect(Collectors.toList());
+
             // Copy all the jars
-            for (JarLibrary library : jarLibraries) {
+            for (JarLibrary library : sortedJarLibraries) {
                 copyJar(outStream, library, copiedEntries, serviceEntries);
             }
 

@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "module1:AnnotationType.foo",
       "sortText": "K",
-      "insertText": "foo: \"${2}\"",
+      "insertText": "foo: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "module1:AnnotationType",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "foo: \"\"",
+      "insertText": "foo: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     }
   ]

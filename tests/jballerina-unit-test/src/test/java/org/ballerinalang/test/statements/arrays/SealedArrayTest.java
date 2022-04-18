@@ -44,10 +44,10 @@ public class SealedArrayTest {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/sealed_array.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_negative.bal");
         listExprNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_listexpr_negative.bal");
-        semanticsNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_semantics_negative" +
-                                                         ".bal");
-        codeAnalysisNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_code_analysis_negative" +
-                ".bal");
+        semanticsNegative = BCompileUtil.compile(
+                "test-src/statements/arrays/sealed_array_semantics_negative.bal");
+        codeAnalysisNegative = BCompileUtil.compile(
+                "test-src/statements/arrays/sealed_array_code_analysis_negative.bal");
     }
 
     @Test
@@ -250,7 +250,6 @@ public class SealedArrayTest {
 
     @Test
     public void testSemanticsNegativeSealedArrays() {
-        Assert.assertEquals(semanticsNegative.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
@@ -287,10 +286,15 @@ public class SealedArrayTest {
                         "'FiniteFour'", 108, 20);
         BAssertUtil.validateError(semanticsNegative, i++, "invalid list member access expression: value space " +
                 "'FiniteFive' out of range", 109, 23);
-        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found 'int[]'",
-                114, 22);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found " +
+                        "'int[]'", 114, 22);
         BAssertUtil.validateError(semanticsNegative, i, "incompatible types: expected 'int[*]', found 'int[1]'",
                 121, 13);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 123, 15);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 124, 15);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 125, 7);
+        BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 126, 7);
+        Assert.assertEquals(semanticsNegative.getErrorCount(), i);
     }
 
     @Test

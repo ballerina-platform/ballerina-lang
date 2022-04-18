@@ -20,8 +20,12 @@ import com.sun.jdi.Method;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR;
@@ -40,10 +44,20 @@ public abstract class RuntimeMethod extends JvmMethod {
     @Override
     protected List<Value> getMethodArgs(JvmMethod method) throws EvaluationException {
         try {
-            if (argValues == null) {
+            if (argValues == null && argEvaluators == null) {
                 throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
             }
-            return argValues;
+            if (argValues != null) {
+                return argValues;
+            }
+            List<Value> argValueList = new ArrayList<>();
+            // Evaluates all function argument expressions at first.
+            for (Map.Entry<String, Evaluator> argEvaluator : argEvaluators) {
+                argValueList.add(argEvaluator.getValue().evaluate().getJdiValue());
+                // Assuming all the arguments are positional args.
+                argValueList.add(VMUtils.make(context, true).getJdiValue());
+            }
+            return argValueList;
         } catch (Exception e) {
             throw createEvaluationException(FUNCTION_EXECUTION_ERROR, methodRef.name());
         }

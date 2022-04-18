@@ -114,6 +114,18 @@ function openToSealArrrayAssignment() {
     int[*] intArr2 = intArr1.clone();
 }
 
+const I1 = 0x3;
+const I2 = 3;
+
+function testInvalidArrayAccessByConst() {
+    int[2] a = [];
+
+    int _ = a[I1]; // list index out of range: index: '3'
+    int _ = a[I2]; // list index out of range: index: '3'
+    a[I1] = 3; // list index out of range: index: '3'
+    a[I2] = 4; // list index out of range: index: '3'
+}
+
 function fn3() returns int[1] {
     return [2];
 }
