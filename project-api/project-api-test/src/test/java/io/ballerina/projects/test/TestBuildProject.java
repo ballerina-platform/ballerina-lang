@@ -424,7 +424,6 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
-        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -445,7 +444,6 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
-        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -467,7 +465,6 @@ public class TestBuildProject extends BaseTest {
                 "version = \"0.1.0\"\n" +
                 "\n" +
                 "[build-options]\n" +
-                "experimental=true\n" +
                 "observabilityIncluded = true\n" +
                 "skipTests=true\n" +
                 "offline=false\n" +
@@ -478,7 +475,6 @@ public class TestBuildProject extends BaseTest {
         // Test when build option provided only in Ballerina TOML
         Assert.assertTrue(newPackage.project().buildOptions().codeCoverage());
         Assert.assertTrue(newPackage.project().buildOptions().observabilityIncluded());
-        Assert.assertTrue(newPackage.project().buildOptions().experimental());
         Assert.assertTrue(newPackage.project().buildOptions().skipTests());
     }
 
@@ -1785,8 +1781,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testProjectDuplicate() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder()
-                .setCodeCoverage(true).setExperimental(true);
+        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder().setCodeCoverage(true);
         Project project = loadProject(projectPath, optionsBuilder.build());
 
         Project duplicate = project.duplicate();
@@ -1804,7 +1799,6 @@ public class TestBuildProject extends BaseTest {
 
         Assert.assertEquals(project.sourceRoot().toString(), duplicate.sourceRoot().toString());
         Assert.assertTrue(duplicate.buildOptions().codeCoverage());
-        Assert.assertTrue(duplicate.buildOptions().experimental());
         Assert.assertFalse(duplicate.buildOptions().testReport());
 
         Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());

@@ -583,6 +583,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_TYPE_FOR_SEND("BCE3841", "invalid.type.for.send"),
 
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("BCE3842", "invalid.usage.of.receive.expression"),
+    @Deprecated
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("BCE3843", "invalid.use.of.experimental.feature"),
 
     // LangLib related error codes.

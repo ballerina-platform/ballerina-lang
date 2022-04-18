@@ -63,6 +63,7 @@ public class BuildOptions {
         return this.compilationOptions.sticky();
     }
 
+    @Deprecated
     public boolean experimental() {
         return this.compilationOptions.experimental();
     }
@@ -234,6 +235,7 @@ public class BuildOptions {
             return this;
         }
 
+        @Deprecated
         public BuildOptionsBuilder setExperimental(Boolean value) {
             compilationOptionsBuilder.setExperimental(value);
             return this;
