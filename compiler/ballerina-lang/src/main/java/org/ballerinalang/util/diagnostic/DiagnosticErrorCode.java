@@ -351,7 +351,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CLOSED_ARRAY_TYPE_NOT_INITIALIZED("BCE2592", "closed.array.type.not.initialized"),
     INVALID_LIST_MEMBER_ACCESS_EXPR("BCE2593", "invalid.list.member.access.expr"),
     INVALID_ARRAY_MEMBER_ACCESS_EXPR("BCE2594", "invalid.array.member.access.expr"),
-    CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("BCE2595", "closed.array.type.can.not.infer.size"),
+    CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT("BCE2595",
+            "length.of.the.array.cannot.be.inferred.from.the.context"),
     INVALID_SORT_FUNC_RETURN_TYPE("BCE2596", "invalid.key.func.return.type"),
     INVALID_SORT_ARRAY_MEMBER_TYPE("BCE2597", "invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only

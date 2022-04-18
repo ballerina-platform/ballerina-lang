@@ -270,7 +270,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(semanticsNegative, i++, "size mismatch in closed array. expected '4', but found '5'",
                 78, 18);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '4'", 81, 8);
-        BAssertUtil.validateError(semanticsNegative, i++, "invalid usage of closed type: can not infer array size", 83,
+        BAssertUtil.validateError(semanticsNegative, i++, "length of the array cannot be inferred from the context", 83,
                 18);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'json[3]', found 'json[]'", 85,
                 18);
@@ -288,57 +288,59 @@ public class SealedArrayTest {
                 "'FiniteFive' out of range", 109, 23);
         BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found " +
                         "'int[]'", 114, 22);
-        BAssertUtil.validateError(semanticsNegative, i, "incompatible types: expected 'int[*]', found 'int[1]'",
-                121, 13);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 123, 15);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 124, 15);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 125, 7);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '3'", 126, 7);
+        BAssertUtil.validateError(semanticsNegative, i++, "incompatible types: expected 'int[*]', found 'int[1]'",
+                133, 13);
         Assert.assertEquals(semanticsNegative.getErrorCount(), i);
     }
 
     @Test
     public void testCodeAnalysisNegativeSealedArrays() {
         int i = 0;
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 18, 4);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 22, 15);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 23, 43);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 24, 40);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
+                32, 16);
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 36, 24);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 40, 24);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 44, 41);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 44, 51);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 48, 14);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 51, 2);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 52, 9);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 53, 2);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 55, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 56, 11);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 57, 5);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 58, 11);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 58, 54);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 58, 78);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 59, 39);
-        BAssertUtil.validateError(codeAnalysisNegative, i++, "invalid usage of closed type: can not infer array size",
+        BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 60, 36);
         Assert.assertEquals(codeAnalysisNegative.getErrorCount(), i);
     }

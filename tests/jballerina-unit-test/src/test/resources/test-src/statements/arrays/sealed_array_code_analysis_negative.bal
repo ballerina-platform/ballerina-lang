@@ -29,7 +29,7 @@ public function invalidInferredArrays() {
     }
 }
 
-function value(int[1] a) returns int[] {
+function value(int[*] a = [1]) returns int[] {
     return [10];
 }
 

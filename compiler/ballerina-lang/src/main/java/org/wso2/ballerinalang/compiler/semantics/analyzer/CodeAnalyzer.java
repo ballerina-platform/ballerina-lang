@@ -3610,7 +3610,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (containsInferredArraySizesOfHigherDimensions(arrayType.sizes)) {
             dlog.error(arrayType.pos, DiagnosticErrorCode.INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION);
         } else if (isSizeInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent)) {
-            dlog.error(arrayType.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+            dlog.error(arrayType.pos, DiagnosticErrorCode.CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT);
         }
 
         analyzeTypeNode(arrayType.elemtype, data);
