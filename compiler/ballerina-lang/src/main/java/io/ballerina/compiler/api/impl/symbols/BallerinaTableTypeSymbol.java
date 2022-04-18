@@ -40,7 +40,7 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     private TypeSymbol rowTypeParameter;
     private TypeSymbol keyConstraintTypeParameter;
-    private List<String> keySpecifiers;
+    private List<String> keySpecifiers = new ArrayList<>();
     private String signature;
 
     public BallerinaTableTypeSymbol(CompilerContext context, BTableType tableType) {
@@ -70,16 +70,8 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     @Override
     public List<String> keySpecifiers() {
-        if (this.keySpecifiers == null) {
-            List<String> specifiers = ((BTableType) this.getBType()).fieldNameList;
-
-            if (specifiers == null) {
-                specifiers = new ArrayList<>();
-            }
-
-            this.keySpecifiers = Collections.unmodifiableList(specifiers);
-        }
-
+        List<String> specifiers = ((BTableType) this.getBType()).fieldNameList;
+        this.keySpecifiers = Collections.unmodifiableList(specifiers);
         return this.keySpecifiers;
     }
 

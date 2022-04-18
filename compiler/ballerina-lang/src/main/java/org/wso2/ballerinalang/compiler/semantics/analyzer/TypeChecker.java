@@ -1026,8 +1026,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return;
             }
 
-            if (expectedTableType.fieldNameList != null && !expectedTableType.fieldNameList.isEmpty() &&
-                    (tableType.fieldNameList == null || tableType.fieldNameList.isEmpty())) {
+            if (!expectedTableType.fieldNameList.isEmpty() && tableType.fieldNameList.isEmpty()) {
                 tableType.fieldNameList = expectedTableType.fieldNameList;
             }
             data.resultType = tableType;
@@ -1324,7 +1323,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private boolean validateKeySpecifierInTableConstructor(BTableType tableType,
                                                          List<BLangRecordLiteral> recordLiterals, AnalyzerData data) {
         List<String> fieldNameList = tableType.fieldNameList;
-        if (fieldNameList != null) {
+        if (!fieldNameList.isEmpty()) {
             return validateTableKeyValue(fieldNameList, recordLiterals, data);
         }
         return true;
@@ -1446,17 +1445,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (!isKeySpecifierEmpty) {
             fieldNameList.addAll(getTableKeyNameList(tableConstructorExpr.tableKeySpecifier));
 
-            if ((tableType.fieldNameList == null || tableType.fieldNameList.isEmpty()) &&
-                    validateKeySpecifier(fieldNameList,
-                                          constraintType.tag != TypeTags.INTERSECTION ? constraintType :
-                                                  ((BIntersectionType) constraintType).effectiveType,
-                                          tableConstructorExpr.tableKeySpecifier.pos)) {
+            if (tableType.fieldNameList.isEmpty() && validateKeySpecifier(fieldNameList,
+                    constraintType.tag != TypeTags.INTERSECTION ? constraintType :
+                            ((BIntersectionType) constraintType).effectiveType,
+                    tableConstructorExpr.tableKeySpecifier.pos)) {
                 data.resultType = symTable.semanticError;
                 return false;
             }
 
-            if (tableType.fieldNameList != null && !tableType.fieldNameList.isEmpty() &&
-                    !tableType.fieldNameList.equals(fieldNameList)) {
+            if (!tableType.fieldNameList.isEmpty() && !tableType.fieldNameList.equals(fieldNameList)) {
                 dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticErrorCode.TABLE_KEY_SPECIFIER_MISMATCH,
                         tableType.fieldNameList.toString(), fieldNameList.toString());
                 data.resultType = symTable.semanticError;
@@ -1527,8 +1524,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public boolean validateMapConstraintTable(BType expType) {
-        if (expType != null && ((((BTableType) expType).fieldNameList != null &&
-                !((BTableType) expType).fieldNameList.isEmpty()) ||
+        if (expType != null && (!((BTableType) expType).fieldNameList.isEmpty() ||
                 ((BTableType) expType).keyTypeConstraint != null) &&
                 !expType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(((BTableType) expType).keyPos,
@@ -1548,7 +1544,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType createTableKeyConstraint(List<String> fieldNames, BType constraintType) {
-        if (fieldNames == null || fieldNames.isEmpty()) {
+        if (fieldNames.isEmpty()) {
             return symTable.semanticError;
         }
 

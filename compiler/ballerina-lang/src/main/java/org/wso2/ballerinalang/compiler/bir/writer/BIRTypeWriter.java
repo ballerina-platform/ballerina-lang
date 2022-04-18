@@ -463,8 +463,8 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BTableType bTableType) {
         writeTypeCpIndex(bTableType.constraint);
-        buff.writeBoolean(bTableType.fieldNameList != null && !bTableType.fieldNameList.isEmpty());
-        if (bTableType.fieldNameList != null && !bTableType.fieldNameList.isEmpty()) {
+        buff.writeBoolean(!bTableType.fieldNameList.isEmpty());
+        if (!bTableType.fieldNameList.isEmpty()) {
             buff.writeInt(bTableType.fieldNameList.size());
             for (String fieldName : bTableType.fieldNameList) {
                 buff.writeInt(addStringCPEntry(fieldName));

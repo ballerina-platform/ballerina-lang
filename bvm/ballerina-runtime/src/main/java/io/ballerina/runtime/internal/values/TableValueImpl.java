@@ -110,7 +110,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.indexToKeyMap = new LinkedHashMap<>();
         this.fieldNames = type.getFieldNames();
         this.keyValues = new LinkedHashMap<>();
-        if (type.getFieldNames() != null && type.getFieldNames().length != 0) {
+        if (type.getFieldNames().length > 0) {
             this.valueHolder = new KeyHashValueHolder();
         } else {
             this.valueHolder = new ValueHolder();
@@ -391,11 +391,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private String createExpressionStringValueDataEntry(Iterator<Map.Entry<Long, List<V>>> itr, BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         StringJoiner keyJoiner = new StringJoiner(",");
-        if (type.getFieldNames() != null) {
-            String[] keysList = type.getFieldNames();
-            for (int i = 0; i < keysList.length; i++) {
-                keyJoiner.add(keysList[i]);
-            }
+        String[] keysList = type.getFieldNames();
+        for (int i = 0; i < keysList.length; i++) {
+            keyJoiner.add(keysList[i]);
         }
         while (itr.hasNext()) {
             Map.Entry<Long, List<V>> struct = itr.next();
