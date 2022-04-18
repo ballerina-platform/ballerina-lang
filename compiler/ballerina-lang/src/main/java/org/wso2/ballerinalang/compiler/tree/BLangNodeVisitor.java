@@ -657,6 +657,10 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr listConstructorSpreadOpExpr) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
         throw new AssertionError();
     }

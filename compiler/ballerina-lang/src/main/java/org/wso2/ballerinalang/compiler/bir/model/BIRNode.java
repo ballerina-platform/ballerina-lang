@@ -67,8 +67,13 @@ public abstract class BIRNode {
 
         public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version,
                           Name sourceFileName) {
+            this(pos, org, pkgName, name, version, sourceFileName, false);
+        }
+
+        public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version, Name sourceFileName,
+                          boolean isTestPkg) {
             super(pos);
-            packageID = new PackageID(org, pkgName, name, version, sourceFileName);
+            packageID = new PackageID(org, pkgName, name, version, sourceFileName, isTestPkg);
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
@@ -186,13 +191,13 @@ public abstract class BIRNode {
     public static class BIRParameter extends BIRNode {
         public Name name;
         public long flags;
-        public List<BIRAnnotation> annotAttachmentSymbols;
+        public List<BIRAnnotationAttachment> annotAttachments;
 
         public BIRParameter(Location pos, Name name, long flags) {
             super(pos);
             this.name = name;
             this.flags = flags;
-            this.annotAttachmentSymbols = new ArrayList<>();
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -213,6 +218,7 @@ public abstract class BIRNode {
         public long flags;
         public PackageID pkgId;
         public SymbolOrigin origin;
+        public List<BIRAnnotationAttachment> annotAttachments;
 
         public BIRGlobalVariableDcl(Location pos, long flags, BType type, PackageID pkgId, Name name, Name originalName,
                                     VarScope scope, VarKind kind, String metaVarName, SymbolOrigin origin) {
@@ -220,6 +226,7 @@ public abstract class BIRNode {
             this.flags = flags;
             this.pkgId = pkgId;
             this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -620,6 +627,11 @@ public abstract class BIRNode {
          */
         public PackageID packageID;
 
+        /**
+         * Annotation attachments on the annotation.
+         */
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         public BIRAnnotation(Location pos, Name name, Name originalName, long flags,
                              Set<AttachPoint> points, BType annotationType, SymbolOrigin origin) {
             super(pos);
@@ -629,6 +641,7 @@ public abstract class BIRNode {
             this.attachPoints = points;
             this.annotationType = annotationType;
             this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -674,6 +687,11 @@ public abstract class BIRNode {
          */
         public SymbolOrigin origin;
 
+        /**
+         * Annotation attachments on the constant.
+         */
+        public List<BIRAnnotationAttachment> annotAttachments;
+
         public BIRConstant(Location pos, Name name, Name originalName, long flags,
                            BType type, ConstValue constValue, SymbolOrigin origin) {
             super(pos);
@@ -683,6 +701,7 @@ public abstract class BIRNode {
             this.type = type;
             this.constValue = constValue;
             this.origin = origin;
+            this.annotAttachments = new ArrayList<>();
         }
 
         @Override
@@ -699,17 +718,13 @@ public abstract class BIRNode {
      */
     public static class BIRAnnotationAttachment extends BIRNode {
 
-        public PackageID packageID;
+        public PackageID annotPkgId;
         public Name annotTagRef;
 
-        // The length == 0 means that the value of this attachment is 'true'
-        // The length > 1 means that there are one or more attachments of this annotation
-        public List<BIRAnnotationValue> annotValues;
-
-        public BIRAnnotationAttachment(Location pos, Name annotTagRef) {
+        public BIRAnnotationAttachment(Location pos, PackageID annotPkgId, Name annotTagRef) {
             super(pos);
+            this.annotPkgId = annotPkgId;
             this.annotTagRef = annotTagRef;
-            this.annotValues = new ArrayList<>();
         }
 
         @Override
@@ -719,57 +734,23 @@ public abstract class BIRNode {
     }
 
     /**
-     * Represents one value in an annotation attachment.
+     * Represents a const annotation attachment in BIR node tree.
      *
-     * @since 1.0.0
+     * @since 2.1.0
      */
-    public abstract static class BIRAnnotationValue {
-        public BType type;
+    public static class BIRConstAnnotationAttachment extends BIRAnnotationAttachment {
 
-        protected BIRAnnotationValue(BType type) {
-            this.type = type;
+        public ConstValue annotValue;
+
+        public BIRConstAnnotationAttachment(Location pos, PackageID annotPkgId, Name annotTagRef,
+                                            ConstValue annotValue) {
+            super(pos, annotPkgId, annotTagRef);
+            this.annotValue = annotValue;
         }
-    }
 
-    /**
-     * Represent a literal value in an annotation attachment value.
-     *
-     * @since 1.0.0
-     */
-    public static class BIRAnnotationLiteralValue extends BIRAnnotationValue {
-        public Object value;
-
-        public BIRAnnotationLiteralValue(BType type, Object value) {
-            super(type);
-            this.value = value;
-        }
-    }
-
-    /**
-     * Represent a record value in an annotation attachment value.
-     *
-     * @since 1.0.0
-     */
-    public static class BIRAnnotationRecordValue extends BIRAnnotationValue {
-        public Map<String, BIRAnnotationValue> annotValueEntryMap;
-
-        public BIRAnnotationRecordValue(BType type, Map<String, BIRAnnotationValue> annotValueEntryMap) {
-            super(type);
-            this.annotValueEntryMap = annotValueEntryMap;
-        }
-    }
-
-    /**
-     * Represent a record value in an annotation attachment value.
-     *
-     * @since 1.0.0
-     */
-    public static class BIRAnnotationArrayValue extends BIRAnnotationValue {
-        public BIRAnnotationValue[] annotArrayValue;
-
-        public BIRAnnotationArrayValue(BType type, BIRAnnotationValue[] annotArrayValue) {
-            super(type);
-            this.annotArrayValue = annotArrayValue;
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
         }
     }
 
@@ -880,6 +861,39 @@ public abstract class BIRNode {
         @Override
         public boolean isKeyValuePair() {
             return false;
+        }
+    }
+
+    /**
+     * Represents a list member entry in a list constructor expression.
+     *
+     * @since 2201.1.0
+     */
+    public abstract static class BIRListConstructorEntry {
+        public BIROperand exprOp;
+    }
+
+    /**
+     * Represents a spread member entry in a list constructor expression.
+     *
+     * @since 2201.1.0
+     */
+    public static class BIRListConstructorSpreadMemberEntry extends BIRListConstructorEntry {
+
+        public BIRListConstructorSpreadMemberEntry(BIROperand exprOp) {
+            this.exprOp = exprOp;
+        }
+    }
+
+    /**
+     * Represents an expression member entry in a list constructor expression.
+     *
+     * @since 2201.1.0
+     */
+    public static class BIRListConstructorExprEntry extends BIRListConstructorEntry {
+
+        public BIRListConstructorExprEntry(BIROperand exprOp) {
+            this.exprOp = exprOp;
         }
     }
 

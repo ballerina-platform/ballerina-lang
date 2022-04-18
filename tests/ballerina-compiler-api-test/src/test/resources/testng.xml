@@ -40,6 +40,7 @@
             <class name="io.ballerina.semantic.api.test.TypeAssignabilityTest" />
             <class name="io.ballerina.semantic.api.test.TypedescriptorTest" />
             <class name="io.ballerina.semantic.api.test.VisitorAPITest" />
+            <class name="io.ballerina.semantic.api.test.TypesTest" />
             <class name="io.ballerina.semantic.api.test.WorkspaceSymbolLookupTest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
@@ -103,6 +104,7 @@
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTemplateExprTest" />
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTypeExprTest" />
 
+            <class name="io.ballerina.semantic.api.test.typedescriptors.TypeNarrowedTypeDescriptorTest" />
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeReferenceTSymbolTest" />
 
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
@@ -137,6 +139,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.ErrorTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.FunctionTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ImportDeclSymbolTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.ModuleSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ObjectTypeSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.ParameterSymbolTest" />
             <class name="io.ballerina.semantic.api.test.symbols.RecordTypeSymbolTest" />
@@ -146,6 +149,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInBinaryExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInMappingConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.SymbolsInOnFailClauseTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInQueryExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInXMLNavigationExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />

@@ -159,6 +159,16 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
     }
 
+    @Test
+    public void testErrorHandlingWithinQueryAction() {
+        BRunUtil.invoke(result, "testErrorHandlingWithinQueryAction");
+    }
+
+    @Test
+    public void testReturnStmtWithinQueryAction() {
+        BRunUtil.invoke(result, "testReturnStmtWithinQueryAction");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

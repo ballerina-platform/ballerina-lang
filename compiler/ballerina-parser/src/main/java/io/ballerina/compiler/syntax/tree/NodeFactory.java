@@ -3159,5 +3159,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(typeParamNode));
         return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
     }
+
+    public static SpreadMemberNode createSpreadMemberNode(
+            Token ellipsis,
+            ExpressionNode expression) {
+        Objects.requireNonNull(ellipsis, "ellipsis must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stSpreadMemberNode = STNodeFactory.createSpreadMemberNode(
+                ellipsis.internalNode(),
+                expression.internalNode());
+        return stSpreadMemberNode.createUnlinkedFacade();
+    }
 }
 

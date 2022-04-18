@@ -662,6 +662,102 @@
       "insertText": "service ${1} on new Listener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
     }
   ]
 }

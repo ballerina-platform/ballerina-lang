@@ -580,6 +580,7 @@ public enum ParserRuleContext {
     HEX_FLOATING_POINT_LITERAL_TOKEN("hex-floating-point-literal-token"),
     LIST_CONSTRUCTOR("list-constructor"),
     LIST_CONSTRUCTOR_FIRST_MEMBER("list-constructor-first-member"),
+    LIST_CONSTRUCTOR_MEMBER("list-constructor-member"),
     TYPE_CAST("type-cast"),
     TYPE_CAST_PARAM("type-cast-param"),
     TYPE_CAST_PARAM_RHS("type-cast-param-rhs"),

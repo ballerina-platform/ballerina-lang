@@ -29,6 +29,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BIG_DECIM
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_LIST_INITIAL_VALUE_ENTRY;
@@ -125,6 +126,7 @@ public class JvmSignatures {
     public static final String INIT_XML_QNAME =
             "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)V";
     public static final String ADD_COLLECTION = "(L" + COLLECTION + ";)Z";
+    public static final String ADD_MODULE_CONFIG_DATA = "(L" + MAP + ";L" + MODULE + ";[L" + VARIABLE_KEY + ";)V";
     public static final String ADD_SHUTDOWN_HOOK = "(L" + JAVA_THREAD + ";)V";
     public static final String ADD_TYPE_ID = "(L" + MODULE + ";L" + STRING_VALUE + ";Z)V";
     public static final String ADD_VALUE_CREATOR = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
@@ -273,6 +275,7 @@ public class JvmSignatures {
             "(L" + MODULE + ";[L" + TYPE + ";L" + INTERSECTABLE_REFERENCE_TYPE + ";IZ)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_TYPE = "(L" + MODULE + ";[L" + TYPE + ";L" + TYPE + ";IZ)V";
     public static final String INIT_LIST_INITIAL_EXPRESSION_ENTRY = "(L" + OBJECT + ";)V";
+    public static final String INIT_LIST_INITIAL_SPREAD_ENTRY = "(L" + B_ARRAY + ";)V";
     public static final String INIT_LISTENER_REGISTRY = "(L" + JvmConstants.LISTENER_REGISTRY_CLASS + ";)V";
     public static final String INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY = "(L" + B_MAP + ";)V";
     public static final String INIT_MODULE = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";)V";
