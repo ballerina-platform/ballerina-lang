@@ -19,10 +19,11 @@
 package org.ballerinalang.semver.checker.diff;
 
 public enum CompatibilityLevel {
-    MAJOR(3),
-    MINOR(2),
-    PATCH(1),
-    UNKNOWN(0);
+    UNKNOWN(4),
+    AMBIGUOUS(3),
+    MAJOR(2),
+    MINOR(1),
+    PATCH(0);
 
     private final int rank;
 

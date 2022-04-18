@@ -27,9 +27,9 @@ import java.util.Map;
 
 public interface IPackageDiff extends IDiff {
 
-    public void moduleAdded(Module module);
+    void moduleAdded(Module module);
 
-    public void moduleRemoved(Module module);
+    void moduleRemoved(Module module);
 
-    public void moduleChanged(Module newModule, Module oldModule);
+    void moduleChanged(Module newModule, Module oldModule);
 }

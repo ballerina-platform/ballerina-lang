@@ -4,11 +4,12 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import org.ballerinalang.semver.checker.comparator.PackageComparator;
-import org.ballerinalang.semver.checker.diff.Diff;
+import org.ballerinalang.semver.checker.diff.PackageDiff;
 import org.ballerinalang.semver.checker.exceptions.BallerinaSemverToolException;
 import org.ballerinalang.semver.checker.util.PackageUtils;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class SemverChecker {
 
@@ -35,7 +36,7 @@ public class SemverChecker {
         return null;
     }
 
-    public Diff computeDiff() throws BallerinaSemverToolException {
+    public Optional<PackageDiff> computeDiff() throws BallerinaSemverToolException {
         if (this.loadedPackage == null) {
             loadPackage();
         }

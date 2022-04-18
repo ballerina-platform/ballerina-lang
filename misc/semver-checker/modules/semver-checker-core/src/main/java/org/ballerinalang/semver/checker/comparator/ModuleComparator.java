@@ -57,10 +57,10 @@ public class ModuleComparator implements IComparator {
 
     private void analyzeFunctionDiffs(ModuleDiff moduleDiff) {
         DiffExtractor<FunctionDefinitionNode> functionDiffExtractor = new DiffExtractor<>(newFunctions, oldFunctions);
-        functionDiffExtractor.getAdditions().forEach((name, module) -> moduleDiff.functionAdded(module));
-        functionDiffExtractor.getRemovals().forEach((name, module) -> moduleDiff.functionRemoved(module));
-        functionDiffExtractor.getCommons().forEach((name, modules) -> moduleDiff.functionChanged(modules.getKey(),
-                modules.getValue()));
+        functionDiffExtractor.getAdditions().forEach((name, function) -> moduleDiff.functionAdded(function));
+        functionDiffExtractor.getRemovals().forEach((name, function) -> moduleDiff.functionRemoved(function));
+        functionDiffExtractor.getCommons().forEach((name, functions) -> moduleDiff.functionChanged(functions.getKey(),
+                functions.getValue()));
     }
 
     private void extractModuleLevelDefinitions(Module module, boolean isNewModule) {

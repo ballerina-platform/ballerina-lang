@@ -36,23 +36,17 @@ public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
     @Override
     public CompatibilityLevel getCompatibilityLevel() {
         CompatibilityLevel compatibilityLevel = super.getCompatibilityLevel();
-        if (isPublic()) {
+        // checks if both the old and current versions of function definition is not public and if so, all the
+        // sub-level incompatibilities can be discarded.
+        if (isPrivateFunction()) {
             compatibilityLevel = CompatibilityLevel.PATCH;
         }
 
         return compatibilityLevel;
     }
 
-    private boolean isPublic() {
-        NodeList<Token> functionQualifiers = newNode.qualifierList();
-        return functionQualifiers.stream().anyMatch(qualifier -> qualifier.text().trim().equals(QUALIFIER_PUBLIC));
-    }
-
-    public void addChildDiff(NodeDiff<Node> childDiff) {
-        this.childDiffs.add(childDiff);
-    }
-
-    public void addChildDiffs(List<NodeDiff<Node>> childDiffs) {
-        this.childDiffs.addAll(childDiffs);
+    private boolean isPrivateFunction() {
+        return newNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(QUALIFIER_PUBLIC))
+                && oldNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(QUALIFIER_PUBLIC));
     }
 }

@@ -29,5 +29,4 @@ public interface IDiff {
     void setCompatibilityLevel(CompatibilityLevel compatibilityLevel);
 
     String toString();
-
 }

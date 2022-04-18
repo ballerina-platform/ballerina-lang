@@ -20,20 +20,22 @@ package org.ballerinalang.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.semver.checker.diagnostic.DiagnosticReporter;
-import org.ballerinalang.semver.checker.diff.IDiff;
+import org.ballerinalang.semver.checker.diff.NodeListDiff;
 
+import java.util.List;
 import java.util.Optional;
 
-public abstract class NodeComparator<T extends Node> extends DiagnosticReporter implements IComparator {
+public abstract class NodeListComparator<T extends List<? extends Node>> extends DiagnosticReporter
+        implements IComparator {
 
-    protected final T newNode;
-    protected final T oldNode;
+    protected final T newNodesList;
+    protected final T oldNodesList;
 
-    NodeComparator(T newNode, T oldNode) {
-        this.newNode = newNode;
-        this.oldNode = oldNode;
+    NodeListComparator(T newNodesList, T oldNodesList) {
+        this.newNodesList = newNodesList;
+        this.oldNodesList = oldNodesList;
     }
 
     @Override
-    public abstract Optional<? extends IDiff> computeDiff();
+    public abstract Optional<? extends NodeListDiff<? extends Node>> computeDiff();
 }

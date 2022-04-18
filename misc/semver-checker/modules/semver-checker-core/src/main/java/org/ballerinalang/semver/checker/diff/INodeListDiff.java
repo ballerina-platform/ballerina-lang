@@ -16,24 +16,15 @@
  * under the License.
  */
 
-package org.ballerinalang.semver.checker.comparator;
+package org.ballerinalang.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import org.ballerinalang.semver.checker.diagnostic.DiagnosticReporter;
-import org.ballerinalang.semver.checker.diff.IDiff;
 
-import java.util.Optional;
+import java.util.List;
 
-public abstract class NodeComparator<T extends Node> extends DiagnosticReporter implements IComparator {
+public interface INodeListDiff<T extends List<? extends Node>> extends IDiff {
 
-    protected final T newNode;
-    protected final T oldNode;
+    T getNewNodes();
 
-    NodeComparator(T newNode, T oldNode) {
-        this.newNode = newNode;
-        this.oldNode = oldNode;
-    }
-
-    @Override
-    public abstract Optional<? extends IDiff> computeDiff();
+    T getOldNodes();
 }

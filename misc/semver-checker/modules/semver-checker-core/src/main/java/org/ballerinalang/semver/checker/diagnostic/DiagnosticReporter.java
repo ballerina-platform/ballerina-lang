@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @since 2201.2.0
  */
-public abstract class DiagnosticReporter {
+public class DiagnosticReporter {
 
     private final List<Diagnostic> diagnostics;
     private boolean hasErrors;

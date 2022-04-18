@@ -19,6 +19,7 @@
 package org.ballerinalang.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,26 +27,23 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-public class NodeDiff<T extends Node> implements INodeDiff<T> {
+public class NodeListDiff<T extends Node> implements INodeListDiff<List<T>> {
 
-    protected final T newNode;
-    protected final T oldNode;
+    protected final List<T> newNodes;
+    protected final List<T> oldNodes;
     protected DiffType diffType;
     protected CompatibilityLevel compatibilityLevel;
-    protected final List<IDiff> childDiffs;
+    protected final List<NodeDiff<? extends Node>> childDiffs;
     private String message;
 
-    public NodeDiff(T newNode, T oldNode) {
-        this(newNode, oldNode, DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
+    public NodeListDiff(List<T> newNodes, List<T> oldNodes) {
+        this(newNodes, oldNodes, DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
     }
 
-    public NodeDiff(T newNode, T oldNode, DiffType diffType) {
-        this(newNode, oldNode, diffType, CompatibilityLevel.UNKNOWN);
-    }
-
-    public NodeDiff(T newNode, T oldNode, DiffType diffType, CompatibilityLevel compatibilityLevel) {
-        this.newNode = newNode;
-        this.oldNode = oldNode;
+    public NodeListDiff(List<T> newNodes, List<T> oldNodes, DiffType diffType,
+                        CompatibilityLevel compatibilityLevel) {
+        this.newNodes = newNodes;
+        this.oldNodes = oldNodes;
         this.diffType = diffType;
         this.compatibilityLevel = compatibilityLevel;
         this.childDiffs = new ArrayList<>();
@@ -53,13 +51,13 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
     }
 
     @Override
-    public T getNewNode() {
-        return newNode;
+    public List<T> getNewNodes() {
+        return newNodes;
     }
 
     @Override
-    public T getOldNode() {
-        return oldNode;
+    public List<T> getOldNodes() {
+        return oldNodes;
     }
 
     @Override
@@ -76,7 +74,7 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
     public CompatibilityLevel getCompatibilityLevel() {
         if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
             compatibilityLevel = childDiffs.stream()
-                    .map(IDiff::getCompatibilityLevel)
+                    .map(NodeDiff::getCompatibilityLevel)
                     .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                     .orElse(CompatibilityLevel.UNKNOWN);
         }
@@ -97,11 +95,11 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
         this.message = message;
     }
 
-    public void addChildDiff(NodeDiff<? extends Node> childDiff) {
+    public void addChildDiff(NodeDiff<Node> childDiff) {
         this.childDiffs.add(childDiff);
     }
 
-    public void addChildDiffs(List<? extends IDiff> childDiffs) {
+    public void addChildDiffs(List<NodeDiff<Node>> childDiffs) {
         this.childDiffs.addAll(childDiffs);
     }
 

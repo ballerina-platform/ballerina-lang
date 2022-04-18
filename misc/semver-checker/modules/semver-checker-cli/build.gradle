@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
  
 apply from: "$rootDir/gradle/javaProject.gradle"
@@ -22,12 +21,12 @@ dependencies {
     implementation 'info.picocli:picocli'
     implementation project(':ballerina-cli')
     implementation project(':ballerina-lang')
-//    implementation project(':semver-checker:semver-checker-core')
+    implementation project(':semver-checker:semver-checker-core')
 }
 
-description = 'Ballerina - Debug Adapter - Debug Adaptor CLI'
+description = 'Ballerina - Semver Checker CLI'
 
-ext.moduleName = 'ballerina.debug.adapter.cli'
+ext.moduleName = 'io.ballerina.semver.checker.cli'
 
 compileJava {
     inputs.property("moduleName", moduleName)

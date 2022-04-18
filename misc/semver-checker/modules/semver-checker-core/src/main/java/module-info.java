@@ -5,4 +5,5 @@ module io.ballerina.semver.checker.core {
 
     exports org.ballerinalang.semver.checker;
     exports org.ballerinalang.semver.checker.exceptions;
+    exports org.ballerinalang.semver.checker.diff;
 }
