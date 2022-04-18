@@ -254,7 +254,6 @@ public class CompilationOptions {
             return this;
         }
 
-        @Deprecated
         CompilationOptionsBuilder setExperimental(Boolean value) {
             experimental = value;
             return this;
