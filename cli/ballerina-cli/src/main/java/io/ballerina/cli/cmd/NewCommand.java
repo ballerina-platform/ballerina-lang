@@ -138,7 +138,7 @@ public class NewCommand implements BLauncherCmd {
         if (projectRoot != null) {
             CommandUtil.printError(errStream,
                     "directory is already within a Ballerina project :" +
-                            projectRoot.resolve(ProjectConstants.BALLERINA_TOML).toString(),
+                            projectRoot.resolve(ProjectConstants.BALLERINA_TOML),
                     null,
                     false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -155,20 +155,10 @@ public class NewCommand implements BLauncherCmd {
             return;
         }
 
-        if (!ProjectUtils.validateUnderscoresOfName(packageName)) {
-            CommandUtil.printError(errStream,
-                                   "invalid package name : '" + packageName + "' :\n" +
-                                           ProjectUtils.getValidateUnderscoreError(packageName, "Package"),
-                                   null,
-                                   false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
-
         if (!ProjectUtils.validatePackageName(packageName)) {
-            packageName = ProjectUtils.guessPkgName(packageName);
-            errStream.println("unallowed characters in the project name were replaced by " +
-                    "underscores when deriving the package name. Edit the Ballerina.toml to change it.");
+            packageName = ProjectUtils.guessPkgName(packageName, template);
+            errStream.println("package name is derived as '" + packageName
+                    + "'. Edit the Ballerina.toml to change it.");
             errStream.println();
         }
 
@@ -209,7 +199,7 @@ public class NewCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
         }
         if (Files.exists(path)) {
-            errStream.println("Created new package '" + guessPkgName(packageName)
+            errStream.println("Created new package '" + guessPkgName(packageName, template)
                     + "' at " + userDir.relativize(path) + ".");
         }
         if (this.exitWhenFinish) {
