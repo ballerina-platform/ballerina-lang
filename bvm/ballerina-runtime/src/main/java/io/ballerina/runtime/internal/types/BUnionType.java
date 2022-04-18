@@ -376,7 +376,9 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
 
     @Override
     public int hashCode() {
-
+        if (isCyclic) {
+            return super.hashCode();
+        }
         return Objects.hash(super.hashCode(), memberTypes);
     }
 
