@@ -2396,7 +2396,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
-                return getMappingConstructorCompatibleNonUnionType(((BTypeReferenceType) type).referredType);
+                return getMappingConstructorCompatibleNonUnionType(((BTypeReferenceType) type).referredType, data);
         }
         return symTable.semanticError;
     }
