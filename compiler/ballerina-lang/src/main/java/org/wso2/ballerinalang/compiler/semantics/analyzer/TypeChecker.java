@@ -3893,18 +3893,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 }
 
+                BUnionType expectedNextReturnType =
+                        createNextReturnType(cIExpr.pos, (BStreamType) actualType, data);
                 if (cIExpr.initInvocation.argExprs.isEmpty()) {
                     if (!types.containsNilType(actualStreamType.completionType)) {
                         dlog.error(cIExpr.pos, DiagnosticErrorCode.INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR,
                                 expectedNextReturnType);
-                        resultType = symTable.semanticError;
+                        data.resultType = symTable.semanticError;
                         return;
                     }
                 } else {
                     BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, symTable.noType, data);
-                    BUnionType expectedNextReturnType =
-                            createNextReturnType(cIExpr.pos, (BStreamType) actualType, data);
                     if (constructType.tag != TypeTags.OBJECT) {
                         dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
                                 expectedNextReturnType, constructType);
