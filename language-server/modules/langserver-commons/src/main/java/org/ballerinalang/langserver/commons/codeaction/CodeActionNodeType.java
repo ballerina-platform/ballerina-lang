@@ -33,6 +33,7 @@ public enum CodeActionNodeType {
     CLASS,
     RECORD,
     IMPORTS,
+    OBJECT_FIELD,
     NONE;
 
     /**

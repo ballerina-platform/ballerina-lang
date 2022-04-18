@@ -75,6 +75,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -119,6 +120,8 @@ public class CodeActionUtil {
                 return CodeActionNodeType.NONE;
             case METHOD_DECLARATION:
                 return CodeActionNodeType.OBJECT_FUNCTION;
+            case OBJECT_FIELD:
+                return CodeActionNodeType.OBJECT_FIELD;
             case CLASS_DEFINITION:
                 return CodeActionNodeType.CLASS;
             case OBJECT_METHOD_DEFINITION:
@@ -448,6 +451,31 @@ public class CodeActionUtil {
         return edits;
     }
 
+    public static List<TextEdit> addGettersCodeActionEdits(String varName, Range range,
+                                                           int offset,
+                                                           String typeName,
+                                                           CodeActionContext context) {
+        Position startPos = range.getEnd();
+        Range newTextRange = new Range(startPos, startPos);
+        List<TextEdit> edits = new ArrayList<>();
+        String spaces = StringUtils.repeat(' ', offset);
+        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
+        edits.add(new TextEdit(newTextRange, generateGetterFunctionBodyText(varName, typeName, spaces, padding)));
+        return edits;
+    }
+
+    public static List<TextEdit> addSettersCodeActionEdits(String varName, Range range, int offset,
+                                                           String typeName,
+                                                           CodeActionContext context) {
+        Position startPos = range.getEnd();
+        Range newTextRange = new Range(startPos, startPos);
+        List<TextEdit> edits = new ArrayList<>();
+        String spaces = StringUtils.repeat(' ', offset);
+        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
+        edits.add(new TextEdit(newTextRange, generateSetterFunctionBodyText(varName, typeName, spaces, padding)));
+        return edits;
+    }
+
     public static List<TextEdit> getAddCheckTextEdits(Position pos, NonTerminalNode matchedNode,
                                                       CodeActionContext context) {
         List<TextEdit> edits = new ArrayList<>();
@@ -556,6 +584,10 @@ public class CodeActionUtil {
         while (member != null) {
             boolean isWithinStartSegment = isWithinStartCodeSegment(member, cursorPosOffset);
             boolean isWithinBody = isWithinBody(member, cursorPosOffset);
+            if (member.kind() == SyntaxKind.OBJECT_FIELD) {
+                return Optional.of(member);
+            }
+
             if (!isWithinStartSegment && !isWithinBody) {
                 member = member.parent();
                 continue;
@@ -863,6 +895,30 @@ public class CodeActionUtil {
         }
         newTextBuilder.append(String.format(" else {%s}%s", padding, LINE_SEPARATOR));
         return LINE_SEPARATOR + newTextBuilder.toString();
+    }
+
+    private static String generateGetterFunctionBodyText(String varName, String typeName,
+                                                         String spaces, String padding) {
+
+        StringBuilder newTextBuilder = new StringBuilder();
+        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        newTextBuilder.append(String.format
+                (LINE_SEPARATOR + spaces + "public function get%s() returns %s{ " + LINE_SEPARATOR +
+                spaces + spaces + "return self.%s;" + LINE_SEPARATOR + spaces + "}" +  LINE_SEPARATOR,
+                functionName, typeName, varName));
+        return newTextBuilder.toString();
+    }
+
+    private static String generateSetterFunctionBodyText(String varName, String typeName,
+                                                         String spaces, String padding) {
+
+        StringBuilder newTextBuilder = new StringBuilder();
+        String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
+        newTextBuilder.append(String.format
+                (LINE_SEPARATOR + spaces + "public function set%s(%s %s) { " + LINE_SEPARATOR +
+                spaces + spaces + "self.%s = %s;" + LINE_SEPARATOR + "" + spaces + "}" + LINE_SEPARATOR,
+                functionName, typeName, varName, varName, varName));
+        return newTextBuilder.toString();
     }
 
     /**
