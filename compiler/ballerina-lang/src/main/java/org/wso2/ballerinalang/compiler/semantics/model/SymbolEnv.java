@@ -95,16 +95,16 @@ public class SymbolEnv {
     }
 
     public void copyTo(SymbolEnv target) {
-        this.withoutEnclEnvCopyTo(target);
+        this.copyToWithoutEnclEnv(target);
         target.enclEnv = this;
     }
 
     public void copyTo(SymbolEnv target, SymbolEnv enclEnv) {
-        this.withoutEnclEnvCopyTo(target);
+        this.copyToWithoutEnclEnv(target);
         target.enclEnv = enclEnv;
     }
 
-    private void withoutEnclEnvCopyTo(SymbolEnv target) {
+    private void copyToWithoutEnclEnv(SymbolEnv target) {
         target.enclPkg = this.enclPkg;
         target.enclType = this.enclType;
         target.enclAnnotation = this.enclAnnotation;

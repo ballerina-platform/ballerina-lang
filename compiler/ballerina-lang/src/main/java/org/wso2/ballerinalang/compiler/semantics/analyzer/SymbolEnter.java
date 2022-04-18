@@ -2166,8 +2166,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv;
         NodeKind previousNodeKind = env.node.getKind();
-        if (previousNodeKind == NodeKind.CLASS_DEFN || previousNodeKind == NodeKind.OBJECT_TYPE) {
-            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, fieldsRemovedEnv(env));
+        if (previousNodeKind == NodeKind.CLASS_DEFN) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope,
+                    fieldsRemovedEnv(env, ((BLangClassDefinition) env.node).fields));
+        } else if (previousNodeKind == NodeKind.OBJECT_TYPE) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope,
+                    fieldsRemovedEnv(env, ((BLangObjectTypeNode) env.node).fields));
         } else {
             invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         }
@@ -2188,21 +2192,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private SymbolEnv fieldsRemovedEnv(SymbolEnv currentEnv) {
+    private SymbolEnv fieldsRemovedEnv(SymbolEnv currentEnv, List<BLangSimpleVariable> fields) {
+        if (fields.isEmpty()) {
+            return currentEnv;
+        }
         Scope currentScope = currentEnv.scope;
         Scope newScope = new Scope(currentScope.owner);
-        Map<Name, ScopeEntry> currentEntries = currentScope.entries;
-        boolean fieldsAvailable = false;
-        for (Name name : currentEntries.keySet()) {
-            ScopeEntry entry = currentEntries.get(name);
-            if (entry.symbol.getFlags().contains(Flag.FIELD)) {
-                    fieldsAvailable = true;
-            } else {
-                newScope.entries.put(name, entry);
-            }
-        }
-        if (!fieldsAvailable) {
-            return currentEnv;
+        newScope.entries.putAll(currentScope.entries);
+        Map<Name, ScopeEntry> entries = newScope.entries;
+        for (BLangSimpleVariable field : fields) {
+            entries.remove(Names.fromString(field.name.value));
         }
         SymbolEnv newEnv = new SymbolEnv(currentEnv.node, newScope);
         currentEnv.copyTo(newEnv, currentEnv.enclEnv);
