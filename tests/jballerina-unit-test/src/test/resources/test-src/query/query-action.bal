@@ -426,6 +426,7 @@ function returnString() returns string {
        do {
          return "Dummy string";
        };
+    return "Should not reach here";
 }
 
 function returnStringOrError() returns string|error {

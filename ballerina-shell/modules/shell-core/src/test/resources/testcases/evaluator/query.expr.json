@@ -19,7 +19,7 @@
   {
     "description": "Query stream evaluation - get value.",
     "code": "reportListStream",
-    "expr": "stream <stream<map>>"
+    "expr": "stream <stream<map<(any|error)>>>"
   },
   {
     "description": "String from query evaluation.",

@@ -12,12 +12,9 @@ public simpleAddition function() -> () {
         %5 = ConstLoad 1;
         %7 = %3 + %5;
         %0 = ConstLoad 0;
-        GOTO bb2;
+        GOTO bb1;
     }
     bb1 {
-        GOTO bb2;
-    }
-    bb2 {
         return;
     }
 

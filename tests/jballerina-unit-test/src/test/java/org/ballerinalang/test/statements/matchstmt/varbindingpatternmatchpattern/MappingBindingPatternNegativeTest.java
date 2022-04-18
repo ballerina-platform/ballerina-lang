@@ -60,6 +60,7 @@ public class MappingBindingPatternNegativeTest {
         BAssertUtil.validateWarning(warningResult, ++i, unreachablePattern, 42, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'a'", 42, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'b'", 42, 9);
+        BAssertUtil.validateWarning(warningResult, ++i, "unreachable pattern", 44, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'b'", 44, 9);
         BAssertUtil.validateWarning(warningResult, ++i, unreachablePattern, 46, 9);
         BAssertUtil.validateWarning(warningResult, ++i, "unused variable 'b'", 46, 9);

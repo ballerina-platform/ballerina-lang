@@ -1,0 +1,12 @@
+[package]
+org = "pramodya"
+name = "uberJarPackage"
+version = "0.1.0"
+distribution = "2201.0.0"
+
+[[platform.java11.dependency]]
+path = "./libs/redis-2.2.0.jar"
+groupId = "org.ballerinalang"
+artifactId = "redis-utils"
+module = "redis-utils"
+version="2.2.1"

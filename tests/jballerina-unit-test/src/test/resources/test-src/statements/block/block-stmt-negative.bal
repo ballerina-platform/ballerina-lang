@@ -104,7 +104,7 @@ function testUnreachableThrow (int value) returns (string) {
     if (value > 10) {
         testError tError = {message: "error", cause: error("errorMsg", code = "test")};
         return "unreachable throw";
-        panic tError.cause;
+        panic tError.cause; // unreachable panic stmt is not an error
     }
     return "done";
 }
@@ -113,7 +113,7 @@ function testRedeclareFunctionArgument (int value) returns (string) {
     if (value > 10) {
         testError tError = {message: "error", cause: error("errorMsg", code = "test")};
         return "unreachable throw";
-        panic tError.cause;
+        panic tError.cause; // unreachable panic stmt is not an error
     }
     return "done";
 }

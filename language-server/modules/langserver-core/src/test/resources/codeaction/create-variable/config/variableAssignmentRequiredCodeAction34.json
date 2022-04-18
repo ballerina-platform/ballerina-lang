@@ -3,7 +3,7 @@
     "character": 4,
     "expected": [
         {
-            "title": "Create variable with 'record {| string firstName; string lastName; string deptAccess; int age; |}[]'",
+            "title": "Create variable with 'record {|string firstName; string lastName; string deptAccess; int age;|}[]'",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "record {| string firstName; string lastName; string deptAccess; int age; |}[] listResult = "
+                    "newText": "record {|string firstName; string lastName; string deptAccess; int age;|}[] listResult = "
                 }
             ]
         }

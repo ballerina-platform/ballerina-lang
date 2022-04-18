@@ -41,7 +41,7 @@ function testNegative2() {
         error("Message") | error("Message") => {} // unreachable pattern
         error(_) | error(_) => {} // unreachable pattern
         error(var a) | error(var b) => {} // unreachable pattern
-        error("Message", error("Msg")) | error("Message", error("Msg")) => {} // unreachable pattern
+        error("Message", error("foo")) | error("Message", error("foo")) => {} // unreachable pattern
         error("Message", error("Msg"), x = 2) | error("Message", error("Msg"), x = 2) => {} // unreachable pattern
         error("Message", error("Msg"), x = 4) | error("Message", error("Msg"), x = 3) => {}
         error MyError1("Message", x = 4) | error MyError1("Message", x = 4) => {} // unreachable pattern

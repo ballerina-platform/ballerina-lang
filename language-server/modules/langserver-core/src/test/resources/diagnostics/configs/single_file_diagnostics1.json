@@ -10,14 +10,14 @@
           },
           "end": {
             "line": 0,
-            "character": 20
+            "character": 21
           }
         },
         "severity": "Error",
         "code": {
           "left": "BCE2003"
         },
-        "message": "cannot resolve module 'ballerina/io'"
+        "message": "cannot resolve module 'ballerina/iox'"
       },
       {
         "range": {
@@ -27,7 +27,7 @@
           },
           "end": {
             "line": 5,
-            "character": 30
+            "character": 31
           }
         },
         "severity": "Error",
@@ -44,14 +44,14 @@
           },
           "end": {
             "line": 5,
-            "character": 30
+            "character": 31
           }
         },
         "severity": "Error",
         "code": {
           "left": "BCE2000"
         },
-        "message": "undefined module 'io'"
+        "message": "undefined module 'iox'"
       },
       {
         "range": {

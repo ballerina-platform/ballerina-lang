@@ -20,7 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
-import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -37,21 +37,21 @@ import java.util.List;
 public class BClassSymbol extends BObjectTypeSymbol implements Annotatable {
 
     public boolean isServiceDecl;
-    private List<BAnnotationSymbol> annots;
+    private List<BAnnotationAttachmentSymbol> annotationAttachments;
 
     public BClassSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type,
                         BSymbol owner, Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.referencedFunctions = new ArrayList<>();
-        this.annots = new ArrayList<>();
+        this.annotationAttachments = new ArrayList<>();
     }
 
     @Override
-    public void addAnnotation(AnnotationSymbol symbol) {
+    public void addAnnotation(AnnotationAttachmentSymbol symbol) {
         if (symbol == null) {
             return;
         }
-        this.annots.add((BAnnotationSymbol) symbol);
+        this.annotationAttachments.add((BAnnotationAttachmentSymbol) symbol);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class BClassSymbol extends BObjectTypeSymbol implements Annotatable {
     }
 
     @Override
-    public List<? extends AnnotationSymbol> getAnnotations() {
-        return this.annots;
+    public List<? extends AnnotationAttachmentSymbol> getAnnotations() {
+        return this.annotationAttachments;
     }
 }

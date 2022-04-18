@@ -182,11 +182,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| string:Char value; |}?;}",
+      "detail": "object {public isolated function next() returns record {|string:Char value;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| string:Char value; |}?;}`   \n- a new iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|string:Char value;|}?;}`   \n- a new iterator object  \n  \n"
         }
       },
       "sortText": "CD",
@@ -326,7 +326,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to type `t`, or an error if this cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
         }
       },
       "sortText": "CD",
@@ -537,7 +537,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it\nreturn - `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done(Defaultable)  \n  \n**Return** `t|error`   \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
         }
       },
       "sortText": "CD",
@@ -578,6 +578,63 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "padStart(int len, string:Char padChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the start of a string.\nAdds sufficient `padChar` characters at the start of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "padStart",
+      "insertText": "padStart(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "padEnd(int len, string:Char padChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the end of a string.\nAdds sufficient `padChar` characters to the end of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "padEnd",
+      "insertText": "padEnd(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "padZero(int len, string:Char zeroChar)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nPads a string with zeros.\nThe zeros are added at the start of the string, after a `+` or `-` sign if there is one.\nSufficient zero characters are added to `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` zeroChar: the character to use for the zero; defaults to ASCII zero `0`(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with zeros  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "padZero",
+      "insertText": "padZero(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

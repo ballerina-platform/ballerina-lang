@@ -28,6 +28,7 @@ import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LineRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -36,6 +37,7 @@ import toml.parser.test.ParserTestUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -408,5 +410,27 @@ public class KeyValueTest {
         TomlStringValueNode arrVal2 =
                 (TomlStringValueNode) (read.getTables("tableArr").get(1).get("name.nested.greeting").get());
         Assert.assertEquals(arrVal2.getValue(), "how are youu");
+
+        TomlArrayValueNode arrSample = (TomlArrayValueNode) read.get("arrSample").get();
+        Assert.assertEquals(((TomlStringValueNode) arrSample.get(2)).getValue(), "hello");
+
+        TomlInlineTableValueNode inlineTable1 = arrSample.get(0);
+        TomlKeyValueNode inlineTable1Val1 = (TomlKeyValueNode) inlineTable1.elements().get(0);
+        Assert.assertEquals(inlineTable1Val1.key().name(), "first");
+        Assert.assertEquals(((TomlStringValueNode) inlineTable1Val1.value()).getValue(), "yagami");
+
+        TomlInlineTableValueNode inlineTable2 = arrSample.get(1);
+        TomlKeyValueNode inlineTable2Val1 = (TomlKeyValueNode) inlineTable2.elements().get(0);
+        Assert.assertEquals(inlineTable2Val1.key().name(), "first");
+        Assert.assertEquals(((TomlStringValueNode) inlineTable2Val1.value()).getValue(), "Anjana");
+
+        TomlTableNode convertedTable = inlineTable2.toTable();
+        Map<String, TopLevelNode> entries = convertedTable.entries();
+
+        TomlValueNode firstVal = ((TomlKeyValueNode) entries.get("first")).value();
+        Assert.assertEquals(((TomlStringValueNode) firstVal).getValue(), "Anjana");
+
+        TomlValueNode lsatVal = ((TomlKeyValueNode) entries.get("last")).value();
+        Assert.assertEquals(((TomlStringValueNode) lsatVal).getValue(), "Supun");
     }
 }
