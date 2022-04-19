@@ -1,0 +1,2 @@
+public function funcD2() {
+}

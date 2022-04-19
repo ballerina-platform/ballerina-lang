@@ -1,0 +1,16 @@
+[package]
+org = "local_res"
+name = "project_0004"
+version = "1.0.0"
+
+[[dependency]]
+org="local_res"
+name="package_b"
+version="0.0.1"
+repository="local"
+
+[[dependency]]
+org="local_res"
+name="package_c"
+version="0.0.1"
+repository="local"

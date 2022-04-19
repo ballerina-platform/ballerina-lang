@@ -1,0 +1,9 @@
+[package]
+org = "local_res"
+name = "project_0003"
+version = "1.0.0"
+
+[[dependency]]
+org="local_res"
+name="package_a"
+version="0.0.1"
