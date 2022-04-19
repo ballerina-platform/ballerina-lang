@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
@@ -33,6 +34,7 @@ public abstract class TypeBuilder {
     public XML XML_TYPE;
     public MAP MAP_TYPE;
     public FUTURE FUTURE_TYPE;
+    public TYPEDESC TYPEDESC_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -83,5 +85,12 @@ public abstract class TypeBuilder {
         FUTURE withTypeParam(TypeSymbol typeParam);
 
         FutureTypeSymbol build();
+    }
+
+    public interface TYPEDESC {
+
+        TYPEDESC withTypeParam(TypeSymbol typeParam);
+
+        TypeDescTypeSymbol build();
     }
 }
