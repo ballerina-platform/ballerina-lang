@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -46,6 +47,7 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
@@ -179,6 +181,28 @@ public class TypeBuildersTest {
                 {types.STRING, FUTURE, "future<string>"},
                 {types.INT, FUTURE, "future<int>"},
                 {null, FUTURE, "future<()>"},
+        };
+    }
+
+    @Test(dataProvider = "typedescTypeBuilderProvider")
+    public void testTypeDescTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
+        TypeBuilder builder = types.builder();
+        TypeDescTypeSymbol typeDescTypeSymbol = builder.TYPEDESC_TYPE.withTypeParam(typeParam).build();
+        assertEquals(typeDescTypeSymbol.typeKind(), typeDescKind);
+        if (typeParam != null) {
+            assertTrue(typeDescTypeSymbol.typeParameter().isPresent());
+            assertEquals(typeDescTypeSymbol.typeParameter().get().signature(), typeParam.signature());
+        }
+
+        assertEquals(typeDescTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "typedescTypeBuilderProvider")
+    private Object[][] getTypedescTypeBuilders() {
+        return new Object[][] {
+                {types.FLOAT, TYPEDESC, "typedesc<float>"},
+                {types.BOOLEAN, TYPEDESC, "typedesc<boolean>"},
+                {null, TYPEDESC, "TYPEDESC"},
         };
     }
 }
