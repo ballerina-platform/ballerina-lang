@@ -387,11 +387,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {| array:Type value; |}?;}",
+      "detail": "object {public isolated function next() returns record {|array:Type value;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {| array:Type value; |}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nReturns an iterator over an array.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|array:Type value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `arr`.  \n  \n"
         }
       },
       "sortText": "CD",
@@ -533,6 +533,44 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "some(function () func)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for some member of an array.\n\nThe parameter `func` is called for each member of parameter `arr` in order unless and until a call returns true.\nWhen the array is empty, returns false.\n  \n**Params**  \n- `function ()` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter `func` returns true for some member of `arr`; otherwise, false  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "some",
+      "insertText": "some(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "every(function () func)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:0.0.0_  \n  \nTests whether a function returns true for every member of an array.\n\nThe parameter `func` is called for each member of `arr` in order unless and until a call returns false.\nWhen the array is empty, returns true.\n  \n**Params**  \n- `function ()` func: function to apply to each member  \n  \n**Return** `boolean`   \n- true if applying parameter func returns true for every member of `arr`; otherwise, false  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "every",
+      "insertText": "every(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
