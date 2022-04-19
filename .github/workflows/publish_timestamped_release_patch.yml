@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - 2201.0.x
+      - 2201.1.x
   workflow_dispatch:
 
 jobs:
