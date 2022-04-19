@@ -21,6 +21,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -43,6 +44,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
@@ -155,6 +157,28 @@ public class TypeBuildersTest {
         return new Object[][] {
                 {types.ANY, MAP, "map<any>"},
                 {types.INT, MAP, "map<int>"},
+        };
+    }
+
+    @Test(dataProvider = "futureTypeBuilderProvider")
+    public void testFutureTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, String signature) {
+        TypeBuilder builder = types.builder();
+        FutureTypeSymbol futureTypeSymbol = builder.FUTURE_TYPE.withTypeParam(typeParam).build();
+        assertEquals(futureTypeSymbol.typeKind(), typeDescKind);
+        if (typeParam != null) {
+            assertTrue(futureTypeSymbol.typeParameter().isPresent());
+            assertEquals(futureTypeSymbol.typeParameter().get().signature(), typeParam.signature());
+        }
+
+        assertEquals(futureTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "futureTypeBuilderProvider")
+    private Object[][] getFutureTypeBuilders() {
+        return new Object[][] {
+                {types.STRING, FUTURE, "future<string>"},
+                {types.INT, FUTURE, "future<int>"},
+                {null, FUTURE, "future<()>"},
         };
     }
 }
