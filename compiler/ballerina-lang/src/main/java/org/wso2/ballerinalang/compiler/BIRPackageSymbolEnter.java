@@ -1150,9 +1150,8 @@ public class BIRPackageSymbolEnter {
                         recordSymbol.initializerFunc = new BAttachedFunction(initFuncName, recordInitFuncSymbol,
                                                                              recordInitFuncType, symTable.builtinPos);
                         recordSymbol.scope.define(initFuncName, recordInitFuncSymbol);
+                        recordType.typeInclusions = readTypeInclusions();
                     }
-
-                    recordType.typeInclusions = readTypeInclusions();
 
 //                    setDocumentation(varSymbol, attrData); // TODO fix
 
