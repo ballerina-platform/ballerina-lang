@@ -1,0 +1,73 @@
+{
+  "line": 2,
+  "character": 18,
+  "expected": [
+    {
+      "title": "Create a setter for count",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function setCount(int  count) { \n        self.count = count;\n    }\n"
+        }
+      ]
+    },
+    {
+      "title": "Create a getter for count",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function getCount() returns int { \n        return self.count;\n    }\n"
+        }
+      ]
+    },
+    {
+      "title": "Create getter and setter for count",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function getCount() returns int { \n        return self.count;\n    }\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 0
+            },
+            "end": {
+              "line": 5,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }\n"
+        }
+      ]
+    }
+  ]
+}

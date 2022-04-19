@@ -1,0 +1,24 @@
+{
+  "line": 2,
+  "character": 18,
+  "expected": [
+    {
+      "title": "Create a setter for count",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 0
+            },
+            "end": {
+              "line": 9,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function setCount(int  count) { \n        self.count = count;\n    }\n"
+        }
+      ]
+    }
+  ]
+}
