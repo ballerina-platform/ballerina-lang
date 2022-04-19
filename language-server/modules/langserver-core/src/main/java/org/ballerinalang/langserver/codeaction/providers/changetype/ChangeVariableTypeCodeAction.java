@@ -213,6 +213,6 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             return ((TableTypeSymbol) typeSymbol).rowTypeParameter().typeKind() != TypeDescKind.COMPILATION_ERROR;
         }
 
-        return false;
+        return true;
     }
 }

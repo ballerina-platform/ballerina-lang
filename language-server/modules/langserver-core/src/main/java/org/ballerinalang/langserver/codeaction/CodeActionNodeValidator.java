@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -258,6 +259,11 @@ public class CodeActionNodeValidator extends NodeTransformer<Boolean> {
                 && !node.mapTypeParamsNode().isMissing()
                 && !node.mapTypeParamsNode().gtToken().isMissing()
                 && !node.mapTypeParamsNode().ltToken().isMissing();
+    }
+
+    @Override
+    public Boolean transform(QualifiedNameReferenceNode node) {
+        return isVisited(node) || !node.colon().isMissing() && !node.modulePrefix().isMissing();
     }
 
     /**

@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -59,13 +60,19 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
     );
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
-
+        
         Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         Optional<NonTerminalNode> nonTerminalNode = context.currentSyntaxTree()
                 .flatMap(syntaxTree -> Optional.ofNullable(CommonUtil.findNode(range, syntaxTree)));

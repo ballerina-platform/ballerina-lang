@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.FailStatementResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -49,17 +50,21 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Add on-fail clause";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
         if (!(DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
                 .equals(diagnostic.diagnosticInfo().code())) &&
                 !(DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
                         .equals(diagnostic.diagnosticInfo().code()))) {
-            return Collections.emptyList();
+            return false;
         }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
 
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         Node nodeAtDiagnostic = positionDetails.matchedNode();
         List<TextEdit> edits = new ArrayList<>();
         String commandTitle;

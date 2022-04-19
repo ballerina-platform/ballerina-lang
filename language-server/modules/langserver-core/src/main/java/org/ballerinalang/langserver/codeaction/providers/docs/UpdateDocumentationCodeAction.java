@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.executors.UpdateDocumentationExecutor;
@@ -61,9 +62,9 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+
         String code = diagnostic.diagnosticInfo().code();
         if (!DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER.diagnosticId().equals(code) &&
@@ -83,8 +84,16 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
                 !DiagnosticWarningCode.DUPLICATE_DOCUMENTED_ATTRIBUTE.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE.diagnosticId().equals(code)) {
-            return Collections.emptyList();
+            return false;
         }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
+
         String docUri = context.fileUri();
         SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
         Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(context.cursorPosition(), syntaxTree);
@@ -96,7 +105,7 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
         if (topLevelNode.get().kind() == SyntaxKind.SERVICE_DECLARATION) {
             return Collections.emptyList();
         }
-        
+
         NonTerminalNode node = topLevelNode.get();
         if (node.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION) {
             // If diagnostic message positions inside docs, get parent() node
@@ -104,7 +113,7 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
         }
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         CommonUtil.toRange(node.lineRange()));
+                CommonUtil.toRange(node.lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         String commandTitle = CommandConstants.UPDATE_DOCUMENTATION_TITLE;

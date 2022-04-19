@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
@@ -60,6 +61,15 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Type Cast";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -67,10 +77,6 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
-
         //Check if there is a type cast expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());

@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -45,12 +46,20 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
     private static final String CLONE_READONLY_PREFIX = "cloneReadOnly";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        if (!diagnostic.diagnosticInfo().code().equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId())) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId())) {
-            return Collections.emptyList();
-        }
+        
 
         NonTerminalNode currentNode = positionDetails.matchedNode();
         Optional<TypeSymbol> typeDescriptor = context.currentSemanticModel().get().typeOf(currentNode);

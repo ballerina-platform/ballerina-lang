@@ -25,6 +25,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -50,13 +51,19 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
     private static final String NAME = "Add Explicit Return Statement";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        if (!diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId())) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId())) {
-            return Collections.emptyList();
-        }
-
+        
         NonTerminalNode currentNode = positionDetails.matchedNode();
         Optional<FunctionDefinitionNode> functionDefinition = getFunctionDefinition(currentNode);
         if (functionDefinition.isEmpty()

@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -52,13 +53,19 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_MODULE = "undefined module";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        if (!(diagnostic.message().startsWith(UNDEFINED_MODULE))) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        if (!(diagnostic.message().startsWith(UNDEFINED_MODULE))) {
-            return actions;
-        }
         String uri = context.fileUri();
         String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
@@ -78,7 +85,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                     String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
                     String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
-                                                        pkgEntry.packageOrg().value() + "/" + moduleName);
+                            pkgEntry.packageOrg().value() + "/" + moduleName);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
                     CodeAction action = createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
