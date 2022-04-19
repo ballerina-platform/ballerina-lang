@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -154,7 +155,15 @@ public class AsyncUtils {
                 handleRuntimeErrors(error);
             }
         };
-        invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
+
+        try {
+            invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
+        } catch (Throwable t) {
+            BError error = ErrorCreator.createError(t);
+            error.setStackTrace(t.getStackTrace());
+            strand.panic = error;
+            strand.scheduler.unblockStrand(strand);
+        }
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {

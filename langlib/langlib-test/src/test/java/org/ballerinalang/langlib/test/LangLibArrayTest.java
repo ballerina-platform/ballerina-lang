@@ -333,6 +333,24 @@ public class LangLibArrayTest {
         Assert.fail();
     }
 
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.array}IndexOutOfRange \\{\"message\":\"array index out of range: " +
+                            "index: 2, size: 1\"}.*")
+    public void testForEachWhileRemoveElements() {
+        BRunUtil.invoke(compileResult, "testForEachWhileRemoveElements");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.array}IndexOutOfRange \\{\"message\":\"array index out of range: " +
+                            "index: 3, size: 2\"}.*")
+    public void testFilterWhileShrinkingArray() {
+        BRunUtil.invoke(compileResult, "testFilterWhileShrinkingArray");
+        Assert.fail();
+    }
+
     @Test
     public void testAsyncFpArgsWithArrays() {
         Object results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");

@@ -1642,3 +1642,18 @@ function testEvery9() {
     map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
     assertValueEquality(arr.every(func5), false);
 }
+
+function testForEachWhileRemoveElements() {
+    int[] arr = [1, 2, 3];
+    arr.forEach(function (int i) {
+        _ = arr.pop();
+    });
+}
+
+function testFilterWhileShrinkingArray() {
+    int[] arr = [1, 2, 3, 4, 5];
+    _ = arr.filter(function (int i) returns boolean {
+        _ = arr.pop();
+        return i > 4;
+    });
+}
