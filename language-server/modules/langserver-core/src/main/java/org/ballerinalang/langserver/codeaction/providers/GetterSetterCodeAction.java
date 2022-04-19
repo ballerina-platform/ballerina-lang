@@ -49,7 +49,6 @@ public class GetterSetterCodeAction extends AbstractCodeActionProvider {
         Position startPos = new Position(matchedNode.parent().lineRange().endLine().line(),
                 ((ClassDefinitionNode) matchedNode.parent()).closeBrace().lineRange().startLine().offset());
         Range newTextRange = new Range(startPos, startPos);
-
         String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
         for (Node node: ((ClassDefinitionNode) matchedNode.parent()).members()) {
             if (node instanceof FunctionDefinitionNode &&
@@ -67,9 +66,8 @@ public class GetterSetterCodeAction extends AbstractCodeActionProvider {
         }
 
         int offset = matchedNode.lineRange().startLine().offset();
-        List<TextEdit> edits = CodeActionUtil.addGettersCodeActionEdits(fieldName, newTextRange,
-                offset, typeName, context);
-        edits.addAll((CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange, offset, typeName,  context)));
+        List<TextEdit> edits = CodeActionUtil.addGettersCodeActionEdits(fieldName, newTextRange, offset, typeName);
+        edits.addAll((CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange, offset, typeName)));
         return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
     }
 

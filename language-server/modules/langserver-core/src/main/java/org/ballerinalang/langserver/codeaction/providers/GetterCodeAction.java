@@ -35,7 +35,8 @@ public class GetterCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context, NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
 
         if (!context.currentSyntaxTree().isPresent()) {
             return Collections.emptyList();
@@ -57,9 +58,9 @@ public class GetterCodeAction extends AbstractCodeActionProvider {
         Position startPos = new Position(matchedNode.parent().lineRange().endLine().line(),
                 ((ClassDefinitionNode) matchedNode.parent()).closeBrace().lineRange().startLine().offset());
         Range newTextRange = new Range(startPos, startPos);
+
         int offset = matchedNode.lineRange().startLine().offset();
-        List<TextEdit> edits = CodeActionUtil.addGettersCodeActionEdits(fieldName, newTextRange,
-                offset, typeName, context);
+        List<TextEdit> edits = CodeActionUtil.addGettersCodeActionEdits(fieldName, newTextRange, offset, typeName);
         return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
     }
 

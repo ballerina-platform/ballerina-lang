@@ -46,7 +46,6 @@ public class SetterCodeAction extends AbstractCodeActionProvider {
         String commandTitle = "Create a setter for " + ((ObjectFieldNode) matchedNode).fieldName().toString();
         String fieldName = String.valueOf(((ObjectFieldNode) matchedNode).fieldName());
         String typeName = String.valueOf(((ObjectFieldNode) matchedNode).typeName());
-
         String functionName = "set" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
         for (Node node: ((ClassDefinitionNode) matchedNode.parent()).members()) {
             if (node instanceof FunctionDefinitionNode &&
@@ -60,8 +59,7 @@ public class SetterCodeAction extends AbstractCodeActionProvider {
         Range newTextRange = new Range(startPos, startPos);
 
         int offset = matchedNode.lineRange().startLine().offset();
-        List<TextEdit> edits = CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange,
-                offset, typeName, context);
+        List<TextEdit> edits = CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange, offset, typeName);
         return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
     }
 

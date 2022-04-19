@@ -451,28 +451,21 @@ public class CodeActionUtil {
         return edits;
     }
 
-    public static List<TextEdit> addGettersCodeActionEdits(String varName, Range range,
-                                                           int offset,
-                                                           String typeName,
-                                                           CodeActionContext context) {
+    public static List<TextEdit> addGettersCodeActionEdits(String varName, Range range, int offset, String typeName) {
         Position startPos = range.getEnd();
         Range newTextRange = new Range(startPos, startPos);
         List<TextEdit> edits = new ArrayList<>();
         String spaces = StringUtils.repeat(' ', offset);
-        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
-        edits.add(new TextEdit(newTextRange, generateGetterFunctionBodyText(varName, typeName, spaces, padding)));
+        edits.add(new TextEdit(newTextRange, generateGetterFunctionBodyText(varName, typeName, spaces)));
         return edits;
     }
 
-    public static List<TextEdit> addSettersCodeActionEdits(String varName, Range range, int offset,
-                                                           String typeName,
-                                                           CodeActionContext context) {
+    public static List<TextEdit> addSettersCodeActionEdits(String varName, Range range, int offset, String typeName) {
         Position startPos = range.getEnd();
         Range newTextRange = new Range(startPos, startPos);
         List<TextEdit> edits = new ArrayList<>();
         String spaces = StringUtils.repeat(' ', offset);
-        String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
-        edits.add(new TextEdit(newTextRange, generateSetterFunctionBodyText(varName, typeName, spaces, padding)));
+        edits.add(new TextEdit(newTextRange, generateSetterFunctionBodyText(varName, typeName, spaces)));
         return edits;
     }
 
@@ -897,9 +890,7 @@ public class CodeActionUtil {
         return LINE_SEPARATOR + newTextBuilder.toString();
     }
 
-    private static String generateGetterFunctionBodyText(String varName, String typeName,
-                                                         String spaces, String padding) {
-
+    private static String generateGetterFunctionBodyText(String varName, String typeName, String spaces) {
         StringBuilder newTextBuilder = new StringBuilder();
         String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
         newTextBuilder.append(String.format
@@ -909,8 +900,7 @@ public class CodeActionUtil {
         return newTextBuilder.toString();
     }
 
-    private static String generateSetterFunctionBodyText(String varName, String typeName,
-                                                         String spaces, String padding) {
+    private static String generateSetterFunctionBodyText(String varName, String typeName, String spaces) {
 
         StringBuilder newTextBuilder = new StringBuilder();
         String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
