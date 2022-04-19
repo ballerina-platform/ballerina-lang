@@ -20,12 +20,20 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The implementation of the methods used to build the XML type descriptor.
@@ -37,6 +45,11 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
     private TypeSymbol typeParam;
+
+    private final Map<String, Boolean> checkedTypeRefs = new HashMap<>();
+    private final Set<String> visitedTypeRefs = new HashSet<>();
+    private final Map<String, Boolean> checkedUnionTypes = new HashMap<>();
+    private final Set<String> visitedUnionTypes = new HashSet<>();
 
     public BallerinaXMLTypeBuilder(CompilerContext context) {
         typesFactory = TypesFactory.getInstance(context);
@@ -65,7 +78,7 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
 
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
-            if (typeSymbol instanceof XMLTypeSymbol && typeSymbol instanceof AbstractTypeSymbol) {
+            if (isValidTypeParam(typeSymbol)) {
                 return ((AbstractTypeSymbol) typeSymbol).getBType();
             }
 
@@ -73,5 +86,65 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
         }
 
         return null;
+    }
+
+    private boolean isValidTypeParam(TypeSymbol typeSymbol) {
+        return isValidXMLSubType(typeSymbol) ||
+                (typeSymbol.typeKind() == TypeDescKind.TYPE_REFERENCE
+                        && isValidTypeReference((TypeReferenceTypeSymbol) typeSymbol)) ||
+                (typeSymbol.typeKind() == TypeDescKind.UNION && isValidUnionType((UnionTypeSymbol) typeSymbol));
+    }
+
+    private boolean isValidTypeReference(TypeReferenceTypeSymbol typeSymbol) {
+        if (visitedTypeRefs.contains(typeSymbol.signature())) {
+            throw new IllegalArgumentException("Type parameter " + typeSymbol.signature()
+                    + " contains cyclic dependencies");
+        }
+
+
+        Boolean checkedTypeRef = checkedTypeRefs.get(typeSymbol.signature());
+        if (checkedTypeRef != null) {
+            return checkedTypeRef;
+        }
+
+        visitedTypeRefs.add(typeSymbol.signature());
+        boolean isValidTypeParam = isValidTypeParam(typeSymbol.typeDescriptor());
+        visitedTypeRefs.remove(typeSymbol.signature());
+        checkedTypeRefs.put(typeSymbol.signature(), isValidTypeParam);
+
+        return isValidTypeParam;
+    }
+
+    private boolean isValidUnionType(UnionTypeSymbol typeSymbol) {
+        if (visitedUnionTypes.contains(typeSymbol.signature())) {
+            throw new IllegalArgumentException("Type parameter " + typeSymbol.signature()
+                    + " contains cyclic dependencies");
+        }
+
+        Boolean checkedUnionType = checkedUnionTypes.get(typeSymbol.signature());
+        if (checkedUnionType != null) {
+            return checkedUnionType;
+        }
+
+        visitedUnionTypes.add(typeSymbol.signature());
+        boolean hasValidMembers = true;
+
+        for (TypeSymbol memberTypeDescriptor : typeSymbol.memberTypeDescriptors()) {
+            if (!isValidTypeParam(memberTypeDescriptor)) {
+                hasValidMembers = false;
+            }
+        }
+
+        visitedUnionTypes.remove(typeSymbol.signature());
+        checkedUnionTypes.put(typeSymbol.signature(), hasValidMembers);
+
+        return hasValidMembers;
+    }
+
+    private boolean isValidXMLSubType(TypeSymbol typeSymbol) {
+        TypeDescKind typeKind = typeSymbol.typeKind();
+
+        return typeKind == TypeDescKind.XML || typeKind == TypeDescKind.XML_ELEMENT || typeKind == TypeDescKind.XML_TEXT
+                || typeKind == TypeDescKind.XML_PROCESSING_INSTRUCTION || typeKind == TypeDescKind.XML_COMMENT;
     }
 }
