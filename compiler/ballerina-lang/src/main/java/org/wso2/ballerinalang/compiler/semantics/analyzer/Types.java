@@ -413,6 +413,10 @@ public class Types {
             return false;
         }
 
+        if (type.tag == TypeTags.READONLY) {
+            return true;
+        }
+
         return type.tag == TypeTags.NIL;
     }
 
