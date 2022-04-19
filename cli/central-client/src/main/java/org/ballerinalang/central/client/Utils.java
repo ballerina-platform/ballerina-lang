@@ -130,8 +130,8 @@ public class Utils {
                     logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
         }
 
-        // Create the following temp path bala/<org-name>/<pkg-name>/<pkg-version>/temp
-        Path tempPath = pkgPathInBalaCache.resolve(validPkgVersion).resolve("temp");
+        // Create the following temp path bala/<org-name>/<pkg-name>/<pkg-version_temp/<platform>
+        Path tempPath = pkgPathInBalaCache.resolve(validPkgVersion + "_temp").resolve(platform);
         createBalaFileDirectory(tempPath, logFormatter);
 
         // Write balaFiles to tempPath
@@ -140,8 +140,8 @@ public class Utils {
                 ":" + validPkgVersion, responseContentLength, outStream, logFormatter);
 
         // Once files are written to temp path, rename temp path with platform name
-        File tempDir = tempPath.toFile();
-        File platformDir = balaCacheWithPkgPath.toFile();
+        File tempDir = tempPath.getParent().toFile();
+        File platformDir = balaCacheWithPkgPath.getParent().toFile();
 
         if (!tempDir.renameTo(platformDir)) {
             throw new CentralClientException(logFormatter.formatLog("error creating directory for bala file"));
