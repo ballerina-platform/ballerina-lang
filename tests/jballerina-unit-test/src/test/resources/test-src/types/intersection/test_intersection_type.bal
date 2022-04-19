@@ -155,6 +155,24 @@ function testTypeCheckingAgainstEffectiveType2() {
     assertEquality("bar", farr[3]);
 }
 
+type R1 readonly & record {|int i;|}?;
+type R2 (readonly & record {|int i;|})?;
+
+function testR1(R1 r) returns boolean {
+    return r is record {|int i;|};
+}
+
+function testR2(R2 r) returns boolean {
+    return r is record {|int i;|};
+}
+
+function testTypeTestingInReadonlyRecord() {
+    assertTrue(testR1({i: 2}));
+    assertTrue(testR2({i: 2}));
+    assertFalse(testR1(()));
+    assertFalse((testR2(())));
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
