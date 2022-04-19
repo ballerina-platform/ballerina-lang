@@ -409,10 +409,6 @@ public class Types {
                     .anyMatch(this::containsNilType);
         }
 
-        if (type.tag == TypeTags.READONLY) {
-            return true;
-        }
-
         return type.tag == TypeTags.NIL;
     }
 
