@@ -21,6 +21,9 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -37,7 +40,10 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
@@ -101,6 +107,36 @@ public class TypeBuildersTest {
                 {xmlSubTypes.get(1), XML, XML_COMMENT, "xml<xml:Comment>"},
                 {xmlSubTypes.get(2), XML, XML_PROCESSING_INSTRUCTION, "xml<xml:ProcessingInstruction>"},
                 {xmlSubTypes.get(3), XML, XML_TEXT, "xml<xml:Text>"},
+        };
+    }
+
+    @Test(dataProvider = "xmlTypeParamsFromSourceProvider")
+    public void testXmlTypeParamsFromSource(String typeDef, TypeDescKind typeDescKind, String signature) {
+        Optional<Symbol> typeSymbol = types.getTypeByName("testorg", "typesapi.builder", "1.0.0", typeDef);
+        assertTrue(typeSymbol.isPresent());
+        assertEquals(typeSymbol.get().kind(), SymbolKind.TYPE_DEFINITION);
+        TypeSymbol typeParam = ((TypeDefinitionSymbol) typeSymbol.get()).typeDescriptor();
+        XMLTypeSymbol xmlTypeSymbol = builder.XML_TYPE.withTypeParam(typeParam).build();
+        assertTrue(xmlTypeSymbol.typeParameter().isPresent());
+        assertEquals(xmlTypeSymbol.typeParameter().get().typeKind(), typeDescKind);
+        assertEquals(xmlTypeSymbol.signature(), signature);
+    }
+
+    // TODO: Check if the signatures are valid
+    @DataProvider(name = "xmlTypeParamsFromSourceProvider")
+    private Object[][] getXmlTypeParamsFromSource() {
+        return new Object[][] {
+                {"XmlEle", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Element>"},
+                {"XmlPi", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:ProcessingInstruction>"},
+                {"XmlCmnt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Comment>"},
+                {"XmlTxt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Text>"},
+                {"XmlUnionA", UNION, "xml<ballerina/lang.xml:0.0.0:Element|ballerina/lang.xml:0.0.0:ProcessingInstruction|ballerina/lang.xml:0.0.0:Text>"},
+                {"XmlUnionB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlEle|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:XmlCmnt>"},
+                {"MixXmlA", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlUnionB>"},
+                {"MixXmlB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlPi|testorg/typesapi.builder:1.0.0:MixXmlC>"},
+                {"MixXmlC", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:MixXmlA>"},
+                {"NewEle", TYPE_REFERENCE, "xml<testorg/typesapi.builder:1.0.0:XmlEle>"},
+                {"EleTxtCmnt", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlCmnt|ballerina/lang.xml:0.0.0:Text|testorg/typesapi.builder:1.0.0:NewEle>"},
         };
     }
 }
