@@ -63,7 +63,13 @@ public class BuildOptions {
         return this.compilationOptions.sticky();
     }
 
-    @Deprecated
+    /**
+     * Checks whether experimental compilation option is set.
+     *
+     * @return Is experimental compilation option is set
+     * @deprecated Since language no longer supports experimental features
+     */
+    @Deprecated(forRemoval = true)
     public boolean experimental() {
         return this.compilationOptions.experimental();
     }
@@ -235,7 +241,13 @@ public class BuildOptions {
             return this;
         }
 
-        @Deprecated
+        /**
+         * Set experimental compilation option.
+         *
+         * @return Build options builder
+         * @deprecated Since language no longer supports experimental features
+         */
+        @Deprecated(forRemoval = true)
         public BuildOptionsBuilder setExperimental(Boolean value) {
             compilationOptionsBuilder.setExperimental(value);
             return this;
