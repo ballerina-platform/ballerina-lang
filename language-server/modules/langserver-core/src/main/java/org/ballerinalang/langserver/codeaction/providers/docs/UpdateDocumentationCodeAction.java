@@ -51,6 +51,26 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Update Documentation";
 
+    private static final List<String> DIAGNOSTIC_IDS = Arrays.asList(
+            DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId(),
+            DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER.diagnosticId(),
+            DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED.diagnosticId(),
+            DiagnosticWarningCode.UNDOCUMENTED_FIELD.diagnosticId(),
+            DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD.diagnosticId(),
+            DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED.diagnosticId(),
+            DiagnosticWarningCode.UNDOCUMENTED_VARIABLE.diagnosticId(),
+            DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_VARIABLE.diagnosticId(),
+            DiagnosticWarningCode.VARIABLE_ALREADY_DOCUMENTED.diagnosticId(),
+            DiagnosticWarningCode.UNDOCUMENTED_RETURN_PARAMETER.diagnosticId(),
+            DiagnosticWarningCode.NO_DOCUMENTABLE_RETURN_PARAMETER.diagnosticId(),
+            DiagnosticWarningCode.INVALID_DOCUMENTATION_REFERENCE.diagnosticId(),
+            DiagnosticWarningCode.INVALID_USAGE_OF_PARAMETER_REFERENCE.diagnosticId(),
+            DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE.diagnosticId(),
+            DiagnosticWarningCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE.diagnosticId(),
+            DiagnosticWarningCode.DUPLICATE_DOCUMENTED_ATTRIBUTE.diagnosticId(),
+            DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId(),
+            DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE.diagnosticId());
+
     @Override
     public boolean isEnabled(LanguageServerContext serverContext) {
         return false;
@@ -66,27 +86,8 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
                             CodeActionContext context) {
 
         String code = diagnostic.diagnosticInfo().code();
-        if (!DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.PARAMETER_ALREADY_DOCUMENTED.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.UNDOCUMENTED_FIELD.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.UNDOCUMENTED_VARIABLE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_VARIABLE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.VARIABLE_ALREADY_DOCUMENTED.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.UNDOCUMENTED_RETURN_PARAMETER.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.NO_DOCUMENTABLE_RETURN_PARAMETER.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.INVALID_DOCUMENTATION_REFERENCE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.INVALID_USAGE_OF_PARAMETER_REFERENCE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.DUPLICATE_DOCUMENTED_ATTRIBUTE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE.diagnosticId().equals(code)) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_IDS.stream().anyMatch(id -> id.equals(code)) &&
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override

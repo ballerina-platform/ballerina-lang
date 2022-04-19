@@ -60,11 +60,9 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        if (!(DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT.diagnosticId()
-                .equals(diagnostic.diagnosticInfo().code())) || positionDetails.matchedNode() == null) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT.diagnosticId()
+                .equals(diagnostic.diagnosticInfo().code()) && positionDetails.matchedNode() != null && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override

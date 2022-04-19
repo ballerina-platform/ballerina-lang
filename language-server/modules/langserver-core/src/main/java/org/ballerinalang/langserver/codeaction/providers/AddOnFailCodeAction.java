@@ -50,15 +50,13 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Add on-fail clause";
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        if (!(DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
-                .equals(diagnostic.diagnosticInfo().code())) &&
-                !(DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
-                        .equals(diagnostic.diagnosticInfo().code()))) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return (DiagnosticErrorCode.CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
+                .equals(diagnostic.diagnosticInfo().code()) ||
+                DiagnosticErrorCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE.diagnosticId()
+                        .equals(diagnostic.diagnosticInfo().code())) 
+                && CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override
@@ -71,7 +69,7 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
 
         FailStatementResolver finder = new FailStatementResolver(diagnostic);
         Optional<Node> failStatementResolverNode = finder.getRegularCompoundStatementNode(nodeAtDiagnostic);
-        
+
         if (failStatementResolverNode.isPresent()
                 && failStatementResolverNode.get().kind() == SyntaxKind.WHILE_KEYWORD) {
             while (nodeAtDiagnostic.kind() == SyntaxKind.WHILE_STATEMENT) {
@@ -82,10 +80,10 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
             return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
                     CodeActionKind.QuickFix));
         }
-        
+
         if (failStatementResolverNode.isPresent()) {
             LinePosition regularCompoundStmtLinePosition = failStatementResolverNode.get().lineRange().endLine();
-            Position onFailPosLine = new Position(regularCompoundStmtLinePosition.line(), 
+            Position onFailPosLine = new Position(regularCompoundStmtLinePosition.line(),
                     regularCompoundStmtLinePosition.offset());
 
             String spaces = " ".repeat(regularCompoundStmtLinePosition.offset() - 1);
@@ -101,7 +99,7 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
- 
+
     public TextEdit getSurroundWithOnFailEditText(Node node) {
         while (!StatementNode.class.isAssignableFrom(node.getClass())) {
             node = node.parent();
@@ -122,7 +120,7 @@ public class AddOnFailCodeAction extends AbstractCodeActionProvider {
         TextEdit textEdit = new TextEdit(new Range(positionDo, posCheckLineStart), editTextDo);
         return textEdit;
     }
-    
+
     @Override
     public String getName() {
         return NAME;

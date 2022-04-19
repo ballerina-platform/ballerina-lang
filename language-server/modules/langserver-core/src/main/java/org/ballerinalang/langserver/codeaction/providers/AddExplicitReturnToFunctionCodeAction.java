@@ -53,10 +53,8 @@ public class AddExplicitReturnToFunctionCodeAction extends AbstractCodeActionPro
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
                             CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId())) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return diagnostic.diagnosticInfo().code().equals(FUNCTION_SHOULD_EXPLICITLY_RETURN_A_VALUE.diagnosticId()) 
+                && CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override

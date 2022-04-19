@@ -48,10 +48,9 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
                             CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId())) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return diagnostic.diagnosticInfo().code()
+                .equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId()) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
         
     }
 

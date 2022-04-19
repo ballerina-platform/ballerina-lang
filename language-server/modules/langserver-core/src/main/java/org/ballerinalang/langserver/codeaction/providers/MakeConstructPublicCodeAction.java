@@ -54,11 +54,9 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        if (!DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
-                || context.currentSemanticModel().isEmpty()) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) &&
+                context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override

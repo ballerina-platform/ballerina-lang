@@ -55,10 +55,8 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
                             CodeActionContext context) {
-        if (!(diagnostic.message().startsWith(UNDEFINED_MODULE))) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return diagnostic.message().startsWith(UNDEFINED_MODULE) 
+                && CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override

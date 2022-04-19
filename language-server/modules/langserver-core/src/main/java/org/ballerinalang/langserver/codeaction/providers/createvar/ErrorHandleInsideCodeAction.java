@@ -57,11 +57,9 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
                             CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
-            return false;
-        }
 
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return CodeActionNodeValidator.validate(context.nodeAtCursor()) && 
+                diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED);
     }
 
     @Override

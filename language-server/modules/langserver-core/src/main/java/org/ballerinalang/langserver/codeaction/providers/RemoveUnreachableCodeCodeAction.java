@@ -43,10 +43,8 @@ public class RemoveUnreachableCodeCodeAction extends AbstractCodeActionProvider 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        if (!DiagnosticErrorCode.UNREACHABLE_CODE.diagnosticId().equals(diagnostic.diagnosticInfo().code())) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DiagnosticErrorCode.UNREACHABLE_CODE.diagnosticId().equals(diagnostic.diagnosticInfo().code()) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     @Override

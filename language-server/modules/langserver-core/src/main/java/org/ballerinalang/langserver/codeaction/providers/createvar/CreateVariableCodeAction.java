@@ -60,11 +60,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-
-        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
-            return false;
-        }
-        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     /**
