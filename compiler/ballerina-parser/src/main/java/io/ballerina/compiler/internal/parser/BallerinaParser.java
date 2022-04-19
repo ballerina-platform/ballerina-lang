@@ -5176,15 +5176,16 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode createMissingObjectConstructor(STNode annots, STNode qualifierNodeList) {
-        STNode objectKeyword = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OBJECT_KEYWORD,
-                DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD);
-        STNode openBrace = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OPEN_BRACE_TOKEN,
-                DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN);
-        STNode closeBrace = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_BRACE_TOKEN,
-                DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN);
-        return STNodeFactory.createObjectConstructorExpressionNode(annots, qualifierNodeList, objectKeyword,
-                STNodeFactory.createEmptyNode(), openBrace, STNodeFactory.createEmptyNodeList(),
+        STNode objectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.OBJECT_KEYWORD);
+        STNode openBrace = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        STNode closeBrace = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+
+        STNode objConstructor = STNodeFactory.createObjectConstructorExpressionNode(annots, qualifierNodeList,
+                objectKeyword, STNodeFactory.createEmptyNode(), openBrace, STNodeFactory.createEmptyNodeList(),
                 closeBrace);
+        objConstructor = SyntaxErrors.addDiagnostic(objConstructor,
+                DiagnosticErrorCode.ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION);
+        return objConstructor;
     }
 
     private STNode parseQualifiedIdentifierOrExpression(boolean isInConditionalExpr, boolean isRhsExpr) {

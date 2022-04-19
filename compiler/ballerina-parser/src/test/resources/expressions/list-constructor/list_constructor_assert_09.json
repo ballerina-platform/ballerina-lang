@@ -5,6 +5,9 @@
     {
       "kind": "OBJECT_CONSTRUCTOR",
       "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION"
+      ],
       "children": [
         {
           "kind": "LIST",
@@ -45,19 +48,11 @@
         },
         {
           "kind": "OBJECT_KEYWORD",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_OBJECT_KEYWORD"
-          ]
+          "isMissing": true
         },
         {
           "kind": "OPEN_BRACE_TOKEN",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_OPEN_BRACE_TOKEN"
-          ]
+          "isMissing": true
         },
         {
           "kind": "LIST",
@@ -65,11 +60,7 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-          ]
+          "isMissing": true
         }
       ]
     },
