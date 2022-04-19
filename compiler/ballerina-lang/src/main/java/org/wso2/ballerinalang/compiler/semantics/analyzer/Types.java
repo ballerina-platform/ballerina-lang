@@ -405,8 +405,12 @@ public class Types {
     public boolean containsNilType(BType bType) {
         BType type = getReferredType(bType);
         if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream()
-                    .anyMatch(this::containsNilType);
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (containsNilType(memberType)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         return type.tag == TypeTags.NIL;
