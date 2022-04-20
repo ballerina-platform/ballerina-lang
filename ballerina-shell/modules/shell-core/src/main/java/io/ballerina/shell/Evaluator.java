@@ -102,7 +102,7 @@ public abstract class Evaluator extends DiagnosticReporter {
             throws BallerinaShellException;
 
     /**
-     * Base evaluation function which returns resulted object
+     * Base evaluation function which returns resulted object.
      * <p>
      * An input line may contain one or more statements separated by semicolons.
      * The result will be written via the {@code ShellResultController}.
@@ -117,9 +117,9 @@ public abstract class Evaluator extends DiagnosticReporter {
 
 
     /**
-     * Returns the absolute path of the created temporary file
+     * Returns the absolute path of the created temporary file.
      *
-     * @return path of file as a string
+     * @return path of file as a string.
      */
     public abstract String getBufferFileUri() throws IOException;
 
