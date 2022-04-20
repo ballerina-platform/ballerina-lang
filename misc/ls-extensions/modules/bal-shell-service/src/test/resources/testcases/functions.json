@@ -1,0 +1,28 @@
+[
+  {
+    "source": "int x = 10;",
+    "result": {
+      "errors":[],
+      "diagnostics":[]
+    }
+  },
+  {
+    "source": "function multiply(int m, int n) returns int { return m * n;}",
+    "result": {
+      "errors":[],
+      "diagnostics":[]
+    }
+  },
+  {
+    "source": "multiply(x,5)",
+    "result": {
+      "shellValue": {
+        "value":"50",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[]
+    }
+  }
+]

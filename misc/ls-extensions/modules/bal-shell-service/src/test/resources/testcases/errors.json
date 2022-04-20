@@ -1,0 +1,9 @@
+[
+  {
+    "source": "int x = \"10\";",
+    "result": {
+      "errors":[],
+      "diagnostics":["error: incompatible types: expected \u0027int\u0027, found \u0027string\u0027\n\tint x \u003d \"10\";\n\t        ^--^","Compilation aborted due to errors."]
+    }
+  }
+]
