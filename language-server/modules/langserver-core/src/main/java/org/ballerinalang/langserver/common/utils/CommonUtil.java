@@ -2048,26 +2048,19 @@ public class CommonUtil {
      * @return {@link List} List of arguments
      */
     public static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
-        List<String> args = new ArrayList<>();
-        Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> params = CommonUtil.getFunctionParameters(symbol, ctx);
-        List<ParameterSymbol> reqParams = params.getLeft();
-        for (ParameterSymbol param : reqParams) {
-            args.add(getParamTypeAndNamePair(param, ctx).orElse(""));
-        }
-        if (params.getRight().isPresent()) {
-            args.add(getParamTypeAndNamePair(params.getRight().get(), ctx).orElse(""));
-        }
-        return args;
+        List<ParameterSymbol> params = CommonUtil.getFunctionParameters(symbol, ctx);
+        return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse(""))
+                .collect(Collectors.toList());
     }
 
     /**
-     * Get the parameter type and name pair given the paramter symbol.
+     * Get the function parameter syntax given the parameter symbol.
      *
      * @param param parameter symbol.
      * @param ctx   Lang Server Operation context
-     * @return {@link Optional<String>} Type and name pair.
+     * @return {@link Optional<String>} Type and name syntax string.
      */
-    public static Optional<String> getParamTypeAndNamePair(ParameterSymbol param, BallerinaCompletionContext ctx) {
+    public static Optional<String> getFunctionParamaterSyntax(ParameterSymbol param, BallerinaCompletionContext ctx) {
 
         if (param.paramKind() == ParameterKind.REST) {
             ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
@@ -2090,10 +2083,9 @@ public class CommonUtil {
      *
      * @param symbol Invokable symbol to extract the parameters
      * @param ctx    Lang Server Operation context
-     * @return Pair of list of parameter symbols and rest parameter symbol.
+     * @return {@link List<ParameterSymbol> } list of parameter symbols.
      */
-    public static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getFunctionParameters(
-                    FunctionSymbol symbol, BallerinaCompletionContext ctx) {
+    public static List<ParameterSymbol> getFunctionParameters(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
         boolean skipFirstParam = skipFirstParam(ctx, symbol);
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
         Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
@@ -2109,7 +2101,8 @@ public class CommonUtil {
                 parameterDefs.addAll(params);
             }
         }
-        return Pair.of(parameterDefs, restParam);
+        restParam.ifPresent(parameterDefs::add);
+        return parameterDefs;
     }
 
     /**
