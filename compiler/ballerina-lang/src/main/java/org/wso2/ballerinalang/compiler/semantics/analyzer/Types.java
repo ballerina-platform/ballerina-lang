@@ -6798,7 +6798,7 @@ public class Types {
             IntersectionContext intersectionContext = new IntersectionContext(null, null, null, intersectionPos);
             intersectionContext.ignoreDefaultValues = true;
             intersectionContext.preferNonGenerativeIntersection = true;
-            intersectionContext.createTypeDefs = true;
+            intersectionContext.createTypeDefs = false;
             return intersectionContext;
         }
 
