@@ -327,12 +327,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateEnumMemberMetadata(pkgNode.constants);
 
-        // Then resolve user defined types
-        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++)  {
-            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
-                analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), pkgEnv);
-            }
-        }
+//        // Then resolve user defined types
+//        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++)  {
+//            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
+//                analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), pkgEnv);
+//            }
+//        }
 
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
@@ -355,9 +355,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
-                continue;
-            }
+//            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
+//                continue;
+//            }
 
             analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
         }
