@@ -140,11 +140,16 @@ public class Utils {
                 ":" + validPkgVersion, responseContentLength, outStream, logFormatter);
 
         // Once files are written to temp path, rename temp path with platform name
-        File tempDir = tempPath.getParent().toFile();
-        File platformDir = balaCacheWithPkgPath.getParent().toFile();
+        try {
+            File tempDir = tempPath.getParent().toFile();
+            File platformDir = balaCacheWithPkgPath.getParent().toFile();
 
-        if (!tempDir.renameTo(platformDir)) {
-            throw new CentralClientException(logFormatter.formatLog("error creating directory for bala file"));
+            if (!tempDir.renameTo(platformDir)) {
+                throw new CentralClientException(logFormatter.formatLog("error creating directory for bala file"));
+            }
+        } catch (NullPointerException e) {
+            throw new CentralClientException(logFormatter.formatLog("error creating directory for bala file :"
+                    + e.getMessage()));
         }
 
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
