@@ -2316,6 +2316,10 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case ELLIPSIS_TOKEN:
+                if (inclusionSymbol != null) {
+                    type = SyntaxErrors.addDiagnostic(type,
+                            DiagnosticErrorCode.INCLUDED_RECORD_PARAMETER_CANNOT_BE_REST_PARAMETER);
+                }
                 switchContext(ParserRuleContext.REST_PARAM);
                 STNode ellipsis = parseEllipsis();
                 if (isParamNameOptional && peek().kind != SyntaxKind.IDENTIFIER_TOKEN) {
