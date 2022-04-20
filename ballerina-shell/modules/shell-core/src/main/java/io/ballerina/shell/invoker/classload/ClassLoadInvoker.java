@@ -588,6 +588,22 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     }
 
     @Override
+    public List<Map<String, String>> availableVariablesAsMap() {
+        List<Map<String, String>> varMap = new ArrayList<>();
+        for (GlobalVariable entry : globalVars.values()) {
+            Map<String, String> varObject
+                    = new HashMap<>();
+            Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
+            String objStr = StringUtils.getExpressionStringValue(obj);
+            varObject.put("name", entry.getVariableName().toString());
+            varObject.put("type", entry.getType());
+            varObject.put("value", objStr);
+            varMap.add(varObject);
+        }
+        return varMap;
+    }
+
+    @Override
     public List<String> availableModuleDeclarations() {
         // Module level dclns.
         List<String> moduleDclnStrings = new ArrayList<>();
