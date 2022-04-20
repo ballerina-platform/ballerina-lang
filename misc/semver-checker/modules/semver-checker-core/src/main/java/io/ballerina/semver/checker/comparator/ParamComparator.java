@@ -31,6 +31,11 @@ import io.ballerina.semver.checker.diff.NodeDiff;
 
 import java.util.Optional;
 
+/**
+ * Comparator implementation for Ballerina function parameters.
+ *
+ * @since 2201.2.0
+ */
 public class ParamComparator extends NodeComparator<ParameterNode> {
 
     ParamComparator(ParameterNode newNode, ParameterNode oldNode) {

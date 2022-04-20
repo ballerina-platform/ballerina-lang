@@ -27,6 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Comparator implementation for Ballerina packages.
+ *
+ * @since 2201.2.0
+ */
 public class PackageComparator implements IComparator {
 
     private final Package newPackage;
@@ -43,13 +48,13 @@ public class PackageComparator implements IComparator {
         Map<String, Module> newModules = new HashMap<>();
         newPackage.modules().forEach(module -> newModules.put(module.moduleName().toString(), module));
         oldPackage.modules().forEach(module -> oldModules.put(module.moduleName().toString(), module));
-
-        PackageDiff packageDiff = new PackageDiff();
         DiffExtractor<Module> moduleDiffExtractor = new DiffExtractor<>(newModules, oldModules);
-        moduleDiffExtractor.getAdditions().forEach((name, module) -> packageDiff.moduleAdded(module));
-        moduleDiffExtractor.getRemovals().forEach((name, module) -> packageDiff.moduleRemoved(module));
-        moduleDiffExtractor.getCommons().forEach((name, modules) -> packageDiff.moduleChanged(modules.getKey(),
+
+        PackageDiff.Modifier packageDiffModifier = new PackageDiff.Modifier();
+        moduleDiffExtractor.getAdditions().forEach((name, module) -> packageDiffModifier.moduleAdded(module));
+        moduleDiffExtractor.getRemovals().forEach((name, module) -> packageDiffModifier.moduleRemoved(module));
+        moduleDiffExtractor.getCommons().forEach((name, modules) -> packageDiffModifier.moduleChanged(modules.getKey(),
                 modules.getValue()));
-        return Optional.of(packageDiff);
+        return Optional.of(packageDiffModifier.modify());
     }
 }

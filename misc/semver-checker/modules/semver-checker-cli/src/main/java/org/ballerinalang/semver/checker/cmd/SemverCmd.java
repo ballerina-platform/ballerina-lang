@@ -20,6 +20,8 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.semver.checker.SemverChecker;
+import io.ballerina.semver.checker.diff.CompatibilityLevel;
+import io.ballerina.semver.checker.diff.PackageDiff;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -27,6 +29,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Class to implement `semver` command for Ballerina.
@@ -72,7 +75,8 @@ public class SemverCmd implements BLauncherCmd {
             }
 
             SemverChecker semverChecker = new SemverChecker(projectPath);
-            semverChecker.getSuggestedVersion();
+            Optional<PackageDiff> suggestedVersion = semverChecker.getSuggestedVersion();
+            CompatibilityLevel compatibilityLevel = suggestedVersion.get().getModuleDiffs().get(3).getCompatibilityLevel();
         } catch (InvalidPathException e) {
             throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool: ", e);
         } catch (Throwable t) {

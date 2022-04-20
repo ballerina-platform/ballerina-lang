@@ -19,7 +19,8 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.semver.checker.util.Constants;
+
+import static io.ballerina.semver.checker.util.Constants.QUALIFIER_PUBLIC;
 
 public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
 
@@ -40,7 +41,8 @@ public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
     }
 
     private boolean isPrivateFunction() {
-        return newNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(Constants.QUALIFIER_PUBLIC))
-                && oldNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(Constants.QUALIFIER_PUBLIC));
+        return newNode != null && oldNode != null
+                && newNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(QUALIFIER_PUBLIC))
+                && oldNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(QUALIFIER_PUBLIC));
     }
 }

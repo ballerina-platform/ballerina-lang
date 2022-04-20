@@ -21,45 +21,36 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.semver.checker.diff.NodeDiff.getUnifiedCompatibility;
 
-public class ModuleDiff extends Diff implements IModuleDiff {
+/**
+ * Represents all the source code changes within a single Ballerina module.
+ *
+ * @since 2201.2.0
+ */
+public class ModuleDiff extends Diff {
 
     // Todo: Implement diff objects for other top-level constructs
-    private final Map<String, FunctionDiff> functionDiffs = new HashMap<>();
+    private final List<FunctionDiff> functionDiffs = new ArrayList<>();
 
-    @Override
-    public void functionAdded(FunctionDefinitionNode function) {
-        FunctionDiff moduleDiff = new FunctionDiff(function, null);
-        moduleDiff.setType(DiffType.NEW);
-        addFunctionDiff(function.functionName().text(), moduleDiff);
+    public List<FunctionDiff> getFunctionDiffs() {
+        return Collections.unmodifiableList(functionDiffs);
     }
 
-    @Override
-    public void functionRemoved(FunctionDefinitionNode function) {
-        FunctionDiff moduleDiff = new FunctionDiff(null, function);
-        moduleDiff.setType(DiffType.REMOVED);
-        addFunctionDiff(function.functionName().text(), moduleDiff);
-    }
-
-    @Override
-    public void functionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
-        Optional<FunctionDiff> functionDiff = new FunctionComparator(newFunction, oldFunction).computeDiff();
-        functionDiff.ifPresent(diff -> addFunctionDiff(newFunction.functionName().text(), diff));
-    }
-
-    public void addFunctionDiff(String functionName, FunctionDiff functionDiff) {
-        functionDiffs.put(functionName, functionDiff);
+    public void addFunctionDiff(FunctionDiff functionDiff) {
+        functionDiffs.add(functionDiff);
+        childDiffs.add(functionDiff);
     }
 
     @Override
     public CompatibilityLevel getCompatibilityLevel() {
-        CompatibilityLevel funcCompatibility = functionDiffs.values().stream()
+        CompatibilityLevel funcCompatibility = functionDiffs.stream()
                 .map(FunctionDiff::getCompatibilityLevel)
                 .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                 .orElse(CompatibilityLevel.UNKNOWN);
@@ -67,5 +58,41 @@ public class ModuleDiff extends Diff implements IModuleDiff {
         // Todo: add other top-level definitions compatibilities
 
         return getUnifiedCompatibility(funcCompatibility);
+    }
+
+    public static class Modifier implements DiffModifier {
+
+        private final ModuleDiff moduleDiff;
+
+        public Modifier() {
+            moduleDiff = new ModuleDiff();
+        }
+
+        @Override
+        public ModuleDiff modify() {
+            return moduleDiff;
+        }
+
+        public void functionAdded(FunctionDefinitionNode function) {
+            FunctionDiff functionDiff = new FunctionDiff(function, null);
+            functionDiff.setType(DiffType.NEW);
+            moduleDiff.addFunctionDiff(functionDiff);
+            moduleDiff.setType(DiffType.MODIFIED);
+        }
+
+        public void functionRemoved(FunctionDefinitionNode function) {
+            FunctionDiff functionDiff = new FunctionDiff(null, function);
+            functionDiff.setType(DiffType.REMOVED);
+            moduleDiff.addFunctionDiff(functionDiff);
+            moduleDiff.setType(DiffType.MODIFIED);
+        }
+
+        public void functionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
+            Optional<FunctionDiff> functionDiff = new FunctionComparator(newFunction, oldFunction).computeDiff();
+            functionDiff.ifPresent(functionDiff1 -> {
+                moduleDiff.setType(DiffType.MODIFIED);
+                moduleDiff.addFunctionDiff(functionDiff1);
+            });
+        }
     }
 }

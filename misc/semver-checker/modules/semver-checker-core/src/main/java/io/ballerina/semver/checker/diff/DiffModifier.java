@@ -18,13 +18,12 @@
 
 package io.ballerina.semver.checker.diff;
 
-import io.ballerina.projects.Module;
+/**
+ * Definition for Ballerina source diff modifiers.
+ *
+ * @since 2201.2.0
+ */
+public interface DiffModifier {
 
-public interface IPackageDiff extends IDiff {
-
-    void moduleAdded(Module module);
-
-    void moduleRemoved(Module module);
-
-    void moduleChanged(Module newModule, Module oldModule);
+    Diff modify();
 }

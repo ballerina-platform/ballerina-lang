@@ -32,6 +32,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Comparator implementation for Ballerina modules.
+ *
+ * @since 2201.2.0
+ */
 public class ModuleComparator implements IComparator {
 
     private final Module newModule;
@@ -46,20 +51,21 @@ public class ModuleComparator implements IComparator {
 
     @Override
     public Optional<ModuleDiff> computeDiff() {
-        ModuleDiff moduleDiff = new ModuleDiff();
+        ModuleDiff.Modifier moduleDiffModifier = new ModuleDiff.Modifier();
         extractModuleLevelDefinitions(newModule, true);
         extractModuleLevelDefinitions(oldModule, false);
 
-        analyzeFunctionDiffs(moduleDiff);
+        extractFunctionDiffs(moduleDiffModifier);
         // Todo: implement analyzers for other module-level definitions
-        return Optional.of(moduleDiff);
+        ModuleDiff modify = moduleDiffModifier.modify();
+        return Optional.of(moduleDiffModifier.modify());
     }
 
-    private void analyzeFunctionDiffs(ModuleDiff moduleDiff) {
+    private void extractFunctionDiffs(ModuleDiff.Modifier diffModifier) {
         DiffExtractor<FunctionDefinitionNode> functionDiffExtractor = new DiffExtractor<>(newFunctions, oldFunctions);
-        functionDiffExtractor.getAdditions().forEach((name, function) -> moduleDiff.functionAdded(function));
-        functionDiffExtractor.getRemovals().forEach((name, function) -> moduleDiff.functionRemoved(function));
-        functionDiffExtractor.getCommons().forEach((name, functions) -> moduleDiff.functionChanged(functions.getKey(),
+        functionDiffExtractor.getAdditions().forEach((name, function) -> diffModifier.functionAdded(function));
+        functionDiffExtractor.getRemovals().forEach((name, function) -> diffModifier.functionRemoved(function));
+        functionDiffExtractor.getCommons().forEach((name, functions) -> diffModifier.functionChanged(functions.getKey(),
                 functions.getValue()));
     }
 
@@ -93,6 +99,5 @@ public class ModuleComparator implements IComparator {
                 }
             }
         });
-
     }
 }

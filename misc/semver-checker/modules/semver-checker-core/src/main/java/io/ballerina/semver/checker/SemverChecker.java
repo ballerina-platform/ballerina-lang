@@ -46,15 +46,6 @@ public class SemverChecker {
         return packageComparator.computeDiff();
     }
 
-    public Optional<PackageDiff> computeDiff() throws BallerinaSemverToolException {
-        if (this.currentPackage == null) {
-            this.currentPackage = loadPackage(projectPath);
-        }
-
-        PackageComparator packageComparator = new PackageComparator(currentPackage, currentPackage);
-        return packageComparator.computeDiff();
-    }
-
     private Package loadPackage(Path projectPath) throws BallerinaSemverToolException {
         Project project = PackageUtils.loadProject(projectPath);
         switch (project.kind()) {

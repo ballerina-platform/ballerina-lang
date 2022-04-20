@@ -26,7 +26,7 @@ public class Diff implements IDiff {
 
     protected DiffType diffType;
     protected CompatibilityLevel compatibilityLevel;
-    protected final List<? extends Diff> childDiffs;
+    protected final List<IDiff> childDiffs;
 
     public Diff() {
         this(DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
@@ -49,7 +49,7 @@ public class Diff implements IDiff {
     public CompatibilityLevel getCompatibilityLevel() {
         if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
             compatibilityLevel = childDiffs.stream()
-                    .map(Diff::getCompatibilityLevel)
+                    .map(IDiff::getCompatibilityLevel)
                     .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                     .orElse(CompatibilityLevel.UNKNOWN);
         }

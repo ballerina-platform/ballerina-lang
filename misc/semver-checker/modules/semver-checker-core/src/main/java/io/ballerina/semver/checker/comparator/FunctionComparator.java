@@ -43,6 +43,11 @@ import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PUBLIC_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.TRANSACTIONAL_KEYWORD;
 
+/**
+ * Comparator implementation for Ballerina function definitions.
+ *
+ * @since 2201.2.0
+ */
 public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
     public FunctionComparator(FunctionDefinitionNode newNode, FunctionDefinitionNode oldNode) {

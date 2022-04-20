@@ -35,6 +35,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * Comparator implementation for Ballerina function parameter lists.
+ *
+ * @since 2201.2.0
+ */
 public class ParamListComparator extends NodeListComparator<List<ParameterNode>> {
 
     public ParamListComparator(List<ParameterNode> newNodes, List<ParameterNode> oldNodes) {

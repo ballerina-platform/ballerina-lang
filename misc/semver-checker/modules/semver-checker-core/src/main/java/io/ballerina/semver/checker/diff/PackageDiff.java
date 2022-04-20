@@ -21,49 +21,71 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.ModuleComparator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 
-public class PackageDiff extends Diff implements IPackageDiff {
+/**
+ * Represents all the source code changes within a single Ballerina package.
+ *
+ * @since 2201.2.0
+ */
+public class PackageDiff extends Diff {
 
-    private final Map<String, ModuleDiff> moduleDiffs = new HashMap<>();
+    private final List<ModuleDiff> moduleDiffs = new ArrayList<>();
 
-    @Override
-    public void moduleAdded(Module module) {
-        ModuleDiff moduleDiff = new ModuleDiff();
-        moduleDiff.setType(DiffType.NEW);
-        addModuleDiff(module.moduleName().toString(), moduleDiff);
-    }
-
-    @Override
-    public void moduleRemoved(Module module) {
-        ModuleDiff moduleDiff = new ModuleDiff();
-        moduleDiff.setType(DiffType.REMOVED);
-        addModuleDiff(module.moduleName().toString(), moduleDiff);
-    }
-
-    @Override
-    public void moduleChanged(Module newModule, Module oldModule) {
-        Optional<ModuleDiff> moduleDiff = new ModuleComparator(newModule, oldModule).computeDiff();
-        moduleDiff.ifPresent(diff -> addModuleDiff(newModule.moduleName().toString(), diff));
+    public List<ModuleDiff> getModuleDiffs() {
+        return Collections.unmodifiableList(moduleDiffs);
     }
 
     @Override
     public DiffType getType() {
-        return moduleDiffs.isEmpty() ? DiffType.MODIFIED : DiffType.UNKNOWN;
+        return childDiffs.isEmpty() ? DiffType.MODIFIED : DiffType.UNKNOWN;
     }
 
     @Override
     public CompatibilityLevel getCompatibilityLevel() {
-        return moduleDiffs.values().stream()
-                .map(Diff::getCompatibilityLevel)
+        return childDiffs.stream()
+                .map(IDiff::getCompatibilityLevel)
                 .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                 .orElse(CompatibilityLevel.UNKNOWN);
     }
 
-    private void addModuleDiff(String moduleName, ModuleDiff moduleDiff) {
-        moduleDiffs.put(moduleName, moduleDiff);
+    public void addModuleDiff(ModuleDiff moduleDiff) {
+        childDiffs.add(moduleDiff);
+        moduleDiffs.add(moduleDiff);
+    }
+
+    public static class Modifier implements DiffModifier {
+
+        private final PackageDiff packageDiff;
+
+        public Modifier() {
+            packageDiff = new PackageDiff();
+        }
+
+        @Override
+        public PackageDiff modify() {
+            return packageDiff;
+        }
+
+        public void moduleAdded(Module module) {
+            ModuleDiff moduleDiff = new ModuleDiff();
+            moduleDiff.setType(DiffType.NEW);
+            packageDiff.addModuleDiff(moduleDiff);
+        }
+
+        public void moduleRemoved(Module module) {
+            ModuleDiff moduleDiff = new ModuleDiff();
+            moduleDiff.setType(DiffType.REMOVED);
+            packageDiff.addModuleDiff(moduleDiff);
+        }
+
+        public void moduleChanged(Module newModule, Module oldModule) {
+            Optional<ModuleDiff> moduleDiff = new ModuleComparator(newModule, oldModule).computeDiff();
+            moduleDiff.ifPresent(packageDiff::addModuleDiff);
+        }
     }
 }
