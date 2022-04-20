@@ -17,14 +17,29 @@
 import ballerina/test;
 
 type ImmutableRecordType readonly & RecordType;
+
 type ImmutableObjectType readonly & ObjectType;
+
 type ImmutableClassType readonly & ClassType;
+
 type ImmutableObjectOrRecordType readonly & ObjectOrRecordType;
+
+type ImmutableTupleType readonly & TupleType;
+
+type ImmutableArrayType readonly & ArrayType;
 
 @test:Config {
 }
 function testIntersectionTypes() {
     Uuid uuid = {timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6};
-    Uuid returnVal = testIntersection();
-    test:assertEquals(returnVal, uuid);
+    Uuid returnedUuid = getUuid();
+    test:assertEquals(returnedUuid, uuid);
+
+    ImmutableRecordType recordVal = {id: 1};
+    RecordType returnedUuid = getRecordValue();
+    test:assertEquals(returnedUuid, recordVal);
+
+    ImmutableClassType objVal = ImmutableClassType(2);
+    ClassType returnedClass = getObjectValue();
+    test:assertEquals(returnedClass, objVal);
 }
