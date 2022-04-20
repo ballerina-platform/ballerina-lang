@@ -53,10 +53,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -157,6 +154,14 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Available variables as a list of string.
      */
     public abstract List<String> availableVariables();
+
+    /**
+     * Returns available variables in the module.
+     *
+     * @return Available variables as a list of mapped strings
+     * with name, type and value.
+     */
+    public abstract List<Map<String, String>> availableVariablesAsMap();
 
     /**
      * Returns available declarations in the module.
@@ -491,7 +496,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return File to use.
      * @throws IOException If file open failed.
      */
-    private File getBufferFile() throws IOException {
+    public File getBufferFile() throws IOException {
         if (this.bufferFile == null) {
             this.bufferFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
             addDebugDiagnostic("Using temp file: " + bufferFile.getAbsolutePath());

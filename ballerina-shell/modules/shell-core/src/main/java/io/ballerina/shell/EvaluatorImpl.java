@@ -132,6 +132,29 @@ class EvaluatorImpl extends Evaluator {
     }
 
     @Override
+    public Optional<Object> getValueAsObject(Optional<PackageCompilation> compilation) throws
+            BallerinaShellException {
+        try {
+            return invoker.execute(compilation);
+        } catch (InvokerPanicException e) {
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            throw e;
+        } catch (InvokerException e) {
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            return Optional.of("");
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public String getBufferFileUri() throws IOException {
+        return invoker.getBufferFile().getAbsolutePath();
+    }
+
+    @Override
     public void evaluateDeclarationFile(String filePath) throws BallerinaShellException {
         try {
             String statements = Files.readString(Paths.get(filePath), Charset.defaultCharset());
