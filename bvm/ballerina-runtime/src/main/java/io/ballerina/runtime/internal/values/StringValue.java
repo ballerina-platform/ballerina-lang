@@ -71,7 +71,9 @@ public abstract class StringValue implements BString, SimpleValue {
 
     @Override
     public String informalStringValue(BLink parent) {
-        return "\"" + this + "\"";
+        return "\"" + value
+                .replace("\"","\\\"")
+                .replaceAll("[\\n\\t\\r]+"," ")  + "\"";
     }
 
     @Override
