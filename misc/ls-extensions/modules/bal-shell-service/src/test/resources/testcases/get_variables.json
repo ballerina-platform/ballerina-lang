@@ -1,0 +1,13 @@
+[
+  {
+    "source": "",
+    "result": []
+  },
+  {
+    "source": "int x = 10;string s = \"Hello world\";",
+    "result": [
+      {"name":"x", "type":"int", "value":10},
+      {"name":"s", "type":"string", "value":"\"Hello world\""}
+    ]
+  }
+]

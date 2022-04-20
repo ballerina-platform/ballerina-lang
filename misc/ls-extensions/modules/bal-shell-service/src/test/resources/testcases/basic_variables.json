@@ -1,0 +1,52 @@
+[
+  {
+    "source": "int total = 99;",
+    "result": {
+      "errors":[],
+      "diagnostics":[]
+    }
+  },
+  {
+    "source": "total",
+    "result": {
+      "shellValue": {
+        "value":"99",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[]
+    }
+  },
+  {
+    "source": "total*2",
+    "result": {
+      "shellValue": {
+        "value":"198",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[]
+    }
+  },
+  {
+    "source": "string s = \"Hello world\"",
+    "result": {
+      "errors":[],
+      "diagnostics":[]
+    }
+  },
+  {
+    "source": "s",
+    "result": {
+      "shellValue": {
+        "value":"\"Hello world\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[]
+    }
+  }
+]
