@@ -24,7 +24,6 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
-import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.ITestContext;
@@ -34,7 +33,6 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -536,192 +534,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml")));
-    }
-
-    @Test(description = "tests resolution for unpublished local dependency that is a direct dependency")
-    public void testUnpublishedDirectLocalDependencyResolution(ITestContext ctx) throws IOException {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_aa");
-        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
-
-        // project --> package_aa
-        // Cache package_aa to local
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_aa_1_0_0"));
-
-        // Build project_aa
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-        buildProject.save();
-        failIfDiagnosticsExists(buildProject);
-
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML)));
-    }
-
-    @Test(enabled = false)
-    public void testUnpublishedTransitiveDependency(ITestContext ctx) throws IOException {
-        /*
-            project_ac ---> package_ac ---> package_ad
-            package_ad pushed to local repository
-            package_ad added to package_ac Ballerina.toml, build and pushed package_ac to local repository
-            Both package_ac and package_ad added to Ballerina.toml and build project_ac. Built and raned w/o any issue.
-         */
-
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_ac");
-        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
-
-        // cache dep to local package_ad
-        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ad_1_0_0"));
-
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_ad_1_0_0",
-                testDistCacheDirectory, projectEnvironmentBuilder);
-
-        // cache dep to local package_ac
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_ac_1_0_0"));
-
-        // Build project_ac
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-        buildProject.save();
-        failIfDiagnosticsExists(buildProject);
-
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML)));
-    }
-
-    @Test(description = "Update direct local dependency resolution")
-    public void testUpdatedDirectLocalDependencyResolution(ITestContext ctx) throws IOException {
-         /*
-        Updated version of packahe_h to 0.1.1, rebuilt and pushed to local repository
-        Built package_a with existing Dependencies.toml ---> resolved package_h from central
-        Changed Ballerina.toml of package_a to 0.1.1 and build again ---> resolved package_h from local
-        repository version 0.1.1
-        */
-
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_ab");
-        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
-
-        // project --> package_ab
-        // Cache package_ab to central
-        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ab_1_0_0"));
-
-        // Build project_ab
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-        buildProject.save();
-        failIfDiagnosticsExists(buildProject);
-
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies1.toml")));
-
-        // Cache package_ab (ver 1_0_0) with edits to local
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_ab_1_0_2"));
-
-        // User deletes the build file
-        deleteDependenciesTomlAndBuildFile(projectDirPath);
-
-        // User modifies the Ballerina.toml file
-        // Create new 'Ballerina.toml' file
-        Files.deleteIfExists(projectDirPath.resolve(ProjectConstants.BALLERINA_TOML));
-        Files.createFile(projectDirPath.resolve(ProjectConstants.BALLERINA_TOML));
-
-        String content = "[package]\n" +
-                "org = \"adv_res\"\n" +
-                "name = \"project_ab\"\n" +
-                "version = \"1.0.0\"\n" +
-                "\n" +
-                "[[dependency]]\n" +
-                "org=\"adv_res\"\n" +
-                "name=\"package_ab\"\n" +
-                "version=\"1.0.2\"\n" +
-                "repository=\"local\"";
-
-        Files.write(projectDirPath.resolve(ProjectConstants.BALLERINA_TOML), content.getBytes(StandardCharsets.UTF_8));
-
-        // Build project_ab again
-        buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-        buildProject.save();
-        failIfDiagnosticsExists(buildProject);
-
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies2.toml")));
-    }
-
-    @Test(description = "Update local repository packages as direct dependencies")
-    private void testLocalRepositoryPackagesAsDirectDependencies(ITestContext ctx) throws IOException {
-        /*
-        project_ae ---> package_ag 2.0.0 (central) ---> package_ah 2.0.0 (central)
-        project_ae ---> package_ag 2.0.0 (local) ---> package_ah 2.0.0 (central)
-        project_ae ---> package_ai 1.0.0 (central)
-        */
-
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_ae");
-        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
-
-        // cache package_ah to central
-        // cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ah"));
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_ah",
-                testDistCacheDirectory, projectEnvironmentBuilder);
-        
-        // cache package_ai to central
-        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ai"));
-
-        // cache package_ag to central
-        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_ag_central"));
-
-        // Build project_ae
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-        buildProject.save();
-        failIfDiagnosticsExists(buildProject);
-
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies1.toml")));
-
-        // cache package_ag to local
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_ag_local"));
-
-
-        // User deletes the build file
-        deleteDependenciesTomlAndBuildFile(projectDirPath);
-
-        // Build project_ae
-        buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-        buildProject.save();
-        failIfDiagnosticsExists(buildProject);
-
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies1.toml")));
-    }
-
-    @Test(enabled = false)
-    private void testUpdatedLocalandCentralDependencyResolution(ITestContext ctx) throws IOException {
-        /*
-            Local repository packages (published, but patched with the same version) as indirect dependencies
-
-            - Push package_i:0.1.0 to central
-            - Make changes to the api of package_i and pushed to local repo with same version
-            - Build package_a:
-                 package_h and package_i both resolved from local repo since those are mentioned in the Ballerina.toml
-                 of package_a
-                 Removed package_i from Dependencies.toml of package_a
-                    Transitive dependency package_i resolved from central, even though it was mentioned as
-                    local dependency in package_h Ballerina.toml
-         */
-
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("project_ad");
-        ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
-
-        // Push project_ad --> package_ae --> package_af_central
-
-        // push package_af_central to central
-        cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_af_central"));
-
-        // push package_af_local to local
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_af_local"));
-
-        // push package_ae to local
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_ae"));
-
-        // Build project_ad
-        BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
-        buildProject.save();
-        failIfDiagnosticsExists(buildProject);
     }
 
     @AfterMethod
