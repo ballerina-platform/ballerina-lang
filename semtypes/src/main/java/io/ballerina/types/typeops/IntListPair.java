@@ -15,26 +15,25 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.types;
+package io.ballerina.types.typeops;
+
+import java.util.List;
 
 /**
- * Represents the List Conjunction.
+ * used to return [int[], int[]].
  *
  * @since 3.0.0
  */
-public class ListConjunction {
-    public final ListAtomicType listType;
-    // Maximum number of members found in `initial` array of `listType` field in all the conjunctions onwards this.
-    public final int maxInitialLen;
-    public final ListConjunction next;
+public class IntListPair {
+    List<Integer> indices;
+    List<Integer> keyIndices;
 
-    private ListConjunction(ListAtomicType atom, int maxInitialLen, ListConjunction next) {
-        this.listType = atom;
-        this.maxInitialLen = maxInitialLen;
-        this.next = next;
+    private IntListPair(List<Integer> indices, List<Integer> keyIndices) {
+        this.indices = indices;
+        this.keyIndices = keyIndices;
     }
 
-    public static ListConjunction from(ListAtomicType atom, int maxInitialLen, ListConjunction next) {
-        return new ListConjunction(atom, maxInitialLen, next);
+    public static IntListPair from(List<Integer> indices, List<Integer> keyIndices) {
+        return new IntListPair(indices, keyIndices);
     }
 }
