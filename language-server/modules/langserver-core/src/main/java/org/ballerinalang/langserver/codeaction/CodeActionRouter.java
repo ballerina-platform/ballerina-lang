@@ -138,10 +138,6 @@ public class CodeActionRouter {
                 matchedNode.parent().kind() != SyntaxKind.MODULE_PART &&
                 matchedNode.parent().kind() != SyntaxKind.FUNCTION_BODY_BLOCK &&
                 !(matchedNode.parent() instanceof BlockStatementNode)) {
-            if (matchedNode.kind() == SyntaxKind.OBJECT_FIELD) {
-                return matchedNode;
-            }
-
             matchedNode = matchedNode.parent();
         }
         return matchedNode;
