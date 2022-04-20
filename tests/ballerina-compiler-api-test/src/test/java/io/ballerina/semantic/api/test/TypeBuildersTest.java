@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -47,6 +48,8 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
@@ -203,6 +206,29 @@ public class TypeBuildersTest {
                 {types.FLOAT, TYPEDESC, "typedesc<float>"},
                 {types.BOOLEAN, TYPEDESC, "typedesc<boolean>"},
                 {null, TYPEDESC, "TYPEDESC"},
+        };
+    }
+
+    @Test(dataProvider = "streamTypeBuilderProvider")
+    public void testStreamTypeBuilder(TypeSymbol vType, TypeSymbol cType, String signature) {
+        TypeBuilder builder = types.builder();
+        StreamTypeSymbol streamTypeSymbol = builder.STREAM_TYPE.withValueType(vType).withCompletionType(cType).build();
+        assertEquals(streamTypeSymbol.typeKind(), STREAM);
+        assertEquals(streamTypeSymbol.typeParameter(), vType);
+        if (cType != null && cType.typeKind() != NIL) {
+            assertEquals(streamTypeSymbol.completionValueTypeParameter().signature(), cType.signature());
+        }
+
+        assertEquals(streamTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "streamTypeBuilderProvider")
+    private Object[][] getStreamTypeBuilder() {
+        return new Object[][] {
+                {types.FLOAT, types.INT, "stream<float, int>"},
+                {types.BYTE, types.STRING,"stream<byte, string>"},
+                {types.ANY, types.NIL, "stream<any>"},
+                {types.STRING, null, "stream<string>"},
         };
     }
 }
