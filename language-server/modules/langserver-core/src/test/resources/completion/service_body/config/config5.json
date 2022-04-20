@@ -474,15 +474,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "resource function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "A",
-      "filterText": "resource_function",
-      "insertText": "resource function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -595,6 +586,15 @@
           "newText": "import test/local_project2;\n"
         }
       ]
+    },
+    {
+      "label": "resource function",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "A",
+      "filterText": "resource_function",
+      "insertText": "resource function ${1:accessor} ${2:path} (${3})${4} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
