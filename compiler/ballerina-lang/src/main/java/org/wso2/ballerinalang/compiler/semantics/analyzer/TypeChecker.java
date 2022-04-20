@@ -7015,36 +7015,30 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
         List<BLangExpression> argExprs = iExpr.argExprs;
-
-        boolean hasKeyFunction = false;
         BLangExpression keyFunction = null;
 
-        for (BLangExpression arg : argExprs) {
+        for (int i = 0; i < argExprs.size(); i++) {
+            BLangExpression arg = argExprs.get(i);
             if (arg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 BLangNamedArgsExpression argExpr = (BLangNamedArgsExpression) arg;
                 if (argExpr.name.value.equals("key")) {
                     keyFunction = argExpr.expr;
-                    hasKeyFunction = true;
+                    break;
                 }
+            } else if (i == 2) {
+                keyFunction = arg;
+                break;
             }
-        }
-
-        if (!hasKeyFunction && argExprs.size() == 3) {
-            hasKeyFunction = true;
         }
 
         BLangExpression arrExpr = argExprs.get(0);
         BType arrType = arrExpr.getBType();
         boolean isOrderedType = types.isOrderedType(arrType, false);
-        if (!hasKeyFunction) {
+        if (keyFunction == null) {
             if (!isOrderedType) {
                 dlog.error(arrExpr.pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE, arrType);
             }
             return;
-        }
-
-        if (keyFunction == null) {
-            keyFunction = iExpr.argExprs.get(2);
         }
 
         BType keyFunctionType = keyFunction.getBType();
