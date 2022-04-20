@@ -220,7 +220,10 @@ public class ImmutableTypeCloner {
 
                 BIntersectionType immutableXmlSubTypeIntersectionType =
                         createImmutableIntersectionType(pkgId, owner, originalType, immutableXmlSubType, symTable);
-                origXmlSubType.immutableType = immutableXmlSubTypeIntersectionType;
+                if (shouldUpdateTypeInformation(pkgId, origXmlSubType.tsymbol)) {
+                    origXmlSubType.immutableType = immutableXmlSubTypeIntersectionType;
+                }
+
                 return immutableXmlSubTypeIntersectionType;
             case TypeTags.XML:
                 BXMLType origXmlType = (BXMLType) type;
@@ -236,7 +239,9 @@ public class ImmutableTypeCloner {
                                                                                                  originalType,
                                                                                                  immutableXmlType,
                                                                                                  symTable);
-                origXmlType.immutableType = immutableXmlIntersectionType;
+                if (shouldUpdateTypeInformation(pkgId, origXmlType.tsymbol)) {
+                    origXmlType.immutableType = immutableXmlIntersectionType;
+                }
                 return immutableXmlIntersectionType;
             case TypeTags.ARRAY:
                 BArrayType origArrayType = (BArrayType) type;
@@ -257,7 +262,9 @@ public class ImmutableTypeCloner {
                 BIntersectionType immutableArrayIntersectionType = createImmutableIntersectionType(env, originalType,
                                                                                                    immutableArrayType,
                                                                                                    symTable);
-                origArrayType.immutableType = immutableArrayIntersectionType;
+                if (shouldUpdateTypeInformation(pkgId, origArrayType.tsymbol)) {
+                    origArrayType.immutableType = immutableArrayIntersectionType;
+                }
                 return immutableArrayIntersectionType;
             case TypeTags.TUPLE:
                 BTupleType origTupleType = (BTupleType) type;
@@ -407,8 +414,11 @@ public class ImmutableTypeCloner {
                 isDefinedInCurrentModuleInCurrentCompilation(env, type, immutableType, unresolvedTypes)) {
             return type.immutableType;
         } else {
-            type.immutableType = createImmutableIntersectionType(env,
+            BIntersectionType immutableTupleType = createImmutableIntersectionType(env,
                     type, new BTupleType(origTupleTypeSymbol), symTable);
+            if (shouldUpdateTypeInformation(pkgId, origTupleTypeSymbol)) {
+                type.immutableType = immutableTupleType;
+            }
         }
 
         List<BType> immutableMemTypes = new ArrayList<>(origTupleMemTypes.size());
@@ -588,7 +598,10 @@ public class ImmutableTypeCloner {
                                                                                             immutableRecordType,
                                                                                             symTable);
 
-        origRecordType.immutableType = immutableRecordIntersectionType;
+        if (shouldUpdateTypeInformation(pkgID, origRecordType.tsymbol)) {
+            origRecordType.immutableType = immutableRecordIntersectionType;
+        }
+
         immutableRecordType.mutableType = origRecordType;
 
         recordSymbol.type = immutableRecordType;
@@ -637,7 +650,10 @@ public class ImmutableTypeCloner {
                                                                                             immutableObjectType,
                                                                                             symTable);
 
-        origObjectType.immutableType = immutableObjectIntersectionType;
+        if (shouldUpdateTypeInformation(pkgID, origObjectTSymbol)) {
+            origObjectType.immutableType = immutableObjectIntersectionType;
+        }
+
         immutableObjectType.mutableType = origObjectType;
 
         objectSymbol.type = immutableObjectType;
@@ -654,6 +670,10 @@ public class ImmutableTypeCloner {
                                                                                     objectTypeNode, env);
         typeDefinition.pos = pos;
         return immutableObjectIntersectionType;
+    }
+
+    private static boolean shouldUpdateTypeInformation(PackageID pkgID, BTypeSymbol typeSymbol) {
+        return !(pkgID.isTestPkg && !typeSymbol.pkgID.isTestPkg);
     }
 
     public static void defineObjectFunctions(BObjectTypeSymbol immutableObjectSymbol,
@@ -827,7 +847,7 @@ public class ImmutableTypeCloner {
         // may not be a corresponding type definition. So we check by type definition if the type corresponds to a
         // type definition defined in the current compilation.
         BType effectiveType = immutableType.effectiveType;
-        int tag = effectiveType.tag;
+        int tag = Types.getReferredType(effectiveType).tag;
 
         if (tag != TypeTags.TUPLE && tag != TypeTags.UNION && tag != TypeTags.RECORD && tag != TypeTags.OBJECT) {
             return true;

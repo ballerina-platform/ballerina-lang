@@ -25,6 +25,25 @@ public type Uuid readonly & record {
     int node;
 };
 
+public type RecordType record {
+    int id;
+};
+
+public type RecordType object {
+    int i;
+    boolean j;
+};
+
+public type class ClassType {
+    int i;
+
+    function init(int n) {
+        self.n = n;
+    }
+}
+
+public type ObjectOrRecordType RecordType|RecordType;
+
 public function testIntersection() returns Uuid {
     Uuid uuid = {timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6};
     return uuid;

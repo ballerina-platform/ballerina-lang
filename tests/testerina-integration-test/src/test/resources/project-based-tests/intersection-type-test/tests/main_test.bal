@@ -16,6 +16,11 @@
 
 import ballerina/test;
 
+type ImmutableRecordType readonly & RecordType;
+type ImmutableObjectType readonly & ObjectType;
+type ImmutableClassType readonly & ClassType;
+type ImmutableObjectOrRecordType readonly & ObjectOrRecordType;
+
 @test:Config {
 }
 function testIntersectionTypes() {
