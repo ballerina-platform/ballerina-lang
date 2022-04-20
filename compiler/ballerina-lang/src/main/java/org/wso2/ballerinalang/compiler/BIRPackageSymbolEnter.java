@@ -86,6 +86,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -1211,7 +1213,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
+                    return getType(recordType, pkgEnv, names.fromString(recordName));
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1373,8 +1375,7 @@ public class BIRPackageSymbolEnter {
                         } else {
                             pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(unionsPkgId));
                             if (pkgEnv != null) {
-                                BType existingUnionType =
-                                        symbolResolver.lookupSymbolInMainSpace(pkgEnv, unionName).type;
+                                BType existingUnionType = getType(unionType, pkgEnv, unionName);
                                 if (existingUnionType != symTable.noType) {
                                     return existingUnionType;
                                 }
@@ -1577,7 +1578,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
+                    return getType(objectType, pkgEnv, names.fromString(objName));
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -1718,6 +1719,44 @@ public class BIRPackageSymbolEnter {
                 objectSymbol.scope.define(funcName, attachedFuncSymbol);
             }
         }
+    }
+
+    private BType getType(BType readShape, SymbolEnv pkgEnv, Name name) {
+        BType type = symbolResolver.lookupSymbolInMainSpace(pkgEnv, name).type;
+
+        if (types.isSameBIRShape(readShape, type)) {
+            return type;
+        }
+
+        if (pkgEnv.node != null) {
+            for (BLangTypeDefinition typeDefinition : ((BLangPackage) pkgEnv.node).typeDefinitions) {
+                BSymbol symbol = typeDefinition.symbol;
+
+                if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                    BType anonType = symbol.type;
+
+                    if (types.isSameBIRShape(readShape, anonType)) {
+                        return anonType;
+                    }
+                } else if (typeDefinition.name.value.equals(name.value)) {
+                    return symbol.type;
+                }
+            }
+        } else {
+            for (Scope.ScopeEntry value : pkgEnv.scope.entries.values()) {
+                BSymbol symbol = value.symbol;
+
+                if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                    BType anonType = symbol.type;
+
+                    if (types.isSameBIRShape(readShape, anonType)) {
+                        return anonType;
+                    }
+                }
+            }
+        }
+
+        return type;
     }
 
     private byte[] readDocBytes(DataInputStream inputStream) throws IOException {
