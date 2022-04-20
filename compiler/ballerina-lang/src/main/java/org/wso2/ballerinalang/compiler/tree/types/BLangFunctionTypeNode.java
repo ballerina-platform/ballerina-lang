@@ -21,7 +21,10 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.FunctionTypeNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.ArrayList;
@@ -37,10 +40,15 @@ import java.util.stream.Collectors;
  */
 public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode {
 
-    public List<BLangVariable> params = new ArrayList<>();
+    // BLangNodes
+    public List<BLangSimpleVariable> params = new ArrayList<>();
     public BLangVariable restParam;
     public BLangType returnTypeNode;
+
+    // Parser Flags and Data
     public Set<Flag> flagSet = new HashSet<>();
+    public boolean inTypeDefinitionContext;
+    public boolean analyzed;
 
     public boolean returnsKeywordExists = false;
 
@@ -50,7 +58,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     }
 
     @Override
-    public List<BLangVariable> getParams() {
+    public List<BLangSimpleVariable> getParams() {
         return this.params;
     }
 
@@ -67,6 +75,16 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override
@@ -92,7 +110,7 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
         return br.toString();
     }
 
-    private String getParamNames(List<BLangVariable> paramTypes) {
+    private String getParamNames(List<BLangSimpleVariable> paramTypes) {
         return paramTypes.stream().map(paramType -> {
             if (paramType.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 return ((UserDefinedTypeNode) paramType).getTypeName().getValue();

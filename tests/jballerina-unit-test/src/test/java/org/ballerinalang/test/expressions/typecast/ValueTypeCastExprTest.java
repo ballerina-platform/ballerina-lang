@@ -17,11 +17,10 @@
  */
 package org.ballerinalang.test.expressions.typecast;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -44,134 +43,135 @@ public class ValueTypeCastExprTest {
 
     @Test
     public void testIntToFloat() {
-        BValue[] args = {new BInteger(55555555)};
-        BValue[] returns = BRunUtil.invoke(result, "intToFloat", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
+        Object[] args = {(55555555)};
+        Object returns = BRunUtil.invoke(result, "intToFloat", args);
+        Assert.assertTrue(returns instanceof Double);
         double expected = 5.5555555E7;
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
+        Assert.assertEquals((Double) returns, expected, DELTA);
     }
 
     @Test
     public void testIntToString() {
-        BValue[] args = {new BInteger(111)};
-        BValue[] returns = BRunUtil.invoke(result, "intToString", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {(111)};
+        Object returns = BRunUtil.invoke(result, "intToString", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "111";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testIntToAny() {
-        BValue[] args = {new BInteger(1)};
-        BValue[] returns = BRunUtil.invoke(result, "intToAny", args);
-        Assert.assertTrue(returns[0] instanceof BInteger);
+        Object[] args = {(1)};
+        Object returns = BRunUtil.invoke(result, "intToAny", args);
+        Assert.assertTrue(returns instanceof Long);
     }
 
     @Test
     public void testFloatToInt() {
-        BValue[] args = {new BFloat(222222.44444f)};
-        BValue[] returns = BRunUtil.invoke(result, "floatToInt", args);
-        Assert.assertTrue(returns[0] instanceof BInteger);
+        Object[] args = {(222222.44444f)};
+        Object returns = BRunUtil.invoke(result, "floatToInt", args);
+        Assert.assertTrue(returns instanceof Long);
         final String expected = "222222";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testFloatToString() {
-        BValue[] args = {new BFloat(111.333f)};
-        BValue[] returns = BRunUtil.invoke(result, "floatToString", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {(111.333f)};
+        Object returns = BRunUtil.invoke(result, "floatToString", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "111.333";
-        Assert.assertEquals(returns[0].stringValue().substring(0, 7), expected);
+        Assert.assertEquals(returns.toString().substring(0, 7), expected);
     }
 
     @Test
     public void testFloatToAny() {
-        BValue[] args = {new BFloat(111.333f)};
-        BValue[] returns = BRunUtil.invoke(result, "floatToAny", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
+        Object[] args = {(111.333f)};
+        Object returns = BRunUtil.invoke(result, "floatToAny", args);
+        Assert.assertTrue(returns instanceof Double);
     }
 
     @Test
     public void testStringToInt() {
-        BValue[] args = {new BString("100")};
-        BValue[] returns = BRunUtil.invoke(result, "stringToInt", args);
-        Assert.assertTrue(returns[0] instanceof BInteger);
+        Object[] args = {StringUtils.fromString("100")};
+        Object returns = BRunUtil.invoke(result, "stringToInt", args);
+        Assert.assertTrue(returns instanceof Long);
         final long expected = 100;
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+        Assert.assertEquals(returns, expected);
     }
 
     @Test
-    public void testStringToFloat() {
-        BValue[] args = {new BString("2222.333f")};
-        BValue[] returns = BRunUtil.invoke(result, "stringToFloat", args);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        double expected = 2222.333;
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
+    public void testIncompatibleStringToFloat() {
+        Object[] args = {StringUtils.fromString("2222.333f")};
+        Object returns = BRunUtil.invoke(result, "stringToFloat", args);
+        Assert.assertTrue(returns instanceof BError);
+        BError error = (BError) returns;
+        String errorMsg = ((BMap) error.getDetails()).get(StringUtils.fromString("message")).toString();
+        Assert.assertEquals(errorMsg, "'string' value '2222.333f' cannot be converted to 'float'");
     }
 
     @Test
     public void testStringToAny() {
-        BValue[] args = {new BString("adfs sadfasd")};
-        BValue[] returns = BRunUtil.invoke(result, "stringToAny", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {StringUtils.fromString("adfs sadfasd")};
+        Object returns = BRunUtil.invoke(result, "stringToAny", args);
+        Assert.assertTrue(returns instanceof BString);
     }
 
     @Test
     public void testBooleanToString() {
-        BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BRunUtil.invoke(result, "booleanToString", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {(true)};
+        Object returns = BRunUtil.invoke(result, "booleanToString", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "true";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testBooleanToAny() {
-        BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BRunUtil.invoke(result, "booleanToAny", args);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Object[] args = {(true)};
+        Object returns = BRunUtil.invoke(result, "booleanToAny", args);
+        Assert.assertTrue(returns instanceof Boolean);
     }
 
     @Test
     public void testBooleanAppendToString() {
-        BValue[] args = {new BBoolean(true)};
-        BValue[] returns = BRunUtil.invoke(result, "booleanappendtostring", args);
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object[] args = {(true)};
+        Object returns = BRunUtil.invoke(result, "booleanappendtostring", args);
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "true-append-true";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testAnyToInt() {
-        BValue[] returns = BRunUtil.invoke(result, "anyToInt", new BValue[]{});
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        final int expected = 5;
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), expected);
+        Object returns = BRunUtil.invoke(result, "anyToInt", new Object[]{});
+        Assert.assertTrue(returns instanceof Long);
+        final long expected = 5;
+        Assert.assertEquals(returns, expected);
     }
 
     @Test
     public void testAnyToFloat() {
-        BValue[] returns = BRunUtil.invoke(result, "anyToFloat", new BValue[]{});
-        Assert.assertTrue(returns[0] instanceof BFloat);
+        Object returns = BRunUtil.invoke(result, "anyToFloat", new Object[]{});
+        Assert.assertTrue(returns instanceof Double);
         final double expected = 5.0;
-        Assert.assertEquals(((BFloat) returns[0]).intValue(), expected, DELTA);
+        Assert.assertEquals((Double) returns, expected, DELTA);
     }
 
     @Test
     public void testAnyToString() {
-        BValue[] returns = BRunUtil.invoke(result, "anyToString", new BValue[]{});
-        Assert.assertTrue(returns[0] instanceof BString);
+        Object returns = BRunUtil.invoke(result, "anyToString", new Object[]{});
+        Assert.assertTrue(returns instanceof BString);
         final String expected = "test";
-        Assert.assertEquals(returns[0].stringValue(), expected);
+        Assert.assertEquals(returns.toString(), expected);
     }
 
     @Test
     public void testAnyToBoolean() {
-        BValue[] returns = BRunUtil.invoke(result, "anyToBoolean", new BValue[]{});
-        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Object returns = BRunUtil.invoke(result, "anyToBoolean", new Object[]{});
+        Assert.assertTrue(returns instanceof Boolean);
         final boolean expected = false;
-        Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), expected);
+        Assert.assertEquals(returns, expected);
     }
 
     @AfterClass

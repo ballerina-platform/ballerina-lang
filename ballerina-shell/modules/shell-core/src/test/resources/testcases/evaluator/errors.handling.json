@@ -5,12 +5,20 @@
   },
   {
     "description": "Define simple error.",
-    "code": "error simpleError = error(\"Simple error occurred\"); simpleError.message()",
+    "code": "error simpleError = error(\"Simple error occurred\");"
+  },
+  {
+    "description": "Define simple error - get value.",
+    "code": "simpleError.message()",
     "expr": "\"Simple error occurred\""
   },
   {
     "description": "Get result which is an error.",
-    "code": "int|error result = getAccountBalance(-1); result is error;",
+    "code": "int|error result = getAccountBalance(-1);"
+  },
+  {
+    "description": "Get result which is an error - get value.",
+    "code": "result is error;",
     "expr": "true"
   },
   {

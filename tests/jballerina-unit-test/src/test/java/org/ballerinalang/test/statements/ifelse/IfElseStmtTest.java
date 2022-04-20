@@ -17,9 +17,9 @@
 */
 package org.ballerinalang.test.statements.ifelse;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -48,36 +48,36 @@ public class IfElseStmtTest {
 
     @Test(description = "Check a == b")
     public void testIfBlock() {
-        BValue[] args = {new BInteger(10), new BInteger(10), new BInteger(20)};
-        BValue[] returns = BRunUtil.invoke(result, funcName, args);
+        Object[] args = {(10), (10), (20)};
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns.get(0);
         long expected = 110;
         Assert.assertEquals(actual, expected);
 
-        actual = ((BInteger) returns[1]).intValue();
+        actual = (long) returns.get(1);
         expected = 21;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check a == b + 1")
     public void testElseIfFirstBlock() {
-        BValue[] args = {new BInteger(11), new BInteger(10), new BInteger(20)};
-        BValue[] returns = BRunUtil.invoke(result, funcName, args);
+        Object[] args = {(11), (10), (20)};
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns.get(0);
         long expected = 210;
         Assert.assertEquals(actual, expected);
 
-        actual = ((BInteger) returns[1]).intValue();
+        actual = (long) returns.get(1);
         expected = 21;
         Assert.assertEquals(actual, expected);
 
@@ -85,164 +85,164 @@ public class IfElseStmtTest {
 
     @Test(description = "Check a == b + 2")
     public void testElseIfSecondBlock() {
-        BValue[] args = {new BInteger(12), new BInteger(10), new BInteger(20)};
-        BValue[] returns = BRunUtil.invoke(result, funcName, args);
+        Object[] args = {(12), (10), (20)};
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns.get(0);
         long expected = 310;
         Assert.assertEquals(actual, expected);
 
-        actual = ((BInteger) returns[1]).intValue();
+        actual = (long) returns.get(1);
         expected = 21;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check else")
     public void testElseBlock() {
-        BValue[] args = {new BInteger(10), new BInteger(100), new BInteger(20)};
-        BValue[] returns = BRunUtil.invoke(result, funcName, args);
+        Object[] args = {(10), (100), (20)};
+        BArray returns = (BArray) BRunUtil.invoke(result, funcName, args);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns.get(0);
         long expected = 410;
         Assert.assertEquals(actual, expected);
 
-        actual = ((BInteger) returns[1]).intValue();
+        actual = (long) returns.get(1);
         expected = 21;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check If Stmt Without Parentheses")
     public void testIfStmtWithoutParentheses() {
-        BValue[] args = {new BInteger(10), new BInteger(100), new BInteger(20)};
-        BValue[] returns = BRunUtil.invoke(result, "testIfStmtWithoutParentheses", args);
+        Object[] args = {(10), (100), (20)};
+        BArray returns = (BArray) BRunUtil.invoke(result, "testIfStmtWithoutParentheses", args);
 
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BInteger.class);
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Long.class);
 
-        long actual = ((BInteger) returns[0]).intValue();
+        long actual = (long) returns.get(0);
         long expected = 410;
         Assert.assertEquals(actual, expected);
 
-        actual = ((BInteger) returns[1]).intValue();
+        actual = (long) returns.get(1);
         expected = 21;
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check simple ifElse")
     public void testAge() {
-        BValue[] args = {new BInteger(21)};
-        BValue[] returns = BRunUtil.invoke(result, "testAgeGroup", args);
+        Object[] args = {(21)};
+        Object returns = BRunUtil.invoke(result, "testAgeGroup", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        String actual = returns[0].stringValue();
+        
+        Assert.assertTrue(returns instanceof BString);
+        String actual = returns.toString();
         String expected = "elder";
         Assert.assertEquals(actual, expected);
 
-        args = new BValue[]{new BInteger(16)};
+        args = new Object[]{(16)};
         returns = BRunUtil.invoke(result, "testAgeGroup", args);
 
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
+        
+        Assert.assertTrue(returns instanceof BString);
 
-        actual = returns[0].stringValue();
+        actual = returns.toString();
         expected = "minor";
         Assert.assertEquals(actual, expected);
     }
 
     @Test(description = "Check the scope managing in ifelse block")
     public void testIfElseBlockScopes() {
-        BValue[] args = { new BInteger(1) };
-        BValue[] returns = BRunUtil.invoke(result, "ifElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        BInteger actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
+        Object[] args = { (1) };
+        Object returns = BRunUtil.invoke(result, "ifElseScope", args);
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        long actual = (long) returns;
+        Assert.assertEquals(actual, 200, "mismatched output value");
 
-        args = new BValue[] { new BInteger(2) };
+        args = new Object[] { (2) };
         returns = BRunUtil.invoke(result, "ifElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 400, "mismatched output value");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 400, "mismatched output value");
 
-        args = new BValue[] { new BInteger(16) };
+        args = new Object[] { (16) };
         returns = BRunUtil.invoke(result, "ifElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 500, "mismatched output value");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 500, "mismatched output value");
     }
 
     @Test(description = "Check the scope managing in nested ifelse block")
     public void testNestedIfElseBlockScopes() {
-        BValue[] args = { new BInteger(1), new BInteger(1) };
-        BValue[] returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        BInteger actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 100, "mismatched output value");
+        Object[] args = { (1), (1) };
+        Object returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        long actual = (long) returns;
+        Assert.assertEquals(actual, 100, "mismatched output value");
 
-        args = new BValue[] { new BInteger(1), new BInteger(2) };
+        args = new Object[] { (1), (2) };
         returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 200, "mismatched output value");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 200, "mismatched output value");
 
-        args = new BValue[] { new BInteger(2), new BInteger(2) };
+        args = new Object[] { (2), (2) };
         returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 300, "mismatched output value");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 300, "mismatched output value");
 
-        args = new BValue[] { new BInteger(2), new BInteger(3) };
+        args = new Object[] { (2), (3) };
         returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 400, "mismatched output value");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 400, "mismatched output value");
 
-        args = new BValue[] { new BInteger(3), new BInteger(3) };
+        args = new Object[] { (3), (3) };
         returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 500, "mismatched output value");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 500, "mismatched output value");
 
-        args = new BValue[] { new BInteger(3), new BInteger(4) };
+        args = new Object[] { (3), (4) };
         returns = BRunUtil.invoke(result, "nestedIfElseScope", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 600, "mismatched output value");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 600, "mismatched output value");
     }
 
     @Test(description = "Test if condition parameter resolver scope")
     public void testIfConditionScope() {
-        BValue[] args1 = { new BInteger(3)};
-        BValue[] returns = BRunUtil.invoke(result, "testConditionScope", args1);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        BInteger actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 10, "if condition scope not set properly");
+        Object[] args1 = { (3)};
+        Object returns = BRunUtil.invoke(result, "testConditionScope", args1);
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        long actual = (long) returns;
+        Assert.assertEquals(actual, 10, "if condition scope not set properly");
 
-        BValue[] args2 = new BValue[] { new BInteger(6) };
+        Object[] args2 = new Object[] { (6) };
         returns = BRunUtil.invoke(result, "testConditionScope", args2);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type mismatched");
-        actual = (BInteger) returns[0];
-        Assert.assertEquals(actual.intValue(), 20, "elseif condition scope not set properly");
+        
+        Assert.assertSame(returns.getClass(), Long.class, "Class type mismatched");
+        actual = (long) returns;
+        Assert.assertEquals(actual, 20, "elseif condition scope not set properly");
     }
 
     @Test()
@@ -277,12 +277,14 @@ public class IfElseStmtTest {
 
     @Test()
     public void ifStmtTypeNarrowingTest() {
-        BValue[] args = {new BString("ballerina")};
+        Object[] args = {StringUtils.fromString("ballerina")};
         BRunUtil.invoke(result, "testTypeNarrowingWithLambda");
         BRunUtil.invoke(result, "testResetTypeNarrowingForCompoundAssignment");
-        BValue[] returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "ballerina");
+        BRunUtil.invoke(result, "testResetTypeNarrowing");
+        BRunUtil.invoke(result, "testResetTypeNarrowingWithBlockStmt");
+        Object returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
+        
+        Assert.assertEquals(returns.toString(), "ballerina");
     }
 
     @AfterClass

@@ -130,13 +130,13 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
             String sortText;
             if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL
                     || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
-                sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem, 1));
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 1));
             } else {
                 Symbol symbol = ((SymbolCompletionItem) lsCItem).getSymbol().get();
                 Optional<TypeSymbol> typeSymbol = SymbolUtil.getTypeDescriptor(symbol);
                 if (typeSymbol.isEmpty()) {
                     // Added for safety, and should not hit this point
-                    sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem, 1));
+                    sortText = SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 1));
                 } else {
                     /*
                     Here the sort text is three-fold.
@@ -146,7 +146,7 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
                      */
                     sortText = SortingUtil.genSortText(1)
                             + this.getSortTextForResolvedType(typeSymbol.get(), (SyntaxKind) interpolationParent[0])
-                            + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+                            + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
                 }
             }
 

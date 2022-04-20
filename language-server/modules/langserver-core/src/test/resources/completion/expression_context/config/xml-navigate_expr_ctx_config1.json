@@ -1,0 +1,31 @@
+{
+  "position": {
+    "line": 6,
+    "character": 8
+  },
+  "source": "expression_context/source/xml_navigate_expr_ctx_source1.bal",
+  "items": [
+    {
+      "label": "ns0",
+      "kind": "Variable",
+      "detail": "xmlns",
+      "documentation": {
+        "left": "http://ballerina.com/aa"
+      },
+      "sortText": "B",
+      "insertText": "ns0",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ns1",
+      "kind": "Variable",
+      "detail": "xmlns",
+      "documentation": {
+        "left": "http://ballerina.com/aa"
+      },
+      "sortText": "B",
+      "insertText": "ns1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

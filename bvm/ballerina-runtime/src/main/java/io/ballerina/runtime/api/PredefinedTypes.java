@@ -73,6 +73,7 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
@@ -193,15 +194,22 @@ public class PredefinedTypes {
         members.add(TYPE_DECIMAL);
         members.add(TYPE_STRING);
         members.add(TYPE_XML);
-        BAnydataType anydataType = new BAnydataType(new BUnionType(TypeConstants.ANYDATA_TNAME, EMPTY_MODULE,
-                members), TypeConstants.ANYDATA_TNAME, false);
+        TYPE_ANYDATA = getAnydataType(members, TypeConstants.ANYDATA_TNAME, false);
+        TYPE_READONLY_ANYDATA = getAnydataType(members, TypeConstants.READONLY_ANYDATA_TNAME, true);
+    }
+
+    private PredefinedTypes() {
+    }
+
+    private static BAnydataType getAnydataType(List<Type> members, String typeName, boolean readonly) {
+        BAnydataType anydataType = new BAnydataType(new BUnionType(TypeConstants.ANYDATA_TNAME, EMPTY_MODULE, members
+                , readonly), typeName, readonly);
         anydataType.isCyclic = true;
-        MapType internalAnydataMap = new BMapType(TypeConstants.MAP_TNAME, anydataType, EMPTY_MODULE);
-        ArrayType internalAnydataArray = new BArrayType(anydataType);
-        BTableType internalAnydataMapTable = new BTableType(internalAnydataMap, false);
+        MapType internalAnydataMap = new BMapType(TypeConstants.MAP_TNAME, anydataType, EMPTY_MODULE, readonly);
+        ArrayType internalAnydataArray = new BArrayType(anydataType, readonly);
+        BTableType internalAnydataMapTable = new BTableType(internalAnydataMap, readonly);
         anydataType.addMembers(internalAnydataArray, internalAnydataMap, internalAnydataMapTable);
-        TYPE_ANYDATA = anydataType;
-        TYPE_READONLY_ANYDATA = new BAnydataType(anydataType, TypeConstants.READONLY_ANYDATA_TNAME, true);
+        return anydataType;
     }
 
     // type json = ()|boolean|int|float|decimal|string|json[]|map<json>
@@ -213,7 +221,7 @@ public class PredefinedTypes {
         members.add(TYPE_FLOAT);
         members.add(TYPE_DECIMAL);
         members.add(TYPE_STRING);
-        BJsonType jsonType = new BJsonType(new BUnionType(TypeConstants.JSON_TNAME, EMPTY_MODULE, members),
+        BJsonType jsonType = new BJsonType(new BUnionType(TypeConstants.JSON_TNAME, EMPTY_MODULE, members, false),
                 TypeConstants.JSON_TNAME, false);
         jsonType.isCyclic = true;
         MapType internalJsonMap = new BMapType(TypeConstants.MAP_TNAME, jsonType, EMPTY_MODULE);
@@ -230,7 +238,7 @@ public class PredefinedTypes {
         members.add(TYPE_XML);
         members.add(TYPE_READONLY);
         var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
-        BUnionType cloneable = new BUnionType(TypeConstants.CLONEABLE_TNAME, valueModule, members);
+        BUnionType cloneable = new BUnionType(TypeConstants.CLONEABLE_TNAME, valueModule, members, false);
         cloneable.isCyclic = true;
         MapType internalCloneableMap = new BMapType(TypeConstants.MAP_TNAME, cloneable, valueModule);
         ArrayType internalCloneableArray = new BArrayType(cloneable);
@@ -251,7 +259,7 @@ public class PredefinedTypes {
         members.add(TYPE_STRING);
         members.add(TYPE_DECIMAL);
         var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
-        BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members);
+        BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members, false);
         jsonDecimal.isCyclic = true;
         MapType internalJsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
         ArrayType internalJsonDecimalArray = new BArrayType(jsonDecimal);
@@ -267,7 +275,7 @@ public class PredefinedTypes {
         members.add(TYPE_STRING);
         members.add(TYPE_FLOAT);
         var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
-        BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members);
+        BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members, false);
         jsonFloat.isCyclic = true;
         MapType internalJsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
         ArrayType internalJsonFloatArray = new BArrayType(jsonFloat);

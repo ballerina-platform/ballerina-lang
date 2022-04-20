@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.BuildOptionsBuilder;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.NullBackend;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -60,7 +62,7 @@ public class BCompileUtil {
     private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
     public static Project loadProject(String sourceFilePath) {
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         return loadProject(sourceFilePath, buildOptionsBuilder.build());
     }
 
@@ -71,7 +73,9 @@ public class BCompileUtil {
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
 
-        return ProjectLoader.loadProject(projectPath, buildOptions);
+        BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
+        BuildOptions mergedOptions = buildOptions.acceptTheirs(defaultOptions);
+        return ProjectLoader.loadProject(projectPath, mergedOptions);
     }
 
     public static CompileResult compile(String sourceFilePath) {
@@ -89,8 +93,8 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileOffline(String sourceFilePath) {
-        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
-        BuildOptions buildOptions = buildOptionsBuilder.offline(Boolean.TRUE).build();
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        BuildOptions buildOptions = buildOptionsBuilder.setOffline(Boolean.TRUE).build();
         Project project = loadProject(sourceFilePath, buildOptions);
 
         Package currentPackage = project.currentPackage();
@@ -104,9 +108,13 @@ public class BCompileUtil {
         return compileResult;
     }
 
-    public static BLangPackage compileSemType(String sourceFilePath) {
-        Project project = loadProject(sourceFilePath, (new BuildOptionsBuilder()).semType(true).build());
-        return project.currentPackage().getCompilation().defaultModuleBLangPackage();
+    public static PackageSyntaxTreePair compileSemType(String sourceFilePath) {
+        Project project = loadProject(sourceFilePath, BuildOptions.builder().setSemType(true).build());
+        Package currentPackage = project.currentPackage();
+        Module module = currentPackage.getDefaultModule();
+        DocumentId docId = module.documentIds().iterator().next();
+        return new PackageSyntaxTreePair(currentPackage.getCompilation().defaultModuleBLangPackage(),
+                                         module.document(docId).syntaxTree());
     }
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {
@@ -147,12 +155,18 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath) {
+        return compileAndCacheBala(sourceFilePath, repoPath, getTestProjectEnvironmentBuilder());
+    }
+
+    public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath,
+                                                    ProjectEnvironmentBuilder projectEnvironmentBuilder) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder());
+        BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
+        Project project = ProjectLoader.loadProject(projectPath, projectEnvironmentBuilder, defaultOptions);
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());
@@ -294,5 +308,21 @@ public class BCompileUtil {
 
     public static String getPlatformFromBala(String balaName, String packageName, String version) {
         return balaName.split(packageName + "-")[1].split("-" + version)[0];
+    }
+
+    /**
+     * Contain compiled {@code BLangPackage} and Syntax tree.
+     * This result is used to test sem-type relationships.
+     *
+     * @since 3.0.0
+     */
+    public static class PackageSyntaxTreePair {
+        public final BLangPackage bLangPackage;
+        public final SyntaxTree syntaxTree;
+
+        public PackageSyntaxTreePair(BLangPackage bLangPackage, SyntaxTree syntaxTree) {
+            this.bLangPackage = bLangPackage;
+            this.syntaxTree = syntaxTree;
+        }
     }
 }

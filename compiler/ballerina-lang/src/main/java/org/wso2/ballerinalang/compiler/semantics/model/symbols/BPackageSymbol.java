@@ -50,6 +50,7 @@ public class BPackageSymbol extends BTypeSymbol {
     public boolean isUsed = false;
     public boolean exported = false;
     public ModuleDescriptor descriptor;
+    public Name importPrefix;
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
@@ -93,22 +94,6 @@ public class BPackageSymbol extends BTypeSymbol {
     @Override
     public int hashCode() {
         return Objects.hash(pkgID, flags);
-    }
-
-    @Override
-    public BPackageSymbol createLabelSymbol() {
-        BPackageSymbol copy = new BPackageSymbol(pkgID, owner, pos, origin);
-        copy.initFunctionSymbol = initFunctionSymbol;
-        copy.startFunctionSymbol = startFunctionSymbol;
-        copy.stopFunctionSymbol = stopFunctionSymbol;
-        copy.testInitFunctionSymbol = testInitFunctionSymbol;
-        copy.testStartFunctionSymbol = testStartFunctionSymbol;
-        copy.testStopFunctionSymbol = testStopFunctionSymbol;
-        copy.packageFile = packageFile;
-        copy.compiledPackage = compiledPackage;
-        copy.entryPointExists = entryPointExists;
-        copy.isLabel = true;
-        return copy;
     }
 
     @Override

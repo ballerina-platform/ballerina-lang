@@ -18,13 +18,10 @@
 
 package org.ballerinalang.test.bala.types;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BByte;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -49,247 +46,233 @@ public class FiniteTypeTest {
 
     @Test()
     public void finiteAssignmentStateType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStateType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "off");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStateType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "off");
     }
 
     @Test()
     public void finiteAssignmentNumberSetType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentNumberSetType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentNumberSetType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 5L);
     }
 
     @Test()
     public void finiteAssignmentStringOrIntSetType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "This is a string");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "This is a string");
     }
 
     @Test()
     public void finiteAssignmentStringOrIntSetTypeCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetTypeCaseTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 111);
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStringOrIntSetTypeCaseTwo");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 111L);
     }
 
 
     @Test()
     public void finiteAssignmentIntSetType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentIntSetType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 222);
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentIntSetType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 222L);
     }
 
     @Test()
     public void finiteAssignmentIntArrayType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentIntArrayType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 9989);
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentIntArrayType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 9989L);
     }
 
     @Test()
     public void finiteAssignmentStateSameTypeComparison() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparison");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 2);
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparison");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 2L);
     }
 
     @Test()
     public void finiteAssignmentStateSameTypeComparisonCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparisonCaseTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "on");
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentStateSameTypeComparisonCaseTwo");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "on");
     }
 
     @Test()
     public void finiteAssignmentRefValueType() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BMap);
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentRefValueType");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BMap);
     }
 
     @Test()
     public void finiteAssignmentRefValueTypeCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueTypeCaseTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 4);
+        Object returns = BRunUtil.invoke(result, "finiteAssignmentRefValueTypeCaseTwo");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 4L);
     }
 
     @Test()
     public void testFiniteTypeWithMatch() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypeWithMatch");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "ss");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypeWithMatch");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "ss");
     }
 
     @Test()
     public void testFiniteTypesWithDefaultValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithDefaultValues");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "on");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithDefaultValues");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "on");
     }
 
     @Test()
     public void testFiniteTypesWithUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnion");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 1);
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnion");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 1L);
     }
 
     @Test()
     public void testFiniteTypesWithUnionCaseOne() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseOne");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 100);
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseOne");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 100L);
     }
 
     @Test()
     public void testFiniteTypesWithUnionCaseTwo() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseTwo");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "on");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseTwo");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "on");
     }
 
     @Test()
     public void testFiniteTypesWithUnionCaseThree() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseThree");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 1001);
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithUnionCaseThree");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof Long);
+        Assert.assertEquals(returns, 1001L);
     }
 
     @Test()
     public void testFiniteTypesWithTuple() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithTuple");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "on");
+        Object returns = BRunUtil.invoke(result, "testFiniteTypesWithTuple");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "on");
     }
 
     @Test()
     public void testTypeAliasing() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeAliasing");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "Anonymous name");
+        Object returns = BRunUtil.invoke(result, "testTypeAliasing");
+        Assert.assertNotNull(returns);
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "Anonymous name");
     }
 
     @Test()
     public void testTypeAliasingCaseOne() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeAliasingCaseOne");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 100);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "hundred");
+        Object resultObject = BRunUtil.invoke(result, "testTypeAliasingCaseOne");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertEquals(returns.get(0), 100L);
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "hundred");
     }
 
     @Test()
     public void testTypeDefinitionWithVarArgs() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeDefinitionWithVarArgs");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].stringValue(), "John");
-        Assert.assertNotNull(returns[1]);
-        Assert.assertTrue(returns[1] instanceof BString);
-        Assert.assertEquals(returns[1].stringValue(), "Anne");
+        Object resultObject = BRunUtil.invoke(result, "testTypeDefinitionWithVarArgs");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "John");
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "Anne");
     }
 
     @Test()
     public void testTypeDefinitionWithArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeDefinitionWithArray");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertTrue(returns[1] instanceof BInteger);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 2);
-        Assert.assertEquals((((BInteger) returns[1]).intValue()), 23);
+        Object resultObject = BRunUtil.invoke(result, "testTypeDefinitionWithArray");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertTrue(returns.get(0) instanceof Long);
+        Assert.assertTrue(returns.get(1) instanceof Long);
+        Assert.assertEquals(returns.get(0), 2L);
+        Assert.assertEquals(returns.get(1), 23L);
     }
 
     @Test()
     public void testTypeDefinitionWithByteArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeDefinitionWithByteArray");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BInteger.class);
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        Assert.assertEquals((((BInteger) returns[0]).intValue()), 2);
-        Assert.assertEquals((((BByte) returns[1]).byteValue()), 23);
+        Object resultObject = BRunUtil.invoke(result, "testTypeDefinitionWithByteArray");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertSame(returns.get(0).getClass(), Long.class);
+        Assert.assertSame(returns.get(1).getClass(), Integer.class);
+        Assert.assertEquals(returns.get(0), 2L);
+        Assert.assertEquals(returns.get(1), 23);
     }
 
     @Test()
     public void testFiniteAssignmentByteType() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteAssignmentByteType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
-        Assert.assertEquals((((BByte) returns[0]).byteValue()), 222);
+        Object returns = BRunUtil.invoke(result, "testFiniteAssignmentByteType");
+        Assert.assertNotNull(returns);
+        Assert.assertSame(returns.getClass(), Integer.class);
+        Assert.assertEquals(returns, 222);
     }
 
     @Test()
     public void testByteTypeDefinitionWithVarArgs() {
-        BValue[] returns = BRunUtil.invoke(result, "testByteTypeDefinitionWithVarArgs");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertSame(returns[0].getClass(), BByte.class);
-        Assert.assertEquals((((BByte) returns[0]).byteValue()), 34);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertEquals((((BFloat) returns[1]).floatValue()), 4.5);
+        Object resultObject = BRunUtil.invoke(result, "testByteTypeDefinitionWithVarArgs");
+        BArray returns = (BArray) resultObject;
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertNotNull(returns.get(0));
+        Assert.assertSame(returns.get(0).getClass(), Integer.class);
+        Assert.assertEquals(returns.get(0), 34);
+        Assert.assertNotNull(returns.get(1));
+        Assert.assertSame(returns.get(1).getClass(), Double.class);
+        Assert.assertEquals(returns.get(1), 4.5);
     }
 
     @Test
     public void testTypeDefWithFunctions() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeDefWithFunctions");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello".length());
+        Object returns = BRunUtil.invoke(result, "testTypeDefWithFunctions");
+        Assert.assertEquals(returns, (long) "Hello".length());
     }
 
     @Test
     public void testTypeDefWithFunctions2() {
-        BValue[] returns = BRunUtil.invoke(result, "testTypeDefWithFunctions2");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), "Hello".length());
+        Object returns = BRunUtil.invoke(result, "testTypeDefWithFunctions2");
+        Assert.assertEquals(returns, (long) "Hello".length());
     }
 
     @Test(dataProvider = "assignmentToBroaderTypeFunctions")
     public void testFiniteTypeAssignmentToBroaderType(String function) {
-        BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, function);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "assignmentToBroaderTypeFunctions")
@@ -306,6 +289,43 @@ public class FiniteTypeTest {
                 {"testFiniteTypesAsUnionsAsBroaderTypes_1"},
                 {"testFiniteTypesAsUnionsAsBroaderTypes_2"}
         };
+    }
+
+    @Test
+    public void testTypeDefinitionsWithNullNegative() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/types/finite_type_negative_test.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'finitetypetest/finite_type_project:0.0.0:Bar', found 'string'", 20, 33);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found 'string'", 32, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr'", 34, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found '(int|\"null\")'", 36, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNull', " +
+                        "found '\"null\"'", 38, 39);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found '()'", 40, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found '()'", 41, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found 'finitetypetest/finite_type_project:0.0.0:IntOrNull'", 43, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found '(int|null)'", 45, 42);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'finitetypetest/finite_type_project:0.0.0:IntOrNullStr', " +
+                        "found 'null'", 47, 42);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass

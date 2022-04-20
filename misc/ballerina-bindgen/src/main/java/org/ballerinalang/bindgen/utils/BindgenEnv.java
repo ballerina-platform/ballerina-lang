@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
+
 /**
  * The model that stores the details which will be passed on and updated while generating the mappings.
  *
@@ -40,7 +42,6 @@ public class BindgenEnv {
     private boolean modulesFlag = false; // Stores if the bindings are mapped as Java package per Ballerina module
     private boolean publicFlag = false; // Stores if the public flag is enabled for the binding generation
     private String outputPath; // Output path of the bindings generated
-    private Project project; // Ballerina project
     private String packageName; // Ballerina project's current package name
     private Path projectRoot; // Ballerina project root
     private TomlDocument tomlDocument; // TomlDocument object representing the Ballerina.toml file
@@ -54,6 +55,7 @@ public class BindgenEnv {
     private Set<JError> exceptionList = new HashSet<>();
     private Map<String, String> failedClassGens = new HashMap<>();
     private List<String> failedMethodGens = new ArrayList<>();
+    private Set<String> superClasses = new HashSet<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -64,7 +66,6 @@ public class BindgenEnv {
     }
 
     public void setProject(Project project) {
-        this.project = project;
         this.projectRoot = project.sourceRoot();
         if (project.currentPackage() != null) {
             Package currentPackage = project.currentPackage();
@@ -91,12 +92,16 @@ public class BindgenEnv {
         return projectRoot;
     }
 
-    public void setProjectRoot(Path projectRoot) {
-        this.projectRoot = projectRoot;
+    public void setSuperClasses(Class superClass) {
+        Class parent = superClass;
+        while (parent != null && isPublicClass(parent)) {
+            this.superClasses.add(parent.getName());
+            parent = parent.getSuperclass();
+        }
     }
 
-    public Project getProject() {
-        return project;
+    public Set<String> getSuperClasses() {
+        return this.superClasses;
     }
 
     public boolean getModulesFlag() {

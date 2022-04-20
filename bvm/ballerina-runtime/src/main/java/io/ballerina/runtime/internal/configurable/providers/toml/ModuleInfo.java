@@ -43,7 +43,8 @@ public class ModuleInfo {
     void analyseModules(Module rootModule) {
         for (Module entry : moduleSet) {
             String rootModuleName = rootModule.getName();
-            if (rootModuleName.startsWith(entry.getOrg())) {
+            String orgName = entry.getOrg();
+            if (rootModuleName.startsWith(orgName + ".") || rootModuleName.equals(orgName)) {
                 hasModuleAmbiguity = true;
             }
             orgNames.add(entry.getOrg());

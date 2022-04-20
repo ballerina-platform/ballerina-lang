@@ -17,8 +17,7 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -45,9 +44,9 @@ public class ForeachIterableObjectTest {
 
     @Test
     public void testIterableObject() {
-        BValue[] returns = BRunUtil.invoke(program, "testIterableObject");
+        Object returns = BRunUtil.invoke(program, "testIterableObject");
 
-        BValueArray arr = (BValueArray) returns[0];
+        BArray arr = (BArray) returns;
         Assert.assertEquals(arr.size(), 7);
         int i = 0;
         Assert.assertEquals(arr.getInt(i++), 12);
@@ -86,6 +85,11 @@ public class ForeachIterableObjectTest {
     }
 
     @Test
+    public void testNextIsNotInvokedTwiseBeforeInvokingBody() {
+        BRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
+    }
+
+    @Test
     public void testIterableObjectErrors() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public isolated " +
@@ -99,7 +103,7 @@ public class ForeachIterableObjectTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|CustomError)' in foreach " +
                 "statement: next method completion type cannot contain type 'CustomError'", 245, 25);
         BAssertUtil.validateError(negativeResult, i++, "invalid iterable type 'Iterable13': an iterable object must " +
-                "be a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 248, 25);
+                "be a subtype of 'ballerina/lang.object:0.0.0:Iterable'", 248, 25);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
                 " iterator() returns object { public function next () returns ((" +
                 "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +

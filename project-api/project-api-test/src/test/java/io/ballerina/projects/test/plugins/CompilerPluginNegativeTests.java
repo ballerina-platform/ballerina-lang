@@ -18,7 +18,7 @@
 package io.ballerina.projects.test.plugins;
 
 import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.test.TestUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.Test;
 
@@ -109,6 +109,6 @@ public class CompilerPluginNegativeTests {
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/negative_cases/package_compiler_plugin_" + testCase);
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_that_imports_plugin_" + testCase);
-        BuildProject.load(projectDirPath).currentPackage().getCompilation();
+        TestUtils.loadBuildProject(projectDirPath).currentPackage().getCompilation();
     }
 }

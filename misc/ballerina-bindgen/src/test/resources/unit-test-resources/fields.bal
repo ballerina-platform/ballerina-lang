@@ -61,8 +61,11 @@ distinct class FieldsTestResource {
     # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.FieldsTestResource`.
     #
     # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray() returns string[]|error {
+    function returnStringArray() returns string[]?|error {
         handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_returnStringArray(self.jObj);
+        if java:isNull(externalObj) {
+            return null;
+        }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
 
@@ -359,8 +362,12 @@ distinct class FieldsTestResource {
     # The function that retrieves the value of the public field `getInstanceStringArray`.
     #
     # + return - The `string[]` value of the field.
-    function getGetInstanceStringArray() returns string[]|error {
-        return <string[]>check jarrays:fromHandle(org_ballerinalang_bindgen_FieldsTestResource_getGetInstanceStringArray(self.jObj), "string");
+    function getGetInstanceStringArray() returns string[]?|error {
+        handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_getGetInstanceStringArray(self.jObj);
+        if java:isNull(externalObj) {
+            return null;
+        }
+        return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
 
     # The function to set the value of the public field `getInstanceStringArray`.
@@ -921,8 +928,12 @@ function FieldsTestResource_setGetStaticBooleanArray(boolean[] arg) {
 # The function that retrieves the value of the public field `getStaticStringArray`.
 #
 # + return - The `string[]` value of the field.
-function FieldsTestResource_getGetStaticStringArray() returns string[]|error {
-    return <string[]>check jarrays:fromHandle(org_ballerinalang_bindgen_FieldsTestResource_getGetStaticStringArray(), "string");
+function FieldsTestResource_getGetStaticStringArray() returns string[]?|error {
+    handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_getGetStaticStringArray();
+    if java:isNull(externalObj) {
+        return null;
+    }
+    return <string[]>check jarrays:fromHandle(externalObj, "string");
 }
 
 # The function to set the value of the public field `getStaticStringArray`.

@@ -152,7 +152,7 @@ function add4(int x, int y, @deprecated int... z) {       // Compiler error
 # # Deprecated parameters
 # + z - deprecated rest parameter       // Compile error
 function add5(int x, int y, int... z) {
-    int n = z[0];
+    int _ = z[0];
 }
 
 public class Object4 {

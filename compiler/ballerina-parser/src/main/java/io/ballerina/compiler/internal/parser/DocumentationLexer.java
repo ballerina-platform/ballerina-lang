@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -173,6 +174,8 @@ public class DocumentationLexer extends AbstractLexer {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.TAB:
+                    reader.advance();
+                    reportLexerError(DiagnosticWarningCode.WARNING_INVALID_ESCAPE_SEQUENCE, "");
                     break;
                 case 'u':
                     // NumericEscape

@@ -272,7 +272,7 @@ function waitTest24() {
 
 function add_panic1(int i, int j) returns int {
     int k = i + j;
-    if (true) {
+    if (0 < 1) {
         error err = error("err from panic" );
         panic err;
     }
@@ -285,7 +285,7 @@ function add_panic2(int i, int j) returns int {
     while (l < 9999999) {
         l = l + 1;
     }
-    if (true) {
+    if (0 < 1) {
         error err = error("err from panic" );
         panic err;
     }
@@ -298,7 +298,7 @@ function add_panic3(int i, int j) returns int {
     while (l < 8888888) {
         l = l + 1;
     }
-    if (true) {
+    if (0 < 1) {
         error err = error("err from panic" );
         panic err;
     }
@@ -357,7 +357,7 @@ function getAddrMap() returns map<string> {
 
 function addOrError(int i, int j) returns int|error {
     int k = i + j;
-    if (true) {
+    if (0 < 1) {
         error err = error("err returned" );
         return err;
     }

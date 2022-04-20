@@ -118,7 +118,7 @@ function add_panic(int i, int j) returns int {
     while (l < 8888888) {
         l = l + 1;
     }
-    if (true) {
+    if (0 < 1) {
         error err = error("err from panic" );
         panic err;
     }

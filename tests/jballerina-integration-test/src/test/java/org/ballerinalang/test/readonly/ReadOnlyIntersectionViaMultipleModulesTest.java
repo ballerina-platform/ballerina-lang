@@ -27,8 +27,6 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 
-import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
-
 /**
  * Tests intersection of the same construct via multiple modules.
  *
@@ -36,7 +34,8 @@ import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
  */
 public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
 
-    private static final String testFileLocation = Paths.get("src", "test", "resources", "packaging", "readonly")
+    private static final String testFileLocation =
+            Paths.get("src", "test", "resources", "packaging", "readonly", "one")
             .toAbsolutePath().toString();
     private BMainInstance bMainInstance;
 
@@ -55,8 +54,8 @@ public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
     private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
-                                                        "'local' repository.", ERROR);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+                                                        "'local' repository.");
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               packagePath);
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
@@ -73,7 +72,7 @@ public class ReadOnlyIntersectionViaMultipleModulesTest extends BaseTest {
 
     private void buildQux() throws BallerinaTestException {
         LogLeecher buildLeecher = new LogLeecher("target/bala/testorg-selectively_immutable_qux-any-1.0.0.bala");
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                               Paths.get(testFileLocation, "test_project_immutable_qux").toString());
         buildLeecher.waitForText(5000);
     }

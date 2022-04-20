@@ -30,4 +30,9 @@ public enum Type {
     STRING,
     ARRAY,
     BOOLEAN,
+    
+    ALL_OF,
+    ANY_OF,
+    ONE_OF,
+    NOT
 }

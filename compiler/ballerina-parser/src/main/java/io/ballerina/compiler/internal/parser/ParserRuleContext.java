@@ -171,6 +171,7 @@ public enum ParserRuleContext {
     OPTIONAL_TYPE_DESCRIPTOR("optional-type-descriptor"),
     ARRAY_TYPE_DESCRIPTOR("array-type-descriptor"),
     ARRAY_LENGTH("array-length"),
+    ARRAY_LENGTH_START("array-length-start"),
     ANNOT_REFERENCE("annot-reference"),
     ANNOTATIONS("annots"),
     ANNOTATION_END("annot-end"),

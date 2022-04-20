@@ -441,13 +441,13 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testQualifiedNameInInvalidAttachmentError() {
         validateError(compileResult, 242,
-                      "annotation 'ballerina/lang.annotations:1.0.0:tainted' is not allowed on class", 823, 1);
+                      "annotation 'ballerina/lang.annotations:0.0.0:tainted' is not allowed on class", 823, 1);
     }
 
     @Test
     public void testInvalidAttachmentWithValue() {
         validateError(compileResult, 243,
-                      "no annotation value expected for annotation 'ballerina/lang.annotations:1.0.0:tainted'",
+                      "no annotation value expected for annotation 'ballerina/lang.annotations:0.0.0:tainted'",
                       828, 10);
         validateError(compileResult, 244, "no annotation value expected for annotation 'v7'",
                       833, 35);
@@ -471,7 +471,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentCount() {
         validateError(compileResult, 250, "cannot specify more than one annotation value for " +
-                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 850, 1);
+                              "annotation 'ballerina/lang.annotations:0.0.0:tainted'", 850, 1);
         validateError(compileResult, 251,
                       "cannot specify more than one annotation value for annotation 'v1'", 852, 1);
     }

@@ -48,8 +48,8 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'func1()' is deprecated", 46, 5);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'func3()' is deprecated", 54, 5);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v1' is deprecated", 74, 1);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v1' is deprecated", 86, 21);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v2' is deprecated", 87, 23);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v1' is deprecated", 86, 16);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v2' is deprecated", 87, 18);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v1' is deprecated", 90, 1);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v2' is deprecated", 93, 1);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'v2' is deprecated", 96, 1);
@@ -67,8 +67,8 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'self.t' is deprecated", 175, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'self.fieldOne' is deprecated", 194, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'self.t' is deprecated", 195, 9);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'add1(2, 3, 3)' is deprecated", 200, 14);
-        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'add2(2, 4, 5)' is deprecated", 201, 14);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'add1(2, 3, 3)' is deprecated", 200, 13);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'add2(2, 4, 5)' is deprecated", 201, 13);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Object1' is deprecated", 202, 5);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'z' is deprecated", 213, 13);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Foo' is deprecated", 216, 38);

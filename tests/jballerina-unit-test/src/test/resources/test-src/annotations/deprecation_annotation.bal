@@ -39,7 +39,7 @@ public class DummyObject {
 # This function is deprecated
 @deprecated
 public function func1() {
-    DummyObject obj = new;
+    DummyObject _ = new;
 }
 
 public function func2(DummyObject obj, Foo foo, string str = CONST1) {
@@ -83,8 +83,8 @@ T1 a = { name: "John" };
 
 function testAnnotationDeprecation() {
     typedesc<any> t = typeof a;
-    Annot? annot1 = t.@v1;
-    Annot[]? annot2 = t.@v2;
+    Annot? _ = t.@v1;
+    Annot[]? _ = t.@v2;
 }
 
 @v1 {
@@ -197,10 +197,10 @@ public class Object3 {
 }
 
 public function func5() {
-    int x1 = add1(2, 3, 3);
-    int x2 = add2(2, 4, 5);
-    Object1 obj1 = new;
-    Object2 obj2 = new;
+    int _ = add1(2, 3, 3);
+    int _ = add2(2, 4, 5);
+    Object1 _ = new;
+    Object2 _ = new;
 }
 
 # Test function doc
@@ -210,7 +210,7 @@ public function func5() {
 # # Deprecated parameters
 # + z - deprecated rest parameter
 function add3(int x, int y, @deprecated int... z) {
-    int n = z[0];
+    int _ = z[0];
 }
 
 public function typeReturn() returns Foo { // Compile warning because 'Foo' is deprecated
@@ -219,7 +219,7 @@ public function typeReturn() returns Foo { // Compile warning because 'Foo' is d
 }
 
 public function getType() {
-    Foo f = typeReturn();
+    Foo _ = typeReturn();
 }
 
 class SimpleClass {
@@ -227,7 +227,7 @@ class SimpleClass {
 }
 
 function testObjectConstructorWithCodeAnalyzer() {
-    SimpleClass|float x = object SimpleClass {
+    SimpleClass|float _ = object SimpleClass {
         @deprecated
         function init() {
         }

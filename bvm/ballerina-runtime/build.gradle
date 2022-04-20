@@ -28,12 +28,13 @@ dependencies {
     }
     implementation 'org.apache.commons:commons-text'
     implementation 'io.opentelemetry:opentelemetry-api'
-    implementation('com.atomikos:transactions-jta:5.0.8') {
+    implementation("com.atomikos:transactions-jta:${project.atomikosTransactionsJtaVersion}") {
         exclude group: 'org.hibernate', module: 'hibernate'
     }
-    implementation "javax.transaction:javax.transaction-api:1.3"
+    implementation "javax.transaction:javax.transaction-api:${project.javaxTransactionApiVersion}"
     implementation project(':toml-parser')
     implementation project(':ballerina-tools-api')
+    implementation project(':identifier-util')
 
     testCompile 'org.testng:testng'
 }

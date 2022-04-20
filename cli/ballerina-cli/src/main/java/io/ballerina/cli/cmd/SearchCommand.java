@@ -32,7 +32,6 @@ import java.io.PrintStream;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
-import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.cli.utils.PrintUtils.printPackages;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -133,7 +132,7 @@ public class SearchCommand implements BLauncherCmd {
         try {
             Settings settings;
             try {
-                settings = readSettings();
+                settings = RepoUtils.readSettings();
                 // Ignore Settings.toml diagnostics in the search command
             } catch (SettingsTomlException e) {
                 // Ignore 'Settings.toml' parsing errors and return empty Settings object

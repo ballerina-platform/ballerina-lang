@@ -18,10 +18,7 @@
  */
 package org.ballerinalang.test.expressions.checkpanicexpr;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -46,56 +43,62 @@ public class CheckPanicExpressionOperatorTest {
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics1() {
-        BValue[] arg = {new BInteger(1)};
-        BValue[] returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
-        Assert.assertEquals(returns.length, 1);
+        Object[] arg = {(1)};
+        Object returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error \\{\"fatal\":true," +
                     "\"message\":\"Something Went Wrong.*")
     public void testSafeAssignmentBasics2() {
-        BValue[] arg = {new BInteger(2)};
+        Object[] arg = {(2)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: Generic Error.*")
     public void testSafeAssignmentBasics3() {
-        BValue[] arg = {new BInteger(3)};
+        Object[] arg = {(3)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test
     public void testSafeAssignmentBasics4() {
-        BValue[] arg = {new BInteger(4)};
-        BValue[] returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 2.2);
+        Object[] arg = {(4)};
+        Object returns = BRunUtil.invoke(result, "testBasicCheckpanic", arg);
+        Assert.assertEquals(returns, 2.2);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
                     "\\{\"message\":\"array index out of range: index: 4, size: 2.*")
     public void testSafeAssignmentBasics5() {
-        BValue[] arg = {new BInteger(5)};
+        Object[] arg = {(5)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: My Error \\{\"code\":12.*")
     public void testSafeAssignmentBasics6() {
-        BValue[] arg = {new BInteger(6)};
+        Object[] arg = {(6)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);
     }
 
     @Test
     public void testSemanticErrors() {
-        Assert.assertEquals(negative.getErrorCount(), 2, negative.toString());
-        BAssertUtil.validateError(negative, 0, "invalid usage of the 'checkpanic' expression " +
+        int i = 0;
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
                 "operator: no expression type is equivalent to error type", 6, 30);
-        BAssertUtil.validateError(negative, 1, "incompatible types: expected '(string|error)'" +
+        BAssertUtil.validateError(negative, i++, "incompatible types: expected '(string|error)'" +
                 ", found '(string|int)'", 19, 30);
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 34, 24);
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 39, 31);
+        BAssertUtil.validateWarning(negative, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 39, 48);
+        Assert.assertEquals(negative.getErrorCount(), 1);
+        Assert.assertEquals(negative.getWarnCount(), i - 1);
     }
 
     @Test
@@ -104,8 +107,8 @@ public class CheckPanicExpressionOperatorTest {
                 "test-src/expressions/checkpanicexpr/check_panic_expr_code_analysis_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "expression of type 'never' or equivalent to type 'never' " +
-                "not allowed here", 18, 19);
+                "not allowed here", 18, 16);
         BAssertUtil.validateError(compileResult, 1, "expression of type 'never' or equivalent to type 'never' " +
-                "not allowed here", 27, 19);
+                "not allowed here", 28, 16);
     }
 }

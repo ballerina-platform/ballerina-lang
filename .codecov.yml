@@ -7,4 +7,5 @@ fixes:
 
 ignore:
   - "**/tests"
+  - "tests/language-server-simulator"
 

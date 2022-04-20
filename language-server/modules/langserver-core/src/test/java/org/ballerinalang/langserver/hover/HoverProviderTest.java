@@ -39,7 +39,7 @@ import java.util.List;
  * Test hover feature in language server.
  */
 public class HoverProviderTest {
-    private Endpoint serviceEndpoint;
+    protected Endpoint serviceEndpoint;
     protected Path configRoot;
     protected Path sourceRoot;
     private final JsonParser parser = new JsonParser();
@@ -58,8 +58,7 @@ public class HoverProviderTest {
         JsonObject source = configJson.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String response = parser.parse(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
-                .getAsJsonObject().toString();
+        String response = getResponse(sourcePath, position);
         String expected = configJson.getAsJsonObject("expected").toString();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
@@ -74,6 +73,11 @@ public class HoverProviderTest {
 //                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
             Assert.fail("Failed Test for: " + config);
         }
+    }
+
+    public String getResponse(Path sourcePath, Position position) {
+        return parser.parse(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
+                .getAsJsonObject().toString();
     }
 
     @DataProvider(name = "hover-data-provider")

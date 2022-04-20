@@ -22,6 +22,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.IsLikeExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
@@ -31,8 +33,10 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
  * 
  * @since 0.985.0
  */
+@Deprecated
 public class BLangIsLikeExpr extends BLangExpression implements IsLikeExpressionNode {
 
+    // BLangNodes
     public BLangExpression expr;
     public BLangType typeNode;
 
@@ -64,6 +68,16 @@ public class BLangIsLikeExpr extends BLangExpression implements IsLikeExpression
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

@@ -25,6 +25,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.central.client.CentralClientConstants;
 
@@ -72,6 +73,16 @@ public class CompileTask implements Task {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
                 start = System.currentTimeMillis();
             }
+
+            // run built-in code generator and code modifier compiler plugins
+            DiagnosticResult codeGenAndModifyDiagnosticResult = null;
+            if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
+                // SingleFileProject cannot hold additional sources or resources
+                // and BalaProjects is a read-only project.
+                // Hence we run the code generators only for BuildProject
+                codeGenAndModifyDiagnosticResult = project.currentPackage().runCodeGenAndModifyPlugins();
+            }
+
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
@@ -81,9 +92,17 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().codeGenDuration = System.currentTimeMillis() - start;
             }
+            // Report code generator diagnostics
+            if (codeGenAndModifyDiagnosticResult != null) {
+                codeGenAndModifyDiagnosticResult.diagnostics(false)
+                        .forEach(d -> err.println(d.toString()));
+            }
+
+            // Report package compilation and backend diagnostics
             DiagnosticResult diagnosticResult = jBallerinaBackend.diagnosticResult();
             diagnosticResult.diagnostics(false).forEach(d -> err.println(d.toString()));
-            if (diagnosticResult.hasErrors()) {
+            if (diagnosticResult.hasErrors() ||
+                    (codeGenAndModifyDiagnosticResult != null && codeGenAndModifyDiagnosticResult.hasErrors())) {
                 throw createLauncherException("compilation contains errors");
             }
             project.save();

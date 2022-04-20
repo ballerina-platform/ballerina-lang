@@ -25,7 +25,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LI
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.TYPEDESC_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
@@ -48,7 +47,11 @@ public class BallerinaErrorReasons {
 
     public static final BString DIVISION_BY_ZERO_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("DivisionByZero"));
-    public static final BString NUMBER_OVERFLOW = StringUtils.fromString(BALLERINA_PREFIX.concat("NumberOverflow"));
+    public static final String NUMBER_OVERFLOW_ERROR_IDENTIFIER = "NumberOverflow";
+    public static final BString NUMBER_OVERFLOW =
+            StringUtils.fromString(BALLERINA_PREFIX.concat(NUMBER_OVERFLOW_ERROR_IDENTIFIER));
+    public static final BString LARGE_EXPONENT_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
+            "DecimalExponentError"));
     public static final BString ARITHMETIC_OPERATION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ArithmeticOperationError"));
     public static final BString JAVA_NULL_REFERENCE_ERROR =
@@ -82,12 +85,8 @@ public class BallerinaErrorReasons {
     public static final BString STACK_OVERFLOW_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("StackOverflow"));
 
-    public static final BString CONSTRUCT_FROM_CONVERSION_ERROR = getModulePrefixedReason(TYPEDESC_LANG_LIB,
-                                                                                          "ConversionError");
     public static final BString VALUE_LANG_LIB_CONVERSION_ERROR = getModulePrefixedReason(VALUE_LANG_LIB,
                                                                                           "ConversionError");
-    public static final BString CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR =
-            getModulePrefixedReason(TYPEDESC_LANG_LIB, "CyclicValueReferenceError");
     public static final BString VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR =
             getModulePrefixedReason(VALUE_LANG_LIB, "CyclicValueReferenceError");
     public static final BString MERGE_JSON_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "MergeJsonError");
@@ -110,6 +109,8 @@ public class BallerinaErrorReasons {
     public static final BString ASYNC_CALL_INSIDE_LOCK =
             StringUtils.fromString(BALLERINA_PREFIX.concat("AsyncCallInsideLockError"));
     public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
+    public static final BString UNSUPPORTED_DECIMAL_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
+            "UnsupportedDecimalError"));
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

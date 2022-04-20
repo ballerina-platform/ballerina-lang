@@ -15,7 +15,10 @@
 // under the License.
 
 import ballerina/lang.value;
+import ballerina/lang.runtime;
 
 public function test() {
     value:JsonDecimal jsonDecimal = 23;
+
+    runtime:StackFrame[] stackTrace = runtime:getStackTrace();
 }

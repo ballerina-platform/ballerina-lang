@@ -665,6 +665,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(arrayTypeDescriptorNode);
     }
 
+    public T transform(STArrayDimensionNode arrayDimensionNode) {
+        return transformSyntaxNode(arrayDimensionNode);
+    }
+
     public T transform(STTransactionStatementNode transactionStatementNode) {
         return transformSyntaxNode(transactionStatementNode);
     }

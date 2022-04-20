@@ -37,25 +37,11 @@ public interface CallableUnit extends BLangSymbol, Node {
     AnnotationAttachment[] getAnnotations();
 
     /**
-     * Returns an arrays of parameters of this callable unit.
-     *
-     * @return an arrays of parameters
-     */
-    ParameterDef[] getParameterDefs();
-
-    /**
      * Returns an arrays of variable declarations of this callable unit.
      *
      * @return an arrays of variable declarations
      */
     VariableDef[] getVariableDefs();
-
-    /**
-     * Returns an arrays of return parameters (values) of this callable unit.
-     *
-     * @return an arrays of return parameters
-     */
-    ParameterDef[] getReturnParameters();
 
     /**
      * Get Types of the return parameters.
@@ -64,12 +50,6 @@ public interface CallableUnit extends BLangSymbol, Node {
      */
     BType[] getReturnParamTypes();
 
-    /**
-     * Sets a {@code BType} arrays containing the types of return parameters of this callable unit.
-     *
-     * @param returnParamTypes arrays of the return parameters
-     */
-    void setReturnParamTypes(BType[] returnParamTypes);
 
     /**
      * Get Types of the return input arguments.
@@ -78,10 +58,4 @@ public interface CallableUnit extends BLangSymbol, Node {
      */
     BType[] getArgumentTypes();
 
-    /**
-     * Sets a {@code BType} arrays containing the types of input parameters of this callable unit.
-     *
-     * @param parameterTypes arrays of the input parameters
-     */
-    void setParameterTypes(BType[] parameterTypes);
 }

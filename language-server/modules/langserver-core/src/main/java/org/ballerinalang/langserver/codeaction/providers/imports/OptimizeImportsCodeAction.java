@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -41,7 +42,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_IMPORT_MODULE;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_IMPORT_MODULE;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_MODULE_PREFIX;
 
 /**
  * Code Action for optimizing all imports.
@@ -74,7 +75,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
         List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> UNUSED_IMPORT_MODULE.diagnosticId().equals(diag.diagnosticInfo().code()) ||
+                .filter(diag -> UNUSED_MODULE_PREFIX.diagnosticId().equals(diag.diagnosticInfo().code()) ||
                         REDECLARED_IMPORT_MODULE.diagnosticId().equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
                 .collect(Collectors.toList());
@@ -104,7 +105,10 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
             // Remove any matching imports on-the-go
             for (int j = 0; j < toBeRemovedImportsLocations.size(); j++) {
                 LineRange rmLineRange = toBeRemovedImportsLocations.get(j);
-                if (importPkg.lineRange().equals(rmLineRange)) {
+                LineRange prefixLineRange = importPkg.prefix().isPresent()
+                        ? importPkg.prefix().get().prefix().lineRange()
+                        : importPkg.moduleName().get(importPkg.moduleName().size() - 1).lineRange();
+                if (prefixLineRange.equals(rmLineRange)) {
                     fileImports.remove(i);
                     toBeRemovedImportsLocations.remove(j);
                     i--;
@@ -139,7 +143,8 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         Position importEnd = new Position(importELine + 1, 0);
         TextEdit textEdit = new TextEdit(new Range(importStart, importEnd), editText.toString());
         List<TextEdit> edits = Collections.singletonList(textEdit);
-        actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
+        actions.add(createCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri,
+                CodeActionKind.SourceOrganizeImports));
         return actions;
     }
 

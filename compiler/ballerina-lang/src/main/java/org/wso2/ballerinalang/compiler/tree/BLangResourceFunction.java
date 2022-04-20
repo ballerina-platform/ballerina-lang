@@ -29,6 +29,7 @@ import java.util.List;
  */
 public class BLangResourceFunction extends BLangFunction {
 
+    // BLangNodes
     public BLangIdentifier methodName;
     public List<BLangIdentifier> resourcePath;
     public BLangSimpleVariable restPathParam;
@@ -39,7 +40,17 @@ public class BLangResourceFunction extends BLangFunction {
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
-    
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
     @Override
     public String toString() {
         return "BLangResourceFunction: " + super.toString();

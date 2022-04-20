@@ -45,9 +45,10 @@ public class ConstantCompletionItemBuilder {
      * @return {@link CompletionItem} generated completion item
      */
     public static CompletionItem build(ConstantSymbol constantSymbol, CompletionContext context) {
+        String name = constantSymbol.getName().orElse("");
         CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(constantSymbol.getName().get());
-        completionItem.setInsertText(constantSymbol.getName().get());
+        completionItem.setLabel(name);
+        completionItem.setInsertText(name);
         completionItem.setDetail(CommonUtil.getModifiedTypeName(context, constantSymbol.typeDescriptor()));
         completionItem.setDocumentation(getDocumentation(constantSymbol));
 

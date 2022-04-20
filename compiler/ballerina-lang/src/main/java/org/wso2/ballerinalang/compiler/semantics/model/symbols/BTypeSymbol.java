@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
-    public boolean isLabel;
     public boolean isTypeParamResolved;
     public BTypeSymbol typeParamTSymbol;
 
@@ -42,7 +41,6 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
     public BTypeSymbol(int symTag, long flags, Name name, Name originalName, PackageID pkgID, BType type, BSymbol owner,
                        Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, originalName, pkgID, type, owner, pos, origin);
-        this.isLabel = false;
     }
 
     @Override
@@ -53,13 +51,5 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
             return this.name.value;
         }
         return this.pkgID.toString() + ":" + this.name;
-    }
-
-    @Override
-    public BTypeSymbol createLabelSymbol() {
-        BTypeSymbol typeSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY, pkgID, type, owner, pos,
-                                                          origin);
-        typeSymbol.isLabel = true;
-        return typeSymbol;
     }
 }

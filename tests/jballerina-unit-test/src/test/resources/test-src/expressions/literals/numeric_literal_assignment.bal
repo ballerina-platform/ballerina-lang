@@ -100,19 +100,13 @@ function testIntLiteralAsFloatInUnion() returns boolean {
 }
 
 function testIntLiteralAsFloatInUnion_2() returns boolean {
-    Baz|float y = 120;
-    return y is float && 120.0 == y;
+    Baz|float y = 12;
+    return y is byte && 12 == b;
 }
 
 function testIntLiteralAsDecimalInUnion() returns boolean {
     xml|decimal x = 12;
     return x is decimal && d == x;
-}
-
-function testIntLiteralAsDecimalInUnion_2() returns boolean {
-    Foo|decimal x = 123;
-    decimal dec = 123.0;
-    return x is decimal && dec == x;
 }
 
 function testFloatLiteralAsFloatInUnion() returns boolean {

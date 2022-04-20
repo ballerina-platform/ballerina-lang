@@ -67,8 +67,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BWorkerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -141,8 +143,8 @@ public class SymbolFactory {
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }
-            if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
-                return createWorkerSymbol((BVarSymbol) symbol, name);
+            if (symbol.kind == SymbolKind.WORKER) {
+                return createWorkerSymbol((BWorkerSymbol) symbol, name);
             }
             if (symbol.owner instanceof BRecordTypeSymbol) {
                 return createRecordFieldSymbol((BVarSymbol) symbol);
@@ -188,15 +190,20 @@ public class SymbolFactory {
             if (symbol instanceof BPackageSymbol) {
                 return createModuleSymbol((BPackageSymbol) symbol, name);
             }
-            if (symbol instanceof BClassSymbol && !((BClassSymbol) symbol).isLabel) {
+            if (symbol instanceof BClassSymbol) {
                 return createClassSymbol((BClassSymbol) symbol, name);
             }
             if (symbol instanceof BEnumSymbol) {
                 return createEnumSymbol((BEnumSymbol) symbol, name);
             }
 
+            // For a type reference type symbol (SymTag.TYPE_REF)
+            return createTypeDefinition(symbol, name);
+        }
+
+        if (symbol.kind == SymbolKind.TYPE_DEF) {
             // create the typeDefs
-            return createTypeDefinition((BTypeSymbol) symbol, name);
+            return createTypeDefinition(symbol, name);
         }
 
         if (symbol.kind == SymbolKind.SERVICE) {
@@ -343,12 +350,15 @@ public class SymbolFactory {
         return bField != null ? new BallerinaClassFieldSymbol(this.context, bField) : null;
     }
 
-    public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
+    public BallerinaWorkerSymbol createWorkerSymbol(BWorkerSymbol symbol, String name) {
         BallerinaWorkerSymbol.WorkerSymbolBuilder builder =
                 new BallerinaWorkerSymbol.WorkerSymbolBuilder(name, symbol, this.context);
 
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
-            builder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+        for (BLangAnnotationAttachment annAttachment : symbol.getAssociatedFuncSymbol().annAttachments) {
+            if (annAttachment.annotationSymbol == null) {
+                continue;
+            }
+            builder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
         }
 
         return builder.withReturnType(typesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint)).build();
@@ -394,13 +404,22 @@ public class SymbolFactory {
      * @param name       symbol name
      * @return {@link}
      */
-    public BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
+    public BallerinaTypeDefinitionSymbol createTypeDefinition(BSymbol typeSymbol, String name) {
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
                 new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol,
                                                                        this.context);
 
         if (Symbols.isFlagOn(typeSymbol.flags, Flags.PUBLIC)) {
             symbolBuilder.withQualifier(Qualifier.PUBLIC);
+        }
+
+        if (typeSymbol.kind == SymbolKind.TYPE_DEF) {
+            for (BLangAnnotationAttachment annAttachment : ((BTypeDefinitionSymbol) typeSymbol).annAttachments) {
+                if (annAttachment.annotationSymbol == null) {
+                    continue;
+                }
+                symbolBuilder.withAnnotation(createAnnotationSymbol(annAttachment.annotationSymbol));
+            }
         }
 
         return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(typeSymbol.type, typeSymbol, true))
@@ -522,9 +541,8 @@ public class SymbolFactory {
         }
 
         // Skipping the compiler-generated singleton type `true`.
-        if (symbol.attachedType != null && symbol.attachedType.getType() != null
-                && !types.isAssignable(symbol.attachedType.getType(), this.symTable.trueType)) {
-            symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType.getType()));
+        if (symbol.attachedType != null && !types.isAssignable(symbol.attachedType, this.symTable.trueType)) {
+            symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(symbol.attachedType));
         }
 
         for (org.ballerinalang.model.symbols.AnnotationSymbol annot : symbol.getAnnotations()) {
@@ -569,7 +587,7 @@ public class SymbolFactory {
                 if (mthd instanceof BResourceFunction) {
                     return ((BResourceFunction) mthd).accessor.value;
                 }
-                return mthd.funcName.value;
+                return mthd.symbol.getOriginalName().getValue();
             }
         }
 

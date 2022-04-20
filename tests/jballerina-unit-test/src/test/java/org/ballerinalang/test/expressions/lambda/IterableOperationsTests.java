@@ -16,15 +16,15 @@
  */
 package org.ballerinalang.test.expressions.lambda;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BFunctionPointer;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.utils.BStringUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -34,6 +34,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
+
 /**
  * TestCases for Iterable Operations.
  *
@@ -42,7 +44,8 @@ import java.util.Locale;
 public class IterableOperationsTests {
 
     private CompileResult basic, negative;
-    private static String[] values = new String[]{"Hello", "World..!", "I", "am", "Ballerina.!!!"};
+    private static BString[] values = BStringUtils.getBStringArray(new String[]{"Hello", "World..!", "I", "am",
+            "Ballerina.!!!"});
 
     @BeforeClass
     public void setup() {
@@ -57,8 +60,9 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "undefined function 'forEach' in type 'int'", 6, 7);
         BAssertUtil.validateError(negative, index++, "undefined function 'map' in type 'string'", 8, 7);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 14, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns" +
-                " (boolean)', found 'function (int,string) returns (boolean)'", 16, 14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (int,string) returns (boolean)'", 16, 14);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map<string>', found " +
                 "'map<[string,string]>'", 31, 21);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 35, 27);
@@ -73,25 +77,29 @@ public class IterableOperationsTests {
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
         BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter()'", 56, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
-                "returns ()', found 'int'", 58, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns ()', found 'int'", 58, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[string,string,string]', found " +
                 "'string'", 63, 15);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error))" +
-                " returns ()', found 'function () returns ()'", 64, 15);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns ()', found 'function () returns ()'", 64, 15);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 65, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                "(boolean)', found 'function (string) returns ([boolean,int])'", 65, 14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (string) returns ([boolean,int])'", 65, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 66, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns " +
                 "(boolean)', found 'function (string) returns ()'", 66, 14);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 67, 5);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) returns " +
-                "(boolean)', found 'function (other) returns ()'", 67, 14);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (other) returns ()'", 67, 14);
         BAssertUtil.validateError(negative, index++, "unknown type 'person'", 67, 24);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
+                "'function (ballerina/lang.array:0.0.0:Type) " +
                 "returns (boolean)', found 'function (string) returns (other)'", 68, 18);
-        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 47);
+        BAssertUtil.validateError(negative, index++, "unknown type 'person'", 68, 48);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 80, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 89, 15);
@@ -106,31 +114,33 @@ public class IterableOperationsTests {
     public void testInt1() {
         List<Integer> values = Arrays.asList(-5, 2, 4, 5, 7, -8, -3, 2);
         int sum = values.stream().mapToInt(Integer::intValue).sum();
-        BValue[] returns = BRunUtil.invoke(basic, "testInt1");
+        Object arr = BRunUtil.invoke(basic, "testInt1");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), sum);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), values.size());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(),
-                values.stream().mapToInt(Integer::intValue).max().getAsInt());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(),
-                values.stream().mapToInt(Integer::intValue).min().getAsInt());
-        Assert.assertEquals(((BInteger) returns[4]).intValue(), sum);
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertEquals(returns.get(0), (long) sum);
+        Assert.assertEquals(returns.get(1), (long) values.size());
+        Assert.assertEquals(returns.get(2),
+                (long) values.stream().mapToInt(Integer::intValue).max().getAsInt());
+        Assert.assertEquals(returns.get(3),
+                (long) values.stream().mapToInt(Integer::intValue).min().getAsInt());
+        Assert.assertEquals(returns.get(4), (long) sum);
     }
 
     @Test
     public void testInt2() {
         List<Integer> values = Arrays.asList(2, 4, 5, 7, 2);
         int sum = values.stream().mapToInt(Integer::intValue).sum();
-        BValue[] returns = BRunUtil.invoke(basic, "testInt2");
+        Object arr = BRunUtil.invoke(basic, "testInt2");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), values.size());
-        Assert.assertEquals(((BInteger) returns[1]).intValue(),
-                values.stream().mapToInt(Integer::intValue).max().getAsInt());
-        Assert.assertEquals(((BInteger) returns[2]).intValue(),
-                values.stream().mapToInt(Integer::intValue).min().getAsInt());
-        Assert.assertEquals(((BInteger) returns[3]).intValue(), sum);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertEquals(returns.get(0), (long) values.size());
+        Assert.assertEquals(returns.get(1),
+                (long) values.stream().mapToInt(Integer::intValue).max().getAsInt());
+        Assert.assertEquals(returns.get(2),
+                (long) values.stream().mapToInt(Integer::intValue).min().getAsInt());
+        Assert.assertEquals(returns.get(3), (long) sum);
     }
 
     @Test
@@ -138,160 +148,162 @@ public class IterableOperationsTests {
         List<Double> values = Arrays.asList(1.1, 2.2, -3.3, 4.4, 5.5);
         double intSum = values.stream().mapToDouble(Double::doubleValue).sum();
         double sum = values.stream().mapToDouble(Double::doubleValue).sum();
-        BValue[] returns = BRunUtil.invoke(basic, "testFloat1");
+        Object arr = BRunUtil.invoke(basic, "testFloat1");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), intSum);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), values.size());
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(),
+        Assert.assertEquals(returns.size(), 5);
+        Assert.assertEquals(returns.get(0), intSum);
+        Assert.assertEquals(returns.get(1), (long) values.size());
+        Assert.assertEquals(returns.get(2),
                 values.stream().mapToDouble(Double::doubleValue).max().getAsDouble());
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(),
+        Assert.assertEquals(returns.get(3),
                 values.stream().mapToDouble(Double::doubleValue).min().getAsDouble());
-        Assert.assertEquals(((BFloat) returns[4]).floatValue(), sum);
+        Assert.assertEquals(returns.get(4), sum);
     }
 
     @Test
     public void testFloat2() {
         List<Double> values = Arrays.asList(1.1, 2.2, 4.4, 5.5);
         double sum = values.stream().mapToDouble(Double::doubleValue).sum();
-        BValue[] returns = BRunUtil.invoke(basic, "testFloat2");
+        Object arr = BRunUtil.invoke(basic, "testFloat2");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), values.size());
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(),
+        Assert.assertEquals(returns.size(), 4L);
+        Assert.assertEquals(returns.get(0), (long) values.size());
+        Assert.assertEquals(returns.get(1),
                 values.stream().mapToDouble(Double::doubleValue).max().getAsDouble());
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(),
+        Assert.assertEquals(returns.get(2),
                 values.stream().mapToDouble(Double::doubleValue).min().getAsDouble());
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), sum);
+        Assert.assertEquals(returns.get(3), sum);
     }
 
     @Test
     public void testBasicArray1() {
-        BValueArray sarray = new BValueArray(values);
-        BValue[] returns = BRunUtil.invoke(basic, "testBasicArray1", new BValue[]{sarray});
+        BArray sarray = ValueCreator.createArrayValue(values);
+        Object returns = BRunUtil.invoke(basic, "testBasicArray1", new Object[]{sarray});
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns);
         StringBuilder sb = new StringBuilder();
-        Arrays.stream(values).forEach(s -> sb.append(s.toUpperCase(Locale.getDefault())).append(":").
-                append(s.toLowerCase(Locale.getDefault())).append(" "));
-        Assert.assertEquals(returns[0].stringValue(), sb.toString().trim());
+        Arrays.stream(values).forEach(s -> sb.append(s.getValue().toUpperCase(Locale.getDefault())).append(":").
+                append(s.getValue().toLowerCase(Locale.getDefault())).append(" "));
+        Assert.assertEquals(returns.toString(), sb.toString().trim());
     }
 
     @Test
     public void testBasicArray2() {
-        BValueArray sarray = new BValueArray(values);
-        BValue[] returns = BRunUtil.invoke(basic, "testBasicArray2", new BValue[]{sarray});
+        BArray sarray = ValueCreator.createArrayValue(values);
+        Object returns = BRunUtil.invoke(basic, "testBasicArray2", new Object[]{sarray});
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
+        Assert.assertNotNull(returns);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < values.length; i++) {
             sb.append(i).append(values[i]).append(" ");
         }
-        Assert.assertEquals(returns[0].stringValue(), sb.toString().trim());
+        Assert.assertEquals(returns.toString(), sb.toString().trim());
     }
 
     @Test
     public void testBasicMap1() {
-        BValue[] returns = BRunUtil.invoke(basic, "testBasicMap1");
+        Object arr = BRunUtil.invoke(basic, "testBasicMap1");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "5");
-        Assert.assertEquals(returns[1].stringValue(), "{\"a\":\"a\", \"e\":\"e\"}");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "5");
+        Assert.assertEquals(returns.get(1).toString(), "{\"a\":\"a\",\"e\":\"e\"}");
     }
 
     @Test
     public void testBasicMap2() {
-        BValue[] returns = BRunUtil.invoke(basic, "testBasicMap2");
+        Object returns = BRunUtil.invoke(basic, "testBasicMap2");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].stringValue(), "[\"aA\", \"eE\"]");
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.toString(), "[\"aA\",\"eE\"]");
     }
 
     @Test
     public void testXML() {
-        BValue[] returns = BRunUtil.invoke(basic, "xmlTest");
+        Object arr = BRunUtil.invoke(basic, "xmlTest");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertEquals(returns[0].stringValue(), "7");
-        Assert.assertEquals(returns[1].stringValue(), "3");
-        Assert.assertEquals(returns[2].stringValue(),
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertEquals(returns.get(0).toString(), "7");
+        Assert.assertEquals(returns.get(1).toString(), "3");
+        Assert.assertEquals(returns.get(2).toString(),
                 "<p:city xmlns:p=\"foo\">NY</p:city><q:country xmlns:q=\"bar\">US</q:country>");
     }
 
     @Test
     public void testStruct() {
-        BValue[] returns = BRunUtil.invoke(basic, "structTest");
+        Object arr = BRunUtil.invoke(basic, "structTest");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "2");
-        Assert.assertEquals(returns[1].stringValue(), "[\"bob\", \"tom\", \"sam\"]");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "2");
+        Assert.assertEquals(returns.get(1).toString(), "[\"bob\",\"tom\",\"sam\"]");
     }
 
     @Test
     public void testIgnoredValue() {
-        BValue[] returns = BRunUtil.invoke(basic, "testIgnoredValue");
+        Object returns = BRunUtil.invoke(basic, "testIgnoredValue");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "abc pqr");
+        Assert.assertEquals(returns.toString(), "abc pqr");
     }
 
     @Test
     public void testInExpression() {
-        BValue[] returns = BRunUtil.invoke(basic, "testInExpression");
+        Object arr = BRunUtil.invoke(basic, "testInExpression");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "total count 2");
-        Assert.assertEquals(returns[1].stringValue(), "7");
+        Assert.assertEquals(returns.size(), 2);
+        Assert.assertEquals(returns.get(0).toString(), "total count 2");
+        Assert.assertEquals(returns.get(1).toString(), "7");
     }
 
     @Test
     public void testInFunctionInvocation() {
-        BValue[] returns = BRunUtil.invoke(basic, "testInFunctionInvocation");
+        Object returns = BRunUtil.invoke(basic, "testInFunctionInvocation");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "4");
+        Assert.assertEquals(returns.toString(), "4");
     }
 
     @Test
     public void testInStatement() {
-        BValue[] returns = BRunUtil.invoke(basic, "testInStatement");
+        Object returns = BRunUtil.invoke(basic, "testInStatement");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "10");
+        Assert.assertEquals(returns.toString(), "10");
     }
 
     @Test
     public void testIterableOutputPrint() {
-        BValue[] returns = BRunUtil.invoke(basic, "testIterableOutputPrint");
+        Object arr = BRunUtil.invoke(basic, "testIterableOutputPrint");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(returns[1].getClass(), BInteger.class);
-        Assert.assertEquals(returns[2].getClass(), BInteger.class);
-        Assert.assertEquals(returns[3].getClass(), BInteger.class);
-        BInteger a1 = (BInteger) returns[0];
-        BInteger a3 = (BInteger) returns[1];
-        BInteger a4 = (BInteger) returns[2];
-        BInteger a5 = (BInteger) returns[3];
-        Assert.assertEquals(a1.intValue(), 3);
-        Assert.assertEquals(a3.intValue(), -8);
-        Assert.assertEquals(a4.intValue(), 7);
-        Assert.assertEquals(a5.intValue(), 4);
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertEquals(returns.get(0).getClass(), Long.class);
+        Assert.assertEquals(returns.get(1).getClass(), Long.class);
+        Assert.assertEquals(returns.get(2).getClass(), Long.class);
+        Assert.assertEquals(returns.get(3).getClass(), Long.class);
+        long a1 = (long) returns.get(0);
+        long a3 = (long) returns.get(1);
+        long a4 = (long) returns.get(2);
+        long a5 = (long) returns.get(3);
+        Assert.assertEquals(a1, 3);
+        Assert.assertEquals(a3, -8);
+        Assert.assertEquals(a4, 7);
+        Assert.assertEquals(a5, 4);
     }
 
     @Test
     public void testIterableReturnLambda() {
-        BValue[] returns = BRunUtil.invoke(basic, "testIterableReturnLambda");
+        Object arr = BRunUtil.invoke(basic, "testIterableReturnLambda");
+        BArray returns = (BArray) arr;
         Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BFunctionPointer);
-        Assert.assertTrue(returns[1] instanceof BFunctionPointer);
-        Assert.assertTrue(returns[2] instanceof BFunctionPointer);
-        Assert.assertEquals(returns[0].getType().toString(), "function (int) returns (boolean)");
-        Assert.assertEquals(returns[1].getType().toString(), "function (int) returns (boolean)");
-        Assert.assertEquals(returns[2].getType().toString(), "function (int) returns (boolean)");
+        Assert.assertTrue(returns.get(0) instanceof BFunctionPointer);
+        Assert.assertTrue(returns.get(1) instanceof BFunctionPointer);
+        Assert.assertTrue(returns.get(2) instanceof BFunctionPointer);
+        Assert.assertEquals(getType(returns.get(0)).toString(), "isolated function (int) returns (boolean)");
+        Assert.assertEquals(getType(returns.get(1)).toString(), "isolated function (int) returns (boolean)");
+        Assert.assertEquals(getType(returns.get(2)).toString(), "isolated function (int) returns (boolean)");
     }
 
     @AfterClass

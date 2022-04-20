@@ -1,5 +1,6 @@
 package org.ballerinalang.debugger.test.utils;
 
+import org.eclipse.lsp4j.debug.BreakpointEventArguments;
 import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
@@ -16,6 +17,7 @@ public class DebugServerEventHolder {
     private final ConcurrentLinkedQueue<TerminatedEventArguments> terminatedEvents = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<ExitedEventArguments> exitedEvents = new ConcurrentLinkedQueue<>();
     private final ConcurrentLinkedQueue<OutputEventArguments> outputEvents = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<BreakpointEventArguments> breakpointEvents = new ConcurrentLinkedQueue<>();
 
     public ConcurrentLinkedQueue<StoppedEventArguments> getStoppedEvents() {
         return stoppedEvents;
@@ -47,5 +49,20 @@ public class DebugServerEventHolder {
 
     public void addOutputEvent(OutputEventArguments event) {
         this.outputEvents.add(event);
+    }
+
+    public ConcurrentLinkedQueue<BreakpointEventArguments> getBreakpointEvents() {
+        return breakpointEvents;
+    }
+
+    public void addBreakpointEvent(BreakpointEventArguments event) {
+        this.breakpointEvents.add(event);
+    }
+
+    void reset() {
+        stoppedEvents.clear();
+        breakpointEvents.clear();
+        outputEvents.clear();
+        // Todo: need to clear termination and exited events?
     }
 }

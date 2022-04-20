@@ -61,7 +61,7 @@ public class TableUtils {
 
             if (node.hasCyclesSoFar()) {
                 throw ErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
-                        .getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
+                        .getErrorDetails(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 
             RefValue refValue = (RefValue) obj;

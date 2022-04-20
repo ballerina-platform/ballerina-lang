@@ -1,7 +1,9 @@
 import ballerina/http;
 
+listener http:Listener helloEp = new (9090);
+
 // By default, Ballerina exposes an HTTP service via HTTP/1.1.
-service /hello on new http:Listener(9090) {
+service /hello on helloEp {
 
     // The resource method is invoked by the GET request for the
     // `/greeting` path. The returned string value

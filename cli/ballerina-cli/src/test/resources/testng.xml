@@ -36,6 +36,8 @@ under the License.
             <class name="io.ballerina.cli.cmd.SearchCommandTest" />
             <class name="io.ballerina.cli.cmd.ShellCommandTest" />
             <class name="io.ballerina.cli.cmd.TestCommandTest" />
+            <class name="io.ballerina.cli.cmd.PackCommandTest" />
+            <class name="io.ballerina.cli.cmd.CommandUtilTest" />
         </classes>
     </test>
 </suite>

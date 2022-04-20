@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.CodeActionManager;
+import io.ballerina.projects.CodeActionResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.plugins.codeaction.CodeActionContext;
@@ -81,27 +82,28 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 .forEach(diagnostic -> {
                     CodeActionContext codeActionContext = CodeActionContextImpl.from(context.fileUri(),
                             context.filePath(), linePosition, document, semanticModel, diagnostic);
-                    try {
-                        codeActionManager.codeActions(codeActionContext).stream()
-                                .map(codeActionCommand -> {
-                                    CodeAction action = new CodeAction(codeActionCommand.getTitle());
+                    CodeActionResult result = codeActionManager.codeActions(codeActionContext);
+                    result.getCodeActions().stream()
+                            .map(codeActionCommand -> {
+                                CodeAction action = new CodeAction(codeActionCommand.getTitle());
 
-                                    List<Object> arguments = new LinkedList<>();
-                                    arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI,
-                                            context.fileUri()));
-                                    arguments.addAll(codeActionCommand.getArguments());
-                                    action.setCommand(new Command(codeActionCommand.getTitle(),
-                                            codeActionCommand.getProviderName(), arguments));
-                                    return action;
-                                })
-                                .forEach(codeActions::add);
-                    } catch (Throwable t) {
-                        // We catch any error thrown by compiler plugins here to avoid breaking usual flow
+                                List<Object> arguments = new LinkedList<>();
+                                arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI,
+                                        context.fileUri()));
+                                arguments.addAll(codeActionCommand.getArguments());
+                                action.setCommand(new Command(codeActionCommand.getTitle(),
+                                        codeActionCommand.getProviderName(), arguments));
+                                return action;
+                            })
+                            .forEach(codeActions::add);
+
+                    // Log all the errors captured while calculating codeactions
+                    result.getErrors().forEach(ex -> {
                         LSClientLogger.getInstance(context.languageServercontext())
                                 .logError(LSContextOperation.TXT_CODE_ACTION,
-                                        "Exception thrown while getting compiler plugin code actions",
-                                        t, new TextDocumentIdentifier(context.fileUri()));
-                    }
+                                        "Exception thrown while getting code action: '%s'" + ex.getCodeActionName(),
+                                        ex.getCause(), new TextDocumentIdentifier(context.fileUri()));
+                    });
                 });
 
         return codeActions;

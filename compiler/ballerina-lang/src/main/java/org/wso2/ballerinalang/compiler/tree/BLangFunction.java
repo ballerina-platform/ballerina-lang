@@ -37,14 +37,16 @@ import java.util.TreeMap;
  */
 public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
-    public BLangSimpleVariable receiver;
-
+    // Parser Flags and Data
     //TODO remove this and use ATTACHED flag instead
     // TODO remove when removing struct
     public boolean attachedFunction;
     public boolean objInitFunction;
 
     public boolean interfaceFunction;
+
+    // Semantic Data
+    public BLangSimpleVariable receiver;
 
     public TreeMap<Integer, BVarSymbol> paramClosureMap = new TreeMap<>();
     public BVarSymbol mapSymbol;
@@ -59,6 +61,7 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     // This only set when we encounter worker inside a fork statement.
     public String anonForkName;
+    public boolean mapSymbolUpdated;
 
     public SimpleVariableNode getReceiver() {
         return receiver;
@@ -74,10 +77,20 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     }
 
     @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
+    }
+
+    @Override
     public NodeKind getKind() {
         return NodeKind.FUNCTION;
     }
-    
+
     @Override
     public String toString() {
         return "BLangFunction: " + super.toString();

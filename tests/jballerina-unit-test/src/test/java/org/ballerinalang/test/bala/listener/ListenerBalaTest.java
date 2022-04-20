@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.bala.listener;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -40,9 +39,16 @@ public class ListenerBalaTest {
 
     @Test(description = "Test access listener in different module")
     public void testBasicStructAsObject() {
-        final BValue[] result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
-        Assert.assertEquals(result.length, 1, "expected one return type");
-        Assert.assertNotNull(result[0]);
-        Assert.assertEquals(result[0].stringValue(), "2_3");
+        final Object result = BRunUtil.invoke(compileResult, "getStartAndAttachCount");
+        Assert.assertNotNull(result);
+        Assert.assertEquals(result.toString(), "2_3");
+    }
+
+    @Test(description = "Test no cyclic reference is identified when a custom listener " +
+            "with service reference is used")
+    public void testNoCycleIdentifiedWhenCustomListenerWithServiceReference() {
+        CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/" +
+                "listener/custom_listener_with_service.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
     }
 }

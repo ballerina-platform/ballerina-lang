@@ -40,6 +40,14 @@ public function testArrays() {
 
 public function main() {
     testArrays();
+    testArrayIteration();
     imported_records:testArrays();
+    imported_records:testArrayIteration();
     util:print("Tests passed");
+}
+
+function testArrayIteration() {
+    util:testArrayIterator(personArray, 2);
+    util:testArrayIterator(personArray1, 2);
+    util:testArrayIterator(personArray2, 2);    
 }

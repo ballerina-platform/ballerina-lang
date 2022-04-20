@@ -40,6 +40,6 @@ public class GetElementNameNilLifting {
         }
         String nodeTypeName = xmlVal.getNodeType().value();
         return createError(XML_OPERATION_ERROR,
-                           StringUtils.fromString("XML " + nodeTypeName + " does not contain element name"));
+                           StringUtils.fromString("xml " + nodeTypeName + " does not contain element name"));
     }
 }

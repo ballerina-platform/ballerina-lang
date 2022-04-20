@@ -52,9 +52,9 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Extern function lang.values:fromJsonWithType.
@@ -62,7 +62,6 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMP
  * @since 2.0
  */
 public class FromJsonWithType {
-    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
     public static Object fromJsonWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
@@ -85,7 +84,7 @@ public class FromJsonWithType {
                 return null;
             }
             throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
 
         Type sourceType = TypeChecker.getType(value);
@@ -97,11 +96,11 @@ public class FromJsonWithType {
 
         unresolvedValues.add(typeValuePair);
 
-        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType, new ArrayList<>());
+        List<String> errors = new ArrayList<>();
+        List<Type> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType,
+                null, new ArrayList<>(), errors);
         if (convertibleTypes.isEmpty()) {
-            throw createConversionError(value, targetType);
-        } else if (convertibleTypes.size() > 1) {
-            throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
+            throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
         Type matchingType = convertibleTypes.get(0);
@@ -137,7 +136,7 @@ public class FromJsonWithType {
                     break;
                 }
                 // should never reach here
-                throw CloneUtils.createConversionError(value, targetType);
+                throw createConversionError(value, targetType);
         }
 
         unresolvedValues.remove(typeValuePair);
@@ -157,7 +156,7 @@ public class FromJsonWithType {
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                     count++;
                 }
-                return ValueCreator.createMapValue(targetType, initialValues);
+                return ValueCreator.createMapValue((MapType) targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
                 Type restFieldType = recordType.getRestFieldType();
@@ -179,7 +178,7 @@ public class FromJsonWithType {
                 return convertMap(map, ((IntersectionType) targetType).getEffectiveType(), unresolvedValues, t);
         }
         // should never reach here
-        throw CloneUtils.createConversionError(map, targetType);
+        throw createConversionError(map, targetType);
     }
 
     private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
@@ -268,18 +267,6 @@ public class FromJsonWithType {
                                     unresolvedValues, t);
         }
         // should never reach here
-        throw CloneUtils.createConversionError(array, targetType);
-    }
-
-    private static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType));
-    }
-
-    private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
-                INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(StringUtils.fromString(": ".concat(detailMessage))));
+        throw createConversionError(array, targetType);
     }
 }

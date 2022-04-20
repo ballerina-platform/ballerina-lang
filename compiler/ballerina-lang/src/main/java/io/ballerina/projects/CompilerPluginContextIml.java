@@ -18,6 +18,8 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.plugins.CodeAnalyzer;
+import io.ballerina.projects.plugins.CodeGenerator;
+import io.ballerina.projects.plugins.CodeModifier;
 import io.ballerina.projects.plugins.CompilerLifecycleListener;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
@@ -34,6 +36,8 @@ class CompilerPluginContextIml implements CompilerPluginContext {
 
     private final CompilerPluginInfo compilerPluginInfo;
     private final List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers = new ArrayList<>();
+    private final List<CodeGeneratorManager.CodeGeneratorInfo> codeGenerators = new ArrayList<>();
+    private final List<CodeModifierManager.CodeModifierInfo> codeModifiers = new ArrayList<>();
     private final List<CompilerLifecycleManager.LifecycleListenerInfo> lifecycleListeners = new ArrayList<>();
     private final List<CodeAction> codeActions = new ArrayList<>();
 
@@ -43,6 +47,14 @@ class CompilerPluginContextIml implements CompilerPluginContext {
 
     public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
         codeAnalyzers.add(new CodeAnalyzerManager.CodeAnalyzerInfo(codeAnalyzer, compilerPluginInfo));
+    }
+
+    public void addCodeGenerator(CodeGenerator codeGenerator) {
+        codeGenerators.add(new CodeGeneratorManager.CodeGeneratorInfo(codeGenerator, compilerPluginInfo));
+    }
+
+    public void addCodeModifier(CodeModifier codeModifier) {
+        codeModifiers.add(new CodeModifierManager.CodeModifierInfo(codeModifier, compilerPluginInfo));
     }
 
     @Override
@@ -58,6 +70,14 @@ class CompilerPluginContextIml implements CompilerPluginContext {
 
     List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers() {
         return codeAnalyzers;
+    }
+
+    List<CodeGeneratorManager.CodeGeneratorInfo> codeGenerators() {
+        return codeGenerators;
+    }
+
+    List<CodeModifierManager.CodeModifierInfo> codeModifiers() {
+        return codeModifiers;
     }
 
     public List<CompilerLifecycleManager.LifecycleListenerInfo> getLifecycleListeners() {

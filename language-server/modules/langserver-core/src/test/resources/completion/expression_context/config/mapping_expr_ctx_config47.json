@@ -9,24 +9,16 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "next",
-      "kind": "Field",
-      "detail": "LinkedList.next",
-      "sortText": "G",
-      "insertText": "next: ${1:{}}",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "value",
       "kind": "Field",
       "detail": "LinkedList.value",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "value: ${2:0}",
       "insertTextFormat": "Snippet"
     },
@@ -36,7 +28,15 @@
       "detail": "LinkedList",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "next: {},\nvalue: 0",
+      "insertText": "next: {value: 0, next: },\nvalue: 0",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "next",
+      "kind": "Field",
+      "detail": "LinkedList.next",
+      "sortText": "K",
+      "insertText": "next: ${1:{value: 0, next: \\}}",
       "insertTextFormat": "Snippet"
     }
   ]

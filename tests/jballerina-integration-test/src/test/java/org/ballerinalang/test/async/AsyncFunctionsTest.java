@@ -25,8 +25,6 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 
-import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
-
 /**
  * Class to test functionality of futures.
  */
@@ -42,12 +40,12 @@ public class AsyncFunctionsTest extends BaseTest {
         // Build and push config Lib project.
         LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-functionsLib-java11-0.1.0.bala");
         LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-functionsLib-java11-0.1.0" +
-                ".bala to 'local' repository.", ERROR);
+                ".bala to 'local' repository.");
         LogLeecher runLeecher = new LogLeecher("Run the library package to fix code coverage");
         bMainInstance.runMain(testFileLocation + "/", "functionsLib", null, new String[]{}, null, null,
                 new LogLeecher[]{runLeecher});
         runLeecher.waitForText(5000);
-        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
                 testFileLocation + "/functionsLib");
         buildLeecher.waitForText(5000);
         bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},

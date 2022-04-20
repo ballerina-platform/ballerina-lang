@@ -252,7 +252,7 @@ public class SemTypeCoreTest {
         SemType t1 = PredefinedType.uniformType(UniformTypeCode.UT_LIST_RO);
         Env env = new Env();
         ListDefinition ld = new ListDefinition();
-        SemType t2 = ld.define(env, new ArrayList<>(), PredefinedType.TOP);
+        SemType t2 = ld.define(env, new ArrayList<>(), 0, PredefinedType.TOP);
         SemType t = Core.diff(t1, t2);
         Context cx = Core.typeCheckContext(env);
         boolean b = Core.isEmpty(cx, t);
@@ -277,14 +277,14 @@ public class SemTypeCoreTest {
 
     private void testArrayMemberTypeOk(Env env, UniformTypeBitSet memberType) {
         ListDefinition def = new ListDefinition();
-        SemType t = def.define(env, new ArrayList<>(), memberType);
+        SemType t = def.define(env, new ArrayList<>(), 0, memberType);
         Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t, true);
         Assert.assertEquals(bits.get(), memberType);
     }
 
     private void testArrayMemberTypeFail(Env env, SemType memberType) {
         ListDefinition def = new ListDefinition();
-        SemType t = def.define(env, new ArrayList<>(), memberType);
+        SemType t = def.define(env, new ArrayList<>(), 0,  memberType);
         Optional<UniformTypeBitSet> bits = Core.simpleArrayMemberType(env, t, true);
         Assert.assertEquals(bits, Optional.empty());
     }
@@ -309,7 +309,7 @@ public class SemTypeCoreTest {
         ListDefinition def = new ListDefinition();
         SemType t = def.getSemType(env);
         List<SemType> members = f.apply(env, t);
-        return def.define(env, members, PredefinedType.NEVER);
+        return def.define(env, members);
     }
 
     @Test

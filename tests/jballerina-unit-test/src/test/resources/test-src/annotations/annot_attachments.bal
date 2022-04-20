@@ -265,3 +265,9 @@ annotation Foo2 f2 on function;
 }
 public function fooFunction() {
 }
+
+service /introspection on lis {
+    resource function get res(@v6 { val: "v64" } int intVal) returns @v7 error? {
+        return;
+    }
+}

@@ -1,2 +1,5 @@
+[package]
+distribution = "DIST_VERSION"
+
 [build-options]
 observabilityIncluded = true

@@ -20,7 +20,7 @@ public type Retriable distinct error;
 # The type to allow control over retries performed 
 # by the `retry` statement and `retry transaction` statement.
 public type RetryManager object {
- public function shouldRetry(error? e) returns boolean;
+ public function shouldRetry(error e) returns boolean;
 };
 
 # The RetryManager used by default.
@@ -29,7 +29,7 @@ public class DefaultRetryManager {
     public function init(int count = 3) {
         self.count = count;
     }
-    public function shouldRetry(error? e) returns boolean {
+    public function shouldRetry(error e) returns boolean {
         if e is Retriable && self.count >  0 {
           self.count -= 1;
           return true;

@@ -28,6 +28,7 @@ import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LineRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -36,6 +37,7 @@ import toml.parser.test.ParserTestUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -90,7 +92,7 @@ public class KeyValueTest {
 
         Assert.assertEquals(stringValue, "hello");
         Assert.assertEquals(longValue, Long.valueOf(123L));
-        Assert.assertEquals(doubleValue, 56.55);
+        Assert.assertEquals(doubleValue, Double.valueOf(56.55));
         Assert.assertEquals(multiString,
                 String.format("Roses are red%sViolets are blue", System.lineSeparator()));
         Assert.assertFalse(boolfalse);
@@ -130,24 +132,24 @@ public class KeyValueTest {
         Assert.assertEquals(bin1, Long.valueOf(214L));
 
         Double flt1 = ((TomlDoubleValueNodeNode) read.get("flt1").get()).getValue();
-        Assert.assertEquals(flt1, 1.0);
+        Assert.assertEquals(flt1, Double.valueOf(1.0));
         Double flt2 = ((TomlDoubleValueNodeNode) read.get("flt2").get()).getValue();
-        Assert.assertEquals(flt2, 3.1415);
+        Assert.assertEquals(flt2, Double.valueOf(3.1415));
         Double flt3 = ((TomlDoubleValueNodeNode) read.get("flt3").get()).getValue();
-        Assert.assertEquals(flt3, -0.01);
+        Assert.assertEquals(flt3, Double.valueOf(-0.01));
 
         Double flt4 = ((TomlDoubleValueNodeNode) read.get("flt4").get()).getValue();
-        Assert.assertEquals(flt4, 5e+22);
+        Assert.assertEquals(flt4, Double.valueOf(5e+22));
         Double flt5 = ((TomlDoubleValueNodeNode) read.get("flt5").get()).getValue();
-        Assert.assertEquals(flt5, 1e06);
+        Assert.assertEquals(flt5, Double.valueOf(1e06));
         Double flt6 = ((TomlDoubleValueNodeNode) read.get("flt6").get()).getValue();
-        Assert.assertEquals(flt6, -2E-2);
+        Assert.assertEquals(flt6, Double.valueOf(-2E-2));
 
         Double flt7 = ((TomlDoubleValueNodeNode) read.get("flt7").get()).getValue();
-        Assert.assertEquals(flt7, 6.626e-34);
+        Assert.assertEquals(flt7, Double.valueOf(6.626e-34));
 
         Double flt8 = ((TomlDoubleValueNodeNode) read.get("flt8").get()).getValue();
-        Assert.assertEquals(flt8, 224617.445991228);
+        Assert.assertEquals(flt8, Double.valueOf(224617.445991228));
 
         String stringEscape = ((TomlStringValueNode) read.get("str0").get()).getValue();
         Assert.assertEquals(stringEscape, "I'm a string. \"You can quote me\". Name\tJosé\n" +
@@ -279,9 +281,9 @@ public class KeyValueTest {
         TomlLongValueNode mixedNumbersVal4 = mixedNumbers.get(3);
         TomlLongValueNode mixedNumbersVal5 = mixedNumbers.get(4);
         TomlLongValueNode mixedNumbersVal6 = mixedNumbers.get(5);
-        Assert.assertEquals(mixedNumbersVal1.getValue(), 0.1);
-        Assert.assertEquals(mixedNumbersVal2.getValue(), 0.2);
-        Assert.assertEquals(mixedNumbersVal3.getValue(), 0.5);
+        Assert.assertEquals(mixedNumbersVal1.getValue(), Double.valueOf(0.1));
+        Assert.assertEquals(mixedNumbersVal2.getValue(), Double.valueOf(0.2));
+        Assert.assertEquals(mixedNumbersVal3.getValue(), Double.valueOf(0.5));
         Assert.assertEquals(mixedNumbersVal4.getValue(), Long.valueOf(1L));
         Assert.assertEquals(mixedNumbersVal5.getValue(), Long.valueOf(2L));
         Assert.assertEquals(mixedNumbersVal6.getValue(), Long.valueOf(5L));
@@ -408,5 +410,27 @@ public class KeyValueTest {
         TomlStringValueNode arrVal2 =
                 (TomlStringValueNode) (read.getTables("tableArr").get(1).get("name.nested.greeting").get());
         Assert.assertEquals(arrVal2.getValue(), "how are youu");
+
+        TomlArrayValueNode arrSample = (TomlArrayValueNode) read.get("arrSample").get();
+        Assert.assertEquals(((TomlStringValueNode) arrSample.get(2)).getValue(), "hello");
+
+        TomlInlineTableValueNode inlineTable1 = arrSample.get(0);
+        TomlKeyValueNode inlineTable1Val1 = (TomlKeyValueNode) inlineTable1.elements().get(0);
+        Assert.assertEquals(inlineTable1Val1.key().name(), "first");
+        Assert.assertEquals(((TomlStringValueNode) inlineTable1Val1.value()).getValue(), "yagami");
+
+        TomlInlineTableValueNode inlineTable2 = arrSample.get(1);
+        TomlKeyValueNode inlineTable2Val1 = (TomlKeyValueNode) inlineTable2.elements().get(0);
+        Assert.assertEquals(inlineTable2Val1.key().name(), "first");
+        Assert.assertEquals(((TomlStringValueNode) inlineTable2Val1.value()).getValue(), "Anjana");
+
+        TomlTableNode convertedTable = inlineTable2.toTable();
+        Map<String, TopLevelNode> entries = convertedTable.entries();
+
+        TomlValueNode firstVal = ((TomlKeyValueNode) entries.get("first")).value();
+        Assert.assertEquals(((TomlStringValueNode) firstVal).getValue(), "Anjana");
+
+        TomlValueNode lsatVal = ((TomlKeyValueNode) entries.get("last")).value();
+        Assert.assertEquals(((TomlStringValueNode) lsatVal).getValue(), "Supun");
     }
 }

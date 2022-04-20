@@ -98,7 +98,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public boolean isVirtual;
         public boolean transactional;
-        public List<BIRArgument> args;
+        public List<BIROperand> args;
         public Name name;
         public PackageID calleePkg;
         public List<BIRAnnotationAttachment> calleeAnnotAttachments;
@@ -109,7 +109,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIRArgument> args,
+                    List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -131,7 +131,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIRArgument> args,
+                    List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -177,7 +177,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          boolean isVirtual,
                          PackageID calleePkg,
                          Name name,
-                         List<BIRArgument> args,
+                         List<BIROperand> args,
                          BIROperand lhsOp,
                          BIRBasicBlock thenBB,
                          List<BIRAnnotationAttachment> annotAttachments,
@@ -209,14 +209,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class FPCall extends BIRTerminator {
         public BIROperand fp;
-        public List<BIRArgument> args;
+        public List<BIROperand> args;
         public boolean isAsync;
         public boolean transactional;
 
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIRArgument> args,
+                      List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       BIRBasicBlock thenBB,
@@ -233,7 +233,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIRArgument> args,
+                      List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       boolean transactional,
@@ -253,7 +253,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             BIROperand[] operands = new BIROperand[args.size() + 1];
             operands[0] = fp;
             int i = 1;
-            for (BIRArgument operand : args) {
+            for (BIROperand operand : args) {
                 operands[i++] = operand;
             }
             return operands;
@@ -346,7 +346,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Lock extends BIRTerminator {
-        public final BIRBasicBlock lockedBB;
+        public BIRBasicBlock lockedBB;
 
         public Set<BIRGlobalVariableDcl> lockVariables = new HashSet<>();
 
@@ -390,7 +390,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class FieldLock extends BIRTerminator {
         public BIROperand localVar;
         public String field;
-        public final BIRBasicBlock lockedBB;
+        public BIRBasicBlock lockedBB;
 
         public FieldLock(Location pos, BIROperand localVar, String field, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.FIELD_LOCK);
@@ -423,7 +423,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      * @since 0.990.4
      */
     public static class Unlock extends BIRTerminator {
-        public final BIRBasicBlock unlockBB;
+        public BIRBasicBlock unlockBB;
 
         public BIRTerminator.Lock relatedLock;
 
@@ -432,9 +432,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.unlockBB = unlockBB;
         }
 
-        public Unlock(Location pos,
-                      BIRBasicBlock unlockBB,
-                      BirScope scope) {
+        public Unlock(Location pos, BIRBasicBlock unlockBB, BirScope scope) {
             this(pos, unlockBB);
             this.scope = scope;
         }

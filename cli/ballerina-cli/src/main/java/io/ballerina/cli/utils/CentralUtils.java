@@ -19,9 +19,6 @@ package io.ballerina.cli.utils;
 
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.Settings;
-import io.ballerina.projects.TomlDocument;
-import io.ballerina.projects.internal.SettingsBuilder;
-import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -77,7 +74,7 @@ public class CentralUtils {
                 long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(settingsTomlFilePath);
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
                     // read updated Settings.toml file to get the token
-                    Settings settings = readSettings();
+                    Settings settings = RepoUtils.readSettings();
                     accessToken = getAccessTokenOfCLI(settings);
                     if (accessToken.isEmpty()) {
                         throw createLauncherException(
@@ -118,24 +115,6 @@ public class CentralUtils {
             return Files.getLastModifiedTime(path).toMillis();
         } catch (IOException ex) {
             throw createLauncherException("Error occurred when reading file for token " + path.toString());
-        }
-    }
-
-    /**
-     * Read Settings.toml to populate the configurations.
-     *
-     * @return {@link Settings} settings object
-     */
-    public static Settings readSettings() throws SettingsTomlException {
-        Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
-        try {
-            TomlDocument settingsTomlDocument = TomlDocument
-                    .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
-            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
-            return settingsBuilder.settings();
-        } catch (IOException e) {
-            // If Settings.toml not exists return empty Settings object
-            return Settings.from();
         }
     }
 

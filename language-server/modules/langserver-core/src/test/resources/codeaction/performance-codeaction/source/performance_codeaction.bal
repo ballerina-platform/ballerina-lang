@@ -1,0 +1,3 @@
+function main () {
+    int a;
+}

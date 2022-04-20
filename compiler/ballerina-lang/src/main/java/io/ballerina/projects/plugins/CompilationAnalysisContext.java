@@ -27,26 +27,26 @@ import io.ballerina.tools.diagnostics.Diagnostic;
  * @see CodeAnalysisContext
  * @since 2.0.0
  */
-public  interface CompilationAnalysisContext {
+public interface CompilationAnalysisContext {
 
     /**
      * Returns the current {@code Package} instance on which the compilation is being performed.
      *
      * @return the current {@code Package} instance
      */
-    public Package currentPackage();
+    Package currentPackage();
 
     /**
      * Returns the compilation instance that captures the state of the package compilation.
      *
      * @return the package compilation instance
      */
-    public PackageCompilation compilation();
+    PackageCompilation compilation();
 
     /**
      * Reports a diagnostic against the compilation.
      *
      * @param diagnostic the {@code Diagnostic} to be reported
      */
-    public void reportDiagnostic(Diagnostic diagnostic);
+    void reportDiagnostic(Diagnostic diagnostic);
 }

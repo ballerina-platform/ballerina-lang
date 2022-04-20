@@ -16,11 +16,11 @@
 
 function valueTypeWichAlwaysTrue() returns string {
     int x = 10;
-    if (x is int) {
+    if (x is int) { // always true
         return "int";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function valueTypeWichAlwaysFalse() returns string {
@@ -34,11 +34,11 @@ function valueTypeWichAlwaysFalse() returns string {
 
 function valueTypeAgainstUnionTypeWhichAlwaysTrue() returns string {
     int x = 10;
-    if (x is float|int) {
+    if (x is float|int) { // always true
         return "float|int";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -52,20 +52,20 @@ function valueTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
 
 function unionTypeAgainstUnionTypeWhichAlwaysTrue_1() returns string {
     int|string x = "hello";
-    if (x is int|string) {
+    if (x is int|string) { // always true
         return "int|string";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysTrue_2() returns string {
     int|string x = "hello";
-    if (x is int|string|float) {
+    if (x is int|string|float) { // always true
         return "int|string|float";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function unionTypeAgainstUnionTypeWhichAlwaysFalse() returns string {
@@ -88,17 +88,17 @@ type B record {
 
 function testSimpleRecordTypes() returns string {
     A a = {};
-    if (a is B) {
+    if (a is B) { // always true
         return "a is B";
     } else if (a is A) {
-        return "a is A";
+        return "a is A"; // unreachable code
     }
 
     // checking against undefined type (this moved to type-test-expr-semantics-negative.bal)
     // if (a is C) {
     //
     // }
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 type X record {
@@ -115,33 +115,33 @@ type Y record {
 
 function testNestedRecordTypes() returns string {
     X x = {};
-    if (x is Y) {
+    if (x is Y) { // always true
         return "x is B";
     } else if (x is X) {
-        return "x is A";
+        return "x is A"; // unreachable code
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function testArrays() {
     int[] x = [1, 2, 3];
     int[][] y = [[1, 2, 3], [4, 5, 6]];
 
-    boolean b0 = x is int[] && y is int[][];
-    boolean b1 = x is float[];
-    boolean b2 = y is json;
-    boolean b3 = y is json[];
-    boolean b4 = y is json[][];
+    boolean _ = x is int[] && y is int[][];
+    boolean _ = x is float[];
+    boolean _ = y is json;
+    boolean _ = y is json[];
+    boolean _ = y is json[][];
 }
 
 function testTuples() {
     [int, string] a = [4, "hello"];
 
-    boolean b0 = a is [int, string];
-    boolean b1 = a is [float, boolean];
-    boolean b2 = a is [any, any];
-    boolean b3 = a is [json, json];
+    boolean _ = a is [int, string];
+    boolean _ = a is [float, boolean];
+    boolean _ = a is [any, any];
+    boolean _ = a is [json, json];
 }
 
 function testTupleWithAssignableTypes() returns [boolean, boolean, boolean] {
@@ -178,7 +178,7 @@ function testSealedRecordTypes() returns string {
         return "a is A3";
     }
 
-    return "n/a";
+    return "n/a"; // unreachable code
 }
 
 function testRecordArrays() returns [boolean, boolean] {
@@ -239,12 +239,12 @@ type FooOne "foo"|1;
 function testFiniteTypeAsAlwaysTrueBroaderType() {
     FooBar f1 = "foo";
     if (f1 is string) {
-        string y = f1;
+        string _ = f1;
     }
 
     FooOne f2 = "foo";
     if (f2 is string|int) {
-        string|int y = f2;
+        string|int _ = f2;
     }
 }
 
@@ -253,7 +253,7 @@ type BazTwo "baz"|2;
 function testFiniteTypeAsNeverMatchingFiniteType() {
     FooBar f1 = "foo";
     if (f1 is BazTwo) {
-        BazTwo y = f1;
+        BazTwo _ = f1;
     }
 }
 
@@ -277,24 +277,24 @@ function testXMLNeverType() {
 
 function testRecordNegative() {
     Baz|int val = 11;
-    boolean b = val is Bar;
-    boolean b2 = val is Qux;
+    boolean _ = val is Bar;
+    boolean _ = val is Qux;
 
     Bar val2 = {};
-    boolean b3 = val2 is Baz;
-    boolean b4 = val2 is Quux;
+    boolean _ = val2 is Baz;
+    boolean _ = val2 is Quux;
 
     Qux val3 = {code: new};
-    boolean b5 = val3 is Baz;
-    boolean b6 = val3 is Quux;
+    boolean _ = val3 is Baz;
+    boolean _ = val3 is Quux;
 
     Quux val4 = {"i": 1, "j": 2};
-    boolean b7 = val4 is Bar;
-    boolean b8 = val4 is Qux;
-    boolean b9 = val4 is record {|int i; boolean b;|};
+    boolean _ = val4 is Bar;
+    boolean _ = val4 is Qux;
+    boolean _ = val4 is record {|int i; boolean b;|};
 
     ClosedRecordWithIntField val5 = {i: 100};
-    boolean b10 = val5 is record {| int i; string s; |};
+    boolean _ = val5 is record {| int i; string s; |};
 }
 
 type Baz record {
@@ -328,13 +328,13 @@ function testAnydataAgainstInvalidArray() {
     object {}[] arr1 = [];
 
     if arr1 is anydata {
-        anydata[] p = arr1;
+        anydata[] _ = arr1;
     }
 
     anydata arr2 = [];
 
     if arr2 is object {}[] {
-        object {}[] p = arr2;
+        object {}[] _ = arr2;
     }
 }
 
@@ -355,6 +355,6 @@ type Record record {|
 
 function testRecordNegative2() {
     Record rec = {i: 1, s: ""};
-    boolean b2 = rec is RecordWithIntFieldAndNeverRestField;
-    boolean b3 = rec is RecordWithIntFieldAndEffectivelyNeverRestField;
+    boolean _ = rec is RecordWithIntFieldAndNeverRestField;
+    boolean _ = rec is RecordWithIntFieldAndEffectivelyNeverRestField;
 }

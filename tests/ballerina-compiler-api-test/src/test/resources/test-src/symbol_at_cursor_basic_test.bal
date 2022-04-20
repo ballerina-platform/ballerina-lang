@@ -164,3 +164,35 @@ function test(string name, int age) {
         [foo()]: "FOO"
     };
 }
+
+function testAnnotTagReference() {
+    Annot? annot = FooRec.@v5;
+}
+
+@v5 {
+    foo: "bar"
+}
+type FooRec record {
+    int x;
+    string y;
+};
+
+type AnnotRec record {
+    string foo;
+};
+
+public annotation AnnotRec v5 on type;
+
+type AnnotRec2 record {
+
+};
+
+const annotation AnnotRec2 WorkerAnnot on source worker;
+
+function fn() {
+    future<int?> f = @WorkerAnnot start add(1, 2);
+}
+
+function add(int a, int b) returns int {
+    return 1;
+}

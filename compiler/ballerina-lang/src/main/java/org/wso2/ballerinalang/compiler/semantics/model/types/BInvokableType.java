@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,6 +46,11 @@ public class BInvokableType extends BType implements InvokableType {
 
     public BInvokableType(List<BType> paramTypes, BType retType, BTypeSymbol tsymbol) {
         this(paramTypes, null, retType, tsymbol);
+    }
+
+    public BInvokableType(BTypeSymbol tSymbol) {
+        super(TypeTags.INVOKABLE, tSymbol, Flags.READONLY);
+        this.paramTypes = new ArrayList<>();
     }
 
     @Override
@@ -100,6 +106,10 @@ public class BInvokableType extends BType implements InvokableType {
             return false;
         }
 
+        if (tsymbol != null ? !tsymbol.equals(that.tsymbol) : that.tsymbol != null) {
+            return false;
+        }
+
         if (retType != null ? !retType.equals(that.retType) : that.retType != null) {
             return false;
         }
@@ -115,9 +125,9 @@ public class BInvokableType extends BType implements InvokableType {
     }
 
     public String getTypeSignature() {
-        String retTypeWithParam = retType.toString();
-        if (retType.getKind() != TypeKind.NIL) {
-            retTypeWithParam = "(" + retTypeWithParam + ")";
+        String retTypeWithParam = "()";
+        if (retType != null && retType.getKind() != TypeKind.NIL) {
+            retTypeWithParam = "(" + retType.toString() + ")";
         }
         String restParam = "";
         if (restType != null && restType instanceof BArrayType) {

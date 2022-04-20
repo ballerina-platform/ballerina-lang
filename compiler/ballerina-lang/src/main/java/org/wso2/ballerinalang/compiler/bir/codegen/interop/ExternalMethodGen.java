@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmBStringConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
@@ -54,6 +53,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrich
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.cleanupPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genJFieldForInteropField;
 
@@ -67,15 +67,15 @@ public class ExternalMethodGen {
     public static void genJMethodForBExternalFunc(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule,
                                                   BType attachedType, MethodGen methodGen, JvmPackageGen jvmPackageGen,
                                                   JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                                  JvmBStringConstantsGen stringConstantsGen,
+                                                 JvmConstantsGen jvmConstantsGen,
                                                   String moduleClassName, AsyncDataCollector lambdaGenMetadata,
                                                   CompilerContext compilerContext) {
         if (birFunc instanceof JFieldBIRFunction) {
             genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
-                                     jvmPackageGen, jvmTypeGen, jvmCastGen, stringConstantsGen,
+                                     jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                      moduleClassName, lambdaGenMetadata, compilerContext);
         } else {
-            methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, stringConstantsGen,
+            methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                          moduleClassName, attachedType, lambdaGenMetadata);
         }
     }
@@ -134,9 +134,7 @@ public class ExternalMethodGen {
             args.add(argRef);
         }
 
-        Set<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters.keySet();
-
-        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+        for (BIRNode.BIRFunctionParameter birFuncParam : birFunc.parameters) {
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
         }
@@ -162,8 +160,8 @@ public class ExternalMethodGen {
         } else if (attachedType.tag == TypeTags.OBJECT) {
             lookupKey = currentPackageName + toNameString(attachedType) + "." + birFuncName;
         } else {
-            throw new BLangCompilerException(String.format("Java method generation for the receiver type %s " +
-                    "is not supported: ", attachedType));
+            throw new BLangCompilerException("Java method generation for the receiver type " + attachedType + " " +
+                    "is not supported: ");
         }
 
         BIRFunctionWrapper birFuncWrapper = jvmPackageGen.lookupBIRFunctionWrapper(lookupKey);
@@ -207,12 +205,12 @@ public class ExternalMethodGen {
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType) {
-        return JvmCodeGenUtil.INITIAL_METHOD_DESC + JvmCodeGenUtil.populateMethodDesc(paramTypes) +
+        return INITIAL_METHOD_DESC + JvmCodeGenUtil.populateMethodDesc(paramTypes) +
                 generateExternReturnType(retType);
     }
 
     public static String getExternMethodDesc(List<BType> paramTypes, BType retType, BType attachedType) {
-        return JvmCodeGenUtil.INITIAL_METHOD_DESC + JvmCodeGenUtil.getArgTypeSignature(attachedType) +
+        return INITIAL_METHOD_DESC + JvmCodeGenUtil.getArgTypeSignature(attachedType) +
                 JvmCodeGenUtil.populateMethodDesc(paramTypes) + generateExternReturnType(retType);
     }
 

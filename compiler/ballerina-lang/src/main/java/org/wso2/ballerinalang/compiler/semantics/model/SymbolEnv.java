@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -151,6 +150,16 @@ public class SymbolEnv {
         return objectEnv;
     }
 
+    public static SymbolEnv createObjectConstructorObjectEnv(BLangClassDefinition node, SymbolEnv env) {
+        SymbolEnv nodeEnv = env.shallowClone();
+        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, nodeEnv.scope, nodeEnv);
+        objectEnv.enclEnv = env;
+        objectEnv.enclPkg = env.enclPkg;
+        objectEnv.envCount = env.envCount + 1;
+        objectEnv.enclInvokable = env.enclInvokable;
+        return objectEnv;
+    }
+
     public static SymbolEnv createObjectMethodsEnv(BLangObjectTypeNode node, BObjectTypeSymbol objSymbol,
                                                    SymbolEnv env) {
         SymbolEnv symbolEnv = createPkgLevelSymbolEnv(node, objSymbol.scope, env);
@@ -194,6 +203,12 @@ public class SymbolEnv {
 
     public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env) {
         SymbolEnv symbolEnv = cloneSymbolEnvForClosure(node, env);
+        Scope scope = node.body.scope;
+        if (scope == null) {
+            node.body.scope = symbolEnv.scope;
+        } else {
+            symbolEnv.scope = scope;
+        }
         symbolEnv.enclEnv = env.enclEnv != null ? env.enclEnv.createClone() : null;
         symbolEnv.enclPkg = env.enclPkg;
         return symbolEnv;
@@ -288,13 +303,6 @@ public class SymbolEnv {
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         symbolEnv.enclVarSym = enclVarSym;
-        return symbolEnv;
-    }
-
-    public static SymbolEnv createWorkerEnv(BLangWorker worker, SymbolEnv env) {
-        SymbolEnv symbolEnv = new SymbolEnv(worker, worker.symbol.scope);
-        symbolEnv.envCount = 0;
-        env.copyTo(symbolEnv);
         return symbolEnv;
     }
 

@@ -69,7 +69,7 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
             String sortText;
             if (contextType.isEmpty()) {
                 // Added for safety.
-                sortText = SortingUtil.genSortText(SortingUtil.toRank(lsCItem, 2));
+                sortText = SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem, 2));
             } else if (!SortingUtil.isTypeCompletionItem(lsCItem)) {
                 /*
                 Here the sort text is three-fold.
@@ -78,10 +78,10 @@ public class ListConstructorExpressionNodeContext extends AbstractCompletionProv
                 Then we again append the sorting among the symbols (ex: functions over variable).
                  */
                 sortText = SortingUtil.genSortText(1)
-                        + SortingUtil.genSortTextByAssignability(lsCItem, contextType.get())
-                        + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+                        + SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get())
+                        + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             } else {
-                sortText = SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(lsCItem));
+                sortText = SortingUtil.genSortText(2) + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             }
 
             lsCItem.getCompletionItem().setSortText(sortText);

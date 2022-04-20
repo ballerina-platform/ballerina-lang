@@ -18,9 +18,12 @@
 package io.ballerina.projects.test.resolution.packages.internal;
 
 import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.PackageDescriptor;
+import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageResolver;
+import io.ballerina.projects.environment.ResolutionOptions;
+import io.ballerina.projects.internal.BlendedManifest;
+import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 
@@ -34,30 +37,34 @@ import java.util.Collection;
 public class PackageResolutionTestCase {
 
     private final PackageDescriptor rootPkgDesc;
-    private final DependencyManifest dependencyManifest;
+    private final BlendedManifest blendedManifest;
     private final PackageResolver packageResolver;
-    private final Collection<DependencyNode> directDeps;
+    private final ModuleResolver moduleResolver;
+    private final Collection<ModuleLoadRequest> moduleLoadRequests;
     private final DependencyGraph<DependencyNode> expectedGraphSticky;
     private final DependencyGraph<DependencyNode> expectedGraphNoSticky;
 
     public PackageResolutionTestCase(PackageDescriptor rootPkgDesc,
-                                     DependencyManifest dependencyManifest,
+                                     BlendedManifest blendedManifest,
                                      PackageResolver packageResolver,
-                                     Collection<DependencyNode> directDeps,
+                                     ModuleResolver moduleResolver,
+                                     Collection<ModuleLoadRequest> moduleLoadRequests,
                                      DependencyGraph<DependencyNode> expectedGraphSticky,
                                      DependencyGraph<DependencyNode> expectedGraphNoSticky) {
         this.rootPkgDesc = rootPkgDesc;
-        this.dependencyManifest = dependencyManifest;
+        this.blendedManifest = blendedManifest;
         this.packageResolver = packageResolver;
-        this.directDeps = directDeps;
+        this.moduleResolver = moduleResolver;
+        this.moduleLoadRequests = moduleLoadRequests;
         this.expectedGraphSticky = expectedGraphSticky;
         this.expectedGraphNoSticky = expectedGraphNoSticky;
     }
 
     public DependencyGraph<DependencyNode> execute(boolean sticky) {
-        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, dependencyManifest,
-                packageResolver, true, sticky);
-        return resolutionEngine.resolveDependencies(directDeps);
+        ResolutionOptions options = ResolutionOptions.builder().setOffline(true).setSticky(sticky).build();
+        ResolutionEngine resolutionEngine = new ResolutionEngine(rootPkgDesc, blendedManifest,
+                packageResolver, moduleResolver, options);
+        return resolutionEngine.resolveDependencies(moduleLoadRequests);
     }
 
     public DependencyGraph<DependencyNode> getExpectedGraph(boolean sticky) {

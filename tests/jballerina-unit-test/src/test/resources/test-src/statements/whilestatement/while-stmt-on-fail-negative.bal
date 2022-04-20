@@ -96,8 +96,8 @@ function testOnFailWithUnion (int i) returns string {
    while (count < 5) {
      count += 1;
      str += "Before failure throw";
-     int resA = check getTypeAError();
-     int resB = check getTypeBError();
+     int _ = check getTypeAError();
+     int _ = check getTypeBError();
    }
    on fail ErrorTypeA e {
       str += "-> Error caught : ";

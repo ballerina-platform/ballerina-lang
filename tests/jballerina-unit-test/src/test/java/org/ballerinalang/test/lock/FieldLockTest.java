@@ -17,7 +17,6 @@
 
 package org.ballerinalang.test.lock;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -46,27 +45,27 @@ public class FieldLockTest {
     @Test(description = "Test locking by self var")
     public void testLockInAttachedFunc() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "lockFieldInSameObject");
-        assertFalse(returns[0].stringValue().contains("*#*") || returns[0].stringValue().contains("#*#"));
+        Object returns = BRunUtil.invoke(compileResult, "lockFieldInSameObject");
+        assertFalse(returns.toString().contains("*#*") || returns.toString().contains("#*#"));
     }
 
     @Test(description = "Test locking by passing object as param")
     public void testObjectLock() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "fieldLock");
-        assertTrue((returns[0].stringValue().equals("1001000") || returns[0].stringValue().equals("500500")));
+        Object returns = BRunUtil.invoke(compileResult, "fieldLock");
+        assertTrue((returns.toString().equals("1001000") || returns.toString().equals("500500")));
 
-        BValue[] returns2 = BRunUtil.invoke(compileResult, "objectParamLock");
-        assertTrue((returns2[0].stringValue().equals("1001000") || returns2[0].stringValue().equals("500500")));
+        Object returns2 = BRunUtil.invoke(compileResult, "objectParamLock");
+        assertTrue((returns2.toString().equals("1001000") || returns2.toString().equals("500500")));
     }
 
     @Test(description = "Test locking based on a record field")
     public void testLockInRecords() {
 
-        BValue[] returns = BRunUtil.invoke(compileResult2, "fieldLock");
-        assertTrue((returns[0].stringValue().equals("1001000") || returns[0].stringValue().equals("500500")));
+        Object returns = BRunUtil.invoke(compileResult2, "fieldLock");
+        assertTrue((returns.toString().equals("1001000") || returns.toString().equals("500500")));
 
-        BValue[] returns2 = BRunUtil.invoke(compileResult2, "arrayFieldLock");
-        assertTrue((returns2[0].stringValue().equals("1001000") || returns2[0].stringValue().equals("500500")));
+        Object returns2 = BRunUtil.invoke(compileResult2, "arrayFieldLock");
+        assertTrue((returns2.toString().equals("1001000") || returns2.toString().equals("500500")));
     }
 }

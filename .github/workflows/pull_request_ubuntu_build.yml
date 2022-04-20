@@ -8,9 +8,9 @@ on:
       - release-stage
       - stage
       - ballerina-1.2.x
-      - stage-slbeta2
-      - 2.0.0-beta3-dev
-      - jbal-semtype
+      - stage-swan-lake
+      - 2201.[0-9]+.x
+      - nutcracker
 
 jobs:
   ubuntu_build:

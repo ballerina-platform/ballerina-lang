@@ -74,6 +74,24 @@ public class DiagramUtil {
         return syntaxTreeJson;
     }
 
+    /**
+     * Get the Modified JSON ST with type info for a node without the semantic model.
+     *
+     * @param node  {@link NonTerminalNode} The node that needs to be mapped
+     * @return {@link JsonObject}   ST as a Json Object
+     */
+    public static JsonElement getSyntaxTreeJSON(NonTerminalNode node) {
+        JsonElement syntaxTreeJson;
+        try {
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
+            syntaxTreeJson = mapGenerator.transformSyntaxNode(node.kind() == SyntaxKind.LIST ? node.parent() : node);
+        } catch (Throwable e) {
+            syntaxTreeJson = new JsonObject();
+        }
+
+        return syntaxTreeJson;
+    }
+
     public static JsonElement getClassDefinitionSyntaxJson(ClassDefinitionNode classDefinitionNode,
                                                            SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;

@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "Q",
+      "sortText": "U",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "name",
       "kind": "Field",
       "detail": "Employee.name",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "salary",
       "kind": "Field",
       "detail": "Employee.salary",
-      "sortText": "G",
+      "sortText": "K",
       "insertText": "salary: ${2:0}",
       "insertTextFormat": "Snippet"
     },

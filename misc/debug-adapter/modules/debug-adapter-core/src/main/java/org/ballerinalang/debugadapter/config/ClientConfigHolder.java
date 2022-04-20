@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.config;
 
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Ballerina DAP Client Configuration holder.
@@ -29,10 +30,13 @@ public class ClientConfigHolder {
     private final ClientConfigKind kind;
     private String sourcePath;
     private Integer debuggePort;
+    private ExtendedClientCapabilities extendedClientCapabilities;
 
     protected static final String ARG_FILE_PATH = "script";
     protected static final String ARG_DEBUGGEE_HOST = "debuggeeHost";
     protected static final String ARG_DEBUGGEE_PORT = "debuggeePort";
+    private static final String ARG_CAPABILITIES = "capabilities";
+    private static final String ARG_SUPPORT_READONLY_EDITOR = "supportsReadOnlyEditors";
 
     protected ClientConfigHolder(Map<String, Object> clientRequestArgs, ClientConfigKind kind) {
         this.clientRequestArgs = clientRequestArgs;
@@ -59,6 +63,29 @@ public class ClientConfigHolder {
         return debuggePort;
     }
 
+    public Optional<ExtendedClientCapabilities> getExtendedCapabilities() {
+        if (extendedClientCapabilities != null) {
+            return Optional.of(extendedClientCapabilities);
+        }
+        Object capabilitiesObj = clientRequestArgs.get(ARG_CAPABILITIES);
+        if (!(capabilitiesObj instanceof Map)) {
+            return Optional.empty();
+        }
+
+        Map<String, Object> capabilities = (Map<String, Object>) capabilitiesObj;
+        extendedClientCapabilities = new ExtendedClientCapabilities();
+        Object readOnlyEditorConfig = capabilities.get(ARG_SUPPORT_READONLY_EDITOR);
+        if (readOnlyEditorConfig instanceof Boolean) {
+            extendedClientCapabilities.setSupportsReadOnlyEditors((Boolean) readOnlyEditorConfig);
+        } else if (readOnlyEditorConfig instanceof String) {
+            extendedClientCapabilities.setSupportsReadOnlyEditors(Boolean.parseBoolean((String) readOnlyEditorConfig));
+        } else {
+            extendedClientCapabilities.setSupportsReadOnlyEditors(false);
+        }
+
+        return Optional.ofNullable(extendedClientCapabilities);
+    }
+
     protected void failIfConfigMissing(String configName) throws ClientConfigurationException {
         if (clientRequestArgs.get(configName) == null) {
             throw new ClientConfigurationException("Required client configuration missing: '" + configName + "'");
@@ -71,5 +98,21 @@ public class ClientConfigHolder {
     public enum ClientConfigKind {
         ATTACH_CONFIG,
         LAUNCH_CONFIG
+    }
+
+    /**
+     * Inner class to hold the extended capabilities of the connected debug client.
+     */
+    public static class ExtendedClientCapabilities {
+
+        private boolean supportsReadOnlyEditors = false;
+
+        public boolean supportsReadOnlyEditors() {
+            return supportsReadOnlyEditors;
+        }
+
+        public void setSupportsReadOnlyEditors(boolean supportsReadOnlyEditors) {
+            this.supportsReadOnlyEditors = supportsReadOnlyEditors;
+        }
     }
 }

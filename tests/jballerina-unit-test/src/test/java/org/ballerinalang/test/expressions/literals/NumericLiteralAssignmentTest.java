@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -45,8 +43,8 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "intLiteralsAsSingleNumericTypeFunctions")
     public void testIntLiteralsAsSingleNumericType(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "intLiteralsAsSingleNumericTypeFunctions")
@@ -61,8 +59,8 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "floatLiteralsAsSingleNumericTypeFunctions")
     public void testFloatLiteralsAsSingleNumericType(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "floatLiteralsAsSingleNumericTypeFunctions")
@@ -75,8 +73,8 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "intLiteralsAsNumericTypeInUnionFunctions")
     public void testIntLiteralsAsNumericTypeInUnion(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "intLiteralsAsNumericTypeInUnionFunctions")
@@ -87,15 +85,14 @@ public class NumericLiteralAssignmentTest {
                 {"testIntLiteralAsByteInUnion_2"},
                 {"testIntLiteralAsFloatInUnion"},
                 {"testIntLiteralAsFloatInUnion_2"},
-                {"testIntLiteralAsDecimalInUnion"},
-                {"testIntLiteralAsDecimalInUnion_2"}
+                {"testIntLiteralAsDecimalInUnion"}
         };
     }
 
     @Test(dataProvider = "floatLiteralsAsNumericTypeInUnionFunctions")
     public void testFloatLiteralsAsNumericTypeInUnion(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "floatLiteralsAsNumericTypeInUnionFunctions")
@@ -109,8 +106,8 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "intLiteralsAsNumericTypeViaFiniteTypeFunctions")
     public void testIntLiteralsAsNumericTypeViaFiniteType(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "intLiteralsAsNumericTypeViaFiniteTypeFunctions")
@@ -125,8 +122,8 @@ public class NumericLiteralAssignmentTest {
 
     @Test(dataProvider = "floatLiteralsAsNumericTypeViaFiniteTypeFunctions")
     public void testFloatLiteralsAsNumericTypeViaFiniteType(String testFunctionName) {
-        BValue[] returns = BRunUtil.invoke(result, testFunctionName);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, testFunctionName);
+        Assert.assertTrue((Boolean) returns);
     }
 
     @DataProvider(name = "floatLiteralsAsNumericTypeViaFiniteTypeFunctions")
@@ -139,14 +136,14 @@ public class NumericLiteralAssignmentTest {
 
     @Test
     public void testIntLiteralAsIntWithBuiltinUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testIntLiteralAsIntWithBuiltinUnion");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testIntLiteralAsIntWithBuiltinUnion");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @Test
     public void testFloatLiteralAsIntWithBuiltinUnion() {
-        BValue[] returns = BRunUtil.invoke(result, "testFloatLiteralAsFloatWithBuiltinUnion");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Object returns = BRunUtil.invoke(result, "testFloatLiteralAsFloatWithBuiltinUnion");
+        Assert.assertTrue((Boolean) returns);
     }
 
     @AfterClass

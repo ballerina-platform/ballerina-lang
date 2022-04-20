@@ -19,7 +19,6 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
@@ -28,9 +27,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.types.BStructureType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -40,8 +37,6 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -89,7 +84,7 @@ public class TableJsonDataSource implements JsonDataSource {
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             //Retrieve table value from key-value tuple
-            MapValueImpl record = ((MapValueImpl) tupleValue.get(1));
+            BMap record = ((BMap) tupleValue.get(1));
             try {
                 values.append(this.objGen.transform(record));
             } catch (IOException e) {
@@ -106,131 +101,76 @@ public class TableJsonDataSource implements JsonDataSource {
     private static class DefaultJSONObjectGenerator implements JSONObjectGenerator {
 
         @Override
-        public Object transform(MapValueImpl record) {
+        public Object transform(BMap<?, ?> record) {
             MapValue<BString, Object> objNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
-            BStructureType structType = (BStructureType) record.getType();
-            BField[] structFields = null;
-            if (structType != null) {
-                structFields = structType.getFields().values().toArray(new BField[0]);
-            }
-            Map<String, Field> internalStructFields = structType.getFields();
-            if (structFields.length > 0) {
-                Iterator<Map.Entry<String, Field>> itr = internalStructFields.entrySet().iterator();
-                for (int i = 0; i < internalStructFields.size(); i++) {
-                    Field internalStructField = itr.next().getValue();
-                    int type = internalStructField.getFieldType().getTag();
-                    String fieldName = internalStructField.getFieldName();
-                    constructJsonData(record, objNode, fieldName, type, structFields, i);
-                }
+            for (Map.Entry entry : record.entrySet()) {
+                Type type = TypeChecker.getType(entry.getValue());
+                BString keyName = StringUtils.fromString(entry.getKey().toString());
+                constructJsonData(record, objNode, keyName, type);
             }
             return objNode;
         }
 
     }
 
-    private static void constructJsonData(MapValueImpl record, MapValue<BString, Object> jsonObject, String name,
-                                          int typeTag, BField[] structFields, int index) {
-        BString key = StringUtils.fromString(name);
-        switch (typeTag) {
+    private static void constructJsonData(BMap<?, ?> record, MapValue<BString, Object> jsonObject,
+                                          BString key, Type type) {
+        switch (type.getTag()) {
             case TypeTags.STRING_TAG:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
+                jsonObject.put(key, record.getStringValue(key));
                 break;
             case TypeTags.INT_TAG:
                 Long intVal = record.getIntValue(key);
-                jsonObject.put(StringUtils.fromString(name), intVal);
+                jsonObject.put(key, intVal);
+                break;
+            case TypeTags.BYTE_TAG:
+                Integer byteVal = (Integer) record.get(key);
+                jsonObject.put(key, byteVal);
                 break;
             case TypeTags.FLOAT_TAG:
                 Double floatVal = record.getFloatValue(key);
-                jsonObject.put(StringUtils.fromString(name), floatVal);
+                jsonObject.put(key, floatVal);
                 break;
             case TypeTags.DECIMAL_TAG:
                 DecimalValue decimalVal = (DecimalValue) record.get(key);
-                jsonObject.put(StringUtils.fromString(name), decimalVal);
+                jsonObject.put(key, decimalVal);
                 break;
             case TypeTags.BOOLEAN_TAG:
                 Boolean boolVal = record.getBooleanValue(key);
-                jsonObject.put(StringUtils.fromString(name), boolVal);
+                jsonObject.put(key, boolVal);
                 break;
             case TypeTags.ARRAY_TAG:
-                jsonObject.put(StringUtils.fromString(name), getDataArray(record, key));
+            case TypeTags.TUPLE_TAG:
+                jsonObject.put(key, getDataArray(record.getArrayValue(key)));
                 break;
             case TypeTags.JSON_TAG:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key) == null ? null :
+                jsonObject.put(key, record.getStringValue(key) == null ? null :
                         JsonParser.parse(record.getStringValue(key).toString()));
                 break;
-            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                jsonObject.put(StringUtils.fromString(name),
-                               getStructData(record.getMapValue(key), structFields, index, key));
+                MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
+                for (Map.Entry entry : record.getMapValue(key).entrySet()) {
+                    Type internalType = TypeChecker.getType(entry.getValue());
+                    BString internalKeyName = StringUtils.fromString(entry.getKey().toString());
+                    constructJsonData(record.getMapValue(key), jsonData, internalKeyName, internalType);
+                }
+                jsonObject.put(key, jsonData);
                 break;
             case TypeTags.XML_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
                 BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
-                jsonObject.put(StringUtils.fromString(name), strVal);
+                jsonObject.put(key, strVal);
                 break;
             default:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
-                break;
+                throw new BallerinaException("cannot construct json object from '" + type + "' type data");
         }
     }
 
-    private static Object getStructData(BMap data, BField[] structFields, int index, BString key) {
-        if (structFields == null) {
-            ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
-            if (data != null) {
-                BArray dataArray = data.getArrayValue(key);
-                for (int i = 0; i < dataArray.size(); i++) {
-                    Object value = dataArray.get(i);
-                    if (value instanceof String) {
-                        jsonArray.append(value);
-                    } else if (value instanceof Boolean) {
-                        jsonArray.append(value);
-                    } else if (value instanceof Long) {
-                        jsonArray.append(value);
-                    } else if (value instanceof Double) {
-                        jsonArray.append(value);
-                    } else if (value instanceof Integer) {
-                        jsonArray.append(value);
-                    } else if (value instanceof Float) {
-                        jsonArray.append(value);
-                    } else if (value instanceof DecimalValue) {
-                        jsonArray.append(((DecimalValue) value).floatValue());
-                    }
-                }
-            }
-            return jsonArray;
-        } else {
-            MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
-            boolean structError = true;
-            if (data != null) {
-                Type internalType = structFields[index].getFieldType();
-                if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
-                        || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-                    BField[] internalStructFields =
-                            ((BStructureType) internalType).getFields().values().toArray(new BField[0]);
-                    for (int i = 0; i < internalStructFields.length; i++) {
-                        BString internalKeyName = StringUtils.fromString(internalStructFields[i].getFieldName());
-                        Object value = data.get(internalKeyName);
-                        if (value instanceof BigDecimal) {
-                            jsonData.put(internalKeyName, ((BigDecimal) value).doubleValue());
-                        } else if (value instanceof MapValueImpl) {
-                            jsonData.put(internalKeyName,
-                                         getStructData((MapValueImpl) value, internalStructFields, i, internalKeyName));
-                        } else {
-                            jsonData.put(internalKeyName, value);
-                        }
-                        structError = false;
-                    }
-                }
-            }
-            if (structError) {
-                throw new BallerinaException("error in constructing the json object from struct type data");
-            }
-            return jsonData;
-        }
-    }
-
-    private static Object getDataArray(MapValue df, BString key) {
-        BArray dataArray = df.getArrayValue(key);
+    private static Object getDataArray(BArray dataArray) {
         ArrayValue jsonArray = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
         for (int i = 0; i < dataArray.size(); i++) {
             jsonArray.append(dataArray.get(i));
@@ -251,7 +191,7 @@ public class TableJsonDataSource implements JsonDataSource {
          * @return The generated JSON object
          * @throws IOException for JSON reading/serializing errors
          */
-        Object transform(MapValueImpl record) throws IOException;
+        Object transform(BMap<?, ?> record) throws IOException;
 
     }
 }

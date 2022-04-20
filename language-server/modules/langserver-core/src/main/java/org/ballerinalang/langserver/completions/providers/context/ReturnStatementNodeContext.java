@@ -48,9 +48,10 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (node.expression().isPresent() && this.onQualifiedNameIdentifier(context, node.expression().get())) {
+        if (node.expression().isPresent()
+                && QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             List<Symbol> entries = QNameReferenceUtil.getExpressionContextEntries(context,
-                    (QualifiedNameReferenceNode) node.expression().get());
+                    (QualifiedNameReferenceNode) context.getNodeAtCursor());
 
             completionItems.addAll(this.getCompletionItemList(entries, context));
         } else {
@@ -73,7 +74,7 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
         TypeSymbol symbol = typeSymbolAtCursor.get();
         for (LSCompletionItem completionItem : completionItems) {
             completionItem.getCompletionItem()
-                    .setSortText(SortingUtil.genSortTextByAssignability(completionItem, symbol));
+                    .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
 

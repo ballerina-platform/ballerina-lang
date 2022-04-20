@@ -1,0 +1,42 @@
+{
+  "line": 9,
+  "character": 7,
+  "expected": [
+    {
+      "title": "Create variable with \u0027record {}\u0027",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "record {} rec \u003d "
+        }
+      ]
+    },
+    {
+      "title": "Create variable with \u0027map\u003cany\u003e\u0027",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "map\u003cany\u003e rec \u003d "
+        }
+      ]
+    }
+  ]
+}

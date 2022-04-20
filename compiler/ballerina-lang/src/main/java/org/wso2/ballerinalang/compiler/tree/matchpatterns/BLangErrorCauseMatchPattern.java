@@ -21,6 +21,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.matchpatterns.ErrorCauseMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.ErrorMatchPatternNode;
 import org.ballerinalang.model.tree.matchpatterns.SimpleMatchPatternNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangErrorCauseMatchPattern extends BLangMatchPattern implements ErrorCauseMatchPatternNode {
 
+    // BLangNodes
     public BLangSimpleMatchPattern simpleMatchPattern;
     public BLangErrorMatchPattern errorMatchPattern;
 
@@ -56,6 +59,16 @@ public class BLangErrorCauseMatchPattern extends BLangMatchPattern implements Er
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+        analyzer.visit(this, props);
+    }
+
+    @Override
+    public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+        return modifier.transform(this, props);
     }
 
     @Override

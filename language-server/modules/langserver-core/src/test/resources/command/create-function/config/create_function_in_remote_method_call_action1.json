@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 18,
+        "character": 53
+      },
+      "end": {
+        "line": 18,
+        "character": 69
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 19,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 19,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction getRandomString() returns string {\n    return \"\";\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}

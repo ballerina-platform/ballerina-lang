@@ -20,7 +20,7 @@ function test() {
         private string item1 = "";
 
         public function init() {
-            self.item1 = "Foo"
+            self.item1 = "Foo";
             self.item2 = 10;
         }
 
@@ -28,4 +28,24 @@ function test() {
             int x = self.item2;
         }
     };
+
+    var obj = @v1 object Person {
+        string name = name;
+
+        public function getName() returns string {
+            return self.name;
+        }
+    };
 }
+
+// utils
+
+string name = "John Doe";
+
+annotation v1 on class;
+
+type Person object {
+    string name;
+
+    public function getName() returns string;
+};

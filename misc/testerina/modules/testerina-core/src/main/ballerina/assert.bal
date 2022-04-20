@@ -136,7 +136,6 @@ public isolated function assertEquals(anydata|error actual, anydata expected, st
 public isolated function assertNotEquals(anydata actual, anydata expected, string msg = "Assertion Failed!") {
     if (actual == expected) {
         string expectedStr = sprintf("%s", expected);
-        string actualStr = sprintf("%s", actual);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -204,7 +203,6 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
     boolean isEqual = (actual === expected);
     if (isEqual) {
         string expectedStr = sprintf("%s", expected);
-        string actualStr = sprintf("%s", actual);
         string errorMsg = string `${msg}: expected the actual value not to be '${expectedStr}'`;
         panic createBallerinaError(errorMsg, assertFailureErrorCategory);
     }
@@ -232,7 +230,8 @@ public isolated function assertNotExactEquals(any|error actual, any|error expect
 # ```
 #
 # + msg - Assertion error message
-public isolated function assertFail(string msg = "Test Failed!") {
+# + return - never returns a value
+public isolated function assertFail(string msg = "Test Failed!") returns never {
     panic createBallerinaError(msg, assertFailureErrorCategory);
 }
 
@@ -249,10 +248,10 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
         string expectedStr = sprintf("%s", expected);
         string actualStr = sprintf("%s", actual);
         if (expectedStr.length() > maxArgLength) {
-            expectedStr = expectedStr.substring(0, maxArgLength) + "...";
+            expectedStr = getFormattedString(expectedStr);
         }
         if (actualStr.length() > maxArgLength) {
-            actualStr = actualStr.substring(0, maxArgLength) + "...";
+            actualStr = getFormattedString(actualStr);
         }
         if (expectedType != actualType) {
             errorMsg = string `${msg}` + "\n \nexpected: " + string `<${expectedType}> '${expectedStr}'` + "\nactual\t: "
@@ -270,6 +269,27 @@ isolated function getInequalityErrorMsg(any|error actual, any|error expected, st
                                                  + string `'${actualStr}'`;
         }
         return errorMsg;
+}
+
+isolated function getFormattedString(string str) returns string {
+    string formattedString = "";
+    // Number of iterations in the loop
+    int itr = (str.length() / maxArgLength) + 1;
+    foreach int i in 0 ..< itr {
+        // If the calculated substring index is less than string length
+        if ((i + 1) * maxArgLength < str.length()) {
+            // Formulate the substring
+            string subString = str.substring((i * maxArgLength), ((i + 1) * maxArgLength));
+            // Append substring with newline
+            formattedString += subString + "\n";
+        } else {
+            // If the calculated substring is equal to or greater than the string length
+            // Modify the substring to include only the string length
+            string subString = str.substring((i * maxArgLength), str.length());
+            formattedString += subString;
+        }
+    }
+    return formattedString;
 }
 
 isolated function getKeyArray(map<anydata> valueMap) returns @tainted string[] {
@@ -340,9 +360,7 @@ isolated function getValueComparison(anydata actual, anydata expected, string ke
 
 isolated function compareMapValues(map<anydata> actualMap, map<anydata> expectedMap) returns @tainted string {
     string diff = "";
-    map<string> comparisonMap = {};
     string[] actualKeyArray = actualMap.keys();
-    string[] expectedKeyArray = expectedMap.keys();
     int count = 0;
     foreach string keyVal in actualKeyArray {
         if (expectedMap.hasKey(keyVal)) {

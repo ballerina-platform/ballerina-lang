@@ -1,0 +1,11 @@
+[
+  {
+    "description": "Variable.",
+    "input": "int i = 100"
+  },
+  {
+    "description": "Function with same name.",
+    "input": "function i() { }",
+    "error": "InvokerException"
+  }
+]

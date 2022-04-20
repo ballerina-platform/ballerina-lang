@@ -31,6 +31,10 @@ public class Range {
         this.max = max;
     }
 
+    public static Range from(int min, int max) {
+        return new Range(min, max);
+    }
+
     @Override
     public String toString() {
         return "Range[" + min + ", " + max + "]";

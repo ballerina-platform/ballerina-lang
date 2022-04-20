@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -32,6 +31,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action for incompatible return types.
@@ -50,6 +51,7 @@ import java.util.Optional;
 public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Fix Return Type";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     /**
      * {@inheritDoc}
@@ -58,18 +60,27 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
             return Collections.emptyList();
         }
 
-        ReturnStatementNode returnStatementNode = getReturnStatement(positionDetails.matchedNode());
-        if (returnStatementNode == null) {
+        //Suggest the code action only if the immediate parent of the matched node is a return statement 
+        // and the return statement corresponds to the enclosing function's signature. 
+        NonTerminalNode parentNode = positionDetails.matchedNode().parent();
+        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT) {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> foundTypeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
-        if (foundTypeSymbol.isEmpty()) {
+        Optional<TypeSymbol> foundType;
+        if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
+            foundType = positionDetails.diagnosticProperty(CodeActionUtil
+                    .getDiagPropertyFilterFunction(DiagBasedPositionDetails
+                            .DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
+        } else {
+            foundType = positionDetails.diagnosticProperty(
+                    DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        }
+        if (foundType.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -98,7 +109,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         List<CodeAction> codeActions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
         // Get all possible return types including ambiguous scenarios
-        List<String> types = CodeActionUtil.getPossibleTypes(foundTypeSymbol.get(), importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
 
         types.forEach(type -> {
             List<TextEdit> edits = new ArrayList<>();
@@ -115,7 +126,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
             // Add code action
             String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, type);
-            codeActions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+            codeActions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         });
 
         return codeActions;
@@ -125,12 +136,5 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public String getName() {
         return NAME;
     }
-
-    private ReturnStatementNode getReturnStatement(NonTerminalNode node) {
-        while (node != null && node.kind() != SyntaxKind.RETURN_STATEMENT) {
-            node = node.parent();
-        }
-
-        return node != null ? (ReturnStatementNode) node : null;
-    }
+    
 }

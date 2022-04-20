@@ -750,7 +750,7 @@ readonly class AnotherReadOnlyClass {
     }
 }
 
-class ImplicitlyReadOnlyClass {
+readonly class TheOtherReadOnlyClass {
     final int i;
 
     isolated function init() {
@@ -761,7 +761,7 @@ class ImplicitlyReadOnlyClass {
 type RecordWithReadOnlyFields record {|
     readonly NonReadOnlyClass a;
     readonly ReadOnlyClass & readonly b = new ReadOnlyClass();
-    readonly ImplicitlyReadOnlyClass c;
+    readonly TheOtherReadOnlyClass c;
 |};
 
 type ONE 1;
@@ -792,7 +792,7 @@ function testReadOnlyFieldsOfClassTypes() {
     assertTrue(<any> rec2 is record {
         AnotherReadOnlyClass a;
         ReadOnlyClass b;
-        ImplicitlyReadOnlyClass c;
+        TheOtherReadOnlyClass c;
     });
     assertEquality(4567, rec2.a.i);
     assertEquality(2, rec2.b.i);
@@ -881,6 +881,41 @@ function getRecord(boolean b) returns IncludingRec1|IncludingRec2? {
         return {i: 1, j: 2, k: 3};
     }
     return {k: 1, l: 2};
+}
+
+type Corge record {|
+    string a = "hello";
+    string b = "world";
+    string[] c = <readonly> ["x", "y"];
+|};
+
+function testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstructor() {
+    record {int a; string b = "default";} a = {readonly a: 2};
+    assertEquality(<anydata> {a: 2, b: "default"}, a);
+    assertTrue(a is record {readonly int a; string b;});
+    assertFalse(a is record {readonly int a; readonly string b;});
+
+    record {int a; string b = "default";} b = {readonly a: 3, b: "val"};
+    assertEquality(<anydata> {a: 3, b: "val"}, b);
+    assertTrue(b is record {readonly int a; string b;});
+    assertFalse(b is record {readonly int a; readonly string b;});
+
+    record {int a; string b = "default";} c = {readonly a: 3, readonly b: "val"};
+    assertEquality(<anydata> {a: 3, b: "val"}, c);
+    assertTrue(c is record {readonly int a; string b;});
+    assertTrue(c is record {readonly int a; readonly string b;});
+
+    Corge d = {readonly b: "ballerina"};
+    string[] & readonly e = ["x", "y"];
+    assertEquality(<anydata> {a: "hello", b: "ballerina", c: e}, d);
+    assertTrue(d is record {|string a; readonly string b; string[] c;|});
+    assertFalse(d is record {|string a; readonly string b; readonly string[] c;|});
+
+    Corge f = {readonly b: "val", readonly c: ["a", "b", "c"]};
+    assertEquality(<anydata> {a: "hello", b: "val", c: <readonly> ["a", "b", "c"]}, f);
+    assertTrue(f is record {|string a; readonly string b; string[] c;|});
+    assertTrue(f is record {|string a; readonly string b; readonly string[] c;|});
+    assertFalse(f is record {|readonly string a; readonly string b; readonly string[] c;|});
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

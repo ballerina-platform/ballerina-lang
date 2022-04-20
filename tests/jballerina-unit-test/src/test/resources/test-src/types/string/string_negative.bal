@@ -20,3 +20,7 @@ function testMultilineStrings() {
     string name = "Alice " Bob "
     string name2 = """
 }
+
+public function main() {
+    string a = "\Ballerina";
+}
