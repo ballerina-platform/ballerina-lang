@@ -19,7 +19,7 @@ package org.ballerinalang.semver.checker.cmd;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.semver.checker.SemverChecker;
+import io.ballerina.semver.checker.SemverChecker;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
