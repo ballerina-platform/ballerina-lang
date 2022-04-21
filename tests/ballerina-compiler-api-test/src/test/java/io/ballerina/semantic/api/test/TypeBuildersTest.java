@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
@@ -50,6 +51,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
@@ -223,12 +225,38 @@ public class TypeBuildersTest {
     }
 
     @DataProvider(name = "streamTypeBuilderProvider")
-    private Object[][] getStreamTypeBuilder() {
+    private Object[][] getStreamTypeBuilders() {
         return new Object[][] {
                 {types.FLOAT, types.INT, "stream<float, int>"},
                 {types.BYTE, types.STRING,"stream<byte, string>"},
                 {types.ANY, types.NIL, "stream<any>"},
                 {types.STRING, null, "stream<string>"},
+        };
+    }
+
+    @Test(dataProvider = "tupleTypeBuilderProvider")
+    public void testTupleTypeBuilder(List<TypeSymbol> memberTypes, TypeSymbol restType, String signature) {
+
+        TypeBuilder builder = types.builder();
+        TypeBuilder.TUPLE tupleType = builder.TUPLE_TYPE.withRestType(restType);
+        for (TypeSymbol memberType : memberTypes) {
+            tupleType.withMemberType(memberType);
+        }
+
+        TupleTypeSymbol tupleTypeSymbol = tupleType.build();
+        assertEquals(tupleTypeSymbol.typeKind(), TUPLE);
+        if (restType != null) {
+            assertTrue(tupleTypeSymbol.restTypeDescriptor().isPresent());
+        }
+
+        assertEquals(tupleTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "tupleTypeBuilderProvider")
+    private Object[][] getTupleTypeBuilders() {
+        return new Object[][] {
+                {Arrays.asList(types.STRING, types.INT, types.FLOAT), null, "[string, int, float]"},
+                {Arrays.asList(types.STRING, types.BOOLEAN), types.INT, "[string, boolean, int...]"},
         };
     }
 }
