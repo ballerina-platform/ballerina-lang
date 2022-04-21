@@ -110,7 +110,7 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
         this.message = message;
     }
 
-    public void addChildDiff(NodeDiff<? extends Node> childDiff) {
+    public void addChildDiff(IDiff childDiff) {
         this.childDiffs.add(childDiff);
     }
 

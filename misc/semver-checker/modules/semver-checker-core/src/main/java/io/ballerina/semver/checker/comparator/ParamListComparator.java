@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.DiffExtractor;
-import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
 
@@ -55,7 +54,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
         Map<String, ParameterNode> oldParams = oldNodesList.stream()
                 .collect(Collectors.toMap(this::getParameterName, Function.identity()));
 
-        // Todo: write a separate diff extractor to detect changes on parameter order as well.
+        // Todo: write a separate diff extractor to detect parameter order changes.
         DiffExtractor<ParameterNode> paramDiffExtractor = new DiffExtractor<>(newParams, oldParams);
 
         // Computes and populate diffs for newly added parameters.
@@ -65,18 +64,18 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
                 case REQUIRED_PARAM:
                     paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
                     paramDiff.setMessage("new required parameter added");
-                    return;
+                    break;
                 case DEFAULTABLE_PARAM:
                     paramDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
                     paramDiff.setMessage("new defaultable parameter added");
-                    return;
+                    break;
                 case REST_PARAM:
                     paramDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
                     paramDiff.setMessage("new rest parameter added");
-                    return;
+                    break;
                 default:
                     paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
-                    paramDiff.setMessage("new unknown parameter added");
+                    paramDiff.setMessage("new parameter added");
             }
             paramDiffs.addChildDiff(paramDiff);
         });
@@ -87,15 +86,15 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
                     paramDiff.setMessage("required parameter removed");
-                    return;
+                    break;
                 case DEFAULTABLE_PARAM:
                     paramDiff.setMessage("defaultable parameter removed");
-                    return;
+                    break;
                 case REST_PARAM:
                     paramDiff.setMessage("rest parameter removed");
-                    return;
+                    break;
                 default:
-                    paramDiff.setMessage("unknown parameter removed");
+                    paramDiff.setMessage("parameter removed");
             }
             paramDiffs.addChildDiff(paramDiff);
         });

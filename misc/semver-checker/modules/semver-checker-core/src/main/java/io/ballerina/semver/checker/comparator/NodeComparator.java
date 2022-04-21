@@ -19,8 +19,8 @@
 package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.semver.checker.diff.IDiff;
 import io.ballerina.semver.checker.diagnostic.DiagnosticReporter;
+import io.ballerina.semver.checker.diff.IDiff;
 
 import java.util.Optional;
 

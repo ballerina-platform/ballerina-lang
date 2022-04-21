@@ -80,8 +80,8 @@ public class CentralClientWrapper {
             Optional<SemanticVersion> compatibleVersion = selectCompatibleVersion(availableVersions, pkgVersion);
             if (compatibleVersion.isEmpty()) {
                 SemanticVersion highestVersion = getHighestVersion(availableVersions);
-                LOGGER.warn(String.format("local changes will be compared against the latest release version (%s) in " +
-                                "the central, as the current package version is lower than all the available versions.",
+                LOGGER.warn(String.format("current package version is lower than all the available versions in the " +
+                                "central. local changes will be compared against the latest release version ('%s').",
                         highestVersion));
                 return highestVersion;
             } else {

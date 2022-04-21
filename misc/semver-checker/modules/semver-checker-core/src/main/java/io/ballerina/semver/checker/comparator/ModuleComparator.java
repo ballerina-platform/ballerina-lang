@@ -85,7 +85,7 @@ public class ModuleComparator implements IComparator {
                         } else {
                             oldFunctions.put(funcNode.functionName().text(), funcNode);
                         }
-                        return;
+                        break;
                     case CLASS_DEFINITION:
                     case TYPE_DEFINITION:
                     case MODULE_VAR_DECL:

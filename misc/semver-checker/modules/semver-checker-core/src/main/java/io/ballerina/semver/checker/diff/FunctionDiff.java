@@ -31,13 +31,19 @@ public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
     @Override
     public void computeCompatibilityLevel() {
         if (newNode != null && oldNode == null) {
+            // if a function is newly added
             compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MINOR;
         } else if (newNode == null && oldNode != null) {
+            // if a function is removed
             compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MAJOR;
         } else {
-            // checks if both the old and current versions of function definition is not public and if so, all the
-            // sub-level incompatibilities can be discarded.
-            compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : super.getCompatibilityLevel();
+            // if the function is modified, checks if function definition is non-public and if so all the
+            // children-level incompatibilities can be discarded.
+            if (isPrivateFunction()) {
+                compatibilityLevel = CompatibilityLevel.PATCH;
+            } else {
+                super.computeCompatibilityLevel();
+            }
         }
     }
 

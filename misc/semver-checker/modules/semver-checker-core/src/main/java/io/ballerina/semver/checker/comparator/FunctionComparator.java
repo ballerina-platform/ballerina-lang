@@ -28,10 +28,10 @@ import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.semver.checker.diff.IDiff;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.FunctionDiff;
+import io.ballerina.semver.checker.diff.IDiff;
 import io.ballerina.semver.checker.diff.NodeDiff;
 
 import java.util.ArrayList;
