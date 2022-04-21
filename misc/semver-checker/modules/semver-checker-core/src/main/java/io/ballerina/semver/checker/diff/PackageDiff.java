@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.semver.checker.comparator.ModuleComparator;
 
 import java.util.ArrayList;
@@ -34,7 +35,14 @@ import java.util.Optional;
  */
 public class PackageDiff extends Diff {
 
+    private final Package newPackage;
+    private final Package oldPackage;
     private final List<ModuleDiff> moduleDiffs = new ArrayList<>();
+
+    public PackageDiff(Package newPackage, Package oldPackage) {
+        this.newPackage = newPackage;
+        this.oldPackage = oldPackage;
+    }
 
     public List<ModuleDiff> getModuleDiffs() {
         return Collections.unmodifiableList(moduleDiffs);
@@ -62,24 +70,34 @@ public class PackageDiff extends Diff {
 
         private final PackageDiff packageDiff;
 
-        public Modifier() {
-            packageDiff = new PackageDiff();
+        public Modifier(Package newPackage, Package oldPackage) {
+            packageDiff = new PackageDiff(newPackage, oldPackage);
         }
 
         @Override
-        public PackageDiff modify() {
-            return packageDiff;
+        public Optional<PackageDiff> modify() {
+            if (!packageDiff.getChildDiffs().isEmpty()) {
+                packageDiff.computeCompatibilityLevel();
+                packageDiff.setType(DiffType.MODIFIED);
+                return Optional.of(packageDiff);
+            }
+
+            return Optional.empty();
         }
 
         public void moduleAdded(Module module) {
             ModuleDiff moduleDiff = new ModuleDiff(module, null);
             moduleDiff.setType(DiffType.NEW);
+            // Todo: decide whether this should be backward incompatible
+            moduleDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
             packageDiff.addModuleDiff(moduleDiff);
         }
 
         public void moduleRemoved(Module module) {
             ModuleDiff moduleDiff = new ModuleDiff(null, module);
             moduleDiff.setType(DiffType.REMOVED);
+            // Todo: decide whether this should be backward compatible
+            moduleDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
             packageDiff.addModuleDiff(moduleDiff);
         }
 

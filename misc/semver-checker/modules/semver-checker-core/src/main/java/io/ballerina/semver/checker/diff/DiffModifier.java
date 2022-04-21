@@ -18,6 +18,8 @@
 
 package io.ballerina.semver.checker.diff;
 
+import java.util.Optional;
+
 /**
  * Definition for Ballerina source diff modifiers.
  *
@@ -25,5 +27,5 @@ package io.ballerina.semver.checker.diff;
  */
 public interface DiffModifier {
 
-    Diff modify();
+    Optional<? extends Diff> modify();
 }

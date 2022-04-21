@@ -65,6 +65,7 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
         if (!functionDiffs.getChildDiffs().isEmpty()) {
             functionDiffs.setType(DiffType.MODIFIED);
+            functionDiffs.computeCompatibilityLevel();
             return Optional.of(functionDiffs);
         }
 
@@ -175,12 +176,10 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         Optional<ReturnTypeDescriptorNode> oldReturn = oldNode.functionSignature().returnTypeDesc();
 
         if (newReturn.isPresent() && oldReturn.isEmpty()) {
-            NodeDiff<Node> nodeDiff = new NodeDiff<>(newReturn.get(), null, DiffType.NEW,
-                    CompatibilityLevel.MAJOR);
+            NodeDiff<Node> nodeDiff = new NodeDiff<>(newReturn.get(), null, CompatibilityLevel.MAJOR);
             nodeDiff.setMessage("return type is added to the function '" + newNode.functionName().text() + "'.");
         } else if (newReturn.isEmpty() && oldReturn.isPresent()) {
-            NodeDiff<Node> nodeDiff = new NodeDiff<>(null, oldReturn.get(), DiffType.REMOVED,
-                    CompatibilityLevel.MAJOR);
+            NodeDiff<Node> nodeDiff = new NodeDiff<>(null, oldReturn.get(), CompatibilityLevel.MAJOR);
             nodeDiff.setMessage("return type is removed from the function '" + newNode.functionName().text() + "'.");
         } else if (newReturn.isPresent()) {
             compareReturnTypes(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
@@ -197,7 +196,7 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
         if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
-            NodeDiff<Node> diff = new NodeDiff<>(newReturn, oldReturn, DiffType.MODIFIED, CompatibilityLevel.AMBIGUOUS);
+            NodeDiff<Node> diff = new NodeDiff<>(newReturn, oldReturn, CompatibilityLevel.AMBIGUOUS);
             diff.setMessage(String.format("return type is changed from: '%s' to: %s", oldType.toSourceCode(),
                     newType.toSourceCode()));
             return Optional.of(diff);
@@ -221,11 +220,9 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         FunctionBodyNode oldBody = oldNode.functionBody();
 
         if ((newBody == null && oldBody != null) || (newBody != null && oldBody == null)) {
-            functionBodyDiff.add(new NodeDiff<>(newBody, oldBody, DiffType.MODIFIED,
-                    CompatibilityLevel.PATCH));
+            functionBodyDiff.add(new NodeDiff<>(newBody, oldBody, CompatibilityLevel.PATCH));
         } else if (newBody != null && !newBody.toSourceCode().equals(oldBody.toSourceCode())) {
-            functionBodyDiff.add(new NodeDiff<>(newBody, oldBody, DiffType.MODIFIED,
-                    CompatibilityLevel.PATCH));
+            functionBodyDiff.add(new NodeDiff<>(newBody, oldBody, CompatibilityLevel.PATCH));
         }
 
         return functionBodyDiff;

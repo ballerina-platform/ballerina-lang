@@ -60,7 +60,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
 
         // Computes and populate diffs for newly added parameters.
         paramDiffExtractor.getAdditions().forEach((paramName, paramNode) -> {
-            NodeDiff<Node> paramDiff = new NodeDiff<>(paramNode, null, DiffType.NEW, CompatibilityLevel.UNKNOWN);
+            NodeDiff<Node> paramDiff = new NodeDiff<>(paramNode, null, CompatibilityLevel.UNKNOWN);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
                     paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
@@ -83,7 +83,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
 
         // Computes and populate diffs for removed parameters.
         paramDiffExtractor.getRemovals().forEach((paramName, paramNode) -> {
-            NodeDiff<Node> paramDiff = new NodeDiff<>(null, paramNode, DiffType.REMOVED, CompatibilityLevel.MAJOR);
+            NodeDiff<Node> paramDiff = new NodeDiff<>(null, paramNode, CompatibilityLevel.MAJOR);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
                     paramDiff.setMessage("required parameter removed");
@@ -107,7 +107,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
         });
 
         if (!paramDiffs.getChildDiffs().isEmpty()) {
-            paramDiffs.setType(DiffType.MODIFIED);
+            paramDiffs.computeCompatibilityLevel();
             return Optional.of(paramDiffs);
         }
 

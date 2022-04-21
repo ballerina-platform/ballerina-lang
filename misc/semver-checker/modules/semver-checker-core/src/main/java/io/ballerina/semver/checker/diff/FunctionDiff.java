@@ -29,20 +29,24 @@ public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
     }
 
     @Override
-    public CompatibilityLevel getCompatibilityLevel() {
-        compatibilityLevel = super.getCompatibilityLevel();
-        // checks if both the old and current versions of function definition is not public and if so, all the
-        // sub-level incompatibilities can be discarded.
-        if (isPrivateFunction()) {
-            compatibilityLevel = CompatibilityLevel.PATCH;
+    public void computeCompatibilityLevel() {
+        if (newNode != null && oldNode == null) {
+            compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MINOR;
+        } else if (newNode == null && oldNode != null) {
+            compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MAJOR;
+        } else {
+            // checks if both the old and current versions of function definition is not public and if so, all the
+            // sub-level incompatibilities can be discarded.
+            compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : super.getCompatibilityLevel();
         }
-
-        return compatibilityLevel;
     }
 
     private boolean isPrivateFunction() {
-        return newNode != null && oldNode != null
-                && newNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(QUALIFIER_PUBLIC))
-                && oldNode.qualifierList().stream().noneMatch(qualifier -> qualifier.text().equals(QUALIFIER_PUBLIC));
+        boolean isNewPrivate = newNode != null && newNode.qualifierList().stream().noneMatch(qualifier ->
+                qualifier.text().equals(QUALIFIER_PUBLIC));
+        boolean isOldPrivate = oldNode != null && oldNode.qualifierList().stream().noneMatch(qualifier ->
+                qualifier.text().equals(QUALIFIER_PUBLIC));
+
+        return (isNewPrivate && isOldPrivate) || (newNode == null && isOldPrivate) || (oldNode == null && isNewPrivate);
     }
 }

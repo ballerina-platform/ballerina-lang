@@ -53,7 +53,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         compareParamAnnotations(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
 
         if (!paramDiffs.getChildDiffs().isEmpty()) {
-            paramDiffs.setType(DiffType.MODIFIED);
+            paramDiffs.computeCompatibilityLevel();
             return Optional.of(paramDiffs);
         }
 
@@ -76,7 +76,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             return Optional.empty();
         }
 
-        NodeDiff<Node> diff = new NodeDiff<>(newParam, oldParam, DiffType.MODIFIED);
+        NodeDiff<Node> diff = new NodeDiff<>(newParam, oldParam);
         diff.setMessage(String.format("default value of the parameter: '%s' is changed from: '%s' to: '%s'",
                 ((DefaultableParameterNode) newParam).paramName(), oldExpr.toSourceCode().trim(),
                 newExpr.toSourceCode().trim()));
@@ -102,7 +102,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             addErrorDiagnostic("unsupported param type: " + newParam.kind() + " detected");
         } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
-            NodeDiff<Node> diff = new NodeDiff<>(newParam, oldNode, DiffType.MODIFIED, CompatibilityLevel.AMBIGUOUS);
+            NodeDiff<Node> diff = new NodeDiff<>(newParam, oldNode, CompatibilityLevel.AMBIGUOUS);
             diff.setMessage(String.format("parameter type changed from: '%s' to: %s", oldType.toSourceCode(),
                     newType.toSourceCode()));
             return Optional.of(diff);
@@ -112,7 +112,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
     }
 
     private Optional<NodeDiff<Node>> compareParamKind(ParameterNode newParam, ParameterNode oldParam) {
-        NodeDiff<Node> paramDiff = new NodeDiff<>(newParam, oldParam, DiffType.MODIFIED);
+        NodeDiff<Node> paramDiff = new NodeDiff<>(newParam, oldParam);
         paramDiff.setMessage("parameter kind is changed from '" + newParam.kind() + "' to '" + oldParam.kind());
         if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);

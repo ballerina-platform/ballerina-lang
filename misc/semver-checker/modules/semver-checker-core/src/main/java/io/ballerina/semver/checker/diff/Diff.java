@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -38,26 +39,37 @@ public class Diff implements IDiff {
         this.childDiffs = new ArrayList<>();
     }
 
+    @Override
     public DiffType getType() {
         return diffType;
     }
 
+    @Override
     public void setType(DiffType diffType) {
         this.diffType = diffType;
     }
 
+    @Override
     public CompatibilityLevel getCompatibilityLevel() {
+        return compatibilityLevel;
+    }
+
+    @Override
+    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
+        this.compatibilityLevel = compatibilityLevel;
+    }
+
+    @Override
+    public void computeCompatibilityLevel() {
         if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
             compatibilityLevel = childDiffs.stream()
                     .map(IDiff::getCompatibilityLevel)
                     .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                     .orElse(CompatibilityLevel.UNKNOWN);
         }
-
-        return compatibilityLevel;
     }
 
-    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-        this.compatibilityLevel = compatibilityLevel;
+    public List<IDiff> getChildDiffs() {
+        return Collections.unmodifiableList(childDiffs);
     }
 }

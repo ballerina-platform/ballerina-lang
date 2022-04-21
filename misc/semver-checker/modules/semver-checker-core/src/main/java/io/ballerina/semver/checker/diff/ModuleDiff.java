@@ -85,20 +85,26 @@ public class ModuleDiff extends Diff {
         }
 
         @Override
-        public ModuleDiff modify() {
-            return moduleDiff;
+        public Optional<ModuleDiff> modify() {
+            if (!moduleDiff.getChildDiffs().isEmpty()) {
+                moduleDiff.computeCompatibilityLevel();
+                moduleDiff.setType(DiffType.MODIFIED);
+                return Optional.of(moduleDiff);
+            }
+
+            return Optional.empty();
         }
 
         public void functionAdded(FunctionDefinitionNode function) {
             FunctionDiff functionDiff = new FunctionDiff(function, null);
-            functionDiff.setType(DiffType.NEW);
+            functionDiff.computeCompatibilityLevel();
             moduleDiff.addFunctionDiff(functionDiff);
             moduleDiff.setType(DiffType.MODIFIED);
         }
 
         public void functionRemoved(FunctionDefinitionNode function) {
             FunctionDiff functionDiff = new FunctionDiff(null, function);
-            functionDiff.setType(DiffType.REMOVED);
+            functionDiff.computeCompatibilityLevel();
             moduleDiff.addFunctionDiff(functionDiff);
             moduleDiff.setType(DiffType.MODIFIED);
         }
@@ -106,6 +112,7 @@ public class ModuleDiff extends Diff {
         public void functionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
             Optional<FunctionDiff> functionDiff = new FunctionComparator(newFunction, oldFunction).computeDiff();
             functionDiff.ifPresent(diff -> {
+                diff.computeCompatibilityLevel();
                 moduleDiff.setType(DiffType.MODIFIED);
                 moduleDiff.addFunctionDiff(diff);
             });

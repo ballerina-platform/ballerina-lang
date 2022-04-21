@@ -37,20 +37,25 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
     protected String message;
 
     public NodeDiff(T newNode, T oldNode) {
-        this(newNode, oldNode, DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
+        this(newNode, oldNode, CompatibilityLevel.UNKNOWN);
     }
 
-    public NodeDiff(T newNode, T oldNode, DiffType diffType) {
-        this(newNode, oldNode, diffType, CompatibilityLevel.UNKNOWN);
-    }
-
-    public NodeDiff(T newNode, T oldNode, DiffType diffType, CompatibilityLevel compatibilityLevel) {
+    public NodeDiff(T newNode, T oldNode, CompatibilityLevel compatibilityLevel) {
         this.newNode = newNode;
         this.oldNode = oldNode;
-        this.diffType = diffType;
         this.compatibilityLevel = compatibilityLevel;
         this.childDiffs = new ArrayList<>();
         this.message = null;
+
+        if (newNode != null && oldNode == null) {
+            this.diffType = DiffType.NEW;
+        } else if (newNode == null && oldNode != null) {
+            this.diffType = DiffType.REMOVED;
+        } else if (newNode != null) {
+            this.diffType = DiffType.MODIFIED;
+        } else {
+            this.diffType = DiffType.UNKNOWN;
+        }
     }
 
     @Override
@@ -75,19 +80,22 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
 
     @Override
     public CompatibilityLevel getCompatibilityLevel() {
-        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
-            compatibilityLevel = childDiffs.stream()
-                    .map(IDiff::getCompatibilityLevel)
-                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                    .orElse(CompatibilityLevel.UNKNOWN);
-        }
-
         return compatibilityLevel;
     }
 
     @Override
     public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
         this.compatibilityLevel = compatibilityLevel;
+    }
+
+    @Override
+    public void computeCompatibilityLevel() {
+        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
+            compatibilityLevel = childDiffs.stream()
+                    .map(IDiff::getCompatibilityLevel)
+                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
+                    .orElse(CompatibilityLevel.UNKNOWN);
+        }
     }
 
     public List<IDiff> getChildDiffs() {

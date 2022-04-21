@@ -57,8 +57,7 @@ public class ModuleComparator implements IComparator {
 
         extractFunctionDiffs(moduleDiffModifier);
         // Todo: implement analyzers for other module-level definitions
-        ModuleDiff modify = moduleDiffModifier.modify();
-        return Optional.of(moduleDiffModifier.modify());
+        return moduleDiffModifier.modify();
     }
 
     private void extractFunctionDiffs(ModuleDiff.Modifier diffModifier) {

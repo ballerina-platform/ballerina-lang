@@ -72,19 +72,22 @@ public class NodeListDiff<T extends Node> implements INodeListDiff<List<T>> {
 
     @Override
     public CompatibilityLevel getCompatibilityLevel() {
-        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
-            compatibilityLevel = childDiffs.stream()
-                    .map(NodeDiff::getCompatibilityLevel)
-                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                    .orElse(CompatibilityLevel.UNKNOWN);
-        }
-
         return compatibilityLevel;
     }
 
     @Override
     public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
         this.compatibilityLevel = compatibilityLevel;
+    }
+
+    @Override
+    public void computeCompatibilityLevel() {
+        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
+            compatibilityLevel = childDiffs.stream()
+                    .map(NodeDiff::getCompatibilityLevel)
+                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
+                    .orElse(CompatibilityLevel.UNKNOWN);
+        }
     }
 
     public Optional<String> getMessage() {
