@@ -403,7 +403,7 @@ public class ImmutableTypeCloner {
         List<BType> origTupleMemTypes = type.tupleTypes;
 
         BIntersectionType immutableType = type.immutableType;
-        if (unresolvedTypes.contains(type) && immutableType != null &&
+        if (immutableType != null &&
                 isDefinedInCurrentModuleInCurrentCompilation(env, type, immutableType, unresolvedTypes)) {
             return type.immutableType;
         } else {
@@ -588,10 +588,7 @@ public class ImmutableTypeCloner {
                                                                                             immutableRecordType,
                                                                                             symTable);
 
-        if (shouldUpdateTypeInformation(pkgID, origRecordType.tsymbol)) {
-            origRecordType.immutableType = immutableRecordIntersectionType;
-        }
-
+        origRecordType.immutableType = immutableRecordIntersectionType;
         immutableRecordType.mutableType = origRecordType;
 
         recordSymbol.type = immutableRecordType;
@@ -640,10 +637,7 @@ public class ImmutableTypeCloner {
                                                                                             immutableObjectType,
                                                                                             symTable);
 
-        if (shouldUpdateTypeInformation(pkgID, origObjectTSymbol)) {
-            origObjectType.immutableType = immutableObjectIntersectionType;
-        }
-
+        origObjectType.immutableType = immutableObjectIntersectionType;
         immutableObjectType.mutableType = origObjectType;
 
         objectSymbol.type = immutableObjectType;
@@ -660,10 +654,6 @@ public class ImmutableTypeCloner {
                                                                                     objectTypeNode, env);
         typeDefinition.pos = pos;
         return immutableObjectIntersectionType;
-    }
-
-    private static boolean shouldUpdateTypeInformation(PackageID pkgID, BTypeSymbol typeSymbol) {
-        return !(pkgID.isTestPkg && !typeSymbol.pkgID.isTestPkg);
     }
 
     public static void defineObjectFunctions(BObjectTypeSymbol immutableObjectSymbol,
