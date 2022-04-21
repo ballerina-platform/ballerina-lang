@@ -30,7 +30,7 @@ public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
 
     @Override
     public CompatibilityLevel getCompatibilityLevel() {
-        CompatibilityLevel compatibilityLevel = super.getCompatibilityLevel();
+        compatibilityLevel = super.getCompatibilityLevel();
         // checks if both the old and current versions of function definition is not public and if so, all the
         // sub-level incompatibilities can be discarded.
         if (isPrivateFunction()) {

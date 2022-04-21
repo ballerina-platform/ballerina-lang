@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -92,6 +93,10 @@ public class NodeListDiff<T extends Node> implements INodeListDiff<List<T>> {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public List<NodeDiff<? extends Node>> getChildDiffs() {
+        return Collections.unmodifiableList(childDiffs);
     }
 
     public void addChildDiff(NodeDiff<Node> childDiff) {

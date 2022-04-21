@@ -51,7 +51,7 @@ public class ModuleComparator implements IComparator {
 
     @Override
     public Optional<ModuleDiff> computeDiff() {
-        ModuleDiff.Modifier moduleDiffModifier = new ModuleDiff.Modifier();
+        ModuleDiff.Modifier moduleDiffModifier = new ModuleDiff.Modifier(newModule, oldModule);
         extractModuleLevelDefinitions(newModule, true);
         extractModuleLevelDefinitions(oldModule, false);
 

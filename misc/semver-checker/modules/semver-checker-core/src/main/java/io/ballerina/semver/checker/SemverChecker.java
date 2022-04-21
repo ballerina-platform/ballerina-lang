@@ -60,5 +60,4 @@ public class SemverChecker {
                         project.kind().name());
         }
     }
-
 }

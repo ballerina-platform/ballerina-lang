@@ -106,7 +106,12 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
             paramComparator.computeDiff().ifPresent(paramDiffs::addChildDiff);
         });
 
-        return Optional.of(paramDiffs);
+        if (!paramDiffs.getChildDiffs().isEmpty()) {
+            paramDiffs.setType(DiffType.MODIFIED);
+            return Optional.of(paramDiffs);
+        }
+
+        return Optional.empty();
     }
 
     private String getParameterName(Node paramNode) {

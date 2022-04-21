@@ -63,7 +63,12 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         functionDiffs.addChildDiffs(compareReturnTypeDesc());
         functionDiffs.addChildDiffs(compareFunctionBody());
 
-        return Optional.of(functionDiffs);
+        if (!functionDiffs.getChildDiffs().isEmpty()) {
+            functionDiffs.setType(DiffType.MODIFIED);
+            return Optional.of(functionDiffs);
+        }
+
+        return Optional.empty();
     }
 
     /**

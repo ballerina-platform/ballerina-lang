@@ -51,7 +51,13 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         compareParamType(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
         compareParamValue(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
         compareParamAnnotations(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
-        return Optional.of(paramDiffs);
+
+        if (!paramDiffs.getChildDiffs().isEmpty()) {
+            paramDiffs.setType(DiffType.MODIFIED);
+            return Optional.of(paramDiffs);
+        }
+
+        return Optional.empty();
     }
 
     private Optional<NodeDiff<Node>> compareParamAnnotations(ParameterNode newNode, ParameterNode oldNode) {

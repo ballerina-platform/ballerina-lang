@@ -48,13 +48,14 @@ public class PackageComparator implements IComparator {
         Map<String, Module> newModules = new HashMap<>();
         newPackage.modules().forEach(module -> newModules.put(module.moduleName().toString(), module));
         oldPackage.modules().forEach(module -> oldModules.put(module.moduleName().toString(), module));
-        DiffExtractor<Module> moduleDiffExtractor = new DiffExtractor<>(newModules, oldModules);
 
+        DiffExtractor<Module> moduleDiffExtractor = new DiffExtractor<>(newModules, oldModules);
         PackageDiff.Modifier packageDiffModifier = new PackageDiff.Modifier();
         moduleDiffExtractor.getAdditions().forEach((name, module) -> packageDiffModifier.moduleAdded(module));
         moduleDiffExtractor.getRemovals().forEach((name, module) -> packageDiffModifier.moduleRemoved(module));
         moduleDiffExtractor.getCommons().forEach((name, modules) -> packageDiffModifier.moduleChanged(modules.getKey(),
                 modules.getValue()));
+
         return Optional.of(packageDiffModifier.modify());
     }
 }

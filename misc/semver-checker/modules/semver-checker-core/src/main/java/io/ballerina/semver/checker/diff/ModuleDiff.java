@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
 
 import java.util.ArrayList;
@@ -36,8 +37,23 @@ import static io.ballerina.semver.checker.diff.NodeDiff.getUnifiedCompatibility;
  */
 public class ModuleDiff extends Diff {
 
+    private final Module newModule;
+    private final Module oldModule;
     // Todo: Implement diff objects for other top-level constructs
     private final List<FunctionDiff> functionDiffs = new ArrayList<>();
+
+    public ModuleDiff(Module newModule, Module oldModule) {
+        this.newModule = newModule;
+        this.oldModule = oldModule;
+    }
+
+    public Module getNewModule() {
+        return newModule;
+    }
+
+    public Module getOldModule() {
+        return oldModule;
+    }
 
     public List<FunctionDiff> getFunctionDiffs() {
         return Collections.unmodifiableList(functionDiffs);
@@ -64,8 +80,8 @@ public class ModuleDiff extends Diff {
 
         private final ModuleDiff moduleDiff;
 
-        public Modifier() {
-            moduleDiff = new ModuleDiff();
+        public Modifier(Module newModule, Module oldModule) {
+            moduleDiff = new ModuleDiff(newModule, oldModule);
         }
 
         @Override
@@ -89,9 +105,9 @@ public class ModuleDiff extends Diff {
 
         public void functionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
             Optional<FunctionDiff> functionDiff = new FunctionComparator(newFunction, oldFunction).computeDiff();
-            functionDiff.ifPresent(functionDiff1 -> {
+            functionDiff.ifPresent(diff -> {
                 moduleDiff.setType(DiffType.MODIFIED);
-                moduleDiff.addFunctionDiff(functionDiff1);
+                moduleDiff.addFunctionDiff(diff);
             });
         }
     }

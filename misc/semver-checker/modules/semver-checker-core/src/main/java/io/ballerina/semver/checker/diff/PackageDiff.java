@@ -72,13 +72,13 @@ public class PackageDiff extends Diff {
         }
 
         public void moduleAdded(Module module) {
-            ModuleDiff moduleDiff = new ModuleDiff();
+            ModuleDiff moduleDiff = new ModuleDiff(module, null);
             moduleDiff.setType(DiffType.NEW);
             packageDiff.addModuleDiff(moduleDiff);
         }
 
         public void moduleRemoved(Module module) {
-            ModuleDiff moduleDiff = new ModuleDiff();
+            ModuleDiff moduleDiff = new ModuleDiff(null, module);
             moduleDiff.setType(DiffType.REMOVED);
             packageDiff.addModuleDiff(moduleDiff);
         }

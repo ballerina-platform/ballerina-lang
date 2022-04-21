@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -33,7 +34,7 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
     protected DiffType diffType;
     protected CompatibilityLevel compatibilityLevel;
     protected final List<IDiff> childDiffs;
-    private String message;
+    protected String message;
 
     public NodeDiff(T newNode, T oldNode) {
         this(newNode, oldNode, DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
@@ -87,6 +88,10 @@ public class NodeDiff<T extends Node> implements INodeDiff<T> {
     @Override
     public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
         this.compatibilityLevel = compatibilityLevel;
+    }
+
+    public List<IDiff> getChildDiffs() {
+        return Collections.unmodifiableList(childDiffs);
     }
 
     public Optional<String> getMessage() {
