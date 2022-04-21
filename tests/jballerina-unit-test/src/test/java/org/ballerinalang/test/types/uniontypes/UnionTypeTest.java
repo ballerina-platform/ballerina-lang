@@ -183,7 +183,7 @@ public class UnionTypeTest {
 
     @Test
     public void testParenthesisedUnionType() {
-        BRunUtil.invoke(result, "testParenthesisedUnionType");
+        BRunUtil.invoke(result, "testParenthesisedSingletonUnionType");
     }
     
     @AfterClass
