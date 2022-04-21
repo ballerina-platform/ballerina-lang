@@ -26,24 +26,13 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  * @since 2.0.0
  */
 public class BallerinaTypeBuilder extends TypeBuilder {
-    private static final CompilerContext.Key<BallerinaTypeBuilder> TYPE_BUILDER_KEY = new CompilerContext.Key<>();
 
     public BallerinaTypeBuilder(CompilerContext context) {
-        context.put(TYPE_BUILDER_KEY, this);
-        this.XML_TYPE = new BallerinaXMLTypeBuilder(context);
-        this.MAP_TYPE = new BallerinaMapTypeBuilder(context);
-        this.FUTURE_TYPE = new BallerinaFutureTypeBuilder(context);
-        this.TYPEDESC_TYPE = new BallerinaTypeDescTypeBuilder(context);
-        this.STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
-        this.TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
-    }
-
-    public static TypeBuilder getInstance(CompilerContext context) {
-        TypeBuilder typeBuilder = context.get(TYPE_BUILDER_KEY);
-        if (typeBuilder == null) {
-            typeBuilder = new BallerinaTypeBuilder(context);
-        }
-
-        return typeBuilder;
+        XML_TYPE = new BallerinaXMLTypeBuilder(context);
+        MAP_TYPE = new BallerinaMapTypeBuilder(context);
+        FUTURE_TYPE = new BallerinaFutureTypeBuilder(context);
+        TYPEDESC_TYPE = new BallerinaTypeDescTypeBuilder(context);
+        STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
+        TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
     }
 }

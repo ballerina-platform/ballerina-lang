@@ -128,7 +128,7 @@ public class BallerinaTypes extends Types {
      */
     @Override
     public TypeBuilder builder() {
-        return BallerinaTypeBuilder.getInstance(context);
+        return new BallerinaTypeBuilder(context);
     }
 
     private boolean isValidTypeDef(BSymbol bSymbol) {
