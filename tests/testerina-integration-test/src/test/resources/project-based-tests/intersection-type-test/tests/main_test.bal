@@ -20,13 +20,21 @@ type ImmutableRecordType readonly & RecordType;
 
 type ImmutableObjectType readonly & ObjectType;
 
-type ImmutableClassType readonly & ClassType;
-
 type ImmutableObjectOrRecordType readonly & ObjectOrRecordType;
 
 type ImmutableTupleType readonly & TupleType;
 
 type ImmutableArrayType readonly & ArrayType;
+
+readonly class ObjectClass {
+    final RecordType & readonly rec;
+    final readonly & Uuid uuid;
+
+    function init(RecordType & readonly val, Uuid & readonly id) {
+        self.rec = val;
+        self.uuid = id;
+    }
+}
 
 @test:Config {
 }
@@ -36,10 +44,18 @@ function testIntersectionTypes() {
     test:assertEquals(returnedUuid, uuid);
 
     ImmutableRecordType recordVal = {id: 1};
-    RecordType returnedUuid = getRecordValue();
-    test:assertEquals(returnedUuid, recordVal);
+    RecordType returnedRecord = getRecordValue();
+    test:assertEquals(returnedRecord, recordVal);
 
-    ImmutableClassType objVal = ImmutableClassType(2);
-    ClassType returnedClass = getObjectValue();
-    test:assertEquals(returnedClass, objVal);
+    ImmutableObjectType objVal = new ObjectClass(recordVal, uuid);
+    test:assertEquals(objVal.rec.id, 1);
+
+    ImmutableTupleType tupleVal = [10, "abc"];
+    test:assertEquals(tupleVal[0], 10);
+
+    ImmutableArrayType arrayVal = [recordVal];
+    test:assertEquals(arrayVal[0].id, 1);
+
+    ImmutableObjectOrRecordType unionVal = objVal;
+    test:assertEquals(objVal.rec.id, 1);
 }

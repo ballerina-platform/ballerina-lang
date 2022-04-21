@@ -30,17 +30,9 @@ public type RecordType record {
 };
 
 public type ObjectType object {
-    int i;
-    boolean j;
+    RecordType rec;
+    Uuid uuid;
 };
-
-public type class ClassType {
-    int i;
-
-    function init(int n) {
-        self.n = n;
-    }
-}
 
 public type ObjectOrRecordType RecordType|ObjectType;
 
@@ -53,10 +45,6 @@ public function getUuid() returns Uuid {
     return uuid;
 }
 
-public function getRecordValue returns RecordType {
+public function getRecordValue() returns RecordType {
     return {id: 1};
-}
-
-public function getObjectValue() returns ClassType {
-    return new ClassType(2);
 }
