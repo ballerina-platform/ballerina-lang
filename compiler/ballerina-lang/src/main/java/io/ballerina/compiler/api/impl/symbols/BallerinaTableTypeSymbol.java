@@ -70,8 +70,11 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     @Override
     public List<String> keySpecifiers() {
-        List<String> specifiers = ((BTableType) this.getBType()).fieldNameList;
-        this.keySpecifiers = Collections.unmodifiableList(specifiers);
+        if (this.keySpecifiers.isEmpty()) {
+            List<String> specifiers = ((BTableType) this.getBType()).fieldNameList;
+            this.keySpecifiers = Collections.unmodifiableList(specifiers);
+        }
+
         return this.keySpecifiers;
     }
 
