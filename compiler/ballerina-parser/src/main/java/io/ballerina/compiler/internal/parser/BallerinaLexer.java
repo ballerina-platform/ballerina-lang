@@ -688,8 +688,11 @@ public class BallerinaLexer extends AbstractLexer {
      */
     private STToken processHexLiteral() {
         reader.advance(); // advance for "x" or "X"
+        boolean containsHexDigit = false;
+        
         while (isHexDigit(peek())) {
             reader.advance();
+            containsHexDigit = true;
         }
 
         int nextChar = peek();
@@ -721,6 +724,9 @@ public class BallerinaLexer extends AbstractLexer {
                 break;
             case 'p':
             case 'P':
+                if (!containsHexDigit) {
+                    reportLexerError(DiagnosticErrorCode.ERROR_MISSING_HEX_NUMBER_AFTER_HEX_INDICATOR);
+                }
                 return processExponent(true);
             default:
                 return getHexIntegerLiteral();

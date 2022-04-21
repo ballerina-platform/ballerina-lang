@@ -470,6 +470,22 @@ function assertTrue (any|error actual) {
     return assertEquality(true, actual);
 }
 
+function testQueryExpWithinQueryAction() returns error? {
+    int[][] data = [[1, 2], [2, 3, 4]];
+    int sumOfEven = 0;
+    check from int[] arr in data
+        do {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            check from int i in evenNumbers
+                do {
+                    sumOfEven += i;
+                };
+        };
+    assertEquality(8, sumOfEven);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

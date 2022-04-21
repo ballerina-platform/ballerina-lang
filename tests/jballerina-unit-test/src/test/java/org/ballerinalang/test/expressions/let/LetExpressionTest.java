@@ -146,7 +146,11 @@ public class LetExpressionTest {
                 {"testLetWithClass"},
                 {"testLetWithBLangXMLTextLiteral"},
                 {"testLetExprWithBLangXMLCommentLiteral"},
-                {"testLetExprWithBLangXMLQuotedString"}
+                {"testLetExprWithBLangXMLQuotedString"},
+                {"testLetExprWithQueryExpr"},
+                {"testLetExprWithAnonFunc"},
+                {"testLetExprWithObjectConstructorExpr"},
+                {"testLetExprWithNewExpr"}
         };
     }
 

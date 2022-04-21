@@ -5499,16 +5499,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
-        boolean cleanPrevEnvs = false;
-        if (data.prevEnvs.empty()) {
-            data.prevEnvs.push(data.env);
-            cleanPrevEnvs = true;
-        }
-
         if (data.breakToParallelQueryEnv) {
             data.queryEnvs.push(data.prevEnvs.peek());
         } else {
             data.queryEnvs.push(data.env);
+            data.prevEnvs.push(data.env);
         }
         data.queryFinalClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
@@ -5521,7 +5516,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 types.checkType(queryExpr.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         data.queryFinalClauses.pop();
         data.queryEnvs.pop();
-        if (cleanPrevEnvs) {
+        if (!data.breakToParallelQueryEnv) {
             data.prevEnvs.pop();
         }
 
@@ -5730,8 +5725,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
-        data.prevEnvs.push(data.env);
-        data.queryEnvs.push(data.prevEnvs.peek());
+        if (data.breakToParallelQueryEnv) {
+            data.queryEnvs.push(data.prevEnvs.peek());
+        } else {
+            data.queryEnvs.push(data.env);
+            data.prevEnvs.push(data.env);
+        }
         BLangDoClause doClause = queryAction.getDoClause();
         data.queryFinalClauses.push(doClause);
         List<BLangNode> clauses = queryAction.getQueryClauses();
@@ -5744,13 +5743,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 types.checkType(doClause.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         data.queryFinalClauses.pop();
         data.queryEnvs.pop();
-        data.prevEnvs.pop();
+        if (!data.breakToParallelQueryEnv) {
+            data.prevEnvs.pop();
+        }
     }
 
     @Override
     public void visit(BLangFromClause fromClause, AnalyzerData data) {
         boolean prevBreakToParallelEnv = data.breakToParallelQueryEnv;
-        data.breakToParallelQueryEnv = true;
+        BLangExpression collection = fromClause.collection;
+        if (collection.getKind() == NodeKind.QUERY_EXPR ||
+                (collection.getKind() == NodeKind.GROUP_EXPR
+                        && ((BLangGroupExpr) collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
+            data.breakToParallelQueryEnv = true;
+        }
         SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, data.queryEnvs.pop());
         fromClause.env = fromEnv;
         data.queryEnvs.push(fromEnv);
@@ -5764,7 +5770,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangJoinClause joinClause, AnalyzerData data) {
         boolean prevBreakEnv = data.breakToParallelQueryEnv;
-        data.breakToParallelQueryEnv = true;
+        BLangExpression collection = joinClause.collection;
+        if (collection.getKind() == NodeKind.QUERY_EXPR ||
+                (collection.getKind() == NodeKind.GROUP_EXPR
+                        && ((BLangGroupExpr) collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
+            data.breakToParallelQueryEnv = true;
+        }
         SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, data.queryEnvs.pop());
         joinClause.env = joinEnv;
         data.queryEnvs.push(joinEnv);
