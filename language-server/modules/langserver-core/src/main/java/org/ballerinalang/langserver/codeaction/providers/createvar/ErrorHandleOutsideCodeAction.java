@@ -112,7 +112,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = unionTypeDesc.memberTypeDescriptors().stream()
-                .filter(member -> member.typeKind() != TypeDescKind.ERROR)
+                .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
                 .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, edits, context).orElseThrow())
                 .collect(Collectors.joining("|"));
 
