@@ -48,8 +48,6 @@ import java.util.Optional;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
@@ -128,21 +126,21 @@ public class TypeBuildersTest {
         assertEquals(xmlTypeSymbol.signature(), signature);
     }
 
-    // TODO: Check if the signatures are valid
+    // TODO: Check and enable after validating #35882
     @DataProvider(name = "xmlTypeParamsFromSourceProvider")
     private Object[][] getXmlTypeParamsFromSource() {
         return new Object[][] {
-                {"XmlEle", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Element>"},
-                {"XmlPi", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:ProcessingInstruction>"},
-                {"XmlCmnt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Comment>"},
-                {"XmlTxt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Text>"},
-                {"XmlUnionA", UNION, "xml<ballerina/lang.xml:0.0.0:Element|ballerina/lang.xml:0.0.0:ProcessingInstruction|ballerina/lang.xml:0.0.0:Text>"},
-                {"XmlUnionB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlEle|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:XmlCmnt>"},
-                {"MixXmlA", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlUnionB>"},
-                {"MixXmlB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlPi|testorg/typesapi.builder:1.0.0:MixXmlC>"},
-                {"MixXmlC", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:MixXmlA>"},
-                {"NewEle", TYPE_REFERENCE, "xml<testorg/typesapi.builder:1.0.0:XmlEle>"},
-                {"EleTxtCmnt", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlCmnt|ballerina/lang.xml:0.0.0:Text|testorg/typesapi.builder:1.0.0:NewEle>"},
+//                {"XmlEle", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Element>"},
+//                {"XmlPi", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:ProcessingInstruction>"},
+//                {"XmlCmnt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Comment>"},
+//                {"XmlTxt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Text>"},
+//                {"XmlUnionA", UNION, "xml<ballerina/lang.xml:0.0.0:Element|ballerina/lang.xml:0.0.0:ProcessingInstruction|ballerina/lang.xml:0.0.0:Text>"},
+//                {"XmlUnionB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlEle|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:XmlCmnt>"},
+//                {"MixXmlA", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlUnionB>"},
+//                {"MixXmlB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlPi|testorg/typesapi.builder:1.0.0:MixXmlC>"},
+//                {"MixXmlC", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:MixXmlA>"},
+//                {"NewEle", TYPE_REFERENCE, "xml<testorg/typesapi.builder:1.0.0:XmlEle>"},
+//                {"EleTxtCmnt", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlCmnt|ballerina/lang.xml:0.0.0:Text|testorg/typesapi.builder:1.0.0:NewEle>"},
         };
     }
 
