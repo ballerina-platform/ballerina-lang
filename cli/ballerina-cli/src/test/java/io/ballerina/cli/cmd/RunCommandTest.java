@@ -247,8 +247,6 @@ public class RunCommandTest extends BaseCommandTest {
 
         try {
             runCommand.execute();
-            String buildLog = readOutput(true);
-            System.out.println(buildLog);
         } catch (BLauncherException e) {
             Assert.assertTrue(e.getDetailedMessages().get(0).contains("unmatched command argument found"));
         }
