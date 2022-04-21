@@ -58,6 +58,12 @@ public class ShellWrapper {
         return instance;
     }
 
+    /**
+     * Evaluate and returns result for a given source snippet.
+     *
+     * @param source evaluated value
+     * @return  result after the execution
+     */
     public BalShellResponse getResult(String source){
         BalShellResponse output = new BalShellResponse();
         PrintStream original = System.out;
@@ -85,6 +91,11 @@ public class ShellWrapper {
         return output;
     }
 
+    /**
+     * Get data associated with temp file created by shell.
+     *
+     * @return temp file uri as a strings and its content
+     */
     public ShellFileSourceResponse getShellFileSource(){
         String fileContent;
         try {
@@ -96,10 +107,20 @@ public class ShellWrapper {
         return null;
     }
 
+    /**
+     * Get values and types of user defined variables.
+     *
+     * @return list of variables with its name, type and current value
+     */
     public List<Map<String, String>> getAvailableVariables(){
         return evaluator.availableVariablesAsMap();
     }
 
+    /**
+     * Reset evaluator so that the execution can be start over.
+     *
+     * returns true when completed
+     */
     public boolean restart(){
         evaluator.reset();
         this.initializeEvaluator();
