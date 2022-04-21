@@ -60,7 +60,7 @@
               "character": 4
             }
           },
-          "newText": "HelloReply|E1 sayHello = "
+          "newText": "HelloReply sayHello = "
         },
         {
           "range": {

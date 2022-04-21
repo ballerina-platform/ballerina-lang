@@ -231,6 +231,21 @@ public class CommonUtil {
     }
 
     /**
+     * Convert a given pair of start and end offsets to LSP Range.
+     *
+     * @param startOffset starting offset
+     * @param endOffset end offset
+     * @param document text document where the position resides
+     * @return {@link Range} calculated range
+     */
+    public static Range toRange(int startOffset, int endOffset, TextDocument document) {
+        LinePosition startPos = document.linePositionFrom(startOffset);
+        LinePosition endPos = document.linePositionFrom(endOffset);
+
+        return new Range(CommonUtil.toPosition(startPos), CommonUtil.toPosition(endPos));
+    }
+
+    /**
      * Get the text edit for an auto import statement.
      * Here we do not check whether the package is not already imported or a predeclared lang-lib, Particular
      * check should be done before usage
