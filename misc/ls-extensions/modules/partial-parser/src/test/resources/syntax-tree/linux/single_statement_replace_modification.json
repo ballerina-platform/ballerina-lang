@@ -123,17 +123,57 @@
   "initializer": {
     "kind": "BinaryExpression",
     "lhsExpr": {
-      "kind": "SimpleNameReference",
-      "name": {
-        "kind": "IdentifierToken",
-        "isToken": true,
-        "value": "firstName",
-        "isMissing": false,
+      "kind": "BinaryExpression",
+      "lhsExpr": {
+        "kind": "SimpleNameReference",
+        "name": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "firstName",
+          "isMissing": false,
+          "position": {
+            "startLine": 0,
+            "startColumn": 18,
+            "endLine": 0,
+            "endColumn": 27
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "firstName ",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ],
         "position": {
           "startLine": 0,
           "startColumn": 18,
           "endLine": 0,
           "endColumn": 27
+        },
+        "typeData": {}
+      },
+      "operator": {
+        "kind": "PlusToken",
+        "isToken": true,
+        "value": "+",
+        "isMissing": false,
+        "position": {
+          "startLine": 0,
+          "startColumn": 28,
+          "endLine": 0,
+          "endColumn": 29
         },
         "leadingMinutiae": [],
         "trailingMinutiae": [
@@ -144,7 +184,47 @@
           }
         ]
       },
-      "source": "firstName ",
+      "rhsExpr": {
+        "kind": "SimpleNameReference",
+        "name": {
+          "kind": "IdentifierToken",
+          "isToken": true,
+          "value": "middleName",
+          "isMissing": false,
+          "position": {
+            "startLine": 0,
+            "startColumn": 30,
+            "endLine": 0,
+            "endColumn": 40
+          },
+          "leadingMinutiae": [],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "minutiae": " ",
+              "isInvalid": false
+            }
+          ]
+        },
+        "source": "middleName ",
+        "syntaxDiagnostics": [],
+        "leadingMinutiae": [],
+        "trailingMinutiae": [
+          {
+            "kind": "WHITESPACE_MINUTIAE",
+            "minutiae": " ",
+            "isInvalid": false
+          }
+        ],
+        "position": {
+          "startLine": 0,
+          "startColumn": 30,
+          "endLine": 0,
+          "endColumn": 40
+        },
+        "typeData": {}
+      },
+      "source": "firstName + middleName ",
       "syntaxDiagnostics": [],
       "leadingMinutiae": [],
       "trailingMinutiae": [
@@ -158,7 +238,7 @@
         "startLine": 0,
         "startColumn": 18,
         "endLine": 0,
-        "endColumn": 27
+        "endColumn": 40
       },
       "typeData": {}
     },
@@ -169,9 +249,9 @@
       "isMissing": false,
       "position": {
         "startLine": 0,
-        "startColumn": 28,
+        "startColumn": 41,
         "endLine": 0,
-        "endColumn": 29
+        "endColumn": 42
       },
       "leadingMinutiae": [],
       "trailingMinutiae": [
@@ -187,30 +267,30 @@
       "literalToken": {
         "kind": "StringLiteralToken",
         "isToken": true,
-        "value": "\"Cooper\"",
+        "value": "\"Hofstadter\"",
         "isMissing": false,
         "position": {
           "startLine": 0,
-          "startColumn": 30,
+          "startColumn": 43,
           "endLine": 0,
-          "endColumn": 38
+          "endColumn": 55
         },
         "leadingMinutiae": [],
         "trailingMinutiae": []
       },
-      "source": "\"Cooper\"",
+      "source": "\"Hofstadter\"",
       "syntaxDiagnostics": [],
       "leadingMinutiae": [],
       "trailingMinutiae": [],
       "position": {
         "startLine": 0,
-        "startColumn": 30,
+        "startColumn": 43,
         "endLine": 0,
-        "endColumn": 38
+        "endColumn": 55
       },
       "typeData": {}
     },
-    "source": "firstName + \"Cooper\"",
+    "source": "firstName + middleName + \"Hofstadter\"",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
     "trailingMinutiae": [],
@@ -218,7 +298,7 @@
       "startLine": 0,
       "startColumn": 18,
       "endLine": 0,
-      "endColumn": 38
+      "endColumn": 55
     },
     "typeData": {}
   },
@@ -229,23 +309,35 @@
     "isMissing": false,
     "position": {
       "startLine": 0,
-      "startColumn": 38,
+      "startColumn": 55,
       "endLine": 0,
-      "endColumn": 39
+      "endColumn": 56
     },
     "leadingMinutiae": [],
-    "trailingMinutiae": []
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
+      }
+    ]
   },
-  "source": "string fullName = firstName + \"Cooper\";",
+  "source": "string fullName = firstName + middleName + \"Hofstadter\";\n",
   "kind": "LocalVarDecl",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
+    }
+  ],
   "position": {
     "startLine": 0,
     "startColumn": 0,
     "endLine": 0,
-    "endColumn": 39
+    "endColumn": 56
   },
   "typeData": {}
 }
