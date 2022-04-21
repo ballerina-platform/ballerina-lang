@@ -43,7 +43,7 @@ import java.util.Optional;
 /**
  * Code Action to make function isolate.
  *
- * @since 2201.2.0
+ * @since 2201.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class MakeFunctionIsolatedCodeAction extends AbstractCodeActionProvider {

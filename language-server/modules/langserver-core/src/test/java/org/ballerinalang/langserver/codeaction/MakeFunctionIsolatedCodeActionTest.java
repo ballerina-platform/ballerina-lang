@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Test Cases for CodeActions.
  *
- * @since 2201.2.0
+ * @since 2201.1.0
  */
 public class MakeFunctionIsolatedCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")
