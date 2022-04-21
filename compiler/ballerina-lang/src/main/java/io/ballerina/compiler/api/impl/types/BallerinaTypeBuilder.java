@@ -26,19 +26,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  * @since 2.0.0
  */
 public class BallerinaTypeBuilder extends TypeBuilder {
-    private static final CompilerContext.Key<BallerinaTypeBuilder> TYPE_BUILDER_KEY = new CompilerContext.Key<>();
 
     public BallerinaTypeBuilder(CompilerContext context) {
-        context.put(TYPE_BUILDER_KEY, this);
-        this.XML_TYPE = new BallerinaXMLTypeBuilder(context);
-    }
-
-    public static TypeBuilder getInstance(CompilerContext context) {
-        TypeBuilder typeBuilder = context.get(TYPE_BUILDER_KEY);
-        if (typeBuilder == null) {
-            typeBuilder = new BallerinaTypeBuilder(context);
-        }
-
-        return typeBuilder;
+        XML_TYPE = new BallerinaXMLTypeBuilder(context);
     }
 }
