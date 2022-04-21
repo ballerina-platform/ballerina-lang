@@ -3886,18 +3886,25 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BStreamType actualStreamType = (BStreamType) actualType;
                 if (actualStreamType.completionType != null) {
                     BType completionType = actualStreamType.completionType;
-                    if (completionType.tag != symTable.nilType.tag && !types.containsErrorType(completionType)) {
+                    if (!types.isAssignable(completionType, symTable.errorOrNilType)) {
                         dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, completionType.toString());
                         data.resultType = symTable.semanticError;
                         return;
                     }
                 }
 
-                if (!cIExpr.initInvocation.argExprs.isEmpty()) {
+                BUnionType expectedNextReturnType =
+                        createNextReturnType(cIExpr.pos, (BStreamType) actualType, data);
+                if (cIExpr.initInvocation.argExprs.isEmpty()) {
+                    if (!types.containsNilType(actualStreamType.completionType)) {
+                        dlog.error(cIExpr.pos, DiagnosticErrorCode.INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR,
+                                expectedNextReturnType);
+                        data.resultType = symTable.semanticError;
+                        return;
+                    }
+                } else {
                     BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, symTable.noType, data);
-                    BUnionType expectedNextReturnType =
-                            createNextReturnType(cIExpr.pos, (BStreamType) actualType, data);
                     if (constructType.tag != TypeTags.OBJECT) {
                         dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
                                 expectedNextReturnType, constructType);
@@ -3911,8 +3918,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                 .lookup(Names.ABSTRACT_STREAM_CLOSEABLE_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, closeableIteratorType)) {
                             dlog.error(iteratorExpr.pos,
-                                       DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
-                                       expectedNextReturnType, constructType);
+                                    DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
+                                    expectedNextReturnType, constructType);
                             data.resultType = symTable.semanticError;
                             return;
                         }

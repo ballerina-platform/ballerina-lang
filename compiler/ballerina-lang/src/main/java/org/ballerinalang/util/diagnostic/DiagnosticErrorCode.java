@@ -492,6 +492,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MISSING_REQUIRED_METHOD_NEXT("BCE3206", "missing.required.method.next"),
     ORDER_BY_NOT_SUPPORTED("BCE3207", "order.by.not.supported"),
     INVALID_NEXT_METHOD_RETURN_TYPE("BCE3208", "invalid.next.method.return.type"),
+    INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR("BCE3209", "invalid.unbounded.stream.constructor.iterator"),
 
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("BCE3300", "invalid.table.constraint.subtype"),
