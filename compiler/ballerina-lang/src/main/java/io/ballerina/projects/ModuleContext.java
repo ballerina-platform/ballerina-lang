@@ -25,6 +25,7 @@ import io.ballerina.projects.internal.CompilerPhaseRunner;
 import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -87,6 +88,7 @@ class ModuleContext {
     private final Bootstrap bootstrap;
     private ModuleCompilationState moduleCompState;
     private Set<ModuleLoadRequest> allModuleLoadRequests = null;
+    private Set<ModuleLoadRequest> allTestModuleLoadRequests = null;
 
     ModuleContext(Project project,
                   ModuleId moduleId,
@@ -214,24 +216,9 @@ class ModuleContext {
         if (allModuleLoadRequests != null) {
             return allModuleLoadRequests;
         }
-        allModuleLoadRequests = new LinkedHashSet<>();
+        allModuleLoadRequests = new OverwritableLinkedHashSet();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            for (ModuleLoadRequest request : docContext.moduleLoadRequests(moduleName(),
-                    PackageDependencyScope.DEFAULT)) {
-                if (allModuleLoadRequests.contains(request) && !request.locations().isEmpty()) {
-                    // If module load request already exists, and it's `locations` is not empty
-                    // add `locations` to already existing module load request
-                    for (ModuleLoadRequest allModuleLoadRequest : allModuleLoadRequests) {
-                        if (allModuleLoadRequest.equals(request)) {
-                            allModuleLoadRequest.addAllLocations(request.locations());
-                        }
-                    }
-                } else {
-                    // If module load request does not exists, add it to `allModuleLoadRequests`
-                    allModuleLoadRequests.add(request);
-                }
-            }
             moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.DEFAULT));
         }
 
@@ -240,12 +227,16 @@ class ModuleContext {
     }
 
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
+        if (allTestModuleLoadRequests != null) {
+            return allTestModuleLoadRequests;
+        }
+        allTestModuleLoadRequests = new OverwritableLinkedHashSet();
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : testDocContextMap.values()) {
             moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY));
         }
 
-        allModuleLoadRequests.addAll(moduleLoadRequests);
+        allTestModuleLoadRequests.addAll(moduleLoadRequests);
         return moduleLoadRequests;
     }
 
@@ -559,5 +550,36 @@ class ModuleContext {
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
                 srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
                 this.moduleDescDependencies, this.resourceContextMap, this.testResourceContextMap);
+    }
+
+    /**
+     * An extended LinkedHashSet which can overwrite existing elements.
+     */
+    static class OverwritableLinkedHashSet extends LinkedHashSet<ModuleLoadRequest> {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public boolean add(ModuleLoadRequest moduleLoadRequest) {
+            if (this.contains(moduleLoadRequest)) {
+                Set<Location> locations = new HashSet<>();
+                ModuleLoadRequest finalModuleLoadRequest = moduleLoadRequest;
+                ModuleLoadRequest oldLoadRequest = this.stream().filter(
+                        oldRequest -> oldRequest.equals(finalModuleLoadRequest)).findFirst().orElseThrow();
+                locations.addAll(oldLoadRequest.locations());
+                locations.addAll(moduleLoadRequest.locations());
+
+                PackageDependencyScope scope = oldLoadRequest.scope() == PackageDependencyScope.DEFAULT ?
+                        oldLoadRequest.scope() : moduleLoadRequest.scope();
+                moduleLoadRequest = new ModuleLoadRequest(
+                        oldLoadRequest.orgName().orElse(null),
+                        oldLoadRequest.moduleName(),
+                        scope,
+                        oldLoadRequest.dependencyResolvedType(),
+                        locations);
+                this.remove(oldLoadRequest);
+            }
+            return super.add(moduleLoadRequest);
+        }
     }
 }

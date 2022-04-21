@@ -214,7 +214,7 @@ public class PackageResolution {
     }
 
     private LinkedHashSet<ModuleLoadRequest> getModuleLoadRequestsOfDirectDependencies() {
-        LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new LinkedHashSet<>();
+        LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
             allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests());
