@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.eventsync;
 
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.eventsync.EventSyncException;
 import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
+import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class EventSyncPubSubHolder {
     }
     
     public EventPublisher getPublisher(PublisherKind publisherKind) throws EventSyncException {
-        if (publisherMap.get(publisherKind) == null) {
+        if (publisherMap.containsKey(publisherKind)) {
             throw new EventSyncException("No publishers for the publisher kind");
         }
         return publisherMap.get(publisherKind);

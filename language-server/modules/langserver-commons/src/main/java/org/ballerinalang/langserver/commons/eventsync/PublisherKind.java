@@ -18,7 +18,7 @@
 package org.ballerinalang.langserver.commons.eventsync;
 
 /**
- * Represents the kinds of publishing events.
+ * Represents the kinds of event publishers.
  *
  * @since 2201.1.0
  */

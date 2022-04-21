@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Represents the language server event subscriber.
@@ -40,8 +39,7 @@ public interface EventSubscriber {
     List<PublisherKind> publisherKinds();
     
     void onEvent(ExtendedLanguageClient client, DocumentServiceContext context, 
-                 LanguageServerContext languageServerContext,
-                 CompletableFuture<Boolean> latestScheduled);
+                 LanguageServerContext languageServerContext);
     
     String getName();
 }

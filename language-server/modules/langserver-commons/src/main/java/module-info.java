@@ -27,4 +27,5 @@ module io.ballerina.language.server.commons {
     exports org.ballerinalang.langserver.commons.registration;
     exports org.ballerinalang.langserver.commons.eventsync.spi;
     exports org.ballerinalang.langserver.commons.eventsync;
+    exports org.ballerinalang.langserver.commons.eventsync.exceptions;
 }

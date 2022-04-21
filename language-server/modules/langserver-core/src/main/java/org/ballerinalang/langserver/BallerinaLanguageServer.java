@@ -172,7 +172,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     HashMap.class);
         }
-        // Subscribe for document sync events
+        // Subscribe document sync events.
         EventSyncPubSubHolder subscribersHolder = EventSyncPubSubHolder.getInstance(this.serverContext);
 
         // Set AST provider and examples provider capabilities

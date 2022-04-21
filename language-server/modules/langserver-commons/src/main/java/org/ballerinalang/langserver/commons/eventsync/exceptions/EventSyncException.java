@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.commons.eventsync;
+package org.ballerinalang.langserver.commons.eventsync.exceptions;
 
 /**
  * Exception for Language Server Event Subscribers.

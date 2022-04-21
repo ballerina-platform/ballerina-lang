@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Publishes diagnostics.
@@ -45,10 +44,9 @@ public class PublishDiagnosticSubscriber implements EventSubscriber {
     
     @Override
     public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
-                        LanguageServerContext languageServerContext,
-                        CompletableFuture<Boolean> scheduledFuture) {
+                        LanguageServerContext languageServerContext) {
         DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(languageServerContext);
-        diagnosticsHelper.schedulePublishDiagnostics(client, context, scheduledFuture);
+        diagnosticsHelper.schedulePublishDiagnostics(client, context);
     }
 
     @Override

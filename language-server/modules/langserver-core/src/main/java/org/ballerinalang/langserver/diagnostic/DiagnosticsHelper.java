@@ -88,17 +88,6 @@ public class DiagnosticsHelper {
         compileAndSendDiagnostics(workspaceManager, projectRoot, client);
     }
 
-    public synchronized void schedulePublishDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context,
-                                                        CompletableFuture<Boolean> scheduledFuture) {
-        WorkspaceManager workspaceManager = context.workspace();
-        Path projectRoot = workspaceManager.projectRoot(context.filePath());
-        scheduledFuture
-                .thenApplyAsync((bool) -> workspaceManager.waitAndGetPackageCompilation(projectRoot))
-                .thenAccept(compilation ->
-                        compilation.ifPresent(pkgCompilation ->
-                                compileAndSendDiagnostics(client, projectRoot, pkgCompilation, workspaceManager)));
-    }
-
     /**
      * Schedule the diagnostics publishing for a project specified with the given project root.
      * This particular diagnostics publishing API is used for publishing diagnostics through the workspace service.

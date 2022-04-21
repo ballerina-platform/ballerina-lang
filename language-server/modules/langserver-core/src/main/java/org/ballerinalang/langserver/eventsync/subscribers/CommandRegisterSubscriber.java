@@ -28,7 +28,6 @@ import org.eclipse.lsp4j.ServerCapabilities;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 import static org.ballerinalang.langserver.util.LSClientUtil.compileAndRegisterCommands;
 import static org.ballerinalang.langserver.util.LSClientUtil.isDynamicCommandRegistrationSupported;
@@ -49,8 +48,8 @@ public class CommandRegisterSubscriber implements EventSubscriber {
     
     @Override
     public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
-                        LanguageServerContext languageServerContext, CompletableFuture<Boolean> scheduledFuture) {
-        checkAndRegisterCommands(context, scheduledFuture);
+                        LanguageServerContext languageServerContext) {
+        checkAndRegisterCommands(context);
     }
 
     @Override
@@ -63,10 +62,8 @@ public class CommandRegisterSubscriber implements EventSubscriber {
      * LS client side.
      *
      * @param context           Document service context
-     * @param scheduledFuture   Boolean Completable Future
      */
-    public static synchronized void checkAndRegisterCommands(DocumentServiceContext context,
-                                                             CompletableFuture<Boolean> scheduledFuture) {
+    public static synchronized void checkAndRegisterCommands(DocumentServiceContext context) {
         LanguageServerContext serverContext = context.languageServercontext();
         LSClientLogger clientLogger = LSClientLogger.getInstance(serverContext);
 
@@ -80,9 +77,8 @@ public class CommandRegisterSubscriber implements EventSubscriber {
             clientLogger.logTrace("Not registering commands: client doesn't support dynamic commands registration");
             return;
         }
-        scheduledFuture
-                .thenApplyAsync(aBoolean -> context.workspace().waitAndGetPackageCompilation(context.filePath()))
-                .thenAccept(compilation -> compilation.ifPresent(pkgCompilation ->
-                        compileAndRegisterCommands(serverContext, clientLogger, serverCapabilities, pkgCompilation)));
+        context.workspace().waitAndGetPackageCompilation(context.filePath())
+                .ifPresent(pkgCompilation 
+                        -> compileAndRegisterCommands(serverContext, clientLogger, serverCapabilities, pkgCompilation));
     }
 }
