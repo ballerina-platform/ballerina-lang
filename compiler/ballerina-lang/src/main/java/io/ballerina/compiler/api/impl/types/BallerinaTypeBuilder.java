@@ -35,6 +35,7 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         this.FUTURE_TYPE = new BallerinaFutureTypeBuilder(context);
         this.TYPEDESC_TYPE = new BallerinaTypeDescTypeBuilder(context);
         this.STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
+        this.TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
     }
 
     public static TypeBuilder getInstance(CompilerContext context) {
