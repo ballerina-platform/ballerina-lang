@@ -29,6 +29,8 @@ public type RecordType record {
     int id;
 };
 
+type ImmutableRecordType readonly & RecordType;
+
 public type ObjectType object {
     RecordType rec;
     Uuid uuid;
@@ -45,6 +47,6 @@ public function getUuid() returns Uuid {
     return uuid;
 }
 
-public function getRecordValue() returns RecordType {
+public function getRecordValue() returns ImmutableRecordType {
     return {id: 1};
 }

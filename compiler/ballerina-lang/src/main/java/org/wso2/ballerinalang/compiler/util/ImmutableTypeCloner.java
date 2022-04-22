@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -815,11 +816,18 @@ public class ImmutableTypeCloner {
             return true;
         }
 
-        if (!immutableType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
+        PackageID currentPkg = env.enclPkg.packageID;
+        PackageID immutableSymbolPkg = immutableType.tsymbol.pkgID;
+
+        if (!immutableSymbolPkg.equals(currentPkg)) {
             return false;
         }
 
         if (unresolvedTypes.contains(mutableType)) {
+            return true;
+        }
+
+        if (!immutableSymbolPkg.isTestPkg && currentPkg.isTestPkg) {
             return true;
         }
 

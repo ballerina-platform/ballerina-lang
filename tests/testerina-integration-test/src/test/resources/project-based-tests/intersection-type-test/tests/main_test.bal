@@ -16,7 +16,7 @@
 
 import ballerina/test;
 
-type ImmutableRecordType readonly & RecordType;
+type ImmutableRecordType2 readonly & RecordType;
 
 type ImmutableObjectType readonly & ObjectType;
 
@@ -36,6 +36,11 @@ readonly class ObjectClass {
     }
 }
 
+type EmployeeRec record {
+    Uuid id;
+    string name;
+};
+
 @test:Config {
 }
 function testIntersectionTypes() {
@@ -43,8 +48,8 @@ function testIntersectionTypes() {
     Uuid returnedUuid = getUuid();
     test:assertEquals(returnedUuid, uuid);
 
-    ImmutableRecordType recordVal = {id: 1};
-    RecordType returnedRecord = getRecordValue();
+    ImmutableRecordType2 recordVal = {id: 1};
+    ImmutableRecordType returnedRecord = getRecordValue();
     test:assertEquals(returnedRecord, recordVal);
 
     ImmutableObjectType objVal = new ObjectClass(recordVal, uuid);
@@ -58,4 +63,7 @@ function testIntersectionTypes() {
 
     ImmutableObjectOrRecordType unionVal = objVal;
     test:assertEquals(objVal.rec.id, 1);
+
+    EmployeeRec & readonly employeeVal = {id: uuid, name: "Chiran"};
+    test:assertEquals(employeeVal.name, "Chiran");
 }
