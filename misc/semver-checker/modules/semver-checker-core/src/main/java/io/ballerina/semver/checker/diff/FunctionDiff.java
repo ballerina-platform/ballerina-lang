@@ -19,8 +19,9 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.semver.checker.util.DiffUtils;
 
-import static io.ballerina.semver.checker.util.Constants.QUALIFIER_PUBLIC;
+import static io.ballerina.semver.checker.util.PackageUtils.QUALIFIER_PUBLIC;
 
 /**
  * Represents the diff in between two versions of a Ballerina function definition.
@@ -61,49 +62,37 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
         return (isNewPrivate && isOldPrivate) || (newNode == null && isOldPrivate) || (oldNode == null && isNewPrivate);
     }
 
-    private String getFunctionName() {
-        switch (diffType) {
-            case NEW:
-                return newNode.functionName().text();
-            case REMOVED:
-                return oldNode.functionName().text();
-            case MODIFIED:
-            case UNKNOWN:
-            default:
-                if (newNode != null) {
-                    return newNode.functionName().text();
-                } else if (oldNode != null) {
-                    return oldNode.functionName().text();
-                } else {
-                    return "unknown";
-                }
-        }
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
-        if (super.getMessage().isPresent()) {
-            sb.append("description: ").append(message).append(System.lineSeparator());
-            return sb.toString();
-        }
-
+        StringBuilder sb = new StringBuilder("  ");
         switch (diffType) {
             case NEW:
-                sb.append("description: function '").append(getFunctionName()).append("' is added")
+                sb.append("description: function '")
+                        .append(DiffUtils.getFunctionName(this))
+                        .append("' is added [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
                         .append(System.lineSeparator());
                 break;
             case REMOVED:
-                sb.append("description: function '").append(getFunctionName()).append("' is removed")
+                sb.append("description: function '")
+                        .append(DiffUtils.getFunctionName(this))
+                        .append("' is removed [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
                         .append(System.lineSeparator());
                 break;
             case MODIFIED:
-                sb.append("description: function '").append(getFunctionName()).append("' is modified with " +
-                        "the following changes").append(System.lineSeparator());
+                sb.append("description: function '")
+                        .append(DiffUtils.getFunctionName(this))
+                        .append("' is modified [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
+                        .append(System.lineSeparator());
                 if (childDiffs != null) {
                     childDiffs.forEach(diff -> sb.append(diff.toString()));
                 }
+                break;
             case UNKNOWN:
         }
 

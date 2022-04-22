@@ -131,11 +131,14 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("  ");
         if (childDiffs == null || childDiffs.isEmpty()) {
-            sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
             if (message != null) {
-                sb.append("description: ").append(message).append(System.lineSeparator());
+                sb.append("description: ").append(message);
+                sb.append(" [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
+                        .append(System.lineSeparator());
                 return sb.toString();
             }
         } else {

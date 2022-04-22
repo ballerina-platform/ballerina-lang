@@ -23,8 +23,8 @@ package io.ballerina.semver.checker.diff;
  */
 public enum CompatibilityLevel {
     UNKNOWN(4),
-    AMBIGUOUS(3),
-    MAJOR(2),
+    MAJOR(3),
+    AMBIGUOUS(2),
     MINOR(1),
     PATCH(0);
 

@@ -21,7 +21,6 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.compiler.syntax.tree.Node;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -65,13 +64,13 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     }
 
     @Override
-    public T getNewNode() {
-        return newNode;
+    public Optional<T> getNewNode() {
+        return Optional.ofNullable(newNode);
     }
 
     @Override
-    public T getOldNode() {
-        return oldNode;
+    public Optional<T> getOldNode() {
+        return Optional.ofNullable(oldNode);
     }
 
     @Override
@@ -124,26 +123,16 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         this.childDiffs.addAll(childDiffs);
     }
 
-    /**
-     * Derives the parent {@link CompatibilityLevel} of a given source (syntax node) based on the compatibility
-     * information of its child elements.
-     *
-     * @param childCompatibilities compatibility information of the child elements
-     * @return parent {@link CompatibilityLevel}
-     */
-    protected static CompatibilityLevel getUnifiedCompatibility(CompatibilityLevel... childCompatibilities) {
-        return Arrays.stream(childCompatibilities)
-                .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                .orElse(CompatibilityLevel.UNKNOWN);
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("  ");
         if (childDiffs == null || childDiffs.isEmpty()) {
-            sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
             if (message != null) {
-                sb.append("description: ").append(message).append(System.lineSeparator());
+                sb.append("description: ").append(message);
+                sb.append(" [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
+                        .append(System.lineSeparator());
                 return sb.toString();
             }
         } else {

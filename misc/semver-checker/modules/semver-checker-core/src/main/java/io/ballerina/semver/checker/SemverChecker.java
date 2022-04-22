@@ -22,7 +22,9 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.semver.checker.central.CentralClientWrapper;
+import io.ballerina.semver.checker.comparator.Comparator;
 import io.ballerina.semver.checker.comparator.PackageComparator;
+import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.exception.BallerinaSemverToolException;
 import io.ballerina.semver.checker.util.PackageUtils;
@@ -66,7 +68,10 @@ public class SemverChecker {
         SemanticVersion pkgVersion = currentPackage.packageVersion().value();
 
         CentralClientWrapper clientWrapper = new CentralClientWrapper();
+        outStream.println("checking for latest compatible release version available in central...");
         SemanticVersion compatibleVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
+        outStream.println("pulling package version '" + compatibleVersion + "' from central...");
+        outStream.println();
         Path balaPath = clientWrapper.pullPackage(orgName, pkgName, compatibleVersion);
         Package balaPackage = loadPackage(balaPath);
 

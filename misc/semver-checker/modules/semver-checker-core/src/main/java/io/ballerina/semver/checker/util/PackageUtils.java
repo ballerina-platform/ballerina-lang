@@ -32,6 +32,11 @@ import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.Map;
 
+/**
+ * Package (Project API) related utilities.
+ *
+ * @since 2201.2.0
+ */
 public class PackageUtils {
 
     public static final String QUALIFIER_PUBLIC = "public";

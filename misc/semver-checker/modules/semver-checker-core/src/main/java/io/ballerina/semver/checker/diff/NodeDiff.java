@@ -20,6 +20,8 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.Node;
 
+import java.util.Optional;
+
 /**
  * Base representation of changes in Ballerina syntax tree nodes.
  *
@@ -28,7 +30,7 @@ import io.ballerina.compiler.syntax.tree.Node;
  */
 public interface NodeDiff<T extends Node> extends Diff {
 
-    T getNewNode();
+    Optional<T> getNewNode();
 
-    T getOldNode();
+    Optional<T> getOldNode();
 }

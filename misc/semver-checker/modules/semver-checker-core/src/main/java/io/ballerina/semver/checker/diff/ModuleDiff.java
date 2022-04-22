@@ -21,6 +21,7 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
+import io.ballerina.semver.checker.util.DiffUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,12 +42,17 @@ public class ModuleDiff extends DiffImpl {
         this.oldModule = oldModule;
     }
 
-    public Module getNewModule() {
-        return newModule;
+    public Optional<Module> getNewModule() {
+        return Optional.ofNullable(newModule);
     }
 
-    public Module getOldModule() {
-        return oldModule;
+    public Optional<Module> getOldModule() {
+        return Optional.ofNullable(oldModule);
+    }
+
+    @Override
+    public DiffType getType() {
+        return super.getType();
     }
 
     public List<FunctionDiff> getFunctionDiffs() {
@@ -59,48 +65,39 @@ public class ModuleDiff extends DiffImpl {
         childDiffs.add(functionDiff);
     }
 
-    private String getModuleName() {
-        switch (diffType) {
-            case NEW:
-                return newModule.moduleName().moduleNamePart();
-            case REMOVED:
-                return oldModule.moduleName().moduleNamePart();
-            case MODIFIED:
-            case UNKNOWN:
-            default:
-                if (newModule != null) {
-                    return newModule.moduleName().moduleNamePart();
-                } else if (oldModule != null) {
-                    return oldModule.moduleName().moduleNamePart();
-                } else {
-                    return "unknown";
-                }
-        }
-    }
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
-
+        StringBuilder sb = new StringBuilder("  ");
         switch (diffType) {
             case NEW:
-                sb.append("description: module '").append(getModuleName()).append("' is added")
+                sb.append("description: module '")
+                        .append(DiffUtils.getModuleName(this))
+                        .append("' is added [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
                         .append(System.lineSeparator());
                 break;
             case REMOVED:
-                sb.append("description: module '").append(getModuleName()).append("' is removed")
+                sb.append("description: package '")
+                        .append(DiffUtils.getModuleName(this))
+                        .append("' is removed [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
                         .append(System.lineSeparator());
                 break;
             case MODIFIED:
-                sb.append("description: module '").append(getModuleName()).append("' is modified with " +
-                        "the following changes").append(System.lineSeparator());
+                sb.append("description: module '")
+                        .append(DiffUtils.getModuleName(this))
+                        .append("' is modified [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
+                        .append(System.lineSeparator());
                 if (childDiffs != null) {
                     childDiffs.forEach(diff -> sb.append(diff.toString()));
                 }
+                break;
             case UNKNOWN:
         }
-
         return sb.toString();
     }
 

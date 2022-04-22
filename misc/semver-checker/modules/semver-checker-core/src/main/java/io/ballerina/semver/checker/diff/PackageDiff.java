@@ -21,6 +21,7 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.semver.checker.comparator.ModuleComparator;
+import io.ballerina.semver.checker.util.DiffUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,14 @@ public class PackageDiff extends DiffImpl {
     public PackageDiff(Package newPackage, Package oldPackage) {
         this.newPackage = newPackage;
         this.oldPackage = oldPackage;
+    }
+
+    public Optional<Package> getNewPackage() {
+        return Optional.ofNullable(newPackage);
+    }
+
+    public Optional<Package> getOldPackage() {
+        return Optional.ofNullable(oldPackage);
     }
 
     public List<ModuleDiff> getModuleDiffs() {
@@ -66,48 +75,39 @@ public class PackageDiff extends DiffImpl {
         moduleDiffs.add(moduleDiff);
     }
 
-    private String getPackageName() {
-        switch (diffType) {
-            case NEW:
-                return newPackage.packageName().value();
-            case REMOVED:
-                return oldPackage.packageName().value();
-            case MODIFIED:
-            case UNKNOWN:
-            default:
-                if (newPackage != null) {
-                    return newPackage.packageName().value();
-                } else if (oldPackage != null) {
-                    return oldPackage.packageName().value();
-                } else {
-                    return "unknown";
-                }
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
-
         switch (diffType) {
             case NEW:
-                sb.append("description: package '").append(getPackageName()).append("' is added")
+                sb.append("description: package '")
+                        .append(DiffUtils.getPackageName(this))
+                        .append("' is added [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
                         .append(System.lineSeparator());
                 break;
             case REMOVED:
-                sb.append("description: package '").append(getPackageName()).append("' is removed")
+                sb.append("description: package '")
+                        .append(DiffUtils.getPackageName(this))
+                        .append("' is removed [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
                         .append(System.lineSeparator());
                 break;
             case MODIFIED:
-                sb.append("description: package '").append(getPackageName()).append("' is modified with " +
-                        "the following changes").append(System.lineSeparator());
+                sb.append("description: package '")
+                        .append(DiffUtils.getPackageName(this))
+                        .append("' is modified [compatibility level: ")
+                        .append(compatibilityLevel.toString())
+                        .append("]")
+                        .append(System.lineSeparator());
                 if (childDiffs != null) {
                     childDiffs.forEach(diff -> sb.append(diff.toString()));
                 }
+                break;
             case UNKNOWN:
         }
-
         return sb.toString();
     }
 
