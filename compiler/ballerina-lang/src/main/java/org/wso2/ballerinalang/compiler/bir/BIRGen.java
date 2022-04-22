@@ -2121,7 +2121,7 @@ public class BIRGen extends BLangNodeVisitor {
         keySpecifierLiteral.exprs = new ArrayList<>();
         BTableType type = (BTableType) tableConstructorExpr.getBType();
 
-        if (type.fieldNameList != null) {
+        if (!type.fieldNameList.isEmpty()) {
             type.fieldNameList.forEach(col -> {
                 BLangLiteral colLiteral = new BLangLiteral();
                 colLiteral.pos = tableConstructorExpr.pos;
