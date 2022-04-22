@@ -66,6 +66,51 @@ public class PackageDiff extends Diff {
         moduleDiffs.add(moduleDiff);
     }
 
+    private String getPackageName() {
+        switch (diffType) {
+            case NEW:
+                return newPackage.packageName().value();
+            case REMOVED:
+                return oldPackage.packageName().value();
+            case MODIFIED:
+            case UNKNOWN:
+            default:
+                if (newPackage != null) {
+                    return newPackage.packageName().value();
+                } else if (oldPackage != null) {
+                    return oldPackage.packageName().value();
+                } else {
+                    return "unknown";
+                }
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
+
+        switch (diffType) {
+            case NEW:
+                sb.append("description: package '").append(getPackageName()).append("' is added")
+                        .append(System.lineSeparator());
+                break;
+            case REMOVED:
+                sb.append("description: package '").append(getPackageName()).append("' is removed")
+                        .append(System.lineSeparator());
+                break;
+            case MODIFIED:
+                sb.append("description: package '").append(getPackageName()).append("' is modified with " +
+                        "the following changes").append(System.lineSeparator());
+                if (childDiffs != null) {
+                    childDiffs.forEach(diff -> sb.append(diff.toString()));
+                }
+            case UNKNOWN:
+        }
+
+        return sb.toString();
+    }
+
     public static class Modifier implements DiffModifier {
 
         private final PackageDiff packageDiff;

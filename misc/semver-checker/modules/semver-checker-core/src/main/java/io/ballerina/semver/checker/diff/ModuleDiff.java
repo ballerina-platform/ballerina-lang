@@ -22,13 +22,9 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
-import static io.ballerina.semver.checker.diff.NodeDiff.getUnifiedCompatibility;
+import java.util.stream.Collectors;
 
 /**
  * Represents all the source code changes within a single Ballerina module.
@@ -39,8 +35,6 @@ public class ModuleDiff extends Diff {
 
     private final Module newModule;
     private final Module oldModule;
-    // Todo: Implement diff objects for other top-level constructs
-    private final List<FunctionDiff> functionDiffs = new ArrayList<>();
 
     public ModuleDiff(Module newModule, Module oldModule) {
         this.newModule = newModule;
@@ -56,24 +50,58 @@ public class ModuleDiff extends Diff {
     }
 
     public List<FunctionDiff> getFunctionDiffs() {
-        return Collections.unmodifiableList(functionDiffs);
+        return childDiffs.stream().filter(iDiff -> iDiff instanceof FunctionDiff)
+                .map(iDiff -> (FunctionDiff) iDiff)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     public void addFunctionDiff(FunctionDiff functionDiff) {
-        functionDiffs.add(functionDiff);
         childDiffs.add(functionDiff);
     }
 
+    private String getModuleName() {
+        switch (diffType) {
+            case NEW:
+                return newModule.moduleName().moduleNamePart();
+            case REMOVED:
+                return oldModule.moduleName().moduleNamePart();
+            case MODIFIED:
+            case UNKNOWN:
+            default:
+                if (newModule != null) {
+                    return newModule.moduleName().moduleNamePart();
+                } else if (oldModule != null) {
+                    return oldModule.moduleName().moduleNamePart();
+                } else {
+                    return "unknown";
+                }
+        }
+    }
+
     @Override
-    public CompatibilityLevel getCompatibilityLevel() {
-        CompatibilityLevel funcCompatibility = functionDiffs.stream()
-                .map(FunctionDiff::getCompatibilityLevel)
-                .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                .orElse(CompatibilityLevel.UNKNOWN);
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
 
-        // Todo: add other top-level definitions compatibilities
+        switch (diffType) {
+            case NEW:
+                sb.append("description: module '").append(getModuleName()).append("' is added")
+                        .append(System.lineSeparator());
+                break;
+            case REMOVED:
+                sb.append("description: module '").append(getModuleName()).append("' is removed")
+                        .append(System.lineSeparator());
+                break;
+            case MODIFIED:
+                sb.append("description: module '").append(getModuleName()).append("' is modified with " +
+                        "the following changes").append(System.lineSeparator());
+                if (childDiffs != null) {
+                    childDiffs.forEach(diff -> sb.append(diff.toString()));
+                }
+            case UNKNOWN:
+        }
 
-        return getUnifiedCompatibility(funcCompatibility);
+        return sb.toString();
     }
 
     public static class Modifier implements DiffModifier {

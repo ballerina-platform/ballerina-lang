@@ -122,4 +122,20 @@ public class NodeListDiff<T extends Node> implements INodeListDiff<List<T>> {
                 .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                 .orElse(CompatibilityLevel.UNKNOWN);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (childDiffs == null || childDiffs.isEmpty()) {
+            sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
+            if (message != null) {
+                sb.append("description: ").append(message).append(System.lineSeparator());
+                return sb.toString();
+            }
+        } else {
+            childDiffs.forEach(diff -> sb.append(diff.toString()));
+        }
+
+        return sb.toString();
+    }
 }

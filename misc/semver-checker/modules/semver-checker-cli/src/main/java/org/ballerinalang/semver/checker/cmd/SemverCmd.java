@@ -54,6 +54,18 @@ public class SemverCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
 
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"-v", "--verbose"})
+    private boolean verbose;
+
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"-d", "--detect"})
+    private boolean summary;
+
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"-s", "--suggest"})
+    private boolean suggestVersion;
+
     public SemverCmd() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.err;
@@ -75,8 +87,13 @@ public class SemverCmd implements BLauncherCmd {
             }
 
             SemverChecker semverChecker = new SemverChecker(projectPath);
+            if (suggestVersion) {
+            } else if (summary) {
+
+            }
+
             Optional<PackageDiff> suggestedVersion = semverChecker.getSuggestedVersion();
-            CompatibilityLevel compatibilityLevel = suggestedVersion.get().getModuleDiffs().get(3).getCompatibilityLevel();
+            System.out.println(suggestedVersion.get().toString());
         } catch (InvalidPathException e) {
             throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool: ", e);
         } catch (Throwable t) {

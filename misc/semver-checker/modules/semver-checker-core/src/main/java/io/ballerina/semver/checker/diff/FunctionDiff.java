@@ -31,10 +31,10 @@ public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
     @Override
     public void computeCompatibilityLevel() {
         if (newNode != null && oldNode == null) {
-            // if a function is newly added
+            // if the function is newly added
             compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MINOR;
         } else if (newNode == null && oldNode != null) {
-            // if a function is removed
+            // if the function is removed
             compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MAJOR;
         } else {
             // if the function is modified, checks if function definition is non-public and if so all the
@@ -54,5 +54,54 @@ public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
                 qualifier.text().equals(QUALIFIER_PUBLIC));
 
         return (isNewPrivate && isOldPrivate) || (newNode == null && isOldPrivate) || (oldNode == null && isNewPrivate);
+    }
+
+    private String getFunctionName() {
+        switch (diffType) {
+            case NEW:
+                return newNode.functionName().text();
+            case REMOVED:
+                return oldNode.functionName().text();
+            case MODIFIED:
+            case UNKNOWN:
+            default:
+                if (newNode != null) {
+                    return newNode.functionName().text();
+                } else if (oldNode != null) {
+                    return oldNode.functionName().text();
+                } else {
+                    return "unknown";
+                }
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
+        if (super.getMessage().isPresent()) {
+            sb.append("description: ").append(message).append(System.lineSeparator());
+            return sb.toString();
+        }
+
+        switch (diffType) {
+            case NEW:
+                sb.append("description: function '").append(getFunctionName()).append("' is added")
+                        .append(System.lineSeparator());
+                break;
+            case REMOVED:
+                sb.append("description: function '").append(getFunctionName()).append("' is removed")
+                        .append(System.lineSeparator());
+                break;
+            case MODIFIED:
+                sb.append("description: function '").append(getFunctionName()).append("' is modified with " +
+                        "the following changes").append(System.lineSeparator());
+                if (childDiffs != null) {
+                    childDiffs.forEach(diff -> sb.append(diff.toString()));
+                }
+            case UNKNOWN:
+        }
+
+        return sb.toString();
     }
 }
