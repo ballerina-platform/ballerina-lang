@@ -125,3 +125,9 @@ function testInvalidArrayAccessByConst() {
     a[I1] = 3; // list index out of range: index: '3'
     a[I2] = 4; // list index out of range: index: '3'
 }
+
+function fn3() returns int[1] {
+    return [2];
+}
+
+int[*] a1 = fn3();
