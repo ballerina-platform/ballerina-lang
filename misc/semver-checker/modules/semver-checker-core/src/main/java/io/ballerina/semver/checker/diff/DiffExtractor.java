@@ -22,6 +22,13 @@ import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * An extractor implementation that can identify additions, removals and common items in two given lists of
+ * type 'T'.
+ *
+ * @param <T> item type
+ * @since 2201.2.0
+ */
 public class DiffExtractor<T> {
 
     private final Map<String, T> newValues;

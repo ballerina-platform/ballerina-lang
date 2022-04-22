@@ -32,7 +32,7 @@ import java.util.Optional;
  *
  * @since 2201.2.0
  */
-public class PackageComparator implements IComparator {
+public class PackageComparator implements Comparator {
 
     private final Package newPackage;
     private final Package oldPackage;

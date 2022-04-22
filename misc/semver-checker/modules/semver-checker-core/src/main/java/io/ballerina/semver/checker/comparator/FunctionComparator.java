@@ -31,8 +31,8 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.FunctionDiff;
-import io.ballerina.semver.checker.diff.IDiff;
-import io.ballerina.semver.checker.diff.NodeDiff;
+import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,8 +75,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
     /**
      * Analyzes and returns the diff for changes on function definition metadata (documentation + annotations)
      */
-    public List<IDiff> compareMetadata() {
-        List<IDiff> metadataDiffs = new ArrayList<>();
+    public List<Diff> compareMetadata() {
+        List<Diff> metadataDiffs = new ArrayList<>();
         Optional<MetadataNode> newMeta = newNode.metadata();
         Optional<MetadataNode> oldMeta = oldNode.metadata();
 
@@ -94,8 +94,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
     /**
      * Analyzes and returns the diff for changes on `public`, `isolated` and `transactional` qualifiers.
      */
-    private List<IDiff> compareFunctionQualifiers() {
-        List<IDiff> qualifierDiffs = new ArrayList<>();
+    private List<Diff> compareFunctionQualifiers() {
+        List<Diff> qualifierDiffs = new ArrayList<>();
         NodeList<Token> newQualifiers = newNode.qualifierList();
         NodeList<Token> oldQualifiers = oldNode.qualifierList();
 
@@ -104,14 +104,14 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         Optional<Token> oldPublicQual = getQualifier(oldQualifiers, PUBLIC_KEYWORD);
         if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
             // public qualifier removed
-            NodeDiff<Node> qualifierDiff = new NodeDiff<>(null, oldPublicQual.get());
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldPublicQual.get());
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("function visibility is changed from 'public' to 'module-private'");
             qualifierDiffs.add(qualifierDiff);
         } else if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
             // public qualifier added
-            NodeDiff<Node> qualifierDiff = new NodeDiff<>(newPublicQual.get(), null);
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newPublicQual.get(), null);
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("function visibility is changed from 'module-private' to 'public'");
@@ -123,14 +123,14 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         Optional<Token> oldIsolatedQual = getQualifier(oldQualifiers, ISOLATED_KEYWORD);
         if (newIsolatedQual.isEmpty() && oldIsolatedQual.isPresent()) {
             // isolated qualifier removed
-            NodeDiff<Node> qualifierDiff = new NodeDiff<>(null, oldIsolatedQual.get());
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldIsolatedQual.get());
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("'isolated' qualifier is removed");
             qualifierDiffs.add(qualifierDiff);
         } else if (newIsolatedQual.isPresent() && oldIsolatedQual.isEmpty()) {
             // isolated qualifier added
-            NodeDiff<Node> qualifierDiff = new NodeDiff<>(newIsolatedQual.get(), null);
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newIsolatedQual.get(), null);
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("'isolated' qualifier is added");
@@ -142,14 +142,14 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         Optional<Token> oldTransactionalQual = getQualifier(oldQualifiers, TRANSACTIONAL_KEYWORD);
         if (newTransactionalQual.isEmpty() && oldTransactionalQual.isPresent()) {
             // transactional qualifier removed
-            NodeDiff<Node> qualifierDiff = new NodeDiff<>(null, oldTransactionalQual.get());
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldTransactionalQual.get());
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("'transactional' qualifier is removed");
             qualifierDiffs.add(qualifierDiff);
         } else if (newTransactionalQual.isPresent() && oldTransactionalQual.isEmpty()) {
             // transactional qualifier added
-            NodeDiff<Node> qualifierDiff = new NodeDiff<>(newTransactionalQual.get(), null);
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newTransactionalQual.get(), null);
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("'transactional' qualifier is added");
@@ -159,8 +159,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return qualifierDiffs;
     }
 
-    private List<IDiff> compareFunctionParams() {
-        List<IDiff> paramDiffs = new ArrayList<>();
+    private List<Diff> compareFunctionParams() {
+        List<Diff> paramDiffs = new ArrayList<>();
         List<ParameterNode> newParams = newNode.functionSignature().parameters().stream().collect(Collectors.toList());
         List<ParameterNode> oldParams = oldNode.functionSignature().parameters().stream().collect(Collectors.toList());
 
@@ -170,16 +170,16 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return paramDiffs;
     }
 
-    private List<NodeDiff<Node>> compareReturnTypeDesc() {
-        List<NodeDiff<Node>> returnTypeDiffs = new ArrayList<>();
+    private List<NodeDiffImpl<Node>> compareReturnTypeDesc() {
+        List<NodeDiffImpl<Node>> returnTypeDiffs = new ArrayList<>();
         Optional<ReturnTypeDescriptorNode> newReturn = newNode.functionSignature().returnTypeDesc();
         Optional<ReturnTypeDescriptorNode> oldReturn = oldNode.functionSignature().returnTypeDesc();
 
         if (newReturn.isPresent() && oldReturn.isEmpty()) {
-            NodeDiff<Node> nodeDiff = new NodeDiff<>(newReturn.get(), null, CompatibilityLevel.MAJOR);
+            NodeDiffImpl<Node> nodeDiff = new NodeDiffImpl<>(newReturn.get(), null, CompatibilityLevel.MAJOR);
             nodeDiff.setMessage("return type is added to the function '" + newNode.functionName().text() + "'.");
         } else if (newReturn.isEmpty() && oldReturn.isPresent()) {
-            NodeDiff<Node> nodeDiff = new NodeDiff<>(null, oldReturn.get(), CompatibilityLevel.MAJOR);
+            NodeDiffImpl<Node> nodeDiff = new NodeDiffImpl<>(null, oldReturn.get(), CompatibilityLevel.MAJOR);
             nodeDiff.setMessage("return type is removed from the function '" + newNode.functionName().text() + "'.");
         } else if (newReturn.isPresent()) {
             compareReturnTypes(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
@@ -189,14 +189,14 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return returnTypeDiffs;
     }
 
-    private Optional<NodeDiff<Node>> compareReturnTypes(ReturnTypeDescriptorNode newReturn,
-                                                        ReturnTypeDescriptorNode oldReturn) {
+    private Optional<NodeDiffImpl<Node>> compareReturnTypes(ReturnTypeDescriptorNode newReturn,
+                                                            ReturnTypeDescriptorNode oldReturn) {
         Node newType = newReturn.type();
         Node oldType = newReturn.type();
 
         if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
-            NodeDiff<Node> diff = new NodeDiff<>(newReturn, oldReturn, CompatibilityLevel.AMBIGUOUS);
+            NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newReturn, oldReturn, CompatibilityLevel.AMBIGUOUS);
             diff.setMessage(String.format("return type is changed from: '%s' to: %s", oldType.toSourceCode(),
                     newType.toSourceCode()));
             return Optional.of(diff);
@@ -205,8 +205,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return Optional.empty();
     }
 
-    private Optional<NodeDiff<Node>> compareReturnAnnotations(ReturnTypeDescriptorNode newReturn,
-                                                              ReturnTypeDescriptorNode oldReturn) {
+    private Optional<NodeDiffImpl<Node>> compareReturnAnnotations(ReturnTypeDescriptorNode newReturn,
+                                                                  ReturnTypeDescriptorNode oldReturn) {
         NodeList<AnnotationNode> newAnnots = newReturn.annotations();
         NodeList<AnnotationNode> oldAnnots = oldReturn.annotations();
 
@@ -214,15 +214,15 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return Optional.empty();
     }
 
-    private List<NodeDiff<Node>> compareFunctionBody() {
-        List<NodeDiff<Node>> functionBodyDiff = new ArrayList<>();
+    private List<NodeDiffImpl<Node>> compareFunctionBody() {
+        List<NodeDiffImpl<Node>> functionBodyDiff = new ArrayList<>();
         FunctionBodyNode newBody = newNode.functionBody();
         FunctionBodyNode oldBody = oldNode.functionBody();
 
         if ((newBody == null && oldBody != null) || (newBody != null && oldBody == null)) {
-            functionBodyDiff.add(new NodeDiff<>(newBody, oldBody, CompatibilityLevel.PATCH));
+            functionBodyDiff.add(new NodeDiffImpl<>(newBody, oldBody, CompatibilityLevel.PATCH));
         } else if (newBody != null && !newBody.toSourceCode().equals(oldBody.toSourceCode())) {
-            functionBodyDiff.add(new NodeDiff<>(newBody, oldBody, CompatibilityLevel.PATCH));
+            functionBodyDiff.add(new NodeDiffImpl<>(newBody, oldBody, CompatibilityLevel.PATCH));
         }
 
         return functionBodyDiff;

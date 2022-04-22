@@ -21,7 +21,7 @@ package io.ballerina.semver.checker.diff;
 import java.util.Optional;
 
 /**
- * Definition for Ballerina source diff modifiers.
+ * Definition of Ballerina source diff modifiers.
  *
  * @since 2201.2.0
  */

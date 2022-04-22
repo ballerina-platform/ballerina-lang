@@ -25,8 +25,8 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.DiffExtractor;
-import io.ballerina.semver.checker.diff.NodeDiff;
-import io.ballerina.semver.checker.diff.NodeListDiff;
+import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.NodeListDiffImpl;
 
 import java.util.List;
 import java.util.Map;
@@ -46,8 +46,8 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
     }
 
     @Override
-    public Optional<NodeListDiff<ParameterNode>> computeDiff() {
-        NodeListDiff<ParameterNode> paramDiffs = new NodeListDiff<>(newNodesList, oldNodesList);
+    public Optional<NodeListDiffImpl<ParameterNode>> computeDiff() {
+        NodeListDiffImpl<ParameterNode> paramDiffs = new NodeListDiffImpl<>(newNodesList, oldNodesList);
 
         Map<String, ParameterNode> newParams = newNodesList.stream()
                 .collect(Collectors.toMap(this::getParameterName, Function.identity()));
@@ -59,7 +59,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
 
         // Computes and populate diffs for newly added parameters.
         paramDiffExtractor.getAdditions().forEach((paramName, paramNode) -> {
-            NodeDiff<Node> paramDiff = new NodeDiff<>(paramNode, null, CompatibilityLevel.UNKNOWN);
+            NodeDiffImpl<Node> paramDiff = new NodeDiffImpl<>(paramNode, null, CompatibilityLevel.UNKNOWN);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
                     paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
@@ -82,7 +82,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
 
         // Computes and populate diffs for removed parameters.
         paramDiffExtractor.getRemovals().forEach((paramName, paramNode) -> {
-            NodeDiff<Node> paramDiff = new NodeDiff<>(null, paramNode, CompatibilityLevel.MAJOR);
+            NodeDiffImpl<Node> paramDiff = new NodeDiffImpl<>(null, paramNode, CompatibilityLevel.MAJOR);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
                     paramDiff.setMessage("required parameter removed");

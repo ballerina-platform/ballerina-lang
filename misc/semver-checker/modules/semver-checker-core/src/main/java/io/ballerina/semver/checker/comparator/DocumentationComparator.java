@@ -21,10 +21,15 @@ package io.ballerina.semver.checker.comparator;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.DiffType;
-import io.ballerina.semver.checker.diff.NodeDiff;
+import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.Optional;
 
+/**
+ * Comparator implementation to extract diffs from Ballerina documentations.
+ *
+ * @since 2201.2.0
+ */
 public class DocumentationComparator extends NodeComparator<Node> {
 
     public DocumentationComparator(Node newNode, Node oldNode) {
@@ -32,8 +37,8 @@ public class DocumentationComparator extends NodeComparator<Node> {
     }
 
     @Override
-    public Optional<NodeDiff<Node>> computeDiff() {
-        NodeDiff<Node> documentationDiff = new NodeDiff<>(newNode, oldNode);
+    public Optional<NodeDiffImpl<Node>> computeDiff() {
+        NodeDiffImpl<Node> documentationDiff = new NodeDiffImpl<>(newNode, oldNode);
         if (newNode != null && oldNode == null) {
             documentationDiff.setType(DiffType.NEW);
             documentationDiff.setCompatibilityLevel(CompatibilityLevel.PATCH);

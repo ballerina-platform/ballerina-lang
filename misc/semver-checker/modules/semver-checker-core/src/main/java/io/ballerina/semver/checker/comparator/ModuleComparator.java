@@ -37,7 +37,7 @@ import java.util.Optional;
  *
  * @since 2201.2.0
  */
-public class ModuleComparator implements IComparator {
+public class ModuleComparator implements Comparator {
 
     private final Module newModule;
     private final Module oldModule;

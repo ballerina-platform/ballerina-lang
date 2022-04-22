@@ -42,7 +42,7 @@ import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 
 /**
- * Ballerina central related utilities.
+ * Ballerina central client wrapper implementation.
  *
  * @since 2201.2.0
  */

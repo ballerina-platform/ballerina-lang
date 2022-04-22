@@ -18,58 +18,22 @@
 
 package io.ballerina.semver.checker.diff;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+/**
+ * Base definition of all type of Ballerina source diff  implementations.
+ *
+ * @since 2201.2.0
+ */
+public interface Diff {
 
-public class Diff implements IDiff {
+    DiffType getType();
 
-    protected DiffType diffType;
-    protected CompatibilityLevel compatibilityLevel;
-    protected final List<IDiff> childDiffs;
+    void setType(DiffType diffType);
 
-    public Diff() {
-        this(DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
-    }
+    CompatibilityLevel getCompatibilityLevel();
 
-    public Diff(DiffType diffType, CompatibilityLevel compatibilityLevel) {
-        this.diffType = diffType;
-        this.compatibilityLevel = compatibilityLevel;
-        this.childDiffs = new ArrayList<>();
-    }
+    void setCompatibilityLevel(CompatibilityLevel compatibilityLevel);
 
-    @Override
-    public DiffType getType() {
-        return diffType;
-    }
+    void computeCompatibilityLevel();
 
-    @Override
-    public void setType(DiffType diffType) {
-        this.diffType = diffType;
-    }
-
-    @Override
-    public CompatibilityLevel getCompatibilityLevel() {
-        return compatibilityLevel;
-    }
-
-    @Override
-    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-        this.compatibilityLevel = compatibilityLevel;
-    }
-
-    @Override
-    public void computeCompatibilityLevel() {
-        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
-            compatibilityLevel = childDiffs.stream()
-                    .map(IDiff::getCompatibilityLevel)
-                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                    .orElse(CompatibilityLevel.UNKNOWN);
-        }
-    }
-
-    public List<IDiff> getChildDiffs() {
-        return Collections.unmodifiableList(childDiffs);
-    }
+    String toString();
 }

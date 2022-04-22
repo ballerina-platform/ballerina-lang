@@ -22,7 +22,12 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 
 import static io.ballerina.semver.checker.util.Constants.QUALIFIER_PUBLIC;
 
-public class FunctionDiff extends NodeDiff<FunctionDefinitionNode> {
+/**
+ * Represents the diff in between two versions of a Ballerina function definition.
+ *
+ * @since 2201.2.0
+ */
+public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
 
     public FunctionDiff(FunctionDefinitionNode newNode, FunctionDefinitionNode oldNode) {
         super(newNode, oldNode);

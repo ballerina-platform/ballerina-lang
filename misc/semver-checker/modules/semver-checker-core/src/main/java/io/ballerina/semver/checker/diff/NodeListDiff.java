@@ -20,122 +20,17 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
-public class NodeListDiff<T extends Node> implements INodeListDiff<List<T>> {
+/**
+ * Base representation of changes in Ballerina syntax tree node lists.
+ *
+ * @param <T> node type
+ * @since 2201.2.0
+ */
+public interface NodeListDiff<T extends List<? extends Node>> extends Diff {
 
-    protected final List<T> newNodes;
-    protected final List<T> oldNodes;
-    protected DiffType diffType;
-    protected CompatibilityLevel compatibilityLevel;
-    protected final List<NodeDiff<? extends Node>> childDiffs;
-    private String message;
+    T getNewNodes();
 
-    public NodeListDiff(List<T> newNodes, List<T> oldNodes) {
-        this(newNodes, oldNodes, DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
-    }
-
-    public NodeListDiff(List<T> newNodes, List<T> oldNodes, DiffType diffType,
-                        CompatibilityLevel compatibilityLevel) {
-        this.newNodes = newNodes;
-        this.oldNodes = oldNodes;
-        this.diffType = diffType;
-        this.compatibilityLevel = compatibilityLevel;
-        this.childDiffs = new ArrayList<>();
-        this.message = null;
-    }
-
-    @Override
-    public List<T> getNewNodes() {
-        return newNodes;
-    }
-
-    @Override
-    public List<T> getOldNodes() {
-        return oldNodes;
-    }
-
-    @Override
-    public DiffType getType() {
-        return diffType;
-    }
-
-    @Override
-    public void setType(DiffType diffType) {
-        this.diffType = diffType;
-    }
-
-    @Override
-    public CompatibilityLevel getCompatibilityLevel() {
-        return compatibilityLevel;
-    }
-
-    @Override
-    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-        this.compatibilityLevel = compatibilityLevel;
-    }
-
-    @Override
-    public void computeCompatibilityLevel() {
-        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
-            compatibilityLevel = childDiffs.stream()
-                    .map(NodeDiff::getCompatibilityLevel)
-                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                    .orElse(CompatibilityLevel.UNKNOWN);
-        }
-    }
-
-    public Optional<String> getMessage() {
-        return Optional.ofNullable(message);
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public List<NodeDiff<? extends Node>> getChildDiffs() {
-        return Collections.unmodifiableList(childDiffs);
-    }
-
-    public void addChildDiff(NodeDiff<Node> childDiff) {
-        this.childDiffs.add(childDiff);
-    }
-
-    public void addChildDiffs(List<NodeDiff<Node>> childDiffs) {
-        this.childDiffs.addAll(childDiffs);
-    }
-
-    /**
-     * Derives the parent {@link CompatibilityLevel} of a given source (syntax node) based on the compatibility
-     * information of its child elements.
-     *
-     * @param childCompatibilities compatibility information of the child elements
-     * @return parent {@link CompatibilityLevel}
-     */
-    protected static CompatibilityLevel getUnifiedCompatibility(CompatibilityLevel... childCompatibilities) {
-        return Arrays.stream(childCompatibilities)
-                .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                .orElse(CompatibilityLevel.UNKNOWN);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (childDiffs == null || childDiffs.isEmpty()) {
-            sb.append("compatibility: ").append(compatibilityLevel.toString()).append(", ");
-            if (message != null) {
-                sb.append("description: ").append(message).append(System.lineSeparator());
-                return sb.toString();
-            }
-        } else {
-            childDiffs.forEach(diff -> sb.append(diff.toString()));
-        }
-
-        return sb.toString();
-    }
+    T getOldNodes();
 }

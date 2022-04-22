@@ -45,7 +45,7 @@ public class SemverChecker {
 
     public SemverChecker(Path projectPath) {
         this.projectPath = projectPath;
-        this.outStream = System.err;
+        this.outStream = System.out;
         this.errStream = System.err;
     }
 

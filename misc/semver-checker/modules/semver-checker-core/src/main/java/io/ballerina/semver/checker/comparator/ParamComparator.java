@@ -26,8 +26,7 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
-import io.ballerina.semver.checker.diff.DiffType;
-import io.ballerina.semver.checker.diff.NodeDiff;
+import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.Optional;
 
@@ -43,8 +42,8 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
     }
 
     @Override
-    public Optional<NodeDiff<Node>> computeDiff() {
-        NodeDiff<Node> paramDiffs = new NodeDiff<>(newNode, oldNode);
+    public Optional<NodeDiffImpl<Node>> computeDiff() {
+        NodeDiffImpl<Node> paramDiffs = new NodeDiffImpl<>(newNode, oldNode);
         if (newNode.kind() != oldNode.kind()) {
             compareParamKind(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
         }
@@ -60,12 +59,12 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         return Optional.empty();
     }
 
-    private Optional<NodeDiff<Node>> compareParamAnnotations(ParameterNode newNode, ParameterNode oldNode) {
+    private Optional<NodeDiffImpl<Node>> compareParamAnnotations(ParameterNode newNode, ParameterNode oldNode) {
         // Todo: implement parameter annotation comparison
         return Optional.empty();
     }
 
-    private Optional<NodeDiff<Node>> compareParamValue(ParameterNode newParam, ParameterNode oldParam) {
+    private Optional<NodeDiffImpl<Node>> compareParamValue(ParameterNode newParam, ParameterNode oldParam) {
         if (newParam.kind() != SyntaxKind.DEFAULTABLE_PARAM || oldParam.kind() != SyntaxKind.DEFAULTABLE_PARAM) {
             return Optional.empty();
         }
@@ -76,7 +75,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             return Optional.empty();
         }
 
-        NodeDiff<Node> diff = new NodeDiff<>(newParam, oldParam);
+        NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newParam, oldParam);
         diff.setMessage(String.format("default value of the parameter: '%s' is changed from: '%s' to: '%s'",
                 ((DefaultableParameterNode) newParam).paramName(), oldExpr.toSourceCode().trim(),
                 newExpr.toSourceCode().trim()));
@@ -92,7 +91,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         return Optional.of(diff);
     }
 
-    private Optional<NodeDiff<Node>> compareParamType(ParameterNode newParam, ParameterNode oldParam) {
+    private Optional<NodeDiffImpl<Node>> compareParamType(ParameterNode newParam, ParameterNode oldParam) {
         Node newType = extractParamType(newParam);
         Node oldType = extractParamType(oldParam);
 
@@ -102,7 +101,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             addErrorDiagnostic("unsupported param type: " + newParam.kind() + " detected");
         } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
-            NodeDiff<Node> diff = new NodeDiff<>(newParam, oldNode, CompatibilityLevel.AMBIGUOUS);
+            NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newParam, oldNode, CompatibilityLevel.AMBIGUOUS);
             diff.setMessage(String.format("parameter type changed from: '%s' to: %s", oldType.toSourceCode(),
                     newType.toSourceCode()));
             return Optional.of(diff);
@@ -111,8 +110,8 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         return Optional.empty();
     }
 
-    private Optional<NodeDiff<Node>> compareParamKind(ParameterNode newParam, ParameterNode oldParam) {
-        NodeDiff<Node> paramDiff = new NodeDiff<>(newParam, oldParam);
+    private Optional<NodeDiffImpl<Node>> compareParamKind(ParameterNode newParam, ParameterNode oldParam) {
+        NodeDiffImpl<Node> paramDiff = new NodeDiffImpl<>(newParam, oldParam);
         paramDiff.setMessage("parameter kind is changed from '" + newParam.kind() + "' to '" + oldParam.kind());
         if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);

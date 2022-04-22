@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @since 2201.2.0
  */
-public class PackageDiff extends Diff {
+public class PackageDiff extends DiffImpl {
 
     private final Package newPackage;
     private final Package oldPackage;
@@ -56,7 +56,7 @@ public class PackageDiff extends Diff {
     @Override
     public CompatibilityLevel getCompatibilityLevel() {
         return childDiffs.stream()
-                .map(IDiff::getCompatibilityLevel)
+                .map(Diff::getCompatibilityLevel)
                 .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                 .orElse(CompatibilityLevel.UNKNOWN);
     }

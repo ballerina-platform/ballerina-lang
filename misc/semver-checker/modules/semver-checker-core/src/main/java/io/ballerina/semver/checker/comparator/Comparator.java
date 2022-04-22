@@ -16,15 +16,18 @@
  * under the License.
  */
 
-package io.ballerina.semver.checker.diff;
+package io.ballerina.semver.checker.comparator;
 
-import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.semver.checker.diff.Diff;
 
-import java.util.List;
+import java.util.Optional;
 
-public interface INodeListDiff<T extends List<? extends Node>> extends IDiff {
+/**
+ * Definition of Ballerina source comparator
+ *
+ * @since 2201.2.0
+ */
+public interface Comparator {
 
-    T getNewNodes();
-
-    T getOldNodes();
+    Optional<? extends Diff> computeDiff();
 }

@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @since 2201.2.0
  */
-public class ModuleDiff extends Diff {
+public class ModuleDiff extends DiffImpl {
 
     private final Module newModule;
     private final Module oldModule;

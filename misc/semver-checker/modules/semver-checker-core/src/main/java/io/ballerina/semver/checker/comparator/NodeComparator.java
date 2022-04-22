@@ -20,11 +20,17 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.semver.checker.diagnostic.DiagnosticReporter;
-import io.ballerina.semver.checker.diff.IDiff;
+import io.ballerina.semver.checker.diff.Diff;
 
 import java.util.Optional;
 
-public abstract class NodeComparator<T extends Node> extends DiagnosticReporter implements IComparator {
+/**
+ * Abstract definition of the Ballerina syntax tree node based comparators.
+ *
+ * @param <T> node type
+ * @since 2201.2.0
+ */
+public abstract class NodeComparator<T extends Node> extends DiagnosticReporter implements Comparator {
 
     protected final T newNode;
     protected final T oldNode;
@@ -35,5 +41,5 @@ public abstract class NodeComparator<T extends Node> extends DiagnosticReporter 
     }
 
     @Override
-    public abstract Optional<? extends IDiff> computeDiff();
+    public abstract Optional<? extends Diff> computeDiff();
 }
