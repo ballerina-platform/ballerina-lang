@@ -119,6 +119,7 @@ import java.util.function.Consumer;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
+import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.ANON_PREFIX;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
@@ -1724,7 +1725,7 @@ public class BIRPackageSymbolEnter {
     private BType getType(BType readShape, SymbolEnv pkgEnv, Name name) {
         BType type = symbolResolver.lookupSymbolInMainSpace(pkgEnv, name).type;
 
-        if (types.isSameBIRShape(readShape, type)) {
+        if (type != symTable.noType && (!name.value.contains(ANON_PREFIX) || types.isSameBIRShape(readShape, type))) {
             return type;
         }
 
@@ -1732,21 +1733,22 @@ public class BIRPackageSymbolEnter {
             for (BLangTypeDefinition typeDefinition : ((BLangPackage) pkgEnv.node).typeDefinitions) {
                 BSymbol symbol = typeDefinition.symbol;
 
-                if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                String typeDefName = typeDefinition.name.value;
+                if (typeDefName.contains(ANON_PREFIX)) {
                     BType anonType = symbol.type;
 
                     if (types.isSameBIRShape(readShape, anonType)) {
                         return anonType;
                     }
-                } else if (typeDefinition.name.value.equals(name.value)) {
+                } else if (typeDefName.equals(name.value)) {
                     return symbol.type;
                 }
             }
         } else {
-            for (Scope.ScopeEntry value : pkgEnv.scope.entries.values()) {
-                BSymbol symbol = value.symbol;
+            for (Map.Entry<Name, Scope.ScopeEntry> value : pkgEnv.scope.entries.entrySet()) {
+                BSymbol symbol = value.getValue().symbol;
 
-                if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                if (value.getKey().value.contains(ANON_PREFIX)) {
                     BType anonType = symbol.type;
 
                     if (types.isSameBIRShape(readShape, anonType)) {
