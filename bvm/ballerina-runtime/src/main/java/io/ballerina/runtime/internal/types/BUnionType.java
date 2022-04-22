@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -372,14 +371,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             }
         }
         return this.readonly == that.readonly;
-    }
-
-    @Override
-    public int hashCode() {
-        if (isCyclic) {
-            return super.hashCode();
-        }
-        return Objects.hash(super.hashCode(), memberTypes);
     }
 
     @Override
