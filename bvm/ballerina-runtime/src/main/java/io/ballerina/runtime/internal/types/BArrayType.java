@@ -92,6 +92,10 @@ public class BArrayType extends BType implements ArrayType {
         }
     }
 
+    public void setHasFillerValue(boolean hasFillerValue) {
+        this.hasFillerValue = hasFillerValue;
+    }
+
     private void setFlagsBasedOnElementType() {
         if (elementType.isNilable()) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
