@@ -112,26 +112,6 @@ public class AnydataTest {
         assertEquals(returns.toString(), "{\"name\":\"apple\",\"color\":\"red\",\"price\":40}");
     }
 
-    @Test(description = "Test table assignment")
-    public void testTableAssignment() {
-        BRunUtil.invoke(result, "testTableAssignment");
-    }
-
-    @Test(description = "Test map assignment")
-    public void testMapAssignment() {
-        BRunUtil.invoke(result, "testMapAssignment");
-    }
-
-    @Test(description = "Test for maps constrained by anydata")
-    public void testConstrainedMaps() {
-        BRunUtil.invoke(result, "testConstrainedMaps");
-    }
-
-    @Test(description = "Test array assignment")
-    public void testArrayAssignment() {
-        BRunUtil.invoke(result, "testArrayAssignment");
-    }
-
     @Test(description = "Test union assignment")
     public void testUnionAssignment() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testUnionAssignment");
@@ -140,16 +120,6 @@ public class AnydataTest {
         assertEquals(returns.get(2), 23.45);
         assertTrue((Boolean) returns.get(3));
         assertEquals(returns.get(4), 255);
-    }
-
-    @Test(description = "Test union assignment for more complex types")
-    public void testUnionAssignment2() {
-        BRunUtil.invoke(result, "testUnionAssignment2");
-    }
-
-    @Test(description = "Test tuple assignment")
-    public void testTupleAssignment() {
-        BRunUtil.invoke(result, "testTupleAssignment");
     }
 
     @Test(description = "Test nil assignment")
@@ -214,11 +184,6 @@ public class AnydataTest {
         assertEquals(returns.get(0).toString(), "{\"a\":15}");
     }
 
-    @Test(description = "Test anydata to table conversion")
-    public void testAnydataToTable() {
-        BRunUtil.invoke(result, "testAnydataToTable");
-    }
-
     @Test(description = "Test anydata to union conversion")
     public void testAnydataToUnion() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testAnydataToUnion");
@@ -232,11 +197,6 @@ public class AnydataTest {
         assertEquals(returns.get(2).toString(), "hello world!");
         assertTrue((Boolean) returns.get(3));
         assertEquals(returns.get(4), 255);
-    }
-
-    @Test(description = "Test anydata to union conversion for complex types")
-    public void testAnydataToUnion2() {
-        BRunUtil.invoke(result, "testAnydataToUnion2");
     }
 
     @Test(description = "Test anydata to tuple conversion")
@@ -255,11 +215,6 @@ public class AnydataTest {
                 "[json,xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>]");
         assertEquals(returns.toString(), "[{\"name\":\"apple\",\"color\":\"red\",\"price\":40},`<book>The Lost " +
                 "World</book>`]");
-    }
-
-    @Test(description = "Test anydata to tuple conversion")
-    public void testAnydataToTuple3() {
-        BRunUtil.invoke(result, "testAnydataToTuple3");
     }
 
     @Test(description = "Test anydata to nil conversion")
@@ -296,24 +251,30 @@ public class AnydataTest {
         assertEquals(rets.getRefValue(7).toString(), "{\"ca\":15}");
     }
 
-    @Test
-    public void testRuntimeIsAnydata() {
-        BRunUtil.invoke(result, "testRuntimeIsAnydata");
-    }
-
-    @Test(dataProvider = "subtypeOfBasicTypesIsAnydata")
-    public void testSubtypeOfBasicTypesIsAnydata(String function) {
+    @Test(dataProvider = "getAnydataFuntion")
+    public void testAnydata(String function) {
         BRunUtil.invoke(result, function);
     }
 
-    @DataProvider(name = "subtypeOfBasicTypesIsAnydata")
-    public Object[][] subtypeOfBasicTypesIsAnydata() {
-        return new Object[][]{
-                {"testMapOfCharIsAnydata"},
-                {"testCharArrayIsAnydata"},
-                {"testMapOfIntSubtypeIsAnydata"},
-                {"testArrayOfIntSubtypeIsAnydata"},
-                {"testMapOfNeverTypeIsAnydata"}
+    @DataProvider(name = "getAnydataFuntion")
+    public Object[] getAnydataFuntion() {
+        return new String[]{
+                "testMapOfCharIsAnydata",
+                "testCharArrayIsAnydata",
+                "testMapOfIntSubtypeIsAnydata",
+                "testArrayOfIntSubtypeIsAnydata",
+                "testMapOfNeverTypeIsAnydata",
+                "testRuntimeIsAnydata",
+                "testAnydataToTuple3",
+                "testAnydataToUnion2",
+                "testAnydataToTable",
+                "testTupleAssignment",
+                "testUnionAssignment2",
+                "testTableAssignment",
+                "testMapAssignment",
+                "testConstrainedMaps",
+                "testArrayAssignment",
+                "testAnytoAnydataTypeCast"
         };
     }
 }
