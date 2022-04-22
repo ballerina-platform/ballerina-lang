@@ -7025,16 +7025,33 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
-        if (iExpr.argExprs.size() <= 2 && !types.isOrderedType(iExpr.argExprs.get(0).getBType(), false)) {
-            dlog.error(iExpr.argExprs.get(0).pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
-                       iExpr.argExprs.get(0).getBType());
+        List<BLangExpression> argExprs = iExpr.argExprs;
+        BLangExpression keyFunction = null;
+
+        for (int i = 0; i < argExprs.size(); i++) {
+            BLangExpression arg = argExprs.get(i);
+            if (arg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                BLangNamedArgsExpression argExpr = (BLangNamedArgsExpression) arg;
+                if (argExpr.name.value.equals("key")) {
+                    keyFunction = argExpr.expr;
+                    break;
+                }
+            } else if (i == 2) {
+                keyFunction = arg;
+                break;
+            }
         }
 
-        if (iExpr.argExprs.size() != 3) {
+        BLangExpression arrExpr = argExprs.get(0);
+        BType arrType = arrExpr.getBType();
+        boolean isOrderedType = types.isOrderedType(arrType, false);
+        if (keyFunction == null) {
+            if (!isOrderedType) {
+                dlog.error(arrExpr.pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE, arrType);
+            }
             return;
         }
 
-        BLangExpression keyFunction = iExpr.argExprs.get(2);
         BType keyFunctionType = keyFunction.getBType();
 
         if (keyFunctionType.tag == TypeTags.SEMANTIC_ERROR) {
@@ -7042,9 +7059,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (keyFunctionType.tag == TypeTags.NIL) {
-            if (!types.isOrderedType(iExpr.argExprs.get(0).getBType(), false)) {
-                dlog.error(iExpr.argExprs.get(0).pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
-                           iExpr.argExprs.get(0).getBType());
+            if (!isOrderedType) {
+                dlog.error(arrExpr.pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE, arrType);
             }
             return;
         }
