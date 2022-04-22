@@ -113,7 +113,6 @@ public class BasicCasesTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"runtime-api-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        System.out.println(output);
         AssertionUtils.assertForTestFailures(output, "runtime api failure");
     }
 
