@@ -54,7 +54,7 @@ public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     public TestCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -63,7 +63,7 @@ public class TestCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public TestCommand(Path projectPath, boolean exitWhenFinish) {
+    TestCommand(Path projectPath, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = System.out;
         this.errStream = System.err;
@@ -71,7 +71,7 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -79,17 +79,7 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                       boolean dumpBuildTime) {
-        this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
-        this.exitWhenFinish = exitWhenFinish;
-        this.dumpBuildTime = dumpBuildTime;
-        this.offline = true;
-    }
-
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        Boolean testReport, Boolean coverage, String coverageFormat) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -101,7 +91,7 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        Boolean testReport, Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;

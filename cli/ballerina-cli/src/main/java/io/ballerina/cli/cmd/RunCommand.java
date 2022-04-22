@@ -110,7 +110,7 @@ public class RunCommand implements BLauncherCmd {
         this.errStream = System.err;
     }
 
-    public RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish) {
+    RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.exitWhenFinish = exitWhenFinish;
         this.outStream = outStream;
@@ -118,7 +118,7 @@ public class RunCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    public RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
+    RunCommand(Path projectPath, PrintStream outStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = projectPath;
         this.exitWhenFinish = exitWhenFinish;
         this.outStream = outStream;
