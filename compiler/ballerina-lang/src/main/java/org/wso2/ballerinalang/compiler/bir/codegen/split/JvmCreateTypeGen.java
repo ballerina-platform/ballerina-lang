@@ -335,7 +335,7 @@ public class JvmCreateTypeGen {
     }
 
     private static boolean isReferringToTestPkg(BType type, BIntersectionType immutableType) {
-        return (!type.tsymbol.pkgID.isTestPkg && immutableType.tsymbol.pkgID.isTestPkg);
+        return !type.tsymbol.pkgID.isTestPkg && immutableType.tsymbol.pkgID.isTestPkg;
     }
 
     public void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {
