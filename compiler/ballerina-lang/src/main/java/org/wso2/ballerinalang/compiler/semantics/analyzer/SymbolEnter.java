@@ -2199,7 +2199,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    getOrigin(funcNode.name.value));
         funcSymbol.source = funcNode.pos.lineRange().filePath();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
-        SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        SymbolEnv invokableEnv;
+        NodeKind previousNodeKind = env.node.getKind();
+        if (previousNodeKind == NodeKind.CLASS_DEFN) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope,
+                    fieldsRemovedEnv(env, ((BLangClassDefinition) env.node).fields));
+        } else if (previousNodeKind == NodeKind.OBJECT_TYPE) {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope,
+                    fieldsRemovedEnv(env, ((BLangObjectTypeNode) env.node).fields));
+        } else {
+            invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
+        }
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
         funcNode.setBType(funcSymbol.type);
 
@@ -2215,6 +2225,22 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (funcNode.receiver != null) {
             defineAttachedFunctions(funcNode, funcSymbol, invokableEnv, validAttachedFunc);
         }
+    }
+
+    private SymbolEnv fieldsRemovedEnv(SymbolEnv currentEnv, List<BLangSimpleVariable> fields) {
+        if (fields.isEmpty()) {
+            return currentEnv;
+        }
+        Scope currentScope = currentEnv.scope;
+        Scope newScope = new Scope(currentScope.owner);
+        newScope.entries.putAll(currentScope.entries);
+        Map<Name, ScopeEntry> entries = newScope.entries;
+        for (BLangSimpleVariable field : fields) {
+            entries.remove(Names.fromString(field.name.value));
+        }
+        SymbolEnv newEnv = new SymbolEnv(currentEnv.node, newScope);
+        currentEnv.copyTo(newEnv, currentEnv.enclEnv);
+        return newEnv;
     }
 
     private boolean isDeprecated(List<BLangAnnotationAttachment> annAttachments) {
