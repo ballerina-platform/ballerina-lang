@@ -61,8 +61,7 @@ function testIntersectionTypes() {
     ImmutableArrayType arrayVal = [recordVal];
     test:assertEquals(arrayVal[0].id, 1);
 
-    ImmutableObjectOrRecordType unionVal = objVal;
-    test:assertEquals(objVal.rec.id, 1);
+    ImmutableObjectOrRecordType _ = objVal;
 
     EmployeeRec & readonly employeeVal = {id: uuid, name: "Chiran"};
     test:assertEquals(employeeVal.name, "Chiran");

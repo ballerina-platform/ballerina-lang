@@ -29,7 +29,7 @@ public type RecordType record {
     int id;
 };
 
-type ImmutableRecordType readonly & RecordType;
+public type ImmutableRecordType readonly & RecordType;
 
 public type ObjectType object {
     RecordType rec;
