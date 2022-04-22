@@ -3589,7 +3589,14 @@ public class Types {
     }
 
     boolean validateFloatLiteral(Location pos, String numericLiteral) {
-        double value = Double.parseDouble(numericLiteral);
+        double value;
+        try {
+             value = Double.parseDouble(numericLiteral);
+        } catch (Exception e) {
+            // We may reach here if a floating point literal has syntax diagnostics.
+            return false;
+        }
+
         if (Double.isInfinite(value)) {
             dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
             return false;

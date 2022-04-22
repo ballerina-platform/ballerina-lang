@@ -550,12 +550,6 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 .map(Path::toFile)
                 .sorted((o1, o2) -> -o1.compareTo(o2))
                 .forEach(File::delete);
-        advResBalaDir = testBuildDirectory.resolve("user-home").resolve("repositories")
-                .resolve("local").resolve("bala").resolve("adv_res");
-        Files.walk(advResBalaDir)
-                .map(Path::toFile)
-                .sorted((o1, o2) -> -o1.compareTo(o2))
-                .forEach(File::delete);
     }
 
     private static void deleteDependenciesTomlAndBuildFile(Path packagePath) throws IOException {
