@@ -941,7 +941,7 @@ public class Types {
             return false;
         }
 
-        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
+        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList.isEmpty()) {
             return true;
         }
 
@@ -952,7 +952,7 @@ public class Types {
                 return true;
             }
 
-            if (sourceTableType.fieldNameList == null) {
+            if (sourceTableType.fieldNameList.isEmpty()) {
                 return false;
             }
 
@@ -2629,6 +2629,7 @@ public class Types {
             return Symbols.isFlagOn(target.flags, Flags.READONLY) == Symbols.isFlagOn(source.flags, Flags.READONLY);
         }
 
+        @Override
         public Boolean visit(BTupleType t, BType s) {
             if (((!t.tupleTypes.isEmpty() && checkAllTupleMembersBelongNoType(t.tupleTypes)) ||
                     (t.restType != null && t.restType.tag == TypeTags.NONE)) &&
@@ -2789,7 +2790,12 @@ public class Types {
         }
 
         public Boolean visit(BTypeReferenceType t, BType s) {
-            return isSameType(getReferredType(t), s);
+            BType constraint = s;
+            if (s.tag == TypeTags.TYPEREFDESC) {
+                constraint = getReferredType(((BTypeReferenceType) s).referredType);
+            }
+            BType target = getReferredType(t.referredType);
+            return isSameType(target, constraint);
         }
     };
 
@@ -3589,7 +3595,14 @@ public class Types {
     }
 
     boolean validateFloatLiteral(Location pos, String numericLiteral) {
-        double value = Double.parseDouble(numericLiteral);
+        double value;
+        try {
+             value = Double.parseDouble(numericLiteral);
+        } catch (Exception e) {
+            // We may reach here if a floating point literal has syntax diagnostics.
+            return false;
+        }
+
         if (Double.isInfinite(value)) {
             dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
             return false;

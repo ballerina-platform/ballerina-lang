@@ -357,25 +357,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (!LSClientConfigHolder.getInstance(serverContext).getConfig().isEnableFileWatcher()) {
             return;
         }
-        String fileName = filePath.getFileName().toString();
-        boolean isBallerinaSourceChange = fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT);
-        boolean isBallerinaTomlChange = filePath.endsWith(ProjectConstants.BALLERINA_TOML);
-        boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
-        boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
-        boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
-
-        // NOTE: Need to specifically check Deleted events, since `filePath.toFile().isDirectory()`
-        // fails when physical file is deleted from the disk
-        boolean isModuleChange = filePath.toFile().isDirectory() &&
-                filePath.getParent().endsWith(ProjectConstants.MODULES_ROOT) ||
-                (fileEvent.getType() == FileChangeType.Deleted && !isBallerinaSourceChange && !isBallerinaTomlChange &&
-                        !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange);
-
-        Optional<ProjectPair> optProject = projectOfWatchedFileChange(filePath, fileEvent,
-                isBallerinaSourceChange, isBallerinaTomlChange,
-                isDependenciesTomlChange, isCloudTomlChange,
-                isCompilerPluginTomlChange, isModuleChange);
-
+        Optional<ProjectPair> optProject = getProjectOfWatchedFileChange(filePath, fileEvent);
         if (optProject.isEmpty()) {
             clientLogger.logTrace(
                     String.format("Operation '%s' No matching project found, {fileUri: '%s' event: '%s'} ignored",
@@ -386,6 +368,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
         ProjectPair projectPair = optProject.get();
         Project project = projectPair.project();
+        String fileName = filePath.getFileName().toString();
+        boolean isBallerinaSourceChange = fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT);
+        boolean isBallerinaTomlChange = filePath.endsWith(ProjectConstants.BALLERINA_TOML);
+        boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
+        boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
+        boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
         if (fileEvent.getType() == FileChangeType.Created &&
                 (isBallerinaSourceChange || isBallerinaTomlChange || isCloudTomlChange || isCompilerPluginTomlChange)
                 && hasDocumentOrToml(filePath, project)) {
@@ -431,6 +419,12 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             if (!this.openedDocuments.contains(filePath) || fileEvent.getType() == FileChangeType.Deleted) {
                 // If already opened in the cache, this will be captured via the textDocument/didChange event
                 this.didChangeWatched(filePath, fileEvent);
+                Optional<ProjectPair> optProject = getProjectOfWatchedFileChange(filePath, fileEvent);
+                if (optProject.isPresent()) {
+                    ProjectPair projectPair = optProject.get();
+                    Project project = projectPair.project();
+                    return List.of(project.sourceRoot());
+                }
             }
             return Collections.emptyList();
         }
@@ -1201,6 +1195,27 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return findProjectRoot(filePath.getParent());
         }
         return Optional.empty();
+    }
+
+    private Optional<ProjectPair> getProjectOfWatchedFileChange(Path filePath, FileEvent fileEvent) {
+        String fileName = filePath.getFileName().toString();
+        boolean isBallerinaSourceChange = fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT);
+        boolean isBallerinaTomlChange = filePath.endsWith(ProjectConstants.BALLERINA_TOML);
+        boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
+        boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
+        boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
+
+        // NOTE: Need to specifically check Deleted events, since `filePath.toFile().isDirectory()`
+        // fails when physical file is deleted from the disk
+        boolean isModuleChange = filePath.toFile().isDirectory() &&
+                filePath.getParent().endsWith(ProjectConstants.MODULES_ROOT) ||
+                (fileEvent.getType() == FileChangeType.Deleted && !isBallerinaSourceChange && !isBallerinaTomlChange &&
+                        !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange);
+
+        return projectOfWatchedFileChange(filePath, fileEvent,
+                isBallerinaSourceChange, isBallerinaTomlChange,
+                isDependenciesTomlChange, isCloudTomlChange,
+                isCompilerPluginTomlChange, isModuleChange);
     }
 
     private boolean hasBallerinaToml(Path filePath) {

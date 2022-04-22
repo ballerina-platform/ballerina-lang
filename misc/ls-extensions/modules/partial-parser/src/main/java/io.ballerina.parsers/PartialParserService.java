@@ -24,6 +24,8 @@ import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
+import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
@@ -48,15 +50,12 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForSingleStatement(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            StatementNode statementNode;
 
-            if (request.getStModification() != null) {
-                String newStatement = STModificationUtil.getModifiedStatement(
-                        request.getCodeSnippet(), request.getStModification());
-                statementNode = NodeParser.parseStatement(newStatement);
-            } else {
-                statementNode = NodeParser.parseStatement(request.getCodeSnippet());
-            }
+            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+                    request.getStModification());
+            String formattedSourceCode = getFormattedSource(statement);
+
+            StatementNode statementNode = NodeParser.parseStatement(formattedSourceCode);
 
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNode);
             STResponse response = new STResponse();
@@ -79,8 +78,12 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForModuleMembers(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            ModuleMemberDeclarationNode expressionNode = NodeParser
-                    .parseModuleMemberDeclaration(request.getCodeSnippet());
+
+            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+                    request.getStModification());
+            String formattedSourceCode = getFormattedSource(statement);
+
+            ModuleMemberDeclarationNode expressionNode = NodeParser.parseModuleMemberDeclaration(formattedSourceCode);
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
             STResponse response = new STResponse();
             response.setSyntaxTree(syntaxTreeJSON);
@@ -91,5 +94,20 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @Override
     public String getName() {
         return Constants.CAPABILITY_NAME;
+    }
+
+    private String getFormattedSource(String statement) {
+
+        String formattedSourceCode = statement;
+
+        try {
+            formattedSourceCode = Formatter.format(statement);
+        } catch (FormatterException e) {
+            // TODO: Print a warn log in the language client.
+            //  The methods are currently unavailable
+            //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/67).
+        }
+
+        return formattedSourceCode;
     }
 }
