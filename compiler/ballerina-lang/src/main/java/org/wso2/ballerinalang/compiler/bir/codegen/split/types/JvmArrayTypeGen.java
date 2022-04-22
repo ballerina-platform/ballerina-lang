@@ -56,6 +56,11 @@ public class JvmArrayTypeGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_TYPE_IMPL, "setElementType", "(L" + TYPE + ";)V", false);
     }
 
+    public void setHasArrayFillerValue(MethodVisitor mv, BArrayType arrayType, Types types) {
+        mv.visitInsn(types.hasFillerValue(arrayType.eType) ? ICONST_1 : ICONST_0);
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_TYPE_IMPL, "setHasFillerValue", "(Z)V", false);
+    }
+
     /**
      * Create a runtime type instance for array.
      * @param mv        method visitor
