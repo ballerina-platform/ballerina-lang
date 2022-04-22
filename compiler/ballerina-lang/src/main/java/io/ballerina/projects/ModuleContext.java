@@ -217,13 +217,11 @@ class ModuleContext {
             return allModuleLoadRequests;
         }
         allModuleLoadRequests = new OverwritableLinkedHashSet();
-        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : srcDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.DEFAULT));
+            allModuleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.DEFAULT));
         }
 
-        allModuleLoadRequests.addAll(moduleLoadRequests);
-        return moduleLoadRequests;
+        return allModuleLoadRequests;
     }
 
     Set<ModuleLoadRequest> populateTestSrcModuleLoadRequests() {
@@ -231,13 +229,12 @@ class ModuleContext {
             return allTestModuleLoadRequests;
         }
         allTestModuleLoadRequests = new OverwritableLinkedHashSet();
-        Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         for (DocumentContext docContext : testDocContextMap.values()) {
-            moduleLoadRequests.addAll(docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY));
+            allTestModuleLoadRequests.addAll(
+                    docContext.moduleLoadRequests(moduleName(), PackageDependencyScope.TEST_ONLY));
         }
 
-        allTestModuleLoadRequests.addAll(moduleLoadRequests);
-        return moduleLoadRequests;
+        return allTestModuleLoadRequests;
     }
 
     BLangPackage bLangPackage() {
@@ -317,7 +314,9 @@ class ModuleContext {
                         moduleDependencies, dependencyResolution);
             }
         } else {
-            Set<ModuleLoadRequest> moduleLoadRequests = this.allModuleLoadRequests;
+            Set<ModuleLoadRequest> moduleLoadRequests = new OverwritableLinkedHashSet();
+            moduleLoadRequests.addAll(this.allModuleLoadRequests);
+            moduleLoadRequests.addAll(this.allTestModuleLoadRequests);
             for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
                 PackageOrg packageOrg;
                 if (modLoadRequest.orgName().isEmpty()) {

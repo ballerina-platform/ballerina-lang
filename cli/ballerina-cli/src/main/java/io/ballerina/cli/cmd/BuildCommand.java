@@ -64,7 +64,7 @@ public class BuildCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -72,7 +72,7 @@ public class BuildCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         boolean dumpBuildTime) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -82,7 +82,7 @@ public class BuildCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         String output) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -92,7 +92,7 @@ public class BuildCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                         Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
