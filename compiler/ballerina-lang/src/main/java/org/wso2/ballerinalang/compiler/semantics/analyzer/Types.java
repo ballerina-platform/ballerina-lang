@@ -2905,7 +2905,18 @@ public class Types {
 
         @Override
         public Boolean visit(BArrayType t, BType s) {
-            return s.tag == TypeTags.ARRAY && hasSameReadonlyFlag(s, t) && isSameArrayType(s, t, this.unresolvedTypes);
+            if (s.tag != TypeTags.ARRAY || !hasSameReadonlyFlag(s, t)) {
+                return false;
+            }
+
+            BArrayType sArrayType = (BArrayType) s;
+
+            boolean hasSameTypeElements = isSameBIRShape(t.eType, sArrayType.eType, unresolvedTypes);
+            if (t.state == BArrayState.OPEN) {
+                return (sArrayType.state == BArrayState.OPEN) && hasSameTypeElements;
+            }
+
+            return t.size == sArrayType.size && hasSameTypeElements;
         }
 
         @Override
@@ -2999,7 +3010,14 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return s.tag == TypeTags.STREAM && isSameStreamType(s, t, this.unresolvedTypes);
+            if (s.tag != TypeTags.STREAM) {
+                return false;
+            }
+
+            BStreamType sStreamType = (BStreamType) s;
+
+            return isSameBIRShape(t.constraint, sStreamType.constraint, unresolvedTypes)
+                    && isSameBIRShape(t.completionType, sStreamType.completionType, unresolvedTypes);
         }
 
         @Override
@@ -3009,7 +3027,7 @@ public class Types {
 
         @Override
         public Boolean visit(BInvokableType t, BType s) {
-            return s.tag == TypeTags.INVOKABLE && isSameFunctionType((BInvokableType) s, t, this.unresolvedTypes);
+            return s.tag == TypeTags.INVOKABLE && isSameFunctionBIRShape((BInvokableType) s, t, this.unresolvedTypes);
         }
 
         @Override
@@ -3157,6 +3175,11 @@ public class Types {
         }
     }
 
+    private boolean isSameFunctionBIRShape(BInvokableType source, BInvokableType target,
+                                           Set<TypePair> unresolvedTypes) {
+        return checkFunctionTypeEquality(source, target, unresolvedTypes, this::isSameBIRShape);
+    }
+
     private boolean hasSameMembers(Set<BLangExpression> sourceValueSpace, Set<BLangExpression> targetValueSpace) {
         Set<BLangExpression> setOne = new HashSet<>(sourceValueSpace);
         Set<BLangExpression> setTwo = new HashSet<>(targetValueSpace);
@@ -3187,33 +3210,8 @@ public class Types {
             }
         }
 
-        return !setOneIterator.hasNext() && !setTwoIterator.hasNext();
-
-//        if (!checkSameMembers(sourceValueSpace, targetValueSpace)) {
-//            return false;
-//        }
-//
-//        return checkSameMembers(targetValueSpace, sourceValueSpace);
+        return !setTwoIterator.hasNext();
     }
-
-//    private boolean checkSameMembers(Set<BLangExpression> setOne, Set<BLangExpression> setTwo) {
-//        for (BLangExpression sourceExpr : setOne) {
-//            boolean hasEqualValue = false;
-//            for (BLangExpression targetExpr : setTwo) {
-//                BLangLiteral targetLiteral = (BLangLiteral) targetExpr;
-//                BLangLiteral sourceLiteral = (BLangLiteral) sourceExpr;
-//                if (targetLiteral.value.equals(sourceLiteral.value) &&
-//                        targetLiteral.getBType() == sourceLiteral.getBType()) {
-//                    hasEqualValue = true;
-//                    break;
-//                }
-//            }
-//            if (!hasEqualValue) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
 
     private class BOrderedTypeVisitor implements BTypeVisitor<BType, Boolean> {
 
