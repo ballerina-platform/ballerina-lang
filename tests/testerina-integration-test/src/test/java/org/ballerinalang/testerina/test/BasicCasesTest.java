@@ -158,7 +158,7 @@ public class BasicCasesTest extends BaseTestCase {
 
     @Test
     public void testIntersectionTypes() throws BallerinaTestException {
-        String[] args = mergeCoverageArgs(new String[]{"intersections-type-test"});
+        String[] args = mergeCoverageArgs(new String[]{"intersection-type-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(output, "intersection type failure");
