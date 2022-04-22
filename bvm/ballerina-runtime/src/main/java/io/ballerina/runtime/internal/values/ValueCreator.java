@@ -33,7 +33,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.EMPTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.TEST_PACKAGE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.TEST_PACKAGE_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARATOR;
 
 /**
@@ -68,7 +68,7 @@ public abstract class ValueCreator {
         }
 
         if (isTestPkg) {
-            moduleName = moduleName + TEST_PACKAGE;
+            moduleName = moduleName + TEST_PACKAGE_NAME;
         }
 
         String pkgName = "";
