@@ -124,8 +124,6 @@ public class JvmArrayTypeConstantsGen {
         methodVisitor.visitCode();
         generateGetBArrayType(methodVisitor, varName);
         jvmArrayTypeGen.populateArray(methodVisitor, arrayType);
-        generateGetBArrayType(methodVisitor, varName);
-        jvmArrayTypeGen.setHasArrayFillerValue(methodVisitor, arrayType, types);
         genMethodReturn(methodVisitor);
     }
 
