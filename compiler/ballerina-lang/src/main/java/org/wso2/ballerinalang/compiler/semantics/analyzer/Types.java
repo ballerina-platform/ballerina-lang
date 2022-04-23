@@ -5646,7 +5646,7 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 return hasFillerValue(getReferredType(type));
             default:
-                // check whether it is an integer subtype who has filler value 0
+                // check whether the type is an integer subtype which has filler value 0
                 return TypeTags.isIntegerTypeTag(type.tag);
         }
     }
