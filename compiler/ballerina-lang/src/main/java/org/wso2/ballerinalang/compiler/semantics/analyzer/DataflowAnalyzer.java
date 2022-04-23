@@ -1453,7 +1453,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = invocationExpr.symbol;
         this.unusedLocalVariables.remove(symbol);
 
-        if (symbol.owner == getEnclPkgSymbol(env) && !isGlobalVarsInitialized(invocationExpr.pos)) {
+        if (isFunctionOrMethodDefinedInCurrentModule(symbol.owner, env) &&
+                !isGlobalVarsInitialized(invocationExpr.pos)) {
             return;
         }
         if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
@@ -1637,7 +1638,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
             }
             if (uninitializedFields.length() != 0) {
-                this.dlog.error(pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_VARIABLES,
+                this.dlog.error(pos, DiagnosticErrorCode.INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES,
                         uninitializedFields.toString());
                 return false;
             }
@@ -2635,6 +2636,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         OperatorKind opKind = ((BLangBinaryExpr) collection).opKind;
         return opKind != OperatorKind.HALF_OPEN_RANGE && opKind != OperatorKind.CLOSED_RANGE;
+    }
+
+    private boolean isFunctionOrMethodDefinedInCurrentModule(BSymbol owner, SymbolEnv env) {
+        if (Symbols.isFlagOn(owner.flags, Flags.CLASS)) {
+            return owner.owner == getEnclPkgSymbol(env);
+        }
+
+        return owner == getEnclPkgSymbol(env);
     }
 
     private BPackageSymbol getEnclPkgSymbol(SymbolEnv env) {

@@ -29,7 +29,10 @@ import org.testng.annotations.Test;
  */
 public class GlobalVarNegativeTest {
 
-    @Test(groups = { "disableOnOldParser" })
+    private static final String INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX =
+            "cannot call a function or method in the same module before all module-level variables are initialized: ";
+
+    @Test
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
@@ -70,13 +73,15 @@ public class GlobalVarNegativeTest {
 
     @Test
     void testGlobalVariableInitWithInvocationNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/variabledef" +
-                "/global_variable_init_with_invocation_negative.bal");
+        CompileResult result = BCompileUtil.compile(
+                "test-src/statements/variabledef/global_variable_init_with_invocation_negative.bal");
 
         Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "variable(s) 'i, s' not initialized", 21, 9);
-        BAssertUtil.validateError(result, i, "variable(s) 's' not initialized", 22, 9);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'i, s' not initialized", 21, 9);
+        BAssertUtil.validateError(result, i, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 's' not initialized", 22, 9);
     }
 
     @Test
