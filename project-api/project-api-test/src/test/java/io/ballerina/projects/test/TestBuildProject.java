@@ -60,6 +60,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -83,12 +84,15 @@ import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.loadProject;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
+import static io.ballerina.projects.test.TestUtils.writeContent;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -1761,24 +1765,6 @@ public class TestBuildProject extends BaseTest {
         return resources;
     }
 
-    private static BuildProject loadBuildProject(Path projectPath) {
-        return loadBuildProject(projectPath, null);
-    }
-
-    private static BuildProject loadBuildProject(Path projectPath, BuildOptions buildOptions) {
-        BuildProject buildProject = null;
-        try {
-            if (buildOptions == null) {
-                buildProject = TestUtils.loadBuildProject(projectPath);
-            } else {
-                buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
-            }
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        return buildProject;
-    }
-
     @Test
     public void testProjectClearCaches() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
@@ -1897,9 +1883,241 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(targetDirPath, expectedPath);
     }
 
+    @DataProvider(name = "provideBallerinaTomlContentForUpdates")
+    public Object[][] provideBallerinaTomlContentForUpdates() {
+        String myPkgDir = "my-package";
+        String numericPkgDir = "1994";
+        System.setProperty(USER_NAME, "testuserorg");
+
+        String content1 =
+                "";
+        String updatedContent1 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"my_package\"\n" +
+                        "version = \"0.1.0\"";
+
+        String content2 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]";
+        String updatedContent2 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"my_package\"\n" +
+                        "version = \"0.1.0\"";
+
+        String content3 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "org = \"winery\"\n" +
+                        "version = \"2.0.0\"";
+        String updatedContent3 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "org = \"winery\"\n" +
+                        "name = \"my_package\"\n" +
+                        "version = \"2.0.0\"";
+
+        String content4 =
+                "";
+        String updatedContent4 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"";
+
+        String content5 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+        String updatedContent5 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+
+        String content6 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"winery\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+        String updatedContent6 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"winery\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+
+        String content7 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "name = \"winery\"";
+        String updatedContent7 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"winery\"\n" +
+                        "version = \"0.1.0\"";
+
+        String content8 =
+                "[package]\n" +
+                        "version = \"1.1.0\"\n" +
+                        "distribution = \"2201.0.3-SNAPSHOT\"\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        String updatedContent8 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"1.1.0\"\n" +
+                        "distribution = \"2201.0.3-SNAPSHOT\"\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+
+        String content9 =
+                "[package]\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        String updatedContent9 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+
+        String content10 =
+                "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        String updatedContent10 =
+                "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+
+        return new Object[][]{
+                {myPkgDir, content1, updatedContent1},
+                {myPkgDir, content2, updatedContent2},
+                {myPkgDir, content3, updatedContent3},
+                {numericPkgDir, content4, updatedContent4},
+                {numericPkgDir, content5, updatedContent5},
+                {numericPkgDir, content6, updatedContent6},
+                {myPkgDir, content7, updatedContent7},
+                {numericPkgDir, content8, updatedContent8},
+                {numericPkgDir, content9, updatedContent9},
+                {numericPkgDir, content10, updatedContent10},
+        };
+    }
+
+    @Test(description = "tests updating package name in Ballerina.toml by project save method",
+            dataProvider = "provideBallerinaTomlContentForUpdates")
+    public void testUpdatingBallerinaTomlPackageName(String projectDir, String balTomlContent,
+                                                     String updatedBalTomlContent)
+            throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_config_file_updates").resolve(projectDir);
+
+        // write content to the Ballerina.toml
+        writeContent(projectPath.resolve(BALLERINA_TOML), balTomlContent);
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
+        // 2) Check compilation diagnostics
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+
+        // Test the content
+        Assert.assertEquals(Files.readString(projectPath.resolve(BALLERINA_TOML)).trim(), updatedBalTomlContent);
+
+        // Clean project directory
+        writeContent(projectPath.resolve(BALLERINA_TOML), "");
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+    }
+
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
         TestUtils.resetPermissions(projectPath);
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath) {
+        return loadBuildProject(projectPath, null);
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath, BuildOptions buildOptions) {
+        BuildProject buildProject = null;
+        try {
+            if (buildOptions == null) {
+                buildProject = TestUtils.loadBuildProject(projectPath);
+            } else {
+                buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        return buildProject;
     }
 }

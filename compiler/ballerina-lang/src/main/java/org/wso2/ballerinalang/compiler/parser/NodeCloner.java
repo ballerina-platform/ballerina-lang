@@ -1819,7 +1819,8 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode source) {
 
-        BLangObjectTypeNode clone = new BLangObjectTypeNode();
+        int includedFieldCount = source.includedFields.size();
+        BLangObjectTypeNode clone = new BLangObjectTypeNode(includedFieldCount);
         source.cloneRef = clone;
         clone.functions = cloneList(source.functions);
         clone.initFunction = clone(source.initFunction);
@@ -1831,10 +1832,11 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode source) {
 
-        BLangRecordTypeNode clone = new BLangRecordTypeNode();
+        BLangType restFieldType = clone(source.restFieldType);
+        int includedFieldCount = source.includedFields.size();
+        BLangRecordTypeNode clone = new BLangRecordTypeNode(includedFieldCount, restFieldType);
         source.cloneRef = clone;
         clone.sealed = source.sealed;
-        clone.restFieldType = clone(source.restFieldType);
         clone.analyzed = source.analyzed;
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);
