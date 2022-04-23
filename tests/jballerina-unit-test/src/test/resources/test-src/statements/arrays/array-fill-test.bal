@@ -233,7 +233,7 @@ function testFiniteTypeArrayFill4(int index) returns state[] {
     return ar;
 }
 
-const decimal ZERO = 0.0;
+const decimal ZERO = 0;
 const decimal ONE_TWO = 1.2;
 const decimal TWO_THREE = 2.3;
 
@@ -324,6 +324,8 @@ function testFiniteTypeArrayFill() returns DEC[] {
     return ar;
 }
 
+const CONST_TWO = 2;
+
 type Foo1 1|2;
 type Bar1 0|4;
 type Foo2 "1"|"2";
@@ -340,8 +342,12 @@ type sym5 11|sym4|12;
 type WithFillerValSym Bar|20|sym3;
 type NoFillerValSym sym2|20|sym3;
 type finiteUnionType false|byte|0|0.0f|0d|""|["a"]|string:Char|int:Unsigned16;
+type LiteralConstAndIntType int|CONST_TWO;
 
 function testFiniteTypeUnionArrayFill() {
+    LiteralConstAndIntType[2] arr0 = [];
+    test:assertEquals(arr0, [0,0]);
+
     (Foo1|Bar1)[] arr1 = [];
     arr1[1] = 1;
     test:assertEquals(arr1, [0,1]);
@@ -366,28 +372,15 @@ function testFiniteTypeUnionArrayFill() {
     arr6[1] = 100;
     test:assertEquals(arr6, [0,100]);
 
-     //error? arr7Result = trap noFillerValueCase1();
-     //test:assertTrue(arr7Result is error);
-     //if (arr7Result is error) {
-     //    test:assertEquals("{ballerina/lang.array}IllegalListInsertion", arr7Result.message());
-     //    test:assertEquals("array of length 0 cannot be expanded into array of length 2 without filler values",
-     //    <string> checkpanic arr7Result.detail()["message"]);
-     //}
-     //
-     //error? arr8Result = trap noFillerValueCase2();
-     //test:assertTrue(arr8Result is error);
-     //if (arr8Result is error) {
-     //    test:assertEquals("{ballerina/lang.array}IllegalListInsertion", arr8Result.message());
-     //    test:assertEquals("array of length 0 cannot be expanded into array of length 2 without filler values",
-     //    <string> checkpanic arr8Result.detail()["message"]);
-     //}
-
-    error? arr9Result = trap noFillerValueCase3();
-    test:assertTrue(arr9Result is error);
-    if (arr9Result is error) {
-        test:assertEquals("{ballerina/lang.array}IllegalListInsertion", arr9Result.message());
-        test:assertEquals("array of length 0 cannot be expanded into array of length 2 without filler values",
-        <string> checkpanic arr9Result.detail()["message"]);
+    (function () returns ())[] negativeTestFunctions = [noFillerValueCase1, noFillerValueCase2, noFillerValueCase3];
+    foreach var func in negativeTestFunctions {
+        error? funcResult = trap func();
+        test:assertTrue(funcResult is error);
+        if (funcResult is error) {
+            test:assertEquals("{ballerina/lang.array}IllegalListInsertion", funcResult.message());
+            test:assertEquals("array of length 0 cannot be expanded into array of length 2 without filler values",
+            <string>checkpanic funcResult.detail()["message"]);
+        }
     }
 }
 
