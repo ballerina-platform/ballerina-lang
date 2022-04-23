@@ -76,12 +76,24 @@ public class GlobalVarNegativeTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_init_with_invocation_negative.bal");
 
-        Assert.assertEquals(result.getErrorCount(), 2);
         int i = 0;
         BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
-                "variable(s) 'i, s' not initialized", 21, 9);
-        BAssertUtil.validateError(result, i, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
-                "variable(s) 's' not initialized", 22, 9);
+                "variable(s) 'i, s, t, u' not initialized", 24, 5);
+        BAssertUtil.validateError(result, i++, "variable 'lf' is not initialized", 24, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'i, s, u' not initialized", 26, 5);
+        BAssertUtil.validateError(result, i++, "variable 't' is not initialized", 26, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'i, s, t, u' not initialized", 28, 9);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 's, t' not initialized", 30, 5);
+        BAssertUtil.validateError(result, i++, "variable 'u' is not initialized", 30, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 's, t, u' not initialized", 32, 9);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'u' not initialized", 34, 5);
+        BAssertUtil.validateError(result, i++, "variable 't' is not initialized", 34, 5);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test

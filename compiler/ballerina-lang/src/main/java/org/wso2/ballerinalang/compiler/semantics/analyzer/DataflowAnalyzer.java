@@ -1454,7 +1454,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.unusedLocalVariables.remove(symbol);
 
         if (isFunctionOrMethodDefinedInCurrentModule(symbol.owner, env) &&
-                !isGlobalVarsInitialized(invocationExpr.pos)) {
+                !isGlobalVarsInitialized(invocationExpr.pos, invocationExpr)) {
+            checkVarRef(symbol, invocationExpr.pos);
             return;
         }
         if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
@@ -1625,11 +1626,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean isGlobalVarsInitialized(Location pos) {
+    private boolean isGlobalVarsInitialized(Location pos, BLangInvocation invocation) {
         if (env.isModuleInit) {
             boolean isFirstUninitializedField = true;
             StringBuilder uninitializedFields = new StringBuilder();
+
+            BLangExpression expr = invocation.expr;
+            boolean methodCallOnVarRef = expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF;
+
             for (BSymbol symbol : this.uninitializedVars.keySet()) {
+                if (symbol.owner.getKind() != SymbolKind.PACKAGE || symbol == invocation.symbol ||
+                        (methodCallOnVarRef && ((BLangSimpleVarRef) expr).symbol == symbol)) {
+                    continue;
+                }
+
                 if (isFirstUninitializedField) {
                     uninitializedFields = new StringBuilder(symbol.getName().value);
                     isFirstUninitializedField = false;

@@ -14,12 +14,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-int i; // uninitialized variable 'i'
-string s; // uninitialized variable 's'
+int i;
+string s;
+function (int a) t;
+Foo u;
 
 function init() {
+    Foo lf;
+    lf.value();
+
+    t(10);
+
     i = foo();
+
+    u.value();
+
     s = bar();
+
+    t(10);
+
+    t = function (int a) {};
+    u = new;
 }
 
 function foo() returns int {
@@ -28,4 +43,9 @@ function foo() returns int {
 
 function bar() returns string {
     return "";
+}
+
+class Foo {
+    function value() {
+    }
 }
