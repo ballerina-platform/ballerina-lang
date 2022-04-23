@@ -31,7 +31,6 @@
             <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
             <class name="io.ballerina.semantic.api.test.SymbolAtCursorTest" />
             <class name="io.ballerina.semantic.api.test.SymbolBIRTest" />
-            <class name="io.ballerina.semantic.api.test.SignatureTest" />
             <class name="io.ballerina.semantic.api.test.SymbolEquivalenceTest" />
             <class name="io.ballerina.semantic.api.test.SymbolFlagToQualifierMappingTest" />
             <class name="io.ballerina.semantic.api.test.SymbolLookupTest" />
@@ -105,6 +104,7 @@
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTemplateExprTest" />
             <class name="io.ballerina.semantic.api.test.typebynode.newapi.TypeByTypeExprTest" />
 
+            <class name="io.ballerina.semantic.api.test.typedescriptors.TypeNarrowedTypeDescriptorTest" />
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeReferenceTSymbolTest" />
 
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
@@ -149,6 +149,7 @@
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInBinaryExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInMappingConstructorTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInObjectConstructorTest" />
+            <class name="io.ballerina.semantic.api.test.symbols.SymbolsInOnFailClauseTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInQueryExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsInXMLNavigationExprsTest" />
             <class name="io.ballerina.semantic.api.test.symbols.SymbolsWithinExprTest" />

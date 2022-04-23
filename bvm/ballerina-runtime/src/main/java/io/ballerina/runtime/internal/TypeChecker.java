@@ -2349,7 +2349,10 @@ public class TypeChecker {
             case TypeTags.JSON_TAG:
             case TypeTags.MAP_TAG:
                 return isLikeType(((MapValueImpl) sourceValue).values().toArray(), TYPE_ANYDATA,
-                                  unresolvedValues, allowNumericConversion);
+                        unresolvedValues, allowNumericConversion);
+            case TypeTags.TABLE_TAG:
+                return isLikeType(((TableValueImpl) sourceValue).values().toArray(), TYPE_ANYDATA,
+                        unresolvedValues, allowNumericConversion);
             case TypeTags.ARRAY_TAG:
                 ArrayValue arr = (ArrayValue) sourceValue;
                 BArrayType arrayType = (BArrayType) arr.getType();

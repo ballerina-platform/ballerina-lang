@@ -19,7 +19,7 @@
       "kind": "Field",
       "detail": "Pet.name",
       "sortText": "K",
-      "insertText": "name: \"${1}\"",
+      "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "Pet.type",
       "sortText": "K",
-      "insertText": "'type: ${2:0}",
+      "insertText": "'type: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "Pet",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "name: \"\",\ntype: 0",
+      "insertText": "name: ${1:\"\"},\ntype: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

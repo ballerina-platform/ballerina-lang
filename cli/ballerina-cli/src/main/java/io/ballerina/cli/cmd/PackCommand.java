@@ -66,9 +66,6 @@ public class PackCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private Boolean experimentalFlag;
-
     @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
     private String debugPort;
 
@@ -152,14 +149,12 @@ public class PackCommand implements BLauncherCmd {
             return;
         }
 
-
-        if (isProjectEmpty(project)) {
-            if (project.currentPackage().compilerPluginToml().isPresent()) {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
+        // If project is empty
+        if (isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty()) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
                         false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
         // Check `[package]` section is available when compile
@@ -253,7 +248,6 @@ public class PackCommand implements BLauncherCmd {
     private BuildOptions constructBuildOptions() {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder
-                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setDumpBir(dumpBIR)
                 .setDumpBirFile(dumpBIRFile)

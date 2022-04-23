@@ -125,9 +125,6 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private Boolean experimentalFlag;
-
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
@@ -219,13 +216,12 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
+        // If project is empty
         if (isProjectEmpty(project)) {
-            if (project.currentPackage().compilerPluginToml().isPresent()) {
-                CommandUtil.printError(this.errStream, "package is empty. please add at least one .bal file.", null,
-                        false);
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
+                    false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
-            }
         }
 
         // Validate Settings.toml file
@@ -266,7 +262,6 @@ public class BuildCommand implements BLauncherCmd {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         buildOptionsBuilder
-                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setCloud(cloud)

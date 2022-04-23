@@ -37,7 +37,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
  * Test cases for bal new command.
@@ -50,8 +52,8 @@ public class NewCommandTest extends BaseCommandTest {
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
         return new Object[][] {
-                { "hello-app" },
-                { "my$project" }
+                { "hello-app", "hello_app" },
+                { "my$project", "my_project" }
         };
     }
 
@@ -69,6 +71,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Create a new project")
     public void testNewCommand() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
         String[] args = {"project_name"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parse(args);
@@ -84,10 +87,13 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + args[0] + "\"\n" +
+                "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedContent));
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -100,6 +106,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Test new command with main template")
     public void testNewCommandWithMain() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
         String[] args = {"main_sample", "-t", "main"};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parse(args);
@@ -118,10 +125,13 @@ public class NewCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + args[0] + "\"\n" +
+                "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
-        Assert.assertTrue(tomlContent.contains(expectedContent));
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
 
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
         Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
@@ -209,9 +219,9 @@ public class NewCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
-    public void testNewCommandWithInvalidProjectName(String projectName) throws IOException {
+    public void testNewCommandWithInvalidProjectName(String projectName, String derivedPkgName) throws IOException {
         // Test if no arguments was passed in
-        String[] args = { projectName };
+        String[] args = {projectName};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
@@ -219,8 +229,10 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
-        Assert.assertTrue(readOutput().contains("unallowed characters in the project name were replaced by " +
-                "underscores when deriving the package name. Edit the Ballerina.toml to change it."));
+        String buildOutput = readOutput().replaceAll("\r", "");
+        Assert.assertEquals(buildOutput, "package name is derived as '" + derivedPkgName + "'. " +
+                "Edit the Ballerina.toml to change it.\n\n" +
+                "Created new package '" + derivedPkgName + "' at " + projectName + ".\n");
     }
 
     @Test(description = "Test new command with invalid template")
@@ -500,8 +512,8 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.isDirectory(tmpDir.resolve("parent").resolve("sub_dir").resolve("sample")));
     }
 
-    @DataProvider(name = "invalidPackageNames")
-    public Object[][] provideInvalidPackageNames() {
+    @Test(description = "Test new command with invalid length package name")
+    public void testNewCommandWithInvalidLengthPackageName() throws IOException {
         String longPkgName = "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
@@ -509,22 +521,33 @@ public class NewCommandTest extends BaseCommandTest {
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting"
                 + "thisIsVeryLongPackageJustUsingItForTesting";
-        return new Object[][] {
-                { "_my_package", "Package name cannot have initial underscore characters." },
-                { "my_package_", "Package name cannot have trailing underscore characters." },
-                { "my__package", "Package name cannot have consecutive underscore characters." },
-                { longPkgName, "Maximum length of package name is 256 characters." }
-        };
-    }
-
-    @Test(description = "Test new command with invalid package names", dataProvider = "invalidPackageNames")
-    public void testNewCommandWithInvalidPackageNames(String packageName, String errMessage) throws IOException {
-        String[] args = { packageName };
+        String[] args = {longPkgName};
         NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("invalid package name : '" + packageName + "' :\n" + errMessage));
+        Assert.assertTrue(readOutput().contains("invalid package name : '" + longPkgName + "' :\n"
+                + "Maximum length of package name is 256 characters."));
+    }
+
+    @DataProvider(name = "invalidPackageNames")
+    public Object[][] provideInvalidPackageNames() {
+        return new Object[][] {
+                { "_my_package", "new-pkg-with-initial-underscore.txt" },
+                { "my_package_", "new-pkg-with-trailing-underscore.txt" },
+                { "my__package", "new-pkg-with-consecutive-underscore.txt" }
+        };
+    }
+
+    @Test(description = "Test new command with invalid package names", dataProvider = "invalidPackageNames")
+    public void testNewCommandWithInvalidPackageNames1(String packageName, String outputLog) throws IOException {
+        String[] args = {packageName};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parse(args);
+        newCommand.execute();
+
+        String buildLog = readOutput();
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput(outputLog));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
@@ -43,6 +44,8 @@ public class BLangAnnotationAttachment extends BLangNode implements AnnotationAt
     // Semantic Data
     public BAnnotationSymbol annotationSymbol;
     public Set<AttachPoint.Point> attachPoints;
+
+    public BAnnotationAttachmentSymbol annotationAttachmentSymbol;
 
     public BLangAnnotationAttachment() {
         attachPoints = new LinkedHashSet<>();

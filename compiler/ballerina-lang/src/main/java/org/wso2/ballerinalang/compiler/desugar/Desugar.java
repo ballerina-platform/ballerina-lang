@@ -398,6 +398,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
+    private boolean skipFailStmtRewrite;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -770,7 +771,7 @@ public class Desugar extends BLangNodeVisitor {
 
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
-        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+        desugarAnnotations(pkgNode);
 
         // Add invocation for user specified module init function (`init()`) if present and return.
         addUserDefinedModuleInitInvocationAndReturn(pkgNode);
@@ -803,10 +804,38 @@ public class Desugar extends BLangNodeVisitor {
         closureDesugar.visit(pkgNode);
 
         for (BLangTestablePackage testablePkg : pkgNode.getTestablePkgs()) {
+            annotationDesugar.initializeAnnotationMap(testablePkg);
             rewrite(testablePkg, this.symTable.pkgEnvMap.get(testablePkg.symbol));
         }
         pkgNode.completedPhases.add(CompilerPhase.DESUGAR);
         result = pkgNode;
+    }
+
+    private void desugarAnnotations(BLangPackage pkgNode) {
+        List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+
+        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+
+        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            if (prevTypeDefinitions.contains(typeDef)) {
+                continue;
+            }
+
+            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                continue;
+            }
+            BSymbol symbol = typeDef.symbol;
+            BSymbol typeSymbol = symbol.tag == SymTag.TYPE_DEF ? symbol.type.tsymbol : symbol;
+            if (typeSymbol.tag != SymTag.RECORD) {
+                continue;
+            }
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+            recordTypeNode.initFunction = rewrite(
+                    TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env, names, symTable),
+                    env);
+            pkgNode.functions.add(recordTypeNode.initFunction);
+            pkgNode.topLevelNodes.add(recordTypeNode.initFunction);
+        }
     }
 
     private void rewriteConstants(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
@@ -7703,7 +7732,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        if (this.onFailClause != null) {
+        if (this.onFailClause != null && !this.skipFailStmtRewrite) {
             if (this.onFailClause.bodyContainsFail) {
                 result = rewriteNestedOnFail(this.onFailClause, failNode);
             } else {
@@ -8109,14 +8138,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
+        this.skipFailStmtRewrite = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env);
         result = rewrite(stmtExpr, env);
+        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
+        this.skipFailStmtRewrite = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env);
         result = rewrite(stmtExpr, env);
+        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
     }
 
     @Override

@@ -253,6 +253,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         checkStatementExecutionValidity(returnStmt, data);
         analyzeReachabilityInExpressionIfApplicable(returnStmt.expr, data);
         data.statementReturnsPanicsOrFails = true;
+        data.returnedWithinQuery = true;
     }
 
     @Override
@@ -363,6 +364,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         if (!data.failureHandled) {
             data.statementReturnsPanicsOrFails = true;
         }
+        data.returnedWithinQuery = true;
     }
 
     @Override
@@ -671,6 +673,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
+        boolean prevReturnedWithinQuery = data.returnedWithinQuery;
+        data.returnedWithinQuery = false;
         for (BLangNode queryClause : queryAction.queryClauseList) {
             if (queryClause.getKind() == NodeKind.WHERE) {
                 BLangWhereClause whereClause = (BLangWhereClause) queryClause;
@@ -682,6 +686,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             }
         }
         analyzeReachability(queryAction.getDoClause(), data);
+        queryAction.returnsWithinDoClause = data.returnedWithinQuery;
+        data.returnedWithinQuery = prevReturnedWithinQuery;
     }
 
     @Override
@@ -972,6 +978,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean breakStmtFound;
         boolean hasLastPatternInStatement;
         boolean failureHandled;
+        boolean returnedWithinQuery;
         boolean skipFurtherAnalysisInUnreachableBlock;
         int loopCount;
         int loopAndDoClauseCount;

@@ -59,6 +59,12 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 31, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 39, 13);
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 40, 16);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func1'", 43, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func2'", 45, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func3'", 47, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func4'", 49, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func5'", 51, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func6'", 53, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

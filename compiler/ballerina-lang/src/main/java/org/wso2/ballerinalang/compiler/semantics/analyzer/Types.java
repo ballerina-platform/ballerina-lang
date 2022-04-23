@@ -1311,11 +1311,10 @@ public class Types {
     }
 
     public static BType getReferredType(BType type) {
-        BType constraint = type;
         if (type.tag == TypeTags.TYPEREFDESC) {
-            constraint = getReferredType(((BTypeReferenceType) type).referredType);
+            return getReferredType(((BTypeReferenceType) type).referredType);
         }
-        return constraint;
+        return type;
     }
 
     boolean isSelectivelyImmutableType(BType type) {
@@ -1693,7 +1692,7 @@ public class Types {
                 BType constraint = getReferredType(((BXMLType) collectionType).constraint);
                 while (constraint.tag == TypeTags.XML) {
                     collectionType = constraint;
-                    constraint = ((BXMLType) collectionType).constraint;
+                    constraint = getReferredType(((BXMLType) collectionType).constraint);
                 }
                 switch (constraint.tag) {
                     case TypeTags.XML_ELEMENT:
@@ -3590,7 +3589,14 @@ public class Types {
     }
 
     boolean validateFloatLiteral(Location pos, String numericLiteral) {
-        double value = Double.parseDouble(numericLiteral);
+        double value;
+        try {
+             value = Double.parseDouble(numericLiteral);
+        } catch (Exception e) {
+            // We may reach here if a floating point literal has syntax diagnostics.
+            return false;
+        }
+
         if (Double.isInfinite(value)) {
             dlog.error(pos, DiagnosticErrorCode.FLOAT_TOO_LARGE, numericLiteral);
             return false;
@@ -3616,7 +3622,7 @@ public class Types {
 
     boolean isByteLiteralValue(Long longObject) {
 
-        return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
+        return (longObject >= BBYTE_MIN_VALUE && longObject <= BBYTE_MAX_VALUE);
     }
 
     boolean isSigned32LiteralValue(Long longObject) {
@@ -3959,6 +3965,9 @@ public class Types {
         switch (type.tag) {
             case TypeTags.XML:
             case TypeTags.XML_TEXT:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_COMMENT:
                 return true;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
@@ -3974,14 +3983,14 @@ public class Types {
                                 return false;
                             }
                         }
-                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                        if (!validStringOrXmlTypeExists(memType)) {
                             return false;
                         }
                     }
                 } else {
                     for (BType memType : memberTypes) {
                        memType = getReferredType(memType);
-                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                        if (!validStringOrXmlTypeExists(memType)) {
                             return false;
                         }
                     }
@@ -4002,18 +4011,6 @@ public class Types {
             default:
                 return false;
         }
-    }
-
-    private boolean checkValidStringOrXmlTypesInUnion(BType memType, int firstTypeTag) {
-        if (memType.tag != firstTypeTag && !checkTypesBelongToStringOrXml(memType.tag, firstTypeTag)) {
-            return false;
-        }
-        return validStringOrXmlTypeExists(memType);
-    }
-
-    private boolean checkTypesBelongToStringOrXml(int firstTypeTag, int secondTypeTag) {
-        return (TypeTags.isStringTypeTag(firstTypeTag) && TypeTags.isStringTypeTag(secondTypeTag)) ||
-                (TypeTags.isXMLTypeTag(firstTypeTag) && TypeTags.isXMLTypeTag(secondTypeTag));
     }
 
     public boolean checkTypeContainString(BType type) {
@@ -5960,6 +5957,9 @@ public class Types {
             case TypeTags.FLOAT:
             case TypeTags.XML:
             case TypeTags.XML_TEXT:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_COMMENT:
                 return type;
             case TypeTags.INT:
             case TypeTags.BYTE:
