@@ -219,10 +219,20 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         FunctionBodyNode newBody = newNode.functionBody();
         FunctionBodyNode oldBody = oldNode.functionBody();
 
-        if ((newBody == null && oldBody != null) || (newBody != null && oldBody == null)) {
-            functionBodyDiff.add(new NodeDiffImpl<>(newBody, oldBody, CompatibilityLevel.PATCH));
-        } else if (newBody != null && !newBody.toSourceCode().equals(oldBody.toSourceCode())) {
-            functionBodyDiff.add(new NodeDiffImpl<>(newBody, oldBody, CompatibilityLevel.PATCH));
+        if (newBody != null && oldBody == null) {
+            NodeDiffImpl<Node> bodyDiff = new NodeDiffImpl<>(null, oldBody, CompatibilityLevel.PATCH);
+            bodyDiff.setMessage("function body is added");
+            functionBodyDiff.add(bodyDiff);
+        } else if (newBody == null && oldBody != null) {
+            NodeDiffImpl<Node> bodyDiff = new NodeDiffImpl<>(null, oldBody, CompatibilityLevel.PATCH);
+            bodyDiff.setMessage("function body is removed");
+            functionBodyDiff.add(bodyDiff);
+        } else {
+            if (newBody != null && !newBody.toSourceCode().equals(oldBody.toSourceCode())) {
+                NodeDiffImpl<Node> bodyDiff = new NodeDiffImpl<>(newBody, oldBody, CompatibilityLevel.PATCH);
+                bodyDiff.setMessage("function body is modified");
+                functionBodyDiff.add(bodyDiff);
+            }
         }
 
         return functionBodyDiff;

@@ -21,11 +21,12 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
-import io.ballerina.semver.checker.util.DiffUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
  * Represents all the source code changes within a single Ballerina module.
@@ -66,37 +67,11 @@ public class ModuleDiff extends DiffImpl {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("  ");
-        switch (diffType) {
-            case NEW:
-                sb.append("description: module '")
-                        .append(DiffUtils.getModuleName(this))
-                        .append("' is added [compatibility level: ")
-                        .append(compatibilityLevel.toString())
-                        .append("]")
-                        .append(System.lineSeparator());
-                break;
-            case REMOVED:
-                sb.append("description: package '")
-                        .append(DiffUtils.getModuleName(this))
-                        .append("' is removed [compatibility level: ")
-                        .append(compatibilityLevel.toString())
-                        .append("]")
-                        .append(System.lineSeparator());
-                break;
-            case MODIFIED:
-                sb.append("description: module '")
-                        .append(DiffUtils.getModuleName(this))
-                        .append("' is modified [compatibility level: ")
-                        .append(compatibilityLevel.toString())
-                        .append("]")
-                        .append(System.lineSeparator());
-                if (childDiffs != null) {
-                    childDiffs.forEach(diff -> sb.append(diff.toString()));
-                }
-                break;
-            case UNKNOWN:
+    public String getAsString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(stringifyDiff(this));
+        if (diffType == DiffType.MODIFIED && childDiffs != null) {
+            childDiffs.forEach(diff -> sb.append(diff.getAsString()));
         }
         return sb.toString();
     }

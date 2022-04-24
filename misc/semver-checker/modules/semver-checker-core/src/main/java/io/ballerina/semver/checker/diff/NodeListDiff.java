@@ -21,6 +21,7 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.compiler.syntax.tree.Node;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Base representation of changes in Ballerina syntax tree node lists.
@@ -30,7 +31,11 @@ import java.util.List;
  */
 public interface NodeListDiff<T extends List<? extends Node>> extends Diff {
 
-    T getNewNodes();
+    Optional<T> getNewNodes();
 
-    T getOldNodes();
+    Optional<T> getOldNodes();
+
+    Optional<String> getMessage();
+
+    void setMessage(String message);
 }

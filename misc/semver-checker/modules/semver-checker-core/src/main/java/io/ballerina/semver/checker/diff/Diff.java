@@ -35,5 +35,5 @@ public interface Diff {
 
     void computeCompatibilityLevel();
 
-    String toString();
+    String getAsString();
 }

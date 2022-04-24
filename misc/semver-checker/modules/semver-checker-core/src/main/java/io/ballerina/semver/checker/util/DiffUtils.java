@@ -18,8 +18,11 @@
 
 package io.ballerina.semver.checker.util;
 
+import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
+import io.ballerina.semver.checker.diff.NodeDiff;
+import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
 
 /**
@@ -28,6 +31,38 @@ import io.ballerina.semver.checker.diff.PackageDiff;
  * @since 2201.2.0
  */
 public class DiffUtils {
+
+    /**
+     * Coverts a given diff instance into a human-readable string.
+     *
+     * @param diff Diff instance
+     */
+    public static String stringifyDiff(Diff diff) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getDiffIndentation(diff))
+                .append(getDiffSign(diff))
+                .append(" ");
+
+        if ((diff instanceof NodeDiff) && ((NodeDiff<?>) diff).getMessage().isPresent()) {
+            sb.append(((NodeDiff<?>) diff).getMessage().get());
+        } else if ((diff instanceof NodeListDiff) && ((NodeListDiff<?>) diff).getMessage().isPresent()) {
+            sb.append(((NodeListDiff<?>) diff).getMessage().get());
+        } else {
+            sb.append(getDiffTypeName(diff))
+                    .append(" '")
+                    .append(getDiffName(diff))
+                    .append("' is ")
+                    .append(getDiffVerb(diff));
+        }
+
+        sb.append(" [")
+                .append("compatibility level: ")
+                .append(diff.getCompatibilityLevel())
+                .append("]")
+                .append(System.lineSeparator());
+
+        return sb.toString();
+    }
 
     /**
      * Retrieves package name of the given {@link PackageDiff} instance.
@@ -98,6 +133,75 @@ public class DiffUtils {
                 } else {
                     return "unknown";
                 }
+        }
+    }
+
+    /**
+     * Returns the string sign to represent a given {@link Diff}.
+     *
+     * @param diff diff type
+     */
+    public static String getDiffSign(Diff diff) {
+        switch (diff.getType()) {
+            case NEW:
+                return "[++]";
+            case REMOVED:
+                return "[--]";
+            case MODIFIED:
+                return "[+-]";
+            case UNKNOWN:
+            default:
+                return "[??]";
+        }
+    }
+
+    private static String getDiffVerb(Diff diff) {
+        switch (diff.getType()) {
+            case NEW:
+                return "added";
+            case REMOVED:
+                return "removed";
+            case MODIFIED:
+                return "modified";
+            case UNKNOWN:
+            default:
+                return "(?)";
+        }
+    }
+
+    private static String getDiffName(Diff diff) {
+        if (diff instanceof PackageDiff) {
+            return getPackageName((PackageDiff) diff);
+        } else if (diff instanceof ModuleDiff) {
+            return getModuleName((ModuleDiff) diff);
+        } else if (diff instanceof FunctionDiff) {
+            return getFunctionName((FunctionDiff) diff);
+        } else {
+            return "unknown";
+        }
+    }
+
+    private static String getDiffTypeName(Diff diff) {
+        if (diff instanceof PackageDiff) {
+            return "package";
+        } else if (diff instanceof ModuleDiff) {
+            return "module";
+        } else if (diff instanceof FunctionDiff) {
+            return "function";
+        } else {
+            return "unknown";
+        }
+    }
+
+    private static String getDiffIndentation(Diff diff) {
+        if (diff instanceof PackageDiff) {
+            return " ".repeat(0);
+        } else if (diff instanceof ModuleDiff) {
+            return " ".repeat(2);
+        } else if (diff instanceof FunctionDiff) {
+            return " ".repeat(4);
+        } else {
+            return " ".repeat(6);
         }
     }
 }

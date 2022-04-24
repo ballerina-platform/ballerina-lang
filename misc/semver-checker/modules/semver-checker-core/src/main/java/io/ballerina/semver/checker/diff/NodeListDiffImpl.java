@@ -21,11 +21,12 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.compiler.syntax.tree.Node;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
  * Base implementation of changes in Ballerina syntax tree node lists.
@@ -57,13 +58,13 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     }
 
     @Override
-    public List<T> getNewNodes() {
-        return newNodes;
+    public Optional<List<T>> getNewNodes() {
+        return Optional.ofNullable(newNodes);
     }
 
     @Override
-    public List<T> getOldNodes() {
-        return oldNodes;
+    public Optional<List<T>> getOldNodes() {
+        return Optional.ofNullable(oldNodes);
     }
 
     @Override
@@ -116,33 +117,13 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         this.childDiffs.addAll(childDiffs);
     }
 
-    /**
-     * Derives the parent {@link CompatibilityLevel} of a given source (syntax node) based on the compatibility
-     * information of its child elements.
-     *
-     * @param childCompatibilities compatibility information of the child elements
-     * @return parent {@link CompatibilityLevel}
-     */
-    protected static CompatibilityLevel getUnifiedCompatibility(CompatibilityLevel... childCompatibilities) {
-        return Arrays.stream(childCompatibilities)
-                .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                .orElse(CompatibilityLevel.UNKNOWN);
-    }
-
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("  ");
+    public String getAsString() {
+        StringBuilder sb = new StringBuilder();
         if (childDiffs == null || childDiffs.isEmpty()) {
-            if (message != null) {
-                sb.append("description: ").append(message);
-                sb.append(" [compatibility level: ")
-                        .append(compatibilityLevel.toString())
-                        .append("]")
-                        .append(System.lineSeparator());
-                return sb.toString();
-            }
+            sb.append(stringifyDiff(this));
         } else {
-            childDiffs.forEach(diff -> sb.append(diff.toString()));
+            childDiffs.forEach(diff -> sb.append(diff.getAsString()));
         }
 
         return sb.toString();

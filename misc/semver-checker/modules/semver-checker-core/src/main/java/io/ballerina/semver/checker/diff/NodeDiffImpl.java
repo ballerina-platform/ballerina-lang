@@ -26,6 +26,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
+
 /**
  * Implementation of changes in Ballerina syntax tree nodes.
  *
@@ -103,16 +105,18 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         }
     }
 
-    public List<Diff> getChildDiffs() {
-        return Collections.unmodifiableList(childDiffs);
-    }
-
+    @Override
     public Optional<String> getMessage() {
         return Optional.ofNullable(message);
     }
 
+    @Override
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public List<Diff> getChildDiffs() {
+        return Collections.unmodifiableList(childDiffs);
     }
 
     public void addChildDiff(Diff childDiff) {
@@ -124,19 +128,12 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("  ");
+    public String getAsString() {
+        StringBuilder sb = new StringBuilder();
         if (childDiffs == null || childDiffs.isEmpty()) {
-            if (message != null) {
-                sb.append("description: ").append(message);
-                sb.append(" [compatibility level: ")
-                        .append(compatibilityLevel.toString())
-                        .append("]")
-                        .append(System.lineSeparator());
-                return sb.toString();
-            }
+            sb.append(stringifyDiff(this));
         } else {
-            childDiffs.forEach(diff -> sb.append(diff.toString()));
+            childDiffs.forEach(diff -> sb.append(diff.getAsString()));
         }
 
         return sb.toString();
