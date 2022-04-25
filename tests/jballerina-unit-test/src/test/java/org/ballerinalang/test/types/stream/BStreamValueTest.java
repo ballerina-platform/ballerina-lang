@@ -274,6 +274,11 @@ public class BStreamValueTest {
         BRunUtil.invoke(result, "testBasicStreamType");
     }
 
+    @Test(description = "Test basic stream type variables")
+    public void testErrorStreamTypeAssignedToStreamWithoutParams() {
+        BRunUtil.invoke(result, "testErrorStreamTypeAssignedToStreamWithoutParams");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

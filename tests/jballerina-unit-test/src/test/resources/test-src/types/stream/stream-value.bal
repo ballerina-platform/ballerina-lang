@@ -453,7 +453,6 @@ function testInvalidCast() {
 }
 
 function testBasicStreamType() {
-    boolean testPassed = true;
     stream<int> emptyStream1 = new;
     stream<int> emptyStream2 = new stream<int>();
     stream<int, ()> emptyStream3 = new;
@@ -485,6 +484,29 @@ function testBasicStreamType() {
     assertTrue(a9.next() === ());
 }
 
+function getNextErrorValue(stream errorStream) returns error? {
+    record {error|any value;}|error? val = errorStream.next();
+    if (val is ()) {
+        return;
+    }
+    if (val is error) {
+        return val;
+    }
+    return <error>val.value;
+}
+
+function testErrorStreamTypeAssignedToStreamWithoutParams() {
+    error[] errorList = [];
+    foreach int i in 0 ... 2 {
+        errorList.push(error(i.toBalString()));
+    }
+
+    stream errorStream = errorList.toStream();
+    assertTrue(getNextErrorValue(errorStream) === errorList[0]);
+    assertTrue(getNextErrorValue(errorStream) === errorList[1]);
+    assertTrue(getNextErrorValue(errorStream) === errorList[2]);
+    assertTrue(getNextErrorValue(errorStream) == ());
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
