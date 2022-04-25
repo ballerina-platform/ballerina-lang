@@ -243,6 +243,48 @@ function testCatchingErrorAtOnFail() {
         res3 = err;
     }
     assertTrue(res3 is error);
+
+    error? res4 = ();
+    do {
+        _ = from int a in (from int v in [1, 2]
+                let int m = check verifyCheck(v)
+                select m)
+            select a;
+    } on fail error err {
+        res4 = err;
+    }
+    assertTrue(res4 is error);
+
+    error? res5 = ();
+    do {
+        _ = from int a in (from int v in [1, 2]
+                select check verifyCheck(v))
+            select a;
+    } on fail error err {
+        res5 = err;
+    }
+    assertTrue(res5 is error);
+
+    error? res6 = ();
+    do {
+        _ = from int a in (from int v in check verifyCheckArr()
+                select v)
+            select a;
+    } on fail error err {
+        res6 = err;
+    }
+    assertTrue(res6 is error);
+
+    error? res7 = ();
+    do {
+        _ = from int a in from int v in (from int i in 1 ... 3
+                                          select check verifyCheck(i))
+                           select v
+            select a;
+    } on fail error err {
+        res7 = err;
+    }
+    assertTrue(res7 is error);
 }
 
 function testErrorReturnedFromSelect() {
@@ -262,6 +304,10 @@ public function verifyCheck(int i) returns int|error {
 
 public function verifyPanic(int i) returns int {
     panic error("Verify Panic.");
+}
+
+public function verifyCheckArr() returns int[]|error {
+    return error("Verify Check.");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
