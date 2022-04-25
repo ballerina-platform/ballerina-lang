@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Project;
@@ -41,13 +40,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Code Action to make function isolate.
+ * Code Action to add isolated qualifier.
  *
  * @since 2201.1.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class MakeFunctionIsolatedCodeAction extends AbstractCodeActionProvider {
-    public static final String NAME = "Make Function Isolated";
+public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
+    public static final String NAME = "Add Isolated Qualifier";
     public static final String DIAGNOSTIC_CODE_BCE3946 = "BCE3946";
     public static final String DIAGNOSTIC_CODE_BCE3947 = "BCE3947";
 
@@ -84,15 +83,14 @@ public class MakeFunctionIsolatedCodeAction extends AbstractCodeActionProvider {
 
         Optional<NonTerminalNode> node = CommonUtil.findNode(symbol.get(), 
                 context.workspace().syntaxTree(filePath.get()).get());
-        if (node.isEmpty()) {
+        if (node.isEmpty() || !node.get().kind().equals(SyntaxKind.FUNCTION_DEFINITION)) {
             return Collections.emptyList();
         }
 
-        Optional<Position> position = getStartPosition(node.get());
-        if (position.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Range range = new Range(position.get(), position.get());
+        FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get(); 
+        Position position = CommonUtil.toPosition(functionDefinitionNode.functionKeyword().lineRange().startLine());
+
+        Range range = new Range(position, position);
         String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
@@ -111,15 +109,6 @@ public class MakeFunctionIsolatedCodeAction extends AbstractCodeActionProvider {
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, "Anonymous function expression");
         return Collections.singletonList(createCodeAction(commandTitle, editList, context.fileUri(),
                 CodeActionKind.QuickFix));
-    }
-
-    private static Optional<Position> getStartPosition(Node node) {
-        SyntaxKind typeKind = node.kind();
-        if (typeKind.equals(SyntaxKind.FUNCTION_DEFINITION)) {
-            FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node;
-            return Optional.of(CommonUtil.toPosition(functionDefinitionNode.functionKeyword().lineRange().startLine()));
-        }
-        return Optional.empty();
     }
 
     @Override

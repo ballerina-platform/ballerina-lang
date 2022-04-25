@@ -3,13 +3,13 @@
   "character": 29,
   "expected": [
     {
-      "title": "Convert 'Anonymous function expression' to isolated",
+      "title": "Add isolated qualifier to 'Anonymous function expression'",
       "edit": {
         "documentChanges": [
           {
             "textDocument": {
               "version": null,
-              "uri": "publicCodeAction/modules/module2/make_function_isolated_source2_test.bal"
+              "uri": "publicCodeAction/modules/module2/add_isolated_qualifier_source2_test.bal"
             },
             "edits": [
               {

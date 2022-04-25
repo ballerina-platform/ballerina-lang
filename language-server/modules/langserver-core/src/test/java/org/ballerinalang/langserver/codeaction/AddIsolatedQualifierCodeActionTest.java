@@ -26,7 +26,7 @@ import java.io.IOException;
  *
  * @since 2201.1.0
  */
-public class MakeFunctionIsolatedCodeActionTest extends AbstractCodeActionTest {
+public class AddIsolatedQualifierCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")
     @Override
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
@@ -35,19 +35,19 @@ public class MakeFunctionIsolatedCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     public String getResourceDir() {
-        return "make-function-isolated";
+        return "add-isolated-qualifier";
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {
-                {"make_function_isolated_config1.json",
-                        "isolatedFunctionCodeAction/modules/module1/make_function_isolated_source1.bal"},
-                {"make_function_isolated_config2.json",
-                        "isolatedFunctionCodeAction/modules/module2/make_function_isolated_source2.bal"},
-                {"make_function_isolated_config3.json",
-                        "isolatedFunctionCodeAction/modules/module2/make_function_isolated_source3.bal"}
+                {"add_isolated_qualifier_config1.json",
+                        "isolatedFunctionCodeAction/modules/module1/add_isolated_qualifier_source1.bal"},
+                {"add_isolated_qualifier_config2.json",
+                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source2.bal"},
+                {"add_isolated_qualifier_config3.json",
+                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source3.bal"}
         };
     }
 }
