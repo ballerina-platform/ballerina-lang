@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
+
 /**
  * Base implementation for all the diff types which can exist within a Ballerina package.
  *
@@ -74,7 +76,35 @@ public class DiffImpl implements Diff {
         }
     }
 
+    @Override
     public List<Diff> getChildDiffs() {
         return Collections.unmodifiableList(childDiffs);
+    }
+
+    @Override
+    public List<Diff> getChildDiffs(CompatibilityLevel compatibilityLevel) {
+        List<Diff> filteredDiffs = new ArrayList<>();
+        for (Diff diff : childDiffs) {
+            if (diff.getChildDiffs().isEmpty()) {
+                if (diff.getCompatibilityLevel() == compatibilityLevel) {
+                    filteredDiffs.add(diff);
+                }
+            } else {
+                for (Diff childDiff : diff.getChildDiffs()) {
+                    filteredDiffs.addAll(childDiff.getChildDiffs(compatibilityLevel));
+                }
+            }
+        }
+        return filteredDiffs;
+    }
+
+    @Override
+    public String getAsString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(stringifyDiff(this));
+        if (diffType == DiffType.MODIFIED && childDiffs != null) {
+            childDiffs.forEach(diff -> sb.append(diff.getAsString()));
+        }
+        return sb.toString();
     }
 }

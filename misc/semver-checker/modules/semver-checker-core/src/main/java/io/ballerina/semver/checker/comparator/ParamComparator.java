@@ -95,18 +95,13 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         Node newType = extractParamType(newParam);
         Node oldType = extractParamType(oldParam);
 
-        if (newType == null) {
-            addErrorDiagnostic("unsupported param type: " + newParam.kind() + " detected");
-        } else if (oldType == null) {
-            addErrorDiagnostic("unsupported param type: " + newParam.kind() + " detected");
-        } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
+        if (newType != null && oldType != null && !newType.toSourceCode().equals(oldType.toSourceCode())) {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newParam, oldNode, CompatibilityLevel.AMBIGUOUS);
             diff.setMessage(String.format("parameter type changed from: '%s' to: %s", oldType.toSourceCode(),
                     newType.toSourceCode()));
             return Optional.of(diff);
         }
-
         return Optional.empty();
     }
 

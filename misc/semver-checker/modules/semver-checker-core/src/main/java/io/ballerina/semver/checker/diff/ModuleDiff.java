@@ -26,8 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
-
 /**
  * Represents all the source code changes within a single Ballerina module.
  *
@@ -64,16 +62,6 @@ public class ModuleDiff extends DiffImpl {
 
     public void addFunctionDiff(FunctionDiff functionDiff) {
         childDiffs.add(functionDiff);
-    }
-
-    @Override
-    public String getAsString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(stringifyDiff(this));
-        if (diffType == DiffType.MODIFIED && childDiffs != null) {
-            childDiffs.forEach(diff -> sb.append(diff.getAsString()));
-        }
-        return sb.toString();
     }
 
     public static class Modifier implements DiffModifier {

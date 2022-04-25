@@ -23,7 +23,7 @@ import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.semver.checker.exception.BallerinaSemverToolException;
+import io.ballerina.semver.checker.exception.SemverToolException;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
@@ -60,24 +60,24 @@ public class CentralClientWrapper {
      * Retrieves all the released versions from the central and returns the latest package version that is
      * compatible with the current semantic version of the package.
      *
-     * @param orgName    org name
-     * @param pkgName    package name
-     * @param pkgVersion current package version
+     * @param orgName        org name
+     * @param pkgName        package name
+     * @param currentVersion current package version
      * @return all the released versions available in the Ballerina central
      */
-    public SemanticVersion getLatestCompatibleVersion(String orgName, String pkgName, SemanticVersion pkgVersion)
-            throws BallerinaSemverToolException {
+    public SemanticVersion getLatestCompatibleVersion(String orgName, String pkgName, SemanticVersion currentVersion)
+            throws SemverToolException {
         try {
             List<String> publishedVersions = centralClient.getPackageVersions(orgName, pkgName,
                     JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion());
             if (publishedVersions == null || publishedVersions.isEmpty()) {
-                throw new BallerinaSemverToolException(String.format("couldn't find any published packages in " +
+                throw new SemverToolException(String.format("couldn't find any published packages in " +
                         "Ballerina central under the org '%s' with name '%s'", orgName, pkgName));
             }
             List<SemanticVersion> availableVersions = publishedVersions.stream().map(SemanticVersion::from)
                     .collect(Collectors.toList());
 
-            Optional<SemanticVersion> compatibleVersion = selectCompatibleVersion(availableVersions, pkgVersion);
+            Optional<SemanticVersion> compatibleVersion = selectCompatibleVersion(availableVersions, currentVersion);
             if (compatibleVersion.isEmpty()) {
                 SemanticVersion highestVersion = getHighestVersion(availableVersions);
                 LOGGER.warn(String.format("current package version is lower than all the available versions in the " +
@@ -89,7 +89,7 @@ public class CentralClientWrapper {
                 return compatibleVersion.get();
             }
         } catch (CentralClientException e) {
-            throw new BallerinaSemverToolException(e);
+            throw new SemverToolException(e);
         }
     }
 
@@ -100,10 +100,9 @@ public class CentralClientWrapper {
      * @param pkgName name of the package
      * @param version version of the package
      * @return path of the pulled bala package
-     * @throws BallerinaSemverToolException if unexpected error occurred while pulling package
+     * @throws SemverToolException if unexpected error occurred while pulling package
      */
-    public Path pullPackage(String orgName, String pkgName, SemanticVersion version)
-            throws BallerinaSemverToolException {
+    public Path pullPackage(String orgName, String pkgName, SemanticVersion version) throws SemverToolException {
 
         Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
@@ -115,7 +114,7 @@ public class CentralClientWrapper {
         } catch (PackageAlreadyExistsException e) {
             // can be ignored
         } catch (CentralClientException e) {
-            throw new BallerinaSemverToolException("unexpected error occurred while pulling package from the central: "
+            throw new SemverToolException("unexpected error occurred while pulling package from the central: "
                     + e.getMessage());
         }
 

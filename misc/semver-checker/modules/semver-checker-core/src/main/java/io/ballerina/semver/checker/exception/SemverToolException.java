@@ -25,17 +25,17 @@ package io.ballerina.semver.checker.exception;
  *
  * @since 2201.2.0
  */
-public class BallerinaSemverToolException extends Exception {
+public class SemverToolException extends Exception {
 
-    public BallerinaSemverToolException(String message) {
+    public SemverToolException(String message) {
         super(message);
     }
 
-    public BallerinaSemverToolException(String message, Throwable cause) {
+    public SemverToolException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public BallerinaSemverToolException(Throwable e) {
+    public SemverToolException(Throwable e) {
         super(e);
     }
 }

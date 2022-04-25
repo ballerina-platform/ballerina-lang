@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.util;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
@@ -26,6 +27,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.semver.checker.exception.SemverToolException;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -42,12 +44,33 @@ public class PackageUtils {
     public static final String QUALIFIER_PUBLIC = "public";
 
     /**
+     * Loads the target ballerina source package instance using the Project API, from the file path of the open/active
+     * editor instance in the client(plugin) side.
+     *
+     * @param filePath file path of the open/active editor instance in the plugin side.
+     */
+    public static Package loadPackage(Path filePath) throws SemverToolException {
+        Project project = PackageUtils.loadProject(filePath);
+        switch (project.kind()) {
+            case BUILD_PROJECT:
+            case BALA_PROJECT:
+                return project.currentPackage();
+            case SINGLE_FILE_PROJECT:
+                throw new SemverToolException("semver checker tool is not applicable for single file " +
+                        "projects.");
+            default:
+                throw new SemverToolException("semver checker tool is not applicable for " +
+                        project.kind().name());
+        }
+    }
+
+    /**
      * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
      * editor instance in the client(plugin) side.
      *
      * @param filePath file path of the open/active editor instance in the plugin side.
      */
-    public static Project loadProject(Path filePath) {
+    private static Project loadProject(Path filePath) {
         Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(filePath);
         ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
         Path projectRoot = projectKindAndProjectRootPair.getValue();

@@ -119,6 +119,23 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         return Collections.unmodifiableList(childDiffs);
     }
 
+    @Override
+    public List<Diff> getChildDiffs(CompatibilityLevel compatibilityLevel) {
+        List<Diff> filteredDiffs = new ArrayList<>();
+        for (Diff diff : childDiffs) {
+            if (diff.getChildDiffs().isEmpty()) {
+                if (diff.getCompatibilityLevel() == compatibilityLevel) {
+                    filteredDiffs.add(diff);
+                }
+            } else {
+                for (Diff childDiff : diff.getChildDiffs()) {
+                    filteredDiffs.addAll(childDiff.getChildDiffs(compatibilityLevel));
+                }
+            }
+        }
+        return filteredDiffs;
+    }
+
     public void addChildDiff(Diff childDiff) {
         this.childDiffs.add(childDiff);
     }
@@ -133,6 +150,10 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         if (childDiffs == null || childDiffs.isEmpty()) {
             sb.append(stringifyDiff(this));
         } else {
+            // Todo: Add the rest of module-level definition types
+            if (this instanceof FunctionDiff) {
+                sb.append(stringifyDiff(this));
+            }
             childDiffs.forEach(diff -> sb.append(diff.getAsString()));
         }
 

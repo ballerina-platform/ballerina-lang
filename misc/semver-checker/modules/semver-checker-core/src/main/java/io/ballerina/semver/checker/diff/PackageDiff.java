@@ -28,8 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
-
 /**
  * Represents all the source code changes within a single Ballerina package.
  *
@@ -69,16 +67,6 @@ public class PackageDiff extends DiffImpl {
     public void addModuleDiff(ModuleDiff moduleDiff) {
         childDiffs.add(moduleDiff);
         moduleDiffs.add(moduleDiff);
-    }
-
-    @Override
-    public String getAsString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(stringifyDiff(this));
-        if (diffType == DiffType.MODIFIED && childDiffs != null) {
-            childDiffs.forEach(diff -> sb.append(diff.getAsString()));
-        }
-        return sb.toString();
     }
 
     public static class Modifier implements DiffModifier {

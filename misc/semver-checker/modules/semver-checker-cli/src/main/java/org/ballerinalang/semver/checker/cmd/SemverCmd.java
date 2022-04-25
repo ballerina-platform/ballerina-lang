@@ -20,7 +20,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.semver.checker.SemverChecker;
-import io.ballerina.semver.checker.diff.PackageDiff;
+import io.ballerina.semver.checker.exception.SemverToolException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -28,7 +28,6 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Class to implement `semver` command for Ballerina.
@@ -54,16 +53,12 @@ public class SemverCmd implements BLauncherCmd {
     private boolean helpFlag;
 
     @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"-v", "--verbose"})
-    private boolean verbose;
-
-    @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"-d", "--detect"})
-    private boolean summary;
-
-    @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"-s", "--suggest"})
+    @CommandLine.Option(names = {"-v", "--suggest-version"})
     private boolean suggestVersion;
+
+    @SuppressWarnings("unused")
+    @CommandLine.Option(names = {"-d", "--diff"})
+    private boolean showDiff;
 
     public SemverCmd() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -86,15 +81,18 @@ public class SemverCmd implements BLauncherCmd {
             }
 
             SemverChecker semverChecker = new SemverChecker(projectPath);
-            if (suggestVersion) {
-            } else if (summary) {
 
+            if (showDiff) {
+                outStream.println(semverChecker.getCompatibilitySummary());
+            }
+            if (suggestVersion) {
+                outStream.println(semverChecker.suggestVersion());
             }
 
-            Optional<PackageDiff> suggestedVersion = semverChecker.getSuggestedVersion();
-            System.out.println(suggestedVersion.get().getAsString());
         } catch (InvalidPathException e) {
             throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool: ", e);
+        } catch (SemverToolException e) {
+            throw LauncherUtils.createLauncherException("", e);
         } catch (Throwable t) {
             throw LauncherUtils.createLauncherException("semver checker execution failed due to an unhandled " +
                     "exception: ", t);

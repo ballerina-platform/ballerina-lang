@@ -19,7 +19,6 @@
 package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.semver.checker.diagnostic.DiagnosticReporter;
 import io.ballerina.semver.checker.diff.Diff;
 
 import java.util.Optional;
@@ -30,7 +29,7 @@ import java.util.Optional;
  * @param <T> node type
  * @since 2201.2.0
  */
-public abstract class NodeComparator<T extends Node> extends DiagnosticReporter implements Comparator {
+public abstract class NodeComparator<T extends Node> implements Comparator {
 
     protected final T newNode;
     protected final T oldNode;

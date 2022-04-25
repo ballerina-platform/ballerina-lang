@@ -20,7 +20,6 @@ package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 
-import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 import static io.ballerina.semver.checker.util.PackageUtils.QUALIFIER_PUBLIC;
 
 /**
@@ -60,15 +59,5 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
                 qualifier.text().equals(QUALIFIER_PUBLIC));
 
         return (isNewPrivate && isOldPrivate) || (newNode == null && isOldPrivate) || (oldNode == null && isNewPrivate);
-    }
-
-    @Override
-    public String getAsString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(stringifyDiff(this));
-        if (diffType == DiffType.MODIFIED && childDiffs != null) {
-            childDiffs.forEach(diff -> sb.append(diff.getAsString()));
-        }
-        return sb.toString();
     }
 }

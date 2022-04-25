@@ -109,6 +109,23 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         return Collections.unmodifiableList(childDiffs);
     }
 
+    @Override
+    public List<Diff> getChildDiffs(CompatibilityLevel compatibilityLevel) {
+        List<Diff> filteredDiffs = new ArrayList<>();
+        for (Diff diff : childDiffs) {
+            if (diff.getChildDiffs().isEmpty()) {
+                if (diff.getCompatibilityLevel() == compatibilityLevel) {
+                    filteredDiffs.add(diff);
+                }
+            } else {
+                for (Diff childDiff : diff.getChildDiffs()) {
+                    filteredDiffs.addAll(childDiff.getChildDiffs(compatibilityLevel));
+                }
+            }
+        }
+        return filteredDiffs;
+    }
+
     public void addChildDiff(NodeDiffImpl<Node> childDiff) {
         this.childDiffs.add(childDiff);
     }

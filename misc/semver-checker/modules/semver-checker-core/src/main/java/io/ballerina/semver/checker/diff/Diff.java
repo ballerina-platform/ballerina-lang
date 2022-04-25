@@ -18,6 +18,8 @@
 
 package io.ballerina.semver.checker.diff;
 
+import java.util.List;
+
 /**
  * Base definition of all type of Ballerina source diff  implementations.
  *
@@ -34,6 +36,10 @@ public interface Diff {
     void setCompatibilityLevel(CompatibilityLevel compatibilityLevel);
 
     void computeCompatibilityLevel();
+
+    List<? extends Diff> getChildDiffs();
+
+    List<? extends Diff> getChildDiffs(CompatibilityLevel compatibilityLevel);
 
     String getAsString();
 }
