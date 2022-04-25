@@ -181,6 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -196,6 +197,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -784,10 +786,14 @@ public class BIRGen extends BLangNodeVisitor {
                     this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG, null);
             params.add(birVarDcl);
         }
+
+        PackageID pkgID = lambdaExpr.function.symbol.pkgID;
+        PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.value);
+
         setScopeAndEmit(
-                new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
-                                            getClosureMapOperands(lambdaExpr), lambdaExpr.getBType(),
-                                            lambdaExpr.function.symbol.strandName,
+                new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID, boundMethodPkgId != null ? boundMethodPkgId : pkgID,
+                                            funcName, lhsOp, params, getClosureMapOperands(lambdaExpr),
+                                            lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                                             lambdaExpr.function.symbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
@@ -886,6 +892,21 @@ public class BIRGen extends BLangNodeVisitor {
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
+    }
+
+    private PackageID getPackageIdForBoundMethod(BLangLambdaFunction lambdaExpr, String funcName) {
+        if (!funcName.startsWith("$anon$method$delegate$")) {
+            return null;
+        }
+
+        Set<ClosureVarSymbol> closureVarSymbols = lambdaExpr.function.closureVarSymbols;
+        if (closureVarSymbols.size() == 0) {
+            return null;
+        }
+
+        Object[] symbols = closureVarSymbols.toArray();
+        ClosureVarSymbol next = (ClosureVarSymbol) symbols[symbols.length - 1];
+        return next.bSymbol.type.tsymbol.pkgID;
     }
 
     // Statements
