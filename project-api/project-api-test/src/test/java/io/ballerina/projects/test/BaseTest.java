@@ -18,6 +18,7 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
@@ -91,6 +92,13 @@ public class BaseTest {
         BaseTest.this.cacheDependencyToCentralRepository(dependencyProject, LOCAL_REPOSITORY_NAME);
     }
 
+    protected void cacheDependencyToLocalRepository(Path dependency,
+                                                    ProjectEnvironmentBuilder projectEnvironmentBuilder)
+            throws IOException {
+        BuildProject dependencyProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, dependency);
+        BaseTest.this.cacheDependencyToCentralRepository(dependencyProject, LOCAL_REPOSITORY_NAME);
+    }
+
     protected void cacheDependencyToCentralRepository(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
         cacheDependencyToCentralRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
@@ -120,7 +128,12 @@ public class BaseTest {
             ProjectUtils.deleteDirectory(centralRepoBalaCache);
         }
         Files.createDirectories(centralRepoBalaCache);
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
+
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, centralRepoBalaCache);
+        if (!emitResult.successful()) {
+            emitResult.diagnostics().errors().forEach(OUT::println);
+        }
+
         Path balaPath = Files.list(centralRepoBalaCache).findAny().orElseThrow();
         ProjectUtils.extractBala(balaPath, centralRepoBalaCache);
         try {

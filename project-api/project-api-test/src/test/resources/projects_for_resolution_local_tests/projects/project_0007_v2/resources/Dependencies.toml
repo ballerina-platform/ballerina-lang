@@ -8,29 +8,29 @@ dependencies-toml-version = "2"
 
 [[package]]
 org = "local_res"
-name = "package_b"
+name = "package_e"
 version = "0.0.1"
 dependencies = [
-	{org = "local_res", name = "package_c"}
+	{org = "local_res", name = "package_f"}
 ]
 modules = [
-	{org = "local_res", packageName = "package_b", moduleName = "package_b"}
+	{org = "local_res", packageName = "package_e", moduleName = "package_e"}
 ]
 
 [[package]]
 org = "local_res"
-name = "package_c"
+name = "package_f"
 version = "0.0.1"
 
 [[package]]
 org = "local_res"
-name = "project_0004"
+name = "project_0007"
 version = "1.0.0"
 dependencies = [
-	{org = "local_res", name = "package_b"}
+	{org = "local_res", name = "package_e"}
 ]
 modules = [
-	{org = "local_res", packageName = "project_0004", moduleName = "project_0004"}
+	{org = "local_res", packageName = "project_0007", moduleName = "project_0007"}
 ]
 
 

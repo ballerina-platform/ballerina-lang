@@ -7,7 +7,6 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterClass;
@@ -192,11 +191,10 @@ public class PackageResolutionLocalTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
         // Push package_c:0.0.1 to local
-        BCompileUtil.compileAndCacheBala(PACKAGES_DIRECTORY.resolve("package_c_0_0_1").toString());
-        // cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_c_0_0_1"));
+        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_c_0_0_1"), projectEnvironmentBuilder);
 
         // Push package_b:0.0.1 to local
-        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_b_0_0_1"));
+        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_b_0_0_1"), projectEnvironmentBuilder);
 
         // Build project and assert deps toml
         BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
@@ -207,7 +205,7 @@ public class PackageResolutionLocalTests extends BaseTest {
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(enabled = false, description = "Local repository packages (published, but patched with the same version) as" +
+    @Test(description = "Local repository packages (published, but patched with the same version) as" +
             " indirect dependencies", dependsOnMethods = "testCase0004")
     public void testCase0005(ITestContext ctx) throws IOException {
         /*
@@ -224,15 +222,14 @@ public class PackageResolutionLocalTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
         // Push package_c:0.0.1 to central
-//        BCompileUtil.compileAndCacheBala(PACKAGES_DIRECTORY.resolve("package_c_0_0_1").toString());
-        cacheDependencyToCentralRepository(PACKAGES_DIRECTORY.resolve("package_c_0_0_1"));
+        cacheDependencyToCentralRepository(PACKAGES_DIRECTORY.resolve("package_c_0_0_1"), projectEnvironmentBuilder);
 
         // Change package_c with same version and push to local
-        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_c_0_0_1_v2"));
+        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_c_0_0_1_v2"), projectEnvironmentBuilder);
 
         // Push package_d:0.0.1 to local
         // Note we are changing the package here as well to support the api change in package_c
-        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_d_0_0_1"));
+        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_d_0_0_1"), projectEnvironmentBuilder);
 
         // Build project and assert deps toml
         BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
@@ -243,29 +240,29 @@ public class PackageResolutionLocalTests extends BaseTest {
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(enabled = false, description = " Local repository packages (published, but patched with the same version " +
-            "with different indirect deps) as direct dependencies", dependsOnMethods = "testCase0004")
+    @Test(description = " Local repository packages (published, but patched with the same version " +
+            "with different indirect deps) as direct dependencies")
     public void testCase0007(ITestContext ctx) throws IOException {
         /*
-            project_0007 ---> package_b:2.0.0 (central) ---> package_c:2.0.0 (central)
+            project_0007 ---> package_e:0.0.1 (central) ---> package_f:0.0.1 (central)
 
-            project_0007 ---> package_b:2.0.0 (local) ---> package_c:2.0.0 (central)
-                              package_b:2.0.0 (local) ---> package_d:2.0.0 (central)
+            project_0007 ---> package_e:0.0.1 (local) ---> package_f:0.0.1 (central)
+                              package_e:0.0.1 (local) ---> package_g:0.0.1 (central)
 
-            Package_b resolved from local repo as expected.
+            Package_e resolved from local repo as expected.
          */
 
         // Note that we are using a similar project to the previous test scenario project_0004
         Path projectDirPath = PROJECTS_DIRECTORY.resolve("project_0007");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
-        // Push package_c:2.0.0 to central
-        BCompileUtil.compileAndCacheBala(PACKAGES_DIRECTORY.resolve("package_c_2_0_0").toString());
-        // cacheDependencyToCentralRepository(PACKAGES_DIRECTORY.resolve("package_c_2_0_0"));
+        // Push package_f:0.0.1 to central
+        cacheDependencyToCentralRepository(PACKAGES_DIRECTORY.resolve("package_f_0_0_1_central"),
+                projectEnvironmentBuilder);
 
-        // Push package_b:2.0.0 to central
-        //cacheDependencyToCentralRepository(PACKAGES_DIRECTORY.resolve("package_b_2_0_0_central"));
-        BCompileUtil.compileAndCacheBala(PACKAGES_DIRECTORY.resolve("package_b_2_0_0").toString());
+        // Push package_e:0.0.1 to central
+        cacheDependencyToCentralRepository(PACKAGES_DIRECTORY.resolve("package_e_0_0_1_central"),
+                projectEnvironmentBuilder);
 
         // Build project and assert deps toml
         BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
@@ -275,16 +272,19 @@ public class PackageResolutionLocalTests extends BaseTest {
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
 
+        // Delete it manually since aftermethod only works for previous project
+        deleteDependenciesToml(projectDirPath);
+
         // Change the deps in toml
         projectDirPath = PROJECTS_DIRECTORY.resolve("project_0007_v2");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
-        // Push package_b:2.0.0 to local
-        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_b_2_0_0"));
+        // Push package_g:0.0.1 to central
+        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_g_0_0_1_central"),
+                projectEnvironmentBuilder);
 
-        // Push package_d:2.0.0 to central
-        BCompileUtil.compileAndCacheBala(PACKAGES_DIRECTORY.resolve("package_d_2_0_0").toString());
-        // cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_d_2_0_0"));
+        // Push package_e:0.0.1 to local
+        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_e_0_0_1"), projectEnvironmentBuilder);
 
         // Build project and assert deps toml
         buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);

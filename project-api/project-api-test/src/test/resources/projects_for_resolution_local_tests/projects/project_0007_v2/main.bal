@@ -1,5 +1,7 @@
-import local_res/package_b;
+import local_res/package_e;
+import local_res/package_g;
 
 public function main() {
-    package_b:funcB2();
+    package_e:funcELocal();
+    package_g:funcGCentral();
 }

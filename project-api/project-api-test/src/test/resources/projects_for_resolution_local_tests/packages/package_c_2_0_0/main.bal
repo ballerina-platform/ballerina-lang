@@ -1,2 +1,0 @@
-public function funcC2() {
-}

@@ -10,17 +10,9 @@ dependencies-toml-version = "2"
 org = "local_res"
 name = "package_b"
 version = "0.0.1"
-dependencies = [
-	{org = "local_res", name = "package_c"}
-]
 modules = [
 	{org = "local_res", packageName = "package_b", moduleName = "package_b"}
 ]
-
-[[package]]
-org = "local_res"
-name = "package_c"
-version = "0.0.1"
 
 [[package]]
 org = "local_res"

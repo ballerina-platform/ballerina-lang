@@ -5,10 +5,5 @@ version = "1.0.0"
 
 [[dependency]]
 org="local_res"
-name="package_b"
-version="2.0.0"
-
-[[dependency]]
-org="local_res"
-name="package_c"
-version="2.0.0"
+name="package_e"
+version="0.0.1"

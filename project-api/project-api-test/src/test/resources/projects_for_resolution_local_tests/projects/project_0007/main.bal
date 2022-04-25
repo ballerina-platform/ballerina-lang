@@ -1,5 +1,5 @@
-import local_res/package_b;
+import local_res/package_e;
 
 public function main() {
-    package_b:funcB2();
+    package_e:funcECentral();
 }

@@ -1,0 +1,4 @@
+[package]
+org = "local_res"
+name = "package_f"
+version = "0.0.1"

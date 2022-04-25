@@ -1,0 +1,14 @@
+[package]
+org = "local_res"
+name = "package_e"
+version = "0.0.1"
+
+[[dependency]]
+org="local_res"
+name="package_f"
+version="0.0.1"
+
+[[dependency]]
+org="local_res"
+name="package_g"
+version="0.0.1"
