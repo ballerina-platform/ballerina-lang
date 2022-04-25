@@ -134,13 +134,19 @@ public class TypeBuildersTest {
 //                {"XmlPi", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:ProcessingInstruction>"},
 //                {"XmlCmnt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Comment>"},
 //                {"XmlTxt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Text>"},
-//                {"XmlUnionA", UNION, "xml<ballerina/lang.xml:0.0.0:Element|ballerina/lang.xml:0.0.0:ProcessingInstruction|ballerina/lang.xml:0.0.0:Text>"},
-//                {"XmlUnionB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlEle|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:XmlCmnt>"},
-//                {"MixXmlA", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlUnionB>"},
-//                {"MixXmlB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlPi|testorg/typesapi.builder:1.0.0:MixXmlC>"},
-//                {"MixXmlC", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:MixXmlA>"},
+//                {"XmlUnionA", UNION, "xml<ballerina/lang.xml:0.0.0:Element" +
+//                        "|ballerina/lang.xml:0.0.0:ProcessingInstruction|ballerina/lang.xml:0.0.0:Text>"},
+//                {"XmlUnionB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlEle" +
+//                        "|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:XmlCmnt>"},
+//                {"MixXmlA", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA" +
+//                        "|testorg/typesapi.builder:1.0.0:XmlUnionB>"},
+//                {"MixXmlB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlPi" +
+//                        "|testorg/typesapi.builder:1.0.0:MixXmlC>"},
+//                {"MixXmlC", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA" +
+//                        "|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:MixXmlA>"},
 //                {"NewEle", TYPE_REFERENCE, "xml<testorg/typesapi.builder:1.0.0:XmlEle>"},
-//                {"EleTxtCmnt", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlCmnt|ballerina/lang.xml:0.0.0:Text|testorg/typesapi.builder:1.0.0:NewEle>"},
+//                {"EleTxtCmnt", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlCmnt" +
+//                        "|ballerina/lang.xml:0.0.0:Text|testorg/typesapi.builder:1.0.0:NewEle>"},
         };
     }
 
