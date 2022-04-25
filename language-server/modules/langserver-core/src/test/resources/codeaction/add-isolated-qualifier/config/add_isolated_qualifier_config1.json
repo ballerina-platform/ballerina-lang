@@ -3,7 +3,7 @@
   "character": 5,
   "expected": [
     {
-      "title": "Convert 'testFunction' to isolated",
+      "title": "Add isolated qualifier to 'testFunction'",
       "edits": [
         {
           "range": {
