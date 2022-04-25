@@ -42,6 +42,7 @@ import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -164,9 +165,10 @@ public class FromJsonWithType {
                 for (Field field : recordType.getFields().values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
-                if (t != null && t.getDescribingType() == targetType) {
+                Strand strand = Scheduler.getStrandNoException();
+                if (t != null && t.getDescribingType() == targetType && strand != null) {
                     return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType,
-                                                       targetTypeField);
+                            targetTypeField, strand);
                 } else {
                     return convertToRecord(map, unresolvedValues, t, recordType, restFieldType,
                                            targetTypeField);
@@ -196,7 +198,7 @@ public class FromJsonWithType {
 
     private static BMap<?, ?> convertToRecordWithTypeDesc(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
                                                           BTypedesc t, Type restFieldType,
-                                                          Map<String, Type> targetTypeField) {
+                                                          Map<String, Type> targetTypeField, Strand strand) {
         BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
         int count = 0;
         for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -205,7 +207,7 @@ public class FromJsonWithType {
                                                                     newValue);
             count++;
         }
-        return (BMap<?, ?>) t.instantiate(Scheduler.getStrand(), initialValues);
+        return (BMap<?, ?>) t.instantiate(strand, initialValues);
     }
 
     private static Object convertRecordEntry(List<TypeValuePair> unresolvedValues, BTypedesc t,
