@@ -332,7 +332,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Then resolve user defined types
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++)  {
             // Prevent analyzing type definitions that get added while analyzing other nodes
-            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION && i <= originalTopLevelNodeSize - 1) {
+            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION &&
+                    i <= originalTopLevelNodeSize - 1) {
                 analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), pkgEnv);
             }
         }
