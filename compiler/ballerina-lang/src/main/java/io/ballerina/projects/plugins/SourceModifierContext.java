@@ -53,6 +53,14 @@ public interface SourceModifierContext {
     void modifySourceFile(TextDocument textDocument, DocumentId documentId);
 
     /**
+     * Modify source code of a given test document {@code Document} identified by the {@code DocumentId}.
+     *
+     * @param textDocument modified {@code TextDocument} that contains the source code
+     * @param documentId   indicates the test document which should be modified
+     */
+    void modifyTestFile(TextDocument textDocument, DocumentId documentId);
+
+    /**
      * Reports a diagnostic against the compilation.
      *
      * @param diagnostic the {@code Diagnostic} to be reported
