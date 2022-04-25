@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.types.BFunctionType;
@@ -158,9 +157,7 @@ public class AsyncUtils {
 
         try {
             invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
-        } catch (Throwable t) {
-            BError error = ErrorCreator.createError(t);
-            error.setStackTrace(t.getStackTrace());
+        } catch (BError error) {
             strand.panic = error;
             strand.scheduler.unblockStrand(strand);
         }
