@@ -320,6 +320,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
 
+        int originalTopLevelNodeSize = pkgNode.topLevelNodes.size();
+
         // Visit constants first.
         pkgNode.topLevelNodes.stream().filter(pkgLevelNode -> pkgLevelNode.getKind() == NodeKind.CONSTANT)
                 .forEach(constant -> analyzeDef((BLangNode) constant, pkgEnv));
@@ -327,12 +329,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         validateEnumMemberMetadata(pkgNode.constants);
 
-//        // Then resolve user defined types
-//        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++)  {
-//            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
-//                analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), pkgEnv);
-//            }
-//        }
+        // Then resolve user defined types
+        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++)  {
+            // Prevent analyzing type definitions that get added while analyzing other nodes
+            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION && i <= originalTopLevelNodeSize - 1) {
+                analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), pkgEnv);
+            }
+        }
 
         for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
             TopLevelNode pkgLevelNode = pkgNode.topLevelNodes.get(i);
@@ -355,9 +358,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-//            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
-//                continue;
-//            }
+            // Analyze type definitions that get added while analyzing other nodes
+            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION && i <= originalTopLevelNodeSize - 1) {
+                continue;
+            }
 
             analyzeDef((BLangNode) pkgLevelNode, pkgEnv);
         }
