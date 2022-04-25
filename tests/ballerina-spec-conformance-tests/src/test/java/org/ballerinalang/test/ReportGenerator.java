@@ -15,11 +15,10 @@
  */
 package org.ballerinalang.test;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -76,28 +75,28 @@ public class ReportGenerator {
 
     private static String reportTemplate(String templateFileName) throws IOException {
         String pathOfTemplate = TEST_DIR + "/src/test/resources/report/" + templateFileName;
-        StringBuilder content = new StringBuilder();
-        File templateFile = new File(pathOfTemplate);
-        BufferedReader reader = new BufferedReader(new FileReader(templateFile));
-        String line = reader.readLine();
-        while (line != null) {
-            content.append(line).append(System.lineSeparator());
-            line = reader.readLine();
+        Path templateFilePath = Path.of(pathOfTemplate);
+        String fileContent = "";
+        try {
+            byte[] bytes = Files.readAllBytes(templateFilePath);
+            fileContent = new String(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        reader.close();
-        return content.toString();
+        return fileContent;
     }
 
     public static void generateReport() throws IOException {
-        generateFailedTestsReports(reportTemplate(FAILED_TESTS_REPORT));
-        generateErrorVerificationTestReports(reportTemplate(ERROR_KIND_TESTS_REPORT));
-        generateSkippedTestReports(reportTemplate(SKIPPED_TESTS_REPORT));
+        generateFailedTestsReports();
+        generateErrorVerificationTestReports();
+        generateSkippedTestReports();
     }
 
-    private static void generateFailedTestsReports(String template) throws IOException {
+    private static void generateFailedTestsReports() throws IOException {
         if (detailsOfFailedTests.isEmpty()) {
             return;
         }
+        String template = reportTemplate(FAILED_TESTS_REPORT);
         StringBuilder detailsOfTests = new StringBuilder();
         for (Map<String, String> test : detailsOfFailedTests) {
             String diagnostics = test.get(TestRunnerUtils.FORMAT_ERRORS);
@@ -113,10 +112,11 @@ public class ReportGenerator {
         generateReport(template, "failed_tests_summary", detailsOfTests);
     }
 
-    private static void generateErrorVerificationTestReports(String template) throws IOException {
+    private static void generateErrorVerificationTestReports() throws IOException {
         if (detailsOfErrorKindTests.isEmpty()) {
             return;
         }
+        String template = reportTemplate(ERROR_KIND_TESTS_REPORT);
         Set<String> files = detailsOfErrorKindTests.keySet();
         for (String file : files) {
             StringBuilder detailsOfTests = new StringBuilder();
@@ -130,10 +130,11 @@ public class ReportGenerator {
         }
     }
 
-    private static void generateSkippedTestReports(String template) throws IOException {
+    private static void generateSkippedTestReports() throws IOException {
         if (detailsOfSkippedTests.isEmpty()) {
             return;
         }
+        String template = reportTemplate(SKIPPED_TESTS_REPORT);
         StringBuilder detailsOfTests = new StringBuilder();
         for (Map<String, String> test : detailsOfSkippedTests) {
             detailsOfTests.append(generateSkippedTestsDetails(test.get(FILENAME), test.get(KIND),
