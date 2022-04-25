@@ -284,6 +284,7 @@ class ModuleContext {
         // TODO Not sure why we need to do this. It is there in the current implementation
         testablePkg.packageID = pkgId;
         testablePkg.flagSet.add(Flag.TESTABLE);
+        testablePkg.parent = pkgNode;
         // TODO Why we need two different diagnostic positions. This is how it is done in the current compiler.
         //  So I kept this as is for now.
         testablePkg.pos = new BLangDiagnosticLocation(this.moduleName().toString(), 1, 1, 1, 1);
@@ -426,7 +427,8 @@ class ModuleContext {
         }
 
         if (!moduleContext.testSrcDocumentIds().isEmpty()) {
-            moduleContext.parseTestSources(pkgNode, moduleCompilationId, compilerContext);
+            PackageID moduleTestCompilationId = moduleContext.descriptor().moduleTestCompilationId();
+            moduleContext.parseTestSources(pkgNode, moduleTestCompilationId, compilerContext);
         }
 
         pkgNode.pos = new BLangDiagnosticLocation(moduleContext.moduleName().toString(), 0, 0, 0, 0);
@@ -435,6 +437,8 @@ class ModuleContext {
             packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
             compilerPhaseRunner.performTypeCheckPhases(pkgNode);
         } catch (Throwable t) {
+            assert false : "Compilation failed due to" +
+                    (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
             compilerPhaseRunner.addDiagnosticForUnhandledException(pkgNode, t);
         }
         moduleContext.bLangPackage = pkgNode;
@@ -452,6 +456,8 @@ class ModuleContext {
             try {
                 compilerPhaseRunner.performBirGenPhases(moduleContext.bLangPackage);
             } catch (Throwable t) {
+                assert false : "Compilation failed due to" +
+                        (t.getMessage() != null ? ": " + t.getMessage() : " an unhandled exception");
                 compilerPhaseRunner.addDiagnosticForUnhandledException(moduleContext.bLangPackage, t);
                 return;
             }

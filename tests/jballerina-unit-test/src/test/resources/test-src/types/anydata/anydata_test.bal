@@ -149,7 +149,7 @@ function testMapAssignment() {
     map<ClosedFoo> mcr = {};
     ad = mcr;
 
-    map<table<map<any>>> mt = {};
+    map<table<map<anydata>>> mt = {};
     ad = mt;
 
     map<map<anydata>> mmad = {};
@@ -272,7 +272,7 @@ function testAnydataArray() returns anydata[] {
 }
 
 type ValueType int|float|string|boolean|byte|decimal;
-type DataType ValueType|table<map<any>>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
+type DataType ValueType|table<map<anydata>>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
 function testUnionAssignment() returns anydata[] {
     anydata[] rets = [];
@@ -554,10 +554,10 @@ function testAnydataToMap() {
         convertedMCfoo = ad;
     }
 
-    map<table<map<any>>> mt = {};
+    map<table<map<anydata>>> mt = {};
     ad = mt;
     map<table<map<any>>> convertedMt;
-    if (ad is map<table<map<any>>>) {
+    if (ad is map<table<map<anydata>>>) {
         convertedMt = ad;
     }
 
@@ -870,6 +870,8 @@ function testRuntimeIsAnydata() {
     any g = <record {anydata a; error e;}> {a: 1, e: error("error!")};
     any h = <record {|anydata a; error...;|}> {a: 1};
     any i = <record {anydata a; error e?;}> {a: 1};
+    any j = table [{"e": error("Message")}];
+    any k = table [{"a": {"x": error("Message")}}];
 
     assertFalse(a is anydata);
     assertFalse(b is anydata);
@@ -880,6 +882,8 @@ function testRuntimeIsAnydata() {
     assertFalse(g is anydata);
     assertFalse(h is anydata);
     assertFalse(i is anydata);
+    assertFalse(j is anydata);
+    assertFalse(k is anydata);
 
     any a2 = <(anydata|error)[] & readonly> [1, 2];
     any b2 = <anydata[]> [1];

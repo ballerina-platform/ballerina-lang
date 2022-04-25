@@ -17,13 +17,13 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.impl.BallerinaKeywordsProvider;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
@@ -34,6 +34,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Objects;
 import java.util.Optional;
+
+import static io.ballerina.compiler.api.impl.util.SymbolUtils.unescapeUnicode;
 
 /**
  * Represents the implementation of a Compiled Ballerina Symbol.
@@ -128,7 +130,17 @@ public class BallerinaSymbol implements Symbol {
         if (name.equals(symName)) {
             return true;
         }
-        return unescapedUnicode(name).equals(unescapedUnicode(symName));
+        return unescapeUnicode(name).equals(unescapeUnicode(symName));
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 
     @Override
@@ -177,25 +189,6 @@ public class BallerinaSymbol implements Symbol {
         }
 
         return loc1.get().lineRange().equals(loc2.get().lineRange());
-    }
-
-    protected String unescapedUnicode(String value) {
-        if (value.startsWith("'")) {
-            return Utils.unescapeUnicodeCodepoints(value.substring(1));
-        }
-        return Utils.unescapeUnicodeCodepoints(value);
-    }
-
-    public boolean isReservedKeyword(String value) {
-        return BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value);
-    }
-
-    public String escapeReservedKeyword(String value) {
-        if (BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value)) {
-            return "'" + value;
-        }
-
-        return value;
     }
 
     /**
