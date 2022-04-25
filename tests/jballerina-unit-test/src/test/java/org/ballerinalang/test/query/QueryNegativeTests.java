@@ -111,6 +111,7 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 13);
         validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 13);
         validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 13);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }

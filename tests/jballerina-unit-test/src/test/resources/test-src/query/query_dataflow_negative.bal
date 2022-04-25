@@ -93,3 +93,13 @@ function testReassigningValueToNarrowedVarInWhere() returns error? {
             b = 20;
         };
 }
+
+type Chars "A"|"B"|"C";
+
+function testReassigningValueToNarrowedVarInWhereWithIterablePassedAsFuncParam(Chars[] chars) returns error? {
+    check from Chars item in chars
+        where item == "C"
+        do {
+            item = "B";
+        };
+}
