@@ -79,45 +79,54 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> actualTypeSymbol;
+        Optional<TypeSymbol> optionalActualTypeSymbol;
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
-            actualTypeSymbol = positionDetails.diagnosticProperty(CodeActionUtil
+            optionalActualTypeSymbol = positionDetails.diagnosticProperty(CodeActionUtil
                     .getDiagPropertyFilterFunction(DiagBasedPositionDetails
                             .DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
         } else {
-            actualTypeSymbol = positionDetails.diagnosticProperty(
+            optionalActualTypeSymbol = positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
         }
 
-        Optional<TypeSymbol> expectedTypeSymbol = positionDetails.diagnosticProperty(
+        Optional<TypeSymbol> optionalExpectedTypeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
-        if (expectedTypeSymbol.isEmpty() || actualTypeSymbol.isEmpty()) {
+        if (optionalExpectedTypeSymbol.isEmpty() || optionalActualTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
-        if (actualTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
+
+        TypeSymbol actualTypeSymbol = CommonUtil.getRawType(optionalActualTypeSymbol.get());
+        TypeSymbol expectedTypeSymbol = optionalExpectedTypeSymbol.get();
+
+        if (actualTypeSymbol.typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
-            if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) actualTypeSymbol.get())) {
+            if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) actualTypeSymbol)) {
                 return Collections.emptyList();
             }
         }
 
         //Consider the type parameter of future type symbols within the wait action.
-        if (actualTypeSymbol.get().typeKind() == TypeDescKind.FUTURE
+        if (actualTypeSymbol.typeKind() == TypeDescKind.FUTURE
                 && expressionNode.get().kind() == SyntaxKind.WAIT_ACTION) {
-            if (expectedTypeSymbol.get().typeKind() != TypeDescKind.FUTURE) {
+            if (expectedTypeSymbol.typeKind() != TypeDescKind.FUTURE) {
                 return Collections.emptyList();
             }
-            expectedTypeSymbol = ((FutureTypeSymbol) expectedTypeSymbol.get()).typeParameter();
-            actualTypeSymbol = ((FutureTypeSymbol) actualTypeSymbol.get()).typeParameter();
+            optionalExpectedTypeSymbol = ((FutureTypeSymbol) expectedTypeSymbol).typeParameter();
+            optionalActualTypeSymbol = ((FutureTypeSymbol) actualTypeSymbol).typeParameter();
+            if (optionalActualTypeSymbol.isEmpty() || optionalExpectedTypeSymbol.isEmpty()) {
+                return Collections.emptyList();
+            }
+            actualTypeSymbol = CommonUtil.getRawType(optionalActualTypeSymbol.get());
+            expectedTypeSymbol = optionalExpectedTypeSymbol.get();
         }
 
         //Numeric types can be casted between each other.
-        if (!expectedTypeSymbol.get().subtypeOf(actualTypeSymbol.get()) && (!isNumeric(expectedTypeSymbol.get())
-                || !isNumeric(actualTypeSymbol.get()))) {
+        if (!expectedTypeSymbol.subtypeOf(actualTypeSymbol) && (!isNumeric(expectedTypeSymbol)
+                || !isNumeric(actualTypeSymbol))) {
             return Collections.emptyList();
         }
 
-        String typeName = CommonUtil.getModifiedTypeName(context, expectedTypeSymbol.get());
+        String typeName = CommonUtil.getModifiedTypeName(context, expectedTypeSymbol);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
