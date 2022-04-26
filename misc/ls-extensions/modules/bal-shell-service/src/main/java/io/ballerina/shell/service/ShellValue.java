@@ -17,37 +17,33 @@
  */
 package io.ballerina.shell.service;
 
-import java.io.File;
+import io.ballerina.shell.service.util.TypeUtils;
 
 /**
- * Response format for balShell/getShellFileSource endpoint.
+ * Format for the generated result by execution.
  *
  * @since 2.0.0
  */
-public class ShellFileSourceResponse {
-    private final String filePath;
-    private final String content;
+public class ShellValue {
+    private final String value;
+    private final String mimeType;
+    private final String type;
 
-    public ShellFileSourceResponse(File file, String content) {
-        this.filePath = file.toURI().toString();
-        this.content = content;
+    public ShellValue(String value, String type, int tag) {
+        this.value = value;
+        this.type = type;
+        this.mimeType = TypeUtils.getMimeTypeFromName(tag);
     }
 
-    public ShellFileSourceResponse() {
-        this.filePath = "";
-        this.content = "";
+    public String getValue() {
+        return value;
     }
 
-    /**
-     * Returns buffer file path.
-     *
-     * @return buffer file path.
-     */
-    public String getFilePath() {
-        return filePath;
+    public String getMimeType() {
+        return mimeType;
     }
 
-    public String getContent() {
-        return content;
+    public String getType() {
+        return type;
     }
 }

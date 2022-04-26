@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
-import io.ballerina.shell.service.util.TypeUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,19 +32,6 @@ import java.util.List;
  * @since 2.0.0
  */
 public class BalShellResponse {
-
-    private class ShellValue {
-        private final String value;
-        private final String mimeType;
-        private final String type;
-
-        public ShellValue(String value, String type, int tag) {
-            this.value = value;
-            this.type = type;
-            this.mimeType = TypeUtils.getMimeTypeFromName(tag);
-        }
-    }
-
     private ShellValue shellValue;
     private ArrayList<String> errors;
     private ArrayList<String> diagnostics;
@@ -104,5 +90,9 @@ public class BalShellResponse {
      */
     public void addError(String message) {
         this.errors.add(message);
+    }
+
+    public ShellValue getShellValue() {
+        return shellValue;
     }
 }
