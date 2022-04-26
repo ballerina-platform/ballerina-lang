@@ -35,7 +35,6 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 43);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -124,8 +123,35 @@ public class TableNegativeTest {
                 " found 'table<record {| (anydata|error) a; |}>'", 301, 13);
         validateError(compileResult, index++, "incompatible types: expected 'int'," +
                 " found 'table<record {| (any|error) a; |}>'", 311, 13);
-        validateError(compileResult, index, "incompatible types: expected 'int'," +
+        validateError(compileResult, index++, "incompatible types: expected 'int'," +
                 " found 'table<record {| (0|1|2|3) a; |}>'", 324, 13);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl1'", 334, 9);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl2'", 340, 9);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl3'", 346, 9);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl4'", 352, 9);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl5'", 358, 9);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl6'", 364, 9);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl7'", 370, 9);
+        validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 378, 5);
+        validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 384, 5);
+        validateError(compileResult, index++, "cannot update 'table<record {| string name?; |}>' with " +
+                        "member access expression", 390, 5);
+        validateError(compileResult, index++, "cannot update 'table<record {| string name?; anydata...; |}>' with " +
+                "member access expression", 396, 5);
+        validateError(compileResult, index++, "cannot update 'table<(Customer & readonly)> & readonly' with " +
+                "member access expression", 402, 5);
+        validateError(compileResult, index++, "cannot update 'table<(record {| string name?; |} & readonly)> & " +
+                "readonly' with member access expression", 408, 5);
+        validateError(compileResult, index++, "cannot update 'table<(User|Customer)>' with member access " +
+                "expression", 414, 5);
+        validateError(compileResult, index++, "incompatible types: expected " +
+                "'table<record {| int id; string firstName; string lastName; |}>', found 'CustomerEmptyKeyedTbl'",
+                422, 76);
+        validateError(compileResult, index++, "incompatible types: expected 'CustomerTable', " +
+                        "found 'CustomerEmptyKeyedTbl'", 424, 23);
+        validateError(compileResult, index++, "member access is not supported for keyless table 'tbl2'", 433, 9);
+        validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 434, 5);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
