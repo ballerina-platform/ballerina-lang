@@ -4055,7 +4055,7 @@ public class Types {
         }
 
         if (Double.isInfinite(value)) {
-            dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral);
+            dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral, "Float");
             return false;
         }
         if (value != 0.0) {
@@ -4069,7 +4069,7 @@ public class Types {
                 break;
             }
             if (numericLiteral.charAt(i) >= '1' && numericLiteral.charAt(i) <= '9') {
-                dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral);
+                dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral, "Float");
                 return false;
             }
 

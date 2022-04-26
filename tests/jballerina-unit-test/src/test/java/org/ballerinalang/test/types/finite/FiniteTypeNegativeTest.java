@@ -119,9 +119,9 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found 'null'", 228, 22);
         validateError(result, i++, "incompatible types: expected 'null', found 'string'", 231, 14);
         validateError(result, i++, "incompatible types: expected '\"null\"', found '()'", 232, 16);
-        validateError(result, i++, "incompatible types: expected 'UnaryType2', found 'int'", 127, 21);
-        validateError(result, i++, "incompatible types: expected 'UnaryType3', found 'int'", 128, 21);
-        validateError(result, i++, "incompatible types: expected '1|5.4f', found 'float'", 132, 15);
-        validateError(result, i, "'92233720368547758078' is out of range", 133, 11);
+        validateError(result, i++, "incompatible types: expected 'UnaryType2', found 'int'", 240, 21);
+        validateError(result, i++, "incompatible types: expected 'UnaryType3', found 'int'", 241, 21);
+        validateError(result, i++, "incompatible types: expected '1|5.4f', found 'float'", 245, 15);
+        validateError(result, i, "'92233720368547758078' is out of range", 246, 11);
     }
 }
