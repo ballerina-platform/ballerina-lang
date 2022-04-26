@@ -53,7 +53,7 @@ public class JvmArrayTypeGen {
     public void populateArray(MethodVisitor mv, BArrayType bType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_TYPE_IMPL);
         jvmTypeGen.loadType(mv, bType.eType);
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_TYPE_IMPL, "setElementTypeOnly", "(L" + TYPE + ";)V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_TYPE_IMPL, "setElementType", "(L" + TYPE + ";)V", false);
     }
 
     /**

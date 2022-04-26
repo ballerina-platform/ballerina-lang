@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -64,7 +65,6 @@ import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamValue;
-import io.ballerina.runtime.internal.values.StringValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
@@ -81,7 +81,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -3285,7 +3284,7 @@ public class TypeChecker {
         // here finite types and non finite types are separated
         // for finite types only all their value space items are collected
         List<Type> nonFiniteTypes = new ArrayList<>();
-        Set<Object> allFiniteTypesValueSpace = new LinkedHashSet<>();
+        Set<Object> allFiniteTypesValueSpace = new HashSet<>();
         for (Type memberType: memberTypes) {
             if (memberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                 allFiniteTypesValueSpace.addAll(((BFiniteType) memberType).getValueSpace());
@@ -3298,45 +3297,60 @@ public class TypeChecker {
             // only finite types are there, so the check narrows to one finite type like case
             return hasFillerValueInValueSpace(allFiniteTypesValueSpace);
         } else {
-            // non finite types are available and checked
+            // non finite types are available
             Iterator<Type> iterator = nonFiniteTypes.iterator();
-            Type firstMember;
+            Type firstMember = iterator.next();
+            if (!isValueType(firstMember)) {
+                return false;
+            }
+
+            // non finite types are checked whether they are the same type
             Type nextMember;
-            for (firstMember = iterator.next(); iterator.hasNext(); ) {
+            while (iterator.hasNext()) {
                 nextMember = iterator.next();
-                if ((!isSameType(firstMember, nextMember)) &&
-                        !(isIntegerSubType(firstMember) && isIntegerSubType(nextMember))) {
+                if (!isSameBasicType(firstMember, nextMember)) {
                     return false;
                 }
             }
 
             // if no finite types the checking ends here
             if (allFiniteTypesValueSpace.isEmpty()) {
-                return isValueType(firstMember) && hasFillerValue(firstMember);
+                return hasFillerValue(firstMember);
             }
 
             // both finite and non finite types are available
-            if (containsSameBasicType(firstMember, allFiniteTypesValueSpace)) {
-                // all members are same basic types
-                // need to check filler value is there
-                if (allFiniteTypesValueSpace.size() > 1) {
-                    // because there are > 1 members, no singleton type filler value
-                    return isValueType(firstMember) && (hasFillerValue(firstMember) ||
-                            (hasFillerValueInValueSpace(allFiniteTypesValueSpace)));
-                } else {
-                    // need to avoid providing true for the singleton filler value
-                    return isValueType(firstMember) && (hasFillerValue(firstMember) ||
-                            (isFillerValueOfFiniteTypeBasicType(allFiniteTypesValueSpace.iterator().next())));
-                }
-            } else {
-                // members are not same basic types
+            // finite types are checked whether they are the type of non finite types
+            if (!containsSameBasicType(firstMember, allFiniteTypesValueSpace)) {
                 return false;
             }
+
+            // all members are same basic types
+            // need to check filler value is there
+            if (hasFillerValue(firstMember)) {
+                return true;
+            }
+            return (allFiniteTypesValueSpace.size() == 1) ?
+                    isFillerValueOfFiniteTypeBasicType(allFiniteTypesValueSpace.iterator().next()) :
+                    hasFillerValueInValueSpace(allFiniteTypesValueSpace);
         }
     }
 
-    private static boolean isIntegerSubType(Type type) {
-        int typeTag = type.getTag();
+    private static boolean isSameBasicType(Type sourceType, Type targetType) {
+        if (isSameType(sourceType, targetType)) {
+            return true;
+        }
+        int sourceTag = sourceType.getTag();
+        int targetTag = targetType.getTag();
+        if (TypeTags.isStringTypeTag(sourceTag) && TypeTags.isStringTypeTag(targetTag)) {
+            return true;
+        }
+        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+            return true;
+        }
+        return isIntegerSubTypeTag(sourceTag) && isIntegerSubTypeTag(targetTag);
+    }
+
+    private static boolean isIntegerSubTypeTag(int typeTag) {
         return TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.BYTE_TAG;
     }
 
@@ -3358,7 +3372,7 @@ public class TypeChecker {
 
     private static boolean containsSameBasicType (Type nonFiniteType, Set<Object> finiteTypeValueSpace) {
         for (Object value : finiteTypeValueSpace) {
-            if (!isSameType(getType(value), nonFiniteType)) {
+            if (!isSameBasicType(getType(value), nonFiniteType)) {
                 return false;
             }
         }
@@ -3403,17 +3417,21 @@ public class TypeChecker {
         }
     }
 
+    private static boolean checkFillerValue(BFiniteType type) {
+        return hasFillerValueInValueSpace(type.getValueSpace());
+    }
+
     private static boolean hasFillerValueInValueSpace(Set<Object> finiteTypeValueSpace) {
+        // For singleton types, that value is the implicit initial value
+        if (finiteTypeValueSpace.size() == 1) {
+            return true;
+        }
+
         // Has NIL element as a member.
         for (Object value: finiteTypeValueSpace) {
             if (value == null) {
                 return true;
             }
-        }
-
-        // For singleton types, that value is the implicit initial value
-        if (finiteTypeValueSpace.size() == 1) {
-            return true;
         }
 
         Object firstElement = finiteTypeValueSpace.iterator().next();
@@ -3423,9 +3441,9 @@ public class TypeChecker {
             }
         }
 
-        if (firstElement instanceof StringValue) {
+        if (firstElement instanceof BString) {
             return containsElement(finiteTypeValueSpace, "");
-        } else if ((firstElement instanceof Long) || (firstElement instanceof DecimalValue)) {
+        } else if ((firstElement instanceof Long) || (firstElement instanceof BDecimal)) {
             return containsElement(finiteTypeValueSpace, "0");
         } else if (firstElement instanceof Double) {
             return containsElement(finiteTypeValueSpace, "0.0");
@@ -3434,10 +3452,6 @@ public class TypeChecker {
         } else {
             return false;
         }
-    }
-
-    private static boolean checkFillerValue(BFiniteType type) {
-        return hasFillerValueInValueSpace(type.getValueSpace());
     }
 
     private static boolean containsElement(Set<Object> valueSpace, String e) {
