@@ -20,6 +20,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Collector to collect output passed in to the console.
+ *
+ * @since 2.0.0
+ */
 public class ConsoleOutCollector extends OutputStream {
     private List<String> lines;
     private StringBuilder buffer;
@@ -31,7 +36,7 @@ public class ConsoleOutCollector extends OutputStream {
 
     @Override
     public void write(int i) throws IOException {
-        if (i == '\n'){
+        if (i == '\n') {
             lines.add(buffer.toString());
             buffer = new StringBuilder();
         } else {
@@ -44,5 +49,7 @@ public class ConsoleOutCollector extends OutputStream {
      *
      * @return list of collected strings.
      */
-    public List<String> getLines() { return lines; }
+    public List<String> getLines() {
+        return lines;
+    }
 }
