@@ -32,6 +32,12 @@ public class ShellFileSourceResponse {
         this.filePath = file.toURI().toString();
         this.content = content;
     }
+
+    public ShellFileSourceResponse() {
+        this.filePath = "";
+        this.content = "";
+    }
+
     /**
      * Returns buffer file path.
      *
