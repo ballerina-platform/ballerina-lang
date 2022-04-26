@@ -42,6 +42,8 @@ public interface NodeBasedPositionDetails {
      */
     NonTerminalNode matchedStatementNode();
 
+    NonTerminalNode matchedCodeActionNode();
+
     /**
      * Returns matched type of scoped node for the current position.
      *

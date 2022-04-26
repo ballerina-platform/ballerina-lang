@@ -66,11 +66,11 @@ public class CodeActionRouter {
         // Get available node-type based code-actions
         SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
         Position position = ctx.cursorPosition();
-        Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(position, syntaxTree);
-        CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(topLevelNode.orElse(null));
-        if (topLevelNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
-            Range range = CommonUtil.toRange(topLevelNode.get().lineRange());
-            Node expressionNode = CodeActionUtil.largestExpressionNode(topLevelNode.get(), range);
+        Optional<NonTerminalNode> codeActionNode = CodeActionUtil.getCodeActionNode(position, syntaxTree);
+        CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(codeActionNode.orElse(null));
+        if (codeActionNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
+            Range range = CommonUtil.toRange(codeActionNode.get().lineRange());
+            Node expressionNode = CodeActionUtil.largestExpressionNode(codeActionNode.get(), range);
             TypeSymbol matchedTypeSymbol = getMatchedTypeSymbol(ctx, expressionNode).orElse(null);
 
             LinePosition cursorPosition = LinePosition.from(position.getLine(), position.getCharacter());
@@ -80,7 +80,8 @@ public class CodeActionRouter {
             CodeActionNodeAnalyzer nodeAnalyzer = new CodeActionNodeAnalyzer(positionDetailsBuilder, cursorPosOffset);
             nodeAnalyzer.visit(CommonUtil.findNode(new Range(position, position), syntaxTree));
             NodeBasedPositionDetails posDetails = positionDetailsBuilder
-                    .setTopLevelNode(topLevelNode.get())
+                    .setTopLevelNode(codeActionNode.get())
+                    .setCodeActionNode(codeActionNode.get())
                     .setStatementNode(matchedStatementNode(ctx, syntaxTree))
                     .build();
 
