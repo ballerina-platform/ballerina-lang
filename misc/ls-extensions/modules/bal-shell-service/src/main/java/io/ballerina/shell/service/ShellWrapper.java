@@ -104,7 +104,7 @@ public class ShellWrapper {
             return new ShellFileSourceResponse(tempFile, fileContent);
         } catch (IOException ignored) {
         }
-        return null;
+        return new ShellFileSourceResponse();
     }
 
     /**
