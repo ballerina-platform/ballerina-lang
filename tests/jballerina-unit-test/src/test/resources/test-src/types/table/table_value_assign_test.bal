@@ -150,6 +150,34 @@ function testAssignKeylessTableValueToTableType() {
     assertEqual(a3, a4);
 }
 
+function testTableVlueAssignmentToAny() {
+    any tbl = table[];
+    table<map<any|error>> a1 = <table<map<any|error>>> tbl;
+    a1.add({"any": "any"});
+    a1.add({"error": error("")});
+
+    any t2 = table [{a: 1}];
+    table<map<any|error>> t3 = <table<map<any|error>>> t2;
+    map<any|error> m = {a: error("")};
+    t3.add(m);
+
+    typedesc td1 = typeof a1;
+    typedesc td2 = typeof t3;
+
+    testTableConstructorPassedAsArg(table[]);
+    testTableConstructorPassedAsArg(table[{a: "4"}, {g: error("")}]);
+
+    assertEqual("typedesc table<map<(any|error)>>",  td1.toString());
+    assertEqual("typedesc table<map<(any|error)>>",  td2.toString());
+}
+
+function testTableConstructorPassedAsArg(any tbl) {
+    if tbl is table<map<any|error>> {
+        return;
+    }
+    panic error("table type is not table<map<any|error>");
+}
+
 function assertEqual(any expected, any actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
