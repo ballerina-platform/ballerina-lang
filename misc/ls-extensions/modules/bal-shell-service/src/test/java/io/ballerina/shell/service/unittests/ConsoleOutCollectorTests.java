@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -19,12 +19,18 @@ package io.ballerina.shell.service.unittests;
 
 import io.ballerina.shell.service.ConsoleOutCollector;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.testng.annotations.AfterClass;
 
+import java.io.IOException;
 import java.io.PrintStream;
 
+/**
+ * Unit test for ConsoleOutCollector.
+ *
+ * @since 2.0.0
+ */
 public class ConsoleOutCollectorTests {
     private PrintStream original;
     private ConsoleOutCollector consoleOutCollector;
@@ -41,9 +47,8 @@ public class ConsoleOutCollectorTests {
     }
 
     @Test(description = "Test with output collection")
-    public void testConsoleCollect() {
-        System.out.println("first line");
-        System.out.println("second line");
+    public void testConsoleCollect() throws IOException {
+        this.consoleOutCollector.write("first line\nsecond line\n".getBytes());
         Assert.assertEquals(this.consoleOutCollector.getLines().size(), 2);
         Assert.assertEquals(this.consoleOutCollector.getLines().get(0), "first line");
         Assert.assertEquals(this.consoleOutCollector.getLines().get(1), "second line");

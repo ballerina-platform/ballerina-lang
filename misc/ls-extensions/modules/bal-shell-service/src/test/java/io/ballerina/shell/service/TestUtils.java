@@ -24,6 +24,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+/**
+ * Utility functions for tests.
+ *
+ * @since 2.0.0
+ */
 public class TestUtils {
     public static GetResultTestCase[] loadResultTestCases(Path filePath) throws IOException {
         Gson gson = new Gson();
@@ -39,7 +44,7 @@ public class TestUtils {
         return Files.readString(filePath);
     }
 
-    public static void assertJsonValues(Object generated, Object expected){
+    public static void assertJsonValues(Object generated, Object expected) {
         Gson gson = new Gson();
         String jsonGenerated = gson.toJson(generated);
         String jsonExpected = gson.toJson(expected);
