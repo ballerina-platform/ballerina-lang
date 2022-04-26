@@ -178,7 +178,7 @@ function testTableConstructorPassedAsArg(any tbl) {
     if tbl is table<map<any|error>> {
         return;
     }
-    panic error("table type is not table<map<any|error>");
+    panic error("Type is not table<map<any|error>");
 }
 
 function assertEqual(any expected, any actual) {
