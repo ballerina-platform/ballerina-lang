@@ -36,6 +36,8 @@ public class BConstantSymbol extends BVarSymbol implements ConstantSymbol {
     public BLangConstantValue value;
     public BType literalType;
 
+    public boolean isValueResolved = false;
+
     public BConstantSymbol(long flags, Name name, PackageID pkgID, BType literalType, BType type, BSymbol owner,
                            Location pos, SymbolOrigin origin) {
         this(flags, name, name, pkgID, literalType, type, owner, pos, origin);

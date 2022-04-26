@@ -228,7 +228,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     private PackageCache packageCache;
     private List<BLangNode> intersectionTypes;
 
+    private ConstantValueResolver constantValueResolver;
+
     private SymbolEnv env;
+    private BLangPackage pkgNode;
     private final boolean projectAPIInitiatedCompilation;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
@@ -258,6 +261,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.unknownTypeRefs = new HashSet<>();
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
+        this.constantValueResolver = ConstantValueResolver.getInstance(context);
 
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
@@ -410,6 +414,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
+        this.pkgNode = pkgNode;
         defineTypeNodes(typeAndClassDefs, pkgEnv);
 
         for (BLangVariable variable : pkgNode.globalVars) {
@@ -2243,9 +2248,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (constantSymbol.type.tag != TypeTags.TYPEREFDESC) {
                 constantSymbol.type.tsymbol.flags |= constant.associatedTypeDefinition.symbol.flags;
             }
-
+            this.constantValueResolver.resolve(new ArrayList<>() {{
+                add(constant);
+            }}, this.pkgNode.packageID, this.env);
         } else if (constant.typeNode != null) {
             constantSymbol.type = constantSymbol.literalType = staticType;
+            this.constantValueResolver.resolve(new ArrayList<>() {{
+                add(constant);
+            }}, this.pkgNode.packageID, this.env);
         }
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
         if (isDeprecated(constant.annAttachments)) {

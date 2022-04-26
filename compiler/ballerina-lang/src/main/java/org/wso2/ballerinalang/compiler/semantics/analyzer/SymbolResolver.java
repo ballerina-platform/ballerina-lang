@@ -1581,7 +1581,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, data.env, pkgAlias, typeName);
-
+            if (tempSymbol.getKind() == SymbolKind.CONSTANT && !((BConstantSymbol) tempSymbol).isValueResolved) {
+                tempSymbol = symTable.notFoundSymbol;
+            }
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? Types.getReferredType(tempSymbol.type).tsymbol
                     : tempSymbol;
             if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {

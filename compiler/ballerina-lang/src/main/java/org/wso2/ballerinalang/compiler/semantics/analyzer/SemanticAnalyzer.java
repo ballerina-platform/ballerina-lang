@@ -300,7 +300,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 analyzeDef((BLangNode) constant, data);
             }
         }
-        this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
+//        this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
 
         validateEnumMemberMetadata(pkgNode.constants);
 
@@ -4183,7 +4183,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return; // This has to return, because constant.symbol.type is required for further validations.
         }
 
-        typeChecker.checkExpr(expression, data.env, constant.symbol.type, data.prevEnvs);
+//        typeChecker.checkExpr(expression, data.env, constant.symbol.type, data.prevEnvs);
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);

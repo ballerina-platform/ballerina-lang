@@ -74,13 +74,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -102,11 +96,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private SymbolTable symTable;
     private Types types;
     private PackageID pkgID;
+    private TypeChecker typeChecker;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<>();
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
+    private boolean isDependentOnUnresolvedConst;
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -115,6 +111,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.types = Types.getInstance(context);
+        this.typeChecker = TypeChecker.getInstance(context);
     }
 
     public static ConstantValueResolver getInstance(CompilerContext context) {
@@ -136,13 +133,25 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstant constant) {
-        if (!unresolvedConstants.containsKey(constant.symbol)) {
+        if (!unresolvedConstants.containsKey(constant.symbol) || constant.symbol.isValueResolved) {
             return; // Already visited.
         }
+        isDependentOnUnresolvedConst = false;
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
+        try {
+            typeChecker.checkExpr(constant.expr, this.symEnv, constant.symbol.type, new Stack<SymbolEnv>());
+        } catch (Exception e) {
+            return;
+        }
+
         this.resolvingConstants.add(this.currentConstSymbol);
         this.currentConstSymbol.value = constructBLangConstantValue(constant.expr);
+        if (!isDependentOnUnresolvedConst) {
+            constant.symbol.isValueResolved = true;
+        } else {
+            return;
+        }
         this.resolvingConstants.remove(this.currentConstSymbol);
         updateConstantType(constant);
         checkUniqueness(constant);
@@ -170,6 +179,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (varRef.symbol == null || (varRef.symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
             this.result = null;
             return;
+        }
+
+        if (!((BConstantSymbol) varRef.symbol).isValueResolved) {
+            isDependentOnUnresolvedConst = true;
         }
 
         BConstantSymbol constSymbol = (BConstantSymbol) varRef.symbol;
