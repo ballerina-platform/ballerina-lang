@@ -269,6 +269,17 @@ public class BStreamValueTest {
         BRunUtil.invoke(result, "testInvalidCast");
     }
 
+    @Test(description = "Check if stream without params contextually expected type",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina}TypeCastError " +
+                            "\\{\"message\":\"incompatible types: 'stream<\\(any\\|error\\),error\\?>' cannot be cast" +
+                            " to 'stream<int,error\\?>'.*")
+    public void testCastingFromSuperStreamType() {
+        BRunUtil.invoke(result, "testCastingFromSuperStreamType");
+    }
+
+
     @Test(description = "Test basic stream type variables")
     public void testBasicStreamType() {
         BRunUtil.invoke(result, "testBasicStreamType");
@@ -277,6 +288,11 @@ public class BStreamValueTest {
     @Test(description = "Test basic stream type variables")
     public void testErrorStreamTypeAssignedToStreamWithoutParams() {
         BRunUtil.invoke(result, "testErrorStreamTypeAssignedToStreamWithoutParams");
+    }
+
+    @Test(description = "Test basic stream type variables")
+    public void testImplicitNewExprToStreamWithoutParams() {
+        BRunUtil.invoke(result, "testImplicitNewExprToStreamWithoutParams");
     }
 
     @AfterClass
