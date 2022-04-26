@@ -51,6 +51,7 @@ import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
@@ -392,7 +393,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param context completion context
      * @param node    node to evaluate upon
      * @return {@link Boolean}
-     * @deprecated Use {@link org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)} instead
+     * @deprecated Use {@link QNameReferenceUtil#onQualifiedNameIdentifier(PositionedOperationContext, Node)} instead
      */
     @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
