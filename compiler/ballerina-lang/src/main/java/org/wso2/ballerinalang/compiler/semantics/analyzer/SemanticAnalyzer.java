@@ -3726,8 +3726,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, currentEnv);
         // Check foreach node's variables and set types.
-        handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
-                                         false, blockEnv);
+        handleForeachDefinitionVariables(foreach.variableDefinitionNode, Types.getReferredType(foreach.varType),
+                foreach.isDeclaredWithVar, false, blockEnv);
         boolean prevBreakFound = data.breakFound;
         // Analyze foreach node's statements.
         data.env = blockEnv;
