@@ -27,6 +27,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+/**
+ * The implementation of the methods used to build the Typedesc type descriptor in Types API.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
 
     private final TypesFactory typesFactory;
