@@ -211,7 +211,7 @@ class PackageContext {
 
     PackageCompilation getPackageCompilation() {
         if (packageCompilation == null) {
-            packageCompilation = PackageCompilation.from(this);
+            packageCompilation = PackageCompilation.from(this, this.compilationOptions());
         }
         return packageCompilation;
     }
