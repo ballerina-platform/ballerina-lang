@@ -6232,10 +6232,11 @@ public class Types {
             switch (literalExprType.getKind()) {
                 case INT:
                 case BYTE:
-                case DECIMAL:
                     return value.equals(Long.valueOf(0));
                 case STRING:
                     return value == null || value.equals("");
+                case DECIMAL:
+                    return value.equals(String.valueOf(0));
                 case FLOAT:
                     return value.equals(String.valueOf(0.0));
                 case BOOLEAN:
