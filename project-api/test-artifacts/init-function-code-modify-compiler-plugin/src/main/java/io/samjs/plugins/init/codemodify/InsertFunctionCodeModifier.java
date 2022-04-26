@@ -82,6 +82,20 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                     sourceModifierContext.modifySourceFile(updatedSyntaxTree.textDocument(), documentId);
                 }
             }
+            // Add new function to every test bal file
+            for (ModuleId moduleId : sourceModifierContext.currentPackage().moduleIds()) {
+                Module module = sourceModifierContext.currentPackage().module(moduleId);
+                for (DocumentId documentId : module.testDocumentIds()) {
+                    Document document = module.document(documentId);
+                    ModulePartNode rootNode = document.syntaxTree().rootNode();
+                    NodeList<ModuleMemberDeclarationNode> newMembers =
+                            rootNode.members().add(createFunctionDefNode(document));
+                    ModulePartNode newModulePart =
+                            rootNode.modify(rootNode.imports(), newMembers, rootNode.eofToken());
+                    SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
+                    sourceModifierContext.modifyTestFile(updatedSyntaxTree.textDocument(), documentId);
+                }
+            }
         });
     }
 
@@ -128,7 +142,8 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                 SyntaxKind.FUNCTION_DEFINITION, null, createNodeList(qualifierList),
                 createToken(SyntaxKind.FUNCTION_KEYWORD, createEmptyMinutiaeList(),
                         generateMinutiaeListWithWhitespace()),
-                createIdentifierToken("newFunctionByCodeModifier" + document.name().replace(".bal", "")),
+                createIdentifierToken("newFunctionByCodeModifier"
+                        + document.name().replace(".bal", "").replace("/", "_")),
                 createEmptyNodeList(), functionSignatureNode, emptyFunctionBodyNode);
     }
 
