@@ -232,7 +232,7 @@ public class TypeBuildersTest {
     private Object[][] getStreamTypeBuilders() {
         return new Object[][] {
                 {types.FLOAT, types.INT, "stream<float, int>"},
-                {types.BYTE, types.STRING,"stream<byte, string>"},
+                {types.BYTE, types.STRING, "stream<byte, string>"},
                 {types.ANY, types.NIL, "stream<any>"},
                 {types.STRING, null, "stream<string>"},
         };

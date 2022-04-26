@@ -30,6 +30,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The implementation of the methods used to build the Tuple type descriptor in Types API.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
 
     private final TypesFactory typesFactory;

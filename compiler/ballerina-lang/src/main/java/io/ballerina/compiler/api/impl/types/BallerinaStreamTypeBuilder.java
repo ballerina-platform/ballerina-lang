@@ -28,6 +28,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+/**
+ * The implementation of the methods used to build the Stream type descriptor in Types API.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaStreamTypeBuilder implements TypeBuilder.STREAM {
 
     private final TypesFactory typesFactory;
