@@ -8,25 +8,25 @@
         {
           "range": {
             "start": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 3
             },
             "end": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 3
             }
           },
-          "newText": "type Record1 record {\n    int id;\n    string text;\n};\n\n"
+          "newText": "\n\ntype Record1 record {\n    int id;\n    string text;\n};\n"
         },
         {
           "range": {
             "start": {
-              "line": 7,
+              "line": 11,
               "character": 4
             },
             "end": {
-              "line": 7,
-              "character": 34
+              "line": 11,
+              "character": 33
             }
           },
           "newText": "Record1"

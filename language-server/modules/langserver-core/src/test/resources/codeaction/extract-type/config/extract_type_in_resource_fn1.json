@@ -8,15 +8,15 @@
         {
           "range": {
             "start": {
-              "line": 7,
-              "character": 0
+              "line": 5,
+              "character": 3
             },
             "end": {
-              "line": 7,
-              "character": 0
+              "line": 5,
+              "character": 3
             }
           },
-          "newText": "type Record record {|\n    *Message;\n    string next;\n|};\n\n"
+          "newText": "\n\ntype Record record {|\n    *Message;\n    string next;\n|};\n"
         },
         {
           "range": {

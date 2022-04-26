@@ -8,15 +8,15 @@
         {
           "range": {
             "start": {
-              "line": 0,
-              "character": 0
+              "line": 2,
+              "character": 1
             },
             "end": {
-              "line": 0,
-              "character": 0
+              "line": 2,
+              "character": 1
             }
           },
-          "newText": "type Record record {\n    string jobId;\n    json data;\n};\n\n"
+          "newText": "\n\ntype Record record {\n    string jobId;\n    json data;\n};\n"
         },
         {
           "range": {
