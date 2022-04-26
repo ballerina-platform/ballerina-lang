@@ -34,6 +34,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * Wrapper for Ballerina Shell.
+ *
+ * @since 2.0.0
+ */
 public class ShellWrapper {
     private BShellConfiguration configuration;
     private Evaluator evaluator;
@@ -42,15 +47,15 @@ public class ShellWrapper {
     private static final String TEMP_FILE_PREFIX = "temp-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
 
-    private ShellWrapper(){
+    private ShellWrapper() {
         this.configuration = new BShellConfiguration.Builder().build();
         this.initializeEvaluator();
     }
 
-    public static ShellWrapper getInstance(){
-        if (instance == null){
-            synchronized (ShellWrapper.class){
-                if (instance == null){
+    public static ShellWrapper getInstance() {
+        if (instance == null) {
+            synchronized (ShellWrapper.class) {
+                if (instance == null) {
                     instance = new ShellWrapper();
                 }
             }
@@ -64,7 +69,7 @@ public class ShellWrapper {
      * @param source evaluated value
      * @return  result after the execution
      */
-    public BalShellResponse getResult(String source){
+    public BalShellResponse getResult(String source) {
         BalShellResponse output = new BalShellResponse();
         PrintStream original = System.out;
         ConsoleOutCollector consoleOutCollector = new ConsoleOutCollector();
@@ -80,7 +85,7 @@ public class ShellWrapper {
         } catch (Exception error) {
             List<String> consoleOut = consoleOutCollector.getLines();
             output.setValue(null, consoleOut);
-            if (!(error instanceof NoSuchElementException)){
+            if (!(error instanceof NoSuchElementException)) {
                 output.addError(error.getMessage());
             }
         } finally {
@@ -96,7 +101,7 @@ public class ShellWrapper {
      *
      * @return temp file uri as a strings and its content
      */
-    public ShellFileSourceResponse getShellFileSource(){
+    public ShellFileSourceResponse getShellFileSource() {
         String fileContent;
         try {
             fileContent = new String(Files.readAllBytes(Paths.get(evaluator.getBufferFileUri()))).trim();
@@ -112,7 +117,7 @@ public class ShellWrapper {
      *
      * @return list of variables with its name, type and current value
      */
-    public List<Map<String, String>> getAvailableVariables(){
+    public List<Map<String, String>> getAvailableVariables() {
         return evaluator.availableVariablesAsMap();
     }
 
@@ -121,7 +126,7 @@ public class ShellWrapper {
      *
      * returns true when completed
      */
-    public boolean restart(){
+    public boolean restart() {
         evaluator.reset();
         this.initializeEvaluator();
         return true;

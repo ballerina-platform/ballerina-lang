@@ -19,7 +19,18 @@ package io.ballerina.shell.service.util;
 
 import io.ballerina.runtime.api.TypeTags;
 
+/**
+ * Utility functions related with type.
+ *
+ * @since 2.0.0
+ */
 public class TypeUtils {
+    /**
+     * Get applicable mime type for a given type.
+     *
+     * @param typeTag runtime type of the value
+     * @return mime type
+     */
     public static String getMimeTypeFromName(int typeTag) {
         switch (typeTag) {
             case TypeTags.JSON_TAG:

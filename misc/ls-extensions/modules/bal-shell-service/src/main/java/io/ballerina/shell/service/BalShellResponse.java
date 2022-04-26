@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class BalShellResponse {
 
-    private class ShellValue{
+    private class ShellValue {
         private final String value;
         private final String mimeType;
         private final String type;
