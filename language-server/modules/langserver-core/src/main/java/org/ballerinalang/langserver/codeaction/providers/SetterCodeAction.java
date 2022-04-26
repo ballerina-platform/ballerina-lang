@@ -1,10 +1,22 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.*;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -37,34 +49,74 @@ public class SetterCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
-        if (!context.currentSyntaxTree().isPresent()) {
+
+        boolean isInitPresent = false;
+        FunctionDefinitionNode initNode = null;
+        NonTerminalNode matchedNode = posDetails.matchedCodeActionNode();
+        if (!(matchedNode.kind() == SyntaxKind.OBJECT_FIELD) || matchedNode.hasDiagnostics()) {
             return Collections.emptyList();
         }
 
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(), context.cursorPosition()),
-                context.currentSyntaxTree().get());
-        String commandTitle = "Create a setter for " + ((ObjectFieldNode) matchedNode).fieldName().toString();
-        String fieldName = String.valueOf(((ObjectFieldNode) matchedNode).fieldName());
-        String typeName = String.valueOf(((ObjectFieldNode) matchedNode).typeName());
+        ObjectFieldNode objectFieldNode = (ObjectFieldNode) matchedNode;
+        if (!isWithinVarName(context, objectFieldNode)) {
+            return Collections.emptyList();
+        }
+
+        boolean isImmutable = objectFieldNode.qualifierList().stream()
+                .anyMatch(qualifiers -> qualifiers.toString().strip().equals("final") ||
+                        qualifiers.toString().strip().equals("readonly"));
+        if (isImmutable) {
+            return Collections.emptyList();
+        }
+
+        String commandTitle = String.format("Create a setter for '%s'", objectFieldNode.fieldName().toString());
+        String fieldName = String.valueOf(objectFieldNode.fieldName());
+        String typeName = String.valueOf(objectFieldNode.typeName());
         String functionName = "set" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
-        for (Node node: ((ClassDefinitionNode) matchedNode.parent()).members()) {
-            if (node instanceof FunctionDefinitionNode &&
-                    ((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
-                return Collections.emptyList();
+        for (Node node: ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
+            if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                if (((FunctionDefinitionNode) node).functionName().toString().equals("init")) {
+                    isInitPresent = true;
+                    initNode = (FunctionDefinitionNode) node;
+                }
+
+                if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
+                    return Collections.emptyList();
+                }
             }
         }
 
-        Position startPos = new Position(matchedNode.parent().lineRange().endLine().line(),
-                ((ClassDefinitionNode) matchedNode.parent()).closeBrace().lineRange().startLine().offset());
-        Range newTextRange = new Range(startPos, startPos);
+        int startLine;
+        int startOffset;
+        int textOffset;
+        if (!isInitPresent) {
+            startLine = ((ClassDefinitionNode) objectFieldNode.parent()).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() -1).
+                    lineRange().endLine().line();
+            startOffset = ((ClassDefinitionNode) objectFieldNode.parent()).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() -1).
+                    lineRange().endLine().offset();
+            textOffset = objectFieldNode.lineRange().startLine().offset();
+        } else {
+            startLine = initNode.lineRange().endLine().line();
+            startOffset = initNode.lineRange().endLine().offset();
+            textOffset = initNode.lineRange().startLine().offset();
+        }
 
-        int offset = matchedNode.lineRange().startLine().offset();
-        List<TextEdit> edits = CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange, offset, typeName);
+        Position startPos = new Position(startLine, startOffset);
+        Range newTextRange = new Range(startPos, startPos);
+        List<TextEdit> edits = CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange, textOffset, typeName);
         return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
     }
 
     @Override
     public String getName() {
         return null;
+    }
+
+    private boolean isWithinVarName(CodeActionContext context, ObjectFieldNode objectFieldNode) {
+        return objectFieldNode.fieldName().lineRange().startLine().offset() <= context.cursorPosition().getCharacter()
+                && context.cursorPosition().getCharacter() <=
+                objectFieldNode.fieldName().lineRange().endLine().offset();
     }
 }

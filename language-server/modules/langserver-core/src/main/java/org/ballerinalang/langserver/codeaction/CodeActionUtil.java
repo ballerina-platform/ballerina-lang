@@ -30,25 +30,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
-import io.ballerina.compiler.syntax.tree.MetadataNode;
-import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -451,20 +433,22 @@ public class CodeActionUtil {
         return edits;
     }
 
-    public static List<TextEdit> addGettersCodeActionEdits(String varName, Range range, int offset, String typeName) {
+    public static List<TextEdit> addGettersCodeActionEdits(String varName, Range range, int offset0,
+                                                           String typeName) {
         Position startPos = range.getEnd();
         Range newTextRange = new Range(startPos, startPos);
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', offset);
+        String spaces = StringUtils.repeat(' ', offset0);
         edits.add(new TextEdit(newTextRange, generateGetterFunctionBodyText(varName, typeName, spaces)));
         return edits;
     }
 
-    public static List<TextEdit> addSettersCodeActionEdits(String varName, Range range, int offset, String typeName) {
+    public static List<TextEdit> addSettersCodeActionEdits(String varName, Range range, int offset0,
+                                                           String typeName) {
         Position startPos = range.getEnd();
         Range newTextRange = new Range(startPos, startPos);
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', offset);
+        String spaces = StringUtils.repeat(' ', offset0);
         edits.add(new TextEdit(newTextRange, generateSetterFunctionBodyText(varName, typeName, spaces)));
         return edits;
     }
@@ -560,6 +544,10 @@ public class CodeActionUtil {
         } else if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             return ((VariableDeclarationNode) node).typedBindingPattern().bindingPattern();
         }
+//        else if (node.kind() == SyntaxKind.OBJECT_FIELD) {
+//            return ((AssignmentStatementNode) NodeParser.parseStatement
+//                    (((ObjectFieldNode) node).fieldName().toString() + "=" + "_;")).varRef();
+//        }
         return node;
     }
 
@@ -571,6 +559,17 @@ public class CodeActionUtil {
      * @return {@link String}   Top level node
      */
     public static Optional<NonTerminalNode> getTopLevelNode(Position cursorPos, SyntaxTree syntaxTree) {
+        return getCodeActionNode(cursorPos, syntaxTree);
+    }
+
+    /**
+     * Get the code action node type at the cursor line.
+     *
+     * @param cursorPos  {@link Position}
+     * @param syntaxTree {@link SyntaxTree}
+     * @return {@link String}   Top level node
+     */
+    public static Optional<NonTerminalNode> getCodeActionNode(Position cursorPos, SyntaxTree syntaxTree) {
         NonTerminalNode member = CommonUtil.findNode(new Range(cursorPos, cursorPos), syntaxTree);
         LinePosition cursorPosition = LinePosition.from(cursorPos.getLine(), cursorPos.getCharacter());
         int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
@@ -894,8 +893,8 @@ public class CodeActionUtil {
         StringBuilder newTextBuilder = new StringBuilder();
         String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
         newTextBuilder.append(String.format
-                (LINE_SEPARATOR + spaces + "public function get%s() returns %s{ " + LINE_SEPARATOR +
-                spaces + spaces + "return self.%s;" + LINE_SEPARATOR + spaces + "}" +  LINE_SEPARATOR,
+                (LINE_SEPARATOR + LINE_SEPARATOR + spaces + "public function get%s() returns %s{ " + LINE_SEPARATOR +
+                spaces + spaces + "return self.%s;" + LINE_SEPARATOR + spaces + "}" ,
                 functionName, typeName, varName));
         return newTextBuilder.toString();
     }
@@ -905,8 +904,8 @@ public class CodeActionUtil {
         StringBuilder newTextBuilder = new StringBuilder();
         String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
         newTextBuilder.append(String.format
-                (LINE_SEPARATOR + spaces + "public function set%s(%s %s) { " + LINE_SEPARATOR +
-                spaces + spaces + "self.%s = %s;" + LINE_SEPARATOR + "" + spaces + "}" + LINE_SEPARATOR,
+                (LINE_SEPARATOR + LINE_SEPARATOR + spaces + "public function set%s(%s %s) { " + LINE_SEPARATOR +
+                spaces + spaces + "self.%s = %s;" + LINE_SEPARATOR + "" + spaces + "}" ,
                 functionName, typeName, varName, varName, varName));
         return newTextBuilder.toString();
     }
