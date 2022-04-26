@@ -65,13 +65,16 @@ function testAssignKeyedTableValueToVar() {
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
     ];
+
     var ids = from var {id} in tbl1 select {id};
     table<record {| int id; |}> a3 = ids;
+
+    var a4 = table [{"id": 1234}, {"id": 4567}];
 
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table [{"id": 1234}, {"id": 4567}], a3);
+    assertEqual(a4, a3);
 }
 
 function testAssignKeyedTableValueToTableType() {
@@ -109,14 +112,16 @@ function testAssignKeylessTableValueToAny() {
         {name: "John", id: 4567}
     ];
     any a1 = tbl1;
-    any a2 = table [
+    table<Student> a2 = table [
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
     ];
 
+    var a3 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table [{name: "Amy", id: 1234}, {name: "John", id: 4567}], a2);
+    assertEqual(a3, a2);
 }
 
 function testAssignKeylessTableValueToVar() {
@@ -130,11 +135,11 @@ function testAssignKeylessTableValueToVar() {
         {name: "John", id: 4567}
     ];
     var ids = from var {id} in tbl1 select {id};
-
+    var a3 = table [{"id": 1234}, {"id": 4567}];
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table [{"id": 1234}, {"id": 4567}], ids);
+    assertEqual(a3, ids);
 }
 
 function testAssignKeylessTableValueToTableType() {
@@ -144,9 +149,7 @@ function testAssignKeylessTableValueToTableType() {
     ];
     var a2 = table key() from var {id} in tbl1 select {id};
     table<record {| int id; |}> a3 = a2;
-    any a4 = table [{"id": 1234}, {"id": 4567}];
-
-    assertEqual(table [{"id": 1234}, {"id": 4567}], a3);
+    var a4 = table [{"id": 1234}, {"id": 4567}];
     assertEqual(a3, a4);
 }
 
