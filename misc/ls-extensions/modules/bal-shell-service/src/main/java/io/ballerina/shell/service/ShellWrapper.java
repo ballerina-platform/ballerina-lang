@@ -43,9 +43,12 @@ public class ShellWrapper {
     private BShellConfiguration configuration;
     private Evaluator evaluator;
     private File tempFile;
-    private static ShellWrapper instance;
     private static final String TEMP_FILE_PREFIX = "temp-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
+
+    private static class InstanceHolder {
+        private static ShellWrapper instance = new ShellWrapper();
+    }
 
     private ShellWrapper() {
         this.configuration = new BShellConfiguration.Builder().build();
@@ -53,14 +56,7 @@ public class ShellWrapper {
     }
 
     public static ShellWrapper getInstance() {
-        if (instance == null) {
-            synchronized (ShellWrapper.class) {
-                if (instance == null) {
-                    instance = new ShellWrapper();
-                }
-            }
-        }
-        return instance;
+        return InstanceHolder.instance;
     }
 
     /**
@@ -73,7 +69,7 @@ public class ShellWrapper {
         BalShellResponse output = new BalShellResponse();
         PrintStream original = System.out;
         ConsoleOutCollector consoleOutCollector = new ConsoleOutCollector();
-        System.setOut(new PrintStream(consoleOutCollector));
+        System.setOut(new PrintStream(consoleOutCollector, false, Charset.defaultCharset()));
         try {
             ShellCompilation shellCompilation = evaluator.getCompilation(source);
             Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
@@ -104,7 +100,8 @@ public class ShellWrapper {
     public ShellFileSourceResponse getShellFileSource() {
         String fileContent;
         try {
-            fileContent = new String(Files.readAllBytes(Paths.get(evaluator.getBufferFileUri()))).trim();
+            fileContent = new String(Files.readAllBytes(Paths.get(evaluator.getBufferFileUri())),
+                    Charset.defaultCharset()).trim();
             File tempFile = writeToFile(fileContent);
             return new ShellFileSourceResponse(tempFile, fileContent);
         } catch (IOException ignored) {
