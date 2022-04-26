@@ -5968,6 +5968,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS,
                         operatorType);
                 data.resultType = checkedExpr.expr.getBType();
+
+                BLangTypeConversionExpr impConversionExpr = checkedExpr.expr.impConversionExpr;
+                if (impConversionExpr != null) {
+                    // Exclude any manually added error type, by reassigning
+                    BType expType = Types.getReferredType(data.expType);
+                    impConversionExpr.setBType(expType);
+                    impConversionExpr.targetType = expType;
+                }
             }
             checkedExpr.setBType(symTable.semanticError);
             return;
