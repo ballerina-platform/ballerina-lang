@@ -28,6 +28,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+/**
+ * The implementation of the methods used to build the Future type descriptor in Types API.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
 
     private final TypesFactory typesFactory;

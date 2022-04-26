@@ -10,6 +10,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+/**
+ * The implementation of the methods used to build the Map type descriptor in Types API.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaMapTypeBuilder implements TypeBuilder.MAP {
 
     private final TypesFactory typesFactory;
@@ -35,7 +40,8 @@ public class BallerinaMapTypeBuilder implements TypeBuilder.MAP {
 
     private BType getBType(TypeSymbol typeSymbol) {
         if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol && typeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))) {
+            if (typeSymbol instanceof AbstractTypeSymbol
+                    && typeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))) {
                 return ((AbstractTypeSymbol) typeSymbol).getBType();
             }
 
