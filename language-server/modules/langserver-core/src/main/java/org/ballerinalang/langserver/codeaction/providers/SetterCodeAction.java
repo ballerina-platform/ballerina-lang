@@ -16,10 +16,14 @@
 
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
@@ -91,10 +95,10 @@ public class SetterCodeAction extends AbstractCodeActionProvider {
         int textOffset;
         if (!isInitPresent) {
             startLine = ((ClassDefinitionNode) objectFieldNode.parent()).
-                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() -1).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
                     lineRange().endLine().line();
             startOffset = ((ClassDefinitionNode) objectFieldNode.parent()).
-                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() -1).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
                     lineRange().endLine().offset();
             textOffset = objectFieldNode.lineRange().startLine().offset();
         } else {

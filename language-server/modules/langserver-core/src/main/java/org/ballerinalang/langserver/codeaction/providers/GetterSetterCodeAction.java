@@ -16,10 +16,14 @@
 
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
@@ -69,14 +73,17 @@ public class GetterSetterCodeAction extends AbstractCodeActionProvider {
         }
 
         if (!(objectFieldNode.fieldName().lineRange().startLine().offset() <= context.cursorPosition().getCharacter()
-                && context.cursorPosition().getCharacter() <= objectFieldNode.fieldName().lineRange().endLine().offset())) {
+                && context.cursorPosition().getCharacter()
+                <= objectFieldNode.fieldName().lineRange().endLine().offset())) {
             return Collections.emptyList();
         }
 
-        String commandTitle = String.format("Create getter and setter for '%s'", objectFieldNode.fieldName().toString());
+        String commandTitle = String.format("Create getter and setter for '%s'",
+                                                objectFieldNode.fieldName().toString());
         String fieldName = String.valueOf(objectFieldNode.fieldName());
         String typeName = String.valueOf(objectFieldNode.typeName());
-        String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
+        String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                                                fieldName.substring(1);
         for (Node node: ((ClassDefinitionNode) matchedNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                 if (((FunctionDefinitionNode) node).functionName().toString().equals("init")) {
@@ -109,10 +116,10 @@ public class GetterSetterCodeAction extends AbstractCodeActionProvider {
         int textOffset;
         if (!isInitPresent) {
             startLine = ((ClassDefinitionNode) objectFieldNode.parent()).
-                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() -1).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
                     lineRange().endLine().line();
             startOffset = ((ClassDefinitionNode) objectFieldNode.parent()).
-                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() -1).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
                     lineRange().endLine().offset();
             textOffset = objectFieldNode.lineRange().startLine().offset();
         } else {
