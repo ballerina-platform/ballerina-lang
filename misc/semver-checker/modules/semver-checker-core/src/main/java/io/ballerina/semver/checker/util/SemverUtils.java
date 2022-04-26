@@ -31,19 +31,24 @@ public class SemverUtils {
     private static final String SEMVER_FORMAT = "%d.%d.%d";
     public static final String BAL_FILE_EXT = ".bal";
 
-    public static String calculateSuggestedVersion(SemanticVersion currentVersion, PackageDiff packageDiff) {
+    public static String calculateSuggestedVersion(SemanticVersion prevVersion, PackageDiff packageDiff) {
         if (packageDiff == null) {
-            return currentVersion.toString();
+            return prevVersion.toString();
         } else {
+            // Todo: add support for pre-release versions
             switch (packageDiff.getCompatibilityLevel()) {
                 case MAJOR:
                 case AMBIGUOUS:
-                    return String.format(SEMVER_FORMAT, currentVersion.major() + 1, 0, 0);
+                    if (prevVersion.isInitialVersion()) {
+                        return String.format(SEMVER_FORMAT, prevVersion.major(), prevVersion.minor() + 1, 0);
+                    } else {
+                        return String.format(SEMVER_FORMAT, prevVersion.major() + 1, 0, 0);
+                    }
                 case MINOR:
-                    return String.format(SEMVER_FORMAT, currentVersion.major(), currentVersion.minor() + 1, 0);
+                    return String.format(SEMVER_FORMAT, prevVersion.major(), prevVersion.minor() + 1, 0);
                 case PATCH:
-                    return String.format(SEMVER_FORMAT, currentVersion.major(), currentVersion.minor(),
-                            currentVersion.patch() + 1);
+                    return String.format(SEMVER_FORMAT, prevVersion.major(), prevVersion.minor(),
+                            prevVersion.patch() + 1);
                 case UNKNOWN:
                 default:
                     return "N/A";

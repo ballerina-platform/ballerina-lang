@@ -23,9 +23,9 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.semver.checker.central.CentralClientWrapper;
 import io.ballerina.semver.checker.comparator.PackageComparator;
-import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.exception.SemverToolException;
+import io.ballerina.semver.checker.util.DiffUtils;
 import io.ballerina.semver.checker.util.PackageUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
@@ -36,7 +36,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.semver.checker.util.SemverUtils.BAL_FILE_EXT;
-import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 
 /**
  * Semver checker API.
@@ -47,73 +46,70 @@ public class SemverChecker {
 
     private final Path projectPath;
     private Package currentPackage;
-    private SemanticVersion resolvedReleaseVersion;
+    private SemanticVersion previousVersion;
     private final PrintStream outStream;
     private final PrintStream errStream;
 
     public SemverChecker(Path projectPath) {
-        this(projectPath, System.out, System.err);
+        this(projectPath, null, System.out, System.err);
     }
 
-    public SemverChecker(Path projectPath, PrintStream outStream, PrintStream errStream) {
+    public SemverChecker(Path projectPath, SemanticVersion previousVersion) {
+        this(projectPath, previousVersion, System.out, System.err);
+    }
+
+    public SemverChecker(Path projectPath, SemanticVersion previousVersion, PrintStream out, PrintStream err) {
         this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
+        this.previousVersion = previousVersion;
+        this.outStream = out;
+        this.errStream = err;
     }
 
-    public String suggestVersion() throws SemverToolException {
+    /**
+     * Returns the suggested version information, which is derived based on the source code compatibility between
+     * the local version and the user-provided release version. (If the released version is not provided, the local
+     * changes will be compared against the latest compatible published version available in the central.)
+     *
+     * @return suggested version information in string format
+     * @throws SemverToolException If execution is failed
+     */
+    public String getVersionSuggestion() throws SemverToolException {
         Optional<PackageDiff> packageDiff = computeDiff();
-        StringBuilder sb = new StringBuilder();
-        SemanticVersion currentVersion = getCurrentVersion();
-        sb.append("current version: ").append(currentVersion).append(System.lineSeparator());
-        sb.append("compatibility status with the latest release (").append(resolvedReleaseVersion).append("): ");
-        if (packageDiff.isEmpty()) {
-            sb.append("no changes detected");
-        } else {
-            switch (packageDiff.get().getCompatibilityLevel()) {
-                case MAJOR:
-                    sb.append("backward-incompatible changes detected.").append(System.lineSeparator());
-                    break;
-                case MINOR:
-                    sb.append("patch-incompatible changes detected.").append(System.lineSeparator());
-                    break;
-                case PATCH:
-                    sb.append("patch-compatible changes detected.").append(System.lineSeparator());
-                    break;
-                case AMBIGUOUS:
-                    sb.append("one or more changes detected with ambiguous level of impact. the developer is expected" +
-                            " to manually review the changes below and choose an appropriate version");
-                    sb.append(System.lineSeparator());
-                    packageDiff.get().getChildDiffs(CompatibilityLevel.AMBIGUOUS)
-                            .forEach(diff -> sb.append(diff.getAsString()));
-                    break;
-                case UNKNOWN:
-                default:
-                    sb.append("one or more changes detected with unknown level of impact. the developer is expected " +
-                            "to manually review the changes below and choose an appropriate version");
-                    sb.append(System.lineSeparator());
-                    packageDiff.get().getChildDiffs(CompatibilityLevel.UNKNOWN);
-                    break;
-            }
-        }
-        sb.append("suggested version: ").append(calculateSuggestedVersion(currentVersion, packageDiff.orElse(null)));
-        return sb.toString();
+        return DiffUtils.suggestVersion(packageDiff.orElse(null), getCurrentVersion(), previousVersion);
     }
 
-    public String getCompatibilitySummary() throws SemverToolException {
+    /**
+     * Returns the list of source-code differences which has compatibility impacts between the local version and
+     * the user-provided release version.
+     * (If the released version is not provided, the local changes will be compared against the latest compatible
+     * published version available in the central.)
+     *
+     * @return Returns the list of source-code differences in string format
+     * @throws SemverToolException If execution is failed
+     */
+    public String getDiffSummary() throws SemverToolException {
         Optional<PackageDiff> packageDiff = computeDiff();
         StringBuilder sb = new StringBuilder();
         sb.append(System.lineSeparator());
         if (packageDiff.isEmpty()) {
-            sb.append("no changes detected");
+            sb.append("no changes detected").append(System.lineSeparator());
         } else {
             sb.append(packageDiff.get().getAsString());
         }
 
+        sb.append(System.lineSeparator());
+        sb.append(DiffUtils.suggestVersion(packageDiff.orElse(null), getCurrentVersion(), previousVersion));
         return sb.toString();
     }
 
-    private Optional<PackageDiff> computeDiff() throws SemverToolException {
+    /**
+     * Calculates and returns the {@link PackageDiff} object containing the change type, compatibility information,
+     * and all the sub-level (i.e. module, function, service) changes of the provided Ballerina package instance.
+     *
+     * @return calculated {@link PackageDiff}
+     * @throws SemverToolException If execution is failed
+     */
+    public Optional<PackageDiff> computeDiff() throws SemverToolException {
         loadCurrentPackage();
 
         String orgName = currentPackage.packageOrg().value();
@@ -121,11 +117,13 @@ public class SemverChecker {
         SemanticVersion pkgVersion = currentPackage.packageVersion().value();
 
         CentralClientWrapper clientWrapper = new CentralClientWrapper();
-        outStream.println("checking for latest compatible release version available in central...");
-        resolvedReleaseVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
-        outStream.println("pulling package version '" + resolvedReleaseVersion + "' from central...");
+        if (previousVersion == null) {
+            outStream.println("checking for latest compatible release version available in central...");
+            previousVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
+        }
+        outStream.println("pulling package version '" + previousVersion + "' from central...");
         outStream.println();
-        Path balaPath = clientWrapper.pullPackage(orgName, pkgName, resolvedReleaseVersion);
+        Path balaPath = clientWrapper.pullPackage(orgName, pkgName, previousVersion);
         Package balaPackage = PackageUtils.loadPackage(balaPath);
 
         PackageComparator packageComparator = new PackageComparator(currentPackage, balaPackage);

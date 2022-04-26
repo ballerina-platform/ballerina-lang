@@ -91,7 +91,6 @@ public class PackageDiff extends DiffImpl {
         public void moduleAdded(Module module) {
             ModuleDiff moduleDiff = new ModuleDiff(module, null);
             moduleDiff.setType(DiffType.NEW);
-            // Todo: decide whether this should be backward incompatible
             moduleDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
             packageDiff.addModuleDiff(moduleDiff);
         }

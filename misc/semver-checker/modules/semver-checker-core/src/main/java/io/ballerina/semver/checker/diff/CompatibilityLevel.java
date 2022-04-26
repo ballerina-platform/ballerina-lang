@@ -22,8 +22,8 @@ package io.ballerina.semver.checker.diff;
  * Compatibility levels which are ranked based on the severity.
  */
 public enum CompatibilityLevel {
-    UNKNOWN(4),
-    MAJOR(3),
+    MAJOR(4),
+    UNKNOWN(3),
     AMBIGUOUS(2),
     MINOR(1),
     PATCH(0);

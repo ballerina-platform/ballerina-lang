@@ -41,12 +41,14 @@ public class ModuleComparator implements Comparator {
 
     private final Module newModule;
     private final Module oldModule;
-    private final Map<String, FunctionDefinitionNode> newFunctions = new HashMap<>();
-    private final Map<String, FunctionDefinitionNode> oldFunctions = new HashMap<>();
+    private final Map<String, FunctionDefinitionNode> newFunctions;
+    private final Map<String, FunctionDefinitionNode> oldFunctions;
 
     public ModuleComparator(Module newModule, Module oldModule) {
         this.newModule = newModule;
         this.oldModule = oldModule;
+        this.newFunctions = new HashMap<>();
+        this.oldFunctions = new HashMap<>();
     }
 
     @Override

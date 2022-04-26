@@ -18,6 +18,8 @@ package org.ballerinalang.semver.checker.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.semver.checker.SemverChecker;
 import io.ballerina.semver.checker.exception.SemverToolException;
@@ -53,11 +55,14 @@ public class SemverCmd implements BLauncherCmd {
     private boolean helpFlag;
 
     @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"-v", "--suggest-version"})
-    private boolean suggestVersion;
+    @CommandLine.Option(names = {"--prev-version"}, description = "released version number which the current " +
+            "changes should be compared against (If not provided, the tool is expected to resolve the most " +
+            "compatible version published to the Ballerina central).")
+    private String prevVersion;
 
     @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"-d", "--diff"})
+    @CommandLine.Option(names = {"-d", "--show-diff"}, description = "show the full list of changes between the " +
+            "compared versions")
     private boolean showDiff;
 
     public SemverCmd() {
@@ -80,15 +85,30 @@ public class SemverCmd implements BLauncherCmd {
                 this.projectPath = Paths.get(argList.get(0));
             }
 
-            SemverChecker semverChecker = new SemverChecker(projectPath);
+            SemanticVersion semanticVersion = null;
+            if (prevVersion != null) {
+                try {
+                    semanticVersion = SemanticVersion.from(prevVersion);
+                } catch (ProjectException e) {
+                    throw new SemverToolException("invalid version '" + prevVersion + "' provided: ", e);
+                } catch (Exception e) {
+                    throw new SemverToolException("unhandled exception occurred while parsing the provided version '" +
+                            prevVersion + "'", e);
+                }
+            }
+
+            SemverChecker semverChecker;
+            if (prevVersion != null) {
+                semverChecker = new SemverChecker(projectPath, semanticVersion);
+            } else {
+                semverChecker = new SemverChecker(projectPath);
+            }
 
             if (showDiff) {
-                outStream.println(semverChecker.getCompatibilitySummary());
+                outStream.println(semverChecker.getDiffSummary());
+            } else {
+                outStream.println(semverChecker.getVersionSuggestion());
             }
-            if (suggestVersion) {
-                outStream.println(semverChecker.suggestVersion());
-            }
-
         } catch (InvalidPathException e) {
             throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool: ", e);
         } catch (SemverToolException e) {

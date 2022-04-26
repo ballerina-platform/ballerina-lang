@@ -29,9 +29,9 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
+import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.FunctionDiff;
-import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.ArrayList;
@@ -102,57 +102,57 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         // analyzes public qualifier changes
         Optional<Token> newPublicQual = getQualifier(newQualifiers, PUBLIC_KEYWORD);
         Optional<Token> oldPublicQual = getQualifier(oldQualifiers, PUBLIC_KEYWORD);
-        if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
+        if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
+            // public qualifier added
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newPublicQual.get(), null);
+            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
+            qualifierDiff.setType(DiffType.NEW);
+            qualifierDiff.setMessage("function visibility is changed from 'module-private' to 'public'");
+            qualifierDiffs.add(qualifierDiff);
+        } else if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
             // public qualifier removed
             NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldPublicQual.get());
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("function visibility is changed from 'public' to 'module-private'");
             qualifierDiffs.add(qualifierDiff);
-        } else if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
-            // public qualifier added
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newPublicQual.get(), null);
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
-            qualifierDiff.setType(DiffType.REMOVED);
-            qualifierDiff.setMessage("function visibility is changed from 'module-private' to 'public'");
-            qualifierDiffs.add(qualifierDiff);
         }
 
         // analyzes isolated qualifier changes
         Optional<Token> newIsolatedQual = getQualifier(newQualifiers, ISOLATED_KEYWORD);
         Optional<Token> oldIsolatedQual = getQualifier(oldQualifiers, ISOLATED_KEYWORD);
-        if (newIsolatedQual.isEmpty() && oldIsolatedQual.isPresent()) {
+        if (newIsolatedQual.isPresent() && oldIsolatedQual.isEmpty()) {
+            // isolated qualifier added
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newIsolatedQual.get(), null);
+            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
+            qualifierDiff.setType(DiffType.NEW);
+            qualifierDiff.setMessage("'isolated' qualifier is added");
+            qualifierDiffs.add(qualifierDiff);
+        } else if (newIsolatedQual.isEmpty() && oldIsolatedQual.isPresent()) {
             // isolated qualifier removed
             NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldIsolatedQual.get());
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("'isolated' qualifier is removed");
             qualifierDiffs.add(qualifierDiff);
-        } else if (newIsolatedQual.isPresent() && oldIsolatedQual.isEmpty()) {
-            // isolated qualifier added
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newIsolatedQual.get(), null);
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
-            qualifierDiff.setType(DiffType.REMOVED);
-            qualifierDiff.setMessage("'isolated' qualifier is added");
-            qualifierDiffs.add(qualifierDiff);
         }
 
         // analyzes transactional qualifier changes
         Optional<Token> newTransactionalQual = getQualifier(newQualifiers, TRANSACTIONAL_KEYWORD);
         Optional<Token> oldTransactionalQual = getQualifier(oldQualifiers, TRANSACTIONAL_KEYWORD);
-        if (newTransactionalQual.isEmpty() && oldTransactionalQual.isPresent()) {
+        if (newTransactionalQual.isPresent() && oldTransactionalQual.isEmpty()) {
+            // transactional qualifier added
+            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newTransactionalQual.get(), null);
+            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
+            qualifierDiff.setType(DiffType.NEW);
+            qualifierDiff.setMessage("'transactional' qualifier is added");
+            qualifierDiffs.add(qualifierDiff);
+        } else if (newTransactionalQual.isEmpty() && oldTransactionalQual.isPresent()) {
             // transactional qualifier removed
             NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldTransactionalQual.get());
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
             qualifierDiff.setType(DiffType.REMOVED);
             qualifierDiff.setMessage("'transactional' qualifier is removed");
-            qualifierDiffs.add(qualifierDiff);
-        } else if (newTransactionalQual.isPresent() && oldTransactionalQual.isEmpty()) {
-            // transactional qualifier added
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newTransactionalQual.get(), null);
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
-            qualifierDiff.setType(DiffType.REMOVED);
-            qualifierDiff.setMessage("'transactional' qualifier is added");
             qualifierDiffs.add(qualifierDiff);
         }
 

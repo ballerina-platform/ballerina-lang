@@ -44,9 +44,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
     @Override
     public Optional<NodeDiffImpl<Node>> computeDiff() {
         NodeDiffImpl<Node> paramDiffs = new NodeDiffImpl<>(newNode, oldNode);
-        if (newNode.kind() != oldNode.kind()) {
-            compareParamKind(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
-        }
+        compareParamKind(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
         compareParamType(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
         compareParamValue(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
         compareParamAnnotations(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
@@ -95,19 +93,26 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         Node newType = extractParamType(newParam);
         Node oldType = extractParamType(oldParam);
 
-        if (newType != null && oldType != null && !newType.toSourceCode().equals(oldType.toSourceCode())) {
+        if (newType == null || oldType == null) {
+            return Optional.empty();
+        } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newParam, oldNode, CompatibilityLevel.AMBIGUOUS);
-            diff.setMessage(String.format("parameter type changed from: '%s' to: %s", oldType.toSourceCode(),
-                    newType.toSourceCode()));
+            diff.setMessage(String.format("parameter type changed from: '%s' to: '%s'", oldType.toSourceCode().trim(),
+                    newType.toSourceCode().trim()));
             return Optional.of(diff);
         }
+
         return Optional.empty();
     }
 
     private Optional<NodeDiffImpl<Node>> compareParamKind(ParameterNode newParam, ParameterNode oldParam) {
+        if (newNode.kind() == oldNode.kind()) {
+            return Optional.empty();
+        }
+
         NodeDiffImpl<Node> paramDiff = new NodeDiffImpl<>(newParam, oldParam);
-        paramDiff.setMessage("parameter kind is changed from '" + newParam.kind() + "' to '" + oldParam.kind());
+        paramDiff.setMessage("parameter kind is changed from '" + newParam.kind() + "' to '" + oldParam.kind() + "'");
         if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
         } else if (newParam.kind() == SyntaxKind.DEFAULTABLE_PARAM && oldParam.kind() == SyntaxKind.REQUIRED_PARAM) {

@@ -18,12 +18,17 @@
 
 package io.ballerina.semver.checker.util;
 
+import io.ballerina.projects.SemanticVersion;
+import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
 import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
+import io.ballerina.semver.checker.exception.SemverToolException;
+
+import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 
 /**
  * Diff model related utilities.
@@ -31,6 +36,44 @@ import io.ballerina.semver.checker.diff.PackageDiff;
  * @since 2201.2.0
  */
 public class DiffUtils {
+
+    public static String suggestVersion(PackageDiff packageDiff, SemanticVersion currentVersion,
+                                        SemanticVersion previousVersion) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("current version: ").append(currentVersion).append(System.lineSeparator());
+        sb.append("compatibility status with the latest release (").append(previousVersion).append("): ");
+        if (packageDiff == null) {
+            sb.append("no changes detected").append(System.lineSeparator());
+        } else {
+            switch (packageDiff.getCompatibilityLevel()) {
+                case MAJOR:
+                    sb.append("backward-incompatible changes detected.").append(System.lineSeparator());
+                    break;
+                case MINOR:
+                    sb.append("patch-incompatible changes detected.").append(System.lineSeparator());
+                    break;
+                case PATCH:
+                    sb.append("patch-compatible changes detected.").append(System.lineSeparator());
+                    break;
+                case AMBIGUOUS:
+                    sb.append("one or more changes detected with ambiguous level of impact. the developer is expected" +
+                            " to manually review the changes below and choose an appropriate version");
+                    sb.append(System.lineSeparator());
+                    packageDiff.getChildDiffs(CompatibilityLevel.AMBIGUOUS)
+                            .forEach(diff -> sb.append(diff.getAsString()));
+                    break;
+                case UNKNOWN:
+                default:
+                    sb.append("one or more changes detected with unknown level of impact. the developer is expected " +
+                            "to manually review the changes below and choose an appropriate version");
+                    sb.append(System.lineSeparator());
+                    packageDiff.getChildDiffs(CompatibilityLevel.UNKNOWN);
+                    break;
+            }
+        }
+        sb.append("suggested version: ").append(calculateSuggestedVersion(previousVersion, packageDiff));
+        return sb.toString();
+    }
 
     /**
      * Coverts a given diff instance into a human-readable string.
