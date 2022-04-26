@@ -30,6 +30,46 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "typeParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "typeParam",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "builtinSubtype",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "builtinSubtype",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyAnnotationService",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "AR",
+      "insertText": "MyAnnotationService",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
@@ -174,76 +214,100 @@
       ]
     },
     {
-      "label": "typeParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "typeParam",
-      "insertTextFormat": "Snippet"
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BR",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
     },
     {
-      "label": "MyAnnotationParameter",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "MyAnnotationParameter",
-      "insertTextFormat": "Snippet"
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BR",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
     },
     {
-      "label": "tainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "tainted",
-      "insertTextFormat": "Snippet"
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BR",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
+        }
+      ]
     },
     {
-      "label": "builtinSubtype",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "builtinSubtype",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "untainted",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "untainted",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "strand",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "strand",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MyAnnotationObjectFunction",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "MyAnnotationObjectFunction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isolatedParam",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "isolatedParam",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MyAnnotationService",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "AR",
-      "insertText": "MyAnnotationService",
-      "insertTextFormat": "Snippet"
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BR",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
     }
   ]
 }

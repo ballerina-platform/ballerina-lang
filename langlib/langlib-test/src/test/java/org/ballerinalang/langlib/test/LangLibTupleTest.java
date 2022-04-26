@@ -18,20 +18,18 @@
 
 package org.ballerinalang.langlib.test;
 
-
-import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -52,55 +50,61 @@ public class LangLibTupleTest {
         negativeResult = BCompileUtil.compile("test-src/tuplelib_test_negative.bal");
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        negativeResult = null;
+    }
+
     @Test
     public void testEnumerate() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testEnumerate");
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testEnumerate");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BValueArray arr = (BValueArray) returns[0];
-        assertEquals(arr.elementType.getTag(), TypeTags.TUPLE_TAG);
+        BArray arr = (BArray) returns;
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(arr.size(), 4);
-        assertEquals(arr.getRefValue(0).stringValue(), "[0, 1]");
-        assertEquals(arr.getRefValue(1).stringValue(), "[1, \"John Doe\"]");
-        assertEquals(arr.getRefValue(2).stringValue(), "[2, 25]");
-        assertEquals(arr.getRefValue(3).stringValue(), "[3, 5.9]");
+        assertEquals(arr.getRefValue(0).toString(), "[0,1]");
+        assertEquals(arr.getRefValue(1).toString(), "[1,\"John Doe\"]");
+        assertEquals(arr.getRefValue(2).toString(), "[2,25]");
+        assertEquals(arr.getRefValue(3).toString(), "[3,5.9]");
     }
 
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(compileResult, "testLength");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testMap() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testMap");
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testMap");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BValueArray arr = (BValueArray) returns[0];
-        assertEquals(arr.elementType.getTag(), TypeTags.UNION_TAG);
-        assertEquals(((BInteger) arr.getRefValue(0)).intValue(), 10);
-        assertEquals(arr.getRefValue(1).stringValue(), "mapped John Doe");
-        assertEquals(((BInteger) arr.getRefValue(2)).intValue(), 250);
-        assertEquals(((BFloat) arr.getRefValue(3)).floatValue(), 29.5);
+        BArray arr = (BArray) returns;
+        assertEquals(((ArrayType) arr.getType()).getElementType().getTag(), TypeTags.UNION_TAG);
+        assertEquals(arr.getRefValue(0), 10L);
+        assertEquals(arr.getRefValue(1).toString(), "mapped John Doe");
+        assertEquals(arr.getRefValue(2), 250L);
+        assertEquals(arr.getRefValue(3), 29.5d);
     }
 
     @Test
     public void testForeach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(((BInteger) returns[0]).intValue(), 26);
+        Object returns = BRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns, 26L);
     }
 
     @Test
     public void testSlice() {
-        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testSlice");
-        assertEquals(returns[0].getType().getTag(), TypeTags.ARRAY_TAG);
+        Object returns = BRunUtil.invoke(compileResult, "testSlice");
+        assertEquals(getType(returns).getTag(), TypeTags.ARRAY_TAG);
 
-        BValueArray arr = (BValueArray) returns[0];
+        BArray arr = (BArray) returns;
         assertEquals(arr.size(), 3);
-        assertEquals(arr.getRefValue(0).stringValue(), "Foo");
-        assertEquals(((BFloat) arr.getRefValue(1)).floatValue(), 12.34);
-        assertTrue(((BBoolean) arr.getRefValue(2)).booleanValue());
+        assertEquals(arr.getRefValue(0).toString(), "Foo");
+        assertEquals(arr.getRefValue(1), 12.34d);
+        assertTrue((Boolean) arr.getRefValue(2));
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -117,33 +121,34 @@ public class LangLibTupleTest {
 
     @Test
     public void testReduce() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
-        assertEquals(((BFloat) returns[0]).floatValue(), 13.8);
+        Object returns = BRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(returns, 13.8d);
     }
 
     @Test
     public void testIterableOpChain() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
-        assertEquals(((BFloat) returns[0]).floatValue(), 3.25);
+        Object returns = BRunUtil.invoke(compileResult, "testIterableOpChain");
+        assertEquals(returns, 3.25d);
     }
 
     @Test
     public void testIndexOf() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIndexOf");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
-        assertNull(returns[1]);
+        Object returns = BRunUtil.invoke(compileResult, "testIndexOf");
+        BArray result = (BArray) returns;
+        assertEquals(result.get(0), 4L);
+        assertNull(result.get(1));
     }
 
     @Test
     public void testPush1() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPush1");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(compileResult, "testPush1");
+        assertEquals(returns, 4L);
     }
 
     @Test
     public void testPush2() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPush2");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        Object returns = BRunUtil.invoke(compileResult, "testPush2");
+        assertEquals(returns, 4L);
     }
 
     @Test(dataProvider = "testToStreamFunctionList")

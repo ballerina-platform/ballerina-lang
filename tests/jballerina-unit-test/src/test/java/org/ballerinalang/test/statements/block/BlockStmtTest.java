@@ -16,8 +16,6 @@
  */
 package org.ballerinalang.test.statements.block;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -49,20 +47,20 @@ public class BlockStmtTest {
 
     @Test
     public void testVariableShadowingBasic() {
-        BValue[] returns = BRunUtil.invoke(result, "test1");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
+        Object returns = BRunUtil.invoke(result, "test1");
+        Assert.assertEquals(returns, 9L);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope1() {
-        BValue[] returns = BRunUtil.invoke(result, "test2");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
+        Object returns = BRunUtil.invoke(result, "test2");
+        Assert.assertEquals(returns, 8L);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope2() {
-        BValue[] returns = BRunUtil.invoke(result, "test3");
-        Assert.assertEquals(returns[0].stringValue(), "K25");
+        Object returns = BRunUtil.invoke(result, "test3");
+        Assert.assertEquals(returns.toString(), "K25");
     }
 
     @Test
@@ -113,8 +111,6 @@ public class BlockStmtTest {
         BAssertUtil.validateError(resultNegative, index++, "break cannot be used outside of a loop", 92, 9);
         BAssertUtil.validateError(resultNegative, index++, "unreachable code", 92, 9);
         //testUnreachableThrow
-        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 107, 9);
-        BAssertUtil.validateError(resultNegative, index++, "unreachable code", 116, 9);
         BAssertUtil.validateError(resultNegative, index++, "unreachable code", 126, 9);
         //testUninitializedVariableAssignInBlock
         BAssertUtil.validateError(resultNegative, index++, "variable 'a' is not initialized", 136, 17);

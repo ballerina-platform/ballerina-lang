@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.ErrorUtils.createAmbiguousConversionError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -63,7 +62,6 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 2.0
  */
 public class FromJsonWithType {
-    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
 
     public static Object fromJsonWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
@@ -103,8 +101,6 @@ public class FromJsonWithType {
                 null, new ArrayList<>(), errors);
         if (convertibleTypes.isEmpty()) {
             throw CloneUtils.createConversionError(value, targetType, errors);
-        } else if (convertibleTypes.size() > 1) {
-            throw createAmbiguousConversionError(value, targetType);
         }
 
         Type matchingType = convertibleTypes.get(0);
@@ -160,7 +156,7 @@ public class FromJsonWithType {
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                     count++;
                 }
-                return ValueCreator.createMapValue(targetType, initialValues);
+                return ValueCreator.createMapValue((MapType) targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
                 Type restFieldType = recordType.getRestFieldType();
@@ -260,11 +256,7 @@ public class FromJsonWithType {
                 BArray data = ValueCreator
                         .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
                 BArray fieldNames;
-                if (tableType.getFieldNames() != null) {
-                    fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                } else {
-                    fieldNames = ValueCreator.createArrayValue(new BString[]{});
-                }
+                fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
                 return ValueCreator.createTableValue(tableType, data, fieldNames);
             case TypeTags.INTERSECTION_TAG:
                 return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),

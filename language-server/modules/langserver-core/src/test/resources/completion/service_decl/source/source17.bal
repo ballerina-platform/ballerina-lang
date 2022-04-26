@@ -1,5 +1,5 @@
 import ballerina/module1;
-import ballerina/http;
+import ballerina/httpx;
 
 public listener module1:Listener lst = new module1:Listener(23);
 

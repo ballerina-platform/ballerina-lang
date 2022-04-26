@@ -60,8 +60,6 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.objectweb.asm.Opcodes.SIPUSH;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA_MAX_YIELD_DEPTH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
@@ -83,6 +81,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -104,7 +103,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_MAIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PUT_FRAMES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
+
 /**
  * Generates Jvm byte code for the main method.
  *
@@ -360,14 +360,14 @@ public class MainMethodGen {
         int defaultableIndex = 0;
         for (BIRNode.BIRAnnotationAttachment attachment : annotAttachments) {
             if (attachment != null && attachment.annotTagRef.value.equals(JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME)) {
-                BIRNode.BIRAnnotationRecordValue
-                        annotRecValue = (BIRNode.BIRAnnotationRecordValue) attachment.annotValues.get(0);
-                Map<String, BIRNode.BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
-                BIRNode.BIRAnnotationArrayValue annotArrayValue =
-                        (BIRNode.BIRAnnotationArrayValue) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD);
-                for (BIRNode.BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
-                    BIRNode.BIRAnnotationLiteralValue argValue = (BIRNode.BIRAnnotationLiteralValue) entryOptional;
-                    defaultableNames.add(defaultableIndex, (String) argValue.value);
+                Map<String, BIRNode.ConstValue> annotFieldMap =
+                        (Map<String, BIRNode.ConstValue>)
+                                ((BIRNode.BIRConstAnnotationAttachment) attachment).annotValue.value;
+
+                BIRNode.ConstValue[] annotArrayValue =
+                        (BIRNode.ConstValue[]) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD).value;
+                for (BIRNode.ConstValue entryOptional : annotArrayValue) {
+                    defaultableNames.add(defaultableIndex, (String) entryOptional.value);
                     defaultableIndex += 1;
                 }
                 break;
@@ -398,9 +398,10 @@ public class MainMethodGen {
         storeFuture(indexMap, mv, futureVar);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND,
                          GET_STRAND);
-        mv.visitIntInsn(SIPUSH, BALLERINA_MAX_YIELD_DEPTH);
-        mv.visitTypeInsn(ANEWARRAY , OBJECT);
-        mv.visitFieldInsn(PUTFIELD , STRAND_CLASS, MethodGenUtils.FRAMES, PUT_FRAMES);
+        mv.visitTypeInsn(NEW, STACK);
+        mv.visitInsn(DUP);
+        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, "()V", false);
+        mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
 
         startScheduler(indexMap.get(SCHEDULER_VAR), mv);
         handleErrorFromFutureValue(mv, futureVar);

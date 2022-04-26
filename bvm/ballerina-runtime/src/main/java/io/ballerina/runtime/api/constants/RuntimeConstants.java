@@ -33,6 +33,7 @@ public class RuntimeConstants {
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String MODULE_INIT_CLASS_NAME = "$_init";
+    public static final String TEST_PACKAGE_NAME = "$test";
     public static final String FILE_NAME_PERIOD_SEPARATOR = "$$$";
 
     // Configs
@@ -58,8 +59,6 @@ public class RuntimeConstants {
     public static final String BALLERINA_HOME = "ballerina.home";
     public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;
     public static final String BALLERINA_MAX_POOL_SIZE_ENV_VAR = "BALLERINA_MAX_POOL_SIZE";
-    public static final int BALLERINA_MAX_YIELD_DEPTH = 256;
-
     public static final Module BALLERINA_LANG_ERROR_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                         "lang.error", "0");
 

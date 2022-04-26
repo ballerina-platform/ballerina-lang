@@ -1,0 +1,5 @@
+[package]
+org = "adv_res"
+name = "package_p"
+version = "1.0.0-beta.1"
+export = ["package_p"]

@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.expressions.literals;
 
-import org.ballerinalang.core.model.values.BFloat;
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
-import org.ballerinalang.core.model.values.BValue;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -35,7 +33,7 @@ import org.testng.annotations.Test;
 /**
  * Identifier literal test cases.
  */
-@Test(groups = {"disableOnOldParser"})
+@Test()
 public class IdentifierLiteralTest {
 
     private CompileResult result;
@@ -62,16 +60,17 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test defining local variables with Identifier Literal and get them as return parameters")
     public void testIdentifierLiteralsAsLocalVariables() {
-        BValue[] returns = BRunUtil.invoke(result, "defineAndGetIL");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertSame(returns[1].getClass(), BFloat.class);
-        Assert.assertSame(returns[2].getClass(), BInteger.class);
-        String actualString = returns[0].stringValue();
+        Object arr = BRunUtil.invoke(result, "defineAndGetIL");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 3);
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertTrue(returns.get(1) instanceof Double);
+        Assert.assertTrue(returns.get(2) instanceof Long);
+        String actualString = returns.get(0).toString();
         Assert.assertEquals(actualString, "IL with global var");
-        double actualFloat = ((BFloat) returns[1]).floatValue();
+        double actualFloat = (double) returns.get(1);
         Assert.assertEquals(actualFloat, 77.80);
-        long actualInt = ((BInteger) returns[2]).intValue();
+        long actualInt = (long) returns.get(2);
         Assert.assertEquals(actualInt, 99934);
     }
 
@@ -87,10 +86,9 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test defining reference type with identifier literal and initialize later")
     public void testUsingIdentifierLiteralAsReferenceType() {
-        BValue[] returns = BRunUtil.invoke(result, "useILAsrefType");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BMap.class);
-        Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"James\", \"age\":30}");
+        Object returns = BRunUtil.invoke(result, "useILAsrefType");
+        Assert.assertTrue(returns instanceof BMap);
+        Assert.assertEquals(returns.toString(), "{\"name\":\"James\",\"age\":30}");
     }
 
     @Test(description = "Test using identifier literals in arrays and array indexes")
@@ -105,10 +103,9 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test character range in identifier literal")
     public void testCharacterRangeInIdentifierLiteral() {
-        BValue[] returns = BRunUtil.invoke(result, "testCharInIL");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        String actualString = returns[0].stringValue();
+        Object returns = BRunUtil.invoke(result, "testCharInIL");
+        Assert.assertTrue(returns instanceof BString);
+        String actualString = returns.toString();
         Assert.assertEquals(actualString, "sample value");
     }
 
@@ -134,10 +131,9 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test unicode with identifier literal")
     public void testUnicodeWithIntegerLiteral() {
-        BValue[] returns = BRunUtil.invoke(result, "testUnicodeInIL");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "සිංහල වාක්‍යක්");
+        Object returns = BRunUtil.invoke(result, "testUnicodeInIL");
+        Assert.assertTrue(returns instanceof BString);
+        Assert.assertEquals(returns.toString(), "සිංහල වාක්‍යක්");
     }
 
     //Error scenarios
@@ -220,22 +216,22 @@ public class IdentifierLiteralTest {
 
     @Test
     public void testAcessILWithoutPipe() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcessILWithoutPipe");
-        Assert.assertEquals(returns.length, 2);
+        Object arr = BRunUtil.invoke(result, "testAcessILWithoutPipe");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 2);
 
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "hello");
+        Assert.assertTrue(returns.get(0) instanceof BString);
+        Assert.assertEquals(returns.get(0).toString(), "hello");
 
-        Assert.assertSame(returns[1].getClass(), BString.class);
-        Assert.assertEquals(returns[1].stringValue(), "hello");
+        Assert.assertTrue(returns.get(1) instanceof BString);
+        Assert.assertEquals(returns.get(1).toString(), "hello");
     }
 
     @Test
     public void testAcessJSONFielAsIL() {
-        BValue[] returns = BRunUtil.invoke(result, "testAcessJSONFielAsIL");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BString.class);
-        Assert.assertEquals(returns[0].stringValue(), "I am an integer");
+        Object returns = BRunUtil.invoke(result, "testAcessJSONFielAsIL");
+        Assert.assertTrue(returns instanceof  BString);
+        Assert.assertEquals(returns.toString(), "I am an integer");
     }
 
     @Test(description = "Test quoted identifier literals in workers")
@@ -250,12 +246,13 @@ public class IdentifierLiteralTest {
 
     @Test(description = "Test struct type member access with literal string")
     public void testMemberAccessWithIL() {
-        BValue[] returns = BRunUtil.invoke(result, "testMemberAccessWithIL");
-        Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(returns[0].stringValue(), "Jack");
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 50);
-        Assert.assertEquals(returns[2].stringValue(), "John");
-        Assert.assertEquals(returns[3].stringValue(), "25");
+        Object arr = BRunUtil.invoke(result, "testMemberAccessWithIL");
+        BArray returns = (BArray) arr;
+        Assert.assertEquals(returns.size(), 4);
+        Assert.assertEquals(returns.get(0).toString(), "Jack");
+        Assert.assertEquals(returns.get(1), 50L);
+        Assert.assertEquals(returns.get(2).toString(), "John");
+        Assert.assertEquals(returns.get(3).toString(), "25");
     }
 
     @Test(description = "Test struct type to string returning expected value for IL")

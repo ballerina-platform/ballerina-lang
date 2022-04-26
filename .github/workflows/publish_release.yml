@@ -15,7 +15,8 @@ jobs:
           distribution: 'adopt' 
           java-version: '11'
       - name: Set version env variable
-        run: echo "VERSION=$((grep -w 'version' | cut -d= -f2) < gradle.properties | rev | cut --complement -d- -f1 | rev)" >> $GITHUB_ENV
+        run: |
+          echo "VERSION=$(./gradlew properties | grep ^version: | cut -d\  -f2 | sed 's@-SNAPSHOT@@')" >> $GITHUB_ENV
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Publish artifact

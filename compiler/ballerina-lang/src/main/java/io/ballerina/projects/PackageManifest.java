@@ -19,8 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
-import io.ballerina.projects.internal.model.Dependency;
-import org.ballerinalang.toml.model.Platform;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collections;
 import java.util.List;
@@ -274,11 +273,13 @@ public class PackageManifest {
         private final PackageOrg packageOrg;
         private final PackageVersion version;
         private final String repository;
+        private final Location location;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.version = version;
+            this.location = null;
             this.repository = null;
         }
 
@@ -288,6 +289,16 @@ public class PackageManifest {
             this.packageOrg = packageOrg;
             this.version = version;
             this.repository = repository;
+            this.location = null;
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion version,
+                          String repository, Location location) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.repository = repository;
+            this.location = location;
         }
 
         public PackageName name() {
@@ -304,6 +315,10 @@ public class PackageManifest {
 
         public String repository() {
             return repository;
+        }
+
+        public Optional<Location> location() {
+            return Optional.ofNullable(location);
         }
     }
 

@@ -35,8 +35,11 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.FailStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
@@ -46,9 +49,12 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
@@ -82,6 +88,20 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
         functionCallExpressionNode.accept(this);
+    }
+
+    @Override
+    public void visit(ObjectFieldNode objectFieldNode) {
+        Symbol symbol = semanticModel.symbol(objectFieldNode).orElse(null);
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
+    }
+
+    @Override
+    public void visit(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
+        Symbol symbol = semanticModel.symbol(recordFieldWithDefaultValueNode).orElse(null);
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
     }
 
     @Override
@@ -346,6 +366,35 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(FunctionDefinitionNode node) {
+        semanticModel.symbol(node)
+                .flatMap(SymbolUtil::getTypeDescriptor)
+                .ifPresent(this::checkAndSetTypeResult);
+    }
+
+    @Override
+    public void visit(FunctionBodyBlockNode node) {
+        node.parent().accept(this);
+    }
+
+    @Override
+    public void visit(ReturnStatementNode returnStatementNode) {
+        this.semanticModel.typeOf(returnStatementNode).ifPresent(this::checkAndSetTypeResult);
+        if (resultFound) {
+            return;
+        }
+
+        // Get function type symbol and get return type descriptor from it
+        returnStatementNode.parent().accept(this);
+        if (resultFound && returnTypeSymbol.typeKind() == TypeDescKind.FUNCTION) {
+            FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) returnTypeSymbol;
+            functionTypeSymbol.returnTypeDescriptor().ifPresentOrElse(this::checkAndSetTypeResult, this::resetResult);
+        } else {
+            resetResult();
+        }
+    }
+
+    @Override
     public void visit(UnaryExpressionNode unaryExpressionNode) {
         semanticModel.typeOf(unaryExpressionNode).ifPresent(this::checkAndSetTypeResult);
 
@@ -357,6 +406,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     @Override
     public void visit(IfElseStatementNode ifElseStatementNode) {
         checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+    }
+
+    @Override
+    public void visit(FailStatementNode failStatementNode) {
+        checkAndSetTypeDescResult(TypeDescKind.ERROR);
     }
 
     @Override

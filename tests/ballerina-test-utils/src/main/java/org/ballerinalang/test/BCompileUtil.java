@@ -142,13 +142,23 @@ public class BCompileUtil {
     }
 
     public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath) {
+        return compileAndCacheBala(sourceFilePath, repoPath, getTestProjectEnvironmentBuilder());
+    }
+
+    public static CompileResult compileAndCacheBala(String sourceFilePath, Path repoPath,
+                                             ProjectEnvironmentBuilder projectEnvironmentBuilder) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
-
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
+
+        return compileAndCacheBala(projectPath, repoPath, projectEnvironmentBuilder);
+    }
+
+    public static CompileResult compileAndCacheBala(Path projectPath, Path repoPath,
+                                                    ProjectEnvironmentBuilder projectEnvironmentBuilder) {
         BuildOptions defaultOptions = BuildOptions.builder().setOffline(true).setDumpBirFile(true).build();
-        Project project = ProjectLoader.loadProject(projectPath, getTestProjectEnvironmentBuilder(), defaultOptions);
+        Project project = ProjectLoader.loadProject(projectPath, projectEnvironmentBuilder, defaultOptions);
 
         if (isSingleFileProject(project)) {
             throw new RuntimeException("single file project is given for compilation at " + project.sourceRoot());

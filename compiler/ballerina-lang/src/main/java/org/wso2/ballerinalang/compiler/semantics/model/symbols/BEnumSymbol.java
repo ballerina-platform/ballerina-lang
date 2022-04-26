@@ -21,7 +21,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Annotatable;
-import org.ballerinalang.model.symbols.AnnotationSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -38,14 +38,14 @@ import java.util.List;
 public class BEnumSymbol extends BTypeSymbol implements Annotatable {
 
     public List<BConstantSymbol> members;
-    private List<BAnnotationSymbol> annots;
+    private List<BAnnotationAttachmentSymbol> annotationAttachments;
 
     public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, Name originalName,
                        PackageID pkgID, BType type, BSymbol owner, Location pos, SymbolOrigin origin) {
         super(SymTag.ENUM, flags, name, originalName, pkgID, type, owner, pos, origin);
         this.members = members;
         this.kind = SymbolKind.ENUM;
-        this.annots = new ArrayList<>();
+        this.annotationAttachments = new ArrayList<>();
     }
 
     public BEnumSymbol(List<BConstantSymbol> members, long flags, Name name, PackageID pkgID, BType type,
@@ -54,21 +54,24 @@ public class BEnumSymbol extends BTypeSymbol implements Annotatable {
     }
 
     @Override
-    public void addAnnotation(AnnotationSymbol symbol) {
-        if (symbol == null) {
-            return;
-        }
-        this.annots.add((BAnnotationSymbol) symbol);
-    }
-
-    public void addAnnotations(List<BAnnotationSymbol> annotSymbols) {
-        for (BAnnotationSymbol symbol : annotSymbols) {
-            addAnnotation(symbol);
-        }
+    public SymbolKind getKind() {
+        return SymbolKind.ENUM;
     }
 
     @Override
-    public List<? extends AnnotationSymbol> getAnnotations() {
-        return this.annots;
+    public void addAnnotation(AnnotationAttachmentSymbol symbol) {
+        if (symbol == null) {
+            return;
+        }
+        this.annotationAttachments.add((BAnnotationAttachmentSymbol) symbol);
+    }
+
+    public void addAnnotations(List<BAnnotationAttachmentSymbol> annotSymbols) {
+        this.annotationAttachments.addAll(annotSymbols);
+    }
+
+    @Override
+    public List<? extends AnnotationAttachmentSymbol> getAnnotations() {
+        return this.annotationAttachments;
     }
 }

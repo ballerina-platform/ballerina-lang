@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
@@ -1310,6 +1311,14 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.typedescType = source.typedescType;
     }
 
+    @Override
+    public void visit(BLangListConstructorSpreadOpExpr source) {
+        BLangListConstructorSpreadOpExpr clone = new BLangListConstructorSpreadOpExpr();
+        source.cloneRef = clone;
+        clone.pos = source.pos;
+        clone.expr = clone(source.expr);
+    }
+
     public void visit(BLangTableConstructorExpr source) {
 
         BLangTableConstructorExpr clone = new BLangTableConstructorExpr();
@@ -1810,7 +1819,8 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectTypeNode source) {
 
-        BLangObjectTypeNode clone = new BLangObjectTypeNode();
+        int includedFieldCount = source.includedFields.size();
+        BLangObjectTypeNode clone = new BLangObjectTypeNode(includedFieldCount);
         source.cloneRef = clone;
         clone.functions = cloneList(source.functions);
         clone.initFunction = clone(source.initFunction);
@@ -1822,10 +1832,11 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode source) {
 
-        BLangRecordTypeNode clone = new BLangRecordTypeNode();
+        BLangType restFieldType = clone(source.restFieldType);
+        int includedFieldCount = source.includedFields.size();
+        BLangRecordTypeNode clone = new BLangRecordTypeNode(includedFieldCount, restFieldType);
         source.cloneRef = clone;
         clone.sealed = source.sealed;
-        clone.restFieldType = clone(source.restFieldType);
         clone.analyzed = source.analyzed;
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);

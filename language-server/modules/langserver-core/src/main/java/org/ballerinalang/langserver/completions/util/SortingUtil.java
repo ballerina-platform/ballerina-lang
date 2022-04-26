@@ -30,6 +30,7 @@ import io.ballerina.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -172,7 +173,7 @@ public class SortingUtil {
      * 4. Constant
      * 5. Enums
      * 6. Enum Member
-     * 7. Basic Types (boolean, int, string, etc)
+     * 7. Basic Types (boolean, int, string, etc.)
      * 8. Type Descriptor snippets (record snippet, object snippet)
      * 8+. keywords (true, false, record, object)
      *
@@ -210,7 +211,7 @@ public class SortingUtil {
             /*
             Case 1 and 2
             Types in the same module get the priority.
-            Types coming from lang.value (StrandData, Thread) get the second highest priority
+            Types coming from lang.value (StrandData, Thread) get the second-highest priority
             
             Note: At this point there shouldn't be any symbol kind other than TYPE
              */
@@ -535,5 +536,46 @@ public class SortingUtil {
         }
 
         return rank;
+    }
+
+    /**
+     * Checks whether the symbol completion item is within the range of given node and cursor.
+     *
+     * @param context       Completion Context
+     * @param lsCItem       LS Completion Item
+     * @param startNode     Starting Node
+     * @return  {@link Boolean}
+     */
+    public static boolean isSymbolCItemWithinNodeAndCursor(BallerinaCompletionContext context, 
+                                                               LSCompletionItem lsCItem, Node startNode) {
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL 
+                || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
+                return false;
+        }
+        return ((SymbolCompletionItem) lsCItem).getSymbol().get().getLocation()
+                .filter(location -> startNode.textRange().startOffset() < location.textRange().startOffset())
+                .filter(location -> location.textRange().endOffset() < context.getCursorPositionInTree())
+                .isPresent();
+    }
+    
+    /**
+     * Loop through the parent clauseNode to find the outermost Query Expression Node if exists.
+     *
+     * @param clauseNode           clauseNode
+     * @return {@link Optional}    outermost QueryExpressionNode related to the clause node
+     */
+    public static Optional<QueryExpressionNode> getTheOutermostQueryExpressionNode(Node clauseNode) {
+        Node evalNode1 = clauseNode;
+        Node evalNode2 = clauseNode;
+        while (evalNode1.parent() != null) {
+            if (evalNode1.kind() == SyntaxKind.QUERY_EXPRESSION) {
+                evalNode2 = evalNode1;
+            }
+            evalNode1 = evalNode1.parent();
+        }
+        if (evalNode2.kind() == SyntaxKind.QUERY_EXPRESSION) {
+            return Optional.of((QueryExpressionNode) evalNode2);
+        }
+        return Optional.empty();
     }
 }

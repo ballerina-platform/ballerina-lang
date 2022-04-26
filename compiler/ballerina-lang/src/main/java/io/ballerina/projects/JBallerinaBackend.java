@@ -50,7 +50,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,6 +57,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -85,7 +85,6 @@ public class JBallerinaBackend extends CompilerBackend {
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
     private static final HashSet<String> excludeExtensions = new HashSet<>(Lists.of("DSA", "SF"));
-    private static final PrintStream out = System.out;
 
     private final PackageResolution pkgResolution;
     private final JvmTarget jdkVersion;
@@ -98,7 +97,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
-    private List<JarConflict> conflictedJars;
+    private final List<JarConflict> conflictedJars;
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
@@ -132,8 +131,6 @@ public class JBallerinaBackend extends CompilerBackend {
             observabilitySymbolCollector.process(packageContext.project());
         }
         this.conflictedJars = new ArrayList<>();
-
-        // Trigger code generation
         performCodeGen();
     }
 
@@ -154,6 +151,15 @@ public class JBallerinaBackend extends CompilerBackend {
         // collect compilation diagnostics
         List<Diagnostic> moduleDiagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            // If modules from the current package are being processed
+            // we do an overall check on the diagnostics of the package
+            if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
+                if (packageCompilation.diagnosticResult().hasErrors()) {
+                    moduleDiagnostics.addAll(packageCompilation.diagnosticResult().diagnostics());
+                    break;
+                }
+            }
+
             // We can't generate backend code when one of its dependencies have errors.
             if (hasNoErrors(moduleDiagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
@@ -167,6 +173,8 @@ public class JBallerinaBackend extends CompilerBackend {
         diagnostics.addAll(moduleDiagnostics);
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+
+        diagnostics = diagnostics.stream().distinct().collect(Collectors.toList());
 
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
@@ -300,7 +308,7 @@ public class JBallerinaBackend extends CompilerBackend {
         }
         CompiledJarFile compiledJarFile = jvmCodeGenerator.generate(bLangPackage);
         if (compiledJarFile == null) {
-            return;
+            throw new IllegalStateException("Missing generated jar, module: " + moduleContext.moduleName());
         }
         String jarFileName = getJarFileName(moduleContext) + JAR_FILE_NAME_SUFFIX;
         try {
@@ -371,8 +379,13 @@ public class JBallerinaBackend extends CompilerBackend {
                 new BufferedOutputStream(new FileOutputStream(executableFilePath.toString())))) {
             writeManifest(manifest, outStream);
 
+            // Sort jar libraries list to avoid inconsistent jar reporting
+            List<JarLibrary> sortedJarLibraries = jarLibraries.stream()
+                    .sorted(Comparator.comparing(jarLibrary -> jarLibrary.path().getFileName()))
+                    .collect(Collectors.toList());
+
             // Copy all the jars
-            for (JarLibrary library : jarLibraries) {
+            for (JarLibrary library : sortedJarLibraries) {
                 copyJar(outStream, library, copiedEntries, serviceEntries);
             }
 

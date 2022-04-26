@@ -20,7 +20,12 @@
                     "type": "integer"
                   }
                 },
-                "additionalProperties": false
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "salary"
+                ],
+                "name": "dilhashanazeer/complexconfigs2:0.1.0:Employee"
               },
               "description": ""
             },
@@ -82,7 +87,12 @@
                     "type": "integer"
                   }
                 },
-                "additionalProperties": false
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "salary"
+                ],
+                "name": "dilhashanazeer/complexconfigs2:0.1.0:Employee"
               },
               "description": ""
             },
@@ -98,7 +108,12 @@
                     "type": "integer"
                   }
                 },
-                "additionalProperties": false
+                "additionalProperties": false,
+                "required": [
+                  "name",
+                  "salary"
+                ],
+                "name": "dilhashanazeer/complexconfigs2:0.1.0:Employee"
               },
               "description": ""
             },
@@ -116,7 +131,12 @@
                       "type": "integer"
                     }
                   },
-                  "additionalProperties": false
+                  "additionalProperties": false,
+                  "required": [
+                    "name",
+                    "salary"
+                  ],
+                  "name": "dilhashanazeer/complexconfigs2:0.1.0:Employee"
                 }
               },
               "description": ""

@@ -258,7 +258,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             String sortText;
             CompletionItem cItem = lsItem.getCompletionItem();
             if (Snippet.DEF_REMOTE_FUNCTION.equals(lsItem) || Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.equals(lsItem)
-                    || Snippet.DEF_FUNCTION.equals(lsItem)) {
+                    || Snippet.DEF_FUNCTION.equals(lsItem) || Snippet.DEF_INIT_FUNCTION.equals(lsItem)) {
                 sortText = genSortText(1);
             } else if (SortingUtil.isTypeCompletionItem(lsItem)) {
                 sortText = genSortText(2);

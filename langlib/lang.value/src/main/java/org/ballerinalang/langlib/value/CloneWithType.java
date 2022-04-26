@@ -56,7 +56,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.ErrorUtils.createAmbiguousConversionError;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -110,14 +109,12 @@ public class CloneWithType {
 
         List<String> errors = new ArrayList<>();
         Set<Type> convertibleTypes;
-        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false, errors);
+        convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false,
+                new ArrayList<>(), errors, allowAmbiguity);
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {
             throw CloneUtils.createConversionError(value, targetType, errors);
-        } else if (!allowAmbiguity && convertibleTypes.size() > 1 && !convertibleTypes.contains(sourceType) &&
-                !TypeConverter.hasIntegerSubTypes(convertibleTypes)) {
-            throw createAmbiguousConversionError(value, targetType);
         }
 
         Type matchingType;
@@ -194,7 +191,7 @@ public class CloneWithType {
                     initialValues[count++] = ValueCreator
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                 }
-                return ValueCreator.createMapValue(targetType, initialValues);
+                return ValueCreator.createMapValue((MapType) targetType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
 
@@ -306,11 +303,7 @@ public class CloneWithType {
         BArray data = ValueCreator.createArrayValue(tableValues,
                                                     TypeCreator.createArrayType(tableType.getConstrainedType()));
         BArray fieldNames;
-        if (tableType.getFieldNames() != null) {
-            fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-        } else {
-            fieldNames = ValueCreator.createArrayValue(new BString[0]);
-        }
+        fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
         return ValueCreator.createTableValue(tableType, data, fieldNames);
     }
 }

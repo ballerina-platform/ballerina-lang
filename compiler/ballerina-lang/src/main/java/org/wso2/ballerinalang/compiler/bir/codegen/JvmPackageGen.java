@@ -567,7 +567,7 @@ public class JvmPackageGen {
         // Generate init class. Init function should be the first function of the package, hence check first
         // function.
         BIRFunction initFunc = functions.get(0);
-        String functionName = initFunc.name.value;
+        String functionName = Utils.encodeFunctionIdentifier(initFunc.name.value);
         JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         PackageID packageID = birPackage.packageID;
@@ -578,14 +578,14 @@ public class JvmPackageGen {
 
         // Add start function
         BIRFunction startFunc = functions.get(1);
-        functionName = startFunc.name.value;
+        functionName = Utils.encodeFunctionIdentifier(startFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(startFunc, packageID, initClass));
         klass.functions.add(1, startFunc);
         count += 1;
 
         // Add stop function
         BIRFunction stopFunc = functions.get(2);
-        functionName = stopFunc.name.value;
+        functionName = Utils.encodeFunctionIdentifier(stopFunc.name.value);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(stopFunc, packageID, initClass));
         klass.functions.add(2, stopFunc);
         count += 1;
@@ -662,7 +662,7 @@ public class JvmPackageGen {
         } catch (MethodTooLargeException e) {
             String funcName = e.getMethodName();
             BIRFunction func = findFunction(node, funcName);
-            if (func != null) {
+            if (func != null && func.pos != null) {
                 dlog.error(func.pos, DiagnosticErrorCode.METHOD_TOO_LARGE,
                         Utils.decodeIdentifier(func.name.value));
             } else {
@@ -734,7 +734,7 @@ public class JvmPackageGen {
         }
     }
 
-    private void generateDependencyList(BPackageSymbol packageSymbol) {
+    private void generateDependencyList(BPackageSymbol packageSymbol)  {
         if (packageSymbol.bir != null) {
             generate(packageSymbol.bir, false);
         } else {
@@ -748,7 +748,7 @@ public class JvmPackageGen {
         dependentModules.add(packageSymbol.pkgID);
     }
 
-    CompiledJarFile generate(BIRNode.BIRPackage module, boolean isEntry) {
+    CompiledJarFile generate(BIRPackage module, boolean isEntry) {
         if (dependentModules.contains(module.packageID)) {
             return null;
         }
@@ -760,16 +760,13 @@ public class JvmPackageGen {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(
                     getBvmAlias(importModule.packageID.orgName.value, importModule.packageID.name.value));
             generateDependencyList(pkgSymbol);
-            if (dlog.errorCount() > 0) {
-                return null;
-            }
             serviceEPAvailable |= listenerDeclarationFound(pkgSymbol);
         }
         String moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME);
         String typesClass = getModuleLevelClassName(module.packageID, MODULE_TYPES_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameLinking(module, moduleInitClass, isEntry);
 
-        if (!isEntry || dlog.errorCount() > 0) {
+        if (!isEntry) {
             return null;
         }
 

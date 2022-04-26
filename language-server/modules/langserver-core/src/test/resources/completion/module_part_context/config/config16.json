@@ -755,7 +755,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module1 as module11 ;\n"
+          "newText": "import lsproject.module1 as module11;\n"
         }
       ]
     },
@@ -765,7 +765,7 @@
       "detail": "Snippet",
       "sortText": "E",
       "filterText": "service_module1_Listener",
-      "insertText": "service ${1} on new module11:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3(module11:MyType|int arg1) returns module11:MyType {\n        return ${4:{a: \"\"}};\n    }\n\n}\n",
+      "insertText": "service ${1} on new module11:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3(module11:MyType|int arg1) returns module11:MyType {\n        return ${4:{a: \"\"\\}};\n    }\n\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -780,6 +780,102 @@
             }
           },
           "newText": "import lsproject.module1 as module11;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project1",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "project2",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project2;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project1",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "test/local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "local_project2",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/local_project2;\n"
         }
       ]
     }

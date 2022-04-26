@@ -242,6 +242,27 @@ public class CommandUtil {
             Files.createDirectories(libs);
             Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, libs));
         }
+
+        // Copy icon
+        Path docsPath = balaPath.resolve(ProjectConstants.BALA_DOCS_DIR);
+        try (Stream<Path> pathStream = Files.walk(docsPath, 1)) {
+            List<Path> icon = pathStream
+                    .filter(FileSystems.getDefault().getPathMatcher("glob:**.png")::matches)
+                    .collect(Collectors.toList());
+            if (icon.isEmpty()) {
+                return;
+            }
+            Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
+            Files.createDirectory(projectDocsDir);
+            Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
+            Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            printError(errStream,
+                    "Error while retrieving the icon: " + e.getMessage(),
+                    null,
+                    false);
+            getRuntime().exit(1);
+        }
     }
 
     /**
@@ -347,14 +368,17 @@ public class CommandUtil {
             stringJoiner.add("\"" + newModuleName + "\"");
         }
 
-        Files.writeString(balTomlPath, "\nexport = [" + stringJoiner.toString() + "]"
+        Files.writeString(balTomlPath, "\nexport = [" + stringJoiner + "]"
                 .replaceFirst(packageJson.getName(), packageName), StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nballerina_version = \"" + packageJson.getBallerinaVersion()
+        Files.writeString(balTomlPath, "\ndistribution = \"" + packageJson.getBallerinaVersion()
                 + "\"", StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nimplementation_vendor = \"" + packageJson.getImplementationVendor()
-                + "\"", StandardOpenOption.APPEND);
-        Files.writeString(balTomlPath, "\nlanguage_spec_version = \"" + packageJson.getLanguageSpecVersion()
-                + "\"", StandardOpenOption.APPEND);
+
+        writePackageAttributeArray(balTomlPath, packageJson.getLicenses(), "license");
+        writePackageAttributeArray(balTomlPath, packageJson.getAuthors(), "authors");
+        writePackageAttributeArray(balTomlPath, packageJson.getKeywords(), "keywords");
+        writePackageAttributeValue(balTomlPath, packageJson.getSourceRepository(), "repository");
+        writePackageAttributeValue(balTomlPath, packageJson.getVisibility(), "visibility");
+        writePackageAttributeValue(balTomlPath, packageJson.getIcon(), "icon");
 
         Files.writeString(balTomlPath, "\n\n[build-options]", StandardOpenOption.APPEND);
         Files.writeString(balTomlPath, "\nobservabilityIncluded = true\n", StandardOpenOption.APPEND);
@@ -365,26 +389,62 @@ public class CommandUtil {
         }
         Files.writeString(balTomlPath, "\n[[platform." + platform + ".dependency]]", StandardOpenOption.APPEND);
         for (Object dependencies : platformLibraries) {
-            JsonObject dependeciesObj = (JsonObject) dependencies;
-            String libPath = dependeciesObj.get("path").getAsString();
+            JsonObject dependenciesObj = (JsonObject) dependencies;
+            String libPath = dependenciesObj.get("path").getAsString();
             Path libName = Optional.of(Paths.get(libPath).getFileName()).get();
             Path libRelPath = Paths.get("libs", libName.toString());
             Files.writeString(balTomlPath, "\npath = \"" + libRelPath + "\"", StandardOpenOption.APPEND);
 
-            if (dependeciesObj.get("artifactId") != null) {
-                String artifactId = dependeciesObj.get("artifactId").getAsString();
+            if (dependenciesObj.get("artifactId") != null) {
+                String artifactId = dependenciesObj.get("artifactId").getAsString();
                 Files.writeString(balTomlPath, "\nartifactId = \"" + artifactId + "\"",
                         StandardOpenOption.APPEND);
             }
-            if (dependeciesObj.get("groupId") != null) {
-                String groupId = dependeciesObj.get("groupId").getAsString();
+            if (dependenciesObj.get("groupId") != null) {
+                String groupId = dependenciesObj.get("groupId").getAsString();
                 Files.writeString(balTomlPath, "\ngroupId = \"" + groupId + "\"", StandardOpenOption.APPEND);
             }
-            if (dependeciesObj.get("version") != null) {
-                String dependencyVersion = dependeciesObj.get("version").getAsString();
+            if (dependenciesObj.get("version") != null) {
+                String dependencyVersion = dependenciesObj.get("version").getAsString();
                 Files.writeString(balTomlPath, "\nversion = \"" + dependencyVersion + "\"\n",
                         StandardOpenOption.APPEND);
             }
+        }
+    }
+
+    /**
+     * Write Ballerina.toml package attribute array from template package.json to new project Ballerina.toml.
+     *
+     * @param balTomlPath    Ballerina.toml path of the new project
+     * @param attributeArray package attribute values array
+     * @param attributeName  package attribute name
+     * @throws IOException when error occurs writing to the Ballerina.toml
+     */
+    private static void writePackageAttributeArray(Path balTomlPath, List<String> attributeArray, String attributeName)
+            throws IOException {
+        if (attributeArray != null && !attributeArray.isEmpty()) {
+            StringJoiner stringJoiner = new StringJoiner(",");
+            for (String attributeElement : attributeArray) {
+                stringJoiner.add("\"" + attributeElement + "\"");
+            }
+            Files.writeString(balTomlPath, "\n" + attributeName + " = [" + stringJoiner + "]",
+                    StandardOpenOption.APPEND);
+        }
+    }
+
+    /**
+     * Write Ballerina.toml package attribute from template package.json to new project Ballerina.toml.
+     *
+     * @param balTomlPath    Ballerina.toml path of the new project
+     * @param attributeValue package attribute value
+     * @param attributeName  package attribute name
+     * @throws IOException when error occurs writing to the Ballerina.toml
+     */
+    private static void writePackageAttributeValue(Path balTomlPath, String attributeValue, String attributeName)
+            throws IOException {
+        if (attributeValue != null && !attributeValue.isEmpty()) {
+            Files.writeString(balTomlPath, "\n" + attributeName + " = \"" + attributeValue + "\"",
+                    StandardOpenOption.APPEND);
         }
     }
 
@@ -471,10 +531,10 @@ public class CommandUtil {
         if (template.equalsIgnoreCase("lib")) {
             initLibPackage(path, packageName);
             Path source = path.resolve("lib.bal");
-            Files.move(source, source.resolveSibling(guessPkgName(packageName) + ".bal"),
+            Files.move(source, source.resolveSibling(guessPkgName(packageName, template) + ".bal"),
                     StandardCopyOption.REPLACE_EXISTING);
         } else {
-            initPackage(path);
+            initPackage(path, packageName);
         }
         createDefaultGitignore(path);
         createDefaultDevContainer(path);
@@ -572,13 +632,16 @@ public class CommandUtil {
      * @param path Project path
      * @throws IOException If any IO exception occurred
      */
-    public static void initPackage(Path path) throws IOException {
+    public static void initPackage(Path path, String packageName) throws IOException {
         Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
         Files.createFile(ballerinaToml);
 
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
         // replace manifest distribution with a guessed value
-        defaultManifest = defaultManifest.replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        defaultManifest = defaultManifest
+                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
+                .replaceAll(PKG_NAME, packageName)
+                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 

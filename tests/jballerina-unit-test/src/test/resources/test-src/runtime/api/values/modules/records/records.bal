@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/test;
 
 public type Address record {
     string city;
@@ -23,5 +24,55 @@ public type Address record {
 };
 
 public function getRecord(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+type Details record {
+    string name;
+    int id;
+};
+
+type Student record {|
+    string name;
+|};
+
+public type Foo record {
+    int[] y;
+};
+
+public type Bar readonly & record {|
+    int[] x;
+|};
+
+public function validateAPI() {
+    anydata recordVal1 = getRecordValue();
+    test:assertTrue(recordVal1 is Student);
+    test:assertEquals(recordVal1, {"name": "nameOfStudent"});
+
+    Details recordVal2 = getRecordValueWithInitialValues();
+    test:assertEquals(recordVal2, {"name": "studentName", "id": 123});
+}
+
+function getRecordValue() returns anydata = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getRecordValueWithInitialValues() returns Details = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getRecordNegative(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getRecordNegative2(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getReadonlyRecordNegative(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getRecordWithRestFieldsNegative() returns record{} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

@@ -188,7 +188,8 @@ public class ImmutableTypeCloner {
         }
 
         BIntersectionType immutableType = type.getImmutableType();
-        if (immutableType != null && (env == null || immutableType.tsymbol.pkgID.equals(env.enclPkg.packageID))) {
+        if (immutableType != null &&
+                isDefinedInCurrentModuleInCurrentCompilation(env, refType, immutableType, unresolvedTypes)) {
             return immutableType;
         }
 
@@ -401,7 +402,9 @@ public class ImmutableTypeCloner {
         BTypeSymbol origTupleTypeSymbol = type.tsymbol;
         List<BType> origTupleMemTypes = type.tupleTypes;
 
-        if (unresolvedTypes.contains(type) && type.immutableType != null) {
+        BIntersectionType immutableType = type.immutableType;
+        if (immutableType != null &&
+                isDefinedInCurrentModuleInCurrentCompilation(env, type, immutableType, unresolvedTypes)) {
             return type.immutableType;
         } else {
             type.immutableType = createImmutableIntersectionType(env,
@@ -687,7 +690,9 @@ public class ImmutableTypeCloner {
         BTypeSymbol origUnionTypeSymbol = type.tsymbol;
 
         LinkedHashSet<BType> originalMemberList = type.getMemberTypes();
-        if (unresolvedTypes.contains(type) && type.immutableType != null) {
+        BIntersectionType existingImmutableType = type.immutableType;
+        if (unresolvedTypes.contains(type) && existingImmutableType != null &&
+                isDefinedInCurrentModuleInCurrentCompilation(env, type, existingImmutableType, unresolvedTypes)) {
             return type.immutableType;
         } else {
             type.immutableType = createImmutableIntersectionType(env,
@@ -801,6 +806,46 @@ public class ImmutableTypeCloner {
         }
 
         return names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
+    }
+
+    private static boolean isDefinedInCurrentModuleInCurrentCompilation(SymbolEnv env, BType mutableType,
+                                                                        BIntersectionType immutableType,
+                                                                        Set<BType> unresolvedTypes) {
+        if (env == null) {
+            return true;
+        }
+
+        PackageID currentPkg = env.enclPkg.packageID;
+        PackageID immutableSymbolPkg = immutableType.tsymbol.pkgID;
+
+        if (!immutableSymbolPkg.equals(currentPkg)) {
+            return false;
+        }
+
+        if (unresolvedTypes.contains(mutableType)) {
+            return true;
+        }
+
+        if (!immutableSymbolPkg.isTestPkg && currentPkg.isTestPkg) {
+            return true;
+        }
+
+        // When sources are recompiled even though there may be an immutable type defined in the current module there
+        // may not be a corresponding type definition. So we check by type definition if the type corresponds to a
+        // type definition defined in the current compilation.
+        BType effectiveType = immutableType.effectiveType;
+        int tag = Types.getReferredType(effectiveType).tag;
+
+        if (tag != TypeTags.TUPLE && tag != TypeTags.UNION && tag != TypeTags.RECORD && tag != TypeTags.OBJECT) {
+            return true;
+        }
+
+        for (BLangTypeDefinition typeDefinition : env.enclPkg.typeDefinitions) {
+            if (typeDefinition.getBType() == effectiveType) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static BIntersectionType createImmutableIntersectionType(SymbolEnv env, BType nonReadOnlyType,

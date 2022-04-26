@@ -17,6 +17,7 @@
 package org.ballerinalang.test.types.typereftype;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -26,6 +27,12 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  * This class contains type reference type related test cases.
  */
 public class TypeReferenceTests {
+
+    @Test
+    public void testTypeRef() {
+        CompileResult positiveCompileResult = BCompileUtil.compile("test-src/types/typereftype/type_reference.bal");
+        BRunUtil.invoke(positiveCompileResult, "testTypeRef");
+    }
 
     @Test(description = "Test basics types")
     public void testNegative() {

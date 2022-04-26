@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.core.model.values.BInteger;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -32,6 +30,7 @@ import org.testng.annotations.Test;
  * Test StringValue impl of ballerina string.
  */
 public class StringValueRecordTest {
+
     private CompileResult result;
 
     @BeforeClass
@@ -59,10 +58,10 @@ public class StringValueRecordTest {
         testAndAssert("testOpenRecord", 18);
     }
 
-    private void testAndAssert(String funcName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, funcName);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), i);
+    private void testAndAssert(String funcName, long i) {
+        Object returns = BRunUtil.invoke(result, funcName);
+        Assert.assertEquals(returns.getClass(), Long.class);
+        Assert.assertEquals(returns, i);
     }
 
     @AfterClass

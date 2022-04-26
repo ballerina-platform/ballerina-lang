@@ -207,12 +207,15 @@ public class ErrorConstructorExpressionNodeContext extends
             return completionItems;
         }
         ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> detailedTypeDesc = node.apply(resolver);
-        if (detailedTypeDesc.isEmpty() || detailedTypeDesc.get().typeKind() != TypeDescKind.RECORD) {
+        Optional<TypeSymbol> detailTypeDesc = node.apply(resolver);
+        if (detailTypeDesc.isEmpty()) {
             return completionItems;
         }
-
-        Map<String, RecordFieldSymbol> fields = ((RecordTypeSymbol) detailedTypeDesc.get()).fieldDescriptors();
+        TypeSymbol rawType = CommonUtil.getRawType(detailTypeDesc.get());
+        if (rawType.typeKind() != TypeDescKind.RECORD) {
+            return completionItems;
+        }
+        Map<String, RecordFieldSymbol> fields = ((RecordTypeSymbol) rawType).fieldDescriptors();
         if (fields.isEmpty()) {
             return completionItems;
         }
@@ -221,12 +224,11 @@ public class ErrorConstructorExpressionNodeContext extends
 
         fields.entrySet().forEach(field -> {
             Optional<String> fieldName = field.getValue().getName();
-            TypeSymbol fieldType = field.getValue().typeDescriptor();
-            String defaultValue = CommonUtil.getDefaultValueForType(fieldType).orElse("\"\"");
             if (fieldName.isEmpty() || fieldName.get().isEmpty() || existingNamedArgs.contains(fieldName.get())) {
                 return;
             }
-            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), defaultValue);
+            TypeSymbol fieldType = field.getValue().typeDescriptor();
+            CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), fieldType);
             completionItems.add(new NamedArgCompletionItem(context, completionItem, Either.forRight(field.getValue())));
         });
 

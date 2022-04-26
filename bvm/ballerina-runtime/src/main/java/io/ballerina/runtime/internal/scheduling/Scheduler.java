@@ -46,7 +46,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_MAX_YIELD_DEPTH;
 import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
 
 /**
@@ -516,7 +515,7 @@ public class Scheduler {
 
     private FutureValue createFuture(Strand parent, Callback callback, Type constraint, Strand newStrand) {
         FutureValue future = new FutureValue(newStrand, callback, constraint);
-        future.strand.frames = new Object[BALLERINA_MAX_YIELD_DEPTH];
+        future.strand.frames = new Stack<>();
         return future;
     }
 

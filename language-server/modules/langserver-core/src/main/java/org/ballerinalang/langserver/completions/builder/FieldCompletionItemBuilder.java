@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -58,7 +59,7 @@ public class FieldCompletionItemBuilder {
 
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(recordFieldName);
-        completionItem.setInsertText(recordFieldName);
+        completionItem.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(recordFieldName));
         completionItem.setKind(CompletionItemKind.Field);
         return completionItem;
     }
@@ -71,7 +72,7 @@ public class FieldCompletionItemBuilder {
      * @return {@link CompletionItem} generated completion item
      */
     public static CompletionItem build(RecordFieldSymbol symbol, BallerinaCompletionContext context) {
-        String recordFieldName = symbol.getName().orElseThrow();
+        String recordFieldName = CommonUtil.escapeEscapeCharsInIdentifier(symbol.getName().orElseThrow());
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(recordFieldName);
         completionItem.setKind(CompletionItemKind.Field);
@@ -102,7 +103,8 @@ public class FieldCompletionItemBuilder {
      */
     public static CompletionItem build(ObjectFieldSymbol objectFieldSymbol, boolean withSelfPrefix) {
         if (withSelfPrefix) {
-            String label = "self." + objectFieldSymbol.getName().get();
+            String label = "self." + 
+                    CommonUtil.escapeEscapeCharsInIdentifier(objectFieldSymbol.getName().orElse(""));
 
             CompletionItem item = new CompletionItem();
             item.setLabel(label);

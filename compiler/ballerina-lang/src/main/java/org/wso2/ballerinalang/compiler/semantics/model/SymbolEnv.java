@@ -95,6 +95,16 @@ public class SymbolEnv {
     }
 
     public void copyTo(SymbolEnv target) {
+        this.copyToWithoutEnclEnv(target);
+        target.enclEnv = this;
+    }
+
+    public void copyTo(SymbolEnv target, SymbolEnv enclEnv) {
+        this.copyToWithoutEnclEnv(target);
+        target.enclEnv = enclEnv;
+    }
+
+    private void copyToWithoutEnclEnv(SymbolEnv target) {
         target.enclPkg = this.enclPkg;
         target.enclType = this.enclType;
         target.enclAnnotation = this.enclAnnotation;
@@ -102,7 +112,6 @@ public class SymbolEnv {
         target.enclInvokable = this.enclInvokable;
         target.enclVarSym = this.enclVarSym;
         target.logErrors = this.logErrors;
-        target.enclEnv = this;
         target.envCount = this.envCount;
     }
 
@@ -203,6 +212,12 @@ public class SymbolEnv {
 
     public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env) {
         SymbolEnv symbolEnv = cloneSymbolEnvForClosure(node, env);
+        Scope scope = node.body.scope;
+        if (scope == null) {
+            node.body.scope = symbolEnv.scope;
+        } else {
+            symbolEnv.scope = scope;
+        }
         symbolEnv.enclEnv = env.enclEnv != null ? env.enclEnv.createClone() : null;
         symbolEnv.enclPkg = env.enclPkg;
         return symbolEnv;
