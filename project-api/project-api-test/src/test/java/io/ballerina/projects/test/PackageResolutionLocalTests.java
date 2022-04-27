@@ -48,7 +48,7 @@ public class PackageResolutionLocalTests extends BaseTest {
     ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
 
 
-    @Test(description = "tests resolution of local repository package (unpublished) as direct " +
+    @Test(description = "Tests resolution of local repository package (unpublished) as direct " +
             "dependencies")
     public void testCase0001(ITestContext ctx) throws IOException {
 
@@ -205,7 +205,7 @@ public class PackageResolutionLocalTests extends BaseTest {
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(description = "Local repository packages (published, but patched with the same version) as" +
+    @Test(description = "Tests Local repository packages (published, but patched with the same version) as" +
             " indirect dependencies", dependsOnMethods = "testCase0004")
     public void testCase0005(ITestContext ctx) throws IOException {
         /*
@@ -240,7 +240,7 @@ public class PackageResolutionLocalTests extends BaseTest {
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
     }
 
-    @Test(description = " Local repository packages (published, but patched with the same version " +
+    @Test(description = "Tests Local repository packages (published, but patched with the same version " +
             "with different indirect deps) as direct dependencies")
     public void testCase0007(ITestContext ctx) throws IOException {
         /*
@@ -296,14 +296,10 @@ public class PackageResolutionLocalTests extends BaseTest {
     }
 
     @AfterMethod
-    private void deleteBuildFile(ITestContext ctx) throws IOException {
+    private void deleteBuildFileAndDependenciesToml(ITestContext ctx) throws IOException {
         Path packagePath = Path.of(ctx.getCurrentXmlTest().getParameter("packagePath"));
-        deleteBuildFile(packagePath);
-    }
 
-    @AfterMethod
-    private void deleteDependenciesToml(ITestContext ctx) throws IOException {
-        Path packagePath = Path.of(ctx.getCurrentXmlTest().getParameter("packagePath"));
+        deleteBuildFile(packagePath);
         deleteDependenciesToml(packagePath);
     }
 

@@ -89,29 +89,29 @@ public class BaseTest {
 
     protected void cacheDependencyToLocalRepository(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
-        BaseTest.this.cacheDependencyToCentralRepository(dependencyProject, LOCAL_REPOSITORY_NAME);
+        BaseTest.this.cacheDependencyToRepository(dependencyProject, LOCAL_REPOSITORY_NAME);
     }
 
     protected void cacheDependencyToLocalRepository(Path dependency,
                                                     ProjectEnvironmentBuilder projectEnvironmentBuilder)
             throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(projectEnvironmentBuilder, dependency);
-        BaseTest.this.cacheDependencyToCentralRepository(dependencyProject, LOCAL_REPOSITORY_NAME);
+        BaseTest.this.cacheDependencyToRepository(dependencyProject, LOCAL_REPOSITORY_NAME);
     }
 
     protected void cacheDependencyToCentralRepository(Path dependency) throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(dependency);
-        cacheDependencyToCentralRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
+        cacheDependencyToRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
     }
 
     protected void cacheDependencyToCentralRepository(Path dependency, ProjectEnvironmentBuilder environmentBuilder)
             throws IOException {
         BuildProject dependencyProject = TestUtils.loadBuildProject(environmentBuilder, dependency,
                 BuildOptions.builder().setOffline(true).build());
-        cacheDependencyToCentralRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
+        cacheDependencyToRepository(dependencyProject, CENTRAL_REPOSITORY_CACHE_NAME);
     }
 
-    private void cacheDependencyToCentralRepository(BuildProject dependencyProject, String centralRepositoryCacheName)
+    private void cacheDependencyToRepository(BuildProject dependencyProject, String centralRepositoryCacheName)
             throws IOException {
         Package currentPackage = dependencyProject.currentPackage();
         PackageCompilation compilation = currentPackage.getCompilation();
