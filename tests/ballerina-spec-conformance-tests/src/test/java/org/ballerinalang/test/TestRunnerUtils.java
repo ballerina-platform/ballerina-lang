@@ -122,6 +122,7 @@ public class TestRunnerUtils {
             testCase[6] = isSkippedTestCase;
             testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
             testCase[9] = headersOfTestCase.get(LABELS);
+            testCase[10] = Arrays.asList("transactional-expr");
 
             line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
         }
@@ -198,13 +199,18 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void validateLabels(String labels, Set<String> predefinedLabels, int absLineNum) {
+    public static void validateLabels(String labels, Set<String> predefinedLabels, int absLineNum,
+                                      List<String> skippedTestLabels) {
         HashSet<String> labelsList = new HashSet<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
+        boolean isSkippedTest = false;
 
         for (String label : labels.split(",")) {
             String trimmedLabel = label.trim();
+            if (skippedTestLabels.contains(trimmedLabel)) {
+                isSkippedTest = true;
+            }
             if (labelsList.contains(trimmedLabel)) {
                 duplicateLabels.add(trimmedLabel);
                 continue;
@@ -226,6 +232,8 @@ public class TestRunnerUtils {
         if (!diagnosticMsg.isEmpty()) {
             Assert.fail("Errors in labels at line number: " + (absLineNum - 1) + "\n" + diagnosticMsg);
         }
+
+        handleTestSkip(isSkippedTest);
     }
 
     private static Map<String, String> readHeaders(String line, BufferedReader buffReader) throws IOException {
