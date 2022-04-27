@@ -68,7 +68,7 @@ public interface SourceGeneratorContext {
      * @param filenamePrefix proposed prefix of the filename to be added
      * @param moduleId       indicates the module to which the new test source file should be added
      */
-    void addTestFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId);
+    void addTestSourceFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId);
 
     /**
      * Adds the provided test source code as a new file to the default {@code Module} of the {@code Package}.
@@ -76,7 +76,7 @@ public interface SourceGeneratorContext {
      * @param textDocument   a {@code TextDocument} that contains the test source code
      * @param filenamePrefix proposed prefix of the filename to be added
      */
-    void addTestFile(TextDocument textDocument, String filenamePrefix);
+    void addTestSourceFile(TextDocument textDocument, String filenamePrefix);
 
     /**
      * Adds the provided source code as a new file to the  {@code Module} identified by the {@code ModuleId}.

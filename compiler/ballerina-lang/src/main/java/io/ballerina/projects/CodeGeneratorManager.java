@@ -305,7 +305,7 @@ class CodeGeneratorManager {
         }
 
         @Override
-        public void addTestFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId) {
+        public void addTestSourceFile(TextDocument textDocument, String filenamePrefix, ModuleId moduleId) {
             if (this.currentPackage.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         ProjectDiagnosticErrorCode.UNSUPPORTED_COMPILER_PLUGIN_TYPE.diagnosticId(),
@@ -324,8 +324,8 @@ class CodeGeneratorManager {
         }
 
         @Override
-        public void addTestFile(TextDocument textDocument, String filenamePrefix) {
-            addTestFile(textDocument, filenamePrefix, defaultModuleId);
+        public void addTestSourceFile(TextDocument textDocument, String filenamePrefix) {
+            addTestSourceFile(textDocument, filenamePrefix, defaultModuleId);
         }
 
         @Override
