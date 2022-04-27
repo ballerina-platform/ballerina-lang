@@ -822,7 +822,7 @@ public class ImmutableTypeCloner {
             return false;
         }
 
-        if (unresolvedTypes.contains(mutableType)) {
+        if (unresolvedTypes.contains(mutableType) && hasNamedDefs(mutableType)) {
             return true;
         }
 
@@ -834,12 +834,111 @@ public class ImmutableTypeCloner {
         // may not be a corresponding type definition. So we check by type definition if the type corresponds to a
         // type definition defined in the current compilation.
         BType effectiveType = immutableType.effectiveType;
-        int tag = Types.getReferredType(effectiveType).tag;
+        return requiredTypeDefsExist(env, effectiveType);
+    }
 
-        if (tag != TypeTags.TUPLE && tag != TypeTags.UNION && tag != TypeTags.RECORD && tag != TypeTags.OBJECT) {
-            return true;
+    private static boolean hasNamedDefs(BType mutableType) {
+        switch (mutableType.tag) {
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+            case TypeTags.TYPEREFDESC:
+                return true;
+            case TypeTags.UNION:
+                return ((BUnionType) mutableType).isCyclic;
+            case TypeTags.TUPLE:
+                return ((BTupleType) mutableType).isCyclic;
         }
+        return false;
+    }
 
+    private static boolean requiredTypeDefsExist(SymbolEnv env, BType type) {
+        BType referredType = Types.getReferredType(type);
+        int tag = referredType.tag;
+        switch (tag) {
+            case TypeTags.ARRAY:
+                return requiredTypeDefsExist(env, ((BArrayType) referredType).eType);
+            case TypeTags.TUPLE:
+                if (relevantTypeDefExists(env, type)) {
+                    return true;
+                }
+                BTypeSymbol tupleTypeSymbol = type.tsymbol;
+
+                boolean allMatched = true;
+                if (tupleTypeSymbol != null && tupleTypeSymbol.name != null && !tupleTypeSymbol.name.value.isEmpty()) {
+                    ((SelectivelyImmutableReferenceType) referredType).unsetImmutableType();
+                    allMatched = false;
+                }
+
+                BTupleType tupleType = (BTupleType) referredType;
+                for (BType tupleMemberType : tupleType.getTupleTypes()) {
+                    if (!requiredTypeDefsExist(env, tupleMemberType)) {
+                        allMatched = false;
+                    }
+                }
+
+                BType restType = tupleType.restType;
+                if (restType == null) {
+                    return allMatched;
+                }
+                return allMatched && requiredTypeDefsExist(env, restType);
+            case TypeTags.MAP:
+                return requiredTypeDefsExist(env, ((BMapType) referredType).constraint);
+            case TypeTags.RECORD:
+            case TypeTags.OBJECT:
+                boolean relTypeDefExistsForRecordOrObject = relevantTypeDefExists(env, type);
+                if (!relTypeDefExistsForRecordOrObject) {
+                    ((SelectivelyImmutableReferenceType) referredType).unsetImmutableType();
+                    for (BField recField : ((BStructureType) referredType).fields.values()) {
+                        BType recFieldType = recField.type;
+                        if (recFieldType instanceof SelectivelyImmutableReferenceType &&
+                                ((SelectivelyImmutableReferenceType) recFieldType).getImmutableType() != null) {
+                            requiredTypeDefsExist(env, recFieldType);
+                        }
+                    }
+                }
+                return relTypeDefExistsForRecordOrObject;
+            case TypeTags.TABLE:
+                return requiredTypeDefsExist(env, ((BTableType) referredType).constraint);
+            case TypeTags.INTERSECTION:
+                if (requiredTypeDefsExist(env, ((BIntersectionType) referredType).effectiveType)) {
+                    return true;
+                }
+
+                Iterator<BType> iterator = ((BIntersectionType) referredType).getConstituentTypes().iterator();
+                BType nonReadOnlyType = iterator.next();
+
+                if (nonReadOnlyType.tag == TypeTags.READONLY) {
+                    nonReadOnlyType = iterator.next();
+                }
+                ((SelectivelyImmutableReferenceType) Types.getReferredType(nonReadOnlyType)).unsetImmutableType();
+                return false;
+            case TypeTags.UNION:
+                if (relevantTypeDefExists(env, type)) {
+                    return true;
+                }
+
+                BTypeSymbol unionTypeSymbol = type.tsymbol;
+
+                boolean allMatchedUnion = true;
+                if (unionTypeSymbol != null && unionTypeSymbol.name != null && !unionTypeSymbol.name.value.isEmpty()) {
+                    ((SelectivelyImmutableReferenceType) referredType).unsetImmutableType();
+                    allMatchedUnion = false;
+                }
+
+                for (BType memberType : ((BUnionType) referredType).getMemberTypes()) {
+                    if (memberType instanceof SelectivelyImmutableReferenceType &&
+                            ((SelectivelyImmutableReferenceType) memberType).getImmutableType() != null &&
+                            !requiredTypeDefsExist(env, memberType)) {
+                        allMatchedUnion = false;
+                    }
+                }
+                return allMatchedUnion;
+            default:
+                return true;
+        }
+    }
+
+    private static boolean relevantTypeDefExists(SymbolEnv env, BType effectiveType) {
         for (BLangTypeDefinition typeDefinition : env.enclPkg.typeDefinitions) {
             if (typeDefinition.getBType() == effectiveType) {
                 return true;
