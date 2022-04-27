@@ -277,7 +277,7 @@ class CodeModifierManager {
         }
 
         @Override
-        public void modifyTestFile(TextDocument textDocument, DocumentId testDocumentId) {
+        public void modifyTestSourceFile(TextDocument textDocument, DocumentId testDocumentId) {
             for (ModuleId moduleId : currentPackage().moduleIds()) {
                 Module module = currentPackage.module(moduleId);
                 if (module.testDocumentIds().contains(testDocumentId)) {
