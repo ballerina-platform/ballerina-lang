@@ -85,6 +85,8 @@ public class CommandUtil {
     public static final String GITIGNORE = "gitignore";
     public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
+    public static final String VSCODE_EXTENSIONS = "vscode/extensions.json";
+    public static final String GRAPHQL_CLIENT_TEMPLATE_DEFAULTS = "graphql_client_template_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
     private static FileSystem jarFs;
     private static Map<String, String> env;
@@ -533,6 +535,24 @@ public class CommandUtil {
             Path source = path.resolve("lib.bal");
             Files.move(source, source.resolveSibling(guessPkgName(packageName, template) + ".bal"),
                     StandardCopyOption.REPLACE_EXISTING);
+        } else if (template.equalsIgnoreCase("graphql-client")) {
+            // project_name/
+            // - Ballerina.toml
+            // - Package.md
+            // - Module.md
+            // - resources
+            //      - .keep
+            // - .devcontainer.json
+            // - .gitignore                  <- git ignore file
+            // - .vscode
+            //      - extensions.json        <- recommended extensions file
+            // - queries
+            //      - query-country.graphql  <- GraphQL document file with queries/mutations
+            // - schemas
+            //      - country.graphql        <- GraphQL schema (SDL) file
+            // - graphql.config.yaml         <- GraphQL configuration file
+            initGraphqlClientPackage(path, packageName);
+            createRecommendedVscodeExtensions(path);
         } else {
             initPackage(path, packageName);
         }
@@ -557,6 +577,20 @@ public class CommandUtil {
         String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
         defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
         Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static void createRecommendedVscodeExtensions(Path path) throws IOException {
+        Path vscodeDir = path.resolve(ProjectConstants.VSCODE_FOLDER_NAME);
+        if (Files.notExists(vscodeDir)) {
+            Files.createDirectory(vscodeDir);
+        }
+        Path vscodeExtensions = vscodeDir.resolve(ProjectConstants.VSCODE_EXTENSIONS_FILE_NAME);
+        if (Files.notExists(vscodeExtensions)) {
+            Files.createFile(vscodeExtensions);
+        }
+        String recommendedVscodeExtensions = FileUtils.readFileAsString(GRAPHQL_CLIENT_TEMPLATE_DEFAULTS + "/" +
+                VSCODE_EXTENSIONS);
+        Files.write(vscodeExtensions, recommendedVscodeExtensions.getBytes(StandardCharsets.UTF_8));
     }
 
     /**
@@ -660,6 +694,20 @@ public class CommandUtil {
         // Create Package.md
         String packageMd = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/Package.md");
         write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
+    }
+
+    private static void initGraphqlClientPackage(Path path, String packageName) throws IOException {
+        Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
+        Files.createFile(ballerinaToml);
+
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
+        // replace manifest org and name with a guessed value.
+        defaultManifest = defaultManifest
+                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
+                .replaceAll(PKG_NAME, packageName)
+                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+
+        write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
 
     protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {

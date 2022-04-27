@@ -218,6 +218,62 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
+    @Test(description = "Test new command with graphql-client template")
+    public void testNewCommandWithGraphqlClient() throws IOException {
+        // Test if no arguments was passed in
+        String[] args = {"graphql_client_sample", "-t", "graphql-client"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        // project_name/
+        // - Ballerina.toml
+        // - Package.md
+        // - Module.md
+        // - resources
+        //      - .keep
+        // - .devcontainer.json
+        // - .gitignore                  <- git ignore file
+        // - .vscode
+        //      - extensions.json        <- recommended extensions file
+        // - queries
+        //      - query-country.graphql  <- GraphQL document file with queries/mutations
+        // - schemas
+        //      - country.graphql        <- GraphQL schema (SDL) file
+        // - graphql.config.yaml         <- GraphQL configuration file
+
+        Path packageDir = tmpDir.resolve("graphql_client_sample");
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.isDirectory(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+
+        String expectedTomlContent = "[package]\n" +
+                "org = \"" + System.getProperty("user.name").replaceAll("[^a-zA-Z0-9_]", "_") + "\"\n" +
+                "name = \"graphql_client_sample\"\n" +
+                "version = \"0.1.0\"\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"" +
+                "\n";
+        Assert.assertTrue(tomlContent.contains(expectedTomlContent));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.RESOURCE_DIR_NAME)));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GRAPHQL_CONFIG_FILE_NAME)));
+        Path graphqlSchemaDir = packageDir.resolve(ProjectConstants.GRAPHQL_SCHEMA_FOLDER_NAME);
+        Assert.assertTrue(Files.exists(graphqlSchemaDir));
+        Assert.assertTrue(Files.isDirectory(graphqlSchemaDir));
+        Path graphqlQueriesDir = packageDir.resolve(ProjectConstants.GRAPHQL_QUERIES_FOLDER_NAME);
+        Assert.assertTrue(Files.exists(graphqlQueriesDir));
+        Assert.assertTrue(Files.isDirectory(graphqlQueriesDir));
+        Assert.assertTrue(Files.exists(graphqlQueriesDir.resolve(ProjectConstants.GRAPHQL_QUERIES_FILE_NAME)));
+        Path vscodeDir = packageDir.resolve(ProjectConstants.VSCODE_FOLDER_NAME);
+        Assert.assertTrue(Files.exists(vscodeDir));
+        Assert.assertTrue(Files.exists(vscodeDir.resolve(ProjectConstants.VSCODE_EXTENSIONS_FILE_NAME)));
+
+        Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
     public void testNewCommandWithInvalidProjectName(String projectName, String derivedPkgName) throws IOException {
         // Test if no arguments was passed in

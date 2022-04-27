@@ -111,4 +111,13 @@ public class ProjectConstants {
     public static final String LOCAL_REPOSITORY_NAME = "local";
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
+
+    // graphql-client template (`bal new <package_name> -t graphql-client`) specific constants
+    public static final String GRAPHQL_CONFIG_FILE_NAME = "graphql.config.yaml";
+    public static final String GRAPHQL_SCHEMA_FOLDER_NAME = "schemas";
+    public static final String GRAPHQL_SCHEMA_FILE_NAME = "country.graphql";
+    public static final String GRAPHQL_QUERIES_FOLDER_NAME = "queries";
+    public static final String GRAPHQL_QUERIES_FILE_NAME = "query-country.graphql";
+    public static final String VSCODE_FOLDER_NAME = ".vscode";
+    public static final String VSCODE_EXTENSIONS_FILE_NAME = "extensions.json";
 }
