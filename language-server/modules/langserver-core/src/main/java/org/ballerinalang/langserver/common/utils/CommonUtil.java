@@ -925,6 +925,24 @@ public class CommonUtil {
     }
 
     /**
+     * Given a prefix and visible symbols, this method will return a type name by appending a number to the end.
+     *
+     * @param prefix             Type name prefix
+     * @param visibleSymbolNames Visible symbols
+     * @return Generated type name
+     */
+    public static String generateTypeName(String prefix, Set<String> visibleSymbolNames) {
+        String typeName = prefix;
+        int idx = 0;
+        while (visibleSymbolNames.contains(typeName)) {
+            idx++;
+            typeName = typeName + idx;
+        }
+
+        return typeName;
+    }
+
+    /**
      * Generates a parameter name.
      *
      * @param arg          Argument name.
