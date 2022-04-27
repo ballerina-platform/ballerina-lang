@@ -834,7 +834,7 @@ public class ImmutableTypeCloner {
         // may not be a corresponding type definition. So we check by type definition if the type corresponds to a
         // type definition defined in the current compilation.
         BType effectiveType = immutableType.effectiveType;
-        return requiredTypeDefsExist(env, effectiveType);
+        return requiredTypeDefsExist(env, effectiveType, new HashSet<>());
     }
 
     private static boolean hasNamedDefs(BType mutableType) {
@@ -851,12 +851,16 @@ public class ImmutableTypeCloner {
         return false;
     }
 
-    private static boolean requiredTypeDefsExist(SymbolEnv env, BType type) {
+    private static boolean requiredTypeDefsExist(SymbolEnv env, BType type, Set<BType> visitedTypes) {
+        if (!visitedTypes.add(type)) {
+            return false;
+        }
+
         BType referredType = Types.getReferredType(type);
         int tag = referredType.tag;
         switch (tag) {
             case TypeTags.ARRAY:
-                return requiredTypeDefsExist(env, ((BArrayType) referredType).eType);
+                return requiredTypeDefsExist(env, ((BArrayType) referredType).eType, visitedTypes);
             case TypeTags.TUPLE:
                 if (relevantTypeDefExists(env, type)) {
                     return true;
@@ -871,7 +875,7 @@ public class ImmutableTypeCloner {
 
                 BTupleType tupleType = (BTupleType) referredType;
                 for (BType tupleMemberType : tupleType.getTupleTypes()) {
-                    if (!requiredTypeDefsExist(env, tupleMemberType)) {
+                    if (!requiredTypeDefsExist(env, tupleMemberType, visitedTypes)) {
                         allMatched = false;
                     }
                 }
@@ -880,9 +884,9 @@ public class ImmutableTypeCloner {
                 if (restType == null) {
                     return allMatched;
                 }
-                return allMatched && requiredTypeDefsExist(env, restType);
+                return allMatched && requiredTypeDefsExist(env, restType, visitedTypes);
             case TypeTags.MAP:
-                return requiredTypeDefsExist(env, ((BMapType) referredType).constraint);
+                return requiredTypeDefsExist(env, ((BMapType) referredType).constraint, visitedTypes);
             case TypeTags.RECORD:
             case TypeTags.OBJECT:
                 boolean relTypeDefExistsForRecordOrObject = relevantTypeDefExists(env, type);
@@ -892,15 +896,15 @@ public class ImmutableTypeCloner {
                         BType recFieldType = recField.type;
                         if (recFieldType instanceof SelectivelyImmutableReferenceType &&
                                 ((SelectivelyImmutableReferenceType) recFieldType).getImmutableType() != null) {
-                            requiredTypeDefsExist(env, recFieldType);
+                            requiredTypeDefsExist(env, recFieldType, visitedTypes);
                         }
                     }
                 }
                 return relTypeDefExistsForRecordOrObject;
             case TypeTags.TABLE:
-                return requiredTypeDefsExist(env, ((BTableType) referredType).constraint);
+                return requiredTypeDefsExist(env, ((BTableType) referredType).constraint, visitedTypes);
             case TypeTags.INTERSECTION:
-                if (requiredTypeDefsExist(env, ((BIntersectionType) referredType).effectiveType)) {
+                if (requiredTypeDefsExist(env, ((BIntersectionType) referredType).effectiveType, visitedTypes)) {
                     return true;
                 }
 
@@ -910,7 +914,15 @@ public class ImmutableTypeCloner {
                 if (nonReadOnlyType.tag == TypeTags.READONLY) {
                     nonReadOnlyType = iterator.next();
                 }
-                ((SelectivelyImmutableReferenceType) Types.getReferredType(nonReadOnlyType)).unsetImmutableType();
+
+                SelectivelyImmutableReferenceType selectivelyImmutableReferenceType =
+                        (SelectivelyImmutableReferenceType) Types.getReferredType(nonReadOnlyType);
+
+                if (relevantTypeDefExists(env, selectivelyImmutableReferenceType.getImmutableType().effectiveType)) {
+                    return true;
+                }
+
+                selectivelyImmutableReferenceType.unsetImmutableType();
                 return false;
             case TypeTags.UNION:
                 if (relevantTypeDefExists(env, type)) {
@@ -928,7 +940,7 @@ public class ImmutableTypeCloner {
                 for (BType memberType : ((BUnionType) referredType).getMemberTypes()) {
                     if (memberType instanceof SelectivelyImmutableReferenceType &&
                             ((SelectivelyImmutableReferenceType) memberType).getImmutableType() != null &&
-                            !requiredTypeDefsExist(env, memberType)) {
+                            !requiredTypeDefsExist(env, memberType, visitedTypes)) {
                         allMatchedUnion = false;
                     }
                 }
