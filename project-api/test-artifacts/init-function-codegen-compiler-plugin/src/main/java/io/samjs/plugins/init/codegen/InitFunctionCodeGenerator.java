@@ -53,6 +53,17 @@ public class InitFunctionCodeGenerator extends CodeGenerator {
             TextDocument textDocument = TextDocuments.from("import package_comp_plugin_1 as _;");
             sourceGeneratorContext.addSourceFile(textDocument, "function");
         });
+
+        generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
+            for (FunctionInfo functionInfo : holder.functionInfoList) {
+                TextDocument textDocument = TextDocuments.from("function generated_test_" +
+                        functionInfo.functionName() + "(){}");
+                sourceGeneratorContext.addTestFile(textDocument, "function");
+            }
+
+            TextDocument textDocument = TextDocuments.from("import package_comp_plugin_1 as _;");
+            sourceGeneratorContext.addTestFile(textDocument, "function");
+        });
     }
 
     private static class FunctionInfoHolder {
