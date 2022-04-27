@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * The code action to extract anonymous records into type defs.
  *
- * @since 2201.0.3
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
