@@ -3726,8 +3726,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, currentEnv);
         // Check foreach node's variables and set types.
-        handleForeachDefinitionVariables(foreach.variableDefinitionNode, Types.getReferredType(foreach.varType),
-                foreach.isDeclaredWithVar, false, blockEnv);
+        handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
+                false, blockEnv);
         boolean prevBreakFound = data.breakFound;
         // Analyze foreach node's statements.
         data.env = blockEnv;
@@ -4232,7 +4232,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Check whether the foreach node's variables are declared with var.
         if (isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
+            handleDeclaredVarInForeach(variableNode, Types.getReferredType(varType), blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
@@ -4245,7 +4245,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
+            handleDeclaredVarInForeach(variableNode, Types.getReferredType(varType), blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
