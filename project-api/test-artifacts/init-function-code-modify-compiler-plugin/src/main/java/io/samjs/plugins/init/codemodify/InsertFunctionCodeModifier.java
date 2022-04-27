@@ -93,7 +93,7 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                     ModulePartNode newModulePart =
                             rootNode.modify(rootNode.imports(), newMembers, rootNode.eofToken());
                     SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
-                    sourceModifierContext.modifyTestFile(updatedSyntaxTree.textDocument(), documentId);
+                    sourceModifierContext.modifySourceFile(updatedSyntaxTree.textDocument(), documentId);
                 }
             }
         });
