@@ -18,7 +18,6 @@
 package org.ballerinalang.test.types.floattype;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
