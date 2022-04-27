@@ -103,7 +103,8 @@ public class MultiplyOperationTest {
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and 'float'", 45, 14);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and 'float'", 46, 14);
-        BAssertUtil.validateError(resultNegative, i++, "'9223372036854775808' is out of range for 'Integer'", 51, 17);
+        BAssertUtil.validateError(resultNegative, i++, "'9223372036854775808' is out of range " +
+                "for 'Integer'", 51, 17);
     }
 
     @Test(description = "Test multiplication of nullable values")

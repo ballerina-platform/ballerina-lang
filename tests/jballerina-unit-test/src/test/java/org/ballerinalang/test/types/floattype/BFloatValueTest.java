@@ -166,24 +166,37 @@ public class BFloatValueTest {
     @Test()
     public void testIntegerValue() {
         Assert.assertEquals(negativeResult.getErrorCount(), 12);
-        BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals", 3, 9);
-        BAssertUtil.validateError(negativeResult, 1, "'999e9999999999' is out of range for 'Float'", 8, 15);
-        BAssertUtil.validateError(negativeResult, 2, "'999e-9999999999' is out of range for 'Float'", 9, 15);
-        BAssertUtil.validateError(negativeResult, 3, "'999e9999999999' is out of range for 'Float'", 10, 23);
-        BAssertUtil.validateError(negativeResult, 4, "'99.9E99999999' is out of range for 'Float'", 11, 27);
-        BAssertUtil.validateError(negativeResult, 5, "'99.9E-99999999' is out of range for 'Float'", 12, 27);
-        BAssertUtil.validateError(negativeResult, 6, "'0x9999999p999999999999999999999999' is out of range for 'Float'", 15, 10);
-        BAssertUtil.validateError(negativeResult, 7, "'0x9999999p-999999999999999999999999' is out of range for 'Float'", 17, 11);
-        BAssertUtil.validateError(negativeResult, 8, "'9999999999e9999999999999999999' is out of range for 'Float'", 19, 10);
-        BAssertUtil.validateError(negativeResult, 9, "'9999999999e-9999999999999999999' is out of range for 'Float'", 21, 11);
-        BAssertUtil.validateError(negativeResult, 10, "'0x999.9p999999999999999' is out of range for 'Float'", 23, 1);
-        BAssertUtil.validateError(negativeResult, 11, "'0x999.9p999999999999999' is out of range for 'Float'", 23, 29);
+        BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals",
+                3, 9);
+        BAssertUtil.validateError(negativeResult, 1, "'999e9999999999' is out of range " +
+                "for 'Float'", 8, 15);
+        BAssertUtil.validateError(negativeResult, 2, "'999e-9999999999' is out of range " +
+                "for 'Float'", 9, 15);
+        BAssertUtil.validateError(negativeResult, 3, "'999e9999999999' is out of range " +
+                "for 'Float'", 10, 23);
+        BAssertUtil.validateError(negativeResult, 4, "'99.9E99999999' is out of range for " +
+                "'Float'", 11, 27);
+        BAssertUtil.validateError(negativeResult, 5, "'99.9E-99999999' is out of range for" +
+                " 'Float'", 12, 27);
+        BAssertUtil.validateError(negativeResult, 6, "'0x9999999p999999999999999999999999' " +
+                "is out of range for 'Float'", 15, 10);
+        BAssertUtil.validateError(negativeResult, 7, "'0x9999999p-999999999999999999999999' " +
+                "is out of range for 'Float'", 17, 11);
+        BAssertUtil.validateError(negativeResult, 8, "'9999999999e9999999999999999999' " +
+                "is out of range for 'Float'", 19, 10);
+        BAssertUtil.validateError(negativeResult, 9, "'9999999999e-9999999999999999999' " +
+                "is out of range for 'Float'", 21, 11);
+        BAssertUtil.validateError(negativeResult, 10, "'0x999.9p999999999999999' is out " +
+                "of range for 'Float'", 23, 1);
+        BAssertUtil.validateError(negativeResult, 11, "'0x999.9p999999999999999' is out " +
+                "of range for 'Float'", 23, 29);
     }
 
     @Test(description = "Test float literal discrimination error")
     public void testFloatLiteralDiscriminationError() {
         Assert.assertEquals(negativeDiscrimination.getErrorCount(), 1);
-        BAssertUtil.validateError(negativeDiscrimination, 0, "incompatible types: expected 'float', found 'decimal'",
+        BAssertUtil.validateError(negativeDiscrimination, 0, "incompatible types: expected " +
+                        "'float', found 'decimal'",
                 18, 15);
     }
 
@@ -196,39 +209,72 @@ public class BFloatValueTest {
     public void testInvalidValuesWithFloatType() {
         CompileResult result = BCompileUtil.compile("test-src/types/float/float_type_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'", 2, 15);
-        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'", 4, 9);
-        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'", 6, 9);
-        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'", 8, 9);
-        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'", 10, 23);
-        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'", 12, 9);
-        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'", 14, 9);
-        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'", 16, 9);
-        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'", 19, 12);
-        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'", 21, 12);
-        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'", 23, 12);
-        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'", 25, 12);
-        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'", 27, 20);
-        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'", 29, 20);
-        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'", 31, 20);
-        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'", 33, 20);
-        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'", 37, 16);
-        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'", 41, 17);
-        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'", 44, 20);
-        BAssertUtil.validateError(result, i++, "'0Xffffffffffffffff' is out of range for 'Float'", 45, 20);
-        BAssertUtil.validateError(result, i++, "'0XFFFFFFFFFFFFFFFF' is out of range for 'Float'", 46, 21);
-        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'", 48, 16);
-        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 48, 16);
-        BAssertUtil.validateError(result, i++, "'0X' is out of range for 'Float'", 49, 10);
-        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 49, 10);
-        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'", 51, 20);
-        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 51, 20);
-        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'", 53, 24);
-        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 53, 24);
-        BAssertUtil.validateError(result, i++, "'0X' is out of range for 'Float'", 54, 10);
-        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 54, 10);
-        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'", 56, 21);
-        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 56, 21);
+        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                2, 15);
+        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'",
+                4, 9);
+        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'",
+                6, 9);
+        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'",
+                8, 9);
+        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                10, 23);
+        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'",
+                12, 9);
+        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'",
+                14, 9);
+        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'",
+                16, 9);
+        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                19, 12);
+        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'",
+                21, 12);
+        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'",
+                23, 12);
+        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'",
+                25, 12);
+        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                27, 20);
+        BAssertUtil.validateError(result, i++, "'0xabc435de769FEAB0' is out of range for 'Float'",
+                29, 20);
+        BAssertUtil.validateError(result, i++, "'0xaaaaaaaaaaaaaaa0' is out of range for 'Float'",
+                31, 20);
+        BAssertUtil.validateError(result, i++, "'0xAAAAAAAAAAAAAAA0' is out of range for 'Float'",
+                33, 20);
+        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                37, 16);
+        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                41, 17);
+        BAssertUtil.validateError(result, i++, "'0xFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                44, 20);
+        BAssertUtil.validateError(result, i++, "'0Xffffffffffffffff' is out of range for 'Float'",
+                45, 20);
+        BAssertUtil.validateError(result, i++, "'0XFFFFFFFFFFFFFFFF' is out of range for 'Float'",
+                46, 21);
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'", 48,
+                16);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator",
+                48, 16);
+        BAssertUtil.validateError(result, i++, "'0X' is out of range for 'Float'",
+                49, 10);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator",
+                49, 10);
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'",
+                51, 20);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator",
+                51, 20);
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'",
+                53, 24);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator",
+                53, 24);
+        BAssertUtil.validateError(result, i++, "'0X' is out of range for 'Float'",
+                54, 10);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator",
+                54, 10);
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'Float'",
+                56, 21);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator",
+                56, 21);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
