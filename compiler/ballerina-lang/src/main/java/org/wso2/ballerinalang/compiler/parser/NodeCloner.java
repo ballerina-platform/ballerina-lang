@@ -130,7 +130,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -1134,14 +1133,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangIndexBasedAccess clone = new BLangIndexBasedAccess();
         source.cloneRef = clone;
         cloneBLangIndexBasedAccess(source, clone);
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr source) {
-
-        BLangTableMultiKeyExpr clone = new BLangTableMultiKeyExpr();
-        source.cloneRef = clone;
-        clone.multiKeyIndexExprs = cloneList(source.multiKeyIndexExprs);
     }
 
     @Override

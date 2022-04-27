@@ -162,7 +162,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -1678,13 +1677,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangQueryExpr queryExpr) {
         for (BLangNode clause : queryExpr.getQueryClauses()) {
             analyzeNode(clause, env);
-        }
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        for (BLangExpression value : tableMultiKeyExpr.multiKeyIndexExprs) {
-            analyzeNode(value, env);
         }
     }
 
