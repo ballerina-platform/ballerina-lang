@@ -29,5 +29,8 @@ public class BallerinaTypeBuilder extends TypeBuilder {
 
     public BallerinaTypeBuilder(CompilerContext context) {
         XML_TYPE = new BallerinaXMLTypeBuilder(context);
+        MAP_TYPE = new BallerinaMapTypeBuilder(context);
+        FUTURE_TYPE = new BallerinaFutureTypeBuilder(context);
+        TYPEDESC_TYPE = new BallerinaTypeDescTypeBuilder(context);
     }
 }

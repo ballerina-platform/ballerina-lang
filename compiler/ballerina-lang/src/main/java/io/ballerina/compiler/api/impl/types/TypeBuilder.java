@@ -18,6 +18,9 @@
 
 package io.ballerina.compiler.api.impl.types;
 
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
@@ -29,6 +32,9 @@ import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 public abstract class TypeBuilder {
 
     public XML XML_TYPE;
+    public MAP MAP_TYPE;
+    public FUTURE FUTURE_TYPE;
+    public TYPEDESC TYPEDESC_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -50,5 +56,41 @@ public abstract class TypeBuilder {
          * @return The built {@link XMLTypeSymbol}
          */
         XMLTypeSymbol build();
+    }
+
+    /**
+     * Represents the methods required to build the Map type symbol of an Map type descriptor.
+     */
+    public interface MAP {
+
+        /**
+         * Sets the type parameter which could be optional when building a Map type. This type parameter shall either
+         * be null, or a subtype of the Map type.
+         *
+         * @param typeParam     The optional type parameter
+         * @return The {@link MAP} instance with the type parameter being set
+         */
+        MAP withTypeParam(TypeSymbol typeParam);
+
+        /**
+         * Build the map type descriptor and returns the map type symbol.
+         *
+         * @return The {@link MapTypeSymbol} built
+         */
+        MapTypeSymbol build();
+    }
+
+    public interface FUTURE {
+
+        FUTURE withTypeParam(TypeSymbol typeParam);
+
+        FutureTypeSymbol build();
+    }
+
+    public interface TYPEDESC {
+
+        TYPEDESC withTypeParam(TypeSymbol typeParam);
+
+        TypeDescTypeSymbol build();
     }
 }
