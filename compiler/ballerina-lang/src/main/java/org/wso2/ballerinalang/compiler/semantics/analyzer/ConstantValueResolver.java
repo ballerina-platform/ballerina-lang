@@ -180,8 +180,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             this.result = null;
             return;
         }
-
-        if (!((BConstantSymbol) varRef.symbol).isValueResolved) {
+        Name pkgAlias = names.fromIdNode(varRef.pkgAlias);
+        if (pkgAlias == Names.EMPTY && !((BConstantSymbol) varRef.symbol).isValueResolved) {
             isDependentOnUnresolvedConst = true;
         }
 
