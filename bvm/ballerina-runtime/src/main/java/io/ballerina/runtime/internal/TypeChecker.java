@@ -3295,9 +3295,6 @@ public class TypeChecker {
             // non finite types are available
             Iterator<Type> iterator = nonFiniteTypes.iterator();
             Type firstMember = iterator.next();
-            if (!isValueType(firstMember)) {
-                return false;
-            }
 
             // non finite types are checked whether they are the same type
             Type nextMember;
@@ -3357,7 +3354,7 @@ public class TypeChecker {
                 case "0":
                 case "0.0":
                 case "false":
-                case "\"\"":
+                case "":
                     return true;
                 default:
                     return false;

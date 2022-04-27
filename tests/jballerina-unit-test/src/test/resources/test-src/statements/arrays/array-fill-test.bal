@@ -343,6 +343,7 @@ type WithFillerValSym Bar|20|sym3;
 type NoFillerValSym sym2|20|sym3;
 type finiteUnionType false|byte|0|0.0f|0d|""|["a"]|string:Char|int:Unsigned16;
 type LiteralConstAndIntType int|CONST_TWO;
+type emptyString "";
 
 function testFiniteTypeUnionArrayFill() {
     LiteralConstAndIntType[2] arr0 = [];
@@ -372,7 +373,16 @@ function testFiniteTypeUnionArrayFill() {
     arr6[1] = 100;
     test:assertEquals(arr6, [0,100]);
 
-    (function () returns ())[] negativeTestFunctions = [noFillerValueCase1, noFillerValueCase2, noFillerValueCase3];
+    (string:Char|emptyString)[] arr13 = [];
+    arr13[1] = "j";
+    test:assertEquals(arr13, ["","j"]);
+
+    (string:Char|Bar2)[] arr14 = [];
+    arr14[1] = "l";
+    test:assertEquals(arr14, ["","l"]);
+
+    (function () returns ())[] negativeTestFunctions = [noFillerValueCase1, noFillerValueCase2, noFillerValueCase3,
+                                                        noFillerValueCase4, noFillerValueCase5, noFillerValueCase6];
     foreach var func in negativeTestFunctions {
         error? funcResult = trap func();
         test:assertTrue(funcResult is error);
@@ -397,6 +407,21 @@ function noFillerValueCase2() {
 function noFillerValueCase3() {
     (false|0|0.0f|0d|"")[] arr9 = [];
     arr9[1] = 0;
+}
+
+function noFillerValueCase4() {
+    (string|string:Char|Foo1)[] arr10 = [];
+    arr10[1] = "k";
+}
+
+function noFillerValueCase5() {
+    (xml:Text|xml:Comment|Foo1)[] arr11 = [];
+    arr11[1] = 1;
+}
+
+function noFillerValueCase6() {
+    (string:Char|"k")[] arr12 = [];
+    arr12[1] = "k";
 }
 
 function testXMLSubtypesArrayFill() {
@@ -431,6 +456,11 @@ function testXMLSubtypesArrayFill() {
     assertEquality("[``,`Hello World`]", d.toString());
 
     xml[] e = [];
+    result = trap setXmlArraySecondElement(e, xml `Hello World`);
+    assertEquality(result is (), true);
+    assertEquality("[``,`Hello World`]", e.toString());
+
+    (xml|xml:Text)[] f = [];
     result = trap setXmlArraySecondElement(e, xml `Hello World`);
     assertEquality(result is (), true);
     assertEquality("[``,`Hello World`]", e.toString());

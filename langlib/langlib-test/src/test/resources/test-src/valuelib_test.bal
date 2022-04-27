@@ -1180,6 +1180,7 @@ type unionB finiteA|4|5;
 type finiteDec 1.0d|0d|4d;
 type finiteFloat 1.2|1.4|0.0|10.0;
 type finiteBoolean true|false;
+type emptyString "";
 
 function testCloneWithTypeTupleConsideringFillerValues() {
 
@@ -1288,6 +1289,41 @@ function testCloneWithTypeTupleConsideringFillerValues() {
     assert(err.message(), "{ballerina/lang.value}ConversionError");
     assert(messageString, "'[0]' value cannot be converted to '(false|0|0.0f|0d|\"\")[2]': "
     + "\n\t\tarray cannot be expanded to size '2' because, the target type '(false|0|0.0f|0d|\"\")[2]' does not have a filler value");
+
+    ["0"] tuple18 = ["0"];
+    (string|string:Char|finiteA)[2]|error result18 = tuple18.cloneWithType();
+    assert(result18 is error, true);
+    err = <error>result18;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[\"0\"]' value cannot be converted to '(string|lang.string:Char|finiteA)[2]': "
+    + "\n\t\tarray cannot be expanded to size '2' because, the target type '(string|lang.string:Char|finiteA)[2]' does not have a filler value");
+
+    [1] tuple19 = [1];
+    (xml:Text|xml:Comment|finiteA)[2]|error result19 = tuple19.cloneWithType();
+    assert(result19 is error, true);
+    err = <error>result19;
+    message = err.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    assert(messageString, "'[1]' value cannot be converted to '(lang.xml:Text|lang.xml:Comment|finiteA)[2]': "
+    + "\n\t\tarray cannot be expanded to size '2' because, the target type '(lang.xml:Text|lang.xml:Comment|finiteA)[2]' does not have a filler value");
+
+    (string:Char|emptyString)[2] result20 = checkpanic tuple18.cloneWithType();
+    assert(result20, ["0",""]);
+
+    (string:Char|"k")[2]|error result21 = tuple18.cloneWithType();
+    assert(result21 is error, true);
+    err = <error>result21;
+    message = err.detail()["message"];
+    assert(err.message(), "{ballerina/lang.value}ConversionError");
+    //messageString = message is error ? message.toString() : message.toString();
+    //assert(messageString, "'[\"0\"]' value cannot be converted to '(lang.string:Char|$anonType$_14)[2]': "
+    //+ "\n\t\tarray cannot be expanded to size '2' because, the target type '(lang.string:Char|$anonType$_14)[2]' does not have a filler value");
+
+    (string:Char|Bar2)[2] result22 = checkpanic tuple18.cloneWithType();
+    assert(result22, ["0",""]);
 }
 
 type StringArray string[];
