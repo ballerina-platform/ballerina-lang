@@ -23,8 +23,10 @@ import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
@@ -47,6 +49,9 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
@@ -207,6 +212,55 @@ public class TypeBuildersTest {
                 {types.FLOAT, TYPEDESC, "typedesc<float>"},
                 {types.BOOLEAN, TYPEDESC, "typedesc<boolean>"},
                 {null, TYPEDESC, "TYPEDESC"},
+        };
+    }
+
+    @Test(dataProvider = "streamTypeBuilderProvider")
+    public void testStreamTypeBuilder(TypeSymbol vType, TypeSymbol cType, String signature) {
+        TypeBuilder builder = types.builder();
+        StreamTypeSymbol streamTypeSymbol = builder.STREAM_TYPE.withValueType(vType).withCompletionType(cType).build();
+        assertEquals(streamTypeSymbol.typeKind(), STREAM);
+        assertEquals(streamTypeSymbol.typeParameter(), vType);
+        if (cType != null && cType.typeKind() != NIL) {
+            assertEquals(streamTypeSymbol.completionValueTypeParameter().signature(), cType.signature());
+        }
+
+        assertEquals(streamTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "streamTypeBuilderProvider")
+    private Object[][] getStreamTypeBuilders() {
+        return new Object[][] {
+                {types.FLOAT, types.INT, "stream<float, int>"},
+                {types.BYTE, types.STRING, "stream<byte, string>"},
+                {types.ANY, types.NIL, "stream<any>"},
+                {types.STRING, null, "stream<string>"},
+        };
+    }
+
+    @Test(dataProvider = "tupleTypeBuilderProvider")
+    public void testTupleTypeBuilder(List<TypeSymbol> memberTypes, TypeSymbol restType, String signature) {
+
+        TypeBuilder builder = types.builder();
+        TypeBuilder.TUPLE tupleType = builder.TUPLE_TYPE.withRestType(restType);
+        for (TypeSymbol memberType : memberTypes) {
+            tupleType.withMemberType(memberType);
+        }
+
+        TupleTypeSymbol tupleTypeSymbol = tupleType.build();
+        assertEquals(tupleTypeSymbol.typeKind(), TUPLE);
+        if (restType != null) {
+            assertTrue(tupleTypeSymbol.restTypeDescriptor().isPresent());
+        }
+
+        assertEquals(tupleTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "tupleTypeBuilderProvider")
+    private Object[][] getTupleTypeBuilders() {
+        return new Object[][] {
+                {Arrays.asList(types.STRING, types.INT, types.FLOAT), null, "[string, int, float]"},
+                {Arrays.asList(types.STRING, types.BOOLEAN), types.INT, "[string, boolean, int...]"},
         };
     }
 }

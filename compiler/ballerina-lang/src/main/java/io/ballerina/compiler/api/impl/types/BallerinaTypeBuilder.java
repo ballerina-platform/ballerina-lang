@@ -32,5 +32,7 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         MAP_TYPE = new BallerinaMapTypeBuilder(context);
         FUTURE_TYPE = new BallerinaFutureTypeBuilder(context);
         TYPEDESC_TYPE = new BallerinaTypeDescTypeBuilder(context);
+        STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
+        TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
     }
 }

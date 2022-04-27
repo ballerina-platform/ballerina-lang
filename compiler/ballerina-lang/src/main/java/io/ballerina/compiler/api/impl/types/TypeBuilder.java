@@ -20,6 +20,8 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
@@ -35,6 +37,8 @@ public abstract class TypeBuilder {
     public MAP MAP_TYPE;
     public FUTURE FUTURE_TYPE;
     public TYPEDESC TYPEDESC_TYPE;
+    public STREAM STREAM_TYPE;
+    public TUPLE TUPLE_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -92,5 +96,26 @@ public abstract class TypeBuilder {
         TYPEDESC withTypeParam(TypeSymbol typeParam);
 
         TypeDescTypeSymbol build();
+    }
+
+    /**
+     * Represents the methods required to build the Stream type symbol of a Stream type descriptor.
+     */
+    public interface STREAM {
+
+        STREAM withValueType(TypeSymbol valueType);
+
+        STREAM withCompletionType(TypeSymbol completionType);
+
+        StreamTypeSymbol build();
+    }
+
+    public interface TUPLE {
+
+        TUPLE withMemberType(TypeSymbol memberType);
+
+        TUPLE withRestType(TypeSymbol restType);
+
+        TupleTypeSymbol build();
     }
 }
