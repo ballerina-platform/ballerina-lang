@@ -26,7 +26,6 @@ import io.ballerina.semver.checker.diff.ModuleDiff;
 import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
-import io.ballerina.semver.checker.exception.SemverToolException;
 
 import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 
@@ -41,19 +40,19 @@ public class DiffUtils {
                                         SemanticVersion previousVersion) {
         StringBuilder sb = new StringBuilder();
         sb.append("current version: ").append(currentVersion).append(System.lineSeparator());
-        sb.append("compatibility status with the latest release (").append(previousVersion).append("): ");
+        sb.append("compatibility status compared to published version '").append(previousVersion).append("': ");
         if (packageDiff == null) {
             sb.append("no changes detected").append(System.lineSeparator());
         } else {
             switch (packageDiff.getCompatibilityLevel()) {
                 case MAJOR:
-                    sb.append("backward-incompatible changes detected.").append(System.lineSeparator());
+                    sb.append("backward-incompatible changes detected").append(System.lineSeparator());
                     break;
                 case MINOR:
-                    sb.append("patch-incompatible changes detected.").append(System.lineSeparator());
+                    sb.append("patch-incompatible changes detected").append(System.lineSeparator());
                     break;
                 case PATCH:
-                    sb.append("patch-compatible changes detected.").append(System.lineSeparator());
+                    sb.append("patch-compatible changes detected").append(System.lineSeparator());
                     break;
                 case AMBIGUOUS:
                     sb.append("one or more changes detected with ambiguous level of impact. the developer is expected" +
@@ -208,7 +207,7 @@ public class DiffUtils {
                 return "modified";
             case UNKNOWN:
             default:
-                return "(?)";
+                return "?";
         }
     }
 

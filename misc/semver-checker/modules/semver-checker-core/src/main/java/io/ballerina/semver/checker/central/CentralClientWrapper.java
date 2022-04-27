@@ -103,7 +103,6 @@ public class CentralClientWrapper {
      * @throws SemverToolException if unexpected error occurred while pulling package
      */
     public Path pullPackage(String orgName, String pkgName, SemanticVersion version) throws SemverToolException {
-
         Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME)

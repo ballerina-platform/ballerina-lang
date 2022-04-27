@@ -90,10 +90,12 @@ public class SemverChecker {
     public String getDiffSummary() throws SemverToolException {
         Optional<PackageDiff> packageDiff = computeDiff();
         StringBuilder sb = new StringBuilder();
-        sb.append(System.lineSeparator());
         if (packageDiff.isEmpty()) {
             sb.append("no changes detected").append(System.lineSeparator());
         } else {
+            sb.append("===============================").append(System.lineSeparator());
+            sb.append(" Source Compatibility Changes ").append(System.lineSeparator());
+            sb.append("===============================").append(System.lineSeparator());
             sb.append(packageDiff.get().getAsString());
         }
 

@@ -48,9 +48,9 @@ public class DocumentationComparator extends NodeComparator<Node> {
             documentationDiff.setCompatibilityLevel(CompatibilityLevel.PATCH);
             documentationDiff.setMessage("documentation is removed.");
         } else if (newNode == null) {
-            return Optional.empty(); // unchanged
+            return Optional.empty();
         } else if (newNode.toSourceCode().equals(oldNode.toSourceCode())) {
-            return Optional.empty();  // unchanged
+            return Optional.empty();
         } else {
             documentationDiff.setType(DiffType.MODIFIED);
             documentationDiff.setCompatibilityLevel(CompatibilityLevel.PATCH);

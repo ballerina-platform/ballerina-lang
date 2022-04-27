@@ -107,14 +107,14 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
             NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newPublicQual.get(), null);
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
             qualifierDiff.setType(DiffType.NEW);
-            qualifierDiff.setMessage("function visibility is changed from 'module-private' to 'public'");
+            qualifierDiff.setMessage("'public' qualifier is added");
             qualifierDiffs.add(qualifierDiff);
         } else if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
             // public qualifier removed
             NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldPublicQual.get());
             qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
             qualifierDiff.setType(DiffType.REMOVED);
-            qualifierDiff.setMessage("function visibility is changed from 'public' to 'module-private'");
+            qualifierDiff.setMessage("'public' qualifier is removed");
             qualifierDiffs.add(qualifierDiff);
         }
 
@@ -177,10 +177,12 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
         if (newReturn.isPresent() && oldReturn.isEmpty()) {
             NodeDiffImpl<Node> nodeDiff = new NodeDiffImpl<>(newReturn.get(), null, CompatibilityLevel.MAJOR);
-            nodeDiff.setMessage("return type is added to the function '" + newNode.functionName().text() + "'.");
+            nodeDiff.setMessage("return type is added");
+            returnTypeDiffs.add(nodeDiff);
         } else if (newReturn.isEmpty() && oldReturn.isPresent()) {
             NodeDiffImpl<Node> nodeDiff = new NodeDiffImpl<>(null, oldReturn.get(), CompatibilityLevel.MAJOR);
-            nodeDiff.setMessage("return type is removed from the function '" + newNode.functionName().text() + "'.");
+            nodeDiff.setMessage("return type is removed");
+            returnTypeDiffs.add(nodeDiff);
         } else if (newReturn.isPresent()) {
             compareReturnTypes(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
             compareReturnAnnotations(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
