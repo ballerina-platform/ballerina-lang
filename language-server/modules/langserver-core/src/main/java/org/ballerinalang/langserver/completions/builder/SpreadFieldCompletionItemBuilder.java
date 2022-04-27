@@ -31,7 +31,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 /**
  * This class is being used to build spread field completion item.
  *
- * @since 2201.0.3
+ * @since 2201.1.1
  */
 public class SpreadFieldCompletionItemBuilder {
     
