@@ -122,6 +122,6 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'UnaryType2', found 'int'", 240, 21);
         validateError(result, i++, "incompatible types: expected 'UnaryType3', found 'int'", 241, 21);
         validateError(result, i++, "incompatible types: expected '1|5.4f', found 'float'", 245, 15);
-        validateError(result, i, "'92233720368547758078' is out of range", 246, 11);
+        validateError(result, i, "'92233720368547758078' is out of range for 'Integer'", 246, 11);
     }
 }

@@ -596,9 +596,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType checkIfLiteralIsOutOfRange(BFiniteType finiteType, BLangLiteral literalExpr, Object literalValue,
                                              AnalyzerData data) {
+        BType originalLiteralType = literalExpr.getBType();
         BType compatibleType = clonedCheckForCompatibleLiteralType(finiteType, literalExpr, literalValue, data);
         if (compatibleType == symTable.semanticError) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue, "");
+            String literalType;
+            if (originalLiteralType.tag == TypeTags.INT) {
+                literalType = "Integer";
+            } else {
+                literalType = "Float";
+            }
+            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue, literalType);
         }
         return compatibleType;
     }
@@ -617,6 +624,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // or Double when it was parsed in BLangNodeBuilder
             if (literalValue instanceof String) {
                 dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue, "Float");
+                data.resultType = symTable.semanticError;
                 return symTable.semanticError;
             }
             if (literalValue instanceof Double) {
@@ -632,6 +640,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             BFiniteType finiteType = (BFiniteType) expectedType;
             BType compatibleType = checkIfLiteralIsOutOfRange(finiteType, literalExpr, literalValue, data);
             if (compatibleType == symTable.semanticError) {
+                data.resultType = symTable.semanticError;
                 return compatibleType;
             } else {
                 return getFiniteTypeMatchWithIntLiteral(literalExpr, finiteType, literalValue, data);

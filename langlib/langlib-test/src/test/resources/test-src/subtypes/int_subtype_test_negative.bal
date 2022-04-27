@@ -353,8 +353,6 @@ function testOutOfBoundValueAssignment(){
      int:Unsigned16 _ = -21474836480;
      int:Unsigned8 _ = -9223372036854775553;
      int:Unsigned8 _ = -9223372036854775808;
-     int:Signed8 _ = 9223372036854775808;
-     int:Signed16 _ = -9223372036854775809;
 }
 
 type IntType1 int:Unsigned32|int:Signed8;
@@ -561,4 +559,9 @@ function testInCompatibleTypesWithUnionOfIntSubtypes() {
 
     int:Signed8|int:Signed32|int:Unsigned32 _ = 4294967296 + 1;
     int:Unsigned32|int:Unsigned8|int:Signed16 _ = -32769;
+}
+
+function testOutOfRangeValueAssignment(){
+    int:Signed8 _ = 9223372036854775808;
+    int:Signed16 _ = -9223372036854775809;
 }
