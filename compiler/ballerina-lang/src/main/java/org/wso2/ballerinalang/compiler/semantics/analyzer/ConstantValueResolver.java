@@ -42,16 +42,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
-import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
+import org.wso2.ballerinalang.compiler.tree.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -97,12 +89,14 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private Types types;
     private PackageID pkgID;
     private TypeChecker typeChecker;
+    private final SymbolResolver symResolver;
     private Map<BConstantSymbol, BLangConstant> unresolvedConstants = new HashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<>();
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
     private boolean isDependentOnUnresolvedConst;
+    private List<BLangNode> dependentNodes = new ArrayList<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -112,6 +106,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.types = Types.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
     }
 
     public static ConstantValueResolver getInstance(CompilerContext context) {
@@ -139,6 +134,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         isDependentOnUnresolvedConst = false;
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
         this.currentConstSymbol = constant.symbol;
+        if (hasUnresolvedDependencies(constant.expr)) {
+            return;
+        }
         try {
             typeChecker.checkExpr(constant.expr, this.symEnv, constant.symbol.type, new Stack<SymbolEnv>());
         } catch (Exception e) {
@@ -157,6 +155,44 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
         this.currentConstSymbol = tempCurrentConstSymbol;
+    }
+
+    private boolean hasUnresolvedDependencies(BLangNode expr) {
+        switch (expr.getKind()) {
+            case SIMPLE_VARIABLE_REF:
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
+                varRef.pkgSymbol =
+                        symResolver.resolvePrefixSymbol(symEnv, names.fromIdNode(varRef.pkgAlias),
+                                names.fromString(varRef.pos.lineRange().filePath()));
+                BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(varRef.pos, symEnv,
+                        names.fromIdNode(varRef.pkgAlias), names.fromIdNode(varRef.variableName));
+
+                if (symbol == null || symbol == symTable.notFoundSymbol ||
+                        (names.fromIdNode(varRef.pkgAlias) == Names.EMPTY && symbol.getKind() == SymbolKind.CONSTANT &&
+                        !((BConstantSymbol) symbol).isValueResolved)) {
+                    return true;
+                }
+                return false;
+            case RECORD_LITERAL_EXPR:
+                for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expr).fields) {
+                    if (hasUnresolvedDependencies((BLangNode) field)) {
+                        return true;
+                    }
+                }
+                return false;
+            case BINARY_EXPR:
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expr;
+                if (hasUnresolvedDependencies(binaryExpr.lhsExpr)) {
+                    return true;
+                }
+                return hasUnresolvedDependencies(binaryExpr.rhsExpr);
+            case UNARY_EXPR:
+                return hasUnresolvedDependencies(((BLangUnaryExpr) expr).expr);
+            case RECORD_LITERAL_KEY_VALUE:
+                return hasUnresolvedDependencies(((BLangRecordLiteral.BLangRecordKeyValueField) expr).valueExpr);
+            case RECORD_LITERAL_SPREAD_OP:
+        }
+        return false;
     }
 
     @Override
@@ -387,7 +423,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private BLangConstantValue calculateAddition(BLangConstantValue lhs, BLangConstantValue rhs) {
         // TODO : Handle overflow in numeric values.
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
+        BType symbolType = this.currentConstSymbol.type;
+//        if (symbolType.getKind() == TypeKind.TYPEREFDESC) {
+//            symbolType = ((BTypeReferenceType) symbolType).referredType;
+//        }
+//        This check is required to handle the user defined types. Compiler crashes due to another issue. Issue #35919
+        switch (symbolType.tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) lhs.value + (Long) rhs.value;

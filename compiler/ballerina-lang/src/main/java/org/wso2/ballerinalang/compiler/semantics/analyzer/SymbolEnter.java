@@ -2257,6 +2257,12 @@ public class SymbolEnter extends BLangNodeVisitor {
                 add(constant);
             }}, this.pkgNode.packageID, this.env);
         }
+        if (!constant.symbol.isValueResolved) {
+            if (!this.unresolvedTypes.contains(constant)) {
+                this.unresolvedTypes.add(constant);
+            }
+            return;
+        }
         constantSymbol.markdownDocumentation = getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
         if (isDeprecated(constant.annAttachments)) {
             constantSymbol.flags |= Flags.DEPRECATED;
