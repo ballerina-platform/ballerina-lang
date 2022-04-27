@@ -64,3 +64,25 @@ function testKeyConstraintCastToString4() returns boolean {
     table<Teacher> key<int> tab =<table<Teacher> key<int>> tab4;
     return tab[31]["name"] == "AAA";
 }
+
+type Customer2 record {|
+    int id;
+    string name;
+    string lname;
+|};
+
+type CustomerEmptyKeyedTbl table<Customer2> key();
+
+function testCastingWithEmptyKeyedKeylessTbl() {
+    CustomerEmptyKeyedTbl tbl1 = <CustomerEmptyKeyedTbl> tab3;
+
+    table<record {
+        int id;
+        string name;
+        string lname;
+    }> key() tbl = <table<record {
+        int id;
+        string name;
+        string lname;
+    }> key()>tab3;
+}

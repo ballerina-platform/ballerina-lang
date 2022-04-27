@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -129,6 +130,19 @@ public class RecordConstraintTableTest {
     @Test(description = "Test using spread field in table constructor")
     public void testSpreadFieldInConstructor() {
         BRunUtil.invoke(result, "testSpreadFieldInConstructor");
+    }
+
+    @Test(dataProvider = "functionsToTestEmptyKeyedKeylessTbl")
+    public void testEmptyKeyedKeylessTbl(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestEmptyKeyedKeylessTbl() {
+        return new String[] {
+                "testAssignabilityWithEmptyKeyedKeylessTbl",
+                "testEqualityWithEmptyKeyedKeylessTbl",
+        };
     }
 
     @AfterClass

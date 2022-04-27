@@ -768,7 +768,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         List<String> fieldNameList = tableTypeNode.tableType.fieldNameList;
-        if (fieldNameList != null) {
+        if (!fieldNameList.isEmpty()) {
             typeChecker.validateKeySpecifier(fieldNameList,
                     constraint.tag != TypeTags.INTERSECTION ? constraint :
                             ((BIntersectionType) constraint).effectiveType,
