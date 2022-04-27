@@ -563,7 +563,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private BType clonedIntTypeChecker(BLangLiteral literalExpr, Object literalValue, BType expType, AnalyzerData data) {
+    private BType clonedIntTypeChecker(BLangLiteral literalExpr, Object literalValue, BType expType,
+                                       AnalyzerData data) {
         boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
         data.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
@@ -5157,7 +5158,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return intTypesInUnion;
     }
 
-    public boolean checkForCompatibleFiniteMembersInUnionType(BLangUnaryExpr unaryExpr, BUnionType expectedType, AnalyzerData data) {
+    public boolean checkForCompatibleFiniteMembersInUnionType(BLangUnaryExpr unaryExpr, BUnionType expectedType,
+                                                              AnalyzerData data) {
         BType compatibleTypeOfUnaryExpression;
         for (BType type : expectedType.getMemberTypes()) {
             compatibleTypeOfUnaryExpression = clonedExprTypeChecker(unaryExpr, types.getReferredType(type), data);
