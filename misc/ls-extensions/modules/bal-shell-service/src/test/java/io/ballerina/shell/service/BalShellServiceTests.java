@@ -40,7 +40,6 @@ public class BalShellServiceTests {
     private static final String GET_RESULT = "balShell/getResult";
     private static final String NOTEBOOK_RESTART = "balShell/restartNotebook";
     private static final String GET_VARIABLES = "balShell/getVariableValues";
-
     private static final String GET_SHELL_FILE_SOURCE = "balShell/getShellFileSource";
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
