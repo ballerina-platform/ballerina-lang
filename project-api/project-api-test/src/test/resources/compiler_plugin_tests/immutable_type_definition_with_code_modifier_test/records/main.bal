@@ -1,3 +1,22 @@
 public type Record record {|
     int[] arr;
 |};
+
+public type Location record {|
+    int line;
+    int column;
+|};
+
+public type ErrorDetail record {|
+    string message;
+    Location[] locations?;
+    (int|string)[] path?;
+    map<anydata> extensions?;
+|};
+
+public type ServerError distinct error<record {| json? data?; ErrorDetail[] errors; map<json>? extensions?; |}>;
+
+public function fn() returns ServerError {
+    return error("", errors = []);
+}
+
