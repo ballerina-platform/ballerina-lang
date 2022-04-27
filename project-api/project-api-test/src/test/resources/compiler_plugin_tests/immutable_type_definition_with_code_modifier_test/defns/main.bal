@@ -20,3 +20,12 @@ public function fn() returns ServerError {
     return error("", errors = []);
 }
 
+public type Tuple int|[string, Tuple];
+
+public type RecordTwo record {
+    object {
+        int i;
+    } ob;
+};
+
+public type TupleTwo RecordTwo|map<RecordTwo>;
