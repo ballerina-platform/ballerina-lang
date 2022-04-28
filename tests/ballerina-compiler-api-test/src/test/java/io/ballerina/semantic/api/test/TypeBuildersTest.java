@@ -21,6 +21,7 @@ package io.ballerina.semantic.api.test;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
@@ -47,6 +48,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
@@ -261,6 +263,27 @@ public class TypeBuildersTest {
         return new Object[][] {
                 {Arrays.asList(types.STRING, types.INT, types.FLOAT), null, "[string, int, float]"},
                 {Arrays.asList(types.STRING, types.BOOLEAN), types.INT, "[string, boolean, int...]"},
+        };
+    }
+
+    @Test(dataProvider = "arrayTypeBuilderProvider")
+    public void testArrayTypeBuilder(TypeSymbol memberType, Integer size, String signature) {
+        TypeBuilder builder = types.builder();
+        ArrayTypeSymbol arrayTypeSymbol = builder.ARRAY_TYPE.withType(memberType).ofSize(size).build();
+        assertEquals(arrayTypeSymbol.typeKind(), ARRAY);
+        if (size != null) {
+            assertTrue(arrayTypeSymbol.size().isPresent());
+            assertEquals(arrayTypeSymbol.size().get(), size);
+        }
+        assertEquals(arrayTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "arrayTypeBuilderProvider")
+    private Object[][] getArrayTypeBuilders() {
+        return new Object[][] {
+                {types.STRING, 5, "string[5]"},
+                {types.INT, null, "int[]"},
+                {types.BYTE, 24, "byte[24]"},
         };
     }
 }
