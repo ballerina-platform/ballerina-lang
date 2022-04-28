@@ -111,18 +111,18 @@ public class TestRunnerUtils {
             Map<String, String> headersOfTestCase = readHeaders(line, buffReader);
             String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
 
-            //TODO: if kind of testcase is other, then need to skip creating the bal file
-            boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
+            String labels = headersOfTestCase.get(LABELS);
+            String[] testCaseLabels = labels.split("\\s*,\\s*");
 
-            Object[] testCase = new Object[10];
+            //TODO: if kind of testcase is other, then need to skip creating the bal file
+
+            Object[] testCase = new Object[9];
             testCase[0] = kindOfTestCase;
             testCase[1] = tempDir + tempFileName + BAL_EXTENSION;
             testCase[4] = fileName;
             testCase[5] = absLineNum;
-            testCase[6] = isSkippedTestCase;
-            testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
-            testCase[9] = headersOfTestCase.get(LABELS);
-            testCase[10] = new HashSet<>(Arrays.asList("transactional-expr"));
+            testCase[7] = headersOfTestCase.containsKey(FAIL_ISSUE);
+            testCase[8] = testCaseLabels;
 
             line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
         }
@@ -156,7 +156,7 @@ public class TestRunnerUtils {
         absLineNum = absLineNum + relativeLineNum;
         testCase[2] = outputValues;
         testCase[3] = lineNumbers;
-        testCase[7] = diagnostics;
+        testCase[6] = diagnostics;
 
         testCases.add(testCase);
         return line;
@@ -199,18 +199,13 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void validateLabels(String labels, Set<String> predefinedLabels, int absLineNum,
-                                      HashSet<String> skippedTestLabels) {
+    public static void validateLabels(String[] testCaseLabels, Set<String> predefinedLabels, int absLineNum) {
         HashSet<String> labelsList = new HashSet<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
-        boolean isSkippedTest = false;
 
-        for (String label : labels.split(",")) {
+        for (String label : testCaseLabels) {
             String trimmedLabel = label.trim();
-            if (skippedTestLabels.contains(trimmedLabel)) {
-                isSkippedTest = true;
-            }
             if (labelsList.contains(trimmedLabel)) {
                 duplicateLabels.add(trimmedLabel);
                 continue;
@@ -232,8 +227,6 @@ public class TestRunnerUtils {
         if (!diagnosticMsg.isEmpty()) {
             Assert.fail("Errors in labels at line number: " + (absLineNum - 1) + "\n" + diagnosticMsg);
         }
-
-        handleTestSkip(isSkippedTest);
     }
 
     private static Map<String, String> readHeaders(String line, BufferedReader buffReader) throws IOException {
@@ -313,27 +306,17 @@ public class TestRunnerUtils {
         }
     }
 
-    private static boolean isSkippedTestCase(Set<String> selectedLabels, String labels) {
-        if (selectedLabels.isEmpty() || labels == null) {
-            return false;
-        }
-        for (String label : labels.split("\\s*,\\s*")) {
-            if (selectedLabels.contains(label)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static void validateTestFormat(String diagnostic) {
         if (diagnostic != null) {
             Assert.fail(diagnostic);
         }
     }
 
-    public static void handleTestSkip(boolean isSkippedTestCase) {
-        if (isSkippedTestCase) {
-            throw new SkipException("Skip");
+    public static void handleTestSkip(String[] testCaseLabels, HashSet<String> skippedTestLabels) {
+        for (String label : testCaseLabels) {
+            if (skippedTestLabels.contains(label)) {
+                throw new SkipException("Skip");
+            }
         }
     }
 

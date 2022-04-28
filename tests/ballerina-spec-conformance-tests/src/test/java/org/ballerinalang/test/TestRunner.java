@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,15 +56,16 @@ public class TestRunner {
     private final Path path = TEST_DIR.resolve("src").resolve("test").resolve("resources")
                                      .resolve("ballerina-spec-tests").resolve("conformance");
     private static final Set<String> predefinedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString()).keySet();
+    private static final HashSet<String> skippedTestLabels = new HashSet<>(Arrays.asList("transactional-expr"));
 
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
-                     int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context,
-                     boolean isKnownIssue, String labels, HashSet<String> skippedTestLabels) {
+                     int absLineNum, String diagnostics, ITestContext context, boolean isKnownIssue,
+                     String[] testCaseLabels) {
         setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
-        handleTestSkip(isSkippedTest);
         validateTestFormat(diagnostics);
-        validateLabels(labels, predefinedLabels, absLineNum, skippedTestLabels);
+        validateLabels(testCaseLabels, predefinedLabels, absLineNum);
+        handleTestSkip(testCaseLabels, skippedTestLabels);
         validateTestOutput(path, kind, outputValues, isKnownIssue, lineNumbers, fileName, absLineNum, context);
     }
 
