@@ -343,8 +343,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED("BCE0676", "error.intervening.whitespaces.are.not.allowed"),
     ERROR_INVALID_BINDING_PATTERN("BCE0677", "error.invalid.binding.pattern"),
     ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH("BCE0678", "error.resource.path.cannot.begin.with.slash"),
-    INCLUDED_RECORD_PARAMETER_CANNOT_BE_REST_PARAMETER("BCE0679",
-            "error.included.record.parameter.cannot.be.rest.parameter")
+    REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE0679",
+            "error.rest.parameter.cannot.be.included.record.parameter")
     ;
 
     String diagnosticId;

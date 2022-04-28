@@ -2317,8 +2317,8 @@ public class BallerinaParser extends AbstractParser {
         switch (token.kind) {
             case ELLIPSIS_TOKEN:
                 if (inclusionSymbol != null) {
-                    type = SyntaxErrors.addDiagnostic(type,
-                            DiagnosticErrorCode.INCLUDED_RECORD_PARAMETER_CANNOT_BE_REST_PARAMETER);
+                    type = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(type, inclusionSymbol,
+                            DiagnosticErrorCode.REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER);
                 }
                 switchContext(ParserRuleContext.REST_PARAM);
                 STNode ellipsis = parseEllipsis();
