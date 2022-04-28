@@ -1817,9 +1817,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
-        if (rhsType.tag == TypeTags.INTERSECTION) {
-            rhsType = ((BIntersectionType) rhsType).effectiveType;
-        }
+        rhsType = getApplicableRhsType(rhsType);
 
         switch (variable.getKind()) {
             case VARIABLE:
@@ -1896,6 +1894,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 recursivelySetFinalFlag(errorVariable);
                 break;
         }
+    }
+
+    private BType getApplicableRhsType(BType rhsType) {
+        BType referredType = Types.getReferredType(rhsType);
+        if (referredType.tag == TypeTags.INTERSECTION) {
+            return ((BIntersectionType) referredType).effectiveType;
+        }
+        return rhsType;
     }
 
     private void recursivelyDefineVariables(BLangVariable variable, SymbolEnv blockEnv) {
@@ -4232,7 +4238,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Check whether the foreach node's variables are declared with var.
         if (isDeclaredWithVar) {
             // If the foreach node's variables are declared with var, type is `varType`.
-            handleDeclaredVarInForeach(variableNode, Types.getReferredType(varType), blockEnv);
+            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
         }
         // If the type node is available, we get the type from it.
@@ -4245,7 +4251,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         // Then we need to check whether the RHS type is assignable to LHS type.
         if (types.isAssignable(varType, typeNodeType)) {
             // If assignable, we set types to the variables.
-            handleDeclaredVarInForeach(variableNode, Types.getReferredType(varType), blockEnv);
+            handleDeclaredVarInForeach(variableNode, varType, blockEnv);
             return;
         }
         // Log an error and define a symbol with the node's type to avoid undeclared symbol errors.
