@@ -1318,9 +1318,9 @@ function testCloneWithTypeTupleConsideringFillerValues() {
     err = <error>result21;
     message = err.detail()["message"];
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    //messageString = message is error ? message.toString() : message.toString();
-    //assert(messageString, "'[\"0\"]' value cannot be converted to '(lang.string:Char|$anonType$_14)[2]': "
-    //+ "\n\t\tarray cannot be expanded to size '2' because, the target type '(lang.string:Char|$anonType$_14)[2]' does not have a filler value");
+    messageString = message is error ? message.toString() : message.toString();
+    assert(messageString, "'[\"0\"]' value cannot be converted to '(lang.string:Char|\"k\")[2]': "
+    + "\n\t\tarray cannot be expanded to size '2' because, the target type '(lang.string:Char|\"k\")[2]' does not have a filler value");
 
     (string:Char|Bar2)[2] result22 = checkpanic tuple18.cloneWithType();
     assert(result22, ["0",""]);
