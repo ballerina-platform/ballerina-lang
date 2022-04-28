@@ -1,4 +1,4 @@
 class Foo {
-    function fn(*int ...config) {
+    function fn(*int... config) {
     }
 }

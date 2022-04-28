@@ -1,2 +1,2 @@
-function fn(*Configuration ...config) {
+function fn(*Configuration... config) {
 }

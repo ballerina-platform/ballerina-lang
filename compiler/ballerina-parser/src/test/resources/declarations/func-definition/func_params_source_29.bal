@@ -1,3 +1,4 @@
 function fn() {
-    function _ = function (*int ...config) {};
+    function _ = function(*int... config) {
+    };
 }

@@ -67,18 +67,18 @@
                             ]
                           }
                         }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
                       ]
                     }
                   ]
                 },
                 {
-                  "kind": "ELLIPSIS_TOKEN"
+                  "kind": "ELLIPSIS_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
@@ -95,10 +95,6 @@
                           }
                         ]
                       }
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
                     },
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
