@@ -1285,9 +1285,9 @@ public class CommonUtil {
     /**
      * Returns the file path.
      *
-     * @param symbol    symbol
-     * @param project   ballerina project
-     * @param context   service operation context
+     * @param symbol  symbol
+     * @param project ballerina project
+     * @param context service operation context
      * @return file path
      */
     public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
@@ -2038,5 +2038,88 @@ public class CommonUtil {
      */
     public static boolean isWithInRange(Node node, int offset) {
         return node.textRange().startOffset() <= offset && offset <= node.textRange().endOffset();
+    }
+
+    /**
+     * Get the list of function arguments from the invokable symbol.
+     *
+     * @param symbol Invokable symbol to extract the arguments
+     * @param ctx    Lang Server Operation context
+     * @return {@link List} List of arguments
+     */
+    public static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
+        List<ParameterSymbol> params = CommonUtil.getFunctionParameters(symbol, ctx);
+        return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse(""))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the function parameter syntax given the parameter symbol.
+     *
+     * @param param parameter symbol.
+     * @param ctx   Lang Server Operation context
+     * @return {@link Optional<String>} Type and name syntax string.
+     */
+    public static Optional<String> getFunctionParamaterSyntax(ParameterSymbol param, BallerinaCompletionContext ctx) {
+
+        if (param.paramKind() == ParameterKind.REST) {
+            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
+            return Optional.of(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+                    + (param.getName().isEmpty() ? "" : "... "
+                    + param.getName().get()));
+        }
+
+        if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
+            return Optional.empty();
+        } else {
+            return Optional.of(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
+                    (param.getName().isEmpty() ? "" : " " + param.getName().get()));
+        }
+    }
+
+    /**
+     * Get the list of function parameters from the invokable symbol.
+     *
+     * @param symbol Invokable symbol to extract the parameters
+     * @param ctx    Lang Server Operation context
+     * @return {@link List<ParameterSymbol> } list of parameter symbols.
+     */
+    public static List<ParameterSymbol> getFunctionParameters(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
+        boolean skipFirstParam = skipFirstParam(ctx, symbol);
+        FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
+        Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
+        List<ParameterSymbol> parameterDefs = new ArrayList<>();
+
+        if (functionTypeDesc.params().isPresent()) {
+            List<ParameterSymbol> params = functionTypeDesc.params().get();
+            if (skipFirstParam) {
+                if (params.size() > 1) {
+                    parameterDefs.addAll(params.subList(1, params.size()));
+                }
+            } else {
+                parameterDefs.addAll(params);
+            }
+        }
+        restParam.ifPresent(parameterDefs::add);
+        return parameterDefs;
+    }
+
+    /**
+     * Whether we skip the first parameter being included as a label in the signature.
+     * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
+     * showing the invocation over package of the langlib with the COLON we show the first param.
+     * <p>
+     * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
+     * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
+     *
+     * @param context        context
+     * @param functionSymbol invokable symbol
+     * @return {@link Boolean} whether we show the first param or not
+     */
+    public static boolean skipFirstParam(BallerinaCompletionContext context, FunctionSymbol functionSymbol) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
+                && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 }
