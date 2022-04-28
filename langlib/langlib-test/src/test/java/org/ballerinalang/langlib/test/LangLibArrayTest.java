@@ -26,7 +26,6 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -163,7 +162,6 @@ public class LangLibArrayTest {
                     "\\{\"message\":\"incompatible types: expected '\\(Employee & readonly\\)', found 'Employee'\"}.*")
     public void testModificationAfterSliceOfReadonlyRecordArray() {
         BRunUtil.invoke(compileResult, "testModificationAfterSliceOfReadonlyRecordArray");
-        Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -172,7 +170,6 @@ public class LangLibArrayTest {
                     "found 'map<string>'\"}.*")
     public void testPushAfterSliceOfReadonlyMapArray() {
         BRunUtil.invoke(compileResult, "testPushAfterSliceOfReadonlyMapArray");
-        Assert.fail();
     }
 
     @Test
@@ -276,7 +273,6 @@ public class LangLibArrayTest {
                     "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"}.*")
     public void testRemoveAllFixedLengthArray() {
         BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
-        Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -285,7 +281,6 @@ public class LangLibArrayTest {
                             + " of a tuple of fixed length '2' to '3'\"}.*")
     public void testTupleResize() {
         BRunUtil.invoke(compileResult, "testTupleResize");
-        Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -294,7 +289,6 @@ public class LangLibArrayTest {
                             "length of a tuple of fixed length '2' to '0'\"}.*")
     public void testTupleRemoveAll() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAll");
-        Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -303,25 +297,24 @@ public class LangLibArrayTest {
                             + " of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
-        Assert.fail();
     }
 
     @Test
     public void testTupleRemoveAllForTupleWithJustRestMemberType() {
         Object returns = BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithJustRestMemberType");
-        Assert.assertTrue((Boolean) returns);
+        assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthLegal() {
         Object returns = BRunUtil.invoke(compileResult, "testTupleSetLengthLegal");
-        Assert.assertTrue((Boolean) returns);
+        assertTrue((Boolean) returns);
     }
 
     @Test
     public void testTupleSetLengthToSameAsOriginal() {
         Object returns = BRunUtil.invoke(compileResult, "testTupleSetLengthToSameAsOriginal");
-        Assert.assertTrue((Boolean) returns);
+        assertTrue((Boolean) returns);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -330,7 +323,22 @@ public class LangLibArrayTest {
                           "of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
-        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.array}IndexOutOfRange \\{\"message\":\"array index out of range: " +
+                            "index: 2, size: 1\"}.*")
+    public void testForEachWhileRemoveElements() {
+        BRunUtil.invoke(compileResult, "testForEachWhileRemoveElements");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.array}IndexOutOfRange \\{\"message\":\"array index out of range: " +
+                            "index: 3, size: 2\"}.*")
+    public void testFilterWhileShrinkingArray() {
+        BRunUtil.invoke(compileResult, "testFilterWhileShrinkingArray");
     }
 
     @Test
@@ -499,7 +507,7 @@ public class LangLibArrayTest {
                         "'[string,T]' is not an ordered type", 264, 32);
         BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
                 "'[string,T][]' is not an ordered type", 268, 28);
-        Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
+        assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
     @Test
@@ -510,7 +518,7 @@ public class LangLibArrayTest {
                 "incompatible types: 'int' will not be matched to 'string'", 18, 28);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: 'int' will not be matched to 'string'", 22, 29);
-        Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
+        assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
     @Test(dataProvider = "FunctionList")

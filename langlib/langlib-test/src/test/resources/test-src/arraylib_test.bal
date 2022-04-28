@@ -1724,3 +1724,18 @@ function testArrSortWithNamedArgs3() {
     });
     assertValueEquality([1, 10, 0, "AAD", "ABC", "ADS", "DES"], sortedArr);
 }
+
+function testForEachWhileRemoveElements() {
+    int[] arr = [1, 2, 3];
+    arr.forEach(function (int i) {
+        _ = arr.pop();
+    });
+}
+
+function testFilterWhileShrinkingArray() {
+    int[] arr = [1, 2, 3, 4, 5];
+    _ = arr.filter(function (int i) returns boolean {
+        _ = arr.pop();
+        return i > 4;
+    });
+}
