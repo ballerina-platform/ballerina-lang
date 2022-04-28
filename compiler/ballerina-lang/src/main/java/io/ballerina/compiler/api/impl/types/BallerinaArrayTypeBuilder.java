@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -36,13 +35,11 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
 
     private final TypesFactory typesFactory;
-    private final SymbolTable symTable;
     private TypeSymbol type;
     private Integer size;
 
     public BallerinaArrayTypeBuilder(CompilerContext context) {
         typesFactory = TypesFactory.getInstance(context);
-        symTable = SymbolTable.getInstance(context);
     }
 
     @Override
