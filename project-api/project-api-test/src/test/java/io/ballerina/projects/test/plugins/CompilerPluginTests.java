@@ -46,6 +46,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -327,6 +328,34 @@ public class CompilerPluginTests {
                     + document.name().replace(".bal", "").replace("/", "_")
                     + "(string params) returns error? {\n}";
             Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        // Modified resource files
+        Assert.assertEquals(newPackage.getDefaultModule().resourceIds().size(), 2);
+        for (DocumentId documentId : newPackage.getDefaultModule().resourceIds()) {
+            Resource resource = newPackage.getDefaultModule().resource(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificContent = "<note>\n" +
+                    "\t<to>Sameera</to>\n" +
+                    "\t<from>Asma</from>\n" +
+                    "\t<heading>Reminder</heading>\n" +
+                    "\t<body>Add new feature!</body>\n" +
+                    "</note>";
+            Assert.assertEquals(resource.content(), specificContent.getBytes(StandardCharsets.UTF_8));
+        }
+
+        // Modified resource files
+        Assert.assertEquals(newPackage.getDefaultModule().testResourceIds().size(), 1);
+        for (DocumentId documentId : newPackage.getDefaultModule().testResourceIds()) {
+            Resource resource = newPackage.getDefaultModule().resource(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificContent = "<note>\n" +
+                    "\t<to>Sameera</to>\n" +
+                    "\t<from>Asma</from>\n" +
+                    "\t<heading>Reminder</heading>\n" +
+                    "\t<body>Add new feature!</body>\n" +
+                    "</note>";
+            Assert.assertEquals(resource.content(), specificContent.getBytes(StandardCharsets.UTF_8));
         }
 
         PackageCompilation compilation = newPackage.getCompilation();

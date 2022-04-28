@@ -61,6 +61,22 @@ public interface SourceModifierContext {
     void modifyTestSourceFile(TextDocument textDocument, DocumentId documentId);
 
     /**
+     * Modify resource content of a given resource document {@code Document} identified by the {@code DocumentId}.
+     *
+     * @param content    modified resource content
+     * @param documentId indicates the resource document which should be modified
+     */
+    void modifyResourceFile(byte[] content, DocumentId documentId);
+
+    /**
+     * Modify test resource content of a given resource document {@code Document} identified by the {@code DocumentId}.
+     *
+     * @param content        modified test resource content
+     * @param testDocumentId indicates the test resource document which should be modified
+     */
+    void modifyTestResourceFile(byte[] content, DocumentId testDocumentId);
+
+    /**
      * Reports a diagnostic against the compilation.
      *
      * @param diagnostic the {@code Diagnostic} to be reported

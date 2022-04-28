@@ -38,6 +38,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.plugins.CodeModifier;
 import io.ballerina.projects.plugins.CodeModifierContext;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -94,6 +95,28 @@ public class InsertFunctionCodeModifier extends CodeModifier {
                             rootNode.modify(rootNode.imports(), newMembers, rootNode.eofToken());
                     SyntaxTree updatedSyntaxTree = document.syntaxTree().modifyWith(newModulePart);
                     sourceModifierContext.modifyTestSourceFile(updatedSyntaxTree.textDocument(), documentId);
+                }
+            }
+            // Add new function to resource files
+            String addingContent = "<note>\n" +
+                    "\t<to>Sameera</to>\n" +
+                    "\t<from>Asma</from>\n" +
+                    "\t<heading>Reminder</heading>\n" +
+                    "\t<body>Add new feature!</body>\n" +
+                    "</note>";
+            for (ModuleId moduleId : sourceModifierContext.currentPackage().moduleIds()) {
+                Module module = sourceModifierContext.currentPackage().module(moduleId);
+                for (DocumentId resourceDocumentId : module.resourceIds()) {
+                    sourceModifierContext.modifyResourceFile(
+                            addingContent.getBytes(StandardCharsets.UTF_8), resourceDocumentId);
+                }
+            }
+            // Add new function to test resource files
+            for (ModuleId moduleId : sourceModifierContext.currentPackage().moduleIds()) {
+                Module module = sourceModifierContext.currentPackage().module(moduleId);
+                for (DocumentId testResourceDocumentId : module.testResourceIds()) {
+                    sourceModifierContext.modifyTestResourceFile(
+                            addingContent.getBytes(StandardCharsets.UTF_8), testResourceDocumentId);
                 }
             }
         });

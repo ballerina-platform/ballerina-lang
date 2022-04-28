@@ -211,6 +211,21 @@ public class Module {
         }
 
         /**
+         * Creates a copy of the existing module and updates a resource in the new module.
+         *
+         * @param newResourceContext configurations to update the resource
+         * @return an instance of the Module.Modifier
+         */
+        Modifier updateResource(ResourceContext newResourceContext) {
+            if (this.resourceContextMap.containsKey(newResourceContext.documentId())) {
+                this.resourceContextMap.put(newResourceContext.documentId(), newResourceContext);
+            } else {
+                this.testResourceContextMap.put(newResourceContext.documentId(), newResourceContext);
+            }
+            return this;
+        }
+
+        /**
          * Creates a copy of the existing module and adds a new resource to the new module.
          *
          * @param resourceConfig configurations to create the resource
