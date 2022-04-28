@@ -263,7 +263,10 @@ public class QueryExpressionWithVarTypeTest {
         return new Object[]{
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause",
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause",
-                "testUsingAnIntersectionTypeInQueryExpr"
+                "testUsingAnIntersectionTypeInQueryExpr",
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInFromClause2",
+                "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInJoinClause2",
+                "testUsingAnIntersectionTypeInQueryExpr2"
         };
     }
 

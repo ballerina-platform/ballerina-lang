@@ -475,3 +475,18 @@ function testInvalidTypeInSelectWithQueryConstructingTable2() {
              where user.age > 21 && user.age < 60
              select {user};
 }
+
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+type ScoreEventType ScoreEvent;
+
+function testInvalidTypeInFromClause() {
+    ScoreEventType[] events = [];
+
+    _ = from int ev in events
+        select ev;
+}
