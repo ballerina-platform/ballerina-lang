@@ -58,7 +58,7 @@ public interface SourceModifierContext {
      * @param textDocument modified {@code TextDocument} that contains the source code
      * @param documentId   indicates the test document which should be modified
      */
-    void modifyTestFile(TextDocument textDocument, DocumentId documentId);
+    void modifyTestSourceFile(TextDocument textDocument, DocumentId documentId);
 
     /**
      * Reports a diagnostic against the compilation.
