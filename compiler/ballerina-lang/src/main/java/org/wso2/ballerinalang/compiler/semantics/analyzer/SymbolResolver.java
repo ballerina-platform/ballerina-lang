@@ -516,14 +516,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
-        AnalyzerData data = new AnalyzerData();
-        data.env = env;
+        AnalyzerData data = new AnalyzerData(env);
         return resolveTypeNode(typeNode, data, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
-        AnalyzerData data = new AnalyzerData();
-        data.env = env;
+        AnalyzerData data = new AnalyzerData(env);
         return resolveTypeNode(typeNode, data, env, diagCode);
     }
 
@@ -2574,5 +2572,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public static class AnalyzerData {
         SymbolEnv env;
         DiagnosticCode diagCode;
+
+        public AnalyzerData(SymbolEnv env) {
+            this.env = env;
+        }
     }
 }
