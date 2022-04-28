@@ -47,6 +47,11 @@ public class ShellFileSourceResponse {
         return filePath;
     }
 
+    /**
+     * Get content from the file.
+     *
+     * @return content of file
+     */
     public String getContent() {
         return content;
     }
