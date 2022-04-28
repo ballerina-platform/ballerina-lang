@@ -42,7 +42,6 @@ import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -64,20 +63,29 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class FromJsonWithType {
 
+    private FromJsonWithType() {
+    }
+
     public static Object fromJsonWithType(Object v, BTypedesc t) {
         Type describingType = t.getDescribingType();
+        return convert(v, describingType, t);
+    }
+
+    public static Object convert(Object value, Type targetType) {
+        return convert(value, targetType, null);
+    }
+
+    public static Object convert(Object value, Type targetType, BTypedesc t) {
         try {
-            return convert(v, describingType, new ArrayList<>(), t);
+            return convert(value, targetType, new ArrayList<>(), t);
         } catch (BError e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                               StringUtils.fromString(e.getDetail()));
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 
-    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  BTypedesc t) {
+    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues, BTypedesc t) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (value == null) {
@@ -165,10 +173,8 @@ public class FromJsonWithType {
                 for (Field field : recordType.getFields().values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
-                Strand strand = Scheduler.getStrandNoException();
-                if (t != null && t.getDescribingType() == targetType && strand != null) {
-                    return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType,
-                            targetTypeField, strand);
+                if (t != null && t.getDescribingType() == targetType) {
+                    return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType, targetTypeField);
                 } else {
                     return convertToRecord(map, unresolvedValues, t, recordType, restFieldType,
                                            targetTypeField);
@@ -198,7 +204,7 @@ public class FromJsonWithType {
 
     private static BMap<?, ?> convertToRecordWithTypeDesc(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
                                                           BTypedesc t, Type restFieldType,
-                                                          Map<String, Type> targetTypeField, Strand strand) {
+                                                          Map<String, Type> targetTypeField) {
         BMapInitialValueEntry[] initialValues = new BMapInitialValueEntry[map.entrySet().size()];
         int count = 0;
         for (Map.Entry<?, ?> entry : map.entrySet()) {
@@ -207,7 +213,7 @@ public class FromJsonWithType {
                                                                     newValue);
             count++;
         }
-        return (BMap<?, ?>) t.instantiate(strand, initialValues);
+        return (BMap<?, ?>) t.instantiate(Scheduler.getStrand(), initialValues);
     }
 
     private static Object convertRecordEntry(List<TypeValuePair> unresolvedValues, BTypedesc t,
