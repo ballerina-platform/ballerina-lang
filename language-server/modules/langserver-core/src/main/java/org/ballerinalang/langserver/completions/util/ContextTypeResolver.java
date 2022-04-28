@@ -79,6 +79,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -210,6 +211,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
         TypeSymbol typeDescriptor = ((TypeDefinitionSymbol) symbol).typeDescriptor();
         return Optional.of(typeDescriptor);
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(WaitActionNode waitActionNode) {
+        return super.transform(waitActionNode);
     }
 
     @Override
