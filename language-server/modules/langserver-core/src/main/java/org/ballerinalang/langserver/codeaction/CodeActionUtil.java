@@ -51,6 +51,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
@@ -73,6 +74,7 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -912,4 +914,31 @@ public class CodeActionUtil {
         };
         return filterFunction;
     }
+    
+    public static Optional<Pair<Symbol, Path>> getSymbolAndPath(Diagnostic diagnostic, String diagnosticCode,
+                                                                                             CodeActionContext context) {
+       
+        if (!diagnosticCode.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
+                || context.currentSemanticModel().isEmpty()) {
+            return Optional.empty();
+        }
+        Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
+        NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
+        Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(nonTerminalNode);
+        if (symbol.isEmpty() || symbol.get().getModule().isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        Optional<Path> filePath = CommonUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
+        if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new ImmutablePair<>(symbol.get(), filePath.get()));
+    }
+    
 }
