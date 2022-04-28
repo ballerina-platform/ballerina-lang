@@ -85,8 +85,7 @@ public class TestRunnerUtils {
     private static int absLineNum;
     public static String diagnostics = null;
 
-    public static void readTestFile(String fileName, String path, List<Object[]> testCases, Set<String> labels)
-                                                                                                    throws IOException {
+    public static void readTestFile(String fileName, String path, List<Object[]> testCases) throws IOException {
         String subPath = path.split("/conformance/")[1];
         subPath = subPath.substring(0, subPath.lastIndexOf("/") + 1);
 
@@ -96,11 +95,11 @@ public class TestRunnerUtils {
         if (!tempFile.isDirectory() && !new File(tempDir).mkdirs()) {
             reportDiagnostics("Failed to create directory!");
         }
-        readTestFile(testFile, tempDir, fileName, testCases, labels);
+        readTestFile(testFile, tempDir, fileName, testCases);
     }
 
-    private static void readTestFile(File testFile, String tempDir, String fileName, List<Object[]>  testCases,
-                                     Set<String> selectedLabels) throws IOException {
+    private static void readTestFile(File testFile, String tempDir, String fileName, List<Object[]>  testCases)
+            throws IOException {
         BufferedReader buffReader = new BufferedReader(new FileReader(testFile));
         //line number relative to .balt file
         absLineNum = 1;

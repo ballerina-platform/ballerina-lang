@@ -28,7 +28,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,7 +55,7 @@ public class TestRunner {
     private final Path path = TEST_DIR.resolve("src").resolve("test").resolve("resources")
                                      .resolve("ballerina-spec-tests").resolve("conformance");
     private static final Set<String> predefinedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString()).keySet();
-    private static final HashSet<String> skippedTestLabels = new HashSet<>(Arrays.asList("transactional-expr"));
+    private static final HashSet<String> skippedTestLabels = getSkippedTestLabels();
 
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
@@ -77,6 +76,13 @@ public class TestRunner {
     @AfterClass
     public void generateReports(ITestContext context) throws IOException {
         generateReport();
+    }
+
+    private static HashSet<String> getSkippedTestLabels() {
+        HashSet<String> hashSet = new HashSet<>();
+        hashSet.add("transactional-expr"); // issue #35939
+        // New entries go here.
+        return hashSet;
     }
 
     private HashSet<String> runSelectedTests(HashMap<String, HashSet<String>> definedLabels) {
@@ -104,8 +110,7 @@ public class TestRunner {
                     .map(path -> new Object[]{path.toFile().getName(), path.toString()})
                     .forEach(object -> {
                         try {
-                            TestRunnerUtils.readTestFile((String) object[0], (String) object[1], testCases,
-                                    predefinedLabels);
+                            TestRunnerUtils.readTestFile((String) object[0], (String) object[1], testCases);
                         } catch (IOException e) {
                             Assert.fail("failed to read spec conformance test: \"" + object[0] + "\"", e);
                         }
