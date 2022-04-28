@@ -2545,9 +2545,15 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
         for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
-            BSymbol symbol = entry.symbol.tag == SymTag.TYPE_DEF ? entry.symbol.type.tsymbol : entry.symbol;
-            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
-                configVars.add((BVarSymbol) symbol);
+            BSymbol symbol = entry.symbol;
+            if (symbol != null) {
+                if (symbol.tag == SymTag.TYPE_DEF) {
+                    symbol = symbol.type.tsymbol;
+                }
+                if (symbol != null && symbol.tag == SymTag.VARIABLE
+                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                    configVars.add((BVarSymbol) symbol);
+                }
             }
         }
     }
