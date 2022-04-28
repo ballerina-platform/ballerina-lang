@@ -352,7 +352,7 @@ public class JsonUtils {
                         return jsonNodeToInt(jsonValue);
                     } else {
                         matchingTypes.addAll(TypeConverter.getConvertibleTypes(jsonValue, memType, null,
-                                true, new ArrayList<>(), new ArrayList<>(), false));
+                                true, new ArrayList<>(), new ArrayList<>(), false, new ArrayList<>(), targetType));
                     }
                 }
                 if (((matchingTypes.size() > 1) && !matchingTypes.contains(inputValueType) &&
