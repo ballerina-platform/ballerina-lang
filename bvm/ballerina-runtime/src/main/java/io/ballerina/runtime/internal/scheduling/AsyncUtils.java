@@ -154,7 +154,13 @@ public class AsyncUtils {
                 handleRuntimeErrors(error);
             }
         };
-        invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
+
+        try {
+            invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
+        } catch (BError error) {
+            strand.panic = error;
+            strand.scheduler.unblockStrand(strand);
+        }
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
