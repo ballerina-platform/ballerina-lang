@@ -147,6 +147,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             new CompilerContext.Key<>();
 
     private final SymbolTable symTable;
+    private final SemanticAnalyzer semanticAnalyzer;
     private final Names names;
     private final BLangDiagnosticLog dlog;
     private final Types types;
@@ -169,6 +170,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         context.put(SYMBOL_RESOLVER_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.types = Types.getInstance(context);
@@ -1405,6 +1407,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 finiteTypeNode.pos, SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+
+        // In case finiteTypeNode has unary expressions in the value space, we need to
+        // convert them into numeric literals first.
+        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
+
         for (BLangExpression expression : finiteTypeNode.valueSpace) {
             finiteType.addValue(expression);
         }

@@ -61,7 +61,7 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'boolean'", 37, 22);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[A, B, C]'", 40, 15);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[E, F]'", 45, 17);
-        BAssertUtil.validateError(compileResult1, i++, "'9223372036854775808' is out of range", 47, 21);
+        BAssertUtil.validateError(compileResult1, i++, "'9223372036854775808' is out of range for 'Integer'", 47, 21);
         Assert.assertEquals(compileResult1.getErrorCount(), i);
     }
 
