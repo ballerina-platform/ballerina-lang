@@ -156,13 +156,15 @@ public class AddOperationTest {
                 "testAdditionWithTypes",
                 "testAddSingleton",
                 "testStringCharAddition",
-                "testStringXmlSubtypesAddition"
+                "testStringXmlSubtypesAddition",
+                "testStringSubtypesAddition",
+                "testXmlSubtypesAddition"
         };
     }
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 15);
+        Assert.assertEquals(resultNegative.getErrorCount(), 17);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '+' not defined for 'int' and 'string'", 14, 9);
         BAssertUtil.validateError(resultNegative, 2, "operator '+' not defined for 'C' and 'string'", 28, 14);
@@ -178,5 +180,7 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, 12, "operator '+' not defined for 'int' and 'float'", 60, 18);
         BAssertUtil.validateError(resultNegative, 13, "operator '+' not defined for 'C' and 'float'", 64, 14);
         BAssertUtil.validateError(resultNegative, 14, "operator '+' not defined for 'C' and 'float'", 65, 14);
+        BAssertUtil.validateError(resultNegative, 15, "incompatible types: expected 'string', found 'xml'", 72, 16);
+        BAssertUtil.validateError(resultNegative, 16, "incompatible types: expected 'FO', found 'string'", 73, 12);
     }
 }

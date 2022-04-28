@@ -610,7 +610,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         loadType(mv, bType.constraint);
-        if (bType.fieldNameList != null) {
+        if (!bType.fieldNameList.isEmpty()) {
             // Create the field names array
             List<String> fieldNames = bType.fieldNameList;
             mv.visitLdcInsn((long) fieldNames.size());
@@ -832,7 +832,7 @@ public class JvmTypeGen {
         //class symbols
         String fieldName = defName.isEmpty() ? getTypeFieldName(toNameString(typeToLoad)) : defName;
 
-        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, packageID);
+        boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
         if (!samePackage && (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)

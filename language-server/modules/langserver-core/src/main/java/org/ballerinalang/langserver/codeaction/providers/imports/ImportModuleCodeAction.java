@@ -19,7 +19,6 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.Package;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
@@ -27,7 +26,6 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CodeAction;
@@ -65,9 +63,8 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         String diagnosticMessage = diagnostic.message();
         String packageAlias = diagnosticMessage.substring(diagnosticMessage.indexOf("'") + 1,
                 diagnosticMessage.lastIndexOf("'"));
-        LanguageServerContext serverContext = context.languageServercontext();
-        List<Package> packagesList =
-                new ArrayList<>(LSPackageLoader.getInstance(serverContext).getDistributionRepoPackages());
+        List<LSPackageLoader.PackageInfo> packagesList = LSPackageLoader
+                .getInstance(context.languageServercontext()).getAllVisiblePackages(context);
 
         packagesList.stream()
                 .filter(pkgEntry -> {

@@ -261,6 +261,13 @@ function testToStringMethod() {
     assertEquality("error FirstError (\"Reason1\",message=\"Test passing error union to a function\")",
                                                                                                     err2.toString());
     assertEquality("error(\"second error\",error(\"first error\",detail=Infinity))", err4.toString());
+    assertEquality("function isolated function ((boolean|float),int?,(lang.int:Signed16|lang.string:Char)...) " +
+    "returns (string?)", dummyFunc.toString());
+    assertEquality("function isolated function () returns (())", testFromJsonStringNegative.toString());
+}
+
+function dummyFunc(boolean|float firstarg, int? secondarg = 0, (int:Signed16|string:Char)... thirdarg) returns string? {
+    return "val";
 }
 
 /////////////////////////// Tests for `mergeJson()` ///////////////////////////

@@ -489,6 +489,16 @@ public class LangLibArrayTest {
                 246, 19);
         BAssertUtil.validateError(negativeResult, errorIndex++, "operator '>' not defined for 'string' and 'int'",
                 251, 26);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                        "'[string,T][]' is not an ordered type", 258, 31);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                        "'[string,T][]' is not an ordered type", 259, 28);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid sort key function return type: " +
+                        "'[string,T]' is not an ordered type", 261, 69);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid sort key function return type: " +
+                        "'[string,T]' is not an ordered type", 264, 32);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                "'[string,T][]' is not an ordered type", 268, 28);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -575,7 +585,10 @@ public class LangLibArrayTest {
                 "testEvery7",
                 "testEvery8",
                 "testEvery9",
-                "testModificationWithinEvery"
+                "testModificationWithinEvery",
+                "testArrSortWithNamedArgs1",
+                "testArrSortWithNamedArgs2",
+                "testArrSortWithNamedArgs3"
         };
     }
 }

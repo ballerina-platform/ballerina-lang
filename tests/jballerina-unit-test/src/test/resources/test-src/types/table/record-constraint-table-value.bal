@@ -698,6 +698,68 @@ function testTableTypeInferenceWithVarType11() {
     assertEquality("[{\"a\":2},{\"a\":2}]", v1.toString());
 }
 
+type CustomerEmptyKeyedTbl table<Customer> key();
+
+function testAssignabilityWithEmptyKeyedKeylessTbl() {
+    table<Customer> key() tbl1 = table key(id) [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    assertEquality(2, tbl1.length());
+
+    CustomerTableWithKS tbl2 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    CustomerEmptyKeyedTbl tbl3 = tbl2;
+    assertTrue(tbl1 == tbl2);
+    assertTrue(tbl1 == tbl3);
+
+    table<Customer> key<int> tbl4 = table key(id) [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    tbl3 = tbl4;
+    assertTrue(tbl1 == tbl4);
+    assertTrue(tbl1 == tbl3);
+    assertTrue(tbl2 == tbl3);
+
+    table<Customer> key(id, name) tbl5 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+    tbl1 = tbl5;
+    assertTrue(tbl1 == tbl4);
+    assertTrue(tbl1 == tbl3);
+    assertTrue(tbl2 == tbl3);
+}
+
+function testEqualityWithEmptyKeyedKeylessTbl() {
+    table<Customer> key() tbl1 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+
+    CustomerEmptyKeyedTbl tbl2 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+
+    CustomerTableWithKS tbl3 = table [
+            {id: 13, name: "Ryan", lname: "Reynolds"},
+            {id: 23, name: "Robert", lname: "Downey"}
+        ];
+
+    assertTrue(tbl1 == tbl2);
+    assertFalse(tbl2 == tbl3);
+
+    tbl2 = tbl3;
+    assertTrue(tbl2 == tbl3);
+
+    tbl1 = tbl3;
+    assertTrue(tbl1 == tbl3);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
