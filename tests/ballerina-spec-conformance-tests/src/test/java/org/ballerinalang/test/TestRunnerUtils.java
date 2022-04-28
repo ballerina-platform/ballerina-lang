@@ -122,7 +122,7 @@ public class TestRunnerUtils {
             testCase[6] = isSkippedTestCase;
             testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
             testCase[9] = headersOfTestCase.get(LABELS);
-            testCase[10] = Arrays.asList("transactional-expr");
+            testCase[10] = new HashSet<>(Arrays.asList("transactional-expr"));
 
             line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
         }
@@ -200,7 +200,7 @@ public class TestRunnerUtils {
     }
 
     public static void validateLabels(String labels, Set<String> predefinedLabels, int absLineNum,
-                                      List<String> skippedTestLabels) {
+                                      HashSet<String> skippedTestLabels) {
         HashSet<String> labelsList = new HashSet<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");

@@ -59,7 +59,7 @@ public class TestRunner {
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
                      int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context,
-                     boolean isKnownIssue, String labels, List<String> skippedTestLabels) {
+                     boolean isKnownIssue, String labels, HashSet<String> skippedTestLabels) {
         setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
         handleTestSkip(isSkippedTest);
         validateTestFormat(diagnostics);
