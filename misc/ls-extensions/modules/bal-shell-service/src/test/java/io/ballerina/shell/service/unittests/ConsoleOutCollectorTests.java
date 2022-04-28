@@ -34,6 +34,7 @@ import java.io.PrintStream;
 public class ConsoleOutCollectorTests {
     private PrintStream original;
     private ConsoleOutCollector consoleOutCollector;
+
     @BeforeClass
     public void setUp() {
         this.original = System.out;
