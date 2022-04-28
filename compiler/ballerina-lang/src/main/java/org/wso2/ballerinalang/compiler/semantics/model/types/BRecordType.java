@@ -109,6 +109,11 @@ public class BRecordType extends BStructureType implements RecordType {
     }
 
     @Override
+    public void unsetImmutableType() {
+        this.immutableType = null;
+    }
+
+    @Override
     public Optional<BIntersectionType> getIntersectionType() {
         return Optional.ofNullable(this.intersectionType);
     }
