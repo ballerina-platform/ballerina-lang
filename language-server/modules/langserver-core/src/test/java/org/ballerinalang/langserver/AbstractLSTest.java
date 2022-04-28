@@ -83,7 +83,7 @@ public abstract class AbstractLSTest {
     }
 
     public void setUp() {
-        this.lsPackageLoader = Mockito.mock(LSPackageLoader.class);
+        this.lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
         Mockito.when(lsPackageLoader.getRemoteRepoPackages(Mockito.any())).thenReturn(REMOTE_PACKAGES);
         Mockito.when(lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(LOCAL_PACKAGES);
