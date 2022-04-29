@@ -1001,7 +1001,7 @@ public class TypeChecker {
             return false;
         }
 
-        if (targetType.getKeyType() == null && targetType.getFieldNames() == null) {
+        if (targetType.getKeyType() == null && targetType.getFieldNames().length == 0) {
             return true;
         }
 
@@ -1011,7 +1011,7 @@ public class TypeChecker {
                 return true;
             }
 
-            if (srcTableType.getFieldNames() == null) {
+            if (srcTableType.getFieldNames().length == 0) {
                 return false;
             }
 
@@ -2690,7 +2690,7 @@ public class TypeChecker {
         }
         TableValueImpl tableValue = (TableValueImpl) sourceValue;
         BTableType sourceType = (BTableType) tableValue.getType();
-        if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
+        if (targetType.getKeyType() != null && sourceType.getFieldNames().length == 0) {
             return false;
         }
 
@@ -2988,10 +2988,8 @@ public class TypeChecker {
             return false;
         }
 
-        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames() != null &&
-                ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
-        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames() != null &&
-                ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
+        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
+        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
 
         Object[] lhsTableValues = lhsTable.values().toArray();
         Object[] rhsTableValues = rhsTable.values().toArray();

@@ -158,8 +158,18 @@ public class ErrorCreator {
     public static BError createError(Module module, String errorTypeName,
                                      BString message, BError cause, BMap<BString, Object> details) {
         details = RuntimeUtils.validateErrorDetails(details);
-        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module));
-        return valueCreator.createErrorValue(errorTypeName, message, cause, details);
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
+        try {
+            return valueCreator.createErrorValue(errorTypeName, message, cause, details);
+        } catch (BError e) {
+            // If error type definition not found, get it from test module.
+            String testLookupKey = ValueCreator.getLookupKey(module, true);
+            if (ValueCreator.containsValueCreator(testLookupKey)) {
+                return ValueCreator.getValueCreator(testLookupKey).createErrorValue(errorTypeName, message,
+                        cause, details);
+            }
+            throw e;
+        }
     }
 
     /**

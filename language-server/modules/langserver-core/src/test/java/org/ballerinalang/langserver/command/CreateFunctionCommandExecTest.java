@@ -139,6 +139,9 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_which_returns_error1.json", "create_function_which_returns_error1.bal"},
                 {"create_function_in_fail1.json", "create_function_in_fail1.bal"},
                 {"create_function_in_return1.json", "create_function_in_return1.bal"},
+                
+                // Named Args
+                {"create_function_with_named_args1.json", "create_function_with_named_args1.bal"},
         };
     }
 

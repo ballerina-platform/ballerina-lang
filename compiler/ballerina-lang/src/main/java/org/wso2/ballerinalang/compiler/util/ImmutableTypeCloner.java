@@ -403,7 +403,7 @@ public class ImmutableTypeCloner {
         List<BType> origTupleMemTypes = type.tupleTypes;
 
         BIntersectionType immutableType = type.immutableType;
-        if (unresolvedTypes.contains(type) && immutableType != null &&
+        if (immutableType != null &&
                 isDefinedInCurrentModuleInCurrentCompilation(env, type, immutableType, unresolvedTypes)) {
             return type.immutableType;
         } else {
@@ -815,7 +815,10 @@ public class ImmutableTypeCloner {
             return true;
         }
 
-        if (!immutableType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
+        PackageID currentPkg = env.enclPkg.packageID;
+        PackageID immutableSymbolPkg = immutableType.tsymbol.pkgID;
+
+        if (!immutableSymbolPkg.equals(currentPkg)) {
             return false;
         }
 
@@ -823,11 +826,15 @@ public class ImmutableTypeCloner {
             return true;
         }
 
+        if (!immutableSymbolPkg.isTestPkg && currentPkg.isTestPkg) {
+            return true;
+        }
+
         // When sources are recompiled even though there may be an immutable type defined in the current module there
         // may not be a corresponding type definition. So we check by type definition if the type corresponds to a
         // type definition defined in the current compilation.
         BType effectiveType = immutableType.effectiveType;
-        int tag = effectiveType.tag;
+        int tag = Types.getReferredType(effectiveType).tag;
 
         if (tag != TypeTags.TUPLE && tag != TypeTags.UNION && tag != TypeTags.RECORD && tag != TypeTags.OBJECT) {
             return true;

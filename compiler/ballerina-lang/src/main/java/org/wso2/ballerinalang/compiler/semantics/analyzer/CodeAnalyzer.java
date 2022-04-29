@@ -243,6 +243,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
@@ -264,6 +265,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -427,12 +429,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangFunction funcNode, AnalyzerData data) {
+        validateParams(funcNode, data);
+        analyzeNode(funcNode.returnTypeNode, data);
+
         boolean isLambda = funcNode.flagSet.contains(Flag.LAMBDA);
         if (isLambda) {
             return;
         }
-
-        validateParams(funcNode, data);
 
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
@@ -2334,6 +2337,35 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data));
     }
 
+    private boolean isValidInferredArray(BLangNode node) {
+        switch (node.getKind()) {
+            case INTERSECTION_TYPE_NODE:
+            case UNION_TYPE_NODE:
+                return isValidInferredArray(node.parent);
+            case VARIABLE:
+                BLangSimpleVariable varNode = (BLangSimpleVariable) node;
+                BLangExpression expr = varNode.expr;
+                return expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
+                        isValidContextForInferredArray(node.parent);
+            default:
+                return false;
+        }
+    }
+
+    private boolean isValidContextForInferredArray(BLangNode node) {
+        switch (node.getKind()) {
+            case PACKAGE:
+            case EXPR_FUNCTION_BODY:
+            case BLOCK_FUNCTION_BODY:
+            case BLOCK:
+                return true;
+            case VARIABLE_DEF:
+                return isValidContextForInferredArray(node.parent);
+            default:
+                return false;
+        }
+    }
+
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable, AnalyzerData data) {
 
@@ -3482,6 +3514,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangLambdaFunction bLangLambdaFunction, AnalyzerData data) {
         boolean isWorker = false;
 
+        analyzeNode(bLangLambdaFunction.function, data);
+
         if (bLangLambdaFunction.function.flagSet.contains(Flag.TRANSACTIONAL) &&
                 bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !data.withinTransactionScope) {
             dlog.error(bLangLambdaFunction.pos, DiagnosticErrorCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
@@ -3573,8 +3607,33 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangArrayType arrayType, AnalyzerData data) {
+        if (containsInferredArraySizesOfHigherDimensions(arrayType.sizes)) {
+            dlog.error(arrayType.pos, DiagnosticErrorCode.INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION);
+        } else if (isSizeInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent)) {
+            dlog.error(arrayType.pos, DiagnosticErrorCode.CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT);
+        }
 
         analyzeTypeNode(arrayType.elemtype, data);
+    }
+
+    private boolean isSizeInferredArray(List<BLangExpression> indexSizes) {
+        return !indexSizes.isEmpty() && isInferredArrayIndicator(indexSizes.get(indexSizes.size() - 1));
+    }
+
+    private boolean isInferredArrayIndicator(BLangExpression size) {
+        return size.getKind() == LITERAL && ((BLangLiteral) size).value.equals(Constants.INFERRED_ARRAY_INDICATOR);
+    }
+
+    private boolean containsInferredArraySizesOfHigherDimensions(List<BLangExpression> sizes) {
+        if (sizes.size() < 2) {
+            return false;
+        }
+        for (int i = 0; i < sizes.size() - 1; i++) {
+            if (isInferredArrayIndicator(sizes.get(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

@@ -73,7 +73,9 @@ public interface ExtendedLanguageServerService extends JsonRpcMethodProvider {
      * Callback when client connected.
      *
      * @param client {@link ExtendedLanguageClient}
+     * @deprecated use {@link LanguageServerContext} to obtain the {@link ExtendedLanguageClient} instead.
      */
+    @Deprecated(forRemoval = true)
     default void connect(ExtendedLanguageClient client) {
     }
 

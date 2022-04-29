@@ -53,6 +53,7 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
@@ -173,6 +174,11 @@ public class InitMethodGen {
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.orgName.getValue()));
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.name.getValue()));
         mv.visitLdcInsn(getMajorVersion(module.packageID.version.getValue()));
+        if (module.packageID.isTestPkg) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, VALUE_CREATOR, "addValueCreator", ADD_VALUE_CREATOR, false);
 

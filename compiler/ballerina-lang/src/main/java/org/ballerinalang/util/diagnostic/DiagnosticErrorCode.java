@@ -351,7 +351,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CLOSED_ARRAY_TYPE_NOT_INITIALIZED("BCE2592", "closed.array.type.not.initialized"),
     INVALID_LIST_MEMBER_ACCESS_EXPR("BCE2593", "invalid.list.member.access.expr"),
     INVALID_ARRAY_MEMBER_ACCESS_EXPR("BCE2594", "invalid.array.member.access.expr"),
-    CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("BCE2595", "closed.array.type.can.not.infer.size"),
+    CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT("BCE2595",
+            "length.of.the.array.cannot.be.inferred.from.the.context"),
     INVALID_SORT_FUNC_RETURN_TYPE("BCE2596", "invalid.key.func.return.type"),
     INVALID_SORT_ARRAY_MEMBER_TYPE("BCE2597", "invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only
@@ -421,6 +422,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
             "invalid.field.binding.pattern.with.non.required.field"),
+    INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -492,6 +494,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MISSING_REQUIRED_METHOD_NEXT("BCE3206", "missing.required.method.next"),
     ORDER_BY_NOT_SUPPORTED("BCE3207", "order.by.not.supported"),
     INVALID_NEXT_METHOD_RETURN_TYPE("BCE3208", "invalid.next.method.return.type"),
+    INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR("BCE3209", "invalid.unbounded.stream.constructor.iterator"),
 
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("BCE3300", "invalid.table.constraint.subtype"),

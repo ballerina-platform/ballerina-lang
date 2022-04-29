@@ -171,7 +171,7 @@ class TypeEmitter {
 
         StringBuilder keyStringBuilder = new StringBuilder();
         String stringRep;
-        if (bType.fieldNameList != null) {
+        if (!bType.fieldNameList.isEmpty()) {
             for (String fieldName : bType.fieldNameList) {
                 if (!keyStringBuilder.toString().equals("")) {
                     keyStringBuilder.append(", ");
