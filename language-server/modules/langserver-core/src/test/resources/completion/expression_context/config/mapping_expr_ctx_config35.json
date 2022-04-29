@@ -38,6 +38,15 @@
       "filterText": "fill",
       "insertText": "f1: ${1:0}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...f",
+      "kind": "Variable",
+      "detail": "Foo",
+      "sortText": "AB",
+      "filterText": "f",
+      "insertText": "...f",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

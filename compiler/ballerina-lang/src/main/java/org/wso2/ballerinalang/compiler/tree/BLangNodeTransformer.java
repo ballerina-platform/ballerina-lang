@@ -553,6 +553,10 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
+    public R transform(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr node, T data) {
+        return transformNode(node, data);
+    }
+
     public R transform(BLangLiteral node, T data) {
         return transformNode(node, data);
     }

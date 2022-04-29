@@ -426,6 +426,7 @@ function returnString() returns string {
        do {
          return "Dummy string";
        };
+    return "Should not reach here";
 }
 
 function returnStringOrError() returns string|error {
@@ -467,6 +468,22 @@ function testReachabilityWithQueryAction() returns string {
 
 function assertTrue (any|error actual) {
     return assertEquality(true, actual);
+}
+
+function testQueryExpWithinQueryAction() returns error? {
+    int[][] data = [[1, 2], [2, 3, 4]];
+    int sumOfEven = 0;
+    check from int[] arr in data
+        do {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            check from int i in evenNumbers
+                do {
+                    sumOfEven += i;
+                };
+        };
+    assertEquality(8, sumOfEven);
 }
 
 function assertEquality(any|error expected, any|error actual) {

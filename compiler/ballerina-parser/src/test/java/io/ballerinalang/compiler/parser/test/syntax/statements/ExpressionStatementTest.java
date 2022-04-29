@@ -32,4 +32,9 @@ public class ExpressionStatementTest extends AbstractStatementTest {
     public void testExpressionStmtForByteArrayLiteral() {
         testFile("expression-stmt/expression_stmt_source_01.bal", "expression-stmt/expression_stmt_assert_01.json");
     }
+
+    @Test
+    public void testExpressionStmtForListConstructor() {
+        testFile("expression-stmt/expression_stmt_source_02.bal", "expression-stmt/expression_stmt_assert_02.json");
+    }
 }

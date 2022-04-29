@@ -404,10 +404,9 @@ function testEmptyStreamConstructs() returns boolean {
     testPassed = testPassed && (emptyStream7.next() === ());
     testPassed = testPassed && (emptyStream8.next() === ());
 
-    //todo will revisit during unbounded stream implementation
-    //testPassed = testPassed && (emptyStream4.next() === ());
-    //testPassed = testPassed && (emptyStream6.next() === ());
-    //testPassed = testPassed && (emptyStream9.next() === ());
+    testPassed = testPassed && (emptyStream4.next() === ());
+    testPassed = testPassed && (emptyStream6.next() === ());
+    testPassed = testPassed && (emptyStream9.next() === ());
 
     // test the assignability of stream<int> and stream<int, ())>
     emptyStream1 = emptyStream5;
@@ -450,4 +449,84 @@ function testInvalidCast() {
     Foo[] fooArr = [{v: "foo1"}, {v: "foo2"}];
     stream<Foo, error?> fooStream = fooArr.toStream();
     stream<Foo, error> barStream = <stream<Foo, error>>fooStream;
+}
+
+class UnboundedNumberGenerator {
+    int i = 0;
+    public isolated function next() returns ResultValue|error {
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+class UnboundedNumberGeneratorReturningErr {
+    int i = 0;
+    public isolated function next() returns ResultValue|error {
+        self.i += 1;
+        if self.i < 5 {
+            return {value: self.i};
+        } else {
+            return error("Stream ended");
+        }
+
+    }
+}
+
+function testUnboundedStreams() {
+    UnboundedNumberGenerator numStreamGen = new ();
+    stream<int, error> stream1 = new stream<int, error>(numStreamGen);
+    int index1 = 0;
+    int count1 = 0;
+    while index1 < 5 {
+        index1 = index1 + 1;
+        ResultValue|error res = stream1.next();
+        if res is ResultValue {
+            count1 = res.value;
+        } else {
+            count1 = -1;
+        }
+    }
+    assert(count1, 5);
+
+    stream<int, error> stream2 = new (numStreamGen);
+    int index2 = 0;
+    int count2 = 0;
+    while index2 < 3 {
+        index2 = index2 + 1;
+        ResultValue|error res = stream2.next();
+        if res is ResultValue {
+            count2 = res.value;
+        } else {
+            count2 = -1;
+        }
+    }
+    assert(count2, 8);
+
+    UnboundedNumberGeneratorReturningErr numStreamGenWithErr = new ();
+    stream<int, error> stream3 = new (numStreamGenWithErr);
+    int index3 = 0;
+    int count3 = 0;
+    while index3 < 10 && count3 != -1 {
+        index3 = index3 + 1;
+        ResultValue|error res = stream3.next();
+        if res is ResultValue {
+            count3 = res.value;
+        } else {
+            assert(res.message(), "Stream ended");
+            count3 = -1;
+        }
+    }
+    assert(count3, -1);
+
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected == actual) {
+        return;
+    }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(reason);
 }

@@ -138,11 +138,11 @@ function testBroadTypeAsCET() {
     assertTrue(arr[0] is string);
     assertValueEquality("foo", <string> arr[0]);
 
-    assertTrue(arr[1] is any[]);
+    assertTrue(arr[1] is (any|error)[]);
 
-    any[] anyArr = <any[]> arr[1];
+    (any|error)[] anyArr = <(any|error)[]> arr[1];
 
-    any val = anyArr[0];
+    any|error val = anyArr[0];
     assertTrue(val is int && val == 1);
 
     val = anyArr[1];
@@ -151,9 +151,9 @@ function testBroadTypeAsCET() {
     val = anyArr[2];
     assertTrue(val is float && val == 2.0);
 
-    assertTrue(arr[2] is map<any>);
+    assertTrue(arr[2] is map<any|error>);
 
-    map<any> anyMap = <map<any>> arr[2];
+    map<any|error> anyMap = <map<any|error>> arr[2];
 
     val = anyMap["a"];
     assertTrue(val is string && val == "abc");

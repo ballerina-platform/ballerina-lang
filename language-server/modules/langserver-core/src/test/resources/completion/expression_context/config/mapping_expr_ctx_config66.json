@@ -30,6 +30,15 @@
       "filterText": "fill",
       "insertText": "personTable: table [${1:}]",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...t",
+      "kind": "Variable",
+      "detail": "TableRec",
+      "sortText": "AB",
+      "filterText": "t",
+      "insertText": "...t",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -77,23 +77,29 @@ public class BlendedManifest {
                     depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME) ?
                     Repository.LOCAL : Repository.NOT_SPECIFIED;
 
-            if (!depInPkgManifestRepo.equals(Repository.LOCAL)) {
-                // Repository is mandatory.
-                // A diagnostic is issued already in ManifestBuilder for the missing repository.
-                // So we just continue here
-                continue;
-            }
-            if (!localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
-                                                       depInPkgManifest.version())) {
-                var diagnosticInfo = new DiagnosticInfo(
-                        ProjectDiagnosticErrorCode.PACKAGE_NOT_FOUND.diagnosticId(),
-                        "Dependency version (" + depInPkgManifest.version() +
-                                ") cannot be found in the local repository. " +
-                                "org: `" + depInPkgManifest.org() + "` name: " + depInPkgManifest.name() + "",
-                        DiagnosticSeverity.WARNING);
-                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
-                        diagnosticInfo, depInPkgManifest.location().orElseThrow());
-                diagnostics.add(diagnostic);
+            if (depInPkgManifest.repository() != null) {
+                if (!depInPkgManifest.repository().equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                    continue;
+                }
+                if (!localPackageRepository.isPackageExists(depInPkgManifest.org(), depInPkgManifest.name(),
+                        depInPkgManifest.version())) {
+                    var diagnosticInfo = new DiagnosticInfo(
+                            ProjectDiagnosticErrorCode.PACKAGE_NOT_FOUND.diagnosticId(),
+                            "Dependency version (" + depInPkgManifest.version() +
+                                    ") cannot be found in the local repository. " +
+                                    "org: `" + depInPkgManifest.org() + "` name: " + depInPkgManifest.name() + "",
+                            DiagnosticSeverity.WARNING);
+                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                            diagnosticInfo, depInPkgManifest.location().orElseThrow());
+                    diagnostics.add(diagnostic);
+                    continue;
+                }
+            } else {
+                depContainer.add(depInPkgManifest.org(), depInPkgManifest.name(), new Dependency(
+                        depInPkgManifest.org(), depInPkgManifest.name(), depInPkgManifest.version(),
+                        DependencyRelation.UNKNOWN, Repository.NOT_SPECIFIED,
+                        moduleNames(new DependencyManifest.Package(depInPkgManifest.name(), depInPkgManifest.org(),
+                                depInPkgManifest.version())), DependencyOrigin.USER_SPECIFIED));
                 continue;
             }
 

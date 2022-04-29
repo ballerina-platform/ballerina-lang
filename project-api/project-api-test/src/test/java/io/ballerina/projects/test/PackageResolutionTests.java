@@ -17,6 +17,8 @@
  */
 package io.ballerina.projects.test;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.management.UnixOperatingSystemMXBean;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.DependencyGraph;
@@ -45,6 +47,9 @@ import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
+import io.ballerina.projects.internal.bala.PackageJson;
+import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
+import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -59,7 +64,10 @@ import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.nio.file.Files;
@@ -152,15 +160,72 @@ public class PackageResolutionTests extends BaseTest {
                 .resolve(ProjectConstants.BUILD_FILE));
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().errorCount(), 0);
+    }
+
+    @Test(description = "tests validation of invalid build file", dependsOnMethods = "testProjectWithInvalidBuildFile")
+    public void testDependencyGraphWithInvalidBuildFile() {
+        // Package path
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
 
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
-        for (ResolvedPackageDependency graphNode : dependencyGraph.getNodes()) {
-            Collection<ResolvedPackageDependency> directDeps = dependencyGraph.getDirectDependencies(graphNode);
-            PackageManifest manifest = graphNode.packageInstance().manifest();
-            if (manifest.name().value().equals("package_o")) {
-                Assert.assertEquals(manifest.version().toString(), "1.0.2");
-            }
-        }
+        ResolvedPackageDependency packageO =
+                dependencyGraph.getNodes().stream().filter(
+                        node -> node.packageInstance().manifest().name().toString().equals("package_o")
+                ).findFirst().orElseThrow();
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
+    }
+
+    @Test(description = "tests resolution with toml dependency")
+    public void testProjectWithTomlDependency() {
+
+        // Setup
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_1_0");
+
+        // Stage 1 : Package P without dep in Ballerina toml
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_p_withoutDep");
+
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        PackageCompilation compilation = loadProject.currentPackage().getCompilation();
+
+        DependencyGraph<ResolvedPackageDependency> dependencyGraph = compilation.getResolution().dependencyGraph();
+        ResolvedPackageDependency packageO =
+                dependencyGraph.getNodes().stream().filter(
+                        node -> node.packageInstance().manifest().name().toString().equals("package_o")
+                ).findFirst().orElseThrow();
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
+
+        // Stage 2 : Package P with deps
+        projectDirPath = RESOURCE_DIRECTORY.resolve("package_p_withDep");
+        buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        buildOptionsBuilder.setSticky(false);
+        buildOptions = buildOptionsBuilder.build();
+
+        loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
+        compilation = loadProject.currentPackage().getCompilation();
+
+        dependencyGraph = compilation.getResolution().dependencyGraph();
+        packageO = dependencyGraph.getNodes().stream().filter(
+                        node -> node.packageInstance().manifest().name().toString().equals("package_o")
+                ).findFirst().orElseThrow();
+        Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.1.0");
     }
 
     @Test(dependsOnMethods = "testProjectWithInvalidBuildFile", description = "tests project with empty build file")
@@ -468,7 +533,7 @@ public class PackageResolutionTests extends BaseTest {
     }
 
     // TODO: enable after https://github.com/ballerina-platform/ballerina-lang/pull/31972 is merged
-    @Test(description = "Ultimate test case", enabled = false)
+    @Test(description = "Ultimate test case")
     public void testProjectWithManyDependencies() {
         BCompileUtil.compileAndCacheBala(
                 "projects_for_resolution_tests/ultimate_package_resolution/package_runtime");
@@ -685,8 +750,8 @@ public class PackageResolutionTests extends BaseTest {
                 ResolutionOptions.builder().build()).size(), 2);
     }
 
-    @Test(description = "tests resolution for dependency given in Ballerina.toml without repository")
-    public void testPackageResolutionOfDependencyMissingRepository() {
+    @Test(description = "tests resolution for dependency given in Ballerina.toml invalid repository")
+    public void testPackageResolutionOfDependencyInvalidRepository() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_y_having_dependency_missing_repo");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
@@ -701,15 +766,128 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertTrue(diagnosticIterator.next().toString().contains(
                 "WARNING [Ballerina.toml:(11:1,15:19)] Dependency version (1.2.3) cannot be found in the " +
                         "local repository. org: `ccc` name: ddd"));
-        // Check dependency repository is not given diagnostic
-        Assert.assertTrue(diagnosticIterator.next().toString().contains(
-                "ERROR [Ballerina.toml:(6:1,9:18)] 'repository' under [[dependency]] is missing"));
         // Check dependency cannot be resolved diagnostic
+        Assert.assertEquals(
+                diagnosticIterator.next().toString(),
+                "ERROR [Ballerina.toml:(21:12,21:21)] invalid 'repository' under [dependency]: 'repository' " +
+                        "can only have the value 'local'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(1:1,1:16)] cannot resolve module 'ccc/ddd'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(4:2,4:27)] undefined function 'notExistingFunction'");
         Assert.assertEquals(diagnosticIterator.next().toString(),
                             "ERROR [fee.bal:(4:2,4:27)] undefined module 'ddd'");
+    }
+
+    @Test(description = "Resolve dependencies with balas having various dist versions, " +
+            "not including higher dist versions")
+    public void testDependencyResolutionWithVariousDistVersions() {
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_c");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_b");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_e");
+
+        // Change `ballerina_version` of package.json in /repo/bala
+        changeBallerinaVersionInPackageJson("package_b", "slbeta6");
+        changeBallerinaVersionInPackageJson("package_c", "slbeta4");
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+    }
+
+    @Test(description = "Resolve dependencies with balas as a direct dependency built from higher dist version",
+            dependsOnMethods = "testDependencyResolutionWithVariousDistVersions")
+    public void testDependencyResolutionWithDirectDependencyBuiltFromHigherDistVersion() {
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_c");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_b");
+        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/packages_for_various_dist_test/package_e");
+
+        // Change `ballerina_version` of package.json in /repo/bala
+        changeBallerinaVersionInPackageJson("package_b", "2301.89.0");
+        changeBallerinaVersionInPackageJson("package_c", "slbeta6");
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected compilation diagnostics");
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+        "ERROR [main.bal:(1:1,1:43)] cannot resolve module 'various_dist_test/package_b.mod_b1 as mod_b1'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+        "ERROR [main.bal:(6:5,6:19)] undefined function 'func1'");
+        Assert.assertEquals(diagnosticIterator.next().toString(),
+        "ERROR [main.bal:(6:5,6:19)] undefined module 'mod_b1'");
+    }
+
+    @Test(description = "Resolve dependencies with balas as a transitive dependency built from higher dist version",
+            dependsOnMethods = "testDependencyResolutionWithVariousDistVersions")
+    public void testDependencyResolutionWithTransitiveDependencyBuiltFromHigherDistVersion() throws IOException {
+        // package_d --> package_b --> package_c
+        // package_d --> package_e
+        // Cache package_c to dist
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/packages_for_various_dist_test/package_c");
+        // Cache package_c to central
+        cacheDependencyToCentralRepository(
+                RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_c"));
+        // Change `ballerina_version` of `package_c` in the central to a higher dist version --> package_c_two
+        Path packageJsonInProjectBalaPath = testBuildDirectory.resolve("user-home").resolve("repositories")
+                .resolve("central.ballerina.io").resolve("bala").resolve("various_dist_test")
+                .resolve("package_c").resolve("0.1.0").resolve("java11").resolve("package.json");
+        changeBallerinaVersionInPackageJson(packageJsonInProjectBalaPath, "2301.89.0");
+
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/packages_for_various_dist_test/package_b");
+        BCompileUtil.compileAndCacheBala(
+                "projects_for_resolution_tests/packages_for_various_dist_test/package_e");
+
+        // Change `ballerina_version` of package.json in /repo/bala
+        changeBallerinaVersionInPackageJson("package_b", "slbeta6");
+
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+    }
+
+    private void changeBallerinaVersionInPackageJson(String packageName, String balVersion) {
+        Path packageJsonInProjectBalaPath = testBuildDirectory.resolve("repo").resolve("bala")
+                .resolve("various_dist_test").resolve(packageName).resolve("0.1.0").resolve("any")
+                .resolve("package.json");
+        changeBallerinaVersionInPackageJson(packageJsonInProjectBalaPath, balVersion);
+    }
+
+    private void changeBallerinaVersionInPackageJson(Path packageJsonInProjectBalaPath, String balVersion) {
+        PackageJson packageJson = null;
+        try (Reader reader = Files.newBufferedReader(packageJsonInProjectBalaPath)) {
+            packageJson = new Gson().fromJson(reader, PackageJson.class);
+            packageJson.setBallerinaVersion(balVersion);
+        } catch (IOException e) {
+            Assert.fail("Reading package.json failed:" + packageJsonInProjectBalaPath);
+        }
+
+        // Remove fields with empty values from `package.json`
+        Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
+                .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
+        try (Writer writer = new FileWriter(String.valueOf(packageJsonInProjectBalaPath))) {
+            gson.toJson(packageJson, writer);
+        } catch (IOException e) {
+            Assert.fail("Writing to package.json failed:" + packageJsonInProjectBalaPath);
+        }
     }
 }

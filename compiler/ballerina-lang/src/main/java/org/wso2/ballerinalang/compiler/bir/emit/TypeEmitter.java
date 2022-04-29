@@ -31,11 +31,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -144,9 +146,21 @@ class TypeEmitter {
                 return emitBTypeHandle((BHandleType) bType, tabs);
             case TypeTags.STREAM:
                 return emitBStreamType((BStreamType) bType, tabs);
+            case TypeTags.TYPEREFDESC:
+                return emitTypeRefDesc((BTypeReferenceType) bType, tabs);
+            case TypeTags.PARAMETERIZED_TYPE:
+                return emitParameterizedType((BParameterizedType) bType, tabs);
             default:
                 throw new IllegalStateException("Invalid type");
         }
+    }
+
+    private static String emitParameterizedType(BParameterizedType type, int tabs) {
+        String str = "parameterized ";
+        str += "<";
+        str += emitTypeRef(type.paramValueType, 0);
+        str += ">";
+        return str;
     }
 
     private static String emitTableType(BTableType bType, int tabs) {
@@ -157,7 +171,7 @@ class TypeEmitter {
 
         StringBuilder keyStringBuilder = new StringBuilder();
         String stringRep;
-        if (bType.fieldNameList != null) {
+        if (!bType.fieldNameList.isEmpty()) {
             for (String fieldName : bType.fieldNameList) {
                 if (!keyStringBuilder.toString().equals("")) {
                     keyStringBuilder.append(", ");
@@ -193,6 +207,14 @@ class TypeEmitter {
             }
         }
         return unionStr.toString();
+    }
+
+    private static String emitTypeRefDesc(BTypeReferenceType bType, int tabs) {
+        String str = "typeRefDesc";
+        str += "<";
+        str += emitTypeRef(bType.referredType, 0);
+        str += ">";
+        return str;
     }
 
     private static String emitBIntersectionType(BIntersectionType bType, int tabs) {
