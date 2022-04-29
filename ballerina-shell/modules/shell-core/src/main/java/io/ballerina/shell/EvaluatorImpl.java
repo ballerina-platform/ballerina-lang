@@ -136,14 +136,10 @@ class EvaluatorImpl extends Evaluator {
             BallerinaShellException {
         try {
             return invoker.execute(compilation);
-        } catch (InvokerPanicException e) {
-            addAllDiagnostics(invoker.diagnostics());
-            invoker.resetDiagnostics();
-            throw e;
         } catch (InvokerException e) {
             addAllDiagnostics(invoker.diagnostics());
             invoker.resetDiagnostics();
-            return Optional.of("");
+            throw e;
         } catch (Exception e) {
             throw e;
         }
