@@ -82,7 +82,7 @@ public class BalShellServiceTests {
         Assert.assertNotNull(generatedResult.getFilePath());
     }
 
-    @Test(description = "Test for notebookRestart")
+    @Test(description = "Test for getVariables")
     public void testGetVariables() throws IOException {
         Path file = RES_DIR.resolve("testcases").resolve("get_variables.json");
         GetVariableTestCase[] testCases = TestUtils.loadVariableTestCases(file);
