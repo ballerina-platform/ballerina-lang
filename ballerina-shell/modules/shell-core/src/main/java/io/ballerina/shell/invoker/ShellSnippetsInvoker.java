@@ -55,7 +55,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -165,7 +164,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Available variables as a list of mapped strings
      * with name, type and value.
      */
-    public abstract List<Map<String, String>> availableVariablesAsMap();
+    public abstract List<AvailableVariable> availableVariablesAsObjects();
 
     /**
      * Returns available declarations in the module.

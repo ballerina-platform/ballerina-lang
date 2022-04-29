@@ -21,6 +21,7 @@ package io.ballerina.shell;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
+import io.ballerina.shell.invoker.AvailableVariable;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
@@ -28,7 +29,6 @@ import io.ballerina.shell.snippet.factory.SnippetFactory;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -159,8 +159,8 @@ public abstract class Evaluator extends DiagnosticReporter {
         return invoker.availableVariables();
     }
 
-    public List<Map<String, String>> availableVariablesAsMap() {
-        return invoker.availableVariablesAsMap();
+    public List<AvailableVariable> availableVariablesAsObjects() {
+        return invoker.availableVariablesAsObjects();
     }
 
     public List<String> availableModuleDeclarations() {

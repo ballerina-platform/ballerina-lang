@@ -15,12 +15,14 @@
  */
 package io.ballerina.shell.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.ExceptionStatus;
 import io.ballerina.shell.ShellCompilation;
 import io.ballerina.shell.cli.BShellConfiguration;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.invoker.AvailableVariable;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -29,6 +31,7 @@ import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -115,7 +118,13 @@ public class ShellWrapper {
      * @return list of variables with its name, type and current value
      */
     public List<Map<String, String>> getAvailableVariables() {
-        return evaluator.availableVariablesAsMap();
+        List<Map<String, String>> availableVarsMap = new ArrayList<>();
+        for (AvailableVariable availableVar: evaluator.availableVariablesAsObjects()) {
+            ObjectMapper oMapper = new ObjectMapper();
+            Map<String, String> varMap = oMapper.convertValue(availableVar, Map.class);
+            availableVarsMap.add(varMap);
+        }
+        return availableVarsMap;
     }
 
     /**
