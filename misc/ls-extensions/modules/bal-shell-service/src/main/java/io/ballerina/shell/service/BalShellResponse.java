@@ -19,6 +19,7 @@ package io.ballerina.shell.service;
 
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 
@@ -57,7 +58,7 @@ public class BalShellResponse {
             return;
         }
 
-        Type type = io.ballerina.runtime.api.utils.TypeUtils.getType(value);
+        Type type = TypeUtils.getType(value);
         String stringValue = StringUtils.getJsonString(value);
         consoleOut.add(stringValue);
         this.shellValue = new ShellValue(String.join("\n", consoleOut), type.toString(), type.getTag());
