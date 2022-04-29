@@ -85,8 +85,7 @@ public class TestRunnerUtils {
     private static int absLineNum;
     public static String diagnostics = null;
 
-    public static void readTestFile(String fileName, String path, List<Object[]> testCases, Set<String> labels)
-                                                                                                    throws IOException {
+    public static void readTestFile(String fileName, String path, List<Object[]> testCases) throws IOException {
         String subPath = path.split("/conformance/")[1];
         subPath = subPath.substring(0, subPath.lastIndexOf("/") + 1);
 
@@ -96,11 +95,11 @@ public class TestRunnerUtils {
         if (!tempFile.isDirectory() && !new File(tempDir).mkdirs()) {
             reportDiagnostics("Failed to create directory!");
         }
-        readTestFile(testFile, tempDir, fileName, testCases, labels);
+        readTestFile(testFile, tempDir, fileName, testCases);
     }
 
-    private static void readTestFile(File testFile, String tempDir, String fileName, List<Object[]>  testCases,
-                                     Set<String> selectedLabels) throws IOException {
+    private static void readTestFile(File testFile, String tempDir, String fileName, List<Object[]>  testCases)
+            throws IOException {
         BufferedReader buffReader = new BufferedReader(new FileReader(testFile));
         //line number relative to .balt file
         absLineNum = 1;
@@ -111,17 +110,18 @@ public class TestRunnerUtils {
             Map<String, String> headersOfTestCase = readHeaders(line, buffReader);
             String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
 
-            //TODO: if kind of testcase is other, then need to skip creating the bal file
-            boolean isSkippedTestCase = isSkippedTestCase(selectedLabels, headersOfTestCase.get(LABELS));
+            String labels = headersOfTestCase.get(LABELS);
+            String[] testCaseLabels = labels.split("\\s*,\\s*");
 
-            Object[] testCase = new Object[10];
+            //TODO: if kind of testcase is other, then need to skip creating the bal file
+
+            Object[] testCase = new Object[9];
             testCase[0] = kindOfTestCase;
             testCase[1] = tempDir + tempFileName + BAL_EXTENSION;
             testCase[4] = fileName;
             testCase[5] = absLineNum;
-            testCase[6] = isSkippedTestCase;
-            testCase[8] = headersOfTestCase.containsKey(FAIL_ISSUE);
-            testCase[9] = headersOfTestCase.get(LABELS);
+            testCase[7] = headersOfTestCase.containsKey(FAIL_ISSUE);
+            testCase[8] = testCaseLabels;
 
             line = writeToBalFile(testCases, testCase, kindOfTestCase, tempDir, tempFileName, buffReader);
         }
@@ -155,7 +155,7 @@ public class TestRunnerUtils {
         absLineNum = absLineNum + relativeLineNum;
         testCase[2] = outputValues;
         testCase[3] = lineNumbers;
-        testCase[7] = diagnostics;
+        testCase[6] = diagnostics;
 
         testCases.add(testCase);
         return line;
@@ -198,12 +198,12 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void validateLabels(String labels, Set<String> predefinedLabels, int absLineNum) {
+    public static void validateLabels(String[] testCaseLabels, Set<String> predefinedLabels, int absLineNum) {
         HashSet<String> labelsList = new HashSet<>();
         StringJoiner duplicateLabels = new StringJoiner(", ");
         StringJoiner unknownLabels = new StringJoiner(", ");
 
-        for (String label : labels.split(",")) {
+        for (String label : testCaseLabels) {
             String trimmedLabel = label.trim();
             if (labelsList.contains(trimmedLabel)) {
                 duplicateLabels.add(trimmedLabel);
@@ -305,27 +305,17 @@ public class TestRunnerUtils {
         }
     }
 
-    private static boolean isSkippedTestCase(Set<String> selectedLabels, String labels) {
-        if (selectedLabels.isEmpty() || labels == null) {
-            return false;
-        }
-        for (String label : labels.split("\\s*,\\s*")) {
-            if (selectedLabels.contains(label)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static void validateTestFormat(String diagnostic) {
         if (diagnostic != null) {
             Assert.fail(diagnostic);
         }
     }
 
-    public static void handleTestSkip(boolean isSkippedTestCase) {
-        if (isSkippedTestCase) {
-            throw new SkipException("Skip");
+    public static void handleTestSkip(String[] testCaseLabels, Set<String> skippedTestLabels) {
+        for (String label : testCaseLabels) {
+            if (skippedTestLabels.contains(label)) {
+                throw new SkipException("Skip");
+            }
         }
     }
 

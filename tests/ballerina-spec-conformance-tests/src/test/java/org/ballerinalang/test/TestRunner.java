@@ -55,15 +55,16 @@ public class TestRunner {
     private final Path path = TEST_DIR.resolve("src").resolve("test").resolve("resources")
                                      .resolve("ballerina-spec-tests").resolve("conformance");
     private static final Set<String> predefinedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString()).keySet();
+    private static final Set<String> skippedTestLabels = getSkippedTestLabels();
 
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
-                     int absLineNum, boolean isSkippedTest, String diagnostics, ITestContext context,
-                     boolean isKnownIssue, String labels) {
+                     int absLineNum, String diagnostics, ITestContext context, boolean isKnownIssue,
+                     String[] testCaseLabels) {
         setDetailsOfTest(context, kind, fileName, absLineNum, diagnostics);
-        handleTestSkip(isSkippedTest);
         validateTestFormat(diagnostics);
-        validateLabels(labels, predefinedLabels, absLineNum);
+        validateLabels(testCaseLabels, predefinedLabels, absLineNum);
+        handleTestSkip(testCaseLabels, skippedTestLabels);
         validateTestOutput(path, kind, outputValues, isKnownIssue, lineNumbers, fileName, absLineNum, context);
     }
 
@@ -75,6 +76,13 @@ public class TestRunner {
     @AfterClass
     public void generateReports(ITestContext context) throws IOException {
         generateReport();
+    }
+
+    private static Set<String> getSkippedTestLabels() {
+        Set<String> skippedTestLabels = new HashSet<>();
+        skippedTestLabels.add("transactional-expr"); // issue #35939
+        // New entries go here.
+        return skippedTestLabels;
     }
 
     private HashSet<String> runSelectedTests(HashMap<String, HashSet<String>> definedLabels) {
@@ -102,8 +110,7 @@ public class TestRunner {
                     .map(path -> new Object[]{path.toFile().getName(), path.toString()})
                     .forEach(object -> {
                         try {
-                            TestRunnerUtils.readTestFile((String) object[0], (String) object[1], testCases,
-                                    predefinedLabels);
+                            TestRunnerUtils.readTestFile((String) object[0], (String) object[1], testCases);
                         } catch (IOException e) {
                             Assert.fail("failed to read spec conformance test: \"" + object[0] + "\"", e);
                         }
