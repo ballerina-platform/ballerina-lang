@@ -20,8 +20,8 @@ package io.ballerina.shell;
 
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
-import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.AvailableVariable;
+import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
