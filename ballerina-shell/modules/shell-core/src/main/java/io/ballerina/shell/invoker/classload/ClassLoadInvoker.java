@@ -28,6 +28,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.invoker.AvailableVariable;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.invoker.classload.context.StatementContext;
@@ -588,16 +589,13 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     }
 
     @Override
-    public List<Map<String, String>> availableVariablesAsMap() {
-        List<Map<String, String>> varMap = new ArrayList<>();
+    public List<AvailableVariable> availableVariablesAsObjects() {
+        List<AvailableVariable> varMap = new ArrayList<>();
         for (GlobalVariable entry : globalVars.values()) {
-            Map<String, String> varObject
-                    = new HashMap<>();
+            String type = entry.getType();
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
             String objStr = StringUtils.getExpressionStringValue(obj);
-            varObject.put("name", entry.getVariableName().toString());
-            varObject.put("type", entry.getType());
-            varObject.put("value", objStr);
+            AvailableVariable varObject = new AvailableVariable(entry.getVariableName().toString(), type, objStr);
             varMap.add(varObject);
         }
         return varMap;
