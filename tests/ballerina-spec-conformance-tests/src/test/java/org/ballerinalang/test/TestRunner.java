@@ -55,7 +55,7 @@ public class TestRunner {
     private final Path path = TEST_DIR.resolve("src").resolve("test").resolve("resources")
                                      .resolve("ballerina-spec-tests").resolve("conformance");
     private static final Set<String> predefinedLabels = TestRunnerUtils.readLabels(TEST_DIR.toString()).keySet();
-    private static final HashSet<String> skippedTestLabels = getSkippedTestLabels();
+    private static final Set<String> skippedTestLabels = getSkippedTestLabels();
 
     @Test(dataProvider = "spec-conformance-tests-file-provider")
     public void test(String kind, String path, List<String> outputValues, List<Integer> lineNumbers, String fileName,
@@ -79,10 +79,10 @@ public class TestRunner {
     }
 
     private static Set<String> getSkippedTestLabels() {
-        Set<String> hashSet = new HashSet<>();
-        hashSet.add("transactional-expr"); // issue #35939
+        Set<String> skippedTestLabels = new HashSet<>();
+        skippedTestLabels.add("transactional-expr"); // issue #35939
         // New entries go here.
-        return hashSet;
+        return skippedTestLabels;
     }
 
     private HashSet<String> runSelectedTests(HashMap<String, HashSet<String>> definedLabels) {

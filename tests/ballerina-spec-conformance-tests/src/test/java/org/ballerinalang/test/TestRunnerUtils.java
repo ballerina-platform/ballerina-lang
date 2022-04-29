@@ -311,7 +311,7 @@ public class TestRunnerUtils {
         }
     }
 
-    public static void handleTestSkip(String[] testCaseLabels, HashSet<String> skippedTestLabels) {
+    public static void handleTestSkip(String[] testCaseLabels, Set<String> skippedTestLabels) {
         for (String label : testCaseLabels) {
             if (skippedTestLabels.contains(label)) {
                 throw new SkipException("Skip");
