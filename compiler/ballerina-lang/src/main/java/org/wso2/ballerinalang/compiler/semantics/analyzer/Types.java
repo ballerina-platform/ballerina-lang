@@ -1330,10 +1330,11 @@ public class Types {
     }
 
     public static BType getReferredType(BType type) {
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            return getReferredType(((BTypeReferenceType) type).referredType);
+        BType constraint = type;
+        if (type != null && type.tag == TypeTags.TYPEREFDESC) {
+            constraint = getReferredType(((BTypeReferenceType) type).referredType);
         }
-        return type;
+        return constraint;
     }
 
     boolean isSelectivelyImmutableType(BType type) {
