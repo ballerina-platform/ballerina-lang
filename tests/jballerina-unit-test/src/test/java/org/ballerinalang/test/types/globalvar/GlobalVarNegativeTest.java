@@ -93,6 +93,10 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
                 "variable(s) 'u' not initialized", 34, 5);
         BAssertUtil.validateError(result, i++, "variable 't' is not initialized", 34, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'u' not initialized", 38, 5);
+        BAssertUtil.validateError(result, i++, INVALID_FUNC_OR_METHOD_CALL_WITH_UNINITIALIZED_VARS_PREFIX +
+                "variable(s) 'u' not initialized", 38, 5);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

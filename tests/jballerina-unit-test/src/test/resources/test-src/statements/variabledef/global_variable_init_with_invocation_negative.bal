@@ -34,6 +34,8 @@ function init() {
     t(10);
 
     t = function (int a) {};
+
+    getFoo().value();
     u = new;
 }
 
@@ -49,3 +51,5 @@ class Foo {
     function value() {
     }
 }
+
+function getFoo() returns Foo => new;
