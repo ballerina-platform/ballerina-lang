@@ -78,8 +78,8 @@ public class TestRunner {
         generateReport();
     }
 
-    private static HashSet<String> getSkippedTestLabels() {
-        HashSet<String> hashSet = new HashSet<>();
+    private static Set<String> getSkippedTestLabels() {
+        Set<String> hashSet = new HashSet<>();
         hashSet.add("transactional-expr"); // issue #35939
         // New entries go here.
         return hashSet;
