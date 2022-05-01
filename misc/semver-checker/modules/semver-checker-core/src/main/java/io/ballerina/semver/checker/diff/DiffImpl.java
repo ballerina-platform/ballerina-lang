@@ -51,8 +51,7 @@ public class DiffImpl implements Diff {
         return diffType;
     }
 
-    @Override
-    public void setType(DiffType diffType) {
+    protected void setType(DiffType diffType) {
         this.diffType = diffType;
     }
 
@@ -61,8 +60,7 @@ public class DiffImpl implements Diff {
         return compatibilityLevel;
     }
 
-    @Override
-    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
+    protected void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
         this.compatibilityLevel = compatibilityLevel;
     }
 

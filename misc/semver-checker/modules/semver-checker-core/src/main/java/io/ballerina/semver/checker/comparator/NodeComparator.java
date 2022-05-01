@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.NodeDiff;
 
 import java.util.Optional;
 

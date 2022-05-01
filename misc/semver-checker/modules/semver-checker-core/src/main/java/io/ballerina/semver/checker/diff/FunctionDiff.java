@@ -19,6 +19,9 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.Node;
+
+import java.util.Optional;
 
 import static io.ballerina.semver.checker.util.PackageUtils.QUALIFIER_PUBLIC;
 
@@ -29,7 +32,7 @@ import static io.ballerina.semver.checker.util.PackageUtils.QUALIFIER_PUBLIC;
  */
 public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
 
-    public FunctionDiff(FunctionDefinitionNode newNode, FunctionDefinitionNode oldNode) {
+    private FunctionDiff(FunctionDefinitionNode newNode, FunctionDefinitionNode oldNode) {
         super(newNode, oldNode);
     }
 

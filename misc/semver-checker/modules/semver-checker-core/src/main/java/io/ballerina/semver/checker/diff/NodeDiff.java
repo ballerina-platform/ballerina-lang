@@ -35,6 +35,4 @@ public interface NodeDiff<T extends Node> extends Diff {
     Optional<T> getOldNode();
 
     Optional<String> getMessage();
-
-    void setMessage(String message);
 }

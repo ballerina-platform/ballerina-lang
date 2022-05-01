@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.DiffExtractor;
+import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.NodeListDiffImpl;
 
@@ -46,8 +47,8 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
     }
 
     @Override
-    public Optional<NodeListDiffImpl<ParameterNode>> computeDiff() {
-        NodeListDiffImpl<ParameterNode> paramDiffs = new NodeListDiffImpl<>(newNodesList, oldNodesList);
+    public Optional<? extends NodeListDiffImpl<? extends Node>> computeDiff() {
+        NodeListDiffImpl.Builder<ParameterNode> paramDiffs = new NodeListDiffImpl.Builder<>(newNodesList, oldNodesList);
 
         Map<String, ParameterNode> newParams = newNodesList.stream()
                 .collect(Collectors.toMap(this::getParameterName, Function.identity()));
@@ -59,58 +60,54 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
 
         // Computes and populate diffs for newly added parameters.
         paramDiffExtractor.getAdditions().forEach((paramName, paramNode) -> {
-            NodeDiffImpl<Node> paramDiff = new NodeDiffImpl<>(paramNode, null, CompatibilityLevel.UNKNOWN);
+            NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(paramNode, null);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
-                    paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
-                    paramDiff.setMessage("new required parameter added");
+                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+                            .withMessage("new required parameter added");
                     break;
                 case DEFAULTABLE_PARAM:
-                    paramDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
-                    paramDiff.setMessage("new defaultable parameter added");
+                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
+                            .withMessage("new defaultable parameter added");
                     break;
                 case REST_PARAM:
-                    paramDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
-                    paramDiff.setMessage("new rest parameter added");
+                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
+                            .withMessage("new rest parameter added");
                     break;
                 default:
-                    paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
-                    paramDiff.setMessage("new parameter added");
+                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+                            .withMessage("new parameter added");
             }
-            paramDiffs.addChildDiff(paramDiff);
+            paramDiffBuilder.build().ifPresent(paramDiffs::withChildDiff);
         });
 
         // Computes and populate diffs for removed parameters.
         paramDiffExtractor.getRemovals().forEach((paramName, paramNode) -> {
-            NodeDiffImpl<Node> paramDiff = new NodeDiffImpl<>(null, paramNode, CompatibilityLevel.MAJOR);
+            NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(paramNode, null);
+            paramDiffBuilder = paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
-                    paramDiff.setMessage("required parameter removed");
+                    paramDiffBuilder.withMessage("required parameter removed");
                     break;
                 case DEFAULTABLE_PARAM:
-                    paramDiff.setMessage("defaultable parameter removed");
+                    paramDiffBuilder.withMessage("defaultable parameter removed");
                     break;
                 case REST_PARAM:
-                    paramDiff.setMessage("rest parameter removed");
+                    paramDiffBuilder.withMessage("rest parameter removed");
                     break;
                 default:
-                    paramDiff.setMessage("parameter removed");
+                    paramDiffBuilder.withMessage("parameter removed");
             }
-            paramDiffs.addChildDiff(paramDiff);
+            paramDiffBuilder.build().ifPresent(paramDiffs::withChildDiff);
         });
 
         // Computes and populate diffs for modified parameters.
         paramDiffExtractor.getCommons().forEach((name, params) -> {
             ParamComparator paramComparator = new ParamComparator(params.getKey(), params.getValue());
-            paramComparator.computeDiff().ifPresent(paramDiffs::addChildDiff);
+            paramComparator.computeDiff().ifPresent(paramDiffs::withChildDiff);
         });
 
-        if (!paramDiffs.getChildDiffs().isEmpty()) {
-            paramDiffs.computeCompatibilityLevel();
-            return Optional.of(paramDiffs);
-        }
-
-        return Optional.empty();
+        return paramDiffs.build();
     }
 
     private String getParameterName(Node paramNode) {

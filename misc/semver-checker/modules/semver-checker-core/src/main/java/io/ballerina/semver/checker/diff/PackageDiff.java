@@ -69,16 +69,16 @@ public class PackageDiff extends DiffImpl {
         moduleDiffs.add(moduleDiff);
     }
 
-    public static class Modifier implements DiffModifier {
+    public static class Builder implements DiffBuilder {
 
         private final PackageDiff packageDiff;
 
-        public Modifier(Package newPackage, Package oldPackage) {
+        public Builder(Package newPackage, Package oldPackage) {
             packageDiff = new PackageDiff(newPackage, oldPackage);
         }
 
         @Override
-        public Optional<PackageDiff> modify() {
+        public Optional<PackageDiff> build() {
             if (!packageDiff.getChildDiffs().isEmpty()) {
                 packageDiff.computeCompatibilityLevel();
                 packageDiff.setType(DiffType.MODIFIED);
@@ -88,24 +88,37 @@ public class PackageDiff extends DiffImpl {
             return Optional.empty();
         }
 
-        public void moduleAdded(Module module) {
-            ModuleDiff moduleDiff = new ModuleDiff(module, null);
-            moduleDiff.setType(DiffType.NEW);
-            moduleDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
-            packageDiff.addModuleDiff(moduleDiff);
+        @Override
+        public DiffBuilder withType(DiffType diffType) {
+            packageDiff.setType(diffType);
+            return this;
         }
 
-        public void moduleRemoved(Module module) {
-            ModuleDiff moduleDiff = new ModuleDiff(null, module);
-            moduleDiff.setType(DiffType.REMOVED);
+        @Override
+        public DiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
+            packageDiff.setCompatibilityLevel(compatibilityLevel);
+            return this;
+        }
+
+        public DiffBuilder withModuleAdded(Module module) {
+            ModuleDiff.Builder diffBuilder = new ModuleDiff.Builder(module, null);
+            diffBuilder.withType(DiffType.NEW).withCompatibilityLevel(CompatibilityLevel.MINOR);
+            diffBuilder.build().ifPresent(packageDiff::addModuleDiff);
+            return this;
+        }
+
+        public DiffBuilder withModuleRemoved(Module module) {
             // Todo: decide whether this should be backward compatible
-            moduleDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
-            packageDiff.addModuleDiff(moduleDiff);
+            ModuleDiff.Builder diffBuilder = new ModuleDiff.Builder(module, null);
+            diffBuilder.withType(DiffType.REMOVED).withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            diffBuilder.build().ifPresent(packageDiff::addModuleDiff);
+            return this;
         }
 
-        public void moduleChanged(Module newModule, Module oldModule) {
+        public DiffBuilder withModuleChanged(Module newModule, Module oldModule) {
             Optional<ModuleDiff> moduleDiff = new ModuleComparator(newModule, oldModule).computeDiff();
             moduleDiff.ifPresent(packageDiff::addModuleDiff);
+            return this;
         }
     }
 }

@@ -18,25 +18,25 @@
 
 package io.ballerina.semver.checker.diff;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Optional;
 
 /**
- * Base definition for all the Ballerina source diff types. All the diff types are defined to be immutable (hence
- * thread-safe).
+ * Extended interface for all the Ballerina node-based diff builder types.
  *
  * @since 2201.2.0
  */
-public interface Diff {
+public interface NodeDiffBuilder {
 
-    DiffType getType();
+    Optional<? extends Diff> build();
 
-    CompatibilityLevel getCompatibilityLevel();
+    NodeDiffBuilder withType(DiffType diffType);
 
-    void computeCompatibilityLevel();
+    NodeDiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel);
 
-    List<? extends Diff> getChildDiffs();
+    NodeDiffBuilder withMessage(String message);
 
-    List<? extends Diff> getChildDiffs(CompatibilityLevel compatibilityLevel);
+    NodeDiffBuilder withChildDiff(Diff childDiff);
 
-    String getAsString();
+    NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiff);
 }

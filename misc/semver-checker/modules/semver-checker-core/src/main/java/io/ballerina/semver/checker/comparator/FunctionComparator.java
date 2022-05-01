@@ -32,6 +32,7 @@ import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.FunctionDiff;
+import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.ArrayList;
@@ -55,21 +56,14 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
     }
 
     @Override
-    public Optional<FunctionDiff> computeDiff() {
-        FunctionDiff functionDiffs = new FunctionDiff(newNode, oldNode);
-        functionDiffs.addChildDiffs(compareMetadata());
-        functionDiffs.addChildDiffs(compareFunctionQualifiers());
-        functionDiffs.addChildDiffs(compareFunctionParams());
-        functionDiffs.addChildDiffs(compareReturnTypeDesc());
-        functionDiffs.addChildDiffs(compareFunctionBody());
-
-        if (!functionDiffs.getChildDiffs().isEmpty()) {
-            functionDiffs.setType(DiffType.MODIFIED);
-            functionDiffs.computeCompatibilityLevel();
-            return Optional.of(functionDiffs);
-        }
-
-        return Optional.empty();
+    public Optional<? extends Diff> computeDiff() {
+        FunctionDiff.Builder<FunctionDefinitionNode> funcDiffBuilder = new FunctionDiff.Builder<>(newNode, oldNode);
+        return funcDiffBuilder.withChildDiffs(compareMetadata())
+                .withChildDiffs(compareFunctionQualifiers())
+                .withChildDiffs(compareFunctionParams())
+                .withChildDiffs(compareReturnTypeDesc())
+                .withChildDiffs(compareFunctionBody())
+                .build();
     }
 
     /**
@@ -104,18 +98,18 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         Optional<Token> oldPublicQual = getQualifier(oldQualifiers, PUBLIC_KEYWORD);
         if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
             // public qualifier added
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newPublicQual.get(), null);
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
-            qualifierDiff.setType(DiffType.NEW);
-            qualifierDiff.setMessage("'public' qualifier is added");
-            qualifierDiffs.add(qualifierDiff);
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newPublicQual.get(), null);
+            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
+                    .withMessage("'public' qualifier is added")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
         } else if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
             // public qualifier removed
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldPublicQual.get());
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
-            qualifierDiff.setType(DiffType.REMOVED);
-            qualifierDiff.setMessage("'public' qualifier is removed");
-            qualifierDiffs.add(qualifierDiff);
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldPublicQual.get());
+            qualifierDiffBuilder.withType(DiffType.REMOVED)
+                    .withMessage("'public' qualifier is removed")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
         }
 
         // analyzes isolated qualifier changes
@@ -123,18 +117,18 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         Optional<Token> oldIsolatedQual = getQualifier(oldQualifiers, ISOLATED_KEYWORD);
         if (newIsolatedQual.isPresent() && oldIsolatedQual.isEmpty()) {
             // isolated qualifier added
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newIsolatedQual.get(), null);
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
-            qualifierDiff.setType(DiffType.NEW);
-            qualifierDiff.setMessage("'isolated' qualifier is added");
-            qualifierDiffs.add(qualifierDiff);
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newIsolatedQual.get(), null);
+            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+                    .withMessage("'isolated' qualifier is added")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
         } else if (newIsolatedQual.isEmpty() && oldIsolatedQual.isPresent()) {
             // isolated qualifier removed
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldIsolatedQual.get());
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
-            qualifierDiff.setType(DiffType.REMOVED);
-            qualifierDiff.setMessage("'isolated' qualifier is removed");
-            qualifierDiffs.add(qualifierDiff);
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldIsolatedQual.get());
+            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+                    .withMessage("'isolated' qualifier is removed")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
         }
 
         // analyzes transactional qualifier changes
@@ -142,18 +136,18 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         Optional<Token> oldTransactionalQual = getQualifier(oldQualifiers, TRANSACTIONAL_KEYWORD);
         if (newTransactionalQual.isPresent() && oldTransactionalQual.isEmpty()) {
             // transactional qualifier added
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(newTransactionalQual.get(), null);
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
-            qualifierDiff.setType(DiffType.NEW);
-            qualifierDiff.setMessage("'transactional' qualifier is added");
-            qualifierDiffs.add(qualifierDiff);
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newTransactionalQual.get(), null);
+            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+                    .withMessage("'transactional' qualifier is added")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
         } else if (newTransactionalQual.isEmpty() && oldTransactionalQual.isPresent()) {
             // transactional qualifier removed
-            NodeDiffImpl<Node> qualifierDiff = new NodeDiffImpl<>(null, oldTransactionalQual.get());
-            qualifierDiff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS); // Todo: determine compatibility
-            qualifierDiff.setType(DiffType.REMOVED);
-            qualifierDiff.setMessage("'transactional' qualifier is removed");
-            qualifierDiffs.add(qualifierDiff);
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldTransactionalQual.get());
+            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+                    .withMessage("'transactional' qualifier is removed")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
         }
 
         return qualifierDiffs;
@@ -170,19 +164,23 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return paramDiffs;
     }
 
-    private List<NodeDiffImpl<Node>> compareReturnTypeDesc() {
-        List<NodeDiffImpl<Node>> returnTypeDiffs = new ArrayList<>();
+    private List<Diff> compareReturnTypeDesc() {
+        List<Diff> returnTypeDiffs = new ArrayList<>();
         Optional<ReturnTypeDescriptorNode> newReturn = newNode.functionSignature().returnTypeDesc();
         Optional<ReturnTypeDescriptorNode> oldReturn = oldNode.functionSignature().returnTypeDesc();
 
         if (newReturn.isPresent() && oldReturn.isEmpty()) {
-            NodeDiffImpl<Node> nodeDiff = new NodeDiffImpl<>(newReturn.get(), null, CompatibilityLevel.MAJOR);
-            nodeDiff.setMessage("return type is added");
-            returnTypeDiffs.add(nodeDiff);
+            NodeDiffBuilder returnDiffBuilder = new NodeDiffImpl.Builder<Node>(newReturn.get(), null);
+            returnDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+                    .withMessage("return type is added")
+                    .build()
+                    .ifPresent(returnTypeDiffs::add);
         } else if (newReturn.isEmpty() && oldReturn.isPresent()) {
-            NodeDiffImpl<Node> nodeDiff = new NodeDiffImpl<>(null, oldReturn.get(), CompatibilityLevel.MAJOR);
-            nodeDiff.setMessage("return type is removed");
-            returnTypeDiffs.add(nodeDiff);
+            NodeDiffBuilder returnDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldReturn.get());
+            returnDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+                    .withMessage("return type is removed")
+                    .build()
+                    .ifPresent(returnTypeDiffs::add);
         } else if (newReturn.isPresent()) {
             compareReturnTypes(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
             compareReturnAnnotations(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
@@ -191,17 +189,19 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return returnTypeDiffs;
     }
 
-    private Optional<NodeDiffImpl<Node>> compareReturnTypes(ReturnTypeDescriptorNode newReturn,
-                                                            ReturnTypeDescriptorNode oldReturn) {
+    private Optional<? extends Diff> compareReturnTypes(ReturnTypeDescriptorNode newReturn,
+                                                        ReturnTypeDescriptorNode oldReturn) {
         Node newType = newReturn.type();
-        Node oldType = newReturn.type();
+        Node oldType = oldReturn.type();
 
         if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
-            NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newReturn, oldReturn, CompatibilityLevel.AMBIGUOUS);
-            diff.setMessage(String.format("return type is changed from: '%s' to: %s", oldType.toSourceCode(),
-                    newType.toSourceCode()));
-            return Optional.of(diff);
+            NodeDiffBuilder returnTypeDiffBuilder = new NodeDiffImpl.Builder<>(newType, oldType);
+            return returnTypeDiffBuilder
+                    .withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS)
+                    .withMessage(String.format("return type is changed from '%s' to '%s'", oldType.toSourceCode(),
+                            newType.toSourceCode()))
+                    .build();
         }
 
         return Optional.empty();
@@ -216,24 +216,28 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return Optional.empty();
     }
 
-    private List<NodeDiffImpl<Node>> compareFunctionBody() {
-        List<NodeDiffImpl<Node>> functionBodyDiff = new ArrayList<>();
+    private List<Diff> compareFunctionBody() {
+        List<Diff> functionBodyDiff = new ArrayList<>();
         FunctionBodyNode newBody = newNode.functionBody();
         FunctionBodyNode oldBody = oldNode.functionBody();
 
+        NodeDiffBuilder functionBodyDiffBuilder = new NodeDiffImpl.Builder<>(newBody, oldBody);
         if (newBody != null && oldBody == null) {
-            NodeDiffImpl<Node> bodyDiff = new NodeDiffImpl<>(null, oldBody, CompatibilityLevel.PATCH);
-            bodyDiff.setMessage("function body is added");
-            functionBodyDiff.add(bodyDiff);
+            functionBodyDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+                    .withMessage("function body is added")
+                    .build()
+                    .ifPresent(functionBodyDiff::add);
         } else if (newBody == null && oldBody != null) {
-            NodeDiffImpl<Node> bodyDiff = new NodeDiffImpl<>(null, oldBody, CompatibilityLevel.PATCH);
-            bodyDiff.setMessage("function body is removed");
-            functionBodyDiff.add(bodyDiff);
+            functionBodyDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+                    .withMessage("function body is removed")
+                    .build()
+                    .ifPresent(functionBodyDiff::add);
         } else {
             if (newBody != null && !newBody.toSourceCode().equals(oldBody.toSourceCode())) {
-                NodeDiffImpl<Node> bodyDiff = new NodeDiffImpl<>(newBody, oldBody, CompatibilityLevel.PATCH);
-                bodyDiff.setMessage("function body is modified");
-                functionBodyDiff.add(bodyDiff);
+                functionBodyDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+                        .withMessage("function body is modified")
+                        .build()
+                        .ifPresent(functionBodyDiff::add);
             }
         }
 

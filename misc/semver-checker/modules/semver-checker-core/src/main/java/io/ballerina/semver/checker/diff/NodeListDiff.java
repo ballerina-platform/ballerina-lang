@@ -36,6 +36,4 @@ public interface NodeListDiff<T extends List<? extends Node>> extends Diff {
     Optional<T> getOldNodes();
 
     Optional<String> getMessage();
-
-    void setMessage(String message);
 }

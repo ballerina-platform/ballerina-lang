@@ -21,7 +21,7 @@ package io.ballerina.semver.checker.diff;
 import io.ballerina.compiler.syntax.tree.Node;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -40,15 +40,15 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     protected final List<T> oldNodes;
     protected DiffType diffType;
     protected CompatibilityLevel compatibilityLevel;
-    protected final List<NodeDiffImpl<? extends Node>> childDiffs;
+    protected final List<Diff> childDiffs;
     private String message;
 
-    public NodeListDiffImpl(List<T> newNodes, List<T> oldNodes) {
+    private NodeListDiffImpl(List<T> newNodes, List<T> oldNodes) {
         this(newNodes, oldNodes, DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
     }
 
-    public NodeListDiffImpl(List<T> newNodes, List<T> oldNodes, DiffType diffType,
-                            CompatibilityLevel compatibilityLevel) {
+    private NodeListDiffImpl(List<T> newNodes, List<T> oldNodes, DiffType diffType,
+                             CompatibilityLevel compatibilityLevel) {
         this.newNodes = newNodes;
         this.oldNodes = oldNodes;
         this.diffType = diffType;
@@ -72,8 +72,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         return diffType;
     }
 
-    @Override
-    public void setType(DiffType diffType) {
+    private void setType(DiffType diffType) {
         this.diffType = diffType;
     }
 
@@ -82,8 +81,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         return compatibilityLevel;
     }
 
-    @Override
-    public void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
+    private void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
         this.compatibilityLevel = compatibilityLevel;
     }
 
@@ -91,22 +89,23 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     public void computeCompatibilityLevel() {
         if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
             compatibilityLevel = childDiffs.stream()
-                    .map(NodeDiffImpl::getCompatibilityLevel)
+                    .map(Diff::getCompatibilityLevel)
                     .max(Comparator.comparingInt(CompatibilityLevel::getRank))
                     .orElse(CompatibilityLevel.UNKNOWN);
         }
     }
 
+    @Override
     public Optional<String> getMessage() {
         return Optional.ofNullable(message);
     }
 
-    public void setMessage(String message) {
+    private void setMessage(String message) {
         this.message = message;
     }
 
-    public List<NodeDiffImpl<? extends Node>> getChildDiffs() {
-        return Collections.unmodifiableList(childDiffs);
+    public List<Diff> getChildDiffs() {
+        return childDiffs;
     }
 
     @Override
@@ -126,14 +125,6 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         return filteredDiffs;
     }
 
-    public void addChildDiff(NodeDiffImpl<Node> childDiff) {
-        this.childDiffs.add(childDiff);
-    }
-
-    public void addChildDiffs(List<NodeDiffImpl<Node>> childDiffs) {
-        this.childDiffs.addAll(childDiffs);
-    }
-
     @Override
     public String getAsString() {
         StringBuilder sb = new StringBuilder();
@@ -144,5 +135,55 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         }
 
         return sb.toString();
+    }
+
+    public static class Builder<T extends Node> implements NodeDiffBuilder {
+
+        private final NodeListDiffImpl<T> nodeListDiff;
+
+        public Builder(List<T> newNodes, List<T> oldNodes) {
+            nodeListDiff = new NodeListDiffImpl<>(newNodes, oldNodes);
+        }
+
+        @Override
+        public Optional<NodeListDiffImpl<?>> build() {
+            if (!nodeListDiff.getChildDiffs().isEmpty()) {
+                nodeListDiff.computeCompatibilityLevel();
+                nodeListDiff.setType(DiffType.MODIFIED);
+                return Optional.of(nodeListDiff);
+            }
+
+            return Optional.empty();
+        }
+
+        @Override
+        public NodeDiffBuilder withType(DiffType diffType) {
+            nodeListDiff.setType(diffType);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
+            nodeListDiff.setCompatibilityLevel(compatibilityLevel);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withMessage(String message) {
+            nodeListDiff.setMessage(message);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withChildDiff(Diff childDiff) {
+            nodeListDiff.childDiffs.add(childDiff);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiffs) {
+            nodeListDiff.childDiffs.addAll(childDiffs);
+            return null;
+        }
     }
 }

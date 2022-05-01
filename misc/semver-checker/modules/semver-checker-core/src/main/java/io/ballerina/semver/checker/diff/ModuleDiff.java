@@ -36,7 +36,7 @@ public class ModuleDiff extends DiffImpl {
     private final Module newModule;
     private final Module oldModule;
 
-    public ModuleDiff(Module newModule, Module oldModule) {
+    private ModuleDiff(Module newModule, Module oldModule) {
         this.newModule = newModule;
         this.oldModule = oldModule;
     }
@@ -60,20 +60,16 @@ public class ModuleDiff extends DiffImpl {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    public void addFunctionDiff(FunctionDiff functionDiff) {
-        childDiffs.add(functionDiff);
-    }
-
-    public static class Modifier implements DiffModifier {
+    public static class Builder implements DiffBuilder {
 
         private final ModuleDiff moduleDiff;
 
-        public Modifier(Module newModule, Module oldModule) {
+        public Builder(Module newModule, Module oldModule) {
             moduleDiff = new ModuleDiff(newModule, oldModule);
         }
 
         @Override
-        public Optional<ModuleDiff> modify() {
+        public Optional<ModuleDiff> build() {
             if (!moduleDiff.getChildDiffs().isEmpty()) {
                 moduleDiff.computeCompatibilityLevel();
                 moduleDiff.setType(DiffType.MODIFIED);
@@ -83,27 +79,32 @@ public class ModuleDiff extends DiffImpl {
             return Optional.empty();
         }
 
-        public void functionAdded(FunctionDefinitionNode function) {
-            FunctionDiff functionDiff = new FunctionDiff(function, null);
-            functionDiff.computeCompatibilityLevel();
-            moduleDiff.addFunctionDiff(functionDiff);
-            moduleDiff.setType(DiffType.MODIFIED);
+        @Override
+        public DiffBuilder withType(DiffType diffType) {
+            moduleDiff.setType(diffType);
+            return this;
         }
 
-        public void functionRemoved(FunctionDefinitionNode function) {
-            FunctionDiff functionDiff = new FunctionDiff(null, function);
-            functionDiff.computeCompatibilityLevel();
-            moduleDiff.addFunctionDiff(functionDiff);
-            moduleDiff.setType(DiffType.MODIFIED);
+        @Override
+        public DiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
+            moduleDiff.setCompatibilityLevel(compatibilityLevel);
+            return this;
         }
 
-        public void functionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
-            Optional<FunctionDiff> functionDiff = new FunctionComparator(newFunction, oldFunction).computeDiff();
-            functionDiff.ifPresent(diff -> {
-                diff.computeCompatibilityLevel();
-                moduleDiff.setType(DiffType.MODIFIED);
-                moduleDiff.addFunctionDiff(diff);
-            });
+        public void withFunctionAdded(FunctionDefinitionNode function) {
+            NodeDiffBuilder funcDiffBuilder = new NodeDiffImpl.Builder<>(function, null);
+            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withFunctionRemoved(FunctionDefinitionNode function) {
+            NodeDiffBuilder funcDiffBuilder = new NodeDiffImpl.Builder<>(null, function);
+            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withFunctionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
+            new FunctionComparator(newFunction, oldFunction)
+                    .computeDiff()
+                    .ifPresent(moduleDiff.childDiffs::add);
         }
     }
 }

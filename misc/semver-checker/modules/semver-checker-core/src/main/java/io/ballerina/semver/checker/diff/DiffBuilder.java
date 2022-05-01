@@ -21,11 +21,15 @@ package io.ballerina.semver.checker.diff;
 import java.util.Optional;
 
 /**
- * Definition of Ballerina source diff modifiers.
+ * Interface for all the Ballerina source diff builder types.
  *
  * @since 2201.2.0
  */
-public interface DiffModifier {
+public interface DiffBuilder {
 
-    Optional<? extends Diff> modify();
+    Optional<? extends Diff> build();
+
+    DiffBuilder withType(DiffType diffType);
+
+    DiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel);
 }

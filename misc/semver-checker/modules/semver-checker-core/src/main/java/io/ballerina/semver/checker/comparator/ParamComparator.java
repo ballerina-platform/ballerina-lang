@@ -26,6 +26,8 @@ import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
+import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.Optional;
@@ -42,19 +44,14 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
     }
 
     @Override
-    public Optional<NodeDiffImpl<Node>> computeDiff() {
-        NodeDiffImpl<Node> paramDiffs = new NodeDiffImpl<>(newNode, oldNode);
-        compareParamKind(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
-        compareParamType(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
-        compareParamValue(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
-        compareParamAnnotations(newNode, oldNode).ifPresent(paramDiffs::addChildDiff);
+    public Optional<? extends Diff> computeDiff() {
+        NodeDiffBuilder paramDiffs = new NodeDiffImpl.Builder<>(newNode, oldNode);
+        compareParamKind(newNode, oldNode).ifPresent(paramDiffs::withChildDiff);
+        compareParamType(newNode, oldNode).ifPresent(paramDiffs::withChildDiff);
+        compareParamValue(newNode, oldNode).ifPresent(paramDiffs::withChildDiff);
+        compareParamAnnotations(newNode, oldNode).ifPresent(paramDiffs::withChildDiff);
 
-        if (!paramDiffs.getChildDiffs().isEmpty()) {
-            paramDiffs.computeCompatibilityLevel();
-            return Optional.of(paramDiffs);
-        }
-
-        return Optional.empty();
+        return paramDiffs.build();
     }
 
     private Optional<NodeDiffImpl<Node>> compareParamAnnotations(ParameterNode newNode, ParameterNode oldNode) {
@@ -62,7 +59,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         return Optional.empty();
     }
 
-    private Optional<NodeDiffImpl<Node>> compareParamValue(ParameterNode newParam, ParameterNode oldParam) {
+    private Optional<? extends Diff> compareParamValue(ParameterNode newParam, ParameterNode oldParam) {
         if (newParam.kind() != SyntaxKind.DEFAULTABLE_PARAM || oldParam.kind() != SyntaxKind.DEFAULTABLE_PARAM) {
             return Optional.empty();
         }
@@ -73,23 +70,23 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             return Optional.empty();
         }
 
-        NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newParam, oldParam);
-        diff.setMessage(String.format("default value of the parameter: '%s' is changed from: '%s' to: '%s'",
+        NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
+        diffBuilder.withMessage(String.format("default value of parameter '%s' is changed from '%s' to '%s'",
                 ((DefaultableParameterNode) newParam).paramName(), oldExpr.toSourceCode().trim(),
                 newExpr.toSourceCode().trim()));
 
         if (newExpr instanceof BasicLiteralNode && oldExpr instanceof BasicLiteralNode) {
             // Todo: should the compatibility level be major or minor?
-            diff.setCompatibilityLevel(CompatibilityLevel.MINOR);
+            diffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR);
         } else {
             // semver compatibility level can be ambiguous for the expressions that are not basic literals.
             // (i.e. variable references)
-            diff.setCompatibilityLevel(CompatibilityLevel.AMBIGUOUS);
+            diffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS);
         }
-        return Optional.of(diff);
+        return diffBuilder.build();
     }
 
-    private Optional<NodeDiffImpl<Node>> compareParamType(ParameterNode newParam, ParameterNode oldParam) {
+    private Optional<? extends Diff> compareParamType(ParameterNode newParam, ParameterNode oldParam) {
         Node newType = extractParamType(newParam);
         Node oldType = extractParamType(oldParam);
 
@@ -97,37 +94,39 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             return Optional.empty();
         } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
-            NodeDiffImpl<Node> diff = new NodeDiffImpl<>(newParam, oldNode, CompatibilityLevel.AMBIGUOUS);
-            diff.setMessage(String.format("parameter type changed from: '%s' to: '%s'", oldType.toSourceCode().trim(),
+            NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
+            diffBuilder = diffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS);
+            diffBuilder.withMessage(String.format("parameter type changed from: '%s' to: '%s'", oldType.toSourceCode().trim(),
                     newType.toSourceCode().trim()));
-            return Optional.of(diff);
+            return diffBuilder.build();
         }
 
         return Optional.empty();
     }
 
-    private Optional<NodeDiffImpl<Node>> compareParamKind(ParameterNode newParam, ParameterNode oldParam) {
+    private Optional<? extends Diff> compareParamKind(ParameterNode newParam, ParameterNode oldParam) {
         if (newNode.kind() == oldNode.kind()) {
             return Optional.empty();
         }
 
-        NodeDiffImpl<Node> paramDiff = new NodeDiffImpl<>(newParam, oldParam);
-        paramDiff.setMessage("parameter kind is changed from '" + newParam.kind() + "' to '" + oldParam.kind() + "'");
+        NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
+        paramDiffBuilder = paramDiffBuilder.withMessage(String.format("parameter kind is changed from '%s' to '%s'",
+                newParam.kind(), oldParam.kind()));
         if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-            paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
         } else if (newParam.kind() == SyntaxKind.DEFAULTABLE_PARAM && oldParam.kind() == SyntaxKind.REQUIRED_PARAM) {
-            paramDiff.setCompatibilityLevel(CompatibilityLevel.MINOR);
+            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR);
         } else if (newParam.kind() == SyntaxKind.DEFAULTABLE_PARAM && oldParam.kind() == SyntaxKind.REST_PARAM) {
-            paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
         } else if (newParam.kind() == SyntaxKind.REST_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-            paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
         } else if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.REST_PARAM) {
-            paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
         } else if (newParam.kind() == SyntaxKind.REST_PARAM && oldParam.kind() == SyntaxKind.REQUIRED_PARAM) {
-            paramDiff.setCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
         }
 
-        return Optional.of(paramDiff);
+        return paramDiffBuilder.build();
     }
 
     private Node extractParamType(ParameterNode paramNode) {

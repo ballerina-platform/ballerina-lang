@@ -53,20 +53,20 @@ public class ModuleComparator implements Comparator {
 
     @Override
     public Optional<ModuleDiff> computeDiff() {
-        ModuleDiff.Modifier moduleDiffModifier = new ModuleDiff.Modifier(newModule, oldModule);
+        ModuleDiff.Builder moduleDiffModifier = new ModuleDiff.Builder(newModule, oldModule);
         extractModuleLevelDefinitions(newModule, true);
         extractModuleLevelDefinitions(oldModule, false);
 
         extractFunctionDiffs(moduleDiffModifier);
         // Todo: implement analyzers for other module-level definitions
-        return moduleDiffModifier.modify();
+        return moduleDiffModifier.build();
     }
 
-    private void extractFunctionDiffs(ModuleDiff.Modifier diffModifier) {
-        DiffExtractor<FunctionDefinitionNode> functionDiffExtractor = new DiffExtractor<>(newFunctions, oldFunctions);
-        functionDiffExtractor.getAdditions().forEach((name, function) -> diffModifier.functionAdded(function));
-        functionDiffExtractor.getRemovals().forEach((name, function) -> diffModifier.functionRemoved(function));
-        functionDiffExtractor.getCommons().forEach((name, functions) -> diffModifier.functionChanged(functions.getKey(),
+    private void extractFunctionDiffs(ModuleDiff.Builder diffModifier) {
+        DiffExtractor<FunctionDefinitionNode> funcDiffExtractor = new DiffExtractor<>(newFunctions, oldFunctions);
+        funcDiffExtractor.getAdditions().forEach((name, function) -> diffModifier.withFunctionAdded(function));
+        funcDiffExtractor.getRemovals().forEach((name, function) -> diffModifier.withFunctionRemoved(function));
+        funcDiffExtractor.getCommons().forEach((name, functions) -> diffModifier.withFunctionChanged(functions.getKey(),
                 functions.getValue()));
     }
 

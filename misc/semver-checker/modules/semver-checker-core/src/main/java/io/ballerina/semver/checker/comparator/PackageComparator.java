@@ -50,12 +50,12 @@ public class PackageComparator implements Comparator {
         oldPackage.modules().forEach(module -> oldModules.put(module.moduleName().toString(), module));
 
         DiffExtractor<Module> moduleDiffExtractor = new DiffExtractor<>(newModules, oldModules);
-        PackageDiff.Modifier packageDiffModifier = new PackageDiff.Modifier(newPackage, oldPackage);
-        moduleDiffExtractor.getAdditions().forEach((name, module) -> packageDiffModifier.moduleAdded(module));
-        moduleDiffExtractor.getRemovals().forEach((name, module) -> packageDiffModifier.moduleRemoved(module));
-        moduleDiffExtractor.getCommons().forEach((name, modules) -> packageDiffModifier.moduleChanged(modules.getKey(),
+        PackageDiff.Builder pkgDiffBuilder = new PackageDiff.Builder(newPackage, oldPackage);
+        moduleDiffExtractor.getAdditions().forEach((name, module) -> pkgDiffBuilder.withModuleAdded(module));
+        moduleDiffExtractor.getRemovals().forEach((name, module) -> pkgDiffBuilder.withModuleRemoved(module));
+        moduleDiffExtractor.getCommons().forEach((name, modules) -> pkgDiffBuilder.withModuleChanged(modules.getKey(),
                 modules.getValue()));
 
-        return packageDiffModifier.modify();
+        return pkgDiffBuilder.build();
     }
 }

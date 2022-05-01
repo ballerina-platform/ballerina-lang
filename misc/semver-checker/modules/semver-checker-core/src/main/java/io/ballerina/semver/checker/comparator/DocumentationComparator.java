@@ -20,7 +20,8 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.semver.checker.diff.CompatibilityLevel;
-import io.ballerina.semver.checker.diff.DiffType;
+import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 
 import java.util.Optional;
@@ -37,26 +38,24 @@ public class DocumentationComparator extends NodeComparator<Node> {
     }
 
     @Override
-    public Optional<NodeDiffImpl<Node>> computeDiff() {
-        NodeDiffImpl<Node> documentationDiff = new NodeDiffImpl<>(newNode, oldNode);
+    public Optional<? extends Diff> computeDiff() {
+        NodeDiffBuilder documentationDiffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode);
         if (newNode != null && oldNode == null) {
-            documentationDiff.setType(DiffType.NEW);
-            documentationDiff.setCompatibilityLevel(CompatibilityLevel.PATCH);
-            documentationDiff.setMessage("documentation is added.");
+            return documentationDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+                    .withMessage("documentation is added")
+                    .build();
         } else if (newNode == null && oldNode != null) {
-            documentationDiff.setType(DiffType.REMOVED);
-            documentationDiff.setCompatibilityLevel(CompatibilityLevel.PATCH);
-            documentationDiff.setMessage("documentation is removed.");
+            return documentationDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+                    .withMessage("documentation is removed")
+                    .build();
         } else if (newNode == null) {
             return Optional.empty();
         } else if (newNode.toSourceCode().equals(oldNode.toSourceCode())) {
             return Optional.empty();
         } else {
-            documentationDiff.setType(DiffType.MODIFIED);
-            documentationDiff.setCompatibilityLevel(CompatibilityLevel.PATCH);
-            documentationDiff.setMessage("documentation is modified.");
+            return documentationDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+                    .withMessage("documentation is modified")
+                    .build();
         }
-
-        return Optional.of(documentationDiff);
     }
 }
