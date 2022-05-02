@@ -138,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -552,14 +551,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangLock.BLangLockStmt node, T data);
 
     public abstract void visit(BLangLock.BLangUnLockStmt node, T data);
-
-    public abstract void visit(BLangMatch node, T data);
-
-    public abstract void visit(BLangMatch.BLangMatchTypedBindingPatternClause node, T data);
-
-    public abstract void visit(BLangMatch.BLangMatchStaticBindingPatternClause node, T data);
-
-    public abstract void visit(BLangMatch.BLangMatchStructuredBindingPatternClause node, T data);
 
     public abstract void visit(BLangMatchStatement node, T data);
 

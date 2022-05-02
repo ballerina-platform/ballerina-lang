@@ -138,7 +138,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -909,22 +908,6 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangLock.BLangUnLockStmt node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch.BLangMatchTypedBindingPatternClause node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch.BLangMatchStaticBindingPatternClause node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch.BLangMatchStructuredBindingPatternClause node, T data) {
         return transformNode(node, data);
     }
 

@@ -53,9 +53,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
@@ -92,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -371,28 +370,6 @@ public class ASTBuilderUtil {
         return blockNode;
     }
 
-    static BLangMatch.BLangMatchTypedBindingPatternClause createMatchStatementPattern(Location pos,
-                                                                                      BLangSimpleVariable variable,
-                                                                                      BLangBlockStmt body) {
-        BLangMatch.BLangMatchTypedBindingPatternClause patternClause =
-                (BLangMatch.BLangMatchTypedBindingPatternClause)
-                        TreeBuilder.createMatchStatementSimpleBindingPattern();
-        patternClause.pos = pos;
-        patternClause.variable = variable;
-        patternClause.body = body;
-        return patternClause;
-
-    }
-
-    static BLangMatch createMatchStatement(Location pos,
-                                           BLangExpression expr,
-                                           List<BLangMatch.BLangMatchTypedBindingPatternClause> patternClauses) {
-        BLangMatch matchStmt = (BLangMatch) TreeBuilder.createMatchStatement();
-        matchStmt.pos = pos;
-        matchStmt.expr = expr;
-        matchStmt.patternClauses.addAll(patternClauses);
-        return matchStmt;
-    }
 
     static BLangUnaryExpr createUnaryExpr(Location pos) {
         return createUnaryExpr(pos, null, null, null, null);

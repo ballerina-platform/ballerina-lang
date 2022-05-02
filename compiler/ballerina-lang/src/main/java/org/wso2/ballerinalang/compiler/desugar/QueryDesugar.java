@@ -146,9 +146,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -1894,17 +1891,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        this.acceptNode(bLangMatchStmtStaticBindingPatternClause.literal);
-    }
-
-    @Override
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
-        this.acceptNode(bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable);
-        this.acceptNode(bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr);
-    }
-
-    @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
     }
 
@@ -2002,19 +1988,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         SymbolEnv prevQueryEnv = this.queryEnv;
         queryAction.getQueryClauses().forEach(clause -> this.acceptNode(clause));
         this.queryEnv = prevQueryEnv;
-    }
-
-    @Override
-    public void visit(BLangMatch matchNode) {
-        this.acceptNode(matchNode.expr);
-        matchNode.patternClauses.forEach(pattern -> this.acceptNode(pattern));
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        this.acceptNode(patternClauseNode.body);
-        this.acceptNode(patternClauseNode.matchExpr);
-        this.acceptNode(patternClauseNode.variable);
     }
 
     @Override
