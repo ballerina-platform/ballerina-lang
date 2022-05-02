@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
@@ -991,11 +992,11 @@ public class ASTBuilderUtil {
     }
 
     static BLangMatchClause createMatchClause(BLangExpression matchExpr, BLangBlockStmt blockStmt,
-                                              BLangExpression matchGuard, BLangMatchPattern... patterns) {
+                                              BLangExpression matchGuardExpr, BLangMatchPattern... patterns) {
         BLangMatchClause matchClause = (BLangMatchClause) TreeBuilder.createMatchClause();
         matchClause.expr = matchExpr;
         matchClause.blockStmt = blockStmt;
-        matchClause.matchGuard = createMatchGuard(matchGuard);
+        matchClause.matchGuard = createMatchGuard(matchGuardExpr);
         for (BLangMatchPattern pattern : patterns) {
             matchClause.matchPatterns.add(pattern);
             matchClause.declaredVars.putAll(pattern.declaredVars);
@@ -1004,6 +1005,9 @@ public class ASTBuilderUtil {
     }
 
     static BLangMatchGuard createMatchGuard(BLangExpression expr) {
+        if (expr == null) {
+            return null;
+        }
         BLangMatchGuard matchGuard = (BLangMatchGuard) TreeBuilder.createMatchGuard();
         matchGuard.expr = expr;
         return matchGuard;
@@ -1017,6 +1021,13 @@ public class ASTBuilderUtil {
         varBindingPattern.declaredVars.putAll(bindingPattern.declaredVars);
         varBindingPattern.matchExpr = matchExpr;
         return varBindingPattern;
+    }
+
+    static BLangWildCardMatchPattern createWildCardMatchPattern(BLangExpression matchExpr) {
+        BLangWildCardMatchPattern wildCardMatchPattern =
+                (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
+        wildCardMatchPattern.matchExpr = matchExpr;
+        return wildCardMatchPattern;
     }
 
     static BLangCaptureBindingPattern createCaptureBindingPattern(BVarSymbol symbol, String varName) {
