@@ -32,7 +32,6 @@ import org.ballerinalang.langserver.config.ClientConfigListener;
 import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
-import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
@@ -172,8 +171,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
             experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
                     HashMap.class);
         }
-        // Subscribe document sync events.
-        EventSyncPubSubHolder subscribersHolder = EventSyncPubSubHolder.getInstance(this.serverContext);
 
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();

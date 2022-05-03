@@ -36,14 +36,13 @@ import java.util.ServiceLoader;
 public class EventSyncPubSubHolder {
     private static final LanguageServerContext.Key<EventSyncPubSubHolder> SUBSCRIBERS_HOLDER_KEY =
             new LanguageServerContext.Key<>();
-    private final Map<PublisherKind, EventPublisher> publisherMap = new HashMap<>();
+    private static final Map<PublisherKind, EventPublisher> publisherMap = new HashMap<>();
 
     private EventSyncPubSubHolder(LanguageServerContext serverContext) {
         serverContext.put(SUBSCRIBERS_HOLDER_KEY, this);
-        loadServices();
     }
 
-    private void loadServices() {
+    static {
         Map<PublisherKind, List<EventSubscriber>> eventSubscribersMap = new HashMap<>();
         ServiceLoader<EventSubscriber> subscribers = ServiceLoader.load(EventSubscriber.class);
         for (EventSubscriber eventSubscriber : subscribers) {
@@ -81,5 +80,16 @@ public class EventSyncPubSubHolder {
             throw new EventSyncException("No publishers for the publisher kind");
         }
         return publisherMap.get(publisherKind);
+    }
+    
+    public List<EventPublisher> getPublishers(List<PublisherKind> publisherKinds) throws EventSyncException {
+        List<EventPublisher> eventPublishers = new ArrayList<>();
+        for (PublisherKind publisherKind : publisherKinds) {
+            if (publisherMap.containsKey(publisherKind)) {
+                throw new EventSyncException("No publishers for the publisher kind");
+            }
+            eventPublishers.add(publisherMap.get(publisherKind));
+        }
+        return eventPublishers;
     }
 }
