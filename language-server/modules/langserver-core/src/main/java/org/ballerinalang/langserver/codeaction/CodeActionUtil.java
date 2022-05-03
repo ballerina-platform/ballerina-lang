@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -67,6 +68,7 @@ import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.DiagnosticSeverity;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -451,23 +453,17 @@ public class CodeActionUtil {
         return edits;
     }
 
-    public static List<TextEdit> addGettersCodeActionEdits(String varName, Range range, int offset0,
+    public static List<TextEdit> addGettersCodeActionEdits(String varName, Range range, String spaces,
                                                            String typeName) {
-        Position startPos = range.getEnd();
-        Range newTextRange = new Range(startPos, startPos);
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', offset0);
-        edits.add(new TextEdit(newTextRange, generateGetterFunctionBodyText(varName, typeName, spaces)));
+        edits.add(new TextEdit(range, generateGetterFunctionBodyText(varName, typeName, spaces)));
         return edits;
     }
 
-    public static List<TextEdit> addSettersCodeActionEdits(String varName, Range range, int offset0,
+    public static List<TextEdit> addSettersCodeActionEdits(String varName, Range range, String spaces,
                                                            String typeName) {
-        Position startPos = range.getEnd();
-        Range newTextRange = new Range(startPos, startPos);
         List<TextEdit> edits = new ArrayList<>();
-        String spaces = StringUtils.repeat(' ', offset0);
-        edits.add(new TextEdit(newTextRange, generateSetterFunctionBodyText(varName, typeName, spaces)));
+        edits.add(new TextEdit(range, generateSetterFunctionBodyText(varName, typeName, spaces)));
         return edits;
     }
 
@@ -906,10 +902,11 @@ public class CodeActionUtil {
     private static String generateGetterFunctionBodyText(String varName, String typeName, String spaces) {
         StringBuilder newTextBuilder = new StringBuilder();
         String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
-        newTextBuilder.append(String.format
-                (LINE_SEPARATOR + LINE_SEPARATOR + spaces + "public function get%s() returns %s{ " + LINE_SEPARATOR +
-                spaces + spaces + "return self.%s;" + LINE_SEPARATOR + spaces + "}" ,
-                functionName, typeName, varName));
+        newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
+                .append(String.format("public function get%s() returns %s{ ", functionName, typeName))
+                .append(LINE_SEPARATOR).append(spaces).append(spaces)
+                .append(String.format("return self.%s;", varName))
+                .append(LINE_SEPARATOR).append(spaces).append("}");
         return newTextBuilder.toString();
     }
 
@@ -917,11 +914,102 @@ public class CodeActionUtil {
 
         StringBuilder newTextBuilder = new StringBuilder();
         String functionName = varName.substring(0, 1).toUpperCase(Locale.ROOT) + varName.substring(1);
-        newTextBuilder.append(String.format
-                (LINE_SEPARATOR + LINE_SEPARATOR + spaces + "public function set%s(%s %s) { " + LINE_SEPARATOR +
-                spaces + spaces + "self.%s = %s;" + LINE_SEPARATOR + "" + spaces + "}" ,
-                functionName, typeName, varName, varName, varName));
+        newTextBuilder.append(LINE_SEPARATOR).append(LINE_SEPARATOR).append(spaces)
+                .append(String.format("public function set%s(%s %s) { ", functionName, typeName, varName))
+                .append(LINE_SEPARATOR).append(spaces).append(spaces)
+                .append(String.format("self.%s = %s;", varName, varName))
+                .append(LINE_SEPARATOR).append(spaces).append("}");
         return newTextBuilder.toString();
+    }
+
+    public static boolean isWithinVarName(CodeActionContext context, ObjectFieldNode objectFieldNode) {
+        return objectFieldNode.fieldName().lineRange().startLine().offset() <= context.cursorPosition().getCharacter()
+                && context.cursorPosition().getCharacter() <=
+                objectFieldNode.fieldName().lineRange().endLine().offset();
+    }
+
+    public static List<TextEdit> getGetterSetterCodeEdits(ObjectFieldNode objectFieldNode,
+                                                          Optional<FunctionDefinitionNode> initNode,
+                                                          String fieldName,
+                                                          String typeName,
+                                                          String name) {
+        int startLine;
+        int startOffset;
+        int textOffset;
+        if (initNode.isEmpty()) {
+            startLine = ((ClassDefinitionNode) objectFieldNode.parent()).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
+                    lineRange().endLine().line();
+            startOffset = ((ClassDefinitionNode) objectFieldNode.parent()).
+                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
+                    lineRange().endLine().offset();
+            textOffset = objectFieldNode.lineRange().startLine().offset();
+        } else {
+            startLine = initNode.get().lineRange().endLine().line();
+            startOffset = initNode.get().lineRange().endLine().offset();
+            textOffset = initNode.get().lineRange().startLine().offset();
+        }
+
+        Position startPos = new Position(startLine, startOffset);
+        Range newTextRange = new Range(startPos, startPos);
+        String spaces = StringUtils.repeat(' ', textOffset);
+        if (name.equals("Getter")) {
+            return CodeActionUtil.addGettersCodeActionEdits(fieldName, newTextRange, spaces, typeName);
+        } else if (name.equals("Setter")) {
+            return CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange, spaces, typeName);
+        } else {
+            List<TextEdit> edits = CodeActionUtil.addGettersCodeActionEdits(fieldName, newTextRange, spaces, typeName);
+            edits.addAll((CodeActionUtil.addSettersCodeActionEdits(fieldName, newTextRange, spaces, typeName)));
+            return edits;
+        }
+    }
+
+    public static Optional<FunctionDefinitionNode> getInitNode(ObjectFieldNode objectFieldNode) {
+        FunctionDefinitionNode initNode = null;
+
+        for (Node node : ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
+            if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                if (((FunctionDefinitionNode) node).functionName().toString().equals("init")) {
+                    initNode = (FunctionDefinitionNode) node;
+                }
+
+            }
+        }
+
+        return Optional.ofNullable(initNode);
+    }
+
+    public static boolean isfunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
+        for (Node node: ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
+            if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
+                if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static Optional<ObjectFieldNode> getObjectFieldNode(CodeActionContext context,
+                                                        NodeBasedPositionDetails posDetails) {
+        NonTerminalNode matchedNode = posDetails.matchedCodeActionNode();
+        if (!(matchedNode.kind() == SyntaxKind.OBJECT_FIELD) || matchedNode.hasDiagnostics()) {
+            return Optional.empty();
+        }
+
+        ObjectFieldNode objectFieldNode = (ObjectFieldNode) matchedNode;
+        if (!CodeActionUtil.isWithinVarName(context, objectFieldNode)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(objectFieldNode);
+    }
+
+    public static boolean isImmutableObjectField(ObjectFieldNode objectFieldNode) {
+        return  objectFieldNode.qualifierList().stream()
+                .anyMatch(qualifiers -> qualifiers.toString().strip().equals("final") ||
+                        qualifiers.toString().strip().equals("readonly"));
     }
 
     /**

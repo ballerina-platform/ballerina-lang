@@ -16,26 +16,21 @@
 
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Code Action for getters.
@@ -53,56 +48,23 @@ public class GetterCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
-
-        boolean isInitPresent = false;
-        FunctionDefinitionNode initNode = null;
-        NonTerminalNode matchedNode = posDetails.matchedCodeActionNode();
-        if (!(matchedNode.kind() == SyntaxKind.OBJECT_FIELD) || matchedNode.hasDiagnostics()) {
+        if (CodeActionUtil.getObjectFieldNode(context, posDetails).isEmpty()) {
             return Collections.emptyList();
         }
 
-        ObjectFieldNode objectFieldNode = (ObjectFieldNode) matchedNode;
-        if (!isWithinVarName(context, objectFieldNode)) {
-            return Collections.emptyList();
-        }
-
+        ObjectFieldNode objectFieldNode = CodeActionUtil.getObjectFieldNode(context, posDetails).get();
         String commandTitle = String.format("Create a getter for '%s'", objectFieldNode.fieldName().toString());
         String fieldName = String.valueOf(objectFieldNode.fieldName());
         String typeName = String.valueOf(objectFieldNode.typeName());
-        String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
-        for (Node node: ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
-            if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
-                if (((FunctionDefinitionNode) node).functionName().toString().equals("init")) {
-                    isInitPresent = true;
-                    initNode = (FunctionDefinitionNode) node;
-                }
-
-                if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {
-                    return Collections.emptyList();
-                }
-            }
+        String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
+                fieldName.substring(1);
+        if (CodeActionUtil.isfunctionDefined(functionName, objectFieldNode)) {
+            return Collections.emptyList();
         }
 
-        int startLine;
-        int startOffset;
-        int textOffset;
-        if (!isInitPresent) {
-            startLine = ((ClassDefinitionNode) objectFieldNode.parent()).
-                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
-                    lineRange().endLine().line();
-            startOffset = ((ClassDefinitionNode) objectFieldNode.parent()).
-                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
-                    lineRange().endLine().offset();
-            textOffset = objectFieldNode.lineRange().startLine().offset();
-        } else {
-            startLine = initNode.lineRange().endLine().line();
-            startOffset = initNode.lineRange().endLine().offset();
-            textOffset = initNode.lineRange().startLine().offset();
-        }
-
-        Position startPos = new Position(startLine, startOffset);
-        Range newTextRange = new Range(startPos, startPos);
-        List<TextEdit> edits = CodeActionUtil.addGettersCodeActionEdits(fieldName, newTextRange, textOffset, typeName);
+        Optional<FunctionDefinitionNode> initNode = CodeActionUtil.getInitNode(objectFieldNode);
+        List<TextEdit> edits = CodeActionUtil.getGetterSetterCodeEdits(objectFieldNode, initNode, fieldName, typeName,
+                                                                       NAME);
         return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
     }
 
@@ -111,9 +73,4 @@ public class GetterCodeAction extends AbstractCodeActionProvider {
         return null;
     }
 
-    private boolean isWithinVarName(CodeActionContext context, ObjectFieldNode objectFieldNode) {
-         return objectFieldNode.fieldName().lineRange().startLine().offset() <= context.cursorPosition().getCharacter()
-                 && context.cursorPosition().getCharacter() <=
-                 objectFieldNode.fieldName().lineRange().endLine().offset();
-    }
 }
