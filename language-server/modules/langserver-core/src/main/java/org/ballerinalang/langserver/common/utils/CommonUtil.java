@@ -19,10 +19,12 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -51,20 +53,25 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -73,6 +80,7 @@ import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -111,6 +119,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -119,7 +128,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -181,8 +189,6 @@ public class CommonUtil {
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
-    private static final int MAX_DEPTH = 2;
-
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
         String onlineCompilation = System.getProperty("ls.compilation.online");
@@ -202,6 +208,16 @@ public class CommonUtil {
      */
     public static Range toRange(LineRange lineRange) {
         return new Range(toPosition(lineRange.startLine()), toPosition(lineRange.endLine()));
+    }
+
+    /**
+     * Convert the syntax-node line position into a lsp4j range.
+     *
+     * @param linePosition - line position.
+     * @return {@link Range} converted range
+     */
+    public static Range toRange(LinePosition linePosition) {
+        return new Range(toPosition(linePosition), toPosition(linePosition));
     }
 
     /**
@@ -267,6 +283,17 @@ public class CommonUtil {
         return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
     }
 
+    /**
+     * Get the default value for the given BType.
+     *
+     * @param bType  Type descriptor to get the default value
+     * @param offset snippet offset.
+     * @return {@link String}   Default value as a String
+     */
+    public static Optional<String> getDefaultValueForType(TypeSymbol bType, int offset) {
+        return getDefaultValueForType(bType, true, offset);
+    }
+
     public static Optional<String> getDefaultPlaceholderForType(TypeSymbol bType) {
         return getDefaultValueForType(bType)
                 .map(defaultValue -> defaultValue.replace("}", "\\}"));
@@ -279,12 +306,11 @@ public class CommonUtil {
      * @return {@link String}   Default value as a String
      */
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
-        return getDefaultValueForType(bType, 1);
+        return getDefaultValueForType(bType, false, -1);
     }
 
-    private static Optional<String> getDefaultValueForType(TypeSymbol bType, int depth) {
-        String typeString;
-
+    private static Optional<String> getDefaultValueForType(TypeSymbol bType, boolean isSnippet, int offset) {
+        String valueString;
         if (bType == null) {
             return Optional.empty();
         }
@@ -294,67 +320,85 @@ public class CommonUtil {
         switch (typeKind) {
             case TUPLE:
                 TupleTypeSymbol tupleType = (TupleTypeSymbol) rawType;
-                String memberTypes = tupleType.memberTypeDescriptors().stream()
-                        .map(member -> getDefaultValueForType(member, depth + 1).orElse(""))
-                        .collect(Collectors.joining(", "));
-                typeString = "[" + memberTypes + "]";
+                List<String> memberDefaultValues = tupleType.memberTypeDescriptors().stream()
+                        .map(member -> getDefaultValueForTypeDescKind(member).orElse(""))
+                        .collect(Collectors.toList());
+
+                if (memberDefaultValues.isEmpty()) {
+                    valueString = isSnippet ? "[${" + offset + "}]" : "[]";
+                    break;
+                }
+                List<String> memberSnippets = new ArrayList<>();
+                int memberOffset = offset;
+                for (String value : memberDefaultValues) {
+                    memberSnippets.add(isSnippet ? generateSnippetEntry(value, memberOffset) : value);
+                    memberOffset++;
+                }
+                valueString = "[" + String.join(", ", memberSnippets) + "]";
                 break;
             case ARRAY:
                 // Filler value of an array is []
                 ArrayTypeSymbol arrayType = (ArrayTypeSymbol) rawType;
                 if (arrayType.memberTypeDescriptor().typeKind() == TypeDescKind.ARRAY) {
-                    typeString = "[" + getDefaultValueForType(arrayType.memberTypeDescriptor(), depth + 1).orElse("")
-                            + "]";
-                } else {
-                    typeString = "[]";
+                    String value = getDefaultValueForTypeDescKind(arrayType.memberTypeDescriptor())
+                            .orElse("");
+                    valueString = "[" + (isSnippet ? generateSnippetEntry(value, offset) : value) + "]";
+                    break;
                 }
+                valueString = isSnippet ? "[${" + offset + "}]" : "[]";
                 break;
             case RECORD:
-                if (depth > MAX_DEPTH) {
-                    return Optional.of("{}");
-                }
                 // TODO: Here we have disregarded the formatting of the record fields. Need to consider that in future
                 RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rawType;
-                typeString = "{";
-                typeString += getMandatoryRecordFields(recordTypeSymbol).stream()
+                List<String> fieldInsertText = new ArrayList<>();
+                int count = offset;
+                valueString = "{";
+                List<RecordFieldSymbol> mandatoryFieldSymbols = getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
-                        .map(recordFieldSymbol -> recordFieldSymbol.getName().get() + ": " +
-                                getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1).orElse(""))
-                        .collect(Collectors.joining(", "));
-                typeString += "}";
+                        .collect(Collectors.toList());
+                for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
+                    String value = getDefaultValueForTypeDescKind(CommonUtil.getRawType(mandatoryField
+                            .typeDescriptor())).orElse("");
+                    fieldInsertText.add(mandatoryField.getName().get() + ": "
+                            + (isSnippet ? generateSnippetEntry(value, count) : value));
+                    count++;
+                }
+                valueString += String.join(", ", fieldInsertText);
+                valueString += "}";
                 break;
             case OBJECT:
-                if (depth > MAX_DEPTH) {
-                    return Optional.of("");
-                }
                 ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
                 if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
                     ClassSymbol classSymbol = (ClassSymbol) objectTypeSymbol;
                     if (classSymbol.initMethod().isPresent()) {
                         List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().params().get();
-                        String text = params.stream()
-                                .map(param -> getDefaultValueForType(param.typeDescriptor(), depth + 1).orElse(""))
-                                .collect(Collectors.joining(", "));
-                        typeString = "new (" + text + ")";
+                        int snippetIndex = offset;
+                        List<String> paramSnippets = new ArrayList<>();
+                        for (ParameterSymbol param : params) {
+                            String value =
+                                    getDefaultValueForTypeDescKind(CommonUtil.getRawType(param.typeDescriptor()))
+                                            .orElse("");
+                            paramSnippets.add(isSnippet ? generateSnippetEntry(value, snippetIndex) : value);
+                            snippetIndex++;
+                        }
+                        valueString = "new (" + String.join(", ", paramSnippets) + ")";
                     } else {
-                        typeString = "new ()";
+                        valueString = isSnippet ? "${" + offset + ":new ()}" : "new ()";
                     }
                 } else {
-                    typeString = "object {}";
+                    valueString = isSnippet ? "${" + offset + ":object {}}" : "object {}";
                 }
                 break;
             case UNION:
-                if (depth > MAX_DEPTH) {
-                    return Optional.of("");
-                }
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) rawType).memberTypeDescriptors());
                 List<TypeSymbol> nilMembers = members.stream()
                         .filter(member -> member.typeKind() == TypeDescKind.NIL).collect(Collectors.toList());
                 if (nilMembers.isEmpty()) {
-                    typeString = getDefaultValueForType(members.get(0), depth + 1).orElse("");
+                    valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(members.get(0))).orElse("");
+                    valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 } else {
-                    return Optional.of("()");
+                    return Optional.of(isSnippet ? generateSnippetEntry("()", offset) : "()");
                 }
                 break;
             case INTERSECTION:
@@ -364,53 +408,67 @@ public class CommonUtil {
                     // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
                     // further checks here. Get the member type from intersection which is not readonly and get its 
                     // default value
-                    typeString = "()";
+                    valueString = isSnippet ? generateSnippetEntry("()", offset) : "()";
                     Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
                             .memberTypeDescriptors().stream()
                             .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
                             .findAny();
                     if (memberType.isPresent()) {
-                        typeString = getDefaultValueForType(memberType.get(), depth + 1).orElse("");
+                        valueString =
+                                getDefaultValueForTypeDescKind(CommonUtil.getRawType(memberType.get())).orElse("");
+                        valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                     }
                 } else {
-                    typeString = getDefaultValueForType(effectiveType, depth + 1).orElse("");
+                    valueString = getDefaultValueForTypeDescKind(CommonUtil.getRawType(effectiveType))
+                            .orElse("");
+                    valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 }
                 break;
             case TABLE:
                 TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
-                typeString = "table [" + getDefaultValueForType(rowType, depth + 1).orElse("") + "]";
+                String rowValue = getDefaultValueForTypeDescKind(rowType).orElse("");
+                valueString = "table [" + (isSnippet ? generateSnippetEntry(rowValue, offset) : rowValue) + "]";
                 break;
             case ERROR:
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
-                if (errorType.typeKind() == TypeDescKind.RECORD && depth <= MAX_DEPTH) {
+                if (errorType.typeKind() == TypeDescKind.RECORD) {
                     List<RecordFieldSymbol> mandatoryFields = getMandatoryRecordFields((RecordTypeSymbol) errorType);
                     if (!mandatoryFields.isEmpty()) {
                         errorString.append(", ");
-                        errorString.append(mandatoryFields.stream()
-                                .map(recordFieldSymbol -> recordFieldSymbol.getName().get()
-                                        + " = " + getDefaultValueForType(recordFieldSymbol.typeDescriptor(), depth + 1)
-                                        .orElse(""))
-                                .collect(Collectors.joining(", ")));
+                        List<String> detailFieldSnippets = new ArrayList<>();
+                        int index = offset;
+                        for (RecordFieldSymbol field : mandatoryFields) {
+                            String defValue =
+                                    getDefaultValueForTypeDescKind(CommonUtil.getRawType(field.typeDescriptor()))
+                                            .orElse("");
+                            detailFieldSnippets.add(field.getName().get()
+                                    + " = " + (isSnippet ? generateSnippetEntry(defValue, index) : defValue));
+                            index++;
+                        }
+                        errorString.append(String.join(", ", detailFieldSnippets));
                     }
                 }
                 errorString.append(")");
-                typeString = errorString.toString();
+                valueString = errorString.toString();
                 break;
             case SINGLETON:
-                typeString = rawType.signature();
+                valueString = rawType.signature();
+                valueString = isSnippet ? generateSnippetEntry(valueString, offset) : valueString;
                 break;
-            case MAP:
-            case FLOAT:
-            case BOOLEAN:
-            case STREAM:
-            case XML:
-            case DECIMAL:
             default:
-                return getDefaultValueForTypeDescKind(typeKind);
+                Optional<String> value = getDefaultValueForTypeDescKind(typeKind);
+                if (value.isEmpty()) {
+                    return value;
+                }
+                return isSnippet ? Optional.of(generateSnippetEntry(value.get(), offset)) : value;
         }
 
-        return Optional.of(typeString);
+        return Optional.of(valueString);
+    }
+
+    private static String generateSnippetEntry(String value, int offset) {
+        return "${" + offset + ":" + value + "}";
     }
 
     /**
@@ -430,6 +488,7 @@ public class CommonUtil {
             case BOOLEAN:
                 defaultValue = Boolean.toString(false);
                 break;
+            case RECORD:
             case MAP:
                 defaultValue = "{}";
                 break;
@@ -442,16 +501,42 @@ public class CommonUtil {
             case DECIMAL:
                 defaultValue = Integer.toString(0);
                 break;
+            case ARRAY:
+                defaultValue = "[]";
+                break;
+            case SINGLETON:
+                defaultValue = "\"\"";
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     defaultValue = Integer.toString(0);
                     break;
-                }
-
-                if (typeKind.isStringType()) {
+                } else if (typeKind.isStringType()) {
                     defaultValue = "\"\"";
                     break;
                 }
+        }
+        return Optional.ofNullable(defaultValue);
+    }
+
+    /**
+     * Used to get the default values for {@link TypeDescKind} of a {@link TypeSymbol}.
+     * {@link #getDefaultValueForType(TypeSymbol)} is preferred over this function.
+     * This function should be used as a compliment to .
+     *
+     * @param typeSymbol Type symbol
+     * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
+     */
+    public static Optional<String> getDefaultValueForTypeDescKind(TypeSymbol typeSymbol) {
+        String defaultValue;
+        TypeDescKind typeKind = typeSymbol.typeKind();
+        switch (typeKind) {
+            case SINGLETON:
+                defaultValue = typeSymbol.signature();
+                break;
+            default:
+                defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
         }
         return Optional.ofNullable(defaultValue);
     }
@@ -468,11 +553,9 @@ public class CommonUtil {
                                                                        Map<String, RecordFieldSymbol> fields,
                                                                        Pair<TypeSymbol, TypeSymbol> symbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
-            fieldCounter.getAndIncrement();
             String insertText =
-                    getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
+                    getRecordFieldCompletionInsertText(field, 1);
 
             String detail;
             if (symbol.getLeft().getName().isPresent()) {
@@ -503,8 +586,8 @@ public class CommonUtil {
      * @return {@link Optional}   Completion Item to fill all the options
      */
     public static Optional<LSCompletionItem> getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              Map<String, RecordFieldSymbol> fields,
-                                                              Pair<TypeSymbol, TypeSymbol> symbol) {
+                                                                        Map<String, RecordFieldSymbol> fields,
+                                                                        Pair<TypeSymbol, TypeSymbol> symbol) {
         List<String> fieldEntries = new ArrayList<>();
 
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
@@ -525,11 +608,13 @@ public class CommonUtil {
         }
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
+            int count = 1;
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + getDefaultValueForType(entry.getValue().typeDescriptor()).orElse(" ");
+                        + getDefaultValueForType(entry.getValue().typeDescriptor(), count).orElse(" ");
                 fieldEntries.add(fieldEntry);
+                count++;
             }
 
             String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
@@ -645,51 +730,13 @@ public class CommonUtil {
     /**
      * Get the completion item insert text for a BField.
      *
-     * @param bField  BField to evaluate
-     * @param parents Parent record field symbols
+     * @param bField BField to evaluate
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
-                                                            List<RecordFieldSymbol> parents,
-                                                            int tabOffset, int fieldId) {
-        TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
+    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
+
         StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
-        if (fieldType.typeKind() == TypeDescKind.RECORD) {
-            List<RecordFieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
-            if (requiredFields.isEmpty()) {
-                insertText.append("{").append("${").append(fieldId).append("}}");
-                return insertText.toString();
-            }
-            insertText.append("{").append(LINE_SEPARATOR);
-            List<String> requiredFieldInsertTexts = new ArrayList<>();
-
-            for (int i = 0; i < requiredFields.size(); i++) {
-                // If the field refers to the same type as bField or a parent of bField, 
-                // it results in a stack overflow error. Avoiding that using the following check
-                RecordFieldSymbol field = requiredFields.get(i);
-                if (!parents.contains(field)) {
-                    List<RecordFieldSymbol> newParentsList = new ArrayList<>(parents);
-                    newParentsList.add(field);
-                    String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
-                            getRecordFieldCompletionInsertText(field, newParentsList, tabOffset + 1, i + 1);
-                    requiredFieldInsertTexts.add(fieldText);
-                } else {
-                    return bField.getName().get() + ": {}";
-                }
-            }
-            insertText.append(String.join("," + CommonUtil.LINE_SEPARATOR, requiredFieldInsertTexts));
-            insertText.append(LINE_SEPARATOR)
-                    .append(String.join("", Collections.nCopies(tabOffset, "\t")))
-                    .append("}");
-        } else if (fieldType.typeKind() == TypeDescKind.ARRAY) {
-            insertText.append("[").append("${").append(fieldId).append("}").append("]");
-        } else if (fieldType.typeKind().isStringType()) {
-            insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
-        } else {
-            insertText.append("${").append(fieldId).append(":")
-                    .append(getDefaultPlaceholderForType(bField.typeDescriptor()).orElse(" ")).append("}");
-        }
-
+        insertText.append(getDefaultValueForType(bField.typeDescriptor(), tabOffset).orElse(" "));
         return insertText.toString();
     }
 
@@ -875,6 +922,24 @@ public class CommonUtil {
             newName = generateName(++suffix, names);
         }
         return newName;
+    }
+
+    /**
+     * Given a prefix and visible symbols, this method will return a type name by appending a number to the end.
+     *
+     * @param prefix             Type name prefix
+     * @param visibleSymbolNames Visible symbols
+     * @return Generated type name
+     */
+    public static String generateTypeName(String prefix, Set<String> visibleSymbolNames) {
+        String typeName = prefix;
+        int idx = 0;
+        while (visibleSymbolNames.contains(typeName)) {
+            idx++;
+            typeName = typeName + idx;
+        }
+
+        return typeName;
     }
 
     /**
@@ -1175,6 +1240,67 @@ public class CommonUtil {
     }
 
     /**
+     * Returns the file path.
+     *
+     * @param orgName    organization name
+     * @param moduleName module name
+     * @param project    ballerina project
+     * @param symbol     symbol
+     * @param context    service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
+                                                          Project project, Symbol symbol,
+                                                          DocumentServiceContext context) {
+        if (symbol.getLocation().isEmpty()) {
+            return Optional.empty();
+        }
+        Collection<ResolvedPackageDependency> dependencies =
+                project.currentPackage().getResolution().dependencyGraph().getNodes();
+        Optional<Path> filepath = Optional.empty();
+        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        for (ResolvedPackageDependency depNode : dependencies) {
+            Package depPackage = depNode.packageInstance();
+            for (ModuleId moduleId : depPackage.moduleIds()) {
+                if (depPackage.packageOrg().value().equals(orgName) &&
+                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
+                    Module module = depPackage.module(moduleId);
+                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
+                    documentIds.addAll(module.testDocumentIds());
+                    for (DocumentId docId : documentIds) {
+                        if (module.document(docId).name().equals(sourceFile)) {
+                            filepath =
+                                    module.project().documentPath(docId);
+                            break;
+                        }
+                    }
+                }
+                // Check for the cancellation after each of the module visit
+                context.checkCancelled();
+            }
+        }
+        return filepath;
+    }
+
+    /**
+     * Returns the file path.
+     *
+     * @param symbol  symbol
+     * @param project ballerina project
+     * @param context service operation context
+     * @return file path
+     */
+    public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
+        if (symbol.getModule().isEmpty()) {
+            return Optional.empty();
+        }
+        ModuleID moduleID = symbol.getModule().get().id();
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+        return getFilePathForDependency(orgName, moduleName, project, symbol, context);
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -1280,10 +1406,10 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package instance to evaluate
+     * @param pkg {@link Package} package info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(Package pkg) {
+    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
         String orgName = "";
         if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
             orgName = pkg.packageOrg().value() + "/";
@@ -1299,7 +1425,8 @@ public class CommonUtil {
      * @param pkg     Package to be evaluated against
      * @return {@link Optional}
      */
-    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context, Package pkg) {
+    public static Optional<ImportDeclarationNode> matchingImportedModule(CompletionContext context,
+                                                                         LSPackageLoader.PackageInfo pkg) {
         String name = pkg.packageName().value();
         String orgName = pkg.packageOrg().value();
         Map<ImportDeclarationNode, ModuleSymbol> currentDocImports = context.currentDocImportsMap();
@@ -1423,83 +1550,117 @@ public class CommonUtil {
     }
 
     /**
-     * Given the cursor position information, returns the expected ParameterSymbol
-     * information corresponding to the FunctionTypeSymbol instance.
+     * Given the function type symbol and existing arguments
+     * returns the parameter symbol of the function type corresponding to the given context.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
      * @param ctx                Positioned operation context information.
-     * @param node               Function call expression node.
-     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     * @param arguments          List of function argument nodes.
+     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
      */
-    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                           PositionedOperationContext ctx,
-                                                                           FunctionCallExpressionNode node) {
-        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
+    public static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                   PositionedOperationContext ctx,
+                                                                   NodeList<FunctionArgumentNode> arguments) {
+        return resolveParameterSymbol(functionTypeSymbol, ctx, arguments, false);
     }
 
-    /**
-     * Given the cursor position information, returns the expected ParameterSymbol
-     * information corresponding to the FunctionTypeSymbol instance.
-     *
-     * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
-     * @param node               Remote method call action node.
-     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
-     */
-    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                           PositionedOperationContext ctx,
-                                                                           RemoteMethodCallActionNode node) {
-        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
-    }
 
-    /**
-     * Given the cursor position information, returns the expected ParameterSymbol
-     * information corresponding to the FunctionTypeSymbol instance.
-     *
-     * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
-     * @param node               Method call expression node.
-     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
-     */
-    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                           PositionedOperationContext ctx,
-                                                                           MethodCallExpressionNode node) {
-        return resolveParameterSymbol(functionTypeSymbol, ctx, node.arguments());
-    }
+    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                   PositionedOperationContext ctx,
+                                                                   NodeList<FunctionArgumentNode> arguments,
+                                                                   boolean isLangLibFunction) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = 0;
+        for (Node child : arguments) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
 
-    /**
-     * Given the cursor position information, returns the expected ParameterSymbol
-     * information corresponding to the FunctionTypeSymbol instance.
-     *
-     * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
-     * @param node               Implicit new expression node.
-     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
-     */
-    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                           PositionedOperationContext ctx,
-                                                                           ImplicitNewExpressionNode node) {
-        Optional<ParenthesizedArgList> args = node.parenthesizedArgList();
-        if (args.isEmpty()) {
+        Optional<List<ParameterSymbol>> parameterSymbols = functionTypeSymbol.params();
+        Optional<ParameterSymbol> restParam = functionTypeSymbol.restParam();
+
+        // Check if we are not in an erroneous state. If rest params is empty and params are empty or params size is
+        // lower than the arg index, we are in an invalid state
+        if (restParam.isEmpty() && (parameterSymbols.isEmpty() || parameterSymbols.get().size() < argIndex + 1)) {
             return Optional.empty();
         }
-        return resolveParameterSymbol(functionTypeSymbol, ctx, args.get().arguments());
+
+        // If the function is a lang lib method, need to add 1 to skip the 1st parameter which is the same type.
+        if (isLangLibFunction) {
+            argIndex = argIndex + 1;
+        }
+
+        // We can be in required params or rest params
+        if (parameterSymbols.isPresent() && parameterSymbols.get().size() > argIndex) {
+            return Optional.of(parameterSymbols.get().get(argIndex));
+        }
+
+        return restParam;
     }
 
     /**
-     * Given the cursor position information, returns the expected ParameterSymbol
-     * information corresponding to the FunctionTypeSymbol instance.
+     * Given the function type symbol and existing arguments
+     * returns the type of the parameter symbol corresponding to the given context.
      *
      * @param functionTypeSymbol Referenced FunctionTypeSymbol
      * @param ctx                Positioned operation context information.
-     * @param node               Explicit new expression node.
-     * @return {@link Optional<ParameterSymbol>} Expected Parameter Symbol.
+     * @param arguments          List of function argument nodes.
+     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
      */
-    public static Optional<ParameterSymbol> resolveFunctionParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                           PositionedOperationContext ctx,
-                                                                           ExplicitNewExpressionNode node) {
-        ParenthesizedArgList args = node.parenthesizedArgList();
-        return resolveParameterSymbol(functionTypeSymbol, ctx, args.arguments());
+    public static Optional<TypeSymbol> resolveParameterTypeSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                  PositionedOperationContext ctx,
+                                                                  NodeList<FunctionArgumentNode> arguments) {
+        return resolveParameterTypeSymbol(functionTypeSymbol, ctx, arguments, false);
+    }
+
+    /**
+     * Given the function type symbol and existing arguments
+     * returns the type of the parameter symbol corresponding to the given context.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param arguments          List of function argument nodes.
+     * @param isLangLibFunction  Flag indicating whether the provided function type belongs to a langlib.
+     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
+     */
+    public static Optional<TypeSymbol> resolveParameterTypeSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                  PositionedOperationContext ctx,
+                                                                  NodeList<FunctionArgumentNode> arguments,
+                                                                  boolean isLangLibFunction) {
+        Optional<ParameterSymbol> parameterSymbol =
+                resolveParameterSymbol(functionTypeSymbol, ctx, arguments, isLangLibFunction);
+        if (parameterSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        TypeSymbol typeSymbol = parameterSymbol.get().typeDescriptor();
+        if (parameterSymbol.get().paramKind() == ParameterKind.REST && typeSymbol.typeKind() == TypeDescKind.ARRAY) {
+            return Optional.of(((ArrayTypeSymbol) typeSymbol).memberTypeDescriptor());
+        }
+        return Optional.of(typeSymbol);
+    }
+
+
+    /**
+     * Finds the corresponding function type symbol from lang libs method given a method call expresison node. 
+     *
+     * @param methodCallExprNode method call expression node.
+     * @param context context
+     * @return {@link Optional<ParameterSymbol>} function type symbol
+     */
+    public static Optional<FunctionTypeSymbol> findMethodInLangLibFunctions(MethodCallExpressionNode methodCallExprNode,
+                                                                            PositionedOperationContext context) {
+
+        if (methodCallExprNode.methodName().kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return Optional.empty();
+        }
+        SimpleNameReferenceNode typeRefNode = (SimpleNameReferenceNode) methodCallExprNode.methodName();
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(methodCallExprNode.expression()));
+        return typeSymbol.flatMap(value -> value.langLibMethods().stream()
+                .filter(method -> method.getName().orElse("").equals(typeRefNode.name().text()))
+                .findFirst()
+                .map(FunctionSymbol::typeDescriptor));
     }
 
     /**
@@ -1625,8 +1786,8 @@ public class CommonUtil {
     /**
      * Check if the symbol is an object symbol with self as the name.
      *
-     * @param symbol               Symbol
-     * @param nodeAtCursor         Node
+     * @param symbol       Symbol
+     * @param nodeAtCursor Node
      * @return {@link Boolean} whether the symbol is a self object symbol.
      */
     public static boolean isSelfObjectSymbol(Symbol symbol, Node nodeAtCursor) {
@@ -1816,23 +1977,7 @@ public class CommonUtil {
                 && (!closedParen.isMissing())
                 && (cursorPosition <= closedParen.textRange().startOffset());
     }
-
-    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                    PositionedOperationContext ctx,
-                                                                    SeparatedNodeList<FunctionArgumentNode> arguments) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        int argIndex = -1;
-        for (Node child : arguments) {
-            if (child.textRange().endOffset() < cursorPosition) {
-                argIndex += 1;
-            }
-        }
-        Optional<List<ParameterSymbol>> params = functionTypeSymbol.params();
-        if (params.isEmpty() || params.get().size() < argIndex + 2) {
-            return Optional.empty();
-        }
-        return Optional.of(params.get().get(argIndex + 1));
-    }
+    
 
     /**
      * Check if the cursor is positioned in call expression context so that named arg
@@ -1881,5 +2026,99 @@ public class CommonUtil {
         }
 
         return Optional.ofNullable(evalNode);
+    }
+
+    /**
+     * Check if a given offset is with in the range of a given node.
+     *
+     * @param node
+     * @param offset
+     * @return
+     */
+    public static boolean isWithInRange(Node node, int offset) {
+        return node.textRange().startOffset() <= offset && offset <= node.textRange().endOffset();
+    }
+
+    /**
+     * Get the list of function arguments from the invokable symbol.
+     *
+     * @param symbol Invokable symbol to extract the arguments
+     * @param ctx    Lang Server Operation context
+     * @return {@link List} List of arguments
+     */
+    public static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
+        List<ParameterSymbol> params = CommonUtil.getFunctionParameters(symbol, ctx);
+        return params.stream().map(param -> getFunctionParamaterSyntax(param, ctx).orElse(""))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Get the function parameter syntax given the parameter symbol.
+     *
+     * @param param parameter symbol.
+     * @param ctx   Lang Server Operation context
+     * @return {@link Optional<String>} Type and name syntax string.
+     */
+    public static Optional<String> getFunctionParamaterSyntax(ParameterSymbol param, BallerinaCompletionContext ctx) {
+
+        if (param.paramKind() == ParameterKind.REST) {
+            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
+            return Optional.of(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+                    + (param.getName().isEmpty() ? "" : "... "
+                    + param.getName().get()));
+        }
+
+        if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
+            return Optional.empty();
+        } else {
+            return Optional.of(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
+                    (param.getName().isEmpty() ? "" : " " + param.getName().get()));
+        }
+    }
+
+    /**
+     * Get the list of function parameters from the invokable symbol.
+     *
+     * @param symbol Invokable symbol to extract the parameters
+     * @param ctx    Lang Server Operation context
+     * @return {@link List<ParameterSymbol> } list of parameter symbols.
+     */
+    public static List<ParameterSymbol> getFunctionParameters(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
+        boolean skipFirstParam = skipFirstParam(ctx, symbol);
+        FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
+        Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
+        List<ParameterSymbol> parameterDefs = new ArrayList<>();
+
+        if (functionTypeDesc.params().isPresent()) {
+            List<ParameterSymbol> params = functionTypeDesc.params().get();
+            if (skipFirstParam) {
+                if (params.size() > 1) {
+                    parameterDefs.addAll(params.subList(1, params.size()));
+                }
+            } else {
+                parameterDefs.addAll(params);
+            }
+        }
+        restParam.ifPresent(parameterDefs::add);
+        return parameterDefs;
+    }
+
+    /**
+     * Whether we skip the first parameter being included as a label in the signature.
+     * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
+     * showing the invocation over package of the langlib with the COLON we show the first param.
+     * <p>
+     * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
+     * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
+     *
+     * @param context        context
+     * @param functionSymbol invokable symbol
+     * @return {@link Boolean} whether we show the first param or not
+     */
+    public static boolean skipFirstParam(BallerinaCompletionContext context, FunctionSymbol functionSymbol) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
+                && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 }

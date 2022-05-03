@@ -36,6 +36,14 @@ type Student record {|
     string name;
 |};
 
+public type Foo record {
+    int[] y;
+};
+
+public type Bar readonly & record {|
+    int[] x;
+|};
+
 public function validateAPI() {
     anydata recordVal1 = getRecordValue();
     test:assertTrue(recordVal1 is Student);
@@ -50,5 +58,21 @@ function getRecordValue() returns anydata = @java:Method {
 } external;
 
 function getRecordValueWithInitialValues() returns Details = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getRecordNegative(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getRecordNegative2(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getReadonlyRecordNegative(string recordName) returns record{} = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public function getRecordWithRestFieldsNegative() returns record{} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
