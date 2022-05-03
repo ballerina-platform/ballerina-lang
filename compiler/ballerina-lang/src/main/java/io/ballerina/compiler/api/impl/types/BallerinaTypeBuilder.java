@@ -34,5 +34,6 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         TYPEDESC_TYPE = new BallerinaTypeDescTypeBuilder(context);
         STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
         TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
+        ARRAY_TYPE = new BallerinaArrayTypeBuilder(context);
     }
 }

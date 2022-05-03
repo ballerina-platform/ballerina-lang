@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl.types;
 
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
@@ -39,6 +40,7 @@ public abstract class TypeBuilder {
     public TYPEDESC TYPEDESC_TYPE;
     public STREAM STREAM_TYPE;
     public TUPLE TUPLE_TYPE;
+    public ARRAY ARRAY_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -117,5 +119,13 @@ public abstract class TypeBuilder {
         TUPLE withRestType(TypeSymbol restType);
 
         TupleTypeSymbol build();
+    }
+
+    public interface ARRAY {
+        ARRAY withType(TypeSymbol type);
+
+        ARRAY ofSize(Integer size);
+
+        ArrayTypeSymbol build();
     }
 }
