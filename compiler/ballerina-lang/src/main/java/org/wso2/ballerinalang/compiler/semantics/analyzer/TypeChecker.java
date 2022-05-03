@@ -5035,6 +5035,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         finiteType.addValue(newNumericLiteral);
         finiteTypeSymbol.type = finiteType;
+
+        types.setImplicitCastExpr(unaryExpr, unaryExpr.expr.getBType(), data.expType);
         return finiteType;
     }
 
