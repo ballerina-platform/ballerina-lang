@@ -28,7 +28,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction getTuple() returns [int|string] {\n    return [0];\n}\n"
+                "newText": "\n\nfunction getTuple() returns [int|string] {\n    return [];\n}\n"
               }
             ]
           }

@@ -1,0 +1,4 @@
+[package]
+org = "pramjs"
+name = "package_comp_plugin_diagnostic_init_function"
+version = "0.1.0"

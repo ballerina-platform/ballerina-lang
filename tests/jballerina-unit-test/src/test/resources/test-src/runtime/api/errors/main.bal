@@ -32,6 +32,49 @@ public function main() {
     test:assertValueEqual(invalidError.message(), "No such error: UserError2");
 
     testTypeIds();
+
+    errors:IOError|error res = trap errors:getDistinctErrorNegative("UserError");
+    test:assertTrue(res is error);
+    error e = <error> res;
+    test:assertValueEqual(e.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
+
+    error err = trap errors:getErrorNegative1("error message");
+    test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
+
+    err = trap errors:getErrorWithTypeNegative("error message");
+    test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+        "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+        "from the package 'io.ballerina.runtime.api.values'");
+
+    err = trap errors:getErrorNegative2("error message");
+    test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
+            "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
+            "from the package 'io.ballerina.runtime.api.values'");
+
+    err = trap errors:getDistinctErrorWithNullDetailNegative("error message");
+    test:assertValueEqual(err.message(), "No such error: error message");
+
+    err = trap errors:getErrorWithEmptyDetailNegative("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getErrorWithNullDetailNegative("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getErrorWithEmptyDetailNegative2("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getErrorWithNullDetailNegative2("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getDistinctErrorWithEmptyDetailNegative2("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getDistinctErrorWithNullDetailNegative2("error message");
+    test:assertValueEqual(err.message(), "error message");
 }
 
 function testTypeIds() {
@@ -41,4 +84,3 @@ function testTypeIds() {
     test:assertValueEqual(types[0], "UserError");
     test:assertValueEqual(types[1], "GenericError");
 }
-

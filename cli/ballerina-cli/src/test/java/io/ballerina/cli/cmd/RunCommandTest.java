@@ -236,4 +236,14 @@ public class RunCommandTest extends BaseCommandTest {
             Assert.fail("Run command with custom target dir failed");
         }
     }
+
+    @Test(description = "Run a valid ballerina project with invalid argument")
+    public void testNoClassDefProject() {
+        Path projectPath = this.testResources.resolve("noClassDefProject");
+        System.setProperty("user.dir", String.valueOf(projectPath));
+        // set valid source root
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parse();
+        runCommand.execute();
+    }
 }

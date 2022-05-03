@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -242,6 +243,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
@@ -263,6 +265,7 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -426,12 +429,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangFunction funcNode, AnalyzerData data) {
+        validateParams(funcNode, data);
+        analyzeNode(funcNode.returnTypeNode, data);
+
         boolean isLambda = funcNode.flagSet.contains(Flag.LAMBDA);
         if (isLambda) {
             return;
         }
-
-        validateParams(funcNode, data);
 
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
@@ -2333,6 +2337,35 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, data));
     }
 
+    private boolean isValidInferredArray(BLangNode node) {
+        switch (node.getKind()) {
+            case INTERSECTION_TYPE_NODE:
+            case UNION_TYPE_NODE:
+                return isValidInferredArray(node.parent);
+            case VARIABLE:
+                BLangSimpleVariable varNode = (BLangSimpleVariable) node;
+                BLangExpression expr = varNode.expr;
+                return expr != null && expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR &&
+                        isValidContextForInferredArray(node.parent);
+            default:
+                return false;
+        }
+    }
+
+    private boolean isValidContextForInferredArray(BLangNode node) {
+        switch (node.getKind()) {
+            case PACKAGE:
+            case EXPR_FUNCTION_BODY:
+            case BLOCK_FUNCTION_BODY:
+            case BLOCK:
+                return true;
+            case VARIABLE_DEF:
+                return isValidContextForInferredArray(node.parent);
+            default:
+                return false;
+        }
+    }
+
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable, AnalyzerData data) {
 
@@ -2375,7 +2408,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(annAttachmentNode.expr, data);
         BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annAttachmentNode.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            logDeprecatedWaring(annAttachmentNode.annotationName.toString(), annotationSymbol, annAttachmentNode.pos);
         }
     }
 
@@ -2981,8 +3014,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                     trackNamedWorkerReferences(varRefExpr, data);
                 }
         }
-        if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(varRefExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
+
+        BSymbol symbol = varRefExpr.symbol;
+        if (symbol != null && Symbols.isFlagOn(symbol.flags, Flags.DEPRECATED)) {
+            logDeprecatedWaring(varRefExpr.variableName.toString(), symbol, varRefExpr.pos);
         }
     }
 
@@ -3022,10 +3057,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     private void analyzeFieldBasedAccessExpr(BLangFieldBasedAccess fieldAccessExpr, AnalyzerData data) {
-        analyzeExpr(fieldAccessExpr.expr, data);
+        BLangExpression expr = fieldAccessExpr.expr;
+        analyzeExpr(expr, data);
         BSymbol symbol = fieldAccessExpr.symbol;
         if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+            String deprecatedConstruct = generateDeprecatedConstructString(expr, fieldAccessExpr.field.toString(),
+                    symbol);
+            dlog.warning(fieldAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
         }
     }
 
@@ -3055,8 +3093,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 return;
             }
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-                dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
-                             invocationExpr);
+                logDeprecatedWarningForInvocation(invocationExpr);
             }
         }
     }
@@ -3092,7 +3129,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         if (actionInvocation.symbol != null && actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
+            logDeprecatedWarningForInvocation(actionInvocation);
         }
 
         if (actionInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !data.withinTransactionScope) {
@@ -3119,6 +3156,45 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         if (!actionInvocation.async && data.withinTransactionScope) {
             actionInvocation.invokedInsideTransaction = true;
         }
+    }
+
+    private void logDeprecatedWarningForInvocation(BLangInvocation invocationExpr) {
+        String deprecatedConstruct = invocationExpr.name.toString();
+        BLangExpression expr = invocationExpr.expr;
+        BSymbol funcSymbol = invocationExpr.symbol;
+
+        if (expr != null) {
+            // Method call
+            deprecatedConstruct = generateDeprecatedConstructString(expr, deprecatedConstruct, funcSymbol);
+        } else if (!Names.DOT.equals(funcSymbol.pkgID.name)) {
+            deprecatedConstruct = funcSymbol.pkgID + ":" + deprecatedConstruct;
+        }
+
+        dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+    }
+
+    private String generateDeprecatedConstructString(BLangExpression expr, String fieldOrMethodName,
+                                                     BSymbol symbol) {
+        BType bType = expr.getBType();
+        if (bType.tag == TypeTags.TYPEREFDESC) {
+            return bType + "." + fieldOrMethodName;
+        }
+
+        if (bType.tag == TypeTags.OBJECT) {
+            BObjectType objectType = (BObjectType) bType;
+            // for anonymous objects, only the field name will be in the error msg
+            if (objectType.classDef == null || objectType.classDef.internal == false) {
+                fieldOrMethodName = bType + "." + fieldOrMethodName;
+            }
+            return fieldOrMethodName;
+        }
+
+        if (symbol.kind == SymbolKind.FUNCTION && !Names.DOT.equals(symbol.pkgID.name)) {
+            // for deprecated lang lib methods
+            fieldOrMethodName = symbol.pkgID + ":" + fieldOrMethodName;
+        }
+
+        return fieldOrMethodName;
     }
 
     private void validateActionInvocation(Location pos, BLangInvocation iExpr) {
@@ -3177,7 +3253,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(cIExpr.initInvocation, data);
         BType type = cIExpr.getBType();
         if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(cIExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
+            logDeprecatedWaring(((BLangUserDefinedType) cIExpr.userDefinedType).typeName.toString(), type.tsymbol,
+                    cIExpr.pos);
         }
     }
 
@@ -3437,6 +3514,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangLambdaFunction bLangLambdaFunction, AnalyzerData data) {
         boolean isWorker = false;
 
+        analyzeNode(bLangLambdaFunction.function, data);
+
         if (bLangLambdaFunction.function.flagSet.contains(Flag.TRANSACTIONAL) &&
                 bLangLambdaFunction.function.flagSet.contains(Flag.WORKER) && !data.withinTransactionScope) {
             dlog.error(bLangLambdaFunction.pos, DiagnosticErrorCode.TRANSACTIONAL_WORKER_OUT_OF_TRANSACTIONAL_SCOPE,
@@ -3528,8 +3607,33 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangArrayType arrayType, AnalyzerData data) {
+        if (containsInferredArraySizesOfHigherDimensions(arrayType.sizes)) {
+            dlog.error(arrayType.pos, DiagnosticErrorCode.INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION);
+        } else if (isSizeInferredArray(arrayType.sizes) && !isValidInferredArray(arrayType.parent)) {
+            dlog.error(arrayType.pos, DiagnosticErrorCode.CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT);
+        }
 
         analyzeTypeNode(arrayType.elemtype, data);
+    }
+
+    private boolean isSizeInferredArray(List<BLangExpression> indexSizes) {
+        return !indexSizes.isEmpty() && isInferredArrayIndicator(indexSizes.get(indexSizes.size() - 1));
+    }
+
+    private boolean isInferredArrayIndicator(BLangExpression size) {
+        return size.getKind() == LITERAL && ((BLangLiteral) size).value.equals(Constants.INFERRED_ARRAY_INDICATOR);
+    }
+
+    private boolean containsInferredArraySizesOfHigherDimensions(List<BLangExpression> sizes) {
+        if (sizes.size() < 2) {
+            return false;
+        }
+        for (int i = 0; i < sizes.size() - 1; i++) {
+            if (isInferredArrayIndicator(sizes.get(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -3582,7 +3686,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangUserDefinedType userDefinedType, AnalyzerData data) {
         BTypeSymbol typeSymbol = userDefinedType.getBType().tsymbol;
         if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(userDefinedType.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
+            logDeprecatedWaring(userDefinedType.typeName.toString(), typeSymbol, userDefinedType.pos);
         }
     }
 
@@ -3740,6 +3844,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
+        boolean prevFailureHandled = data.failureHandled;
+        data.failureHandled = true;
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3755,6 +3861,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             analyzeNode(clause, data);
         }
         validateActionParentNode(queryAction.pos, queryAction);
+        data.failureHandled = prevFailureHandled;
     }
 
     @Override
@@ -3869,8 +3976,16 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         analyzeExpr(annotAccessExpr.expr, data);
         BAnnotationSymbol annotationSymbol = annotAccessExpr.annotationSymbol;
         if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(annotAccessExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+            logDeprecatedWaring(annotAccessExpr.annotationName.toString(), annotationSymbol, annotAccessExpr.pos);
         }
+    }
+
+    private void logDeprecatedWaring(String deprecatedConstruct, BSymbol symbol, Location pos) {
+        if (!Names.DOT.equals(symbol.pkgID.name)) {
+            deprecatedConstruct = symbol.pkgID + ":" + deprecatedConstruct;
+        }
+
+        dlog.warning(pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
     }
 
     private boolean intersectionExists(BLangExpression expression, BType testType, AnalyzerData data) {
@@ -3963,7 +4078,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             return;
         }
 
-        if (pkgID != symbol.pkgID && !Symbols.isPublic(symbol)) {
+        if (!pkgID.equals(symbol.pkgID) && !Symbols.isPublic(symbol)) {
             dlog.error(position, DiagnosticErrorCode.ATTEMPT_REFER_NON_ACCESSIBLE_SYMBOL, symbol.name);
         }
     }

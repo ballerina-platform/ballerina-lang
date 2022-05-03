@@ -79,7 +79,7 @@ class _StreamPipeline {
     typedesc<CompletionType> completionTd;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection,
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
             typedesc<Type> constraintTd, typedesc<CompletionType> completionTd) {
         self.streamFunction = new _InitFunction(collection);
         self.constraintTd = constraintTd;
@@ -105,7 +105,7 @@ class _StreamPipeline {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream <Type,CompletionType> {
+    public function getStream() returns stream<Type, CompletionType> {
         IterHelper itrObj = new (self, self.constraintTd);
         var strm = internal:construct(self.constraintTd, self.completionTd, itrObj);
         return strm;
@@ -116,10 +116,10 @@ class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection;
+    Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection) {
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -130,7 +130,7 @@ class _InitFunction {
         _Iterator i = <_Iterator>self.itr;
         record {|(any|error) value;|}|error? v = i.next();
         if (v is record {|(any|error) value;|}) {
-            record {|(any|error)...;|} _frame = {...v};
+            record {|(any|error)...; |} _frame = {...v};
             return _frame;
         }
         return v;
@@ -145,7 +145,7 @@ class _InitFunction {
     }
 
     function _getIterator(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection)
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection)
                 returns _Iterator {
         if (collection is Type[]) {
             return lang_array:iterator(collection);
@@ -281,7 +281,7 @@ class _NestedFromFunction {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.iterator();
-        } else if (collection is stream <Type,CompletionType>) {
+        } else if (collection is stream<Type, CompletionType>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
@@ -351,7 +351,7 @@ class _InnerJoinFunction {
     public function process() returns _Frame|error? {
         function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
+        _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
         _Frame[]? rhsCandidates = self.rhsCandidates;
         _Frame|error? lhsFrame = self.lhsFrame;
         string lhsKey = "";
@@ -429,7 +429,7 @@ class _OuterJoinFunction {
     public function process() returns _Frame|error? {
         function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
+        _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
         _Frame[]? rhsCandidates = self.rhsCandidates;
         _Frame|error? lhsFrame = self.lhsFrame;
         _Frame nilFrame = self.nilFrame;
@@ -521,10 +521,10 @@ class _OrderByFunction {
 
     # Desugared function to do;
     # order by person.fname true, person.age false
-    function(_Frame _frame) orderKeyFunc;
+    function (_Frame _frame) orderKeyFunc;
     stream<_Frame>? orderedStream;
 
-    function init(function(_Frame _frame) orderKeyFunc) {
+    function init(function (_Frame _frame) orderKeyFunc) {
         self.orderKeyFunc = orderKeyFunc;
         self.orderedStream = ();
         self.prevFunc = ();
@@ -532,8 +532,8 @@ class _OrderByFunction {
 
     public function process() returns _Frame|error? {
         if (self.orderedStream is ()) {
-            _StreamFunction pf = <_StreamFunction> self.prevFunc;
-            function(_Frame _frame) orderKeyFunc = self.orderKeyFunc;
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            function (_Frame _frame) orderKeyFunc = self.orderKeyFunc;
             _Frame|error? f = pf.process();
             boolean[] directions = [];
             _OrderTreeNode oTree = new;
@@ -608,24 +608,28 @@ class _DoFunction {
     # do {
     #   count += value;
     # };
-    public function (_Frame _frame) doFunc;
+    public function (_Frame _frame) returns any|error doFunc;
 
-    function init(function (_Frame _frame) doFunc) {
+    function init(function (_Frame _frame) returns any|error doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        function (_Frame _frame) f = self.doFunc;
+        function (_Frame _frame) returns any|error f = self.doFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
-            f(pFrame);
+            any|error cFrame = f(pFrame);
+            if (cFrame is error) {
+                return cFrame;
+            }
+            if cFrame !is () {
+                return {"$value$": cFrame};
+            }
             return pFrame;
         }
-        if (pFrame is error) {
-            return pFrame;
-        }
+        return pFrame;
     }
 
     public function reset() {
@@ -714,8 +718,8 @@ class IterHelper {
     public typedesc<Type> outputType;
 
     function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
-      self.pipeline = pipeline;
-      self.outputType = outputType;
+        self.pipeline = pipeline;
+        self.outputType = outputType;
     }
 
     public isolated function next() returns record {|Type value;|}|error? {
@@ -748,7 +752,7 @@ class _OrderTreeNode {
             }
 
         } else {
-            if(!<boolean>directions.shift()) {
+            if (!<boolean>directions.shift()) {
                 self.nodesDirection = lang_array:DESCENDING;
             }
             any key = keys.shift();
@@ -767,7 +771,7 @@ class _OrderTreeNode {
     }
 
     # do a pre-order tree traversal and return collected leaf frames as orderedFrames.
-    # + return -  ordered frames.
+    # + return - ordered frames.
     function get() returns _Frame[] {
         _Frame[] orderedFrames = [];
         if (self.frames is _Frame[]) {
@@ -792,7 +796,7 @@ class _OrderTreeNode {
     }
 
     # sorting is not supported for any[], therefore have to resolve runtime type and sort it.
-    # + return -  ordered array.
+    # + return - ordered array.
     function getSortedArray(any[] arr) returns any[] {
         if (arr.length() > 0) {
             int i = 0;

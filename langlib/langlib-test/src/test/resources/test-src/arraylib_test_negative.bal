@@ -250,3 +250,20 @@ function testEveryNegative5() {
     string[] arr = ["str1", "str2"];
     _ = arr.every(val => val > 5); // error
 }
+
+type T string|int;
+
+function testArrSortWithNamedArgs1() {
+    [string, T][] arr = [["a", "100"], ["b", "100"], ["d", "10"], ["c", "100"], ["e", "100"]];
+    [string, T][] sortedArr = arr.sort(direction = array:DESCENDING);
+    sortedArr = array:sort(arr, direction = array:DESCENDING);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = isolated function([string, T] e) returns [string, T] {
+        return e;
+    });
+    sortedArr = arr.sort(key = isolated function([string, T] e) returns [string, T] {
+        return e;
+    });
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = ());
+}

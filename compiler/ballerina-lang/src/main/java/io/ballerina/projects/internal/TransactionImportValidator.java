@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TransactionStatementNode;
+import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -79,6 +80,10 @@ public class TransactionImportValidator extends NodeVisitor {
         super.visit(functionDefinitionNode);
     }
 
+    @Override
+    public void visit(TransactionalExpressionNode transactionalExpressionNode) {
+        importTransactionPackage = true;
+    }
 
     protected void visitSyntaxNode(Node node) {
         if (importTransactionPackage) {

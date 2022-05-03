@@ -71,36 +71,6 @@
       }
     },
     {
-      "label": "keys()",
-      "kind": "Function",
-      "detail": "string[]",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns a list of all the keys of a map.\n  \n  \n  \n**Return** `string[]`   \n- a new list of all keys  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "keys",
-      "insertText": "keys()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "length()",
-      "kind": "Function",
-      "detail": "int",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `m`  \n  \n"
-        }
-      },
-      "sortText": "AD",
-      "filterText": "length",
-      "insertText": "length()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "remove(string k)",
       "kind": "Function",
       "detail": "map:Type",
@@ -158,6 +128,136 @@
       }
     },
     {
+      "label": "get(string k)",
+      "kind": "Function",
+      "detail": "map:Type",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `map:Type`   \n- member with parameter `k` key  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "get",
+      "insertText": "get(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneWithType(typedesc<anydata> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "cloneWithType",
+      "insertText": "cloneWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "strField1",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "CA",
+      "insertText": "strField1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intField",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "AA",
+      "insertText": "intField",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testOptional",
+      "kind": "Field",
+      "detail": "int?",
+      "sortText": "AA",
+      "insertText": "testOptional",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'map(function () func)",
+      "kind": "Function",
+      "detail": "map<map:Type1>",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `map<map:Type1>`   \n- new map containing result of applying parameter `func` to each member  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "'map",
+      "insertText": "'map(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "keys()",
+      "kind": "Function",
+      "detail": "string[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns a list of all the keys of a map.\n  \n  \n  \n**Return** `string[]`   \n- a new list of all keys  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "keys",
+      "insertText": "keys()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "length()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns number of members of a map.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `m`  \n  \n"
+        }
+      },
+      "sortText": "AD",
+      "filterText": "length",
+      "insertText": "length()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "iterator()",
       "kind": "Function",
       "detail": "object {public isolated function next() returns record {|map:Type value;|}?;}",
@@ -203,25 +303,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "get(string k)",
-      "kind": "Function",
-      "detail": "map:Type",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nReturns the member of a map with given key.\n\nThis for use in a case where it is known that the map has a specific key,\nand accordingly panics if parameter `m` does not have a member with parameter `k` key.\n  \n**Params**  \n- `string` k: the key  \n  \n**Return** `map:Type`   \n- member with parameter `k` key  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "get",
-      "insertText": "get(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "toArray()",
       "kind": "Function",
       "detail": "map:Type[]",
@@ -235,25 +316,6 @@
       "filterText": "toArray",
       "insertText": "toArray()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "cloneWithType(typedesc<anydata> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "cloneWithType",
-      "insertText": "cloneWithType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "cloneReadOnly()",
@@ -331,25 +393,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ensureType(typedesc<any> t)",
-      "kind": "Function",
-      "detail": "t|error",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "ensureType",
-      "insertText": "ensureType(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "toString()",
       "kind": "Function",
       "detail": "string",
@@ -378,49 +421,6 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "strField1",
-      "kind": "Field",
-      "detail": "string",
-      "sortText": "CA",
-      "insertText": "strField1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "intField",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "AA",
-      "insertText": "intField",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testOptional",
-      "kind": "Field",
-      "detail": "int?",
-      "sortText": "AA",
-      "insertText": "testOptional",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "'map(function () func)",
-      "kind": "Function",
-      "detail": "map<map:Type1>",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:0.0.0_  \n  \nApplies a function each member of a map and returns a map of the result.\n\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Return** `map<map:Type1>`   \n- new map containing result of applying parameter `func` to each member  \n  \n"
-        }
-      },
-      "sortText": "CD",
-      "filterText": "'map",
-      "insertText": "'map(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }
