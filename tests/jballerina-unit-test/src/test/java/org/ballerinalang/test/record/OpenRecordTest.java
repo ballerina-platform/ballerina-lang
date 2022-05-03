@@ -32,7 +32,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
-import static org.testng.Assert.assertEquals;
 
 /**
  * Test cases for user defined open record types in Ballerina.
@@ -496,19 +495,6 @@ public class OpenRecordTest {
                 "expected a string literal or an expression", 27, 38);
         BAssertUtil.validateError(result, 2, "invalid key 's2': identifiers cannot be used as rest field keys, " +
                 "expected a string literal or an expression", 28, 25);
-    }
-
-    @Test
-    public void testRecordAssignabilityNegative() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/record/record_assignability_negative.bal");
-        int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'record {| (int|string|boolean) a; (int|string) b; anydata...; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean) b; anydata...; |}'", 19, 55);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'record {| (int|string|boolean) a; (int|string) b; anydata...; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean) b; anydata...; |}'", 20, 54);
-        assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
