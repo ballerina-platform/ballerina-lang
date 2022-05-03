@@ -3,69 +3,69 @@
   "character": 18,
   "expected": [
     {
-      "title": "Create a setter for count",
+      "title": "Create a setter for 'count'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             },
             "end": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             }
           },
-          "newText": "\n    public function setCount(int  count) { \n        self.count = count;\n    }\n"
+          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
         }
       ]
     },
     {
-      "title": "Create a getter for count",
+      "title": "Create a getter for 'count'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             },
             "end": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             }
           },
-          "newText": "\n    public function getCount() returns int { \n        return self.count;\n    }\n"
+          "newText": "\n\n    public function getCount() returns int { \n        return self.count;\n    }"
         }
       ]
     },
     {
-      "title": "Create getter and setter for count",
+      "title": "Create getter and setter for 'count'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             },
             "end": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             }
           },
-          "newText": "\n    public function getCount() returns int { \n        return self.count;\n    }\n"
+          "newText": "\n\n    public function getCount() returns int { \n        return self.count;\n    }"
         },
         {
           "range": {
             "start": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             },
             "end": {
-              "line": 5,
-              "character": 0
+              "line": 3,
+              "character": 27
             }
           },
-          "newText": "\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }\n"
+          "newText": "\n\n    public function setCount(int  count) { \n        self.count \u003d count;\n    }"
         }
       ]
     }

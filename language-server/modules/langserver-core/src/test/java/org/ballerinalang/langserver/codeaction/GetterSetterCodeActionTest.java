@@ -15,6 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.langserver.codeaction;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -47,7 +48,8 @@ public class GetterSetterCodeActionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"getterSetterCodeAction1.json", "getterSetter1.bal"},
                 {"getterSetterCodeAction2.json", "getterSetter2.bal"},
-                {"getterSetterCodeAction3.json", "getterSetter3.bal"}
+                {"getterSetterCodeAction3.json", "getterSetter3.bal"},
+                {"getterSetterCodeAction4.json", "getterSetter4.bal"}
         };
     }
 }
