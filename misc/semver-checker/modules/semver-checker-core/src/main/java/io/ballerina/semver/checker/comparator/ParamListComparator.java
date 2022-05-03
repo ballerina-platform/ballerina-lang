@@ -64,19 +64,19 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
                     paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
-                            .withMessage("new required parameter added");
+                            .withMessage("new required parameter '" + paramName + "' is added");
                     break;
                 case DEFAULTABLE_PARAM:
                     paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
-                            .withMessage("new defaultable parameter added");
+                            .withMessage("new defaultable parameter '" + paramName + "' is added");
                     break;
                 case REST_PARAM:
                     paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
-                            .withMessage("new rest parameter added");
+                            .withMessage("new rest parameter '" + paramName + "' is added");
                     break;
                 default:
                     paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
-                            .withMessage("new parameter added");
+                            .withMessage("new parameter '" + paramName + "' is added");
             }
             paramDiffBuilder.build().ifPresent(paramDiffs::withChildDiff);
         });
@@ -87,16 +87,16 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
             paramDiffBuilder = paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
-                    paramDiffBuilder.withMessage("required parameter removed");
+                    paramDiffBuilder.withMessage("required parameter '" + paramName + "' is removed");
                     break;
                 case DEFAULTABLE_PARAM:
-                    paramDiffBuilder.withMessage("defaultable parameter removed");
+                    paramDiffBuilder.withMessage("defaultable parameter '" + paramName + "' is removed");
                     break;
                 case REST_PARAM:
-                    paramDiffBuilder.withMessage("rest parameter removed");
+                    paramDiffBuilder.withMessage("rest parameter '" + paramName + "' is removed");
                     break;
                 default:
-                    paramDiffBuilder.withMessage("parameter removed");
+                    paramDiffBuilder.withMessage("parameter '" + paramName + "' is removed");
             }
             paramDiffBuilder.build().ifPresent(paramDiffs::withChildDiff);
         });

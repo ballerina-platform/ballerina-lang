@@ -57,7 +57,7 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
     @Override
     public Optional<? extends Diff> computeDiff() {
-        FunctionDiff.Builder<FunctionDefinitionNode> funcDiffBuilder = new FunctionDiff.Builder<>(newNode, oldNode);
+        FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(newNode, oldNode);
         return funcDiffBuilder.withChildDiffs(compareMetadata())
                 .withChildDiffs(compareFunctionQualifiers())
                 .withChildDiffs(compareFunctionParams())

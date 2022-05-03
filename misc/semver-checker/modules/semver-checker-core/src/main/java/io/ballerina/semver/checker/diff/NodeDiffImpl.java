@@ -160,10 +160,13 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         }
 
         @Override
-        public Optional<NodeDiff<?>> build() {
+        public Optional<? extends NodeDiff<T>> build() {
             if (!nodeDiff.getChildDiffs().isEmpty()) {
                 nodeDiff.computeCompatibilityLevel();
                 nodeDiff.setType(DiffType.MODIFIED);
+                return Optional.of(nodeDiff);
+            } else if (nodeDiff.getType() == DiffType.NEW || nodeDiff.getType() == DiffType.REMOVED
+                    || nodeDiff.getMessage().isPresent()) {
                 return Optional.of(nodeDiff);
             }
 

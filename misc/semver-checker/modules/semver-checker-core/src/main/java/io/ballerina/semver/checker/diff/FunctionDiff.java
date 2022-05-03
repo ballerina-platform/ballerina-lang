@@ -19,8 +19,8 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.Node;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import static io.ballerina.semver.checker.util.PackageUtils.QUALIFIER_PUBLIC;
@@ -62,5 +62,58 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
                 qualifier.text().equals(QUALIFIER_PUBLIC));
 
         return (isNewPrivate && isOldPrivate) || (newNode == null && isOldPrivate) || (oldNode == null && isNewPrivate);
+    }
+
+    public static class Builder extends NodeDiffImpl.Builder<FunctionDefinitionNode> {
+
+        private final FunctionDiff functionDiff;
+
+        public Builder(FunctionDefinitionNode newNode, FunctionDefinitionNode oldNode) {
+            super(newNode, oldNode);
+            functionDiff = new FunctionDiff(newNode, oldNode);
+        }
+
+        @Override
+        public Optional<FunctionDiff> build() {
+            if (!functionDiff.getChildDiffs().isEmpty()) {
+                functionDiff.computeCompatibilityLevel();
+                functionDiff.setType(DiffType.MODIFIED);
+                return Optional.of(functionDiff);
+            } else if (functionDiff.getType() == DiffType.NEW || functionDiff.getType() == DiffType.REMOVED) {
+                return Optional.of(functionDiff);
+            }
+
+            return Optional.empty();
+        }
+
+        @Override
+        public NodeDiffBuilder withType(DiffType diffType) {
+            functionDiff.setType(diffType);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
+            functionDiff.setCompatibilityLevel(compatibilityLevel);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withMessage(String message) {
+            functionDiff.setMessage(message);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withChildDiff(Diff childDiff) {
+            functionDiff.childDiffs.add(childDiff);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiffs) {
+            functionDiff.childDiffs.addAll(childDiffs);
+            return this;
+        }
     }
 }

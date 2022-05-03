@@ -92,19 +92,21 @@ public class ModuleDiff extends DiffImpl {
         }
 
         public void withFunctionAdded(FunctionDefinitionNode function) {
-            NodeDiffBuilder funcDiffBuilder = new NodeDiffImpl.Builder<>(function, null);
-            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
+            FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(function, null);
+            funcDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
+                    .build()
+                    .ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionRemoved(FunctionDefinitionNode function) {
-            NodeDiffBuilder funcDiffBuilder = new NodeDiffImpl.Builder<>(null, function);
-            funcDiffBuilder.build().ifPresent(moduleDiff.childDiffs::add);
+            FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(null, function);
+            funcDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+                    .build()
+                    .ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
-            new FunctionComparator(newFunction, oldFunction)
-                    .computeDiff()
-                    .ifPresent(moduleDiff.childDiffs::add);
+            new FunctionComparator(newFunction, oldFunction).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
     }
 }

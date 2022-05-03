@@ -96,8 +96,8 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
             diffBuilder = diffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS);
-            diffBuilder.withMessage(String.format("parameter type changed from: '%s' to: '%s'", oldType.toSourceCode().trim(),
-                    newType.toSourceCode().trim()));
+            diffBuilder.withMessage(String.format("parameter type changed from '%s' to '%s'",
+                    oldType.toSourceCode().trim(), newType.toSourceCode().trim()));
             return diffBuilder.build();
         }
 

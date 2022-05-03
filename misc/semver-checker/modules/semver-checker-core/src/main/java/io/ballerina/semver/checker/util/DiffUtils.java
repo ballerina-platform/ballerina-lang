@@ -36,6 +36,15 @@ import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVer
  */
 public class DiffUtils {
 
+    /**
+     * Returns the suggested version in string format based on the current version, last published version and the set
+     * of detected changes.
+     *
+     * @param packageDiff     source code changes of the package instance
+     * @param currentVersion  current package version
+     * @param previousVersion last published package version
+     * @return the suggested version in string format
+     */
     public static String suggestVersion(PackageDiff packageDiff, SemanticVersion currentVersion,
                                         SemanticVersion previousVersion) {
         StringBuilder sb = new StringBuilder();
@@ -111,7 +120,7 @@ public class DiffUtils {
      *
      * @param packageDiff PackageDiff instance
      */
-    public static String getPackageName(PackageDiff packageDiff) {
+    private static String getPackageName(PackageDiff packageDiff) {
         switch (packageDiff.getType()) {
             case NEW:
                 return packageDiff.getNewPackage().orElseThrow().packageName().value();
@@ -135,7 +144,7 @@ public class DiffUtils {
      *
      * @param moduleDiff ModuleDiff instance
      */
-    public static String getModuleName(ModuleDiff moduleDiff) {
+    private static String getModuleName(ModuleDiff moduleDiff) {
         switch (moduleDiff.getType()) {
             case NEW:
                 return moduleDiff.getNewModule().orElseThrow().moduleName().toString();
@@ -159,7 +168,7 @@ public class DiffUtils {
      *
      * @param functionDiff FunctionDiff instance
      */
-    public static String getFunctionName(FunctionDiff functionDiff) {
+    private static String getFunctionName(FunctionDiff functionDiff) {
         switch (functionDiff.getType()) {
             case NEW:
                 return functionDiff.getNewNode().orElseThrow().functionName().text();
@@ -183,7 +192,7 @@ public class DiffUtils {
      *
      * @param diff diff type
      */
-    public static String getDiffSign(Diff diff) {
+    private static String getDiffSign(Diff diff) {
         switch (diff.getType()) {
             case NEW:
                 return "[++]";

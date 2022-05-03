@@ -151,6 +151,9 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
                 nodeListDiff.computeCompatibilityLevel();
                 nodeListDiff.setType(DiffType.MODIFIED);
                 return Optional.of(nodeListDiff);
+            } else if (nodeListDiff.getType() == DiffType.NEW || nodeListDiff.getType() == DiffType.REMOVED
+                    || nodeListDiff.getMessage().isPresent()) {
+                return Optional.of(nodeListDiff);
             }
 
             return Optional.empty();
