@@ -51,6 +51,7 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,7 +111,7 @@ public class CloneWithType {
         List<String> errors = new ArrayList<>();
         Set<Type> convertibleTypes;
         convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType, null, false,
-                new ArrayList<>(), errors, allowAmbiguity, new ArrayList<>(), targetType);
+                new ArrayList<>(), errors, allowAmbiguity, new HashSet<>(), targetType);
 
         Type sourceType = TypeChecker.getType(value);
         if (convertibleTypes.isEmpty()) {

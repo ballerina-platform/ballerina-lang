@@ -261,9 +261,10 @@ public class TypeConverter {
     // TODO: return only the first matching type
     public static Set<Type> getConvertibleTypes(Object inputValue, Type targetType, String varName, boolean isFromJson,
                                                 List<TypeValuePair> unresolvedValues, List<String> errors,
-                                                boolean allowAmbiguity, List<Type> numericTypeList, Type parentType) {
+                                                boolean allowAmbiguity, Set<Type> numericTypeSet, Type parentType) {
         Set<Type> convertibleTypes = new LinkedHashSet<>();
-
+//        TODO: Add tests for ambiguity
+//        TODO: Check whether this can happen for other union types - record, map etc.
         Type inputValueType;
         int targetTypeTag = targetType.getTag();
 
@@ -276,12 +277,12 @@ public class TypeConverter {
                         return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName, isFromJson,
-                            unresolvedValues, errors, allowAmbiguity, numericTypeList, targetType));
+                            unresolvedValues, errors, allowAmbiguity, numericTypeSet, targetType));
                 }
                 if (convertibleTypes.size() > 1) {
-                    if (numericTypeList.size() == 1) {
+                    if (numericTypeSet.size() == 1) {
                         convertibleTypes.clear();
-                        convertibleTypes.add(numericTypeList.get(0));
+                        convertibleTypes.add(numericTypeSet.toArray(new Type[1])[0]);
                     } else if (!allowAmbiguity && !convertibleTypes.contains(inputValueType) &&
                             !hasIntegerSubTypes(convertibleTypes)) {
                         errors.subList(initialErrorCount, errors.size()).clear();
@@ -293,19 +294,19 @@ public class TypeConverter {
                 break;
             case TypeTags.ARRAY_TAG:
                 if (isConvertibleToArrayType(inputValue, (BArrayType) targetType, unresolvedValues, varName, errors,
-                        allowAmbiguity, numericTypeList, parentType)) {
+                        allowAmbiguity, numericTypeSet, parentType)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
             case TypeTags.TUPLE_TAG:
                 if (isConvertibleToTupleType(inputValue, (BTupleType) targetType, unresolvedValues, varName, errors,
-                        allowAmbiguity, numericTypeList, parentType)) {
+                        allowAmbiguity, numericTypeSet, parentType)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
                 if (isConvertibleToRecordType(inputValue, (BRecordType) targetType, varName, isFromJson,
-                        unresolvedValues, errors, allowAmbiguity, numericTypeList)) {
+                        unresolvedValues, errors, allowAmbiguity, numericTypeSet)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -317,7 +318,7 @@ public class TypeConverter {
                 break;
             case TypeTags.MAP_TAG:
                 if (isConvertibleToMapType(inputValue, (BMapType) targetType, unresolvedValues, varName, errors,
-                        allowAmbiguity, numericTypeList)) {
+                        allowAmbiguity, numericTypeSet)) {
                     convertibleTypes.add(targetType);
                 }
                 break;
@@ -330,10 +331,10 @@ public class TypeConverter {
                 Type effectiveType = ((BIntersectionType) targetType).getEffectiveType();
                 if (isFromJson) {
                     convertibleTypes.addAll(getConvertibleTypesFromJson(inputValue, effectiveType, varName,
-                            unresolvedValues, errors, numericTypeList));
+                            unresolvedValues, errors, numericTypeSet));
                 } else {
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, effectiveType, varName,
-                            false, unresolvedValues, errors, allowAmbiguity, numericTypeList, targetType));
+                            false, unresolvedValues, errors, allowAmbiguity, numericTypeSet, targetType));
                 }
                 break;
             case TypeTags.FINITE_TYPE_TAG:
@@ -342,7 +343,7 @@ public class TypeConverter {
                     Type valueType = getType(finiteType.valueSpace.iterator().next());
                     if (!isSimpleBasicType(valueType) && valueType.getTag() != TypeTags.NULL_TAG) {
                         return getConvertibleTypes(inputValue, valueType, varName, isFromJson, unresolvedValues,
-                                errors, allowAmbiguity, numericTypeList, targetType);
+                                errors, allowAmbiguity, numericTypeSet, targetType);
                     }
                 }
                 inputValueType = TypeChecker.getType(inputValue);
@@ -365,12 +366,12 @@ public class TypeConverter {
 
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors,
-                                                         List<Type> numericTypeList) {
+                                                         Set<Type> numericTypeSet) {
 
         int targetTypeTag = targetType.getTag();
 
         List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
-                varName, true, unresolvedValues, errors, false, numericTypeList, targetType));
+                varName, true, unresolvedValues, errors, false, numericTypeSet, targetType));
 
         if (convertibleTypes.isEmpty()) {
             switch (targetTypeTag) {
@@ -393,7 +394,7 @@ public class TypeConverter {
     private static boolean isConvertibleToRecordType(Object sourceValue, BRecordType targetType, String varName,
                                                      boolean isFromJson, List<TypeValuePair> unresolvedValues,
                                                      List<String> errors, boolean allowAmbiguity,
-                                                     List<Type> numericTypeList) {
+                                                     Set<Type> numericTypeSet) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
@@ -440,7 +441,7 @@ public class TypeConverter {
             if (isFromJson) {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypesFromJson(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            fieldNameLong, unresolvedValues, errors, numericTypeList).size() != 1) {
+                            fieldNameLong, unresolvedValues, errors, numericTypeSet).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
                                 fieldNameLong + "' in record '" + targetType + "' should be of type '" +
                                 targetFieldTypes.get(fieldName) + "', found '" +
@@ -449,7 +450,7 @@ public class TypeConverter {
                     }
                 } else if (!targetType.sealed) {
                     if (getConvertibleTypesFromJson(valueEntry.getValue(), restFieldType, fieldNameLong,
-                            unresolvedValues, errors, numericTypeList).size() != 1) {
+                            unresolvedValues, errors, numericTypeSet).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
                                 valueEntry.getKey() + "' adding to the record '" +
                                 targetType + "' should be of type '" + restFieldType + "', found '" +
@@ -464,7 +465,7 @@ public class TypeConverter {
             } else {
                 if (targetFieldTypes.containsKey(fieldName)) {
                     if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
-                            fieldNameLong, false, unresolvedValues, errors, allowAmbiguity, numericTypeList,
+                            fieldNameLong, false, unresolvedValues, errors, allowAmbiguity, numericTypeSet,
                             targetType).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "field '" +
                                 fieldNameLong + "' in record '" + targetType + "' should be of type '" +
@@ -474,7 +475,7 @@ public class TypeConverter {
                     }
                 } else if (!targetType.sealed) {
                     if (getConvertibleTypes(valueEntry.getValue(), restFieldType, fieldNameLong,
-                            false, unresolvedValues, errors, allowAmbiguity, numericTypeList, targetType).size() != 1) {
+                            false, unresolvedValues, errors, allowAmbiguity, numericTypeSet, targetType).size() != 1) {
                         addErrorMessage(errors.size() - initialErrorCount, errors, "value of field '" +
                                 valueEntry.getKey() + "' adding to the record '" +
                                 targetType + "' should be of type '" + restFieldType + "', found '" +
@@ -550,7 +551,7 @@ public class TypeConverter {
     private static boolean isConvertibleToMapType(Object sourceValue, BMapType targetType,
                                                   List<TypeValuePair> unresolvedValues, String varName,
                                                   List<String> errors, boolean allowAmbiguity,
-                                                  List<Type> numericTypeList) {
+                                                  Set<Type> numericTypeSet) {
         if (!(sourceValue instanceof MapValueImpl)) {
             return false;
         }
@@ -561,7 +562,7 @@ public class TypeConverter {
             String fieldNameLong = getLongFieldName(varName, valueEntry.getKey().toString());
             int initialErrorCount = errors.size();
             if (getConvertibleTypes(valueEntry.getValue(), targetType.getConstrainedType(), fieldNameLong, false,
-                    unresolvedValues, errors, allowAmbiguity, numericTypeList, targetType).size() != 1) {
+                    unresolvedValues, errors, allowAmbiguity, numericTypeSet, targetType).size() != 1) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "map field '" +
                         fieldNameLong + "' should be of type '" + targetType.getConstrainedType() + "', found '"
                         + getShortSourceValue(valueEntry.getValue()) + "'");
@@ -577,7 +578,7 @@ public class TypeConverter {
     private static boolean isConvertibleToArrayType(Object sourceValue, BArrayType targetType,
                                                     List<TypeValuePair> unresolvedValues, String varName,
                                                     List<String> errors, boolean allowAmbiguity,
-                                                    List<Type> numericTypeList, Type parentType) {
+                                                    Set<Type> numericTypeSet, Type parentType) {
         if (!(sourceValue instanceof ArrayValue)) {
             return false;
         }
@@ -609,7 +610,7 @@ public class TypeConverter {
             Object elementValue = source.get(i);
             Type valueType = getType(elementValue);
             convertibleTypes = getConvertibleTypes(elementValue, targetTypeElementType, elementIndex,
-                    false, unresolvedValues, errors, allowAmbiguity, numericTypeList, targetType);
+                    false, unresolvedValues, errors, allowAmbiguity, numericTypeSet, targetType);
             if (isNumericType(valueType)) {
                 needNumericConversion = needNumericConversion || targetTypeElementType != valueType;
             }
@@ -624,7 +625,7 @@ public class TypeConverter {
             }
         }
         if (TypeTags.isUnionTypeTag(parentType.getTag()) && !needNumericConversion) {
-            numericTypeList.add(targetType);
+            numericTypeSet.add(targetType);
         }
         return returnVal;
     }
@@ -632,7 +633,7 @@ public class TypeConverter {
     private static boolean isConvertibleToTupleType(Object sourceValue, BTupleType targetType,
                                                     List<TypeValuePair> unresolvedValues, String varName,
                                                     List<String> errors, boolean allowAmbiguity,
-                                                    List<Type> numericTypeList, Type parentType) {
+                                                    Set<Type> numericTypeSet, Type parentType) {
         if (!(sourceValue instanceof ArrayValue)) {
             return false;
         }
@@ -659,7 +660,7 @@ public class TypeConverter {
             Type valueType = getType(refValue);
             Type targetElementType = targetTypes.get(i);
             convertibleTypes = getConvertibleTypes(refValue, targetElementType, elementIndex,
-                    false, unresolvedValues, errors, allowAmbiguity, numericTypeList, targetType);
+                    false, unresolvedValues, errors, allowAmbiguity, numericTypeSet, targetType);
             if (isNumericType(valueType)) {
                 needNumericConversion = needNumericConversion || targetElementType != valueType;
             }
@@ -678,7 +679,7 @@ public class TypeConverter {
             initialErrorCount = errors.size();
             elementIndex = getElementIndex(varName, i);
             convertibleTypes = getConvertibleTypes(source.getRefValue(i), targetRestType, elementIndex,
-                    false, unresolvedValues, errors, allowAmbiguity, numericTypeList, targetType);
+                    false, unresolvedValues, errors, allowAmbiguity, numericTypeSet, targetType);
             if (convertibleTypes.isEmpty()) {
                 addErrorMessage(errors.size() - initialErrorCount, errors, "tuple element '" +
                         elementIndex + "' should be of type '" + targetRestType + "', found '" +
@@ -690,7 +691,7 @@ public class TypeConverter {
             }
         }
         if (TypeTags.isUnionTypeTag(parentType.getTag()) && !needNumericConversion) {
-            numericTypeList.add(targetType);
+            numericTypeSet.add(targetType);
         }
         return returnVal;
     }

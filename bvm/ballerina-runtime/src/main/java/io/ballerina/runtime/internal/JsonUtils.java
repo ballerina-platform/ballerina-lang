@@ -54,6 +54,7 @@ import io.ballerina.runtime.internal.values.RefValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -352,7 +353,7 @@ public class JsonUtils {
                         return jsonNodeToInt(jsonValue);
                     } else {
                         matchingTypes.addAll(TypeConverter.getConvertibleTypes(jsonValue, memType, null,
-                                true, new ArrayList<>(), new ArrayList<>(), false, new ArrayList<>(), targetType));
+                                true, new ArrayList<>(), new ArrayList<>(), false, new HashSet<>(), targetType));
                     }
                 }
                 if (((matchingTypes.size() > 1) && !matchingTypes.contains(inputValueType) &&
