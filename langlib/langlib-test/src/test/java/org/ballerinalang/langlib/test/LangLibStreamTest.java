@@ -86,4 +86,8 @@ public class LangLibStreamTest {
         Assert.assertTrue((Boolean) values);
     }
 
+    @Test
+    public void testBasicTypeStream() {
+        BRunUtil.invoke(result, "testBasicTypeStream");
+    }
 }

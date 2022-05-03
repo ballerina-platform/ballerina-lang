@@ -5129,6 +5129,10 @@ public class Desugar extends BLangNodeVisitor {
         this.onFailClause = onFailClause;
     }
 
+    public void resetSkipFailStmtRewrite() {
+        this.skipFailStmtRewrite = false;
+    }
+
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
         if (onFailClause != null) {
             this.enclosingOnFailClause.add(this.onFailClause);
@@ -6130,10 +6134,11 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol originalMemberFuncSymbol = (BInvokableSymbol) fieldAccessExpr.symbol;
         // Can we cache this?
         BLangFunction func = (BLangFunction) TreeBuilder.createFunctionNode();
-        String funcName = "$annon$method$delegate$" + lambdaFunctionCount++;
+        String funcName = "$anon$method$delegate$" + originalMemberFuncSymbol.name.value + "$" + lambdaFunctionCount++;
         BInvokableSymbol funcSymbol = new BInvokableSymbol(SymTag.INVOKABLE, (Flags.ANONYMOUS | Flags.LAMBDA),
-                names.fromString(funcName),
-                env.enclPkg.packageID, originalMemberFuncSymbol.type, env.scope.owner, pos, VIRTUAL);
+                                                           Names.fromString(funcName), env.enclPkg.packageID,
+                                                           originalMemberFuncSymbol.type, env.scope.owner, pos,
+                                                           VIRTUAL);
         funcSymbol.retType = originalMemberFuncSymbol.retType;
         funcSymbol.bodyExist = true;
         funcSymbol.params = new ArrayList<>();

@@ -1817,9 +1817,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     void handleDeclaredVarInForeach(BLangVariable variable, BType rhsType, SymbolEnv blockEnv) {
-        if (rhsType.tag == TypeTags.INTERSECTION) {
-            rhsType = ((BIntersectionType) rhsType).effectiveType;
-        }
+        rhsType = getApplicableRhsType(rhsType);
 
         switch (variable.getKind()) {
             case VARIABLE:
@@ -1896,6 +1894,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 recursivelySetFinalFlag(errorVariable);
                 break;
         }
+    }
+
+    private BType getApplicableRhsType(BType rhsType) {
+        BType referredType = Types.getReferredType(rhsType);
+        if (referredType.tag == TypeTags.INTERSECTION) {
+            return ((BIntersectionType) referredType).effectiveType;
+        }
+        return rhsType;
     }
 
     private void recursivelyDefineVariables(BLangVariable variable, SymbolEnv blockEnv) {
@@ -3727,7 +3733,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(foreach.body, currentEnv);
         // Check foreach node's variables and set types.
         handleForeachDefinitionVariables(foreach.variableDefinitionNode, foreach.varType, foreach.isDeclaredWithVar,
-                                         false, blockEnv);
+                false, blockEnv);
         boolean prevBreakFound = data.breakFound;
         // Analyze foreach node's statements.
         data.env = blockEnv;
@@ -4651,6 +4657,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) lhsExpr).symbol;
+
+        if (Symbols.isFlagOn(varSymbol.flags, Flags.FINAL)) {
+            return;
+        }
+
         if (varSymbol.originalSymbol == null) {
             return;
         }
