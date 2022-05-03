@@ -85,7 +85,7 @@ public class CompilerPluginTests {
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_diagnostic_init_function");
         BCompileUtil.compileAndCacheBala(
-                "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/records");
+                "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/defns");
     }
 
     @Test
@@ -307,12 +307,24 @@ public class CompilerPluginTests {
         Assert.assertSame(newPackage.project(), project);
         Assert.assertSame(newPackage, project.currentPackage());
 
+        // Modified source files
         Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 2);
         for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
             Document document = newPackage.getDefaultModule().document(documentId);
             // The code generator adds specific function to the end of every source file.
             String specificFunction = "public function newFunctionByCodeModifier"
-                    + document.name().replace(".bal", "")
+                    + document.name().replace(".bal", "").replace("/", "_")
+                    + "(string params) returns error? {\n}";
+            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        // Modified test source files
+        Assert.assertEquals(newPackage.getDefaultModule().testDocumentIds().size(), 1);
+        for (DocumentId documentId : newPackage.getDefaultModule().testDocumentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificFunction = "public function newFunctionByCodeModifier"
+                    + document.name().replace(".bal", "").replace("/", "_")
                     + "(string params) returns error? {\n}";
             Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
         }
@@ -322,7 +334,7 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
         Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 8, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies count is 1
         Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");

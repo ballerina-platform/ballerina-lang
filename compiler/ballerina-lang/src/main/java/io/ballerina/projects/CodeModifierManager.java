@@ -55,7 +55,7 @@ class CodeModifierManager {
 
     CodeModifierResult runCodeModifiers(Package currentPackage) {
         CodeModifyTaskResult codeModifyTaskResult = getCodeModifyTaskResult();
-        if (codeModifyTaskResult.containsSourceFile()) {
+        if (codeModifyTaskResult.containsSourceFile() || codeModifyTaskResult.containsTestSourceFile()) {
             Package packageWithGenSources = new PackageModifier().modifyPackage(currentPackage, codeModifyTaskResult);
             return new CodeModifierResult(packageWithGenSources, codeModifyTaskResult.reportedDiagnostics());
         } else {
@@ -98,6 +98,7 @@ class CodeModifierManager {
 
             resultBuilder.addDiagnostics(sourceModifyContext.reportedDiagnostics());
             resultBuilder.addSourceFiles(sourceModifyContext.modifiedSourceFiles());
+            resultBuilder.addTestSourceFiles(sourceModifyContext.modifiedTestSourceFiles());
         }
     }
 
@@ -245,6 +246,7 @@ class CodeModifierManager {
         private final PackageCompilation compilation;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
         private final List<ModifiedSourceFile> sourceFiles = new ArrayList<>();
+        private final List<ModifiedTestSourceFile> testSourceFiles = new ArrayList<>();
 
         public SourceModifierContextImpl(Package currentPackage, PackageCompilation compilation) {
             this.currentPackage = currentPackage;
@@ -275,6 +277,19 @@ class CodeModifierManager {
         }
 
         @Override
+        public void modifyTestSourceFile(TextDocument textDocument, DocumentId testDocumentId) {
+            for (ModuleId moduleId : currentPackage().moduleIds()) {
+                Module module = currentPackage.module(moduleId);
+                if (module.testDocumentIds().contains(testDocumentId)) {
+                    testSourceFiles.add(new ModifiedTestSourceFile(textDocument, testDocumentId));
+                    return;
+                }
+            }
+            throw new IllegalArgumentException("There is no such test document in the current package " +
+                    "with the given identifier: " + testDocumentId);
+        }
+
+        @Override
         public void reportDiagnostic(Diagnostic diagnostic) {
             diagnostics.add(diagnostic);
         }
@@ -285,6 +300,10 @@ class CodeModifierManager {
 
         Collection<ModifiedSourceFile> modifiedSourceFiles() {
             return sourceFiles;
+        }
+
+        Collection<ModifiedTestSourceFile> modifiedTestSourceFiles() {
+            return testSourceFiles;
         }
     }
 
@@ -303,6 +322,24 @@ class CodeModifierManager {
 
         public DocumentId documentId() {
             return documentId;
+        }
+    }
+
+    private static class ModifiedTestSourceFile {
+        private final TextDocument textDocument;
+        private final DocumentId testDocumentId;
+
+        public ModifiedTestSourceFile(TextDocument textDocument, DocumentId testDocumentId) {
+            this.textDocument = textDocument;
+            this.testDocumentId = testDocumentId;
+        }
+
+        public TextDocument textDocument() {
+            return textDocument;
+        }
+
+        public DocumentId testDocumentId() {
+            return testDocumentId;
         }
     }
 
@@ -349,11 +386,14 @@ class CodeModifierManager {
     private static class CodeModifyTaskResult {
         private final List<Diagnostic> reportedDiagnostics;
         private final Map<DocumentId, ModifiedSourceFile> sourceFilesMap;
+        private final Map<DocumentId, ModifiedTestSourceFile> testSourceFilesMap;
 
         public CodeModifyTaskResult(List<Diagnostic> reportedDiagnostics,
-                                    Map<DocumentId, ModifiedSourceFile> sourceFilesMap) {
+                                    Map<DocumentId, ModifiedSourceFile> sourceFilesMap,
+                                    Map<DocumentId, ModifiedTestSourceFile> testSourceFilesMap) {
             this.reportedDiagnostics = reportedDiagnostics;
             this.sourceFilesMap = sourceFilesMap;
+            this.testSourceFilesMap = testSourceFilesMap;
         }
 
         Collection<Diagnostic> reportedDiagnostics() {
@@ -371,15 +411,29 @@ class CodeModifierManager {
         boolean containsSourceFile() {
             return !sourceFilesMap.isEmpty();
         }
+
+        ModifiedTestSourceFile testSourceFile(DocumentId documentId) {
+            return testSourceFilesMap.get(documentId);
+        }
+
+        Collection<DocumentId> testDocumentIds() {
+            return testSourceFilesMap.keySet();
+        }
+
+        boolean containsTestSourceFile() {
+            return !testSourceFilesMap.isEmpty();
+        }
     }
 
     private static class CodeModifierTaskResultBuilder {
         private final List<Diagnostic> reportedDiagnostics;
         private final List<ModifiedSourceFile> modifiedSourceFiles;
+        private final List<ModifiedTestSourceFile> modifiedTestSourceFiles;
 
         CodeModifierTaskResultBuilder() {
             this.reportedDiagnostics = new ArrayList<>();
             this.modifiedSourceFiles = new ArrayList<>();
+            this.modifiedTestSourceFiles = new ArrayList<>();
         }
 
         CodeModifierTaskResultBuilder addDiagnostics(Collection<Diagnostic> diagnostics) {
@@ -392,12 +446,21 @@ class CodeModifierManager {
             return this;
         }
 
+        CodeModifierTaskResultBuilder addTestSourceFiles(Collection<ModifiedTestSourceFile> testSourceFiles) {
+            modifiedTestSourceFiles.addAll(testSourceFiles);
+            return this;
+        }
+
         CodeModifyTaskResult build() {
             Map<DocumentId, ModifiedSourceFile> sourceFilesMap = new HashMap<>();
+            Map<DocumentId, ModifiedTestSourceFile> testSourceFilesMap = new HashMap<>();
             for (ModifiedSourceFile sourceFile : modifiedSourceFiles) {
                 sourceFilesMap.put(sourceFile.documentId(), sourceFile);
             }
-            return new CodeModifyTaskResult(reportedDiagnostics, sourceFilesMap);
+            for (ModifiedTestSourceFile testSourceFile : modifiedTestSourceFiles) {
+                testSourceFilesMap.put(testSourceFile.testDocumentId(), testSourceFile);
+            }
+            return new CodeModifyTaskResult(reportedDiagnostics, sourceFilesMap, testSourceFilesMap);
         }
     }
 
@@ -407,6 +470,9 @@ class CodeModifierManager {
             Package newPackage = currentPackage;
             for (DocumentId documentId : codeModifyTaskResult.documentIds()) {
                 newPackage = modifyModule(documentId.moduleId(), newPackage, codeModifyTaskResult);
+            }
+            for (DocumentId testDocumentId : codeModifyTaskResult.testDocumentIds()) {
+                newPackage = modifyModule(testDocumentId.moduleId(), newPackage, codeModifyTaskResult);
             }
             return newPackage;
         }
@@ -420,6 +486,15 @@ class CodeModifierManager {
                 if (modifiedSourceFile != null) {
                     Document document = module.document(documentId);
                     updateModifiedDocument(document.name(), modifiedSourceFile.textDocument(), modifier, documentId);
+                }
+            }
+
+            for (DocumentId testDocumentId : pkg.module(moduleId).testDocumentIds()) {
+                ModifiedTestSourceFile modifiedTestSourceFile = codeModifyTaskResult.testSourceFile(testDocumentId);
+                if (modifiedTestSourceFile != null) {
+                    Document document = module.document(testDocumentId);
+                    updateModifiedDocument(document.name(), modifiedTestSourceFile.textDocument(),
+                            modifier, testDocumentId);
                 }
             }
 

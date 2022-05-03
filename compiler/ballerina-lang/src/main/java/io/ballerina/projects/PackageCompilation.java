@@ -62,16 +62,9 @@ public class PackageCompilation {
     private volatile boolean compiled;
     private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext) {
-        this.rootPackageContext = rootPackageContext;
-        this.packageResolution = rootPackageContext.getResolution();
-        this.compilationOptions = rootPackageContext.compilationOptions();
-        setupCompilation(rootPackageContext.compilationOptions());
-    }
-
     private PackageCompilation(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
-        this.packageResolution = rootPackageContext.getResolution(compilationOptions);
+        this.packageResolution = rootPackageContext.getResolution();
         this.compilationOptions = compilationOptions;
         setupCompilation(compilationOptions);
     }
@@ -96,12 +89,6 @@ public class PackageCompilation {
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
-    }
-
-    static PackageCompilation from(PackageContext rootPkgContext) {
-        PackageCompilation compilation = new PackageCompilation(rootPkgContext);
-        return compile(compilation);
-
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
