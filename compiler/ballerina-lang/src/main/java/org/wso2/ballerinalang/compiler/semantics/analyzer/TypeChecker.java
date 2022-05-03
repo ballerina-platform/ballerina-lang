@@ -5969,13 +5969,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         operatorType);
                 data.resultType = checkedExpr.expr.getBType();
 
-                BLangTypeConversionExpr impConversionExpr = checkedExpr.expr.impConversionExpr;
-                if (impConversionExpr != null) {
-                    // Exclude any manually added error type, by reassigning
-                    BType expType = Types.getReferredType(data.expType);
-                    impConversionExpr.setBType(expType);
-                    impConversionExpr.targetType = expType;
-                }
+                // Reset impConversionExpr as it was previously based on default error added union type
+                checkedExpr.expr.impConversionExpr = null;
+                types.setImplicitCastExpr(checkedExpr.expr, data.resultType, data.expType);
             }
             checkedExpr.setBType(symTable.semanticError);
             return;
@@ -6007,6 +6003,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // No member types in this union is equivalent to the error type
             dlog.warning(checkedExpr.expr.pos,
                     DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
+
+            // Reset impConversionExpr as it was previously based on default error added union type
+            checkedExpr.expr.impConversionExpr = null;
+            types.setImplicitCastExpr(checkedExpr.expr, data.resultType, data.expType);
+
             checkedExpr.setBType(symTable.semanticError);
             return;
         }

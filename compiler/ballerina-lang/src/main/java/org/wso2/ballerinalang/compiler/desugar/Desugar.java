@@ -8024,7 +8024,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, boolean isCheckPanic) {
         // If the checked expression doesn't contain any error type, visit its expression.
-        if (checkedExpr.equivalentErrorTypeList == null) {
+        if (checkedExpr.equivalentErrorTypeList == null || checkedExpr.equivalentErrorTypeList.isEmpty()) {
             result = rewriteExpr(checkedExpr.expr);
             return;
         }

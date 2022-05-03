@@ -241,7 +241,13 @@ public class CheckedExpressionOperatorTest {
         BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'check' expression " +
                 "operator: no expression type is equivalent to error type", 23, 14);
         BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'check' expression " +
-                "operator: no expression type is equivalent to error type", 33, 24);
+                "operator: no expression type is equivalent to error type", 37, 24);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'check' expression " +
+                "operator: no expression type is equivalent to error type", 41, 24);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'check' expression " +
+                "operator: no expression type is equivalent to error type", 45, 24);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'check' expression " +
+                "operator: no expression type is equivalent to error type", 49, 24);
         Assert.assertEquals(compileResult.getWarnCount(), i);
 
         BRunUtil.invoke(compileResult, "testCheckingExprWithNoErrorType");

@@ -122,7 +122,13 @@ public class CheckPanicExpressionOperatorTest {
         BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
                 "operator: no expression type is equivalent to error type", 23, 19);
         BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
-                "operator: no expression type is equivalent to error type", 33, 29);
+                "operator: no expression type is equivalent to error type", 37, 29);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 41, 29);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 45, 29);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid usage of the 'checkpanic' expression " +
+                "operator: no expression type is equivalent to error type", 49, 29);
         Assert.assertEquals(compileResult.getWarnCount(), i);
 
         BRunUtil.invoke(compileResult, "testCheckingExprWithNoErrorType");

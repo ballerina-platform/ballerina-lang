@@ -27,11 +27,27 @@ function testCheckingExprWithNoErrorType1() {
     panic error("You are not supposed to reach this line");
 }
 
+type TRUE true;
+
+type FALSE false;
+
 function testCheckingExprWithNoErrorType2() {
-    boolean b = true;
+    boolean b1 = true;
     error err = error("Error!");
-    error err1 = checkpanic b ? err : err;
+    error err1 = checkpanic b1 ? err : err;
     assertEquality(err1.message(), "Error!");
+
+    true b2 = true;
+    error err2 = checkpanic b2 ? err : err;
+    assertEquality(err2.message(), "Error!");
+
+    boolean|true b3 = true;
+    error err3 = checkpanic b3 ? err : err;
+    assertEquality(err3.message(), "Error!");
+
+    TRUE|FALSE b4 = true;
+    error err4 = checkpanic b4 ? err : err;
+    assertEquality(err4.message(), "Error!");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
