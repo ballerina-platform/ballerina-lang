@@ -1580,8 +1580,9 @@ public class CommonUtil {
         Optional<List<ParameterSymbol>> parameterSymbols = functionTypeSymbol.params();
         Optional<ParameterSymbol> restParam = functionTypeSymbol.restParam();
 
-        // Check if we are not in an erroneous state
-        if (parameterSymbols.isEmpty() || parameterSymbols.get().size() < argIndex + 1) {
+        // Check if we are not in an erroneous state. If rest params is empty and params are empty or params size is
+        // lower than the arg index, we are in an invalid state
+        if (restParam.isEmpty() && (parameterSymbols.isEmpty() || parameterSymbols.get().size() < argIndex + 1)) {
             return Optional.empty();
         }
 
@@ -1591,13 +1592,11 @@ public class CommonUtil {
         }
 
         // We can be in required params or rest params
-        if (parameterSymbols.get().size() > argIndex) {
+        if (parameterSymbols.isPresent() && parameterSymbols.get().size() > argIndex) {
             return Optional.of(parameterSymbols.get().get(argIndex));
-        } 
-        if (restParam.isPresent()) {
-            return Optional.of(restParam.get());
         }
-        return Optional.empty();
+
+        return restParam;
     }
 
     /**
