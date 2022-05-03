@@ -22,7 +22,7 @@ import java.util.Collections;
 /**
  * Utility provider for the Markup syntax.
  *
- * @since 2201.0.3
+ * @since 2201.1.1
  */
 public final class MarkupUtils {
     private MarkupUtils() {

@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 /**
  * A utility for building a SignatureInformation.
  *
- * @since 2201.0.3
+ * @since 2201.1.1
  */
 public class SignatureInfoModelBuilder {
     private final Symbol symbol;
