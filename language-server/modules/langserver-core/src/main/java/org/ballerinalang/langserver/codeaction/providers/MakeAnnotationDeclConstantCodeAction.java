@@ -19,9 +19,11 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -50,10 +52,25 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
     public static final String DIAGNOSTIC_CODE = "BCE2638";
 
     @Override
+    public boolean validate(Diagnostic diagnostic,
+                            DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        if (!DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty() ||
+                context.currentSemanticModel().isEmpty()) {
+            return false;
+        }
+
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
+        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(),
+                context.cursorPosition()), syntaxTree);
+        return CodeActionNodeValidator.validate(matchedNode);
+    }
+    
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        Optional<Pair<Symbol, Path>> symbolAndPath = CodeActionUtil.getSymbolAndPath(diagnostic, DIAGNOSTIC_CODE,
+        Optional<Pair<Symbol, Path>> symbolAndPath = CodeActionUtil.findSymbolAndPathForDiagnosticRange(diagnostic, 
                 context);
         if (symbolAndPath.isEmpty()) {
            return Collections.emptyList();
