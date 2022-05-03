@@ -401,6 +401,7 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangRetry retryNode) {
         lookupNode(retryNode.retryBody);
         lookupNode(retryNode.retrySpec);
+        lookupNode(retryNode.onFailClause);
     }
 
     @Override
@@ -457,6 +458,7 @@ class NodeFinder extends BaseVisitor {
         lookupNode((BLangNode) foreach.variableDefinitionNode);
         lookupNode(foreach.collection);
         lookupNode(foreach.body);
+        lookupNode(foreach.onFailClause);
     }
 
     @Override
@@ -526,16 +528,19 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangWhile whileNode) {
         lookupNode(whileNode.expr);
         lookupNode(whileNode.body);
+        lookupNode(whileNode.onFailClause);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         lookupNode(lockNode.body);
+        lookupNode(lockNode.onFailClause);
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
         lookupNode(transactionNode.transactionBody);
+        lookupNode(transactionNode.onFailClause);
     }
 
     @Override

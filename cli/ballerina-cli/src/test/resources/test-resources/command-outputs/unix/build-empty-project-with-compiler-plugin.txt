@@ -1,1 +1,1 @@
-ballerina: package is empty. please add at least one .bal file.
+ballerina: package is empty. Please add at least one .bal file.

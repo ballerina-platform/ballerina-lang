@@ -346,6 +346,146 @@ function testQueryActionWithAsyncCalls() returns error? {
     assertEquality(sum, 6);
 }
 
+class IterableWithError {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}|error?;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}|error? {
+                return error("Custom error thrown.");
+            }
+        };
+    }
+}
+
+function testErrorHandlingWithinQueryAction() {
+    error? res1 = from int v in 1 ... 2
+        do {
+            _ = check getErrorOrString();
+        };
+    assertTrue(res1 is error);
+
+    IterableWithError itr = new IterableWithError();
+    (int|error)[] arr = [];
+    error? res2 = from var item in itr
+        do {
+            arr.push(item);
+        };
+    assertTrue(res2 is error);
+
+    error? res3 = from var i in 1 ... 2
+        from var item in itr
+        do {
+            arr.push(item);
+        };
+    assertTrue(res3 is error);
+
+    assertTrue(throwErrorFromQueryAction() is error);
+
+    error? res4 = ();
+    do {
+        check from int i in 1 ... 2
+            do {
+                _ = check getErrorOrString();
+            };
+    } on fail var e {
+        res4 = e;
+    }
+    assertTrue(res4 is error);
+
+    assertTrue(failFromQueryAction() is error);
+}
+
+function throwErrorFromQueryAction() returns error? {
+    check from int v in 1 ... 2
+        do {
+            _ = check getErrorOrString();
+        };
+}
+
+function failFromQueryAction() returns error? {
+    //when failed; error returned to invocation not to the result assignment
+    error? res = from int v in 1 ... 2
+        do {
+            fail error("Custom Error");
+        };
+}
+
+function testReturnStmtWithinQueryAction() {
+    assertEquality("Dummy string", returnString());
+    assertEquality("Dummy string", returnStringOrError());
+    assertEquality("World", testReachabilityWithQueryAction());
+//    should enable when issues/35383 is fixed
+//    assertEquality((), testNilReturnWithinQueryAction());
+}
+
+function returnString() returns string {
+    error? res = from int i in 1...3
+       do {
+         return "Dummy string";
+       };
+    return "Should not reach here";
+}
+
+function returnStringOrError() returns string|error {
+    check from int i in 1 ... 3
+        do {
+            if (3 + 2) == 5 {
+                return "Dummy string";
+            }
+        };
+    //checking return statement breaks the loop
+    panic error("Return statement should brake the loop and return");
+}
+
+function testReachabilityWithQueryAction() returns string {
+    string?[] stringArray = [(), (), ()];
+
+    error? unionResult = from var item in stringArray
+        where item is string
+        do {
+            if 5 + 5 == 10 { //to avoid unreachable error at final return
+                return "Hello";
+            }
+        };
+    return "World";
+}
+
+//function testNilReturnWithinQueryAction() returns string? {
+//    int count = 0;
+//    error? res = from int i in 1 ... 3
+//        do {
+//            count = count + 1;
+//            if 5 + 5 == 10 { //to avoid unreachable error
+//                return;
+//            }
+//        };
+//    //checking return statement breaks the loop
+//    panic error("Return statement should brake the loop and return");
+//}
+
+function assertTrue (any|error actual) {
+    return assertEquality(true, actual);
+}
+
+function testQueryExpWithinQueryAction() returns error? {
+    int[][] data = [[1, 2], [2, 3, 4]];
+    int sumOfEven = 0;
+    check from int[] arr in data
+        do {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            check from int i in evenNumbers
+                do {
+                    sumOfEven += i;
+                };
+        };
+    assertEquality(8, sumOfEven);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

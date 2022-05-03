@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -35,6 +36,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
@@ -70,6 +73,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -82,6 +87,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -1378,7 +1384,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         if (Types.getReferredType(constraintType).tag == TypeTags.MAP &&
-                (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
+                (!tableType.fieldNameList.isEmpty() || tableType.keyTypeConstraint != null) &&
                 !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(tableType.keyPos,
                     DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
@@ -2154,8 +2160,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 boolean match = true;
                 for (int i = 0; i < typeList.size(); i++) {
                     BType t = Types.getReferredType(typeList.get(i));
-                    if ((t.getKind() == TypeKind.UNION) &&
-                            (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
+                    if ((t.getKind() == TypeKind.UNION) && (opType.paramTypes.get(i).getKind() == TypeKind.UNION)) {
                         if (!this.types.isSameType(t, opType.paramTypes.get(i))) {
                             match = false;
                         }
@@ -2209,7 +2214,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return true;
         }
         if (!Symbols.isPrivate(symbol)) {
-            return env.enclPkg.symbol.pkgID == symbol.pkgID;
+            return env.enclPkg.symbol.pkgID.equals(symbol.pkgID);
         }
         if (env.enclType != null) {
             return env.enclType.getBType().tsymbol == symbol.owner;
@@ -2467,6 +2472,66 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private boolean isModuleLevelVar(BSymbol symbol) {
         return symbol.getKind() == SymbolKind.VARIABLE && symbol.owner.getKind() == SymbolKind.PACKAGE;
+    }
+
+    public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
+                                                   ConstantValueResolver constantValueResolver) {
+        BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
+
+        if (annotationSymbol == null) {
+            return;
+        }
+
+        if (!Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
+            annotationAttachment.annotationAttachmentSymbol =
+                    new BAnnotationAttachmentSymbol(annotationSymbol, env.enclPkg.packageID, env.scope.owner,
+                                                    annotationAttachment.pos, SOURCE, annotationSymbol.attachedType);
+            return;
+        }
+
+        BLangExpression expr = annotationAttachment.expr;
+
+        BType attachedType = annotationAttachment.annotationSymbol.attachedType;
+        if (attachedType == null) {
+            attachedType = symTable.trueType;
+        } else {
+            attachedType = Types.getReferredType(attachedType);
+            attachedType = attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType;
+        }
+
+        BConstantSymbol constantSymbol = new BConstantSymbol(0, Names.EMPTY, Names.EMPTY, env.enclPkg.packageID,
+                                                             attachedType, attachedType, env.scope.owner,
+                                                             annotationAttachment.pos, VIRTUAL);
+
+        BLangConstantValue constAnnotationValue;
+
+        if (expr == null) {
+            if (types.isAssignable(attachedType, symTable.trueType)) {
+                // https://github.com/ballerina-platform/ballerina-lang/issues/35127
+                constAnnotationValue = new BLangConstantValue(true, symTable.booleanType);
+                constantSymbol.value = constAnnotationValue;
+            } else {
+                // TODO: 2022-03-06 Need to handle defaults coming from records.
+                BLangRecordLiteral mappingConstructor = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+                mappingConstructor.setBType(attachedType);
+                mappingConstructor.typeChecked = true;
+
+                constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(
+                        mappingConstructor, constantSymbol, env);
+            }
+        } else {
+            constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr,
+                                                                                                  constantSymbol, env);
+        }
+
+        constantSymbol.type = constAnnotationValue.type;
+
+        annotationAttachment.annotationAttachmentSymbol =
+                new BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol(annotationSymbol,
+                                                                                 env.enclPkg.packageID,
+                                                                                 env.scope.owner,
+                                                                                 annotationAttachment.pos, SOURCE,
+                                                                                 constantSymbol);
     }
 
     public Set<BVarSymbol> getConfigVarSymbolsIncludingImportedModules(BPackageSymbol packageSymbol) {

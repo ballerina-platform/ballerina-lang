@@ -48,7 +48,8 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
     @Override
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
         long start = System.currentTimeMillis();
-        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        String res = TestUtil.getCodeActionResponse(getServiceEndpoint(), sourcePath.toString(), range, 
+                codeActionContext);
         long end = System.currentTimeMillis();
         long actualResponseTime = end - start;
         int expectedResponseTime = PerformanceTestUtils.getCodeActionResponseTimeThreshold();

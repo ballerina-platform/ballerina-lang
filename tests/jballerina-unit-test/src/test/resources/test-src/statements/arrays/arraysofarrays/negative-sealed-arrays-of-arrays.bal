@@ -69,16 +69,53 @@ function jsonArrays() {
 }
 
 function invalidSealedLiteralUsage() {
-    int[2][][*] x1 = [[[1, 2, 3], [4, 5, 6], [7, 8, 9]], [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12]]];
-    int[2][][*] x2 = [[[1, 2, 3], [4, 5, 6], [6, 7, 8, 9, 10]], [[1, 2, 3, 4], [4, 5, 6], [7, 8, 9]]];
-    json[2] j1 = ["abc", 1];
-    json[2][*] j2 = [j1, j1];
-    float[2][*] f1;
+    int[2][][*] a1 = [[[1, 2, 3], [4, 5, 6], [6, 7, 8, 9, 10]], [[1, 2, 3, 4], [4, 5, 6], [7, 8, 9]]];
+    float[2][*] a2;
+
+    (float[2][2]) & readonly a3 = [[3, 4], [3, 4]];
+    (float[*][]|string) & readonly _ = a3;
 }
 
 function invalidSealedLiteralIndexAccess() {
     int[2][] x1 = [[1, 2, 3], [4, 5, 6]];
-    int[2][*] x2 = [[1, 2, 3], [4, 5, 6]];
+    int[*][3] x2 = [[1, 2, 3], [4, 5, 6]];
     x1[1][4] = 7;
     x2[1][4] = 7;
 }
+
+function invalidInferredArrayUsage() {
+    int[*][2][2] a1 = [[[5, 5], [6, 6]]];
+    int[*][2][2] _ = a1;
+
+    string[*][] & readonly a2 = [["1", "2"], ["3", "4"]];
+    string[*][*] & readonly _ = a2;
+
+    (float[2][2]) & readonly a3 = [[3, 4], [3, 4]];
+    (float[*][]) & readonly _ = a3;
+
+    boolean b3 = true;
+    if (b3) {
+        int[*][][] _ = a1;
+    }
+
+    map<float|int[*][*]> a4 = {"1" : [[3]]};
+    map<int[*][]> _ = a4;
+
+    [string|int[*][], float] a5 = [[[1]], 1.2];
+    [int[*][] & readonly, float] _ = a5;
+}
+
+int[*][2][2] a1 = [[[5, 5], [6, 6]]];
+int[*][2][2] _ = a1;
+
+string[*][] & readonly a2 = [["1", "2"], ["3", "4"]];
+string[*][*] & readonly _ = a2;
+
+(float[2][2]) & readonly a3 = [[3, 4], [3, 4]];
+(float[*][]) & readonly _ = a3;
+
+map<float|int[*][*]> a4 = {"1": [[3]]};
+map<int[*][]> _ = a4;
+
+[string|int[*][], float] a5 = [[[1]], 1.2];
+[int[*][] & readonly, float] _ = a5;
