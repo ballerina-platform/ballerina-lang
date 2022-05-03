@@ -18,7 +18,9 @@ package org.ballerinalang.langserver.signature;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 
 /**
- * Parameter information model to hold the parameter information meta data.
+ * Parameter information model to hold the parameter information metadata.
+ *
+ * @since 2201.1.1
  */
 public class ParameterInfoModel {
 
