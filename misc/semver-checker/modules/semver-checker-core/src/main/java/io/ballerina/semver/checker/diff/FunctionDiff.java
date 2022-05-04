@@ -64,6 +64,9 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
         return (isNewPrivate && isOldPrivate) || (newNode == null && isOldPrivate) || (oldNode == null && isNewPrivate);
     }
 
+    /**
+     * Function diff builder implementation.
+     */
     public static class Builder extends NodeDiffImpl.Builder<FunctionDefinitionNode> {
 
         private final FunctionDiff functionDiff;

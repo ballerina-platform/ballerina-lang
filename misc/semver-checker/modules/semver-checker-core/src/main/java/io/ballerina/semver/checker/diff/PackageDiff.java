@@ -69,6 +69,9 @@ public class PackageDiff extends DiffImpl {
         moduleDiffs.add(moduleDiff);
     }
 
+    /**
+     * Package diff builder implementation.
+     */
     public static class Builder implements DiffBuilder {
 
         private final PackageDiff packageDiff;
@@ -102,7 +105,7 @@ public class PackageDiff extends DiffImpl {
 
         public DiffBuilder withModuleAdded(Module module) {
             ModuleDiff.Builder diffBuilder = new ModuleDiff.Builder(module, null);
-            diffBuilder.withType(DiffType.NEW).withVersionImpact(SemverImpact.MINOR);
+            diffBuilder.withVersionImpact(SemverImpact.MINOR);
             diffBuilder.build().ifPresent(packageDiff::addModuleDiff);
             return this;
         }
@@ -110,7 +113,7 @@ public class PackageDiff extends DiffImpl {
         public DiffBuilder withModuleRemoved(Module module) {
             // Todo: decide whether this should be backward compatible
             ModuleDiff.Builder diffBuilder = new ModuleDiff.Builder(module, null);
-            diffBuilder.withType(DiffType.REMOVED).withVersionImpact(SemverImpact.MAJOR);
+            diffBuilder.withVersionImpact(SemverImpact.MAJOR);
             diffBuilder.build().ifPresent(packageDiff::addModuleDiff);
             return this;
         }

@@ -33,7 +33,7 @@ import java.util.List;
 
 /**
  * Class to implement `semver` command for Ballerina.
- * Ex: `bal semver [--help|-h]`
+ * Ex: `bal semver`
  *
  * @since 2201.2.0
  */

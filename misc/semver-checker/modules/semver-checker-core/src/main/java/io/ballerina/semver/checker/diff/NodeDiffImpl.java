@@ -151,6 +151,11 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         return sb.toString();
     }
 
+    /**
+     * Node diff builder implementation.
+     *
+     * @param <T> Node type
+     */
     public static class Builder<T extends Node> implements NodeDiffBuilder {
 
         private final NodeDiffImpl<T> nodeDiff;

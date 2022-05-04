@@ -23,7 +23,7 @@ import io.ballerina.semver.checker.diff.Diff;
 import java.util.Optional;
 
 /**
- * Definition of Ballerina source comparator
+ * Definition of Ballerina source comparator.
  *
  * @since 2201.2.0
  */

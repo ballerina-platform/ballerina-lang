@@ -57,7 +57,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
     @Override
     public Optional<? extends Diff> computeDiff() {
         FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(newNode, oldNode);
-        return funcDiffBuilder.withChildDiffs(compareMetadata())
+        return funcDiffBuilder
+                .withChildDiffs(compareMetadata())
                 .withChildDiffs(compareFunctionQualifiers())
                 .withChildDiffs(compareFunctionParams())
                 .withChildDiffs(compareReturnTypeDesc())
@@ -66,7 +67,7 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
     }
 
     /**
-     * Analyzes and returns the diff for changes on function definition metadata (documentation + annotations)
+     * Analyzes and returns the diff for changes on function definition metadata (documentation + annotations).
      */
     public List<Diff> compareMetadata() {
         List<Diff> metadataDiffs = new ArrayList<>();

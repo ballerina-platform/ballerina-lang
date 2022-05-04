@@ -19,13 +19,13 @@
 package io.ballerina.semver.checker.util;
 
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.semver.checker.diff.SemverImpact;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
 import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
+import io.ballerina.semver.checker.diff.SemverImpact;
 
 import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 

@@ -39,6 +39,16 @@ public class ModuleDiff extends DiffImpl {
     private ModuleDiff(Module newModule, Module oldModule) {
         this.newModule = newModule;
         this.oldModule = oldModule;
+
+        if (newModule != null && oldModule == null) {
+            this.diffType = DiffType.NEW;
+        } else if (newModule == null && oldModule != null) {
+            this.diffType = DiffType.REMOVED;
+        } else if (newModule != null) {
+            this.diffType = DiffType.MODIFIED;
+        } else {
+            this.diffType = DiffType.UNKNOWN;
+        }
     }
 
     public Optional<Module> getNewModule() {
@@ -60,6 +70,9 @@ public class ModuleDiff extends DiffImpl {
                 .collect(Collectors.toUnmodifiableList());
     }
 
+    /**
+     * Module diff builder implementation.
+     */
     public static class Builder implements DiffBuilder {
 
         private final ModuleDiff moduleDiff;
@@ -73,6 +86,8 @@ public class ModuleDiff extends DiffImpl {
             if (!moduleDiff.getChildDiffs().isEmpty()) {
                 moduleDiff.computeVersionImpact();
                 moduleDiff.setType(DiffType.MODIFIED);
+                return Optional.of(moduleDiff);
+            } else if (moduleDiff.getType() == DiffType.NEW || moduleDiff.getType() == DiffType.REMOVED) {
                 return Optional.of(moduleDiff);
             }
 

@@ -137,6 +137,11 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         return sb.toString();
     }
 
+    /**
+     * Node list diff builder implementation.
+     *
+     * @param <T> Node type
+     */
     public static class Builder<T extends Node> implements NodeDiffBuilder {
 
         private final NodeListDiffImpl<T> nodeListDiff;
