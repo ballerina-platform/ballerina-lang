@@ -91,7 +91,6 @@ public class SemverChecker {
         StringBuilder sb = new StringBuilder();
         Optional<PackageDiff> packageDiff = computeDiff();
         sb.append(DiffUtils.getDiffSummary(packageDiff.orElse(null), getLocalVersion(), releasedVersion));
-        sb.append(System.lineSeparator());
         sb.append(DiffUtils.getVersionSuggestion(packageDiff.orElse(null), getLocalVersion(), releasedVersion));
         return sb.toString();
     }
@@ -112,7 +111,7 @@ public class SemverChecker {
 
         CentralClientWrapper clientWrapper = new CentralClientWrapper(outStream, errStream);
         if (releasedVersion == null) {
-            outStream.println("checking for the latest compatible release version in central...");
+            outStream.println("checking for the latest compatible release version available in central...");
             releasedVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
         }
         Path balaPath = clientWrapper.pullPackage(orgName, pkgName, releasedVersion);

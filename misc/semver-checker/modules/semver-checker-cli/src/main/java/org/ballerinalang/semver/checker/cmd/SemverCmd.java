@@ -55,9 +55,9 @@ public class SemverCmd implements BLauncherCmd {
     private boolean helpFlag;
 
     @SuppressWarnings("unused")
-    @CommandLine.Option(names = {"--prev-version"}, description = "released version number which the current " +
-            "changes should be compared against (If not provided, the tool is expected to resolve the most " +
-            "compatible version published to the Ballerina central).")
+    @CommandLine.Option(names = {"-c", "--compare-version"}, description = "released version number which the current" +
+            " changes should be compared against (If not provided, the tool is expected to resolve the most " +
+            "compatible version available in the central).")
     private String prevVersion;
 
     @SuppressWarnings("unused")
@@ -126,16 +126,13 @@ public class SemverCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-
     }
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-
     }
 }

@@ -75,8 +75,9 @@ public class DiffUtils {
     public static String getVersionSuggestion(PackageDiff packageDiff, SemanticVersion localVersion,
                                               SemanticVersion previousVersion) {
         StringBuilder sb = new StringBuilder();
-        sb.append("local version: ").append(localVersion).append(System.lineSeparator());
-        sb.append("compatibility status (compared to published version '").append(previousVersion).append("'): ");
+        sb.append(System.lineSeparator());
+        sb.append("current version: ").append(localVersion).append(System.lineSeparator());
+        sb.append("compatibility impact (compared with the release version '").append(previousVersion).append("'): ");
         if (packageDiff == null) {
             sb.append("no changes detected").append(System.lineSeparator());
         } else {
