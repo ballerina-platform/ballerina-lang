@@ -250,7 +250,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param env       symbol env.
      * @return desugared query expression.
      */
-    BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env) {
+    BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env,
+                                     List<BLangStatement> stmtsToBePropagated) {
         containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
@@ -258,7 +259,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         Location pos = clauses.get(0).pos;
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env,
+                queryBlock, stmtsToBePropagated);
         BLangStatementExpression streamStmtExpr;
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
@@ -333,7 +335,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             returnType = ((BInvokableType) invokableSymbol.type).retType;
         }
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock);
+        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock, new ArrayList<>());
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                 QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr;
@@ -370,7 +372,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param block parent block to write to.
      * @return variableReference to created _StreamPipeline.
      */
-    BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env, BLangBlockStmt block) {
+    BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env,
+                                       BLangBlockStmt block, List<BLangStatement> stmtsToBePropagated) {
         this.env = env;
         BLangFromClause initFromClause = (BLangFromClause) clauses.get(0);
         final BLangVariableReference initPipeline = addPipeline(block, initFromClause.pos,
@@ -408,7 +411,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, orderFunc);
                     break;
                 case SELECT:
-                    BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause);
+                    BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, selectFunc);
                     break;
                 case DO:
@@ -685,10 +689,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param selectClause to be desugared.
      * @return variableReference to created select _StreamFunction.
      */
-    BLangVariableReference addSelectFunction(BLangBlockStmt blockStmt, BLangSelectClause selectClause) {
+    BLangVariableReference addSelectFunction(BLangBlockStmt blockStmt, BLangSelectClause selectClause,
+                                             List<BLangStatement> stmtsToBePropagated) {
         Location pos = selectClause.pos;
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
         // $frame$["$value$"] = select-expr;

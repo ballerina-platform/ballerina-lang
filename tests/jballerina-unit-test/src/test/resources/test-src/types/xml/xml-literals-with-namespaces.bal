@@ -166,3 +166,41 @@ function testXmlLiteralUsingXmlNamespacePrefix() {
         panic error("Assertion error", expected = expectedStr, found=s);
     }
 }
+
+xmlns "http://www.so2w.org" as globalNS;
+
+function testXmlInterpolationWithQuery() {
+    xml x1 = xml `<empRecords xmlns:inlineNS="http://www.so2w.org">
+         ${from int i in 1 ... 3
+        select xml `<empRecord employeeId="${i}"><inlineNS:id>${i}</inlineNS:id></empRecord>`}
+      </empRecords>;`;
+    xml x2 = x1/<empRecord>[0];
+    string s1 = x2.toString();
+    string expectedStr1 = "<empRecord employeeId=\"1\"><inlineNS:id xmlns:inlineNS=\"http://www.so2w.org\">1</inlineNS:id></empRecord>";
+    if (s1 != expectedStr1) {
+        panic error("Assertion error", expected = expectedStr1, found = s1);
+    }
+
+    xmlns "http://www.so2w.org" as localNS;
+    xml x3 = xml `<empRecords>
+         ${from int i in 1 ... 3
+        select xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`}
+      </empRecords>;`;
+    xml x4 = x3/<empRecord>[0]/<localNS:id>;
+    string s2 = x4.toString();
+    string expectedStr2 = "<localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id>";
+    if (s2 != expectedStr2) {
+        panic error("Assertion error", expected = expectedStr2, found = s2);
+    }
+
+    xml x5 = xml `<empRecords>
+         ${from int i in 1 ... 3
+        select xml `<empRecord employeeId="${i}"><globalNS:id>${i}</globalNS:id></empRecord>`}
+      </empRecords>;`;
+    xml x6 = x5/<empRecord>[0]/<globalNS:id>;
+    string s3 = x6.toString();
+    string expectedStr3 = "<globalNS:id xmlns:globalNS=\"http://www.so2w.org\">1</globalNS:id>";
+    if (s3 != expectedStr3) {
+        panic error("Assertion error", expected = expectedStr3, found = s3);
+    }
+}

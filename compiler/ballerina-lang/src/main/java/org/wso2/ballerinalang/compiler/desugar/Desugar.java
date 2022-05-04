@@ -398,7 +398,7 @@ public class Desugar extends BLangNodeVisitor {
     private int indexExprCount = 0;
     private int letCount = 0;
     private int varargCount = 0;
-    private boolean skipFailStmtRewrite;
+    private boolean isVisitingQuery;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -410,6 +410,8 @@ public class Desugar extends BLangNodeVisitor {
     private Map<BSymbol, Set<BVarSymbol>> globalVariablesDependsOn;
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
+    private List<BLangXMLNS> inlineXMLNamespaces;
+    private List<BLangStatement> stmtsToBePropagatedToQuery = new ArrayList<>();
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -1374,6 +1376,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        List<BLangStatement> prevXmlnsDecls = this.stmtsToBePropagatedToQuery;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         if (!funcNode.interfaceFunction) {
             addReturnIfNotPresent(funcNode);
@@ -1394,7 +1397,7 @@ public class Desugar extends BLangNodeVisitor {
         if (funcNode.returnTypeNode != null) {
             funcNode.returnTypeAnnAttachments.forEach(attachment -> rewrite(attachment, env));
         }
-
+        this.stmtsToBePropagatedToQuery = prevXmlnsDecls;
         result = funcNode;
     }
 
@@ -3380,6 +3383,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);
+        //need to propagate the local namespace to be used at the select clause
+        this.stmtsToBePropagatedToQuery.add(xmlnsStmtNode);
         result = xmlnsStmtNode;
     }
 
@@ -7461,9 +7466,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
-        xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
-        xmlElementLiteral.modifiedChildren = rewriteExprs(xmlElementLiteral.modifiedChildren);
         xmlElementLiteral.attributes = rewriteExprs(xmlElementLiteral.attributes);
 
         // Separate the in-line namepsace declarations and attributes.
@@ -7488,6 +7490,18 @@ public class Desugar extends BLangNodeVisitor {
             xmlElementLiteral.inlineNamespaces.add(xmlns);
         }
 
+        List<BLangXMLNS> prevInlineNamespaces = this.inlineXMLNamespaces;
+        if (isVisitingQuery && this.inlineXMLNamespaces != null) {
+            //if xml has an interpolated query, the inline namespace should be propagated
+            xmlElementLiteral.inlineNamespaces.addAll(this.inlineXMLNamespaces);
+        }
+        this.inlineXMLNamespaces = xmlElementLiteral.inlineNamespaces;
+
+        xmlElementLiteral.startTagName = rewriteExpr(xmlElementLiteral.startTagName);
+        xmlElementLiteral.endTagName = rewriteExpr(xmlElementLiteral.endTagName);
+        xmlElementLiteral.modifiedChildren = rewriteExprs(xmlElementLiteral.modifiedChildren);
+
+        this.inlineXMLNamespaces = prevInlineNamespaces;
         result = xmlElementLiteral;
     }
 
@@ -7732,7 +7746,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFail failNode) {
-        if (this.onFailClause != null && !this.skipFailStmtRewrite) {
+        if (this.onFailClause != null && !this.isVisitingQuery) {
             if (this.onFailClause.bodyContainsFail) {
                 result = rewriteNestedOnFail(this.onFailClause, failNode);
             } else {
@@ -8138,20 +8152,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
-        this.skipFailStmtRewrite = true;
-        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env);
+        boolean prevSkipFailStmtRewrite = this.isVisitingQuery;
+        this.isVisitingQuery = true;
+        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, stmtsToBePropagatedToQuery);
         result = rewrite(stmtExpr, env);
-        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
+        this.isVisitingQuery = prevSkipFailStmtRewrite;
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        boolean prevSkipFailStmtRewrite = this.skipFailStmtRewrite;
-        this.skipFailStmtRewrite = true;
+        boolean prevSkipFailStmtRewrite = this.isVisitingQuery;
+        this.isVisitingQuery = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env);
         result = rewrite(stmtExpr, env);
-        this.skipFailStmtRewrite = prevSkipFailStmtRewrite;
+        this.isVisitingQuery = prevSkipFailStmtRewrite;
     }
 
     @Override
