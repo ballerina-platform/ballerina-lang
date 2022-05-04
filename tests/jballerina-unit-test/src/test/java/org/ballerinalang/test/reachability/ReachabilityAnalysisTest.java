@@ -471,6 +471,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, "incompatible types: expected 'string', found 'int'", 416, 16);
         validateError(result, i++, "incompatible types: expected 'string', found 'int'", 425, 20);
         validateError(result, i++, "incompatible types: expected 'int', found 'string'", 429, 13);
+        validateError(result, i++, "incompatible types: expected 'string', found 'string?'", 441, 30);
 
         Assert.assertEquals(result.getErrorCount(), i);
     }

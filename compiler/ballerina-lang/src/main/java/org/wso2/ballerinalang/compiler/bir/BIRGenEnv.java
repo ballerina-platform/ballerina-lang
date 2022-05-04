@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir;
 
 import org.ballerinalang.model.tree.BlockNode;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRLockDetailsHolder;
@@ -59,8 +58,6 @@ class BIRGenEnv {
     BIRBasicBlock enclLoopEndBB;
     BIRBasicBlock enclOnFailEndBB;
     BIRBasicBlock enclInnerOnFailEndBB;
-
-    List<BIRAnnotationAttachment> enclAnnotAttachments;
 
     Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
 

@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test query actions with records.
+ * This contains methods to test query expressions with error returns.
  *
  * @since 2.0.0
  */
@@ -82,6 +82,21 @@ public class ErrorQueryTest {
     @Test
     public void streamFromQueryWithAPanic() {
         BRunUtil.invoke(result, "streamFromQueryWithAPanicEncl");
+    }
+
+    @Test
+    public void testDistinctErrorReturn() {
+        BRunUtil.invoke(result, "testDistinctErrorReturn");
+    }
+
+    @Test
+    public void testCatchingErrorAtOnFail() {
+        BRunUtil.invoke(result, "testCatchingErrorAtOnFail");
+    }
+
+    @Test
+    public void testErrorReturnedFromSelect() {
+        BRunUtil.invoke(result, "testErrorReturnedFromSelect");
     }
 
     @AfterClass

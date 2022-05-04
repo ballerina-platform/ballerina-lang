@@ -1001,7 +1001,7 @@ public class TypeChecker {
             return false;
         }
 
-        if (targetType.getKeyType() == null && targetType.getFieldNames() == null) {
+        if (targetType.getKeyType() == null && targetType.getFieldNames().length == 0) {
             return true;
         }
 
@@ -1011,7 +1011,7 @@ public class TypeChecker {
                 return true;
             }
 
-            if (srcTableType.getFieldNames() == null) {
+            if (srcTableType.getFieldNames().length == 0) {
                 return false;
             }
 
@@ -2687,7 +2687,7 @@ public class TypeChecker {
         }
         TableValueImpl tableValue = (TableValueImpl) sourceValue;
         BTableType sourceType = (BTableType) tableValue.getType();
-        if (targetType.getKeyType() != null && sourceType.getFieldNames() == null) {
+        if (targetType.getKeyType() != null && sourceType.getFieldNames().length == 0) {
             return false;
         }
 
@@ -2985,10 +2985,8 @@ public class TypeChecker {
             return false;
         }
 
-        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames() != null &&
-                ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
-        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames() != null &&
-                ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
+        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
+        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
 
         Object[] lhsTableValues = lhsTable.values().toArray();
         Object[] rhsTableValues = rhsTable.values().toArray();
@@ -3217,11 +3215,17 @@ public class TypeChecker {
         if (type == null) {
             return true;
         }
-        if (type.getTag() < TypeTags.RECORD_TYPE_TAG &&
-                !(type.getTag() == TypeTags.CHAR_STRING_TAG || type.getTag() == TypeTags.NEVER_TAG)) {
+
+        int typeTag = type.getTag();
+        if (TypeTags.isXMLTypeTag(typeTag)) {
+            return typeTag == TypeTags.XML_TAG || typeTag == TypeTags.XML_TEXT_TAG;
+        }
+
+        if (typeTag < TypeTags.RECORD_TYPE_TAG &&
+                !(typeTag == TypeTags.CHAR_STRING_TAG || typeTag == TypeTags.NEVER_TAG)) {
             return true;
         }
-        switch (type.getTag()) {
+        switch (typeTag) {
             case TypeTags.STREAM_TAG:
             case TypeTags.MAP_TAG:
             case TypeTags.ANY_TAG:

@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
+import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
@@ -49,6 +50,7 @@ import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
 import io.ballerina.toml.semantic.ast.TomlDoubleValueNodeNode;
+import io.ballerina.toml.semantic.ast.TomlInlineTableValueNode;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlLongValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
@@ -82,7 +84,7 @@ public class Utils {
 
     private static final Type TYPE_READONLY_ANYDATA_INTERSECTION =
             new BIntersectionType(null, new Type[]{TYPE_READONLY_ANYDATA},
-                                  (IntersectableReferenceType) TYPE_READONLY_ANYDATA, 0, true);
+                    (IntersectableReferenceType) TYPE_READONLY_ANYDATA, 0, true);
 
     private Utils() {
     }
@@ -100,6 +102,7 @@ public class Utils {
             case ARRAY:
                 return "array";
             case TABLE:
+            case INLINE_TABLE:
                 return "record";
             case TABLE_ARRAY:
                 return "table";
@@ -134,6 +137,9 @@ public class Utils {
             case TABLE_ARRAY:
                 return validateAndGetTableArrayValue((TomlTableArrayNode) tomlNode, visitedNodes, unionType,
                         invalidTomlLines, variableName);
+            case INLINE_TABLE:
+                return getAnydataMap(((TomlInlineTableValueNode) tomlNode).toTable(), visitedNodes, invalidTomlLines,
+                        variableName);
             default:
                 // should not come here
                 return null;
@@ -200,16 +206,16 @@ public class Utils {
                 arrayValues.length, arrayValues);
     }
 
-    static TomlType getEffectiveTomlType(Type expectedType, String variableName) {
+    static boolean checkEffectiveTomlType(TomlType kind, Type expectedType, String variableName) {
         switch (expectedType.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
-                return TomlType.INTEGER;
+                return kind == TomlType.INTEGER;
             case TypeTags.BOOLEAN_TAG:
-                return TomlType.BOOLEAN;
+                return kind == TomlType.BOOLEAN;
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
-                return TomlType.DOUBLE;
+                return kind == TomlType.DOUBLE;
             case TypeTags.STRING_TAG:
             case TypeTags.UNION_TAG:
             case TypeTags.XML_ATTRIBUTES_TAG:
@@ -218,17 +224,18 @@ public class Utils {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
-                return TomlType.STRING;
+                return kind == TomlType.STRING;
             case TypeTags.ARRAY_TAG:
-                return TomlType.ARRAY;
+            case TypeTags.TUPLE_TAG:
+                return kind == TomlType.ARRAY;
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                return TomlType.TABLE;
+                return kind == TomlType.INLINE_TABLE || kind == TomlType.TABLE;
             case TypeTags.TABLE_TAG:
-                return TomlType.TABLE_ARRAY;
+                return kind == TomlType.TABLE_ARRAY || kind == TomlType.ARRAY;
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
-                return getEffectiveTomlType(effectiveType, variableName);
+                return checkEffectiveTomlType(kind, effectiveType, variableName);
             default:
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
         }
@@ -270,8 +277,12 @@ public class Utils {
             case KEY_VALUE:
                 return getTypeFromTomlValue(((TomlKeyValueNode) tomlNode).value());
             case ARRAY:
+                if (containsInlineTable((TomlArrayValueNode) tomlNode)) {
+                    return TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_ANYDATA), true);
+                }
                 return TypeCreator.createArrayType(TYPE_ANYDATA, true);
             case TABLE:
+            case INLINE_TABLE:
                 return TypeCreator.createMapType(TYPE_ANYDATA, true);
             case TABLE_ARRAY:
                 return TypeCreator.createArrayType(TypeCreator.createMapType(TYPE_ANYDATA), true);
@@ -279,6 +290,15 @@ public class Utils {
                 // should not come here
                 return null;
         }
+    }
+
+    private static boolean containsInlineTable(TomlArrayValueNode tomlNode) {
+        for (TomlValueNode valueNode : tomlNode.elements()) {
+            if (valueNode.kind() == TomlType.INLINE_TABLE) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static Field createAdditionalField(RecordType recordType, String fieldName, TomlNode value) {
@@ -454,5 +474,20 @@ public class Utils {
                 return null;
         }
 
+    }
+
+    static Type getTupleElementType(List<Type> tupleTypes, int i, TupleType tupleType) {
+        Type restType = tupleType.getRestType();
+        if (i >= tupleTypes.size() && restType != null) {
+            return restType;
+        }
+        return tupleTypes.get(i);
+    }
+
+    static TomlNode getValueFromKeyValueNode(TomlNode value) {
+        if (value.kind() == TomlType.KEY_VALUE) {
+            return ((TomlKeyValueNode) value).value();
+        }
+        return value;
     }
 }

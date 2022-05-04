@@ -59,6 +59,12 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "variable 'i' is not initialized", 31, 5);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 39, 13);
         BAssertUtil.validateError(result, i++, "variable 's' is not initialized", 40, 16);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func1'", 43, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func2'", 45, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func3'", 47, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func4'", 49, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func5'", 51, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'func6'", 53, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -134,8 +140,9 @@ public class GlobalVarNegativeTest {
                 "union member type '(json & readonly)' is not supported", 93, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '(json & readonly)" +
                 "'", 94, 1);
-        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string] & " +
-                "readonly)'", 97, 1);
+        BAssertUtil.validateError(result, i++, "configurable variable currently not supported for '([int,string,json]" +
+                " & readonly)'\n\t" +
+                "tuple element type '(json & readonly)' is not supported", 97, 1);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

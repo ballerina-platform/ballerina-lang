@@ -63,19 +63,21 @@ public class DocCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
-    public DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
+    DocCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish, Path targetDir) {
         this.projectPath = Paths.get(System.getProperty("user.dir"));
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")

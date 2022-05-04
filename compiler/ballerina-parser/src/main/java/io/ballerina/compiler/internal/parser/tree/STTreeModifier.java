@@ -2567,6 +2567,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 typeParamNode);
     }
 
+    @Override
+    public STSpreadMemberNode transform(
+            STSpreadMemberNode spreadMemberNode) {
+        STNode ellipsis = modifyNode(spreadMemberNode.ellipsis);
+        STNode expression = modifyNode(spreadMemberNode.expression);
+        return spreadMemberNode.modify(
+                ellipsis,
+                expression);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {
