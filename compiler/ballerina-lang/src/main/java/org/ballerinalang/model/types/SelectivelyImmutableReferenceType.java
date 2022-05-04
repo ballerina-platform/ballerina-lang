@@ -28,4 +28,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 public interface SelectivelyImmutableReferenceType extends IntersectableReferenceType {
 
     BIntersectionType getImmutableType();
+
+    void unsetImmutableType();
 }
