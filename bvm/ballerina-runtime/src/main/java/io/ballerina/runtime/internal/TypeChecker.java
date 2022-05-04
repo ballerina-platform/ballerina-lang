@@ -3279,10 +3279,10 @@ public class TypeChecker {
         // here finite types and non finite types are separated
         // for finite types only all their value space items are collected
         List<Type> nonFiniteTypes = new ArrayList<>();
-        Set<Object> allFiniteTypesValueSpace = new HashSet<>();
+        Set<Object> combinedValueSpace = new HashSet<>();
         for (Type memberType: memberTypes) {
             if (memberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                allFiniteTypesValueSpace.addAll(((BFiniteType) memberType).getValueSpace());
+                combinedValueSpace.addAll(((BFiniteType) memberType).getValueSpace());
             } else {
                 nonFiniteTypes.add(memberType);
             }
@@ -3290,7 +3290,7 @@ public class TypeChecker {
 
         if (nonFiniteTypes.isEmpty()) {
             // only finite types are there, so the check narrows to one finite type like case
-            return hasFillerValueInValueSpace(allFiniteTypesValueSpace);
+            return hasFillerValueInValueSpace(combinedValueSpace);
         } else {
             // non finite types are available
             Iterator<Type> iterator = nonFiniteTypes.iterator();
@@ -3306,13 +3306,13 @@ public class TypeChecker {
             }
 
             // if no finite types the checking ends here
-            if (allFiniteTypesValueSpace.isEmpty()) {
+            if (combinedValueSpace.isEmpty()) {
                 return hasFillerValue(firstMember);
             }
 
             // both finite and non finite types are available
             // finite types are checked whether they are the type of non finite types
-            if (!containsSameBasicType(firstMember, allFiniteTypesValueSpace)) {
+            if (!containsSameBasicType(firstMember, combinedValueSpace)) {
                 return false;
             }
 
@@ -3321,9 +3321,9 @@ public class TypeChecker {
             if (hasFillerValue(firstMember)) {
                 return true;
             }
-            return (allFiniteTypesValueSpace.size() == 1) ?
-                    isFillerValueOfFiniteTypeBasicType(allFiniteTypesValueSpace.iterator().next()) :
-                    hasFillerValueInValueSpace(allFiniteTypesValueSpace);
+            return combinedValueSpace.size() == 1 ?
+                    isFillerValueOfFiniteTypeBasicType(combinedValueSpace.iterator().next()) :
+                    hasFillerValueInValueSpace(combinedValueSpace);
         }
     }
 
@@ -3347,18 +3347,14 @@ public class TypeChecker {
     }
 
     private static boolean isFillerValueOfFiniteTypeBasicType(Object value) {
-        if (value == null) {
-            return true;
-        } else {
-            switch (value.toString()) {
-                case "0":
-                case "0.0":
-                case "false":
-                case "":
-                    return true;
-                default:
-                    return false;
-            }
+        switch (value.toString()) {
+            case "0":
+            case "0.0":
+            case "false":
+            case "":
+                return true;
+            default:
+                return false;
         }
     }
 
