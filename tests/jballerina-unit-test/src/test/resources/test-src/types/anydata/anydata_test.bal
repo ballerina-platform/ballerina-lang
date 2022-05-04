@@ -934,6 +934,77 @@ function testMapOfNeverTypeIsAnydata() {
     assertTrue(a5 is anydata);
 }
 
+function testAnytoAnydataTypeCast() returns error? {
+    // negative cases
+    any anyVal = {a: 23};
+    anydata|error result = trap <anydata>anyVal;
+
+    assertTrue(result is error);
+    error err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'map<(any|error)>' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    any[] arr = [1, "2", 3.4];
+    result = trap <anydata>arr;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'any[]' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    map<any> anyMap = {"a": 2, "b": 3};
+    result = trap <anydata>anyMap;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'map' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    table<map<any>> tab = table [
+            {id: 12, name: "abc"},
+            {id: 34, name: "def"}
+        ];
+    result = trap <anydata>tab;
+    assertTrue(result is error);
+    err = <error>result;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'table<map>' cannot be cast to 'anydata'",
+    <string>checkpanic err.detail()["message"]);
+
+    // positive cases
+    any & readonly anyValRO = {a: 23};
+    anyVal = anyValRO;
+    result = trap <anydata>anyVal;
+    assertTrue(result is anydata);
+    anydata anyDataVal = check result;
+    assertEquality("{\"a\":23}", anyDataVal.toString());
+
+    any[] & readonly arrRO = [1, "2", 3.4];
+    arr = arrRO;
+    result = trap <anydata>arr;
+    assertTrue(result is anydata);
+    anyDataVal = check result;
+    assertEquality("[1,\"2\",3.4]", anyDataVal.toString());
+
+    map<any> & readonly mapAnyRO = {a: 23};
+    anyMap = mapAnyRO;
+    result = trap <anydata>anyMap;
+    assertTrue(result is anydata);
+    anyDataVal = check result;
+    assertEquality("{\"a\":23}", anyDataVal.toString());
+
+    table<map<any>> & readonly tabRO = table [
+            {id: 12, name: "abc"},
+            {id: 34, name: "def"}
+        ];
+    tab = tabRO;
+    result = trap <anydata>tab;
+    assertTrue(result is anydata);
+    anyDataVal = check result;
+    assertEquality("[{\"id\":12,\"name\":\"abc\"},{\"id\":34,\"name\":\"def\"}]", anyDataVal.toString());
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
