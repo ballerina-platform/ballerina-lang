@@ -27,7 +27,7 @@ import java.io.IOException;
 /**
  * Test Cases for Getter and Setter CodeActions.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
 public class GetterSetterCodeActionTest extends AbstractCodeActionTest {
 

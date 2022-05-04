@@ -35,7 +35,7 @@ import java.util.Optional;
 /**
  * Code Action for getters.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class GetterCodeAction extends AbstractCodeActionProvider {
