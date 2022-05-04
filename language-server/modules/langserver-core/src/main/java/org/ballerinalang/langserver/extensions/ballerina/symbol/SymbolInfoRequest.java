@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 /**
- * Represents the request for getSymbol endpoint of BallerinaSymbolService
+ * Represents the request for getSymbol endpoint of BallerinaSymbolService.
  */
 public class SymbolInfoRequest {
     private TextDocumentIdentifier textDocumentIdentifier;
