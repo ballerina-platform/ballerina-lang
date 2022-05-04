@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -6819,7 +6818,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
-                    addToIncRecords(param, incRecords);
+                    populateIncludedRecordParams(param, incRecords);
                     checkTypeParamExpr(arg, param.type, iExpr.langLibInvocation, data);
                     valueProvidedParams.add(param);
                     requiredParams.remove(param);
@@ -6839,7 +6838,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
-                addToIncRecords(varSym, incRecords);
+                populateIncludedRecordParams(varSym, incRecords);
                 namedArgs.add(arg);
                 requiredParams.remove(varSym);
                 requiredIncRecordParams.remove(varSym);
@@ -7031,8 +7030,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private void addToIncRecords(BVarSymbol param, List<BRecordType> incRecords) {
-        if (SymbolFlags.isFlagOn(param.flags, Flags.INCLUDED)) {
+    private void populateIncludedRecordParams(BVarSymbol param, List<BRecordType> incRecords) {
+        if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
             incRecords.add((BRecordType) Types.getReferredType(param.type));
         }
     }
@@ -7044,8 +7043,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             String argName = ((NamedArgNode) namedArg).getName().value;
             for (BRecordType record : incRecords) {
                 if (record.fields.containsKey(argName)) {
-                    dlog.error(namedArg.pos, DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_WITH_INCLUDED_RECORD_PARAM,
-                            argName, record.tsymbol.name);
+                    dlog.error(namedArg.pos,
+                            DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_INCLUDED_IN_INCLUDED_RECORD_PARAM, argName,
+                            record.tsymbol.name);
                     break;
                 }
             }
