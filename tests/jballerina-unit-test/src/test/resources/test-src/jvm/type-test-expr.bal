@@ -186,7 +186,7 @@ function testR3(R1 r) {
     if r is R {
         R _ = r; // no error
     } else {
-        assertTrue(false);
+        panic error("Type of 'r' should be 'R'");
     }
 }
 
@@ -194,7 +194,7 @@ function testR4(R2 r) {
     if r is R {
         R _ = r; // no error
     } else {
-        assertTrue(false);
+        panic error("Type of 'r' should be 'R'");
     }
 }
 

@@ -6706,6 +6706,7 @@ public class Types {
     public static class IntersectionContext {
         Location lhsPos;
         Location rhsPos;
+        // The location of the intersection
         Location pos;
         BLangDiagnosticLog dlog;
         ContextOption contextOption;
@@ -6727,14 +6728,8 @@ public class Types {
         }
 
         private IntersectionContext(BLangDiagnosticLog diaglog, Location left, Location right, Location pos) {
-            this.dlog = diaglog;
-            this.lhsPos = left;
-            this.rhsPos = right;
+            this(diaglog, left, right);
             this.pos = pos;
-            this.contextOption = ContextOption.NON;
-            this.ignoreDefaultValues = false;
-            this.createTypeDefs = true;
-            this.preferNonGenerativeIntersection = false;
         }
 
         /**
@@ -6792,6 +6787,7 @@ public class Types {
          * Type definitions are not created.
          * This does not emit error messages explaining why there is no intersection between two types.
          *
+         * @param intersectionPos Location of the intersection
          * @return a {@link IntersectionContext}
          */
         public static IntersectionContext typeTestIntersectionExistenceContext(Location intersectionPos) {
@@ -6824,6 +6820,7 @@ public class Types {
          * Type definitions are created.
          * This does not emit error messages explaining why there is no intersection between two types.
          *
+         * @param intersectionPos Location of the intersection
          * @return a {@link IntersectionContext}
          */
         public static IntersectionContext typeTestIntersectionCalculationContext(Location intersectionPos) {
