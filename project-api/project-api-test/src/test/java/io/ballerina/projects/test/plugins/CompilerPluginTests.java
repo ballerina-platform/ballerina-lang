@@ -85,7 +85,7 @@ public class CompilerPluginTests {
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_diagnostic_init_function");
         BCompileUtil.compileAndCacheBala(
-                "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/records");
+                "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/defns");
     }
 
     @Test

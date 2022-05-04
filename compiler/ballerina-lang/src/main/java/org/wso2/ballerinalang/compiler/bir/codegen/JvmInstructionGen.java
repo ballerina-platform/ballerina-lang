@@ -234,6 +234,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
 public class JvmInstructionGen {
 
     public static final String TO_UNSIGNED_LONG = "toUnsignedLong";
+    public static final String ANON_METHOD_DELEGATE = "$anon$method$delegate$";
     //this anytype is currently set from package gen class
     static BType anyType;
     private final MethodVisitor mv;
@@ -1709,10 +1710,10 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
 
-        String lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
+        String name = inst.funcName.value;
+        String lambdaName = Utils.encodeFunctionIdentifier(name) + "$lambda" +
                 asyncDataCollector.getLambdaIndex() + "$";
         asyncDataCollector.incrementLambdaIndex();
-        String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
 
         BType type = JvmCodeGenUtil.getReferredType(inst.type);
         if (type.tag != TypeTags.INVOKABLE) {
@@ -1742,12 +1743,17 @@ public class JvmInstructionGen {
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
                                 FP_INIT, false);
 
+        PackageID boundMethodPkgId = inst.boundMethodPkgId;
+        String funcPkgName = JvmCodeGenUtil.getPackageName(boundMethodPkgId == null ? inst.pkgId : boundMethodPkgId);
         // Set annotations if available.
         this.mv.visitInsn(DUP);
-        String pkgClassName = pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
+        String pkgClassName = funcPkgName.equals("") ? MODULE_INIT_CLASS_NAME :
+                jvmPackageGen.lookupGlobalVarClassName(funcPkgName, ANNOTATION_MAP_NAME);
         this.mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, GET_MAP_VALUE);
-        this.mv.visitLdcInsn(inst.funcName.value);
+        // Format of name `$anon$method$delegate$Foo.func$0`.
+        this.mv.visitLdcInsn(name.startsWith(ANON_METHOD_DELEGATE) ?
+                                     name.subSequence(ANON_METHOD_DELEGATE.length(), name.lastIndexOf("$")) :
+                                     name);
         this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processFPValueAnnotations",
                 PROCESS_FP_ANNOTATIONS, false);
 
