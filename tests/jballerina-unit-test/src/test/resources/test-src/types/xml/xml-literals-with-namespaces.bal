@@ -193,14 +193,22 @@ function testXmlInterpolationWithQuery() {
         panic error("Assertion error", expected = expectedStr2, found = s2);
     }
 
-    xml x5 = xml `<empRecords>
+    xml x5 = from int i in [1]
+        select xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
+    string s3 = x5.toString();
+    string expectedStr3 = "<empRecord employeeId=\"1\"><localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id></empRecord>";
+    if (s3 != expectedStr3) {
+        panic error("Assertion error", expected = expectedStr3, found = s3);
+    }
+
+    xml x6 = xml `<empRecords>
          ${from int i in 1 ... 3
         select xml `<empRecord employeeId="${i}"><globalNS:id>${i}</globalNS:id></empRecord>`}
       </empRecords>;`;
-    xml x6 = x5/<empRecord>[0]/<globalNS:id>;
-    string s3 = x6.toString();
-    string expectedStr3 = "<globalNS:id xmlns:globalNS=\"http://www.so2w.org\">1</globalNS:id>";
-    if (s3 != expectedStr3) {
-        panic error("Assertion error", expected = expectedStr3, found = s3);
+    xml x7 = x6/<empRecord>[0]/<globalNS:id>;
+    string s4 = x7.toString();
+    string expectedStr4 = "<globalNS:id xmlns:globalNS=\"http://www.so2w.org\">1</globalNS:id>";
+    if (s4 != expectedStr4) {
+        panic error("Assertion error", expected = expectedStr4, found = s4);
     }
 }
