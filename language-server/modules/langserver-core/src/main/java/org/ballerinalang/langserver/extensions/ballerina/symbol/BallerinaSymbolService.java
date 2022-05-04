@@ -16,20 +16,29 @@
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Documentable;
+import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManagerProxy;
+import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
@@ -39,6 +48,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -51,13 +61,15 @@ import java.util.concurrent.CompletableFuture;
 @JsonSegment("ballerinaSymbol")
 public class BallerinaSymbolService implements ExtendedLanguageServerService {
 
-    private WorkspaceManager workspaceManager;
+    private WorkspaceManagerProxy workspaceManagerProxy;
     private LSClientLogger clientLogger;
+    private LanguageServerContext serverContext;
 
     @Override
-    public void init(LanguageServer langServer, WorkspaceManager workspaceManager,
+    public void init(LanguageServer langServer, WorkspaceManagerProxy workspaceManagerProxy,
                      LanguageServerContext serverContext) {
-        this.workspaceManager = workspaceManager;
+        this.workspaceManagerProxy = workspaceManagerProxy;
+        this.serverContext = serverContext;
         this.clientLogger = LSClientLogger.getInstance(serverContext);
     }
 
@@ -90,7 +102,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 expressionTypeResponse.setDocumentIdentifier(new TextDocumentIdentifier(fileUri));
 
                 // Get the semantic model.
-                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
+                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
 
                 if (semanticModel.isEmpty()) {
                     return expressionTypeResponse;
@@ -98,7 +110,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
 
                 Optional<Symbol> symbol = Optional.empty();
                 for (int i = 0; i < request.getPosition().offset(); i++) {
-                    symbol = semanticModel.get().symbol(workspaceManager.document(filePath.get()).get(),
+                    symbol = semanticModel.get().symbol(workspaceManagerProxy.get().document(filePath.get()).get(),
                             LinePosition.from(request.getPosition().line(),
                                     request.getPosition().offset() - i));
                     if (symbol.isPresent()) {
@@ -113,6 +125,96 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 this.clientLogger.logError(SymbolContext.SC_TYPE_API, msg, e,
                         request.getDocumentIdentifier(), (Position) null);
                 return expressionTypeResponse;
+            }
+        });
+    }
+
+    @JsonRequest
+    public CompletableFuture<SymbolInfoResponse> getSymbol(SymbolInfoRequest request){
+        return CompletableFuture.supplyAsync(() -> {
+            SymbolInfoResponse symbolInfoResponse = new SymbolInfoResponse();
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+
+            if (filePath.isEmpty()) {
+                return symbolInfoResponse;
+            }
+
+            try {
+                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
+                if (semanticModel.isEmpty()) {
+                    return symbolInfoResponse;
+                }
+
+                DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(fileUri,
+                        this.workspaceManagerProxy.get(fileUri),
+                        LSContextOperation.SYMBOL_DOCUMENT,
+                        this.serverContext);
+
+                Optional<Document> srcFile = context.currentDocument();
+                LinePosition linePosition = LinePosition.from(request.getPosition().getLine(), request.getPosition().getCharacter());
+                Optional<? extends Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
+
+                if (symbolAtCursor.isEmpty()) {
+                    return symbolInfoResponse;
+                }
+
+                Optional<Documentation> documentation = symbolAtCursor.get() instanceof Documentable ?
+                        ((Documentable) symbolAtCursor.get()).documentation() : Optional.empty();
+
+                if (documentation.isEmpty()){
+                    return symbolInfoResponse;
+                }
+
+                List<SymbolDocumentation.ParameterInfo> symbolParams = new ArrayList<>(documentation.get().parameterMap().size());
+
+                if (symbolAtCursor.get() instanceof FunctionSymbol){
+                    FunctionSymbol functionSymbol = (FunctionSymbol) symbolAtCursor.get();
+
+                    if (functionSymbol.typeDescriptor().params().isPresent()){
+                        List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();
+                        parameterSymbolList.forEach(parameterSymbol -> {
+                            symbolParams.add(new SymbolDocumentation.ParameterInfo(
+                                    parameterSymbol.getName().get(),
+                                    documentation.get().parameterMap().get(parameterSymbol.getName().get()),
+                                    parameterSymbol.paramKind().name(),
+                                    CommonUtil.getModifiedTypeName(context,parameterSymbol.typeDescriptor())));
+                        });
+                    }
+
+                    Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
+                    if (restParam.isPresent()){
+                        ParameterSymbol restParameter = restParam.get();
+                        symbolParams.add(new SymbolDocumentation.ParameterInfo(
+                                restParameter.getName().get(),
+                                documentation.get().parameterMap().get(restParameter.getName().get()),
+                                restParameter.paramKind().name(),
+                                CommonUtil.getModifiedTypeName(context,restParameter.typeDescriptor())
+                                ));
+                    }
+                }
+
+                List<SymbolDocumentation.ParameterInfo> deprecatedParams = new ArrayList<>(
+                        documentation.get().deprecatedParametersMap().size());
+                Map<String,String> deprecatedParamMap = documentation.get().deprecatedParametersMap();
+                if (!deprecatedParamMap.isEmpty()){
+                    deprecatedParamMap.forEach((param, desc)-> {
+                        deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param,desc));
+                    });
+                }
+
+                SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation,symbolParams,deprecatedParams);
+
+                symbolInfoResponse.setSymbolDocumentation(symbolDoc);
+                symbolInfoResponse.setSymbolKind(symbolAtCursor.get().kind());
+
+                return symbolInfoResponse;
+
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaSymbol/getSymbol' failed!";
+                this.clientLogger.logError(SymbolContext.SC_GET_SYMBOL_API, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
+                return symbolInfoResponse;
             }
         });
     }
