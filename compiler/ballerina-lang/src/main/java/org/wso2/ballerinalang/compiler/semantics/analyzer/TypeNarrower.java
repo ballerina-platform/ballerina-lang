@@ -35,12 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -69,6 +64,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private SymbolTable symTable;
+    private SemanticAnalyzer semanticAnalyzer;
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
@@ -77,6 +73,7 @@ public class TypeNarrower extends BLangNodeVisitor {
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -410,10 +407,15 @@ public class TypeNarrower extends BLangNodeVisitor {
                 env.scope.owner, expr.pos, SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-        expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
-        finiteType.addValue(expr);
-        finiteTypeSymbol.type = finiteType;
 
+        if (expr.getKind() == NodeKind.UNARY_EXPR) {
+            finiteType.addValue(semanticAnalyzer.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
+        } else {
+            expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
+            finiteType.addValue(expr);
+        }
+
+        finiteTypeSymbol.type = finiteType;
         return finiteType;
     }
 
@@ -435,7 +437,11 @@ public class TypeNarrower extends BLangNodeVisitor {
         }
 
         NodeKind rhsExperKind = rhsExpr.getKind();
-        if (rhsExperKind == NodeKind.LITERAL || rhsExperKind == NodeKind.NUMERIC_LITERAL) {
+        if (rhsExperKind == NodeKind.LITERAL || rhsExperKind == NodeKind.NUMERIC_LITERAL ||
+                (rhsExperKind == NodeKind.UNARY_EXPR &&
+                ((BLangUnaryExpr) rhsExpr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
+                (OperatorKind.SUB.equals(((BLangUnaryExpr) rhsExpr).operator) ||
+                        OperatorKind.ADD.equals(((BLangUnaryExpr) rhsExpr).operator)))) {
             setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr));
         } else if (rhsExperKind == NodeKind.SIMPLE_VARIABLE_REF) {
             BSymbol rhsVarSymbol = ((BLangSimpleVarRef) rhsExpr).symbol;
