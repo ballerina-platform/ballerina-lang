@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * This class contains a set of utility methods required for runtime enum values @{@link ValueCreator} testing.
  *
- * @since 2.0.0
+ * @since 2201.1.0
  */
 public class Enums {
 
@@ -61,5 +61,4 @@ public class Enums {
     public static void addToEnumArray(BArray array, BString value) {
        array.append(value);
     }
-
 }
