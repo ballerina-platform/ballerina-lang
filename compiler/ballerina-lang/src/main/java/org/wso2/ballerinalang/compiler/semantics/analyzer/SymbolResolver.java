@@ -1916,17 +1916,17 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         boolean validNumericOrStringTypeExists;
         switch (opKind) {
             case ADD:
-                validNumericOrStringTypeExists = (types.validNumericStringOrXmlTypeExists(lhsType, true) &&
-                        types.validNumericStringOrXmlTypeExists(rhsType, true)) ||
-                        (types.validNumericStringOrXmlTypeExists(lhsType, false) &&
-                        types.validNumericStringOrXmlTypeExists(rhsType, false));
+                validNumericOrStringTypeExists = (types.validNumericTypeExists(lhsType) &&
+                                                  types.validNumericTypeExists(rhsType)) ||
+                                                 (types.validStringOrXmlTypeExists(lhsType) &&
+                                                  types.validStringOrXmlTypeExists(rhsType));
                 break;
             case SUB:
             case DIV:
             case MUL:
             case MOD:
-                validNumericOrStringTypeExists = types.validNumericStringOrXmlTypeExists(lhsType, true) &&
-                        types.validNumericStringOrXmlTypeExists(rhsType, true);
+                validNumericOrStringTypeExists = types.validNumericTypeExists(lhsType) &&
+                                                 types.validNumericTypeExists(rhsType);
                 break;
             default:
                 return symTable.notFoundSymbol;
@@ -1971,7 +1971,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         switch (opKind) {
             case ADD:
             case SUB:
-                validNumericTypeExists = types.validNumericStringOrXmlTypeExists(type, true);
+                validNumericTypeExists = types.validNumericTypeExists(type);
                 break;
             default:
                 return symTable.notFoundSymbol;
