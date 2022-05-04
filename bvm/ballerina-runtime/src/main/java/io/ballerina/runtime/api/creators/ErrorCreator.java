@@ -107,6 +107,7 @@ public class ErrorCreator {
      */
     public static BError createError(Type type, BString message, BError cause, BMap<BString, Object> details) {
         details = RuntimeUtils.validateErrorDetails(details);
+        ((BErrorType) type).setDetailType(TypeChecker.getType(details));
         return new ErrorValue(type, message, cause, details);
     }
 

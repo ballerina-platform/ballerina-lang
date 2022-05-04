@@ -253,14 +253,18 @@ public class CompilerPluginTests {
         Assert.assertSame(newPackage.project(), project);
         Assert.assertSame(newPackage, project.currentPackage());
 
-        // The code generator produce 4 files. 3 files for three functions and one file importing another package.
-        Assert.assertEquals(5, newPackage.getDefaultModule().documentIds().size());
+        // The code generator produce 4 files.
+        // 3 files for three functions, one file importing another package and main.bal.
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 5);
+        // The code generator produce 4 test files.
+        // 3 files for three functions and one file importing another package.
+        Assert.assertEquals(newPackage.getDefaultModule().testDocumentIds().size(), 4);
         PackageCompilation compilation = newPackage.getCompilation();
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 9, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
         // Code generator produces a file that has an import.
@@ -282,6 +286,19 @@ public class CompilerPluginTests {
             Assert.assertEquals(resource.module(), module);
         }
 
+        // Check test resources
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.isDefaultModule()) {
+                Assert.assertEquals(module.testResourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.testResourceIds().size(), 1);
+            Resource testResource = module.resource(module.testResourceIds().stream().findFirst().orElseThrow());
+            Assert.assertEquals(testResource.name(), "sample.json");
+            Assert.assertEquals(testResource.content(), "".getBytes());
+            Assert.assertEquals(testResource.module(), module);
+        }
     }
 
     @Test(description = "Test basic package code modify using code modifier plugin")
