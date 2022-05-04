@@ -263,8 +263,7 @@ public class TypeConverter {
                                                 List<TypeValuePair> unresolvedValues, List<String> errors,
                                                 boolean allowAmbiguity, Set<Type> numericTypeSet, Type parentType) {
         Set<Type> convertibleTypes = new LinkedHashSet<>();
-//        TODO: Add tests for ambiguity
-//        TODO: Check whether this can happen for other union types - record, map etc.
+
         Type inputValueType;
         int targetTypeTag = targetType.getTag();
 
