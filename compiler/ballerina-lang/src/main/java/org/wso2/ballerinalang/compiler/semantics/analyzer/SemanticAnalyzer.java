@@ -775,7 +775,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 newValueSpace.remove(value);
                 newValueSpace.add(newNumericLiteral);
             } else {
-                analyzeNode(value, data);
+                if ((value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) &&
+                        ((BLangLiteral) value).originalValue == null) {
+                    //to handle enums
+                    continue;
+                } else {
+                    analyzeNode(value, data);
+                }
             }
         }
         // Modify BType if Unary expressions were found
