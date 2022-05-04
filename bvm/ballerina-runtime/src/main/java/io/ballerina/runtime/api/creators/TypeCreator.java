@@ -365,7 +365,7 @@ public class TypeCreator {
     /**
      * Create a {@code BUnionType} which represents the union type.
      *
-     * @param memberTypes of the union type
+     * @param memberTypes list of member types in the union type
      * @param name      type name
      * @param pkg       module
      * @param typeFlags flags associated with the type
