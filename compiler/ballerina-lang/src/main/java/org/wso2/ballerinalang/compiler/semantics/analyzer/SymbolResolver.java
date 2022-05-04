@@ -83,13 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1408,12 +1402,13 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
 
-        // In case finiteTypeNode has unary expressions in the value space, we need to
-        // convert them into numeric literals first.
-        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
-
         for (BLangExpression expression : finiteTypeNode.valueSpace) {
-            finiteType.addValue(expression);
+            if (expression.getKind() == NodeKind.UNARY_EXPR) {
+                // Replacing unary expression with numeric literal type for + and - numeric values
+                finiteType.addValue(semanticAnalyzer.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expression));
+            } else {
+                finiteType.addValue(expression);
+            }
         }
         finiteTypeSymbol.type = finiteType;
         return finiteType;
