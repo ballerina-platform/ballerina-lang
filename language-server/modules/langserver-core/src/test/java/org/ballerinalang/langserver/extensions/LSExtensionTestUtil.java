@@ -178,10 +178,11 @@ public class LSExtensionTestUtil {
      *
      * @param filePath        Path of the Bal file
      * @param serviceEndpoint Service Endpoint to Language Server
-     * @param position Position of the function to get documentation
+     * @param position        Position of the function to get documentation
      * @return {@link String}   Response as String
      */
-    public static SymbolInfoResponse getSymbolDocumentation(String filePath, Position position, Endpoint serviceEndpoint) {
+    public static SymbolInfoResponse getSymbolDocumentation(String filePath, Position position,
+                                                            Endpoint serviceEndpoint) {
         SymbolInfoRequest symbolInfoRequest = new SymbolInfoRequest();
         symbolInfoRequest.setPosition(position);
         symbolInfoRequest.setTextDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
