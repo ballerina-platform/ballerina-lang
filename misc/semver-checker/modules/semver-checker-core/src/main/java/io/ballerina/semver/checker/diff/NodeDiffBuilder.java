@@ -19,20 +19,19 @@
 package io.ballerina.semver.checker.diff;
 
 import java.util.Collection;
-import java.util.Optional;
 
 /**
  * Extended interface for all the Ballerina node-based diff builder types.
  *
  * @since 2201.2.0
  */
-public interface NodeDiffBuilder {
+public interface NodeDiffBuilder extends DiffBuilder {
 
-    Optional<? extends Diff> build();
-
+    @Override
     NodeDiffBuilder withType(DiffType diffType);
 
-    NodeDiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel);
+    @Override
+    NodeDiffBuilder withVersionImpact(SemverImpact versionImpact);
 
     NodeDiffBuilder withMessage(String message);
 

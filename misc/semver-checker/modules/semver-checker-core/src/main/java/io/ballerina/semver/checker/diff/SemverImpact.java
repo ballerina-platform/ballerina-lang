@@ -19,9 +19,9 @@
 package io.ballerina.semver.checker.diff;
 
 /**
- * Compatibility levels which are ranked based on the severity.
+ * Semantic version impact levels which are ranked based on the severity.
  */
-public enum CompatibilityLevel {
+public enum SemverImpact {
     MAJOR(4),
     UNKNOWN(3),
     AMBIGUOUS(2),
@@ -30,7 +30,7 @@ public enum CompatibilityLevel {
 
     private final int rank;
 
-    CompatibilityLevel(int rank) {
+    SemverImpact(int rank) {
         this.rank = rank;
     }
 

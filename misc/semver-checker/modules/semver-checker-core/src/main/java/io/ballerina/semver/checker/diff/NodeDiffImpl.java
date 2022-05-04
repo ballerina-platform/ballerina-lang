@@ -40,18 +40,18 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     protected final T newNode;
     protected final T oldNode;
     protected DiffType diffType;
-    protected CompatibilityLevel compatibilityLevel;
+    protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
     protected String message;
 
     protected NodeDiffImpl(T newNode, T oldNode) {
-        this(newNode, oldNode, CompatibilityLevel.UNKNOWN);
+        this(newNode, oldNode, SemverImpact.UNKNOWN);
     }
 
-    private NodeDiffImpl(T newNode, T oldNode, CompatibilityLevel compatibilityLevel) {
+    private NodeDiffImpl(T newNode, T oldNode, SemverImpact versionImpact) {
         this.newNode = newNode;
         this.oldNode = oldNode;
-        this.compatibilityLevel = compatibilityLevel;
+        this.versionImpact = versionImpact;
         this.childDiffs = new ArrayList<>();
         this.message = null;
 
@@ -86,17 +86,17 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     }
 
     @Override
-    public CompatibilityLevel getCompatibilityLevel() {
-        return compatibilityLevel;
+    public SemverImpact getVersionImpact() {
+        return versionImpact;
     }
 
     @Override
-    public void computeCompatibilityLevel() {
-        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
-            compatibilityLevel = childDiffs.stream()
-                    .map(Diff::getCompatibilityLevel)
-                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                    .orElse(CompatibilityLevel.UNKNOWN);
+    public void computeVersionImpact() {
+        if (versionImpact == SemverImpact.UNKNOWN) {
+            versionImpact = childDiffs.stream()
+                    .map(Diff::getVersionImpact)
+                    .max(Comparator.comparingInt(SemverImpact::getRank))
+                    .orElse(SemverImpact.UNKNOWN);
         }
     }
 
@@ -111,16 +111,16 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     }
 
     @Override
-    public List<Diff> getChildDiffs(CompatibilityLevel compatibilityLevel) {
+    public List<Diff> getChildDiffs(SemverImpact versionImpact) {
         List<Diff> filteredDiffs = new ArrayList<>();
         for (Diff diff : childDiffs) {
             if (diff.getChildDiffs().isEmpty()) {
-                if (diff.getCompatibilityLevel() == compatibilityLevel) {
+                if (diff.getVersionImpact() == versionImpact) {
                     filteredDiffs.add(diff);
                 }
             } else {
                 for (Diff childDiff : diff.getChildDiffs()) {
-                    filteredDiffs.addAll(childDiff.getChildDiffs(compatibilityLevel));
+                    filteredDiffs.addAll(childDiff.getChildDiffs(versionImpact));
                 }
             }
         }
@@ -131,8 +131,8 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         this.message = message;
     }
 
-    protected void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-        this.compatibilityLevel = compatibilityLevel;
+    protected void setVersionImpact(SemverImpact versionImpact) {
+        this.versionImpact = versionImpact;
     }
 
     @Override
@@ -162,7 +162,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         @Override
         public Optional<? extends NodeDiff<T>> build() {
             if (!nodeDiff.getChildDiffs().isEmpty()) {
-                nodeDiff.computeCompatibilityLevel();
+                nodeDiff.computeVersionImpact();
                 nodeDiff.setType(DiffType.MODIFIED);
                 return Optional.of(nodeDiff);
             } else if (nodeDiff.getType() == DiffType.NEW || nodeDiff.getType() == DiffType.REMOVED
@@ -180,8 +180,8 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         }
 
         @Override
-        public NodeDiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-            nodeDiff.setCompatibilityLevel(compatibilityLevel);
+        public NodeDiffBuilder withVersionImpact(SemverImpact versionImpact) {
+            nodeDiff.setVersionImpact(versionImpact);
             return this;
         }
 

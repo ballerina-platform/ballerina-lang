@@ -33,16 +33,16 @@ import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 public class DiffImpl implements Diff {
 
     protected DiffType diffType;
-    protected CompatibilityLevel compatibilityLevel;
+    protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
 
     public DiffImpl() {
-        this(DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
+        this(DiffType.UNKNOWN, SemverImpact.UNKNOWN);
     }
 
-    public DiffImpl(DiffType diffType, CompatibilityLevel compatibilityLevel) {
+    public DiffImpl(DiffType diffType, SemverImpact versionImpact) {
         this.diffType = diffType;
-        this.compatibilityLevel = compatibilityLevel;
+        this.versionImpact = versionImpact;
         this.childDiffs = new ArrayList<>();
     }
 
@@ -56,21 +56,21 @@ public class DiffImpl implements Diff {
     }
 
     @Override
-    public CompatibilityLevel getCompatibilityLevel() {
-        return compatibilityLevel;
+    public SemverImpact getVersionImpact() {
+        return versionImpact;
     }
 
-    protected void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-        this.compatibilityLevel = compatibilityLevel;
+    protected void setVersionImpact(SemverImpact versionImpact) {
+        this.versionImpact = versionImpact;
     }
 
     @Override
-    public void computeCompatibilityLevel() {
-        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
-            compatibilityLevel = childDiffs.stream()
-                    .map(Diff::getCompatibilityLevel)
-                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                    .orElse(CompatibilityLevel.UNKNOWN);
+    public void computeVersionImpact() {
+        if (versionImpact == SemverImpact.UNKNOWN) {
+            versionImpact = childDiffs.stream()
+                    .map(Diff::getVersionImpact)
+                    .max(Comparator.comparingInt(SemverImpact::getRank))
+                    .orElse(SemverImpact.UNKNOWN);
         }
     }
 
@@ -80,16 +80,16 @@ public class DiffImpl implements Diff {
     }
 
     @Override
-    public List<Diff> getChildDiffs(CompatibilityLevel compatibilityLevel) {
+    public List<Diff> getChildDiffs(SemverImpact versionImpact) {
         List<Diff> filteredDiffs = new ArrayList<>();
         for (Diff diff : childDiffs) {
             if (diff.getChildDiffs().isEmpty()) {
-                if (diff.getCompatibilityLevel() == compatibilityLevel) {
+                if (diff.getVersionImpact() == versionImpact) {
                     filteredDiffs.add(diff);
                 }
             } else {
                 for (Diff childDiff : diff.getChildDiffs()) {
-                    filteredDiffs.addAll(childDiff.getChildDiffs(compatibilityLevel));
+                    filteredDiffs.addAll(childDiff.getChildDiffs(versionImpact));
                 }
             }
         }

@@ -37,20 +37,20 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
     }
 
     @Override
-    public void computeCompatibilityLevel() {
+    public void computeVersionImpact() {
         if (newNode != null && oldNode == null) {
             // if the function is newly added
-            compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MINOR;
+            versionImpact = isPrivateFunction() ? SemverImpact.PATCH : SemverImpact.MINOR;
         } else if (newNode == null && oldNode != null) {
             // if the function is removed
-            compatibilityLevel = isPrivateFunction() ? CompatibilityLevel.PATCH : CompatibilityLevel.MAJOR;
+            versionImpact = isPrivateFunction() ? SemverImpact.PATCH : SemverImpact.MAJOR;
         } else {
             // if the function is modified, checks if function definition is non-public and if so all the
             // children-level incompatibilities can be discarded.
             if (isPrivateFunction()) {
-                compatibilityLevel = CompatibilityLevel.PATCH;
+                versionImpact = SemverImpact.PATCH;
             } else {
-                super.computeCompatibilityLevel();
+                super.computeVersionImpact();
             }
         }
     }
@@ -76,7 +76,7 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
         @Override
         public Optional<FunctionDiff> build() {
             if (!functionDiff.getChildDiffs().isEmpty()) {
-                functionDiff.computeCompatibilityLevel();
+                functionDiff.computeVersionImpact();
                 functionDiff.setType(DiffType.MODIFIED);
                 return Optional.of(functionDiff);
             } else if (functionDiff.getType() == DiffType.NEW || functionDiff.getType() == DiffType.REMOVED) {
@@ -93,8 +93,8 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
         }
 
         @Override
-        public NodeDiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-            functionDiff.setCompatibilityLevel(compatibilityLevel);
+        public NodeDiffBuilder withVersionImpact(SemverImpact versionImpact) {
+            functionDiff.setVersionImpact(versionImpact);
             return this;
         }
 

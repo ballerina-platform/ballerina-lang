@@ -28,12 +28,11 @@ import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.Diff;
-import io.ballerina.semver.checker.diff.DiffType;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -99,14 +98,16 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
             // public qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newPublicQual.get(), null);
-            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
+            qualifierDiffBuilder
+                    .withVersionImpact(SemverImpact.MINOR)
                     .withMessage("'public' qualifier is added")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         } else if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
             // public qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldPublicQual.get());
-            qualifierDiffBuilder.withType(DiffType.REMOVED)
+            qualifierDiffBuilder
+                    .withVersionImpact(SemverImpact.MAJOR)
                     .withMessage("'public' qualifier is removed")
                     .build()
                     .ifPresent(qualifierDiffs::add);
@@ -118,14 +119,16 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         if (newIsolatedQual.isPresent() && oldIsolatedQual.isEmpty()) {
             // isolated qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newIsolatedQual.get(), null);
-            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+            qualifierDiffBuilder
+                    .withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
                     .withMessage("'isolated' qualifier is added")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         } else if (newIsolatedQual.isEmpty() && oldIsolatedQual.isPresent()) {
             // isolated qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldIsolatedQual.get());
-            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+            qualifierDiffBuilder
+                    .withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
                     .withMessage("'isolated' qualifier is removed")
                     .build()
                     .ifPresent(qualifierDiffs::add);
@@ -137,14 +140,16 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         if (newTransactionalQual.isPresent() && oldTransactionalQual.isEmpty()) {
             // transactional qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newTransactionalQual.get(), null);
-            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+            qualifierDiffBuilder
+                    .withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
                     .withMessage("'transactional' qualifier is added")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         } else if (newTransactionalQual.isEmpty() && oldTransactionalQual.isPresent()) {
             // transactional qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldTransactionalQual.get());
-            qualifierDiffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS) // TODO: determine compatibility
+            qualifierDiffBuilder
+                    .withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
                     .withMessage("'transactional' qualifier is removed")
                     .build()
                     .ifPresent(qualifierDiffs::add);
@@ -171,13 +176,15 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
         if (newReturn.isPresent() && oldReturn.isEmpty()) {
             NodeDiffBuilder returnDiffBuilder = new NodeDiffImpl.Builder<Node>(newReturn.get(), null);
-            returnDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+            returnDiffBuilder
+                    .withVersionImpact(SemverImpact.MAJOR)
                     .withMessage("return type is added")
                     .build()
                     .ifPresent(returnTypeDiffs::add);
         } else if (newReturn.isEmpty() && oldReturn.isPresent()) {
             NodeDiffBuilder returnDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldReturn.get());
-            returnDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+            returnDiffBuilder
+                    .withVersionImpact(SemverImpact.MAJOR)
                     .withMessage("return type is removed")
                     .build()
                     .ifPresent(returnTypeDiffs::add);
@@ -198,7 +205,7 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffBuilder returnTypeDiffBuilder = new NodeDiffImpl.Builder<>(newType, oldType);
             return returnTypeDiffBuilder
-                    .withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS)
+                    .withVersionImpact(SemverImpact.AMBIGUOUS)
                     .withMessage(String.format("return type is changed from '%s' to '%s'", oldType.toSourceCode(),
                             newType.toSourceCode()))
                     .build();
@@ -223,18 +230,21 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
         NodeDiffBuilder functionBodyDiffBuilder = new NodeDiffImpl.Builder<>(newBody, oldBody);
         if (newBody != null && oldBody == null) {
-            functionBodyDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+            functionBodyDiffBuilder
+                    .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("function body is added")
                     .build()
                     .ifPresent(functionBodyDiff::add);
         } else if (newBody == null && oldBody != null) {
-            functionBodyDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+            functionBodyDiffBuilder
+                    .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("function body is removed")
                     .build()
                     .ifPresent(functionBodyDiff::add);
         } else {
             if (newBody != null && !newBody.toSourceCode().equals(oldBody.toSourceCode())) {
-                functionBodyDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+                functionBodyDiffBuilder
+                        .withVersionImpact(SemverImpact.PATCH)
                         .withMessage("function body is modified")
                         .build()
                         .ifPresent(functionBodyDiff::add);

@@ -71,7 +71,7 @@ public class ModuleDiff extends DiffImpl {
         @Override
         public Optional<ModuleDiff> build() {
             if (!moduleDiff.getChildDiffs().isEmpty()) {
-                moduleDiff.computeCompatibilityLevel();
+                moduleDiff.computeVersionImpact();
                 moduleDiff.setType(DiffType.MODIFIED);
                 return Optional.of(moduleDiff);
             }
@@ -86,21 +86,21 @@ public class ModuleDiff extends DiffImpl {
         }
 
         @Override
-        public DiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-            moduleDiff.setCompatibilityLevel(compatibilityLevel);
+        public DiffBuilder withVersionImpact(SemverImpact versionImpact) {
+            moduleDiff.setVersionImpact(versionImpact);
             return this;
         }
 
         public void withFunctionAdded(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(function, null);
-            funcDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
+            funcDiffBuilder.withVersionImpact(SemverImpact.MINOR)
                     .build()
                     .ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionRemoved(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(null, function);
-            funcDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
+            funcDiffBuilder.withVersionImpact(SemverImpact.MAJOR)
                     .build()
                     .ifPresent(moduleDiff.childDiffs::add);
         }

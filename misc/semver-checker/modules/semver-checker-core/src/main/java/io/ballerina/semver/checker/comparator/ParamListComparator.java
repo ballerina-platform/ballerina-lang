@@ -23,11 +23,11 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
-import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.DiffExtractor;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.NodeListDiffImpl;
+import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.List;
 import java.util.Map;
@@ -63,20 +63,20 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
             NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(paramNode, null);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
-                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
-                            .withMessage("new required parameter '" + paramName + "' is added");
+                    paramDiffBuilder.withMessage("new required parameter '" + paramName + "' is added")
+                            .withVersionImpact(SemverImpact.MAJOR);
                     break;
                 case DEFAULTABLE_PARAM:
-                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
-                            .withMessage("new defaultable parameter '" + paramName + "' is added");
+                    paramDiffBuilder.withMessage("new defaultable parameter '" + paramName + "' is added")
+                            .withVersionImpact(SemverImpact.MINOR);
                     break;
                 case REST_PARAM:
-                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR)
-                            .withMessage("new rest parameter '" + paramName + "' is added");
+                    paramDiffBuilder.withMessage("new rest parameter '" + paramName + "' is added")
+                            .withVersionImpact(SemverImpact.MINOR);
                     break;
                 default:
-                    paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR)
-                            .withMessage("new parameter '" + paramName + "' is added");
+                    paramDiffBuilder.withMessage("new parameter '" + paramName + "' is added")
+                            .withVersionImpact(SemverImpact.MAJOR);
             }
             paramDiffBuilder.build().ifPresent(paramDiffs::withChildDiff);
         });
@@ -84,7 +84,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
         // Computes and populate diffs for removed parameters.
         paramDiffExtractor.getRemovals().forEach((paramName, paramNode) -> {
             NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(paramNode, null);
-            paramDiffBuilder = paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder = paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
                     paramDiffBuilder.withMessage("required parameter '" + paramName + "' is removed");

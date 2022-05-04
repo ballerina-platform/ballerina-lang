@@ -57,11 +57,11 @@ public class PackageDiff extends DiffImpl {
     }
 
     @Override
-    public CompatibilityLevel getCompatibilityLevel() {
+    public SemverImpact getVersionImpact() {
         return childDiffs.stream()
-                .map(Diff::getCompatibilityLevel)
-                .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                .orElse(CompatibilityLevel.UNKNOWN);
+                .map(Diff::getVersionImpact)
+                .max(Comparator.comparingInt(SemverImpact::getRank))
+                .orElse(SemverImpact.UNKNOWN);
     }
 
     public void addModuleDiff(ModuleDiff moduleDiff) {
@@ -80,7 +80,7 @@ public class PackageDiff extends DiffImpl {
         @Override
         public Optional<PackageDiff> build() {
             if (!packageDiff.getChildDiffs().isEmpty()) {
-                packageDiff.computeCompatibilityLevel();
+                packageDiff.computeVersionImpact();
                 packageDiff.setType(DiffType.MODIFIED);
                 return Optional.of(packageDiff);
             }
@@ -95,14 +95,14 @@ public class PackageDiff extends DiffImpl {
         }
 
         @Override
-        public DiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-            packageDiff.setCompatibilityLevel(compatibilityLevel);
+        public DiffBuilder withVersionImpact(SemverImpact versionImpact) {
+            packageDiff.setVersionImpact(versionImpact);
             return this;
         }
 
         public DiffBuilder withModuleAdded(Module module) {
             ModuleDiff.Builder diffBuilder = new ModuleDiff.Builder(module, null);
-            diffBuilder.withType(DiffType.NEW).withCompatibilityLevel(CompatibilityLevel.MINOR);
+            diffBuilder.withType(DiffType.NEW).withVersionImpact(SemverImpact.MINOR);
             diffBuilder.build().ifPresent(packageDiff::addModuleDiff);
             return this;
         }
@@ -110,7 +110,7 @@ public class PackageDiff extends DiffImpl {
         public DiffBuilder withModuleRemoved(Module module) {
             // Todo: decide whether this should be backward compatible
             ModuleDiff.Builder diffBuilder = new ModuleDiff.Builder(module, null);
-            diffBuilder.withType(DiffType.REMOVED).withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            diffBuilder.withType(DiffType.REMOVED).withVersionImpact(SemverImpact.MAJOR);
             diffBuilder.build().ifPresent(packageDiff::addModuleDiff);
             return this;
         }

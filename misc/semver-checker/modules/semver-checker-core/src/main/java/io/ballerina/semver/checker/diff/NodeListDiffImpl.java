@@ -39,20 +39,20 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     protected final List<T> newNodes;
     protected final List<T> oldNodes;
     protected DiffType diffType;
-    protected CompatibilityLevel compatibilityLevel;
+    protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
     private String message;
 
     private NodeListDiffImpl(List<T> newNodes, List<T> oldNodes) {
-        this(newNodes, oldNodes, DiffType.UNKNOWN, CompatibilityLevel.UNKNOWN);
+        this(newNodes, oldNodes, DiffType.UNKNOWN, SemverImpact.UNKNOWN);
     }
 
     private NodeListDiffImpl(List<T> newNodes, List<T> oldNodes, DiffType diffType,
-                             CompatibilityLevel compatibilityLevel) {
+                             SemverImpact versionImpact) {
         this.newNodes = newNodes;
         this.oldNodes = oldNodes;
         this.diffType = diffType;
-        this.compatibilityLevel = compatibilityLevel;
+        this.versionImpact = versionImpact;
         this.childDiffs = new ArrayList<>();
         this.message = null;
     }
@@ -77,21 +77,21 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     }
 
     @Override
-    public CompatibilityLevel getCompatibilityLevel() {
-        return compatibilityLevel;
+    public SemverImpact getVersionImpact() {
+        return versionImpact;
     }
 
-    private void setCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-        this.compatibilityLevel = compatibilityLevel;
+    private void setVersionImpact(SemverImpact versionImpact) {
+        this.versionImpact = versionImpact;
     }
 
     @Override
-    public void computeCompatibilityLevel() {
-        if (compatibilityLevel == CompatibilityLevel.UNKNOWN) {
-            compatibilityLevel = childDiffs.stream()
-                    .map(Diff::getCompatibilityLevel)
-                    .max(Comparator.comparingInt(CompatibilityLevel::getRank))
-                    .orElse(CompatibilityLevel.UNKNOWN);
+    public void computeVersionImpact() {
+        if (versionImpact == SemverImpact.UNKNOWN) {
+            versionImpact = childDiffs.stream()
+                    .map(Diff::getVersionImpact)
+                    .max(Comparator.comparingInt(SemverImpact::getRank))
+                    .orElse(SemverImpact.UNKNOWN);
         }
     }
 
@@ -109,16 +109,16 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     }
 
     @Override
-    public List<Diff> getChildDiffs(CompatibilityLevel compatibilityLevel) {
+    public List<Diff> getChildDiffs(SemverImpact versionImpact) {
         List<Diff> filteredDiffs = new ArrayList<>();
         for (Diff diff : childDiffs) {
             if (diff.getChildDiffs().isEmpty()) {
-                if (diff.getCompatibilityLevel() == compatibilityLevel) {
+                if (diff.getVersionImpact() == versionImpact) {
                     filteredDiffs.add(diff);
                 }
             } else {
                 for (Diff childDiff : diff.getChildDiffs()) {
-                    filteredDiffs.addAll(childDiff.getChildDiffs(compatibilityLevel));
+                    filteredDiffs.addAll(childDiff.getChildDiffs(versionImpact));
                 }
             }
         }
@@ -148,7 +148,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         @Override
         public Optional<NodeListDiffImpl<?>> build() {
             if (!nodeListDiff.getChildDiffs().isEmpty()) {
-                nodeListDiff.computeCompatibilityLevel();
+                nodeListDiff.computeVersionImpact();
                 nodeListDiff.setType(DiffType.MODIFIED);
                 return Optional.of(nodeListDiff);
             } else if (nodeListDiff.getType() == DiffType.NEW || nodeListDiff.getType() == DiffType.REMOVED
@@ -166,8 +166,8 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         }
 
         @Override
-        public NodeDiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel) {
-            nodeListDiff.setCompatibilityLevel(compatibilityLevel);
+        public NodeDiffBuilder withVersionImpact(SemverImpact versionImpact) {
+            nodeListDiff.setVersionImpact(versionImpact);
             return this;
         }
 

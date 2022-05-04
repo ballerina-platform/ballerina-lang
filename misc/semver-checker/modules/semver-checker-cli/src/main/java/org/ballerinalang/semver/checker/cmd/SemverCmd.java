@@ -107,7 +107,7 @@ public class SemverCmd implements BLauncherCmd {
             if (showDiff) {
                 outStream.println(semverChecker.getDiffSummary());
             } else {
-                outStream.println(semverChecker.getVersionSuggestion());
+                outStream.println(semverChecker.getVersionSuggestionSummary());
             }
         } catch (InvalidPathException e) {
             throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool: ", e);

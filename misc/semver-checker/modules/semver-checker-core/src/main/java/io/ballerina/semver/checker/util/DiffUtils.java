@@ -19,7 +19,7 @@
 package io.ballerina.semver.checker.util;
 
 import io.ballerina.projects.SemanticVersion;
-import io.ballerina.semver.checker.diff.CompatibilityLevel;
+import io.ballerina.semver.checker.diff.SemverImpact;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
@@ -37,23 +37,50 @@ import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVer
 public class DiffUtils {
 
     /**
+     * Returns the summary of changes in string format based on the current version, last published version and the set
+     * of detected changes.
+     *
+     * @param packageDiff     source code changes of the package instance
+     * @param localVersion    current package version
+     * @param previousVersion last published package version
+     * @return the suggested version in string format
+     */
+    public static String getDiffSummary(PackageDiff packageDiff, SemanticVersion localVersion,
+                                        SemanticVersion previousVersion) {
+        StringBuilder sb = new StringBuilder();
+        if (packageDiff == null) {
+            sb.append("no changes detected").append(System.lineSeparator());
+        } else {
+            String title = String.format(" Comparing version '%s'(local) with version '%s'(central) ", localVersion,
+                    previousVersion);
+            sb.append(System.lineSeparator());
+            sb.append("=".repeat(title.length())).append(System.lineSeparator());
+            sb.append(title).append(System.lineSeparator());
+            sb.append("=".repeat(title.length())).append(System.lineSeparator());
+            sb.append(packageDiff.getAsString());
+        }
+
+        return sb.toString();
+    }
+
+    /**
      * Returns the suggested version in string format based on the current version, last published version and the set
      * of detected changes.
      *
      * @param packageDiff     source code changes of the package instance
-     * @param currentVersion  current package version
+     * @param localVersion    current package version
      * @param previousVersion last published package version
      * @return the suggested version in string format
      */
-    public static String suggestVersion(PackageDiff packageDiff, SemanticVersion currentVersion,
-                                        SemanticVersion previousVersion) {
+    public static String getVersionSuggestion(PackageDiff packageDiff, SemanticVersion localVersion,
+                                              SemanticVersion previousVersion) {
         StringBuilder sb = new StringBuilder();
-        sb.append("current version: ").append(currentVersion).append(System.lineSeparator());
-        sb.append("compatibility status compared to published version '").append(previousVersion).append("': ");
+        sb.append("local version: ").append(localVersion).append(System.lineSeparator());
+        sb.append("compatibility status (compared to published version '").append(previousVersion).append("'): ");
         if (packageDiff == null) {
             sb.append("no changes detected").append(System.lineSeparator());
         } else {
-            switch (packageDiff.getCompatibilityLevel()) {
+            switch (packageDiff.getVersionImpact()) {
                 case MAJOR:
                     sb.append("backward-incompatible changes detected").append(System.lineSeparator());
                     break;
@@ -67,7 +94,7 @@ public class DiffUtils {
                     sb.append("one or more changes detected with ambiguous level of impact. the developer is expected" +
                             " to manually review the changes below and choose an appropriate version");
                     sb.append(System.lineSeparator());
-                    packageDiff.getChildDiffs(CompatibilityLevel.AMBIGUOUS)
+                    packageDiff.getChildDiffs(SemverImpact.AMBIGUOUS)
                             .forEach(diff -> sb.append(diff.getAsString()));
                     break;
                 case UNKNOWN:
@@ -75,7 +102,7 @@ public class DiffUtils {
                     sb.append("one or more changes detected with unknown level of impact. the developer is expected " +
                             "to manually review the changes below and choose an appropriate version");
                     sb.append(System.lineSeparator());
-                    packageDiff.getChildDiffs(CompatibilityLevel.UNKNOWN);
+                    packageDiff.getChildDiffs(SemverImpact.UNKNOWN);
                     break;
             }
         }
@@ -107,8 +134,8 @@ public class DiffUtils {
         }
 
         sb.append(" [")
-                .append("compatibility level: ")
-                .append(diff.getCompatibilityLevel())
+                .append("version impact: ")
+                .append(diff.getVersionImpact())
                 .append("]")
                 .append(System.lineSeparator());
 

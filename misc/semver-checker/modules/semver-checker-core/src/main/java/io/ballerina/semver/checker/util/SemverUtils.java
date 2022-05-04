@@ -36,7 +36,7 @@ public class SemverUtils {
             return prevVersion.toString();
         } else {
             // Todo: add support for pre-release versions
-            switch (packageDiff.getCompatibilityLevel()) {
+            switch (packageDiff.getVersionImpact()) {
                 case MAJOR:
                 case AMBIGUOUS:
                     if (prevVersion.isInitialVersion()) {

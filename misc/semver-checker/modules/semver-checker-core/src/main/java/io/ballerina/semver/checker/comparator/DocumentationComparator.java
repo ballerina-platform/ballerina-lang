@@ -19,10 +19,10 @@
 package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.Optional;
 
@@ -41,11 +41,13 @@ public class DocumentationComparator extends NodeComparator<Node> {
     public Optional<? extends Diff> computeDiff() {
         NodeDiffBuilder documentationDiffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode);
         if (newNode != null && oldNode == null) {
-            return documentationDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+            return documentationDiffBuilder
+                    .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("documentation is added")
                     .build();
         } else if (newNode == null && oldNode != null) {
-            return documentationDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+            return documentationDiffBuilder
+                    .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("documentation is removed")
                     .build();
         } else if (newNode == null) {
@@ -53,7 +55,8 @@ public class DocumentationComparator extends NodeComparator<Node> {
         } else if (newNode.toSourceCode().equals(oldNode.toSourceCode())) {
             return Optional.empty();
         } else {
-            return documentationDiffBuilder.withCompatibilityLevel(CompatibilityLevel.PATCH)
+            return documentationDiffBuilder
+                    .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("documentation is modified")
                     .build();
         }

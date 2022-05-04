@@ -46,7 +46,7 @@ public class SemverChecker {
 
     private final Path projectPath;
     private Package currentPackage;
-    private SemanticVersion previousVersion;
+    private SemanticVersion releasedVersion;
     private final PrintStream outStream;
     private final PrintStream errStream;
 
@@ -54,13 +54,13 @@ public class SemverChecker {
         this(projectPath, null, System.out, System.err);
     }
 
-    public SemverChecker(Path projectPath, SemanticVersion previousVersion) {
-        this(projectPath, previousVersion, System.out, System.err);
+    public SemverChecker(Path projectPath, SemanticVersion releasedVersion) {
+        this(projectPath, releasedVersion, System.out, System.err);
     }
 
-    public SemverChecker(Path projectPath, SemanticVersion previousVersion, PrintStream out, PrintStream err) {
+    public SemverChecker(Path projectPath, SemanticVersion releasedVersion, PrintStream out, PrintStream err) {
         this.projectPath = projectPath;
-        this.previousVersion = previousVersion;
+        this.releasedVersion = releasedVersion;
         this.outStream = out;
         this.errStream = err;
     }
@@ -73,9 +73,9 @@ public class SemverChecker {
      * @return suggested version information in string format
      * @throws SemverToolException If execution is failed
      */
-    public String getVersionSuggestion() throws SemverToolException {
+    public String getVersionSuggestionSummary() throws SemverToolException {
         Optional<PackageDiff> packageDiff = computeDiff();
-        return DiffUtils.suggestVersion(packageDiff.orElse(null), getCurrentVersion(), previousVersion);
+        return DiffUtils.getVersionSuggestion(packageDiff.orElse(null), getLocalVersion(), releasedVersion);
     }
 
     /**
@@ -88,19 +88,11 @@ public class SemverChecker {
      * @throws SemverToolException If execution is failed
      */
     public String getDiffSummary() throws SemverToolException {
-        Optional<PackageDiff> packageDiff = computeDiff();
         StringBuilder sb = new StringBuilder();
-        if (packageDiff.isEmpty()) {
-            sb.append("no changes detected").append(System.lineSeparator());
-        } else {
-            sb.append("===============================").append(System.lineSeparator());
-            sb.append(" Source Compatibility Changes ").append(System.lineSeparator());
-            sb.append("===============================").append(System.lineSeparator());
-            sb.append(packageDiff.get().getAsString());
-        }
-
+        Optional<PackageDiff> packageDiff = computeDiff();
+        sb.append(DiffUtils.getDiffSummary(packageDiff.orElse(null), getLocalVersion(), releasedVersion));
         sb.append(System.lineSeparator());
-        sb.append(DiffUtils.suggestVersion(packageDiff.orElse(null), getCurrentVersion(), previousVersion));
+        sb.append(DiffUtils.getVersionSuggestion(packageDiff.orElse(null), getLocalVersion(), releasedVersion));
         return sb.toString();
     }
 
@@ -118,21 +110,19 @@ public class SemverChecker {
         String pkgName = currentPackage.packageName().value();
         SemanticVersion pkgVersion = currentPackage.packageVersion().value();
 
-        CentralClientWrapper clientWrapper = new CentralClientWrapper();
-        if (previousVersion == null) {
-            outStream.println("checking for latest compatible release version available in central...");
-            previousVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
+        CentralClientWrapper clientWrapper = new CentralClientWrapper(outStream, errStream);
+        if (releasedVersion == null) {
+            outStream.println("checking for the latest compatible release version in central...");
+            releasedVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
         }
-        outStream.println("pulling package version '" + previousVersion + "' from central...");
-        outStream.println();
-        Path balaPath = clientWrapper.pullPackage(orgName, pkgName, previousVersion);
+        Path balaPath = clientWrapper.pullPackage(orgName, pkgName, releasedVersion);
         Package balaPackage = PackageUtils.loadPackage(balaPath);
 
         PackageComparator packageComparator = new PackageComparator(currentPackage, balaPackage);
         return packageComparator.computeDiff();
     }
 
-    private SemanticVersion getCurrentVersion() throws SemverToolException {
+    private SemanticVersion getLocalVersion() throws SemverToolException {
         loadCurrentPackage();
         return SemanticVersion.from(currentPackage.packageVersion().value().toString());
     }

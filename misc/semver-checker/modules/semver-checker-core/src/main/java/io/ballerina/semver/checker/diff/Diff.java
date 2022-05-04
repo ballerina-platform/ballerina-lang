@@ -30,13 +30,13 @@ public interface Diff {
 
     DiffType getType();
 
-    CompatibilityLevel getCompatibilityLevel();
+    SemverImpact getVersionImpact();
 
-    void computeCompatibilityLevel();
+    void computeVersionImpact();
 
     List<? extends Diff> getChildDiffs();
 
-    List<? extends Diff> getChildDiffs(CompatibilityLevel compatibilityLevel);
+    List<? extends Diff> getChildDiffs(SemverImpact versionImpact);
 
     String getAsString();
 }

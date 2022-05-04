@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -48,11 +50,15 @@ import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
  */
 public class CentralClientWrapper {
 
+    private final PrintStream outStream;
+    private final PrintStream errStream;
     private CentralAPIClient centralClient;
     public static final String SUPPORTED_PLATFORM_JAVA_11 = "java11";
     private static final Logger LOGGER = LoggerFactory.getLogger(CentralClientWrapper.class);
 
-    public CentralClientWrapper() {
+    public CentralClientWrapper(PrintStream outStream, PrintStream errStream) {
+        this.outStream = outStream;
+        this.errStream = errStream;
         initializeClient();
     }
 
@@ -108,6 +114,13 @@ public class CentralClientWrapper {
                 .resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(orgName).resolve(pkgName);
         try {
+            // avoids pulling from the central if the package version already available in the local repository.
+            if (Files.exists(packagePathInBalaCache) && Files.isDirectory(packagePathInBalaCache)) {
+                throw new PackageAlreadyExistsException("package already exists in the home repository: " +
+                        packagePathInBalaCache);
+            }
+
+            outStream.printf("pulling package version '%s/%s:%s' from central...%n", orgName, pkgName, version);
             centralClient.pullPackage(orgName, pkgName, version.toString(), packagePathInBalaCache,
                     SUPPORTED_PLATFORM_JAVA_11, RepoUtils.getBallerinaVersion(), false);
         } catch (PackageAlreadyExistsException e) {

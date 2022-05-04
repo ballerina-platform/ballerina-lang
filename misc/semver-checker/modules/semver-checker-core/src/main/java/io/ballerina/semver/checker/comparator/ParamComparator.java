@@ -25,10 +25,10 @@ import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.semver.checker.diff.CompatibilityLevel;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.Optional;
 
@@ -76,12 +76,11 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
                 newExpr.toSourceCode().trim()));
 
         if (newExpr instanceof BasicLiteralNode && oldExpr instanceof BasicLiteralNode) {
-            // Todo: should the compatibility level be major or minor?
-            diffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR);
+            // Todo: should the version impact be major or minor?
+            diffBuilder.withVersionImpact(SemverImpact.MINOR);
         } else {
-            // semver compatibility level can be ambiguous for the expressions that are not basic literals.
-            // (i.e. variable references)
-            diffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS);
+            // version impact can be ambiguous for the expressions that are not basic literals(i.e. variable references)
+            diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
         }
         return diffBuilder.build();
     }
@@ -95,7 +94,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
-            diffBuilder = diffBuilder.withCompatibilityLevel(CompatibilityLevel.AMBIGUOUS);
+            diffBuilder = diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
             diffBuilder.withMessage(String.format("parameter type changed from '%s' to '%s'",
                     oldType.toSourceCode().trim(), newType.toSourceCode().trim()));
             return diffBuilder.build();
@@ -113,17 +112,17 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         paramDiffBuilder = paramDiffBuilder.withMessage(String.format("parameter kind is changed from '%s' to '%s'",
                 newParam.kind(), oldParam.kind()));
         if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
         } else if (newParam.kind() == SyntaxKind.DEFAULTABLE_PARAM && oldParam.kind() == SyntaxKind.REQUIRED_PARAM) {
-            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MINOR);
+            paramDiffBuilder.withVersionImpact(SemverImpact.MINOR);
         } else if (newParam.kind() == SyntaxKind.DEFAULTABLE_PARAM && oldParam.kind() == SyntaxKind.REST_PARAM) {
-            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
         } else if (newParam.kind() == SyntaxKind.REST_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
-            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
         } else if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.REST_PARAM) {
-            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
         } else if (newParam.kind() == SyntaxKind.REST_PARAM && oldParam.kind() == SyntaxKind.REQUIRED_PARAM) {
-            paramDiffBuilder.withCompatibilityLevel(CompatibilityLevel.MAJOR);
+            paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
         }
 
         return paramDiffBuilder.build();

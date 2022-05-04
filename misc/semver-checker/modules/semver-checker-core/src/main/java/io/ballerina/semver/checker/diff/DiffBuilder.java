@@ -31,5 +31,5 @@ public interface DiffBuilder {
 
     DiffBuilder withType(DiffType diffType);
 
-    DiffBuilder withCompatibilityLevel(CompatibilityLevel compatibilityLevel);
+    DiffBuilder withVersionImpact(SemverImpact versionImpact);
 }
