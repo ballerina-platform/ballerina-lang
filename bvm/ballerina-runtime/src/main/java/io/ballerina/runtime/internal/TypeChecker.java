@@ -2722,16 +2722,17 @@ public class TypeChecker {
 
         for (Object valueSpaceItem : targetType.valueSpace) {
             // TODO: 8/13/19 Maryam fix for conversion
-            if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem)) {
+            if (isFiniteTypeValue(sourceValue, sourceType, valueSpaceItem, allowNumericConversion)) {
                 return true;
             }
         }
         return false;
     }
 
-    protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem) {
+    protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
+                                               boolean allowNumericConversion) {
         Type valueSpaceItemType = getType(valueSpaceItem);
-        if (valueSpaceItemType.getTag() > TypeTags.FLOAT_TAG) {
+        if (valueSpaceItemType.getTag() > TypeTags.DECIMAL_TAG) {
             return valueSpaceItemType.getTag() == sourceType.getTag() &&
                     (valueSpaceItem == sourceValue || valueSpaceItem.equals(sourceValue));
         }
@@ -2739,15 +2740,42 @@ public class TypeChecker {
         switch (sourceType.getTag()) {
             case TypeTags.BYTE_TAG:
             case TypeTags.INT_TAG:
-                return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue();
-            case TypeTags.FLOAT_TAG:
-                if (sourceType.getTag() != valueSpaceItemType.getTag()) {
-                    return false;
+                switch (valueSpaceItemType.getTag()) {
+                    case TypeTags.BYTE_TAG:
+                    case TypeTags.INT_TAG:
+                        return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue();
+                    case TypeTags.FLOAT_TAG:
+                        return ((Number) sourceValue).longValue() == ((Number) valueSpaceItem).longValue() &&
+                                allowNumericConversion;
+                    case TypeTags.DECIMAL_TAG:
+                        return ((Number) sourceValue).longValue() == ((DecimalValue) valueSpaceItem).intValue() &&
+                                allowNumericConversion;
                 }
-
-                return ((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue();
+            case TypeTags.FLOAT_TAG:
+                switch (valueSpaceItemType.getTag()) {
+                    case TypeTags.BYTE_TAG:
+                    case TypeTags.INT_TAG:
+                        return ((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue()
+                                && allowNumericConversion;
+                    case TypeTags.FLOAT_TAG:
+                        return (((Number) sourceValue).doubleValue() == ((Number) valueSpaceItem).doubleValue() ||
+                                (Double.isNaN((Double) sourceValue) && Double.isNaN((Double) valueSpaceItem)));
+                    case TypeTags.DECIMAL_TAG:
+                        return ((Number) sourceValue).doubleValue() == ((DecimalValue) valueSpaceItem).floatValue()
+                                && allowNumericConversion;
+                }
             case TypeTags.DECIMAL_TAG:
-                // falls through
+                switch (valueSpaceItemType.getTag()) {
+                    case TypeTags.BYTE_TAG:
+                    case TypeTags.INT_TAG:
+                        return checkDecimalEqual((DecimalValue) sourceValue,
+                                DecimalValue.valueOf(((Number) valueSpaceItem).longValue())) && allowNumericConversion;
+                    case TypeTags.FLOAT_TAG:
+                        return checkDecimalEqual((DecimalValue) sourceValue,
+                            DecimalValue.valueOf(((Number) valueSpaceItem).doubleValue())) && allowNumericConversion;
+                    case TypeTags.DECIMAL_TAG:
+                        return checkDecimalEqual((DecimalValue) sourceValue, (DecimalValue) valueSpaceItem);
+                }
             default:
                 if (sourceType.getTag() != valueSpaceItemType.getTag()) {
                     return false;
