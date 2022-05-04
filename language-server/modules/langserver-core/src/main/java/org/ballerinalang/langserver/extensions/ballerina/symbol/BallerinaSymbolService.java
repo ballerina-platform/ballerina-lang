@@ -36,7 +36,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
-
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManagerProxy;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.eclipse.lsp4j.Position;
@@ -130,7 +129,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
     }
 
     @JsonRequest
-    public CompletableFuture<SymbolInfoResponse> getSymbol(SymbolInfoRequest request){
+    public CompletableFuture<SymbolInfoResponse> getSymbol(SymbolInfoRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             SymbolInfoResponse symbolInfoResponse = new SymbolInfoResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
@@ -141,7 +140,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
             }
 
             try {
-                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get(fileUri).semanticModel(filePath.get());
+                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get(fileUri).
+                        semanticModel(filePath.get());
                 if (semanticModel.isEmpty()) {
                     return symbolInfoResponse;
                 }
@@ -152,7 +152,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         this.serverContext);
 
                 Optional<Document> srcFile = context.currentDocument();
-                LinePosition linePosition = LinePosition.from(request.getPosition().getLine(), request.getPosition().getCharacter());
+                LinePosition linePosition = LinePosition.from(request.getPosition().getLine(),
+                        request.getPosition().getCharacter());
                 Optional<? extends Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
 
                 if (symbolAtCursor.isEmpty()) {
@@ -162,48 +163,49 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 Optional<Documentation> documentation = symbolAtCursor.get() instanceof Documentable ?
                         ((Documentable) symbolAtCursor.get()).documentation() : Optional.empty();
 
-                if (documentation.isEmpty()){
+                if (documentation.isEmpty()) {
                     return symbolInfoResponse;
                 }
 
-                List<SymbolDocumentation.ParameterInfo> symbolParams = new ArrayList<>(documentation.get().parameterMap().size());
+                List<SymbolDocumentation.ParameterInfo> symbolParams = new ArrayList<>(documentation.get().
+                        parameterMap().size());
 
-                if (symbolAtCursor.get() instanceof FunctionSymbol){
+                if (symbolAtCursor.get() instanceof FunctionSymbol) {
                     FunctionSymbol functionSymbol = (FunctionSymbol) symbolAtCursor.get();
 
-                    if (functionSymbol.typeDescriptor().params().isPresent()){
+                    if (functionSymbol.typeDescriptor().params().isPresent()) {
                         List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();
                         parameterSymbolList.forEach(parameterSymbol -> {
                             symbolParams.add(new SymbolDocumentation.ParameterInfo(
                                     parameterSymbol.getName().get(),
                                     documentation.get().parameterMap().get(parameterSymbol.getName().get()),
                                     parameterSymbol.paramKind().name(),
-                                    CommonUtil.getModifiedTypeName(context,parameterSymbol.typeDescriptor())));
+                                    CommonUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor())));
                         });
                     }
 
                     Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
-                    if (restParam.isPresent()){
+                    if (restParam.isPresent()) {
                         ParameterSymbol restParameter = restParam.get();
                         symbolParams.add(new SymbolDocumentation.ParameterInfo(
                                 restParameter.getName().get(),
                                 documentation.get().parameterMap().get(restParameter.getName().get()),
                                 restParameter.paramKind().name(),
-                                CommonUtil.getModifiedTypeName(context,restParameter.typeDescriptor())
-                                ));
+                                CommonUtil.getModifiedTypeName(context, restParameter.typeDescriptor())
+                        ));
                     }
                 }
 
                 List<SymbolDocumentation.ParameterInfo> deprecatedParams = new ArrayList<>(
                         documentation.get().deprecatedParametersMap().size());
-                Map<String,String> deprecatedParamMap = documentation.get().deprecatedParametersMap();
-                if (!deprecatedParamMap.isEmpty()){
-                    deprecatedParamMap.forEach((param, desc)-> {
-                        deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param,desc));
+                Map<String, String> deprecatedParamMap = documentation.get().deprecatedParametersMap();
+                if (!deprecatedParamMap.isEmpty()) {
+                    deprecatedParamMap.forEach((param, desc) -> {
+                        deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param, desc));
                     });
                 }
 
-                SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation,symbolParams,deprecatedParams);
+                SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation, symbolParams, deprecatedParams);
 
                 symbolInfoResponse.setSymbolDocumentation(symbolDoc);
                 symbolInfoResponse.setSymbolKind(symbolAtCursor.get().kind());

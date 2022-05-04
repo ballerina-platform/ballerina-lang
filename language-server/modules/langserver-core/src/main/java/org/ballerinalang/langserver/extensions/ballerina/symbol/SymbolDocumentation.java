@@ -19,8 +19,9 @@ import io.ballerina.compiler.api.symbols.Documentation;
 
 import java.util.List;
 import java.util.Optional;
+
 /**
- * Represents the documentation structure of getSymbol endpoint of BallerinaSymbolService
+ * Represents the documentation structure of getSymbol endpoint of BallerinaSymbolService.
  */
 public class SymbolDocumentation {
     public String description;
@@ -30,7 +31,8 @@ public class SymbolDocumentation {
     public List<ParameterInfo> deprecatedParams;
 
 
-    public SymbolDocumentation(Optional<Documentation> documentation, List<ParameterInfo> parameters, List<ParameterInfo> deprecatedParams) {
+    public SymbolDocumentation(Optional<Documentation> documentation, List<ParameterInfo> parameters,
+                               List<ParameterInfo> deprecatedParams) {
         this.description = documentation.get().description().isEmpty() ?
                 null : documentation.get().description().get();
         this.parameters = parameters.isEmpty() ? null : parameters;
@@ -43,7 +45,7 @@ public class SymbolDocumentation {
 
 
     /**
-     * Represents a parameter information
+     * Represents a parameter information.
      */
     public static class ParameterInfo {
 

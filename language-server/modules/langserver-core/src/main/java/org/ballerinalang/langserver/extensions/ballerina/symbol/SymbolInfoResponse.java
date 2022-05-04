@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import io.ballerina.compiler.api.symbols.SymbolKind;
 /**
- * Represents the response for getSymbol endpoint of BallerinaSymbolService
+ * Represents the response for getSymbol endpoint of BallerinaSymbolService.
  */
 public class SymbolInfoResponse {
     private SymbolKind symbolKind;
