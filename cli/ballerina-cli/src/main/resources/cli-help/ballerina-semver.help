@@ -1,0 +1,34 @@
+NAME
+       ballerina-semver - Validate semver compliance of the current package
+
+SYNOPSIS
+       bal semver [OPTIONS] [<package-path>]
+
+
+DESCRIPTION
+       Compare the local package changes with any previously released  package
+       version available in the central.
+
+       Provide suggestions for the next version based on the source code compatibility
+       between the local changes and any previous release version specified.
+
+       Note: Validating semver compliance of individual '.bal' files is not allowed.
+
+
+OPTIONS
+       -d, --show-diff
+           Display the detailed information on source code differences between
+           the compared package versions
+
+       -c <version>, --compare-version <version>
+           Analyze semver compliance of the local changes against the specified
+           release version
+
+
+EXAMPLES
+       Provide semver compatibility information for the current package
+       w.r.t. the latest compatible release version available in the central.
+           $ bal semver
+
+       Provide semver compatibility information for a package from a different directory.
+           $ bal semver <package-path>

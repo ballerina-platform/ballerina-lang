@@ -74,9 +74,8 @@ public class SemverCmd implements BLauncherCmd {
     @Override
     public void execute() {
         if (this.helpFlag) {
-            // Todo: add help flag info
-            //  String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(RUN_COMMAND);
-            // this.errStream.println(commandUsageInfo);
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(CMD_NAME);
+            this.errStream.println(commandUsageInfo);
             return;
         }
 

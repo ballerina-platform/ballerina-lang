@@ -111,7 +111,7 @@ public class SemverChecker {
 
         CentralClientWrapper clientWrapper = new CentralClientWrapper(outStream, errStream);
         if (releasedVersion == null) {
-            outStream.println("checking for the latest compatible release version available in central...");
+            errStream.println("checking for the latest compatible release version available in central...");
             releasedVersion = clientWrapper.getLatestCompatibleVersion(orgName, pkgName, pkgVersion);
         }
         Path balaPath = clientWrapper.pullPackage(orgName, pkgName, releasedVersion);

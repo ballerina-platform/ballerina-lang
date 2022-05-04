@@ -27,7 +27,6 @@
                 <Class name="io.ballerina.semver.checker.comparator.FunctionComparator"/>
                 <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
             </And>
-
         </Or>
     </Match>
 </FindBugsFilter>

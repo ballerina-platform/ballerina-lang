@@ -120,7 +120,7 @@ public class CentralClientWrapper {
                         packagePathInBalaCache);
             }
 
-            outStream.printf("pulling package version '%s/%s:%s' from central...%n", orgName, pkgName, version);
+            errStream.printf("pulling package version '%s/%s:%s' from central...%n", orgName, pkgName, version);
             centralClient.pullPackage(orgName, pkgName, version.toString(), packagePathInBalaCache,
                     SUPPORTED_PLATFORM_JAVA_11, RepoUtils.getBallerinaVersion(), false);
         } catch (PackageAlreadyExistsException e) {
