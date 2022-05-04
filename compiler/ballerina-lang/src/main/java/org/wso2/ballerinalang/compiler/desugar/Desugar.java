@@ -8163,7 +8163,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangQueryAction queryAction) {
         boolean prevSkipFailStmtRewrite = this.isVisitingQuery;
         this.isVisitingQuery = true;
-        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env);
+        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env, stmtsToBePropagatedToQuery);
         result = rewrite(stmtExpr, env);
         this.isVisitingQuery = prevSkipFailStmtRewrite;
     }

@@ -319,11 +319,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     /**
      * Desugar query action.
      *
-     * @param queryAction query action to be desugared.
-     * @param env         symbol env.
+     * @param queryAction         query action to be desugared.
+     * @param env                 symbol env.
+     * @param stmtsToBePropagated statements to be propagated to do clause.
      * @return desugared query action.
      */
-    BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env) {
+    BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env,
+                                     List<BLangStatement> stmtsToBePropagated) {
         containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
@@ -335,7 +337,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             returnType = ((BInvokableType) invokableSymbol.type).retType;
         }
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock, new ArrayList<>());
+        BLangVariableReference streamRef = buildStream(clauses, returnType, env, queryBlock, stmtsToBePropagated);
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                 QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr;
@@ -416,7 +418,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, selectFunc);
                     break;
                 case DO:
-                    BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause);
+                    BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause, stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, doFunc);
                     break;
                 case LIMIT:
@@ -675,7 +677,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION, Lists.of(lambda), pos);
     }
 
-
     /**
      * Desugar selectClause to below and return a reference to created select _StreamFunction.
      * _StreamFunction selectFunc = createSelectFunction(function(_Frame frame) returns _Frame|error? {
@@ -685,8 +686,9 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt    parent block to write to.
-     * @param selectClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param selectClause        to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created select _StreamFunction.
      */
     BLangVariableReference addSelectFunction(BLangBlockStmt blockStmt, BLangSelectClause selectClause,
@@ -711,14 +713,17 @@ public class QueryDesugar extends BLangNodeVisitor {
      * int y2 = <int> frame["y2"];
      * });
      *
-     * @param blockStmt parent block to write to.
-     * @param doClause  to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param doClause            to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created do _StreamFunction.
      */
-    BLangVariableReference addDoFunction(BLangBlockStmt blockStmt, BLangDoClause doClause) {
+    BLangVariableReference addDoFunction(BLangBlockStmt blockStmt, BLangDoClause doClause,
+                                         List<BLangStatement> stmtsToBePropagated) {
         Location pos = doClause.pos;
         BLangLambdaFunction lambda = createActionLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         for (BLangStatement stmt : doClause.body.stmts) {
             body.addStatement(stmt);
         }

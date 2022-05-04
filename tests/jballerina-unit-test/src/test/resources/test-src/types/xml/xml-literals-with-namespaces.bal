@@ -169,7 +169,7 @@ function testXmlLiteralUsingXmlNamespacePrefix() {
 
 xmlns "http://www.so2w.org" as globalNS;
 
-function testXmlInterpolationWithQuery() {
+function testXmlInterpolationWithQuery() returns error? {
     xml x1 = xml `<empRecords xmlns:inlineNS="http://www.so2w.org">
          ${from int i in 1 ... 3
         select xml `<empRecord employeeId="${i}"><inlineNS:id>${i}</inlineNS:id></empRecord>`}
@@ -210,5 +210,28 @@ function testXmlInterpolationWithQuery() {
     string expectedStr4 = "<globalNS:id xmlns:globalNS=\"http://www.so2w.org\">1</globalNS:id>";
     if (s4 != expectedStr4) {
         panic error("Assertion error", expected = expectedStr4, found = s4);
+    }
+
+    xml x8 = xml ``;
+    check from int i in [1]
+    do {
+        x8 = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
+    };
+    string s5 = x8.toString();
+    if (s5 != expectedStr3) {
+        panic error("Assertion error", expected = expectedStr3, found = s5);
+    }
+
+    xml x9 = xml ``;
+    check from int i in [1]
+    do {
+        error? ign = from int j in [1]
+        do {
+            x9 = xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`;
+        };
+    };
+    string s6 = x9.toString();
+    if (s6 != expectedStr3) {
+        panic error("Assertion error", expected = expectedStr3, found = s5);
     }
 }
