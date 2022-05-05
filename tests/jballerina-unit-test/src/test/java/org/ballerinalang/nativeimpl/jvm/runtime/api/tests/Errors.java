@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.List;
 
@@ -98,12 +99,34 @@ public class Errors {
                 null, null);
     }
 
+    public static BError getErrorWithEmptyDetailNegative(BString msg) {
+        BMap<BString, Object> errorDetails = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        return ErrorCreator.createError(msg, errorDetails);
+    }
+
     public static BError getErrorWithNullDetailNegative(BString msg) {
         return ErrorCreator.createError(msg, (BMap<BString, Object>) null);
+    }
+
+    public static BError getDistinctErrorWithEmptyDetailNegative2(BString msg) {
+        String typeIdName = "RuntimeError";
+        BMap<BString, Object> errorDetails = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, errorDetails);
     }
 
     public static BError getDistinctErrorWithNullDetailNegative2(BString msg) {
         String typeIdName = "RuntimeError";
         return ErrorCreator.createDistinctError(typeIdName, errorModule, msg, (BMap<BString, Object>) null);
+    }
+
+    public static BError getErrorWithEmptyDetailNegative2(BString msg) {
+        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
+        BMap<BString, Object> errorDetails = new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL);
+        return ErrorCreator.createError(bErrorType, msg, null, errorDetails);
+    }
+
+    public static BError getErrorWithNullDetailNegative2(BString msg) {
+        ErrorType bErrorType = createErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage());
+        return ErrorCreator.createError(bErrorType, msg, null, null);
     }
 }

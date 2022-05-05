@@ -89,6 +89,16 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testDistinctErrorReturn");
     }
 
+    @Test
+    public void testCatchingErrorAtOnFail() {
+        BRunUtil.invoke(result, "testCatchingErrorAtOnFail");
+    }
+
+    @Test
+    public void testErrorReturnedFromSelect() {
+        BRunUtil.invoke(result, "testErrorReturnedFromSelect");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

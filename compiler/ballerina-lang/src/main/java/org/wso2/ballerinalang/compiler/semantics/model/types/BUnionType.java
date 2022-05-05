@@ -431,6 +431,11 @@ public class BUnionType extends BType implements UnionType {
         return this.immutableType;
     }
 
+    @Override
+    public void unsetImmutableType() {
+        this.immutableType = null;
+    }
+
     private String getQualifiedName(String pkg, String name) {
         return (pkg.isBlank() || pkg.equals(".")) ? name : pkg + ":" + name;
     }

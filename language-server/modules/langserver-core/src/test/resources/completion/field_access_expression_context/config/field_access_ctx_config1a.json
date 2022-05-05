@@ -405,6 +405,31 @@
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "[\"\"]",
+      "kind": "Snippet",
+      "documentation": {
+        "left": "Convert to a member access expression"
+      },
+      "sortText": "CR",
+      "insertText": "[\"${1}\"]",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 50
+            },
+            "end": {
+              "line": 3,
+              "character": 51
+            }
+          },
+          "newText": ""
+        }
+      ]
     }
   ]
 }
