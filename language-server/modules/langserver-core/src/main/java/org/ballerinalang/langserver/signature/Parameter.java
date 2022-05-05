@@ -24,7 +24,7 @@ import java.util.Optional;
 /**
  * Parameter model to hold the parameter information meta data.
  *
- * @since 2201.0.4
+ * @since 2201.1.1
  */
 public class Parameter {
 
@@ -50,9 +50,9 @@ public class Parameter {
 
     public String getType() {
         String type = CommonUtil.getModifiedTypeName(this.signatureContext, parameterSymbol.typeDescriptor());
-        if (this.isRestArg && !"".equals(type)) {
+        if (this.isRestArg && !type.isEmpty()) {
             // Rest Arg type sometimes appear as array [], sometimes not eg. 'error()'
-            if (type.contains("[]")) {
+            if (type.endsWith("[]")) {
                 type = type.substring(0, type.length() - 2);
             }
             type += "...";
