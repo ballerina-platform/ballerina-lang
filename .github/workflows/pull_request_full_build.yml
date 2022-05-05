@@ -26,7 +26,7 @@ jobs:
       - name: Trigger Full Build Pipeline
         run: |
           curl -X POST \
-          'https://api.github.com/repos/ballerina-platform/ballerina-release/dispatches' \
+          'https://api.github.com/repos/NipunaMadhushan/ballerina-release/dispatches' \
           -H 'Accept: application/vnd.github.v3+json' \
           -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
           --data "{
