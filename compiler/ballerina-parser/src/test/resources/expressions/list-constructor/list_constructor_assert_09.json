@@ -1,44 +1,71 @@
 {
-  "kind": "LIST_CONSTRUCTOR",
+  "kind": "INDEXED_EXPRESSION",
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "OPEN_BRACKET_TOKEN",
+      "kind": "OBJECT_CONSTRUCTOR",
       "hasDiagnostics": true,
-      "leadingMinutiae": [
+      "diagnostics": [
+        "ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION"
+      ],
+      "children": [
         {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "invalidNode": {
-            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-            "hasDiagnostics": true,
-            "children": [
-              {
-                "kind": "AT_TOKEN",
-                "hasDiagnostics": true,
-                "diagnostics": [
-                  "ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION"
-                ]
-              }
-            ]
-          }
+          "kind": "LIST",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "ANNOTATION",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_ANNOTATION_NOT_ATTACHED_TO_A_CONSTRUCT"
+              ],
+              "children": [
+                {
+                  "kind": "AT_TOKEN"
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "Annotation",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         },
         {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "invalidNode": {
-            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-            "children": [
-              {
-                "kind": "IDENTIFIER_TOKEN",
-                "value": "Annotation"
-              }
-            ]
-          }
+          "kind": "LIST",
+          "children": []
         },
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "OBJECT_KEYWORD",
+          "isMissing": true
+        },
+        {
+          "kind": "OPEN_BRACE_TOKEN",
+          "isMissing": true
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN",
+          "isMissing": true
         }
       ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
     },
     {
       "kind": "LIST",

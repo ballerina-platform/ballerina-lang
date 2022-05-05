@@ -89,6 +89,11 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
     }
 
     @Override
+    public void unsetImmutableType() {
+        this.immutableType = null;
+    }
+
+    @Override
     public Optional<BIntersectionType> getIntersectionType() {
         return Optional.ofNullable(this.intersectionType);
     }

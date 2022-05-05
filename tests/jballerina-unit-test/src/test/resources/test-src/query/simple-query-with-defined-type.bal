@@ -573,6 +573,28 @@ function testWildcardBindingPatternInQueryExpr2() {
     assertEquality(4, m);
 }
 
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+function testUsingAnIntersectionTypeInQueryExpr() {
+    ScoreEvent[] events = [
+        {email: "jake@abc.com", problemId: "12", score: 80.0},
+        {email: "anne@abc.com", problemId: "20", score: 95.0},
+        {email: "peter@abc.com", problemId: "3", score: 72.0}
+    ];
+
+    json j = from ScoreEvent ev in events
+        where ev.score > 85.5
+        select {
+            email: ev.email,
+            score: ev.score
+        };
+    assertEquality(true, [{email: "anne@abc.com", score: 95.0}] == j);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

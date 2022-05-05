@@ -38,6 +38,15 @@
       "filterText": "fill",
       "insertText": "endLine: {line: ${1:0}, offset: ${2:0}},\nstartLine: {line: ${2:0}, offset: ${3:0}}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...range",
+      "kind": "Variable",
+      "detail": "Range",
+      "sortText": "AB",
+      "filterText": "range",
+      "insertText": "...range",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

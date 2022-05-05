@@ -516,14 +516,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
-        AnalyzerData data = new AnalyzerData();
-        data.env = env;
+        AnalyzerData data = new AnalyzerData(env);
         return resolveTypeNode(typeNode, data, env, DiagnosticErrorCode.UNKNOWN_TYPE);
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env, DiagnosticCode diagCode) {
-        AnalyzerData data = new AnalyzerData();
-        data.env = env;
+        AnalyzerData data = new AnalyzerData(env);
         return resolveTypeNode(typeNode, data, env, diagCode);
     }
 
@@ -1384,7 +1382,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         if (Types.getReferredType(constraintType).tag == TypeTags.MAP &&
-                (tableType.fieldNameList != null || tableType.keyTypeConstraint != null) &&
+                (!tableType.fieldNameList.isEmpty() || tableType.keyTypeConstraint != null) &&
                 !tableType.tsymbol.owner.getFlags().contains(Flag.LANG_LIB)) {
             dlog.error(tableType.keyPos,
                     DiagnosticErrorCode.KEY_CONSTRAINT_NOT_SUPPORTED_FOR_TABLE_WITH_MAP_CONSTRAINT);
@@ -2547,9 +2545,15 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
         for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
-            BSymbol symbol = entry.symbol.tag == SymTag.TYPE_DEF ? entry.symbol.type.tsymbol : entry.symbol;
-            if (symbol != null && symbol.tag == SymTag.VARIABLE && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
-                configVars.add((BVarSymbol) symbol);
+            BSymbol symbol = entry.symbol;
+            if (symbol != null) {
+                if (symbol.tag == SymTag.TYPE_DEF) {
+                    symbol = symbol.type.tsymbol;
+                }
+                if (symbol != null && symbol.tag == SymTag.VARIABLE
+                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE)) {
+                    configVars.add((BVarSymbol) symbol);
+                }
             }
         }
     }
@@ -2574,5 +2578,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     public static class AnalyzerData {
         SymbolEnv env;
         DiagnosticCode diagCode;
+
+        public AnalyzerData(SymbolEnv env) {
+            this.env = env;
+        }
     }
 }

@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.GOTO;
@@ -50,10 +49,9 @@ public class JvmTypeTestGen {
     private final MethodVisitor mv;
     private final JvmTypeGen jvmTypeGen;
 
-    public JvmTypeTestGen(JvmInstructionGen jvmInstructionGen, CompilerContext compilerContext, MethodVisitor mv,
-                          JvmTypeGen jvmTypeGen) {
+    public JvmTypeTestGen(JvmInstructionGen jvmInstructionGen, Types types, MethodVisitor mv, JvmTypeGen jvmTypeGen) {
         this.jvmInstructionGen = jvmInstructionGen;
-        types = Types.getInstance(compilerContext);
+        this.types = types;
         this.mv = mv;
         this.jvmTypeGen = jvmTypeGen;
     }

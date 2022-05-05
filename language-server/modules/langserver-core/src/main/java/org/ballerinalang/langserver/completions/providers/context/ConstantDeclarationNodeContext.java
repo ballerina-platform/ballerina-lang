@@ -62,6 +62,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
             } else {
                 completionItems.addAll(this.getTypeDescContextItems(context));
+                // [public] [const] annotation [type-descriptor]
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ANNOTATION.get()));
             }
             resolvedContext = ResolvedContext.TYPEDESC;
         } else if (this.onExpressionContext(context, node)) {

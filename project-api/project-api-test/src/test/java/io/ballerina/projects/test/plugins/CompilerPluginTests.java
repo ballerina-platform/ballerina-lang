@@ -85,7 +85,7 @@ public class CompilerPluginTests {
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_diagnostic_init_function");
         BCompileUtil.compileAndCacheBala(
-                "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/records");
+                "compiler_plugin_tests/immutable_type_definition_with_code_modifier_test/defns");
     }
 
     @Test
@@ -253,14 +253,18 @@ public class CompilerPluginTests {
         Assert.assertSame(newPackage.project(), project);
         Assert.assertSame(newPackage, project.currentPackage());
 
-        // The code generator produce 4 files. 3 files for three functions and one file importing another package.
-        Assert.assertEquals(5, newPackage.getDefaultModule().documentIds().size());
+        // The code generator produce 4 files.
+        // 3 files for three functions, one file importing another package and main.bal.
+        Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 5);
+        // The code generator produce 4 test files.
+        // 3 files for three functions and one file importing another package.
+        Assert.assertEquals(newPackage.getDefaultModule().testDocumentIds().size(), 4);
         PackageCompilation compilation = newPackage.getCompilation();
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 9, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies
         // Code generator produces a file that has an import.
@@ -282,6 +286,19 @@ public class CompilerPluginTests {
             Assert.assertEquals(resource.module(), module);
         }
 
+        // Check test resources
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Module module = project.currentPackage().module(moduleId);
+            if (!module.isDefaultModule()) {
+                Assert.assertEquals(module.testResourceIds().size(), 0);
+                continue;
+            }
+            Assert.assertEquals(module.testResourceIds().size(), 1);
+            Resource testResource = module.resource(module.testResourceIds().stream().findFirst().orElseThrow());
+            Assert.assertEquals(testResource.name(), "sample.json");
+            Assert.assertEquals(testResource.content(), "".getBytes());
+            Assert.assertEquals(testResource.module(), module);
+        }
     }
 
     @Test(description = "Test basic package code modify using code modifier plugin")
@@ -307,12 +324,24 @@ public class CompilerPluginTests {
         Assert.assertSame(newPackage.project(), project);
         Assert.assertSame(newPackage, project.currentPackage());
 
+        // Modified source files
         Assert.assertEquals(newPackage.getDefaultModule().documentIds().size(), 2);
         for (DocumentId documentId : newPackage.getDefaultModule().documentIds()) {
             Document document = newPackage.getDefaultModule().document(documentId);
             // The code generator adds specific function to the end of every source file.
             String specificFunction = "public function newFunctionByCodeModifier"
-                    + document.name().replace(".bal", "")
+                    + document.name().replace(".bal", "").replace("/", "_")
+                    + "(string params) returns error? {\n}";
+            Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
+        }
+
+        // Modified test source files
+        Assert.assertEquals(newPackage.getDefaultModule().testDocumentIds().size(), 1);
+        for (DocumentId documentId : newPackage.getDefaultModule().testDocumentIds()) {
+            Document document = newPackage.getDefaultModule().document(documentId);
+            // The code generator adds specific function to the end of every source file.
+            String specificFunction = "public function newFunctionByCodeModifier"
+                    + document.name().replace(".bal", "").replace("/", "_")
                     + "(string params) returns error? {\n}";
             Assert.assertTrue(document.syntaxTree().toSourceCode().contains(specificFunction));
         }
@@ -322,7 +351,7 @@ public class CompilerPluginTests {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
         Assert.assertFalse(diagnosticResult.hasErrors(), "Unexpected errors in compilation");
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 8, "Unexpected compilation diagnostics");
 
         // Check direct package dependencies count is 1
         Assert.assertEquals(newPackage.packageDependencies().size(), 1, "Unexpected number of dependencies");

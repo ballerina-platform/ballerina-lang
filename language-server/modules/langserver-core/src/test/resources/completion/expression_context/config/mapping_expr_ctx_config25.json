@@ -38,6 +38,15 @@
       "filterText": "fill",
       "insertText": "name: {first: ${1:\"\"}, last: ${2:\"\"}},\nsalary: ${2:0}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...testFunction()",
+      "kind": "Function",
+      "detail": "Employee",
+      "sortText": "AC",
+      "filterText": "testFunction",
+      "insertText": "...testFunction()",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
