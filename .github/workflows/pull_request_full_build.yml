@@ -6,34 +6,30 @@ on:
       - master
 
 jobs:
-  ubuntu_build:
-    name: Build pipeline without tests on Ubuntu
+  build-pipeline:
+    name: Full Build Pipeline
     runs-on: ubuntu-latest
-    concurrency:
-      group: ${{ github.head_ref }}-ubuntu
-      cancel-in-progress: true
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
         with:
-          distribution: 'adopt'
-          java-version: '11'
+          python-version: '3.x'
 
-      - name: Trigger Full Build Pipeline
+      - name: Install Python Packages
         run: |
-          curl -X POST \
-          'https://api.github.com/repos/NipunaMadhushan/ballerina-release/dispatches' \
-          -H 'Accept: application/vnd.github.v3+json' \
-          -H 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
-          --data "{
-            \"event_type\": \"pr-check-full-build\",
-            \"client_payload\": {
-              \"repository_owner\": \"${{ github.actor }}\",
-              \"ballerina_lang_branch\": \"${{ github.ref }}\",
-              \"enable_tests\": \"false\"
-            }
-          }"
+          pip install requests
+          pip install retry
+          pip install PyGithub
+
+      - name: Build Modules
+        run: |
+          python dependabot/full_build_pipeline_for_updated_stages.py ${{ github.ref }} false ${{ github.actor }}
+        env:
+          BALLERINA_BOT_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
+          BALLERINA_BOT_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
+          BALLERINA_BOT_EMAIL: ${{ secrets.BALLERINA_BOT_EMAIL }}
+          BALLERINA_REVIEWER_BOT_TOKEN: ${{ secrets.BALLERINA_REVIEWER_BOT_TOKEN }}
+          devCentralToken: ${{ secrets.BALLERINA_DEV_CENTRAL_ACCESS_TOKEN }}
