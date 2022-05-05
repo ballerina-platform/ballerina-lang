@@ -27,6 +27,7 @@ jobs:
       - name: Download Build Script
         run: |
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/full_build_pipeline_for_updated_stages.py
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/constants.py
 
       - name: Build Modules
         run: |
