@@ -21,7 +21,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
  * A utility bean to hold a record's raw type symbol and broader type symbol (type reference, etc.).
  *
  * @param <T> Raw TypeSymbol type
- * @since 2201.0.x
+ * @since 2201.1.1
  */
 public class RawTypeSymbolWrapper<T extends TypeSymbol> {
 

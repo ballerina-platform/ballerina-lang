@@ -577,16 +577,17 @@ public class CommonUtil {
     }
 
     /**
-     * Get the completion item to fill all the struct fields.
+     * Get the completion items to fill all record fields fields.
      *
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
-     * @param wrapper  Pair of Raw TypeSymbol and broader TypeSymbol
+     * @param wrapper  A wrapper containing record type symbol and broader type symbol
      * @return {@link Optional}   Completion Item to fill all the options
      */
-    public static Optional<LSCompletionItem> getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                              Map<String, RecordFieldSymbol> fields,
-                                                              RawTypeSymbolWrapper<RecordTypeSymbol> wrapper) {
+    public static Optional<LSCompletionItem> getFillAllRecordFieldCompletionItems(
+            BallerinaCompletionContext context,
+            Map<String, RecordFieldSymbol> fields,
+            RawTypeSymbolWrapper<RecordTypeSymbol> wrapper) {
         List<String> fieldEntries = new ArrayList<>();
 
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();

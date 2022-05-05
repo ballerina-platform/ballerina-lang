@@ -157,7 +157,7 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, wrapper));
             if (!fields.values().isEmpty()) {
                 Optional<LSCompletionItem> fillAllStructFieldsItem =
-                        CommonUtil.getFillAllStructFieldsItem(context, fields, wrapper);
+                        CommonUtil.getFillAllRecordFieldCompletionItems(context, fields, wrapper);
                 fillAllStructFieldsItem.ifPresent(completionItems::add);
             }
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
