@@ -143,6 +143,10 @@ public class BIntersectionType extends BType implements IntersectionType {
     }
 
     @Override
+    public void unsetImmutableType() {
+    }
+
+    @Override
     public Optional<BIntersectionType> getIntersectionType() {
         return Optional.ofNullable(this.intersectionType);
     }

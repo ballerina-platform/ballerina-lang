@@ -36,7 +36,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 39);
+        Assert.assertEquals(compileResult.getErrorCount(), 40);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -92,8 +92,9 @@ public class QueryNegativeTests {
                 "table constraint type 'record {| User user; |}'", 469, 32);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
                 "table constraint type 'record {| User user; |}'", 474, 24);
-        validateError(compileResult, index, "field name 'firstName' used in key specifier is not found in " +
+        validateError(compileResult, index++, "field name 'firstName' used in key specifier is not found in " +
                 "table constraint type 'record {| User user; |}'", 474, 28);
+        validateError(compileResult, index, "incompatible types: expected 'ScoreEventType', found 'int'", 490, 14);
     }
 
     @Test
@@ -105,6 +106,13 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "cannot assign a value to final 'person'", 44, 17);
         validateWarning(compileResult, index++, "unused variable 'outputNameList'", 58, 5);
         validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 62, 10);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 76, 13);
+        validateWarning(compileResult, index++, "unused variable 'a'", 79, 16);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 83, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 13);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 }

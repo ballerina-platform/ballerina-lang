@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
@@ -147,6 +148,13 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             String varName = "";
             if (symbol.isPresent() && argumentKindList.contains(symbol.get().kind())) {
                 varName = symbol.get().getName().orElse("");
+            }
+
+            // If arg is a named arg, type and varName should be derived differently
+            if (fnArgNode.kind() == SyntaxKind.NAMED_ARG) {
+                NamedArgumentNode namedArgumentNode = (NamedArgumentNode) fnArgNode;
+                type = semanticModel.typeOf(namedArgumentNode.expression());
+                varName = namedArgumentNode.argumentName().name().text();
             }
 
             if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {

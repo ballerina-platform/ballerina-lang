@@ -86,9 +86,6 @@ public class PushCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-source-check"}, description = "skip checking if source has changed")
     private boolean skipSourceCheck;
 
-    @CommandLine.Option(names = "--experimental", description = "enable experimental language features")
-    private boolean experimentalFlag;
-
     private Path userDir;
     private PrintStream errStream;
     private PrintStream outStream;

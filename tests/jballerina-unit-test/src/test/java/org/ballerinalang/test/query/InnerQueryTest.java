@@ -32,7 +32,6 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
  *
  * @since Swan Lake
  */
-@Test(groups = {"disableOnOldParser"})
 public class InnerQueryTest {
 
     private CompileResult result;
@@ -106,6 +105,11 @@ public class InnerQueryTest {
     @Test(description = "Test query expression within query action")
     public void testQueryExpWithinQueryAction() {
         BRunUtil.invoke(result, "testQueryExpWithinQueryAction");
+    }
+
+    @Test
+    public void testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() {
+        BRunUtil.invoke(result, "testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction");
     }
 
     @AfterClass

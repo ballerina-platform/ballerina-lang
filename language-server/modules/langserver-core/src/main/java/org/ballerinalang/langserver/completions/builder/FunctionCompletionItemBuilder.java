@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -29,7 +28,6 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -145,7 +143,7 @@ public final class FunctionCompletionItemBuilder {
         item.setInsertText("self." + functionSignature.getLeft());
         item.setLabel("self." + functionSignature.getRight());
         item.setFilterText("self." + funcName);
-        
+
         return item;
     }
 
@@ -156,12 +154,12 @@ public final class FunctionCompletionItemBuilder {
             FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
             Optional<TypeSymbol> typeSymbol = functionTypeDesc.returnTypeDescriptor();
             typeSymbol.ifPresent(symbol -> item.setDetail(CommonUtil.getModifiedTypeName(ctx, symbol)));
-            List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
+            List<String> funcArguments = CommonUtil.getFuncArguments(functionSymbol, ctx);
             if (!funcArguments.isEmpty()) {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
                 item.setCommand(cmd);
             }
-            boolean skipFirstParam = skipFirstParam(ctx, functionSymbol);
+            boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, functionSymbol);
             if (functionSymbol.documentation().isPresent()) {
                 item.setDocumentation(getDocumentation(functionSymbol, skipFirstParam, ctx));
             }
@@ -271,7 +269,7 @@ public final class FunctionCompletionItemBuilder {
         }
         StringBuilder signature = new StringBuilder(functionName + "(");
         StringBuilder insertText = new StringBuilder(escapedFunctionName + "(");
-        List<String> funcArguments = getFuncArguments(functionSymbol, ctx);
+        List<String> funcArguments = CommonUtil.getFuncArguments(functionSymbol, ctx);
         if (!funcArguments.isEmpty()) {
             signature.append(String.join(", ", funcArguments));
             insertText.append("${1}");
@@ -300,63 +298,6 @@ public final class FunctionCompletionItemBuilder {
         }
 
         return modulePrefix + SyntaxKind.COLON_TOKEN.stringValue() + functionName;
-    }
-
-    /**
-     * Get the list of function arguments from the invokable symbol.
-     *
-     * @param symbol Invokable symbol to extract the arguments
-     * @param ctx    Lang Server Operation context
-     * @return {@link List} List of arguments
-     */
-    private static List<String> getFuncArguments(FunctionSymbol symbol, BallerinaCompletionContext ctx) {
-        List<String> args = new ArrayList<>();
-        boolean skipFirstParam = skipFirstParam(ctx, symbol);
-        FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
-        Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
-        List<ParameterSymbol> parameterDefs = new ArrayList<>();
-        if (functionTypeDesc.params().isPresent()) {
-            parameterDefs.addAll(functionTypeDesc.params().get());
-        }
-        for (int i = 0; i < parameterDefs.size(); i++) {
-            if (i == 0 && skipFirstParam) {
-                continue;
-            }
-            ParameterSymbol param = parameterDefs.get(i);
-            if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
-                // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
-                args.add("");
-            } else {
-                args.add(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) + (param.getName().isEmpty() ? ""
-                        : " " + param.getName().get()));
-            }
-        }
-        restParam.ifPresent(param -> {
-            // Rest param is represented as an array type symbol
-            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
-            args.add(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
-                    + (param.getName().isEmpty() ? "" : "... "
-                    + param.getName().get()));
-        });
-        return (!args.isEmpty()) ? args : new ArrayList<>();
-    }
-
-    /**
-     * Whether we skip the first parameter being included as a label in the signature.
-     * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
-     * showing the invocation over package of the langlib with the COLON we show the first param.
-     * 
-     * When the langlib function is retrieved from the Semantic API, those functions are filtered where the first param
-     * type not being same as the langlib type. Hence we need to chek whether the function is from a langlib.
-     *
-     * @param context        context
-     * @param functionSymbol invokable symbol
-     * @return {@link Boolean} whether we show the first param or not
-     */
-    private static boolean skipFirstParam(BallerinaCompletionContext context, FunctionSymbol functionSymbol) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
-                && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 
     /**

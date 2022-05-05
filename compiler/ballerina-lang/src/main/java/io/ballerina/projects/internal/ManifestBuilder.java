@@ -432,8 +432,6 @@ public class ManifestBuilder {
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         Boolean offline = getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OFFLINE.toString());
-        Boolean experimental =
-                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.EXPERIMENTAL.toString());
         Boolean observabilityIncluded =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.OBSERVABILITY_INCLUDED.toString());
         Boolean testReport =
@@ -457,7 +455,6 @@ public class ManifestBuilder {
 
         buildOptionsBuilder
                 .setOffline(offline)
-                .setExperimental(experimental)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setTestReport(testReport)
                 .setCodeCoverage(codeCoverage)

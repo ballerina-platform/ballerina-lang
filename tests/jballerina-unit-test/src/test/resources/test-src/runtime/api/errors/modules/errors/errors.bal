@@ -50,7 +50,23 @@ public function getDistinctErrorWithNullDetailNegative(string msg) returns error
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
 } external;
 
+public function getErrorWithEmptyDetailNegative(string msg) returns error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;
+
 public function getErrorWithNullDetailNegative(string msg) returns error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;
+
+public function getErrorWithEmptyDetailNegative2(string msg) returns error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;
+
+public function getErrorWithNullDetailNegative2(string msg) returns error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
+} external;
+
+public function getDistinctErrorWithEmptyDetailNegative2(string msg) returns error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Errors"
 } external;
 

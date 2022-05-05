@@ -78,4 +78,9 @@ public class BTypedescType extends BType implements TypedescType {
     public boolean isReadOnly() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "typedesc" + "<" + constraint.toString() + ">";
+    }
 }
