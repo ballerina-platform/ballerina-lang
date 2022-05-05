@@ -31,14 +31,7 @@ jobs:
 
       - name: Build Modules
         run: |
-          echo "${{ github.head_ref }}"
-          echo "${{ github.ref }}"
-          echo "${{ github.ref_name }}"
-          echo "${{ github.base_ref }}"
-#          echo "GITHUB_REF: $GITHUB_REF"
-#          echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
-#          echo "GITHUB_BASE_REF: $GITHUB_BASE_REF"
-#          python full_build_pipeline_for_updated_stages.py ${{ github.ref }} false ${{ github.actor }}
+          python full_build_pipeline_for_updated_stages.py ${{ github.head_ref }} false ${{ github.actor }}
         env:
           BALLERINA_BOT_USERNAME: ${{ secrets.BALLERINA_BOT_USERNAME }}
           BALLERINA_BOT_TOKEN: ${{ secrets.BALLERINA_BOT_TOKEN }}
