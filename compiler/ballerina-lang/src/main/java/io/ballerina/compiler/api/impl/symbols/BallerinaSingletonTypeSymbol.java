@@ -46,6 +46,8 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
         if (shape.value == null
                 && shape.getBType().tag == TypeTags.NIL) {
             this.typeName = "()";
+        } else if (shape.toString() == null) {
+            this.typeName = "";
         // Special case handling for string type.
         } else if (shape.getBType().tag == TypeTags.STRING) {
             this.typeName = "\"" + shape + "\"";
