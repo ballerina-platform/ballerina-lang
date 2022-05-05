@@ -24,11 +24,11 @@ import java.util.Optional;
  * Represents the documentation structure of getSymbol endpoint of BallerinaSymbolService.
  */
 public class SymbolDocumentation {
-    public String description;
-    public List<ParameterInfo> parameters;
-    public String returnValueDescription;
-    public String deprecatedDocumentation;
-    public List<ParameterInfo> deprecatedParams;
+    private final String description;
+    private final List<ParameterInfo> parameters;
+    private final String returnValueDescription;
+    private final String deprecatedDocumentation;
+    private final List<ParameterInfo> deprecatedParams;
 
 
     public SymbolDocumentation(Optional<Documentation> documentation, List<ParameterInfo> parameters,
@@ -43,6 +43,25 @@ public class SymbolDocumentation {
         this.deprecatedParams = deprecatedParams.isEmpty() ? null : deprecatedParams;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public List<ParameterInfo> getParameters() {
+        return parameters;
+    }
+
+    public String getReturnValueDescription() {
+        return returnValueDescription;
+    }
+
+    public String getDeprecatedDocumentation() {
+        return deprecatedDocumentation;
+    }
+
+    public List<ParameterInfo> getDeprecatedParams() {
+        return deprecatedParams;
+    }
 
     /**
      * Represents a parameter information.
