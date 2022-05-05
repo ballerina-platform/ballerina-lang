@@ -29,7 +29,6 @@ import java.io.PrintStream;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 /**
  * Class to implement `semver` command for Ballerina.
@@ -43,12 +42,11 @@ public class SemverCmd implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private Path projectPath;
     private static final String CMD_NAME = "semver";
 
     @SuppressWarnings("unused")
-    @CommandLine.Parameters
-    private List<String> argList;
+    @CommandLine.Parameters(arity = "0..1")
+    private final Path projectPath;
 
     @SuppressWarnings("unused")
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
@@ -80,10 +78,6 @@ public class SemverCmd implements BLauncherCmd {
         }
 
         try {
-            if (argList != null && !argList.isEmpty()) {
-                this.projectPath = Paths.get(argList.get(0));
-            }
-
             SemanticVersion semanticVersion = null;
             if (prevVersion != null) {
                 try {
@@ -111,7 +105,7 @@ public class SemverCmd implements BLauncherCmd {
         } catch (InvalidPathException e) {
             throw LauncherUtils.createLauncherException("invalid project path provided for the semver tool: ", e);
         } catch (SemverToolException e) {
-            throw LauncherUtils.createLauncherException("", e);
+            throw LauncherUtils.createLauncherException(e.getMessage());
         } catch (Throwable t) {
             throw LauncherUtils.createLauncherException("semver checker execution failed due to an unhandled " +
                     "exception: ", t);

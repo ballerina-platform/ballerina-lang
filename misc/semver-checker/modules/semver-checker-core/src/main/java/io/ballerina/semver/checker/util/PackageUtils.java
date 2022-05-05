@@ -21,6 +21,7 @@ package io.ballerina.semver.checker.util;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -50,17 +51,20 @@ public class PackageUtils {
      * @param filePath file path of the open/active editor instance in the plugin side.
      */
     public static Package loadPackage(Path filePath) throws SemverToolException {
-        Project project = PackageUtils.loadProject(filePath);
-        switch (project.kind()) {
-            case BUILD_PROJECT:
-            case BALA_PROJECT:
-                return project.currentPackage();
-            case SINGLE_FILE_PROJECT:
-                throw new SemverToolException("semver checker tool is not applicable for single file " +
-                        "projects.");
-            default:
-                throw new SemverToolException("semver checker tool is not applicable for " +
-                        project.kind().name());
+        try {
+            Project project = PackageUtils.loadProject(filePath);
+            switch (project.kind()) {
+                case BUILD_PROJECT:
+                case BALA_PROJECT:
+                    return project.currentPackage();
+                case SINGLE_FILE_PROJECT:
+                    throw new SemverToolException("semver checker tool is not applicable for single file projects.");
+                default:
+                    throw new SemverToolException("semver checker tool is not applicable for " + project.kind().name());
+            }
+        } catch (ProjectException e) {
+            throw new SemverToolException(String.format("failed to load Ballerina package at: '%s'%sreason: %s",
+                    filePath.toAbsolutePath(), System.lineSeparator(), e.getMessage()));
         }
     }
 
