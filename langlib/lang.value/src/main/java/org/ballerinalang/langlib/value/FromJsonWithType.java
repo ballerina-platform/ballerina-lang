@@ -66,9 +66,8 @@ public class FromJsonWithType {
     private FromJsonWithType() {
     }
 
-    public static Object fromJsonWithType(Object v, BTypedesc t) {
-        Type describingType = t.getDescribingType();
-        return convert(v, describingType, t);
+    public static Object fromJsonWithType(Object value, BTypedesc t) {
+        return convert(value, t.getDescribingType(), t);
     }
 
     public static Object convert(Object value, Type targetType) {
