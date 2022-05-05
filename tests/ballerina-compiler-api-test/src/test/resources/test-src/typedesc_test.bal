@@ -277,6 +277,11 @@ function testFixedArrays() {
 
 const string greeting = "Hello" + ;
 
+type FOO "foo1" | "foo2";
+FOO foo1;
+
+Thread thread;
+
 // utils
 type ReturnIntFunctionType function () returns int;
 
