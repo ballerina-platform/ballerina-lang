@@ -18,6 +18,7 @@
 
 package io.ballerina.compiler.api.impl.types;
 
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -35,5 +36,6 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
         TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
         ARRAY_TYPE = new BallerinaArrayTypeBuilder(context);
+        ERROR_TYPE = new BallerinaErrorTypeBuilder(context);
     }
 }
