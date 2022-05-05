@@ -61,6 +61,7 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
                 {"addSingleObjectDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleModuleVarDocumentation1.json", "commonDocumentation.bal"},
                 {"addSingleModuleVarDocumentation2.json", "commonDocumentation.bal"},
+                {"addSingleAnnotationDocumentation.json", "commonDocumentation.bal"},
                 {"serviceDocumentationWithAnnotations.json", "serviceDocumentationWithAnnotations.bal"},
                 {"addResourceFunctionDocumentation.json", "addResourceFunctionDocumentation.bal"},
                 {"add_single_documentation_with_deprecated1.json", "add_single_documentation_with_deprecated1.bal"},
