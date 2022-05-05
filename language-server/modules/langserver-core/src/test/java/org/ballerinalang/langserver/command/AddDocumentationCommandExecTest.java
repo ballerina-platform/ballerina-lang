@@ -73,6 +73,7 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
                 {"document_already_documented_config4.json", "document_already_documented1.bal"},
                 {"document_already_documented_config5.json", "document_already_documented1.bal"},
                 {"document_already_documented_config6.json", "document_already_documented1.bal"},
+                {"document_already_documented_config7.json", "document_already_documented1.bal"},
         };
     }
 
