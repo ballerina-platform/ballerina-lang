@@ -68,7 +68,6 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * Finds the expected {@link TypeSymbol} of a provided {@link FunctionCallExpressionNode} node. This will try its
@@ -422,10 +421,10 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(ConditionalExpressionNode conditionalExpressionNode) {
-        Optional<TypeSymbol> typeSymbol = Stream.of(semanticModel.typeOf(conditionalExpressionNode.middleExpression()),
-                        semanticModel.typeOf(conditionalExpressionNode.endExpression()))
-                .filter(type -> type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR)
-                .map(Optional::get).findFirst();
+        Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(conditionalExpressionNode.middleExpression())
+                .filter(type -> type.typeKind() != TypeDescKind.COMPILATION_ERROR)
+                .or(() -> semanticModel.typeOf(conditionalExpressionNode.endExpression())
+                        .filter(type -> type.typeKind() != TypeDescKind.COMPILATION_ERROR));
 
         if (typeSymbol.isPresent()) {
             checkAndSetTypeResult(typeSymbol.get());
