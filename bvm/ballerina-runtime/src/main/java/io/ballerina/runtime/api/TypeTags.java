@@ -129,6 +129,7 @@ public class TypeTags {
             case UNION_TAG:
             case ANYDATA_TAG:
             case JSON_TAG:
+            case ANY_TAG:
                 return true;
             default:
                 return false;

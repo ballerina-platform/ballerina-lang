@@ -1807,6 +1807,8 @@ type Movie record {
 
 type Union int|decimal|string|Union[]|map<Union>;
 
+type Finite 2|2d;
+
 function testCloneWithTypeWithAmbiguousNumericUnion() {
     // json
     json val = 23.0d;
@@ -2013,11 +2015,29 @@ function testCloneWithTypeWithAmbiguousNumericUnion() {
         assertTrue(mov.year is int[]);
     }
 
+    // With Finite types
+    jsonArr = [2];
+    string[]|Finite[] arrayFiniteVal = checkpanic jsonArr.cloneWithType();
+    assertFalse(arrayFiniteVal[0] is decimal);
+    assertTrue(arrayFiniteVal[0] is int);
+
+    jsonArr = [2.0d];
+    string[]|Finite[] arrayFiniteVal1 = checkpanic jsonArr.cloneWithType();
+    assertTrue(arrayFiniteVal1[0] is decimal);
+    assertFalse(arrayFiniteVal1[0] is int);
+
+    jsonArr = [2.0];
+    string[]|Finite[]|error arrayFiniteVal2 = jsonArr.cloneWithType();
+    assertTrue(arrayFiniteVal2 is error);
+    error err = <error>arrayFiniteVal2;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '(string[]|Finite[])': \n\t	array element '[0]' should be of type 'string', found '2.0'\n\t	value '2.0' cannot be converted to 'Finite': ambiguous target type", <string>checkpanic err.detail()["message"]);
+
     // Negative cases
     json jVal = [23.0d, 24];
     int[]|[decimal, float]|error result1 = jVal.cloneWithType();
     assertTrue(result1 is error);
-    error err = <error>result1;
+    err = <error>result1;
     assertEquality("{ballerina/lang.value}ConversionError", err.message());
     assertEquality("'json[]' value cannot be converted to '(int[]|[decimal,float])': \n\t	value '[23.0,24]' cannot be converted to '(int[]|[decimal,float])': ambiguous target type", <string>checkpanic err.detail()["message"]);
 
