@@ -22,6 +22,9 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -37,12 +40,19 @@ import java.nio.charset.StandardCharsets;
 //)
 public class FromBytes {
 
+    private static final CharsetDecoder charsetDecoder = StandardCharsets.UTF_8.newDecoder();
+
+    private FromBytes() {
+    }
+
     public static Object fromBytes(BArray bytes) {
         try {
-            return StringUtils.fromString(new String(bytes.getBytes(), StandardCharsets.UTF_8));
-        } catch (Exception e) {
+            String str = charsetDecoder.decode(ByteBuffer.wrap(bytes.getBytes())).toString();
+            charsetDecoder.reset();
+            return StringUtils.fromString(str);
+        } catch (CharacterCodingException e) {
             return ErrorCreator.createError(StringUtils.fromString("FailedToDecodeBytes"),
-                                            StringUtils.fromString(e.getMessage()));
+                    StringUtils.fromString("byte array contains invalid value"));
         }
     }
 }
