@@ -54,12 +54,14 @@ public class SymbolDocumentationTest {
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
 
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().description, "Adds two integers.");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().returnValueDescription, "the sum of `x` and `y`");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(0).name, "x");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(0).description, "an integer");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(1).name, "y");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(1).description, "another integer");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(), "Adds two integers.");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
+                "the sum of `x` and `y`");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).name, "x");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).description, "an integer");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(1).name, "y");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(1).description,
+                "another integer");
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
@@ -75,14 +77,14 @@ public class SymbolDocumentationTest {
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
 
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().description,
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
                 "Prints info logs.\n```ballerina\nlog:printInfo(\"info message\", id = 845315)\n```\n");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(0).name, "msg");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(0).description,
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).name, "msg");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).description,
                 "The message to be logged");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(0).kind, "REQUIRED");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().parameters.get(0).type, "string");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().returnValueDescription, null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).kind, "REQUIRED");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).type, "string");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(), null);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
 
