@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
@@ -35,7 +36,9 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -49,6 +52,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
@@ -61,6 +65,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_PROCESSING_INSTRUCTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_TEXT;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
+import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -285,5 +290,40 @@ public class TypeBuildersTest {
                 {types.INT, null, "int[]"},
                 {types.BYTE, 24, "byte[24]"},
         };
+    }
+
+    @Test(dataProvider = "errorTypeBuilderProvider")
+    public void testErrorTypeBuilder(Integer line, Integer column, String signature) {
+        TypeBuilder.ERROR errorType = builder.ERROR_TYPE;
+        if (line != null && column != null) {
+            errorType.withTypeParam(getTypeDefSymbol(line, column));
+        }
+
+        ErrorTypeSymbol errorTypeSymbol = errorType.build();
+        assertEquals(errorTypeSymbol.typeKind(), ERROR);
+        assertEquals(errorTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name =  "errorTypeBuilderProvider")
+    private Object[][] getErrorTypeBuilders() {
+        return new Object[][] {
+                {null, null, "error"},
+                {40, 5, "error<Detail>"},
+                {46, 5, "error<SampleErrorData>"},
+                {53, 5, "error<TrxErrorData>"},
+        };
+    }
+
+    // utils
+
+    private TypeSymbol getTypeDefSymbol(int line, int column) {
+        Project project = BCompileUtil.loadProject("test-src/typedefs_for_type_builders.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
+        return ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
     }
 }
