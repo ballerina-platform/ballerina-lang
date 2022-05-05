@@ -134,4 +134,15 @@ public class TypeUtils {
     public static boolean isSameType(Type sourceType, Type targetType) {
         return TypeChecker.isSameType(sourceType, targetType);
     }
+
+    /**
+     * Check whether a given type is equivalent to a target type.
+     *
+     * @param sourceType type to check
+     * @param targetType type to compare with
+     * @return flag indicating the the equivalence of the two types
+     */
+    public static boolean checkIsType(Type sourceType, Type targetType) {
+        return TypeChecker.checkIsType(sourceType, targetType);
+    }
 }
