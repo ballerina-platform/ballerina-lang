@@ -96,6 +96,8 @@ public class ForeachNegativeTests {
         // https://github.com/ballerina-platform/ballerina-lang/issues/33366
         BAssertUtil.validateError(compile, index++, "incompatible types: expected '(int|string)', found '" +
                 "(int|string|boolean)'", 308, 24);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'Bar', found 'int'", 326, 13);
+        BAssertUtil.validateError(compile, index++, "incompatible types: expected 'Bar2', found 'int'", 331, 13);
         Assert.assertEquals(compile.getErrorCount(), index);
     }
 

@@ -2316,6 +2316,10 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case ELLIPSIS_TOKEN:
+                if (inclusionSymbol != null) {
+                    type = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(type, inclusionSymbol,
+                            DiagnosticErrorCode.REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER);
+                }
                 switchContext(ParserRuleContext.REST_PARAM);
                 STNode ellipsis = parseEllipsis();
                 if (isParamNameOptional && peek().kind != SyntaxKind.IDENTIFIER_TOKEN) {
@@ -15450,8 +15454,8 @@ public class BallerinaParser extends AbstractParser {
                 // treat as type
                 // We haven't parsed the type-desc as a type-desc (parsed as an identifier/expr).
                 // Therefore handle the context manually here.
-                typeDesc = parseComplexTypeDescriptor(typeOrExpr, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
-                        false);
+                typeDesc = parseComplexTypeDescriptor(getTypeDescFromExpr(typeOrExpr), 
+                        ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, false);
                 return typeDesc;
             case SEMICOLON_TOKEN:
                 return getTypeDescFromExpr(typeOrExpr);
