@@ -266,10 +266,10 @@ public class TypeConverter {
 
         Type inputValueType;
         int targetTypeTag = targetType.getTag();
+        int initialErrorCount = errors.size();
 
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
-                int initialErrorCount = errors.size();
                 inputValueType = TypeChecker.getType(inputValue);
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     if ((inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType)) {
@@ -350,9 +350,16 @@ public class TypeConverter {
                     if (inputValue == valueSpaceItem) {
                         return Set.of(inputValueType);
                     }
-                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem)) {
+                    if (TypeChecker.isFiniteTypeValue(inputValue, inputValueType, valueSpaceItem, true)) {
                         convertibleTypes.add(TypeChecker.getType(valueSpaceItem));
                     }
+                }
+                if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
+                        !hasIntegerSubTypes(convertibleTypes)) {
+                    errors.subList(initialErrorCount, errors.size()).clear();
+                    addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
+                            + "' cannot be converted to '" + targetType + "': ambiguous target type");
+                    return new LinkedHashSet<>();
                 }
                 break;
             default:
