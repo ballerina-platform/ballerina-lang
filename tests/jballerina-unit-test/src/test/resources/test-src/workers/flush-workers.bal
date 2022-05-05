@@ -94,7 +94,7 @@ function flushAll() returns string {
         return append2;
 }
 
-function errorTest() {
+function errorTestChild() {
     var inner = function () returns error? {
         @strand{thread:"any"}
         worker w1 returns error?{
@@ -147,7 +147,16 @@ function errorTest() {
             error? res = wait w1;
             return res;
     };
-    validateError(inner(), "error3");
+
+    foreach int i in 0...10 {
+        validateError(inner(), "error3");
+    }
+}
+
+function errorTest() {
+    foreach int i in 0...10 {
+        errorTestChild();
+    }
 }
 
 function panicTest() returns error? {
