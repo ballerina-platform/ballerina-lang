@@ -83,7 +83,7 @@ public class ParamListComparator extends NodeListComparator<List<ParameterNode>>
 
         // Computes and populate diffs for removed parameters.
         paramDiffExtractor.getRemovals().forEach((paramName, paramNode) -> {
-            NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(paramNode, null);
+            NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(null, paramNode);
             paramDiffBuilder = paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
             switch (paramNode.kind()) {
                 case REQUIRED_PARAM:
