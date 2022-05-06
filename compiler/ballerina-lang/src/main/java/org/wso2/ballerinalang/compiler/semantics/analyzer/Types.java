@@ -4278,7 +4278,7 @@ public class Types {
         return matchFound;
     }
 
-    boolean validNumericStringOrXmlTypeExists(BType type, ValidateType validateType) {
+    boolean validationFunction(BType type, ValidateType validateType) {
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
@@ -4344,14 +4344,14 @@ public class Types {
         if (isBasicNumericType(type)) {
             return true;
         }
-        return validNumericStringOrXmlTypeExists(type, this::validNumericTypeExists);
+        return validationFunction(type, this::validNumericTypeExists);
     }
 
     boolean validStringOrXmlTypeExists(BType type) {
         if (TypeTags.isStringTypeTag(type.tag) || TypeTags.isXMLTypeTag(type.tag)) {
             return true;
         }
-        return validNumericStringOrXmlTypeExists(type, this::validStringOrXmlTypeExists);
+        return validationFunction(type, this::validStringOrXmlTypeExists);
     }
 
     boolean validIntegerTypeExists(BType bType) {
@@ -5999,7 +5999,7 @@ public class Types {
     }
 
     /**
-     * A functional interface for validate numeric, string or xml type exists.
+     * A functional interface to validate numeric, string or xml type existence.
      *
      * @since 2201.1.0
      */
