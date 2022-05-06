@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.extensions.ballerina.symbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Represents the documentation structure of getSymbol endpoint of BallerinaSymbolService.
@@ -31,15 +30,14 @@ public class SymbolDocumentation {
     private final List<ParameterInfo> deprecatedParams;
 
 
-    public SymbolDocumentation(Optional<Documentation> documentation, List<ParameterInfo> parameters,
+    public SymbolDocumentation(Documentation documentation, List<ParameterInfo> parameters,
                                List<ParameterInfo> deprecatedParams) {
-        this.description = documentation.get().description().isEmpty() ?
-                null : documentation.get().description().get();
+        this.description = documentation.description().isEmpty() ? null : documentation.description().get();
         this.parameters = parameters.isEmpty() ? null : parameters;
-        this.returnValueDescription = documentation.get().returnDescription().isEmpty() ?
-                null : documentation.get().returnDescription().get();
-        this.deprecatedDocumentation = documentation.get().deprecatedDescription().isEmpty() ?
-                null : documentation.get().deprecatedDescription().get();
+        this.returnValueDescription = documentation.returnDescription().isEmpty() ?
+                null : documentation.returnDescription().get();
+        this.deprecatedDocumentation = documentation.deprecatedDescription().isEmpty() ?
+                null : documentation.deprecatedDescription().get();
         this.deprecatedParams = deprecatedParams.isEmpty() ? null : deprecatedParams;
     }
 
