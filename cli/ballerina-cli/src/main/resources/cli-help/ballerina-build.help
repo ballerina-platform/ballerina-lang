@@ -21,7 +21,7 @@ DESCRIPTION
 
 OPTIONS
        --export-openapi
-           Generate openAPI definitions for service declarations in the current
+           Generate OpenAPI definitions for service declarations in the current
            package.
 
        --cloud <provider>
@@ -40,7 +40,8 @@ OPTIONS
 
        --offline
            Proceed without accessing the network. Attempt to proceed with the
-           previously downloaded dependencies in local caches, fail otherwise.
+           previously downloaded dependencies in local caches, will fail
+           otherwise.
 
        --sticky
        	   Attempt to stick to the dependency versions available in the
@@ -52,11 +53,11 @@ OPTIONS
 
 
 EXAMPLES
-       Build the current package. This will generate 'app.jar' in the
+       Build the current package. This will generate an 'app.jar' file in the
        'target/bin' directory.
            $ bal build
 
-       Build a single '.bal' file. This will generate 'app.jar' in the
+       Build a single '.bal' file. This will generate an 'app.jar' file in the
        current directory.
            $ bal build app.bal
 

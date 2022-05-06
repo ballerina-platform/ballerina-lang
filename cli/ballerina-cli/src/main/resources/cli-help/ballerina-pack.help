@@ -13,7 +13,8 @@ DESCRIPTION
 OPTIONS
        --offline
            Proceed without accessing the network. Attempt to proceed with the
-           previously downloaded dependencies in local caches, fail otherwise.
+           previously downloaded dependencies in local caches, will fail
+           otherwise.
 
        --sticky
        	   Attempt to stick to the dependency versions available in the

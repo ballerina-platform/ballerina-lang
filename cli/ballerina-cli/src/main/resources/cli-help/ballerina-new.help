@@ -10,9 +10,8 @@ DESCRIPTION
        that directory.
 
        A Ballerina package is a collection of logically-related Ballerina
-       modules that
-       are versioned and shared as a single unit. All modules of the package
-       share the same 'Ballerina.toml' file and the 'target' directory.
+       modules that are versioned and shared as a single unit. All modules of
+       the package share the same 'Ballerina.toml' file and 'target' directory.
 
        The package directory will have the structure below.
             .
