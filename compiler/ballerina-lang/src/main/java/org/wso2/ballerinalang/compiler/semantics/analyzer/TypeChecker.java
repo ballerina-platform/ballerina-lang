@@ -6783,13 +6783,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             requiredParams.add(nonRestParam);
         }
 
+        List<String> includedRecordParamNames = new ArrayList<>();
         for (BVarSymbol incRecordParam : incRecordParams) {
             if (Symbols.isFlagOn(Flags.asMask(incRecordParam.getFlags()), Flags.REQUIRED)) {
                 requiredIncRecordParams.add(incRecordParam);
             }
+            includedRecordParamNames.add(incRecordParam.name.value);
         }
 
-        List<BRecordType> incRecords = new ArrayList<>();
+        List<String> includedRecordFields = new ArrayList<>();
         List<BLangExpression> namedArgs = new ArrayList<>();
         int i = 0;
         for (; i < nonRestArgCount; i++) {
@@ -6818,7 +6820,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
-                    populateIncludedRecordParams(param, incRecords);
+                    populateIncludedRecordParams(param, includedRecordFields);
                     checkTypeParamExpr(arg, param.type, iExpr.langLibInvocation, data);
                     valueProvidedParams.add(param);
                     requiredParams.remove(param);
@@ -6838,7 +6840,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
-                populateIncludedRecordParams(varSym, incRecords);
+                populateIncludedRecordParams(varSym, includedRecordFields);
                 namedArgs.add(arg);
                 requiredParams.remove(varSym);
                 requiredIncRecordParams.remove(varSym);
@@ -6851,7 +6853,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 valueProvidedParams.add(varSym);
             }
         }
-        checkSameNamedArgsInIncRecords(namedArgs, incRecords);
+        checkSameNamedArgsInIncludedRecords(namedArgs, includedRecordFields, includedRecordParamNames);
         BVarSymbol restParam = invokableTypeSymbol.restParam;
 
         boolean errored = false;
@@ -7030,24 +7032,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private void populateIncludedRecordParams(BVarSymbol param, List<BRecordType> incRecords) {
+    private void populateIncludedRecordParams(BVarSymbol param, List<String> includedRecordFields) {
         if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
-            incRecords.add((BRecordType) Types.getReferredType(param.type));
+            Set<String> fields = ((BRecordType) Types.getReferredType(param.type)).fields.keySet();
+            includedRecordFields.addAll(fields);
         }
     }
 
     // If there is a named-arg or positional-arg corresponding to an included-record-param,
     // it is an error for a named-arg to specify a field of that included-record-param.
-    private void checkSameNamedArgsInIncRecords(List<BLangExpression> namedArgs, List<BRecordType> incRecords) {
+    private void checkSameNamedArgsInIncludedRecords(List<BLangExpression> namedArgs, List<String> incRecordFields,
+                                                     List<String> includedRecordParamNames) {
+        incRecordFields.removeIf(field -> !includedRecordParamNames.contains(field));
         for (BLangExpression namedArg : namedArgs) {
             String argName = ((NamedArgNode) namedArg).getName().value;
-            for (BRecordType record : incRecords) {
-                if (record.fields.containsKey(argName)) {
-                    dlog.error(namedArg.pos,
-                            DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_INCLUDED_IN_INCLUDED_RECORD_PARAM, argName,
-                            record.tsymbol.name);
-                    break;
-                }
+            if (incRecordFields.contains(argName)) {
+                dlog.error(namedArg.pos,
+                        DiagnosticErrorCode.DUPLICATE_ARG_VIA_NAMED_ARG_AND_ARG_FOR_INCLUDED_RECORD_PARAM, argName);
             }
         }
     }
