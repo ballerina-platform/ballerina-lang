@@ -567,7 +567,7 @@ public class ImmutableTypeCloner {
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
                         getImmutableTypeName(names,  getSymbolFQN(origRecordType.tsymbol)),
-                        pkgID, null, env.scope.owner, pos, SOURCE);
+                        pkgID, null, env.scope.owner, pos, origRecordType.tsymbol.origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(
