@@ -205,7 +205,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     });
                 }
 
-                SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation, symbolParams, deprecatedParams);
+                SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation.get(), symbolParams,
+                        deprecatedParams);
 
                 symbolInfoResponse.setSymbolDocumentation(symbolDoc);
                 symbolInfoResponse.setSymbolKind(symbolAtCursor.get().kind());
