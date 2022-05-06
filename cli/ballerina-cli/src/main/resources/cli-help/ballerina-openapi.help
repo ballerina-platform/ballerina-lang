@@ -1,6 +1,6 @@
 NAME
-      Generate a Ballerina service or a client from an OpenAPI contract and vice
-      versa.
+       ballerina-openapi - Generate a Ballerina service or a client from an
+       OpenAPI contract and vice versa.
 
 
 SYNOPSIS

@@ -1,5 +1,6 @@
 NAME
-      Generate a Ballerina listener from an AsyncAPI contract.
+       ballerina-ayncapi - Generate a Ballerina listener from an AsyncAPI
+       contract.
 
 SYNOPSIS
        bal asyncapi [-i | --input] <asyncapi-contract-file-path> [-o | --output]
