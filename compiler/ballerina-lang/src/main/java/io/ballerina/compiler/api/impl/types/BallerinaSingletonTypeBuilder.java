@@ -18,9 +18,7 @@
 
 package io.ballerina.compiler.api.impl.types;
 
-import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -30,12 +28,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
 
-    private final TypesFactory typesFactory;
-    private final SymbolTable symTable;
-
     public BallerinaSingletonTypeBuilder(CompilerContext context) {
-        typesFactory = TypesFactory.getInstance(context);
-        symTable = SymbolTable.getInstance(context);
     }
 
     @Override
