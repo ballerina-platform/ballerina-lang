@@ -96,7 +96,7 @@ public class PackageResolutionLocalTests extends BaseTest {
         // Check if its actually cached to central properly
         Path centralCache = USER_HOME.resolve(ProjectConstants.REPOSITORIES_DIR)
                 .resolve(CENTRAL_REPOSITORY_CACHE_NAME).resolve(ProjectConstants.BALA_DIR_NAME).resolve(ORG).resolve(
-                        "package_a").resolve("0.0.1").resolve("java11").resolve("dependency-graph.json");
+                        "package_a").resolve("0.0.2").resolve("java11").resolve("dependency-graph.json");
         Assert.assertTrue(centralCache.toFile().exists());
 
         // Push package_a:0.0.1 to local
@@ -121,8 +121,8 @@ public class PackageResolutionLocalTests extends BaseTest {
         // Build project_0002:1.0.0
         buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
-        // expectedDiagnostics(buildProject, 1, "undefined function 'func1'");
-        failIfDiagnosticsExists(buildProject);
+        expectedDiagnostics(buildProject, 1, "undefined function 'funcA1'");
+        //failIfDiagnosticsExists(buildProject);
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
@@ -137,14 +137,14 @@ public class PackageResolutionLocalTests extends BaseTest {
 
         /*
             Updated version of package_a to 0.1.1, rebuilt and pushed to local
-            Built project_0003 with existing Dependencies.toml ---> resolved package_a:0.0.1 from central
+            Built project_0003 with existing Dependencies.toml ---> resolved package_a:0.0.2 from central
             Changed Ballerina.toml of project_0003 to 0.1.1 and build again ---> resolved package_a:0.1.1 from local
          */
 
         Path projectDirPath = PROJECTS_DIRECTORY.resolve("project_0003");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
-        // project_003 --> package_a:0.0.1
+        // project_003 --> package_a:0.0.2
         // Push package_a:0.1.1 to local
         cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_a_0_1_1"));
 

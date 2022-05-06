@@ -1,4 +1,4 @@
 [package]
 org = "local_res"
 name = "package_a"
-version = "0.0.1"
+version = "0.0.2"
