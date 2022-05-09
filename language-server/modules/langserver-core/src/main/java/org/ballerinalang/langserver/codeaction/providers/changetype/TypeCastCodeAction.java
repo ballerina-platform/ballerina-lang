@@ -25,7 +25,6 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -120,7 +119,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             expectedTypeSymbol = optionalExpectedTypeSymbol.get();
         }
 
-        //Numeric types can be casted between each other.
+        //Numeric types can be cast between each other.
         if (!expectedTypeSymbol.subtypeOf(actualTypeSymbol) && (!isNumeric(expectedTypeSymbol)
                 || !isNumeric(actualTypeSymbol))) {
             return Collections.emptyList();
@@ -162,7 +161,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      * @param expectedTypeName Expected type name as a string
      * @return Text edits to perform the cast
      */
-    private List<TextEdit> getTextEdits(NonTerminalNode expressionNode, String expectedTypeName) {
+    protected List<TextEdit> getTextEdits(Node expressionNode, String expectedTypeName) {
 
         Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
         Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
