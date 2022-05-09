@@ -60,7 +60,6 @@ public class WorkerFlushTest {
     @Test
     public void errorBeforeFlush() {
         BRunUtil.invoke(result, "errorTest");
-        BRunUtil.invoke(result, "errorTestChild");
     }
 
     @Test
@@ -74,7 +73,7 @@ public class WorkerFlushTest {
         Assert.assertNotNull(expectedException);
         String result =
                 "error: error3 {\"message\":\"msg3\"}\n" +
-                        "\tat flush-workers:$lambda$_13(flush-workers.bal:202)";
+                        "\tat flush-workers:$lambda$_13(flush-workers.bal:196)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
