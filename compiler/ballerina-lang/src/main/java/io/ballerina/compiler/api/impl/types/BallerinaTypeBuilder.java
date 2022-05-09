@@ -18,7 +18,6 @@
 
 package io.ballerina.compiler.api.impl.types;
 
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
@@ -37,5 +36,6 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
         ARRAY_TYPE = new BallerinaArrayTypeBuilder(context);
         ERROR_TYPE = new BallerinaErrorTypeBuilder(context);
+        SINGLETON_TYPE = new BallerinaSingletonTypeBuilder(context);
     }
 }
