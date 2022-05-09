@@ -20,13 +20,9 @@ package org.ballerinalang.langserver.commons.eventsync.exceptions;
 /**
  * Exception for Language Server Event Subscribers.
  *
- * @since 2201.2.0
+ * @since 2201.1.1
  */
 public class EventSyncException extends Exception {
-    public EventSyncException() {
-        super();
-    }
-
     public EventSyncException(String message) {
         super(message);
     }

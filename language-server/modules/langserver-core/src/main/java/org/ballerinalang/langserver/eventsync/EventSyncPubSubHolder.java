@@ -31,7 +31,7 @@ import java.util.ServiceLoader;
 /**
  * Subscribes and provide the Event Subscribers.
  *
- * @since 2201.2.0
+ * @since 2201.1.1
  */
 public class EventSyncPubSubHolder {
     private static final LanguageServerContext.Key<EventSyncPubSubHolder> SUBSCRIBERS_HOLDER_KEY =

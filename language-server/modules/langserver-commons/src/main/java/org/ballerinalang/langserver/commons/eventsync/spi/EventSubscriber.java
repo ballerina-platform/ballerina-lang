@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Represents the language server event subscriber.
  *
- * @since 2201.2.0
+ * @since 2201.1.1
  */
 public interface EventSubscriber {
 
@@ -37,9 +37,19 @@ public interface EventSubscriber {
      * @return {@link List<PublisherKind>} List of PublisherKinds.
      */
     List<PublisherKind> publisherKinds();
-    
+
+    /**
+     * Execute for the subscriber when the subscribed publisher publishes.
+     * 
+     * @param client                  Extended Language Client
+     * @param context                 Document Service Context
+     * @param languageServerContext   Language Server Context
+     */
     void onEvent(ExtendedLanguageClient client, DocumentServiceContext context, 
                  LanguageServerContext languageServerContext);
-    
+
+    /**
+     * @return name of the Subscriber.
+     */
     String getName();
 }

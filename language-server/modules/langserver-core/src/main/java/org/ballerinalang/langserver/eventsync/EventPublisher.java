@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Represents the language server event publisher.
  *
- * @since 2201.2.0
+ * @since 2201.1.1
  */
 public interface EventPublisher {
     
@@ -39,7 +39,11 @@ public interface EventPublisher {
      */
     List<EventSubscriber> getSubscribers();
 
+    /**
+     * @return kind of the publisher.
+     */
     PublisherKind getKind();
+    
     /**
      * @return name of the Event Publisher.
      */

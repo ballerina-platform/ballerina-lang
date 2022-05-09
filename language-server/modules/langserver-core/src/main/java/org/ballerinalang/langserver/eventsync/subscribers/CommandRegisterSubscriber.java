@@ -35,7 +35,7 @@ import static org.ballerinalang.langserver.util.LSClientUtil.isDynamicCommandReg
 /**
  * Publishes command registering.
  *
- * @since 2201.2.0
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber")
 public class CommandRegisterSubscriber implements EventSubscriber {

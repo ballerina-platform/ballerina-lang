@@ -20,16 +20,17 @@ package org.ballerinalang.langserver.eventsync;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Represents the language server abstract event publisher.
  *
- * @since 2201.2.0
+ * @since 2201.1.1
  */
 public abstract class AbstractEventPublisher implements EventPublisher {
 
-    protected List<EventSubscriber> subscribers = new ArrayList();
+    protected final List<EventSubscriber> subscribers = Collections.synchronizedList(new ArrayList<>());
 
     @Override
     public List<EventSubscriber> getSubscribers() {
@@ -43,6 +44,6 @@ public abstract class AbstractEventPublisher implements EventPublisher {
 
     @Override
     public void unsubscribe(EventSubscriber subscriber) {
-
+        subscribers.remove(subscriber);
     }
 }

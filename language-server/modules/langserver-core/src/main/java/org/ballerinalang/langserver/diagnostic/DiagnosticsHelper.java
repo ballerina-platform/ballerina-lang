@@ -114,7 +114,6 @@ public class DiagnosticsHelper {
      * @param client  Language server client
      * @param context LS context
      */
-    @Deprecated(forRemoval = true)
     public synchronized void compileAndSendDiagnostics(ExtendedLanguageClient client, DocumentServiceContext context) {
         // Compile diagnostics
         Optional<Project> project = context.workspace().project(context.filePath());

@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Publishes diagnostics.
  *
- * @since 2201.2.0
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber")
 public class PublishDiagnosticSubscriber implements EventSubscriber {
@@ -46,7 +46,7 @@ public class PublishDiagnosticSubscriber implements EventSubscriber {
     public void onEvent(ExtendedLanguageClient client, DocumentServiceContext context,
                         LanguageServerContext languageServerContext) {
         DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(languageServerContext);
-        diagnosticsHelper.schedulePublishDiagnostics(client, context);
+        diagnosticsHelper.compileAndSendDiagnostics(client, context);
     }
 
     @Override
