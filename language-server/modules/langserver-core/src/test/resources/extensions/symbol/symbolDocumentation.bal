@@ -1,4 +1,4 @@
-import ballerina/log;
+import ballerina/module1;
 
 # Adds two integers.
 
@@ -14,5 +14,5 @@ public function add(int x, int y)
 
 public function main() returns error? {
     int result = add(2,3);
-    log:printInfo(result.toString());
+    module1:function3(1,2);
 }

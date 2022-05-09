@@ -54,6 +54,7 @@ public class SymbolDocumentationTest {
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
 
+        Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(), "Adds two integers.");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the sum of `x` and `y`");
@@ -66,25 +67,28 @@ public class SymbolDocumentationTest {
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 
-    @Test(description = "documentation response generated for ballerina standardLib function")
+    @Test(description = "documentation response generated for module function")
     public void testStandardLibSymbolDocumentation() throws IOException {
         Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
         TestUtil.openDocument(serviceEndpoint, inputFile);
 
         Position functionPos = new Position();
         functionPos.setLine(16);
-        functionPos.setCharacter(16);
+        functionPos.setCharacter(20);
         SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
                 inputFile.toString(), functionPos, this.serviceEndpoint);
 
+        Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
-                "Prints info logs.\n```ballerina\nlog:printInfo(\"info message\", id = 845315)\n```\n");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).name, "msg");
+                "This is function3 with input parameters\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).name, "param1");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).description,
-                "The message to be logged");
+                "param1 Parameter Description ");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).kind, "REQUIRED");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).type, "string");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(), null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).type, "int");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(), "Return Value Description");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedParams(), null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedDocumentation(), null);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
 
