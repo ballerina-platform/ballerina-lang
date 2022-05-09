@@ -3,14 +3,16 @@
     "source": "int x = 10;",
     "result": {
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["x"],"moduleDclns":[]}
     }
   },
   {
     "source": "function multiply(int m, int n) returns int { return m * n;}",
     "result": {
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["multiply"]}
     }
   },
   {
@@ -22,7 +24,8 @@
         "type":"int"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   }
 ]

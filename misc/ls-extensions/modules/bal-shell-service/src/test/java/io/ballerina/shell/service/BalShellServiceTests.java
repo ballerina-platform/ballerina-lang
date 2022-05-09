@@ -88,7 +88,7 @@ public class BalShellServiceTests {
         GetVariableTestCase[] testCases = TestUtils.loadVariableTestCases(file);
         serviceEndpoint.request(NOTEBOOK_RESTART, null); // restart the notebook
         for (GetVariableTestCase testCase: testCases) {
-            BalShellRequest request = new BalShellRequest(testCase.getSource());
+            BalShellGetResultRequest request = new BalShellGetResultRequest(testCase.getSource());
             CompletableFuture<?> snippetExecute = serviceEndpoint.request(GET_RESULT, request); // execute the snippets
             snippetExecute.thenRun(() -> {
                 CompletableFuture<?> result = serviceEndpoint.request(GET_VARIABLES, null);
@@ -116,9 +116,9 @@ public class BalShellServiceTests {
         Path file = RES_DIR.resolve("testcases").resolve(filename);
         GetResultTestCase[] testCases = TestUtils.loadResultTestCases(file);
         for (GetResultTestCase testCase: testCases) {
-            BalShellRequest request = new BalShellRequest(testCase.getSource());
+            BalShellGetResultRequest request = new BalShellGetResultRequest(testCase.getSource());
             CompletableFuture<?> result = serviceEndpoint.request(GET_RESULT, request);
-            BalShellResponse generatedResult  = (BalShellResponse) result.get();
+            BalShellGetResultResponse generatedResult  = (BalShellGetResultResponse) result.get();
             TestUtils.assertJsonValues(generatedResult, testCase.getResult());
         }
     }

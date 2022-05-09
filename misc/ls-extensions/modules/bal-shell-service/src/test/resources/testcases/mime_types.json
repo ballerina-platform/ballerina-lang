@@ -8,21 +8,24 @@
         "type":"int"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   },
   {
     "source": "type name record {\n   string firstname;\n   string lastname;\n};\ntype Employee record { \n    readonly string username; \n    int salary;\n    name fullname;\n};\n",
     "result": {
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee", "name"]}
     }
   },
   {
     "source": "Employee e = { username: \"John\", salary: 100, fullname: {\n    firstname: \"John\",\n    lastname: \"Doe\"\n} }",
     "result": {
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["e"],"moduleDclns":[]}
     }
   },
   {
@@ -34,14 +37,16 @@
         "type":"Employee"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   },
   {
     "source": "json j = e.toJson()",
     "result": {
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j"],"moduleDclns":[]}
     }
   },
   {
@@ -53,14 +58,16 @@
         "type":"map<json>"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   },
   {
     "source": "table<Employee> key(username) t = table [ \n    { username: \"John\", salary: 100, fullname: {\n        firstname: \"John\",\n        lastname: \"Doe\"\n    } }, \n    { username: \"Adam\", salary: 300, fullname: {\n        firstname: \"Adam\",\n        lastname: \"Smith\"\n    } },  \n    { username: \"Jake\", salary: 100, fullname: {\n        firstname: \"jake\",\n        lastname: \"Peralta\"\n    } }\n]",
     "result": {
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["t"],"moduleDclns":[]}
     }
   },
   {
@@ -72,14 +79,16 @@
         "type":"table<Employee> key(username)"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   },
   {
     "source": "xml x1 = xml `<book>The Lost World</book>`;",
     "result": {
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["x1"],"moduleDclns":[]}
     }
   },
   {
@@ -91,7 +100,8 @@
         "type":"lang.xml:Element"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   }
 ]
