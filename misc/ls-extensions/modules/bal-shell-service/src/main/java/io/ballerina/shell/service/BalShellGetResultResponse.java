@@ -32,15 +32,17 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class BalShellResponse {
+public class BalShellGetResultResponse {
     private ShellValue shellValue;
     private ArrayList<String> errors;
     private ArrayList<String> diagnostics;
+    private MetaInfo metaInfo;
 
-    public BalShellResponse() {
+    public BalShellGetResultResponse() {
         this.shellValue = null;
         this.errors = new ArrayList<>();
         this.diagnostics = new ArrayList<>();
+        this.metaInfo = null;
     }
 
     /**
@@ -93,7 +95,15 @@ public class BalShellResponse {
         this.errors.add(message);
     }
 
+    public void setMetaInfo(List<String> definedVars, List<String> moduleDclns) {
+        this.metaInfo = new MetaInfo(definedVars, moduleDclns);
+    }
+
     public ShellValue getShellValue() {
         return shellValue;
+    }
+
+    public MetaInfo getMetaInfo() {
+        return metaInfo;
     }
 }

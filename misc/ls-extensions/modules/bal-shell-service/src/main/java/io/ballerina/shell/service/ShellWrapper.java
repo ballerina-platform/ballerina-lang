@@ -36,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Wrapper for Ballerina Shell.
@@ -46,6 +49,8 @@ public class ShellWrapper {
     private BShellConfiguration configuration;
     private Evaluator evaluator;
     private File tempFile;
+
+    private MetaInfoHandler metaInfoHandler;
     private static final String TEMP_FILE_PREFIX = "temp-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
 
@@ -55,6 +60,7 @@ public class ShellWrapper {
 
     private ShellWrapper() {
         this.configuration = new BShellConfiguration.Builder().build();
+        this.metaInfoHandler = new MetaInfoHandler();
         this.initializeEvaluator();
     }
 
@@ -68,15 +74,15 @@ public class ShellWrapper {
      * @param source evaluated value
      * @return  result after the execution
      */
-    public BalShellResponse getResult(String source) {
-        BalShellResponse output = new BalShellResponse();
+    public BalShellGetResultResponse getResult(String source) {
+        BalShellGetResultResponse output = new BalShellGetResultResponse();
         PrintStream original = System.out;
         ConsoleOutCollector consoleOutCollector = new ConsoleOutCollector();
         System.setOut(new PrintStream(consoleOutCollector, false, Charset.defaultCharset()));
         try {
             ShellCompilation shellCompilation = evaluator.getCompilation(source);
-            Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
             if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
+                Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
                 Object out = evaluator.getValueAsObject(compilation).get();
                 List<String> consoleOut = consoleOutCollector.getLines();
                 output.setValue(out, consoleOut);
@@ -89,6 +95,10 @@ public class ShellWrapper {
             }
         } finally {
             output.addOutputDiagnostics(evaluator.diagnostics(), configuration.isDebug());
+            output.setMetaInfo(
+                    this.metaInfoHandler.getNewDefinedVars(evaluator.availableVariablesAsObjects()),
+                    this.metaInfoHandler.getNewModuleDclns(evaluator.availableModuleDeclarations())
+            );
             evaluator.resetDiagnostics();
             System.setOut(original);
         }
@@ -128,13 +138,30 @@ public class ShellWrapper {
     }
 
     /**
+     * Deletes defined values from the shell state.
+     *
+     * returns true when successfully completed else false
+     */
+    public boolean deleteDeclarations(List<String> varsToDelete, List<String> moduleDclnsToDelete) {
+        try {
+            evaluator.delete(Stream.concat(varsToDelete.stream(), moduleDclnsToDelete.stream()).collect(toList()));
+        } catch (BallerinaShellException e) {
+            return false;
+        }
+        metaInfoHandler.removeFromDefinedVars(varsToDelete);
+        metaInfoHandler.removeFromModuleDclns(moduleDclnsToDelete);
+        return true;
+    }
+
+    /**
      * Reset evaluator so that the execution can be start over.
      *
      * returns true when completed
      */
     public boolean restart() {
-        evaluator.reset();
+        this.evaluator.reset();
         this.initializeEvaluator();
+        this.metaInfoHandler.reset();
         return true;
     }
 
