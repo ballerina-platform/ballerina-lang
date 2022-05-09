@@ -86,7 +86,8 @@ public class SymbolDocumentationTest {
                 "param1 Parameter Description ");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).kind, "REQUIRED");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).type, "int");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(), "Return Value Description");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
+                "Return Value Description");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedParams(), null);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedDocumentation(), null);
 
