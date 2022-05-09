@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.extensions.symbol;
 
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.SymbolInfoResponse;
 import org.ballerinalang.langserver.util.FileUtils;
@@ -58,11 +59,13 @@ public class SymbolDocumentationTest {
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(), "Adds two integers.");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "the sum of `x` and `y`");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).name, "x");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).description, "an integer");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(1).name, "y");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(1).description,
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "x");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getDescription(),
+                "an integer");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(1).getName(), "y");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(1).getDescription(),
                 "another integer");
+        Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.FUNCTION);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
@@ -81,11 +84,11 @@ public class SymbolDocumentationTest {
         Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
                 "This is function3 with input parameters\n");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).name, "param1");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).description,
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "param1");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getDescription(),
                 "param1 Parameter Description ");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).kind, "REQUIRED");
-        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).type, "int");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getKind(), "REQUIRED");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getType(), "int");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getReturnValueDescription(),
                 "Return Value Description");
         Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedParams(), null);
@@ -93,5 +96,21 @@ public class SymbolDocumentationTest {
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
 
+    }
+
+    @Test(description = "empty documentation response")
+    public void testEmptyDocumentationResponse() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(17);
+        functionPos.setCharacter(20);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(), null);
+        Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.FUNCTION);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 }

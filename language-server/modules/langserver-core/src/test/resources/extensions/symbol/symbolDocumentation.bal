@@ -15,4 +15,5 @@ public function add(int x, int y)
 public function main() returns error? {
     int result = add(2,3);
     module1:function3(1,2);
+    module1:function1();
 }
