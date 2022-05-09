@@ -22,10 +22,10 @@ package io.ballerina.shell.service;
  *
  * @since 2.0.0
  */
-public class BalShellRequest {
+public class BalShellGetResultRequest {
     private final String source;
 
-    public BalShellRequest(String source) {
+    public BalShellGetResultRequest(String source) {
         this.source = source;
     }
 

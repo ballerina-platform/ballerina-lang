@@ -27,6 +27,8 @@ public class BalShellServiceClientCapabilities extends BallerinaClientCapability
     private boolean getResult;
     private boolean getShellFileSource;
     private boolean getVariableValues;
+
+    private boolean deleteDefined;
     private boolean restartNotebook;
 
     public boolean isGetResult() {
@@ -51,6 +53,14 @@ public class BalShellServiceClientCapabilities extends BallerinaClientCapability
 
     public boolean isGetVariableValues() {
         return getVariableValues;
+    }
+
+    public void setDeleteDefined(boolean deleteDefined) {
+        this.deleteDefined = deleteDefined;
+    }
+
+    public boolean isDeleteDefined() {
+        return deleteDefined;
     }
 
     public void setRestartNotebook(boolean restartNotebook) {

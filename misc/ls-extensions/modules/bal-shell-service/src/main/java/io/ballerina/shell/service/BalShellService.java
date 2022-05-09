@@ -38,7 +38,7 @@ public class BalShellService implements ExtendedLanguageServerService {
     }
 
     @JsonRequest
-    public CompletableFuture<BalShellResponse> getResult(BalShellRequest request) {
+    public CompletableFuture<BalShellGetResultResponse> getResult(BalShellGetResultRequest request) {
         return CompletableFuture.supplyAsync(() -> ShellWrapper.getInstance().getResult(request.getSource()));
     }
 
@@ -50,6 +50,12 @@ public class BalShellService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<List<Map<String, String>>> getVariableValues() {
         return CompletableFuture.supplyAsync(() -> ShellWrapper.getInstance().getAvailableVariables());
+    }
+
+    @JsonRequest
+    public CompletableFuture<Boolean> deleteDeclarations(MetaInfo metaInfo) {
+        return CompletableFuture.supplyAsync(() ->
+                ShellWrapper.getInstance().deleteDeclarations(metaInfo.getDefinedVars(), metaInfo.getModuleDclns()));
     }
 
     @JsonRequest
