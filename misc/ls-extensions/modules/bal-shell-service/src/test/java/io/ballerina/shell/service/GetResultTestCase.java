@@ -24,13 +24,13 @@ package io.ballerina.shell.service;
  */
 public class GetResultTestCase {
     private String source;
-    private BalShellResponse result;
+    private BalShellGetResultResponse result;
 
     public String getSource() {
         return source;
     }
 
-    public BalShellResponse getResult() {
+    public BalShellGetResultResponse getResult() {
         return result;
     }
 }

@@ -8,7 +8,8 @@
         "type":"int"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   },
   {
@@ -20,7 +21,8 @@
         "type":"int"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   },
   {
@@ -32,7 +34,8 @@
         "type":"int"
       },
       "errors":[],
-      "diagnostics":[]
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
   }
 ]
