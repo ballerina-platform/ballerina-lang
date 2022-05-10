@@ -19,9 +19,15 @@ package io.ballerina.parsers;
 
 import com.google.gson.JsonElement;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.StatementNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.formatter.core.Formatter;
@@ -53,7 +59,7 @@ public class PartialParserService implements ExtendedLanguageServerService {
 
             String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
                     request.getStModification());
-            String formattedSourceCode = getFormattedSource(statement);
+            String formattedSourceCode = getFunctionBodiedFormattedSource(statement);
 
             StatementNode statementNode = NodeParser.parseStatement(formattedSourceCode);
 
@@ -81,7 +87,7 @@ public class PartialParserService implements ExtendedLanguageServerService {
 
             String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
                     request.getStModification());
-            String formattedSourceCode = getFormattedSource(statement);
+            String formattedSourceCode = getModuleMemberFormattedSource(statement);
 
             ModuleMemberDeclarationNode expressionNode = NodeParser.parseModuleMemberDeclaration(formattedSourceCode);
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
@@ -96,12 +102,12 @@ public class PartialParserService implements ExtendedLanguageServerService {
         return Constants.CAPABILITY_NAME;
     }
 
-    private String getFormattedSource(String statement) {
+    private String getModuleMemberFormattedSource(String statement) {
 
         String formattedSourceCode = statement;
 
         try {
-            formattedSourceCode = Formatter.format(statement);
+            formattedSourceCode = Formatter.format(statement).trim();
         } catch (FormatterException e) {
             // TODO: Print a warn log in the language client.
             //  The methods are currently unavailable
@@ -109,5 +115,29 @@ public class PartialParserService implements ExtendedLanguageServerService {
         }
 
         return formattedSourceCode;
+    }
+
+    private String getFunctionBodiedFormattedSource(String statement) {
+
+        SyntaxTree syntaxTree = getSTForSourceWithinMain(statement);
+        String formattedSourceCode = statement;
+
+        try {
+            SyntaxTree formattedTree = Formatter.format(syntaxTree);
+            ModulePartNode modulePartNode = formattedTree.rootNode();
+            FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
+            FunctionBodyBlockNode functionBodyBlockNode = (FunctionBodyBlockNode) functionDefinitionNode.functionBody();
+            formattedSourceCode = functionBodyBlockNode.statements().get(0).toSourceCode().trim();
+        } catch (FormatterException | NullPointerException e) {
+            // TODO: Print a warn log in the language client.
+        }
+
+        return formattedSourceCode;
+    }
+
+    private SyntaxTree getSTForSourceWithinMain(String statement) {
+        String source = String.format("public function main() { %s };", statement);
+        TextDocument textDocument = TextDocuments.from(source);
+        return SyntaxTree.from(textDocument);
     }
 }
