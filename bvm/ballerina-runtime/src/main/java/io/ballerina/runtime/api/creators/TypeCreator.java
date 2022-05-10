@@ -363,6 +363,22 @@ public class TypeCreator {
     }
 
     /**
+     * Create a {@code BUnionType} which represents the union type.
+     *
+     * @param memberTypes list of member types in the union type
+     * @param name      type name
+     * @param pkg       module
+     * @param typeFlags flags associated with the type
+     * @param isCyclic  whether cyclic
+     * @param flags     symbol flags
+     * @return the new union type
+     */
+    public static UnionType createUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags,
+                                            boolean isCyclic, long flags) {
+        return new BUnionType(memberTypes, name, pkg, typeFlags, isCyclic, flags);
+    }
+
+    /**
      * Create a {@code ErrorType} which represents the error type.
      *
      * @param typeName type name

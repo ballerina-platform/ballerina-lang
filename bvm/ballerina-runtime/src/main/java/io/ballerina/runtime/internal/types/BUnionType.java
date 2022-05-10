@@ -115,13 +115,17 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes), typeFlags, isCyclic, flags);
     }
 
-    public BUnionType(String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
+    public BUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
         super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
-        this.memberTypes = new ArrayList<>(0);
+        this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
         this.flags = flags;
+    }
+
+    public BUnionType(String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
+        this(new ArrayList<>(0), name, pkg, typeFlags, isCyclic, flags);
     }
 
     protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {

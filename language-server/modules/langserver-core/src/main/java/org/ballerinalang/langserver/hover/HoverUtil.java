@@ -38,7 +38,6 @@ import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -171,30 +170,4 @@ public class HoverUtil {
         }
         return HoverUtil.getHoverObject(description);
     }
-
-    protected static String getHorizontalSeparator() {
-        return CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR + "---"
-                + CommonUtil.MD_LINE_SEPARATOR + CommonUtil.MD_LINE_SEPARATOR;
-    }
-
-    protected static String quotedString(String value) {
-        return "`" + value.trim() + "`";
-    }
-
-    protected static String boldString(String value) {
-        return "**" + value.trim() + "**";
-    }
-
-    protected static String italicString(String value) {
-        return "*" + value.trim() + "*";
-    }
-
-    protected static String bulletItem(String value) {
-        return "+ " + value.trim() + CommonUtil.MD_LINE_SEPARATOR;
-    }
-
-    protected static String header(int level, String header) {
-        return String.join("", Collections.nCopies(level, "#")) + " " + header;
-    }
-
 }
