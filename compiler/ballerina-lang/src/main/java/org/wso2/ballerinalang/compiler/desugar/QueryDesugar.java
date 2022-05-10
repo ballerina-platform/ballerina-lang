@@ -1706,6 +1706,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        this.acceptNode(spreadOpExpr.expr);
+    }
+
+    @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
     }
 
