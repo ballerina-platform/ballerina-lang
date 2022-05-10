@@ -1947,7 +1947,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 compatibleType2 = types.findCompatibleType(rhsType);
             }
 
-            if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2) {
+            if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2 && 
+                    !isIntFloatingPointMultiplication(opKind, compatibleType1, compatibleType2)) {
                 return symTable.notFoundSymbol;
             }
             if (compatibleType1.tag < compatibleType2.tag) {
@@ -1964,6 +1965,24 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
         }
         return symTable.notFoundSymbol;
+    }
+    
+    private boolean isIntFloatingPointMultiplication(OperatorKind opKind, BType lhsCompatibleType, 
+                                                     BType rhsCompatibleType) {
+        switch (opKind) {
+            case MUL:
+                return lhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(rhsCompatibleType) ||
+                        rhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(lhsCompatibleType);
+            case DIV:
+            case MOD:
+                return isFloatingPointType(lhsCompatibleType) && rhsCompatibleType.tag == TypeTags.INT;
+            default:
+                return false;
+        }
+    }
+    
+    private boolean isFloatingPointType(BType type) {
+        return type.tag == TypeTags.DECIMAL || type.tag == TypeTags.FLOAT;
     }
 
     public BSymbol getUnaryOpsForTypeSets(OperatorKind opKind, BType type) {
