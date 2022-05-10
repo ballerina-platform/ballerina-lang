@@ -26,8 +26,8 @@ import java.util.List;
  */
 
 public class MetaInfo {
-    private List<String> definedVars;
-    private List<String> moduleDclns;
+    private final List<String> definedVars;
+    private final List<String> moduleDclns;
 
     public MetaInfo(List<String> definedVars, List<String> moduleDclns) {
         this.definedVars = definedVars;
@@ -38,15 +38,7 @@ public class MetaInfo {
         return definedVars;
     }
 
-    public void setDefinedVars(List<String> definedVars) {
-        this.definedVars = definedVars;
-    }
-
     public List<String> getModuleDclns() {
         return moduleDclns;
-    }
-
-    public void setModuleDclns(List<String> moduleDclns) {
-        this.moduleDclns = moduleDclns;
     }
 }

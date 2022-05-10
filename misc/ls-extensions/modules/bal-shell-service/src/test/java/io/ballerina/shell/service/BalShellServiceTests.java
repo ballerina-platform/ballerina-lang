@@ -40,6 +40,7 @@ public class BalShellServiceTests {
     private static final String GET_RESULT = "balShell/getResult";
     private static final String NOTEBOOK_RESTART = "balShell/restartNotebook";
     private static final String GET_VARIABLES = "balShell/getVariableValues";
+    private static final String DELETE_DCLNS = "balShell/deleteDeclarations";
     private static final String GET_SHELL_FILE_SOURCE = "balShell/getShellFileSource";
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
@@ -110,6 +111,28 @@ public class BalShellServiceTests {
         CompletableFuture<?> result = serviceEndpoint.request(NOTEBOOK_RESTART, null);
         boolean generatedResult  = (boolean) result.get();
         Assert.assertTrue(generatedResult);
+    }
+
+    @Test(description = "Test for definition delete")
+    public void testDelete() throws ExecutionException, InterruptedException, IOException {
+        // check for variable declarations
+        runDeleteDclnsTest("basic_variables.json");
+        // check for module declarations
+        runDeleteDclnsTest("functions.json");
+    }
+
+    private void runDeleteDclnsTest(String filename) throws IOException, InterruptedException, ExecutionException {
+        Path file = RES_DIR.resolve("testcases").resolve(filename);
+        GetResultTestCase[] testCases = TestUtils.loadResultTestCases(file);
+        for (GetResultTestCase testCase: testCases) {
+            BalShellGetResultRequest request = new BalShellGetResultRequest(testCase.getSource());
+            CompletableFuture<BalShellGetResultResponse> balShellResponse =
+                    (CompletableFuture<BalShellGetResultResponse>) serviceEndpoint.request(GET_RESULT, request);
+            MetaInfo metainfo = balShellResponse.get().getMetaInfo();
+            CompletableFuture<?> result = serviceEndpoint.request(DELETE_DCLNS, metainfo);
+            boolean generatedResult = (boolean) result.get();
+            Assert.assertTrue(generatedResult);
+        }
     }
 
     private void runGetResultTest(String filename) throws ExecutionException, IOException, InterruptedException {

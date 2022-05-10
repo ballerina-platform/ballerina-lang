@@ -161,7 +161,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /**
      * Returns available variables in the module.
      *
-     * @return Available variables as a list of mapped strings
+     * @return Available variables as a list of AvailableVariable objects
      * with name, type and value.
      */
     public abstract List<AvailableVariable> availableVariablesAsObjects();

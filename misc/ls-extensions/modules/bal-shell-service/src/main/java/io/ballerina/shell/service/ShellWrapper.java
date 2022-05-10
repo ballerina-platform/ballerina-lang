@@ -94,7 +94,7 @@ public class ShellWrapper {
                 output.addError(error.getMessage());
             }
         } finally {
-            output.addOutputDiagnostics(evaluator.diagnostics(), configuration.isDebug());
+            output.addOutputDiagnostics(evaluator.diagnostics());
             output.setMetaInfo(
                     this.metaInfoHandler.getNewDefinedVars(evaluator.availableVariablesAsObjects()),
                     this.metaInfoHandler.getNewModuleDclns(evaluator.availableModuleDeclarations())
