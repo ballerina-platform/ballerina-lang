@@ -70,19 +70,13 @@ public class BalShellGetResultResponse {
      * Add collected diagnostics for response.
      *
      * @param diagnostics collected diagnostics
-     * @param isDebug whether the debug mode of shell is on
      */
-    public void addOutputDiagnostics(Collection<Diagnostic> diagnostics, boolean isDebug) {
+    public void addOutputDiagnostics(Collection<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             DiagnosticKind diagnosticKind = diagnostic.getKind();
-            if (diagnosticKind == DiagnosticKind.DEBUG) {
-                if (isDebug) {
-                    this.diagnostics.add(diagnostic.toString());
-                }
-                continue;
+            if (diagnosticKind != DiagnosticKind.DEBUG) {
+                this.diagnostics.add(diagnostic.toString());
             }
-
-            this.diagnostics.add(diagnostic.toString());
         }
     }
 

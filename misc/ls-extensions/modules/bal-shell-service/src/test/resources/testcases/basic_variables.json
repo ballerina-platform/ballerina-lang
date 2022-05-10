@@ -8,6 +8,14 @@
     }
   },
   {
+    "source": "string s = \"Hello world\"",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["s"],"moduleDclns":[]}
+    }
+  },
+  {
     "source": "total",
     "result": {
       "shellValue": {
@@ -31,14 +39,6 @@
       "errors":[],
       "diagnostics":[],
       "metaInfo":{"definedVars":[],"moduleDclns":[]}
-    }
-  },
-  {
-    "source": "string s = \"Hello world\"",
-    "result": {
-      "errors":[],
-      "diagnostics":[],
-      "metaInfo":{"definedVars":["s"],"moduleDclns":[]}
     }
   },
   {
