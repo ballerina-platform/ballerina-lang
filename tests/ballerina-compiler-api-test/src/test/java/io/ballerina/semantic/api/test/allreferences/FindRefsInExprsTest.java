@@ -178,6 +178,19 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                         List.of(location(166, 8, 14),
                                 location(163, 6, 12))
                 },
+                // List spread operator
+                {178, 6, location(178, 6, 8),
+                        List.of(location(178, 6, 8),
+                                location(180, 15, 17))
+                },
+                {180, 6, location(180, 6, 8),
+                        List.of(location(180, 6, 8),
+                                location(187, 19, 21))
+                },
+                {183, 10, location(183, 10, 12),
+                        List.of(location(183, 10, 12),
+                                location(185, 19, 21))
+                }
         };
     }
 
