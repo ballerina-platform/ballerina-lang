@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,11 +46,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 public class AnnotationRuntimeTest {
 
     private CompileResult resultOne, resultAccessNegative;
-    
+
     @BeforeClass
     public void setup() {
         resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        resultAccessNegative = null;
+        resultOne = null;
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -176,6 +183,53 @@ public class AnnotationRuntimeTest {
         annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
         Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG);
         Assert.assertTrue((Boolean) annotValue);
+    }
+
+
+    @Test
+    public void testAnnotAvailabilityInObjectCtr() {
+        String sourceFilePath = "test-src/annotations/annot_availability_in_object_ctor.bal";
+        CompileResult resultFour = BCompileUtil.compile(sourceFilePath);
+        Assert.assertEquals(resultFour.getErrorCount(), 0);
+        Object obj = BRunUtil.invokeAndGetJVMResult(resultFour, "testStructureAnnots");
+        Assert.assertEquals(TypeChecker.getType(obj).getTag(), io.ballerina.runtime.api.TypeTags.TUPLE_TAG);
+
+        TupleValueImpl tupleValue = (TupleValueImpl) obj;
+
+        AnnotatableType annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(0)).getDescribingType();
+        Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
+        Object fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.j"));
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        MapValueImpl<BString, Object>  fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
+
+        Object annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
+
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG);
+        Assert.assertTrue((Boolean) annotValue);
+
+        annotValue = fieldAnnotMap.get(StringUtils.fromString("Y"));
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        MapValueImpl<BString, Object> mapValue = (MapValueImpl<BString, Object>) annotValue;
+        Assert.assertEquals(mapValue.size(), 2);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("q")).toString(), "hello");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("r")).toString(), "world");
+
+        annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(1)).getDescribingType();
+        Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
+        fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.j"));
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
+
+        annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG);
+        Assert.assertTrue((Boolean) annotValue);
+
+        annotValue = fieldAnnotMap.get(StringUtils.fromString("Y"));
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), io.ballerina.runtime.api.TypeTags.MAP_TAG);
+        mapValue = (MapValueImpl<BString, Object>) annotValue;
+        Assert.assertEquals(mapValue.size(), 2);
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("q")).toString(), "hello");
+        Assert.assertEquals(mapValue.get(StringUtils.fromString("r")).toString(), "world");
     }
 
     public void testRecordTypeAnnotationReadonlyValueEdit() {
