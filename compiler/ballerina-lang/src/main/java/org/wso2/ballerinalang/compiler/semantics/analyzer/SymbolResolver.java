@@ -1947,18 +1947,12 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 compatibleType2 = types.findCompatibleType(rhsType);
             }
 
-            if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2 && 
+            if (compatibleType1 != compatibleType2 && types.isBasicNumericType(compatibleType1) && 
                     !isIntFloatingPointMultiplication(opKind, compatibleType1, compatibleType2)) {
                 return symTable.notFoundSymbol;
             }
 
-            BType returnType;
-            if (compatibleType1.tag < compatibleType2.tag) {
-                returnType = compatibleType2;
-            } else {
-                returnType = compatibleType1;
-            }
-
+            BType returnType = compatibleType1.tag < compatibleType2.tag ? compatibleType2 : compatibleType1;
             if (lhsType.isNullable() || rhsType.isNullable()) {
                 returnType = BUnionType.create(null, returnType, symTable.nilType);
             }

@@ -170,6 +170,10 @@ type MyInt int;
 
 type MyFloat float;
 
+type TWO 2;
+
+type FOUR_POINT_FIVE 4.5;
+
 function testModFloatInt() {
     int a = 2;
     int a1 = 0;
@@ -182,6 +186,10 @@ function testModFloatInt() {
     MyFloat h = 4.5;
     2 i = 2;
     4.5 j = 4.5;
+    constInt k = 5;
+    constFloat m = 20.5;
+    TWO n = 2;
+    FOUR_POINT_FIVE p = 4.5;
 
     float var4 = b % a;
     assertEqual(var4, float:NaN);
@@ -193,6 +201,10 @@ function testModFloatInt() {
     assertEqual(var61, 0.5);
     float var62 = j % a;
     assertEqual(var62, 0.5);
+    float var63 = m % a;
+    assertEqual(var63, 0.5);
+    float var64 = p % a;
+    assertEqual(var64, 0.5);
 
     float var7 = b % a1;
     assertEqual(var7, float:NaN);
@@ -204,6 +216,10 @@ function testModFloatInt() {
     assertEqual(var91, float:NaN);
     float var92 = j % a1;
     assertEqual(var92, float:NaN);
+    float var93 = m % a1;
+    assertEqual(var93, float:NaN);
+    float var94 = p % a1;
+    assertEqual(var94, float:NaN);
 
     float var10 = b % constInt;
     assertEqual(var10, float:NaN);
@@ -215,6 +231,10 @@ function testModFloatInt() {
     assertEqual(var121, 4.5);
     float var122 = j % constInt;
     assertEqual(var122, 4.5);
+    float var123 = m % constInt;
+    assertEqual(var123, 0.5);
+    float var124 = p % constInt;
+    assertEqual(var124, 4.5);
 
     float var13 = constFloat % constInt;
     assertEqual(var13, 0.5);
@@ -234,14 +254,32 @@ function testModFloatInt() {
     assertEqual(var19, 0.45);
     float var191 = c % i;
     assertEqual(var191, 0.45);
+    float var192 = c % k;
+    assertEqual(var192, 0.45);
+    float var193 = c % n;
+    assertEqual(var193, 0.45);
 
     float var20 = h % g;
     assertEqual(var20, 0.5);
     float var201 = h % i;
     assertEqual(var201, 0.5);
+    float var202 = h % k;
+    assertEqual(var202, 4.5);
+    float var203 = h % n;
+    assertEqual(var203, 0.5);
 
     float var21 = j % i;
     assertEqual(var21, 0.5);
+
+    float var22 = m % k;
+    assertEqual(var22, 0.5);
+    float var23 = p % k;
+    assertEqual(var23, 4.5);
+
+    float var24 = m % n;
+    assertEqual(var24, 0.5);
+    float var25 = p % n;
+    assertEqual(var25, 0.5);
 }
 
 function testModFloatIntSubTypes() {
@@ -433,6 +471,8 @@ const decimal constDecimal = 20.5;
 
 type MyDecimal decimal;
 
+type FOUR_POINT_FIVE_DECIMAL 4.5d;
+
 function testModDecimalInt() {
     int a = 2;
     decimal c = 4.5e-1;
@@ -443,6 +483,10 @@ function testModDecimalInt() {
     MyDecimal h = 4.5;
     2 i = 2;
     4.5d j = 4.5d;
+    constInt k = 5;
+    constDecimal m = 20.5;
+    TWO n = 2;
+    FOUR_POINT_FIVE_DECIMAL p = 4.5;
 
     decimal var5 = c % a;
     assertEqual(var5, 0.45d);
@@ -452,6 +496,10 @@ function testModDecimalInt() {
     assertEqual(var61, 0.5d);
     decimal var62 = j % a;
     assertEqual(var62, 0.5d);
+    decimal var63 = m % a;
+    assertEqual(var63, 0.5d);
+    decimal var64 = p % a;
+    assertEqual(var64, 0.5d);
 
     decimal var11 = c % constInt;
     assertEqual(var11, 0.45d);
@@ -461,6 +509,10 @@ function testModDecimalInt() {
     assertEqual(var121, 4.5d);
     decimal var122 = j % constInt;
     assertEqual(var122, 4.5d);
+    decimal var123 = m % constInt;
+    assertEqual(var123, 0.5d);
+    decimal var124 = p % constInt;
+    assertEqual(var124, 4.5d);
 
     decimal var13 = constDecimal % constInt;
     assertEqual(var13, 0.5d);
@@ -474,19 +526,36 @@ function testModDecimalInt() {
     assertEqual(var17, 0.45d);
     decimal var18 = c % f;
     assertEqual(var18, 0.45d);
-
     decimal var19 = c % g;
     assertEqual(var19, 0.45d);
     decimal var191 = c % i;
     assertEqual(var191, 0.45d);
+    decimal var192 = c % k;
+    assertEqual(var192, 0.45d);
+    decimal var193 = c % n;
+    assertEqual(var193, 0.45d);
 
     decimal var20 = h % g;
     assertEqual(var20, 0.5d);
     decimal var201 = h % i;
     assertEqual(var201, 0.5d);
+    decimal var202 = h % k;
+    assertEqual(var202, 4.5d);
+    decimal var203 = h % n;
+    assertEqual(var203, 0.5d);
 
     decimal var21 = j % i;
     assertEqual(var21, 0.5d);
+
+    decimal var22 = m % k;
+    assertEqual(var22, 0.5d);
+    decimal var23 = p % k;
+    assertEqual(var23, 4.5d);
+
+    decimal var24 = m % n;
+    assertEqual(var24, 0.5d);
+    decimal var25 = p % n;
+    assertEqual(var25, 0.5d);
 }
 
 function testModDecimalIntSubTypes() {
