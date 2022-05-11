@@ -1,0 +1,47 @@
+[
+  {
+    "description": "Remove the qualifier from module constant declarations",
+    "oldCode": "public const int age = 10;",
+    "newCode": "const int age = 10;"
+  },
+  {
+    "description": "Remove the qualifier from module constant declaration",
+    "oldCode": "const int age = 10;",
+    "newCode": "public const int age = 10;"
+  },
+  {
+    "description": "Change the type of a module constant",
+    "oldCode": "public const int id = 102;",
+    "newCode": "public const float id = 102;"
+  },
+  {
+    "description": "Change a Constant name",
+    "oldCode": "public const int id = 102;",
+    "newCode": "public const int num = 102;"
+  },
+  {
+    "description": "Remove a constant",
+    "oldCode": "public const int id = 102;",
+    "newCode": ";"
+  },
+  {
+    "description": "Add a new constant",
+    "oldCode": "",
+    "newCode": "public const int num = 102;"
+  },
+  {
+    "description": "Change the constant value",
+    "oldCode": "public const int id = 10;",
+    "newCode": "public const int id = 11;"
+  },
+  {
+    "description": "Change the expression of a constant but doesn't change the value (Non affecting change)",
+    "oldCode": "public const int id = 10;",
+    "newCode": "public const int id = 5+5;"
+  },
+  {
+    "description": "Non affecting change in expression",
+    "oldCode": "public const boolean alive = false;",
+    "newCode": "public const boolean alive = !true;"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "description": "Remove the qualifier in a module variable declaration",
+    "oldCode": "public int age = 10;",
+    "newCode": "int age = 10;"
+  },
+  {
+    "description": "Add  qualifier to a module variable declaration",
+    "oldCode": "int age = 10;",
+    "newCode": "public int age = 10;"
+  },
+  {
+    "description": "Change the type of a module variable",
+    "oldCode": "public int id = 102;",
+    "newCode": "public float id = 102;"
+  },
+  {
+    "description": "Remove module-init-var-qualifier in module variable declaration",
+    "oldCode": "public final int age = 10;",
+    "newCode": "public int age = 10;"
+  },
+  {
+    "description": "Add module-init-var-qualifier in module variable declaration",
+    "oldCode": "public int age = 10;",
+    "newCode": "public final int age = 10;"
+  },
+  {
+    "description": "Modify module-init-var-qualifier in module variable declaration",
+    "oldCode": "public final int age = 10;",
+    "newCode": "public configurable int age = 10;"
+  }
+]

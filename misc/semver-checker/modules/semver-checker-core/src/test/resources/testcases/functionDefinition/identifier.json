@@ -1,0 +1,17 @@
+[
+  {
+    "description": "Change a function name",
+    "oldCode": "public function hello(){}",
+    "newCode": "public function hi(){}"
+  },
+  {
+    "description": "Remove a function",
+    "oldCode": "public function hello(){}",
+    "newCode": ""
+  },
+  {
+    "description": "Add a new function",
+    "oldCode": "",
+    "newCode": "public function foo(){}"
+  }
+]

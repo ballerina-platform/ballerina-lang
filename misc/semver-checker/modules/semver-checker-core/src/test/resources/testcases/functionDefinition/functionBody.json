@@ -1,0 +1,17 @@
+[
+  {
+    "description": "Modify the function body",
+    "oldCode": "public function add(int x, int y) returns int {\n\tint Sum = x + y;\n\treturns sum; \n}",
+    "newCode": "public function add(int x, int y) returns int {\n\tint Sum = x - y;\n\treturns sum; \n}"
+  },
+  {
+    "description": "Add function body",
+    "oldCode": "public function add(int x, int y) {}",
+    "newCode": "public function add(int x, int y)  {\n\tint Sum = x + y;\n}"
+  },
+  {
+    "description": "Remove function body",
+    "oldCode": "public function add(int x, int y) {\nint Sum = x + y;\n}",
+    "newCode": "public function add(int x, int y) {}"
+  }
+]

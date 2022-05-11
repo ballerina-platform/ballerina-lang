@@ -1,0 +1,57 @@
+[
+  {
+    "description": "Remove the public key word from a class",
+    "oldCode": "public class Person{}",
+    "newCode": "class Person{}"
+  },
+  {
+    "description": "Add public key word to a class",
+    "oldCode": "class foo{}",
+    "newCode": "public class foo{}"
+  },
+  {
+    "description": "Add a new publicly exposed member to a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n\tpublic function add(){}\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n\tpublic function add(){}\n\tpublic function count(){}\n}"
+  },
+  {
+    "description": "Add new object field to a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n\tpublic String age;\n}"
+  },
+  {
+    "description": "Change object field type in a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n\tpublic int age;\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n\tpublic String age;\n}"
+  },
+  {
+    "description": "Remove public keyword for a object field in a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n\tpublic int age;\n}",
+    "newCode": "public class counter{\n\tint n;\n\tpublic String age;\n}"
+  },
+  {
+    "description": "Remove a method from a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n\tpublic function add(){}\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n}"
+  },
+  {
+    "description": "Rename a method in a class",
+    "oldCode": "public class counter{\n\tpublic int n;\n\tpublic function add(){}\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n\tpublic function count(){}\n}"
+  },
+  {
+    "description": "Change qualifier in a method in class definition",
+    "oldCode": "public class counter{\n\tpublic int n;\n\tpublic function add(){}\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n\tfunction add(){}\n}"
+  },
+  {
+    "description": "Change body part of a method in class definition",
+    "oldCode": "public class counter{\n\tpublic int n;\n\tpublic function add(){\n\t\tint sum = n+n;\n}\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n\tpublic function add(){\n\t\tint sum = n;\n}\n}"
+  },
+  {
+    "description": "Change the parameter of a method in class definition",
+    "oldCode": "public class counter{\n\tpublic function add(int n){\n}\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n\tpublic function add(String n){\n}\n}"
+  }
+]

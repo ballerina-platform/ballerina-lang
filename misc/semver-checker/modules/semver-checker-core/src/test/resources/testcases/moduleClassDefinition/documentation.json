@@ -1,0 +1,17 @@
+[
+  {
+    "description": "Modify the documentation in module class definition",
+    "oldCode": "# Description\npublic class Employee{}",
+    "newCode": "# This is a class of Employee\npublic class Employee{}"
+  },
+  {
+    "description": "Add documentation in module class definition",
+    "oldCode": "public class Employee{}",
+    "newCode": "# This is a class of Employee\npublic class Employee{}"
+  },
+  {
+    "description": "Remove documentation in module class definition",
+    "oldCode": "# Description\npublic class Employee{}",
+    "newCode": "public class Employee{}"
+  }
+]

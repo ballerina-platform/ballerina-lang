@@ -1,0 +1,17 @@
+[
+  {
+    "description": "Rename a type definition.",
+    "oldCode": "type Coord record{\nint x;\nint y;\n };",
+    "newCode": "type Age record{\nint x;\nint y;\n };"
+  },
+  {
+    "description": "Remove a type definition.",
+    "oldCode": "type Coord record{\nint x;\nint y;\n };",
+    "newCode": ""
+  },
+  {
+    "description": "Add  a type definition.",
+    "oldCode": "",
+    "newCode": "type Coord record{\nint x;\nint y;\n };"
+  }
+]

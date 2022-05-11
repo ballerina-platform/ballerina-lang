@@ -1,0 +1,17 @@
+[
+  {
+    "description": "Remove qualifier and change the order of a parameter in function",
+    "oldCode": "public function add(int x, int y){}",
+    "newCode": "function add(int y , int x ){}"
+  },
+  {
+    "description": "Change the order of a parameter and modify the function body in function definition",
+    "oldCode": "public function add(int x, int y) returns int {\n\tint Sum = x + y;\n\treturns sum; \n}",
+    "newCode": "public function add(int y, int x) returns int {\n\tint Sum = x - y;\n\treturns sum; \n}"
+  },
+  {
+    "description": "Change the order of two functions in the code editor.",
+    "oldCode": "public function add(){}\npublic function foo(){}",
+    "newCode": "public function foo(){}\npublic function add(){}"
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "description": "Change the type descriptor in a module listener declaration",
+    "oldCode": "public listener http:Listener h = new (8080);",
+    "newCode": "public listener udp:Listener h = new (8080);"
+  },
+  {
+    "description": "Change the variable name of a listener",
+    "oldCode": "public listener http:Listener h = new (8080);",
+    "newCode": "public listener http:Listener u = new (8080);"
+  },
+  {
+    "description": "Change the listener expression",
+    "oldCode": "public listener http:Listener h = new (8080);",
+    "newCode": "public listener http:Listener h = new (8000);"
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "description": "Remove the qualifier from a function definition",
+    "oldCode": "public function add(){}",
+    "newCode": "function add(){}"
+  },
+  {
+    "description": "Add qualifier to a function definition",
+    "oldCode": "function foo(){}",
+    "newCode": "public function foo(){}"
+  },
+  {
+    "description": "Change qualifier type public to transactional in function definition.",
+    "oldCode": "public function doUpdate(){}",
+    "newCode": "transactional function doUpdate(){}"
+  },
+  {
+    "description": "Make a public function as an isolated function.",
+    "oldCode": "public function add(){}",
+    "newCode": "isolated function add(){}"
+  },
+  {
+    "description": "Remove isolated qualifier in a function.",
+    "oldCode": "isolated function add(){}",
+    "newCode": "function add(){}"
+  }
+]

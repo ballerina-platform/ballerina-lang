@@ -1,0 +1,37 @@
+[
+  {
+    "description": "Change a enumeration name",
+    "oldCode": "enum hello{}",
+    "newCode": "enum hi{}"
+  },
+  {
+    "description": "Remove a enumeration",
+    "oldCode": "enum hello{}",
+    "newCode": ""
+  },
+  {
+    "description": "Add a new enumeration",
+    "oldCode": "",
+    "newCode": "enum hi{}"
+  },
+  {
+    "description": "Remove a member from a enumeration",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue\n}"
+  },
+  {
+    "description": "Add a new member to a enumeration",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}"
+  },
+  {
+    "description": "Modify a constant  value of an enum member",
+    "oldCode": "public enum color{\n\tEng = “English”,\n\tSI = “Sinhala”\n}",
+    "newCode": "public enum color{\n\tEng = “Foreign language”,\n\tSI = “Sinhala”\n}"
+  },
+  {
+    "description": "Change the order of the enum members",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue\n}",
+    "newCode": "public enum color{\n\tBlue,\n\tRed\n}"
+  }
+]

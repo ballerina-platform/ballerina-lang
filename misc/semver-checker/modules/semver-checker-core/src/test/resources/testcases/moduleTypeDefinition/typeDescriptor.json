@@ -1,0 +1,32 @@
+[
+  {
+    "description": "Change the type descriptor of type definition.\n",
+    "oldCode": "type MapArray map<string>[];",
+    "newCode": "type MapArray string;"
+  },
+  {
+    "description": "Add a new field in module type definition",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\n};",
+    "newCode": "type Person record {\n\tstring name;\n\tint age;\n\tString id;\n};"
+  },
+  {
+    "description": "Change a field type in module type definition",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\nint id;\n};",
+    "newCode": "type Person record {\n\tstring name;\n\tint age;\n\tString id;\n};"
+  },
+  {
+    "description": "Remove a field from module type definition",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\nint id;\n};",
+    "newCode": "type Person record {\n\tstring name;\n\tint age;\n};"
+  },
+  {
+    "description": "Change the order of the field in module type definition",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\n};",
+    "newCode": "type Person record {\n\tint age;\n\tString name;\n};\n"
+  },
+  {
+    "description": "Change anydata type to a specific type in module type definition",
+    "oldCode": "type Person record {\n\tstring name;\n\tint age;\nanydata id;\n};",
+    "newCode": "type Person record {\n\tstring name;\n\tint age;\n\tint id; \n};"
+  }
+]
