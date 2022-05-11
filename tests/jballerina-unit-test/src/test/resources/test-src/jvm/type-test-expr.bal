@@ -170,51 +170,6 @@ function testIsLikeForTupleWithOutRestDescriptor() {
     assertEquals(k4 is [int, string], true);
 }
 
-type R1 readonly & record {|int i;|}?;
-type R2 (readonly & record {|int i;|})?;
-type R record {|int i;|};
-
-function testR1(R1 r) returns boolean {
-    return r is record {|int i;|};
-}
-
-function testR2(R2 r) returns boolean {
-    return r is record {|int i;|};
-}
-
-function testR3(R1 r) {
-    if r is R {
-        R _ = r; // no error
-    } else {
-        panic error("Type of 'r' should be 'R'");
-    }
-}
-
-function testR4(R2 r) {
-    if r is R {
-        R _ = r; // no error
-    } else {
-        panic error("Type of 'r' should be 'R'");
-    }
-}
-
-function testTypeTestingInReadonlyRecord() {
-    assertTrue(testR1({i: 2}));
-    assertTrue(testR2({i: 2}));
-    assertFalse(testR1(()));
-    assertFalse((testR2(())));
-    testR3({i: 2});
-    testR4({i: 2});
-}
-
-function assertTrue(anydata actual) {
-    assertEquals(true, actual);
-}
-
-function assertFalse(anydata actual) {
-    assertEquals(false, actual);
-}
-
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
