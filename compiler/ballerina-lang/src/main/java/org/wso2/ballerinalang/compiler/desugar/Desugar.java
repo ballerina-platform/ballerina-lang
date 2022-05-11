@@ -6872,8 +6872,8 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
-        int rhsExprTypeTag = types.getReferredType(binaryExpr.rhsExpr.getBType()).tag;
-        int lhsExprTypeTag = types.getReferredType(binaryExpr.lhsExpr.getBType()).tag;
+        int rhsExprTypeTag = Types.getReferredType(binaryExpr.rhsExpr.getBType()).tag;
+        int lhsExprTypeTag = Types.getReferredType(binaryExpr.lhsExpr.getBType()).tag;
 
         // Check for int and byte ==, != or === comparison and add type conversion to int for byte
         if (rhsExprTypeTag != lhsExprTypeTag && (binaryExpr.opKind == OperatorKind.EQUAL ||
@@ -7239,51 +7239,55 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        // Replacing unary expression with numeric literal
         if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && unaryExpr.expectedType.tag == TypeTags.FINITE) {
-            BLangExpression exprInUnary = unaryExpr.expr;
-            BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
-            Object objectValueInUnary = numericLiteralInUnary.value;
-            String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
-
-            if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-                strValueInUnary = "+" + strValueInUnary;
-            } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
-                strValueInUnary = "-" + strValueInUnary;
-            }
-
-            if (objectValueInUnary instanceof Long) {
-                objectValueInUnary = Long.parseLong(strValueInUnary);
-            } else if (objectValueInUnary instanceof Double) {
-                objectValueInUnary = Double.parseDouble(strValueInUnary);
-            } else if (objectValueInUnary instanceof String) {
-                objectValueInUnary = strValueInUnary;
-            }
-
-            BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
-                    TreeBuilder.createNumericLiteralExpression();
-            newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
-            newNumericLiteral.pos = unaryExpr.pos;
-            newNumericLiteral.value = objectValueInUnary;
-            newNumericLiteral.originalValue = strValueInUnary;
-
-            newNumericLiteral.setDeterminedType(exprInUnary.getBType());
-            newNumericLiteral.setBType(exprInUnary.getBType());
-            newNumericLiteral.expectedType = exprInUnary.getBType();
-
-            newNumericLiteral.typeChecked = unaryExpr.typeChecked;
-            newNumericLiteral.constantPropagated = unaryExpr.constantPropagated;
-            newNumericLiteral.isFiniteContext = true;
-
-            result = rewriteExpr(newNumericLiteral);
+            replaceUnaryExprWithNumericLiteral(unaryExpr);
             return;
         }
+
         OperatorKind opKind = unaryExpr.operator;
         if (opKind == OperatorKind.ADD || opKind == OperatorKind.SUB) {
             createTypeCastExprForUnaryPlusAndMinus(unaryExpr);
         }
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
+    }
+
+    private void replaceUnaryExprWithNumericLiteral(BLangUnaryExpr unaryExpr) {
+        BLangExpression exprInUnary = unaryExpr.expr;
+        BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
+        Object objectValueInUnary = numericLiteralInUnary.value;
+        String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+
+        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+            strValueInUnary = "+" + strValueInUnary;
+        } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+            strValueInUnary = "-" + strValueInUnary;
+        }
+
+        if (objectValueInUnary instanceof Long) {
+            objectValueInUnary = Long.parseLong(strValueInUnary);
+        } else if (objectValueInUnary instanceof Double) {
+            objectValueInUnary = Double.parseDouble(strValueInUnary);
+        } else if (objectValueInUnary instanceof String) {
+            objectValueInUnary = strValueInUnary;
+        }
+
+        BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
+                TreeBuilder.createNumericLiteralExpression();
+        newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
+        newNumericLiteral.pos = unaryExpr.pos;
+        newNumericLiteral.value = objectValueInUnary;
+        newNumericLiteral.originalValue = strValueInUnary;
+
+        newNumericLiteral.setDeterminedType(exprInUnary.getBType());
+        newNumericLiteral.setBType(exprInUnary.getBType());
+        newNumericLiteral.expectedType = exprInUnary.getBType();
+
+        newNumericLiteral.typeChecked = unaryExpr.typeChecked;
+        newNumericLiteral.constantPropagated = unaryExpr.constantPropagated;
+        newNumericLiteral.isFiniteContext = true;
+
+        result = rewriteExpr(newNumericLiteral);
     }
 
     private void createTypeCastExprForUnaryPlusAndMinus(BLangUnaryExpr unaryExpr) {

@@ -807,6 +807,47 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         literal.setBType(exprInUnary.getBType());
     }
 
+    private void createAnonymousTypeDefForConstantDeclaration(BLangConstant constantNode, Location pos,
+                                                               Location identifierPos) {
+        NodeKind nodeKind = constantNode.expr.getKind();
+
+        // Create a new literal.
+        BLangLiteral literal;
+        if (nodeKind == NodeKind.LITERAL) {
+            literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        } else {
+            literal = (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
+        }
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
+            literal.setValue(((BLangLiteral) constantNode.expr).value);
+            literal.setOriginalValue(((BLangLiteral) constantNode.expr).originalValue);
+            literal.setBType(constantNode.expr.getBType());
+        } else {
+            constructValueOfLiteralFromUnaryExpr(literal, (BLangUnaryExpr) constantNode.expr);
+        }
+        literal.isConstant = true;
+
+        // Create a new finite type node.
+        BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+        finiteTypeNode.valueSpace.add(literal);
+        finiteTypeNode.pos = identifierPos;
+
+        // Create a new anonymous type definition.
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
+        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+        typeDef.setName(anonTypeGenName);
+        typeDef.flagSet.add(Flag.PUBLIC);
+        typeDef.flagSet.add(Flag.ANONYMOUS);
+        typeDef.typeNode = finiteTypeNode;
+        typeDef.pos = pos;
+
+        // We add this type definition to the `associatedTypeDefinition` field of the constant node. Then when we
+        // visit the constant node, we visit this type definition as well. By doing this, we don't need to change
+        // any of the type def visiting logic in symbol enter.
+        constantNode.associatedTypeDefinition = typeDef;
+    }
+
     @Override
     public BLangNode transform(ConstantDeclarationNode constantDeclarationNode) {
         BLangConstant constantNode = (BLangConstant) TreeBuilder.createConstantNode();
@@ -829,53 +870,21 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             constantNode.flagSet.add(Flag.PUBLIC);
         }
 
-        // Check whether the value is a literal. If it is not a literal, it is an invalid case. So we don't need to
-        // consider it.
-        // Note - This logic has been special cased for unary expressions as `+` and `-` numeric literals no longer
-        // go on the literal path but as a unary expression.
         NodeKind nodeKind = constantNode.expr.getKind();
-        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL || (nodeKind == NodeKind.UNARY_EXPR &&
-                ((BLangUnaryExpr) constantNode.expr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
-                (OperatorKind.SUB.equals(((BLangUnaryExpr) constantNode.expr).operator) ||
-                        OperatorKind.ADD.equals(((BLangUnaryExpr) constantNode.expr).operator)))) {
+        boolean isUnaryExpr = nodeKind == NodeKind.UNARY_EXPR;
+        BLangUnaryExpr unaryExpr = isUnaryExpr ? (BLangUnaryExpr) constantNode.expr : null;
+        OperatorKind unaryOperator = unaryExpr != null ? unaryExpr.operator : null;
+
+
+        // Check whether the value is a literal or a unary expression with `+` or `-` numeric literal
+        // If it is not any one of te above, it is an invalid case. So we don't need to consider it.
+        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL || (isUnaryExpr &&
+                unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && (OperatorKind.SUB.equals(unaryOperator) ||
+                OperatorKind.ADD.equals(unaryOperator)))) {
+
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
-            // in type definitions.
-
-            // Create a new literal.
-            BLangLiteral literal;
-            if (nodeKind == NodeKind.LITERAL) {
-                literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            } else {
-                literal = (BLangLiteral) TreeBuilder.createNumericLiteralExpression();
-            }
-            if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL) {
-                literal.setValue(((BLangLiteral) constantNode.expr).value);
-                literal.setOriginalValue(((BLangLiteral) constantNode.expr).originalValue);
-                literal.setBType(constantNode.expr.getBType());
-            } else {
-                constructValueOfLiteralFromUnaryExpr(literal, (BLangUnaryExpr) constantNode.expr);
-            }
-            literal.isConstant = true;
-
-            // Create a new finite type node.
-            BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
-            finiteTypeNode.valueSpace.add(literal);
-            finiteTypeNode.pos = identifierPos;
-
-            // Create a new anonymous type definition.
-            BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-            String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
-            IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
-            typeDef.setName(anonTypeGenName);
-            typeDef.flagSet.add(Flag.PUBLIC);
-            typeDef.flagSet.add(Flag.ANONYMOUS);
-            typeDef.typeNode = finiteTypeNode;
-            typeDef.pos = pos;
-
-            // We add this type definition to the `associatedTypeDefinition` field of the constant node. Then when we
-            // visit the constant node, we visit this type definition as well. By doing this, we don't need to change
-            // any of the type def visiting logic in symbol enter.
-            constantNode.associatedTypeDefinition = typeDef;
+            // in type definitions.h
+            createAnonymousTypeDefForConstantDeclaration(constantNode, pos, identifierPos);
         }
         String constantName = constantNode.name.value;
         if (constantSet.contains(constantName)) {
