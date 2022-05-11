@@ -5971,8 +5971,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 data.resultType = checkedExpr.expr.getBType();
 
                 // Reset impConversionExpr as it was previously based on default error added union type
-                checkedExpr.expr.impConversionExpr = null;
-                types.setImplicitCastExpr(checkedExpr.expr, data.resultType, data.expType);
+                resetImpConversionExpr(checkedExpr.expr, data.resultType, data.expType);
             }
             checkedExpr.setBType(symTable.semanticError);
             return;
@@ -6007,8 +6006,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             checkedExpr.isRedundantChecking = true;
 
             // Reset impConversionExpr as it was previously based on default error added union type
-            checkedExpr.expr.impConversionExpr = null;
-            types.setImplicitCastExpr(checkedExpr.expr, data.resultType, data.expType);
+            resetImpConversionExpr(checkedExpr.expr, data.resultType, data.expType);
 
             checkedExpr.setBType(symTable.semanticError);
             return;
@@ -6024,6 +6022,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(checkedExpr, actualType, data.expType);
+    }
+
+    private void resetImpConversionExpr(BLangExpression expr, BType actualType, BType targetType) {
+        expr.impConversionExpr = null;
+        types.setImplicitCastExpr(expr, actualType, targetType);
     }
 
     private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BType type, AnalyzerData data) {
