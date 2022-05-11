@@ -60,6 +60,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Location;
@@ -125,7 +126,9 @@ public class SemanticTokensVisitor extends NodeVisitor {
             this.addSemanticToken(functionDefinitionNode.functionName(), type, TokenTypeModifiers.DECLARATION.getId(),
                     false, -1, -1);
             functionDefinitionNode.relativeResourcePath().forEach(resourcePath -> {
-                this.addSemanticToken(resourcePath, type, TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
+                if (resourcePath.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                    this.addSemanticToken(resourcePath, type, TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
+                }
             });
         } else {
             this.addSemanticToken(functionDefinitionNode.functionName(), type, TokenTypeModifiers.DECLARATION.getId(),
@@ -162,6 +165,13 @@ public class SemanticTokensVisitor extends NodeVisitor {
                         TokenTypeModifiers.DECLARATION.getId(), true, TokenTypes.PARAMETER.getId(), isReadonly ?
                         TokenTypeModifiers.READONLY.getId() : 0));
         visitSyntaxNode(requiredParameterNode);
+    }
+
+    @Override
+    public void visit(TypedBindingPatternNode typedBindingPatternNode) {
+        TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
+        processSymbols(typeDescriptorNode, typeDescriptorNode.lineRange().startLine());
+        visitSyntaxNode(typedBindingPatternNode);
     }
 
     public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
@@ -273,6 +283,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
     public void visit(TypeDefinitionNode typeDefinitionNode) {
         int type = TokenTypes.TYPE.getId();
         int modifiers = 0;
+        int refModifiers = 0;
         Node typeDescriptor = typeDefinitionNode.typeDescriptor();
         switch (typeDescriptor.kind()) {
             case OBJECT_TYPE_DESC:
@@ -293,6 +304,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                     }
                     if (left == SyntaxKind.READONLY_TYPE_DESC || right == SyntaxKind.READONLY_TYPE_DESC) {
                         modifiers = TokenTypeModifiers.DECLARATION.getId() | TokenTypeModifiers.READONLY.getId();
+                        refModifiers = TokenTypeModifiers.READONLY.getId();
                     } else {
                         modifiers = TokenTypeModifiers.DECLARATION.getId();
                     }
@@ -303,7 +315,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 modifiers = TokenTypeModifiers.DECLARATION.getId();
                 break;
         }
-        this.addSemanticToken(typeDefinitionNode.typeName(), type, modifiers, true, type, 0);
+        this.addSemanticToken(typeDefinitionNode.typeName(), type, modifiers, true, type, refModifiers);
         visitSyntaxNode(typeDefinitionNode);
     }
 
@@ -500,6 +512,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                             switch (typeDescriptor.typeKind()) {
                                 case RECORD:
                                     type = TokenTypes.STRUCT.getId();
+                                    declarationModifiers = TokenTypeModifiers.DECLARATION.getId();
                                     break;
                                 case OBJECT:
                                     type = TokenTypes.INTERFACE.getId();
@@ -580,6 +593,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 break;
         }
 
+        int length = node.textRange().length();
         if (declarationType != -1) {
             Optional<ModuleSymbol> moduleSymbol = symbol.get().getModule();
             // Add the symbol's semantic token if it is in the same file
@@ -589,7 +603,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                     .equals(this.semanticTokensContext.currentModule().get().moduleId().moduleName())) {
                 SemanticToken semanticToken = new SemanticToken(linePosition.line(), linePosition.offset());
                 if (!semanticTokens.contains(semanticToken)) {
-                    semanticToken.setProperties(node.textRange().length(), declarationType, declarationModifiers == -1 ?
+                    semanticToken.setProperties(length, declarationType, declarationModifiers == -1 ?
                             0 : declarationModifiers);
                     semanticTokens.add(semanticToken);
                 }
@@ -601,14 +615,19 @@ public class SemanticTokensVisitor extends NodeVisitor {
             final int type = referenceType;
             final int modifiers = referenceModifiers == -1 ? 0 : referenceModifiers;
 
+            // No need of finding reference for strings since those are covered from the variable declaration.
+            if (node.kind() == SyntaxKind.STRING_LITERAL) {
+                return;
+            }
+
             List<Location> locations = semanticModel.get().references(symbol.get(),
                     this.semanticTokensContext.currentDocument().get(), false);
             locations.stream().filter(location -> location.lineRange().filePath()
                     .equals(this.semanticTokensContext.currentDocument().get().name())).forEach(location -> {
                         LinePosition position = location.lineRange().startLine();
                         SemanticToken semanticToken = new SemanticToken(position.line(), position.offset());
-                        if (!semanticTokens.contains(semanticToken)) {
-                            semanticToken.setProperties(node.textRange().length(), type, modifiers);
+                        if (!semanticTokens.contains(semanticToken) && location.textRange().length() == length) {
+                            semanticToken.setProperties(length, type, modifiers);
                             semanticTokens.add(semanticToken);
                         }
                     });
@@ -660,7 +679,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
                 location.lineRange().filePath().equals(document.name())).forEach(location -> {
             LinePosition position = location.lineRange().startLine();
             SemanticToken semanticToken = new SemanticToken(position.line(), position.offset());
-            if (!semanticTokens.contains(semanticToken)) {
+            if (!semanticTokens.contains(semanticToken) && location.textRange().length() == length) {
                 semanticToken.setProperties(length, type, modifiers);
                 semanticTokens.add(semanticToken);
             }
