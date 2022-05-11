@@ -27,6 +27,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.AnonymousTypeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -790,7 +791,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
         }
 
-        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        String anonTypeNameSuffix = constantSymbol.name.value;
+        if (anonTypeNameSuffix.isEmpty()) {
+            anonTypeNameSuffix = constantSymbol.owner.name.value;
+        }
+        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID,
+                AnonymousTypeKind.CONSTANT, List.of(anonTypeNameSuffix)));
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(SymTag.RECORD,
                                                                    constantSymbol.flags | Flags.ANONYMOUS, genName,
                                                                    constantSymbol.pkgID,

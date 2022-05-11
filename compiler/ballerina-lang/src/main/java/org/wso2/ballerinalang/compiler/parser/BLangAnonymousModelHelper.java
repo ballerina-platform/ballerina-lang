@@ -17,13 +17,12 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.AnonymousTypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -36,6 +35,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 public class BLangAnonymousModelHelper {
 
     private Map<PackageID, Integer> anonTypeCount;
+    private Map<PackageID, Map<String, Integer>> anonTypesCount;
     private Map<PackageID, Integer> anonServiceCount;
     private Map<PackageID, Integer> anonFunctionCount;
     private Map<PackageID, Integer> anonForkCount;
@@ -61,6 +61,7 @@ public class BLangAnonymousModelHelper {
     private static final String TUPLE_VAR = "$tupleVar$";
     private static final String RECORD_VAR = "$recordVar$";
     private static final String ERROR_VAR = "$errorVar$";
+    private static final String DOLLAR = "$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
             new CompilerContext.Key<>();
@@ -68,6 +69,7 @@ public class BLangAnonymousModelHelper {
     private BLangAnonymousModelHelper(CompilerContext context) {
         context.put(ANONYMOUS_MODEL_HELPER_KEY, this);
         anonTypeCount = new HashMap<>();
+        anonTypesCount = new HashMap<>();
         anonServiceCount = new HashMap<>();
         anonFunctionCount = new HashMap<>();
         anonForkCount = new HashMap<>();
@@ -95,6 +97,35 @@ public class BLangAnonymousModelHelper {
             return BUILTIN_ANON_TYPE + UNDERSCORE + nextValue;
         }
         return ANON_TYPE + UNDERSCORE + nextValue;
+    }
+
+    public String getNextAnonymousTypeKey(PackageID packageID, AnonymousTypeKind kind, List<String> suffixes) {
+        if (kind == AnonymousTypeKind.CONSTANT) {
+            String name = appendSuffix(ANON_TYPE + kind + DOLLAR, suffixes);
+            if (!anonTypesCount.containsKey(packageID)) {
+                Map<String, Integer> anonTypes = new HashMap<>();
+                anonTypes.put(name, 1);
+                anonTypesCount.put(packageID, anonTypes);
+                return name;
+            }
+            Map<String, Integer> prevAnonTypes =  anonTypesCount.get(packageID);
+            if (!prevAnonTypes.containsKey(name)) {
+                prevAnonTypes.put(name, 1);
+                return name;
+            }
+            Integer nextValue = prevAnonTypes.get(name);
+            prevAnonTypes.put(name, nextValue + 1);
+            return name + UNDERSCORE + nextValue;
+        }
+
+        return getNextAnonymousTypeKey(packageID);
+    }
+
+    private String appendSuffix(String name, List<String> suffixes) {
+        for (String suffix : suffixes) {
+            name = name.concat(suffix + DOLLAR);
+        }
+        return name;
     }
 
     String getNextAnonymousServiceTypeKey(PackageID packageID, String serviceName) {
