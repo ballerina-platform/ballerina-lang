@@ -82,7 +82,7 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "undefined symbol 'x'", 159, 16);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'function " +
                 "(ballerina/lang.table:0.0.0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', " +
-                "found 'function (string) returns (DataRow)'", 169, 31);
+                "found 'function (string) returns (DataRow)'", 164, 31);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 
