@@ -39,7 +39,6 @@ import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.IASTORE;
@@ -90,7 +89,7 @@ public class JvmBStringConstantsGen {
 
     public String addBString(String val) {
         return bStringVarMap.computeIfAbsent(val, s ->
-               B_STRING_VAR_PREFIX + constantIndex.getAndIncrement());
+                B_STRING_VAR_PREFIX + constantIndex.getAndIncrement());
     }
 
     public void generateConstantInit(Map<String, byte[]> jarEntries) {
@@ -136,20 +135,11 @@ public class JvmBStringConstantsGen {
 
     private Map<String, Map<String, String>> splitLargeStrings() {
         Map<String, Map<String, String>> stringChunkMap = new HashMap<>();
-        for (Map.Entry<String, String> entry: bStringVarMap.entrySet()) {
+        for (Map.Entry<String, String> entry : bStringVarMap.entrySet()) {
             String str = entry.getKey();
-            int length = str.length();
-            if (length <= 65535) {
-                continue;
-            }
-            int chunkSize = 64000;
-            Map<String, String> splitStrings = new LinkedHashMap<>();
             String varName = entry.getValue();
-            for (int i = 0; i < (length / chunkSize) + 1; i++) {
-                int beginIndex = i * chunkSize;
-                int endIndex = Math.min(beginIndex + chunkSize + 1, length);
-                splitStrings.put(getStringVarName(varName, i), str.substring(beginIndex, endIndex));
-            }
+
+            Map<String, String> splitStrings = splitStringByByteLength(str, varName);
             if (!splitStrings.isEmpty()) {
                 stringChunkMap.put(varName, splitStrings);
             }
@@ -157,11 +147,37 @@ public class JvmBStringConstantsGen {
         return stringChunkMap;
     }
 
+    private Map<String, String> splitStringByByteLength(String str, String varName) {
+        int byteLength = 0;
+        Map<String, String> splitStrings = new LinkedHashMap<>();
+        int beginIndex = 0;
+        int chunkCount = 0;
+        for (int i = 0; i < str.length(); ++i) {
+            char charValue = str.charAt(i);
+            if (charValue >= 0x0001 && charValue <= 0x007F) {
+                byteLength++;
+            } else if (charValue <= 0x07FF) {
+                byteLength += 2;
+            } else {
+                byteLength += 3;
+            }
+            if (byteLength >= 65000) {
+                splitStrings.put(getStringVarName(varName, chunkCount++), str.substring(beginIndex, i + 1));
+                beginIndex = i + 1;
+                byteLength = 0;
+            }
+        }
+        if (!splitStrings.isEmpty()) {
+            splitStrings.put(getStringVarName(varName, chunkCount), str.substring(beginIndex));
+        }
+        return splitStrings;
+    }
+
     private void visitBStringField(ClassWriter cw, String varName) {
         FieldVisitor fv;
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                           GET_BSTRING, null,
-                           null);
+                GET_BSTRING, null,
+                null);
         fv.visitEnd();
     }
 
@@ -179,7 +195,7 @@ public class JvmBStringConstantsGen {
             if (stringVarMap.containsKey(bStringVarName)) {
                 Map<String, String> stringChunkMap = stringVarMap.get(bStringVarName);
                 createConcatenatedBString(mv, highSurrogates, bStringVarName, stringChunkMap);
-                bStringCount += stringChunkMap.size() + 1; //
+                bStringCount += stringChunkMap.size() + 1;
             } else {
                 createDirectBString(mv, bString, bStringVarName, highSurrogates);
                 bStringCount++;
@@ -253,7 +269,7 @@ public class JvmBStringConstantsGen {
         mv.visitInsn(DUP);
         mv.visitLdcInsn(val);
         mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD,
-                           INIT_WITH_STRING, false);
+                INIT_WITH_STRING, false);
         mv.visitFieldInsn(PUTSTATIC, stringConstantsClass, varName, GET_BSTRING);
     }
 
@@ -267,14 +283,14 @@ public class JvmBStringConstantsGen {
     }
 
     private void generateHighSurrogatesArray(MethodVisitor mv, int[] highSurrogates) {
-        mv.visitIntInsn(BIPUSH, highSurrogates.length);
+        mv.visitLdcInsn(highSurrogates.length);
         mv.visitIntInsn(NEWARRAY, T_INT);
 
         int i = 0;
         for (int ch : highSurrogates) {
             mv.visitInsn(DUP);
-            mv.visitIntInsn(BIPUSH, i);
-            mv.visitIntInsn(BIPUSH, ch);
+            mv.visitLdcInsn(i);
+            mv.visitLdcInsn(ch);
             i = i + 1;
             mv.visitInsn(IASTORE);
         }
@@ -283,7 +299,6 @@ public class JvmBStringConstantsGen {
     public String getStringConstantsClass() {
         return stringConstantsClass;
     }
-
 
     private int[] listHighSurrogates(String str) {
         List<Integer> highSurrogates = new ArrayList<>();

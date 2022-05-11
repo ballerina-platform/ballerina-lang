@@ -82,4 +82,10 @@ public class CodegenErrorsTest {
         Assert.assertNotNull(result);
         Assert.assertEquals(result.toString(), "500");
     }
+
+    @Test
+    public void testTooLargeHardCodedStringValue() {
+        CompileResult result = BCompileUtil.compile("test-src/jvm/too-large-hard-coded-string.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+    }
 }
