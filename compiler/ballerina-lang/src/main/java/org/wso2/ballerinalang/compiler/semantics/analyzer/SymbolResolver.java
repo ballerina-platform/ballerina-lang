@@ -1951,18 +1951,19 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                     !isIntFloatingPointMultiplication(opKind, compatibleType1, compatibleType2)) {
                 return symTable.notFoundSymbol;
             }
+
+            BType returnType;
             if (compatibleType1.tag < compatibleType2.tag) {
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
+                returnType = compatibleType2;
+            } else {
+                returnType = compatibleType1;
             }
-            if (lhsType.isNullable()) {
-                compatibleType1 = BUnionType.create(null, compatibleType1, symTable.nilType);
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
+
+            if (lhsType.isNullable() || rhsType.isNullable()) {
+                returnType = BUnionType.create(null, returnType, symTable.nilType);
             }
-            if (rhsType.isNullable()) {
-                compatibleType2 = BUnionType.create(null, compatibleType2, symTable.nilType);
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
-            }
-            return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
+
+            return createBinaryOperator(opKind, lhsType, rhsType, returnType);
         }
         return symTable.notFoundSymbol;
     }

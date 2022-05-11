@@ -180,6 +180,8 @@ function testModFloatInt() {
     int f = int:MIN_VALUE;
     MyInt g = 2;
     MyFloat h = 4.5;
+    2 i = 2;
+    4.5 j = 4.5;
 
     float var4 = b % a;
     assertEqual(var4, float:NaN);
@@ -189,6 +191,8 @@ function testModFloatInt() {
     assertEqual(var6, 0.0);
     float var61 = h % a;
     assertEqual(var61, 0.5);
+    float var62 = j % a;
+    assertEqual(var62, 0.5);
 
     float var7 = b % a1;
     assertEqual(var7, float:NaN);
@@ -198,6 +202,8 @@ function testModFloatInt() {
     assertEqual(var9, float:NaN);
     float var91 = h % a1;
     assertEqual(var91, float:NaN);
+    float var92 = j % a1;
+    assertEqual(var92, float:NaN);
 
     float var10 = b % constInt;
     assertEqual(var10, float:NaN);
@@ -207,6 +213,8 @@ function testModFloatInt() {
     assertEqual(var12, 0.0);
     float var121 = h % constInt;
     assertEqual(var121, 4.5);
+    float var122 = j % constInt;
+    assertEqual(var122, 4.5);
 
     float var13 = constFloat % constInt;
     assertEqual(var13, 0.5);
@@ -215,16 +223,25 @@ function testModFloatInt() {
     assertEqual(var15, 0.5);
     float var16 = constFloat % d;
     assertEqual(var16, float:NaN);
-    
+    float var161 = constFloat % i;
+    assertEqual(var161, 0.5);
+
     float var17 = c % e;
     assertEqual(var17, 0.45);
     float var18 = c % f;
     assertEqual(var18, 0.45);
     float var19 = c % g;
     assertEqual(var19, 0.45);
+    float var191 = c % i;
+    assertEqual(var191, 0.45);
 
     float var20 = h % g;
     assertEqual(var20, 0.5);
+    float var201 = h % i;
+    assertEqual(var201, 0.5);
+
+    float var21 = j % i;
+    assertEqual(var21, 0.5);
 }
 
 function testModFloatIntSubTypes() {
@@ -261,6 +278,8 @@ function testModFloatIntWithNullableOperands() {
     float? d = -10.5;
     int? e = ();
     float? f = ();
+    2? g = 2;
+    5.5 h = 5.5;
 
     float? var2 = d % a;
     assertEqual(var2, -0.5);
@@ -291,6 +310,15 @@ function testModFloatIntWithNullableOperands() {
 
     float? var14 = constFloat % e;
     assertEqual(var14, ());
+
+    float? var15 = c % g;
+    assertEqual(var15, 0.45);
+
+    float? var16 = h % a;
+    assertEqual(var16, 1.5);
+
+    float? var17 = h % g;
+    assertEqual(var17, 1.5);
 }
 
 function testModFloatIntSubTypeWithNullableOperands() {
@@ -413,6 +441,8 @@ function testModDecimalInt() {
     int f = int:MIN_VALUE;
     MyInt g = 2;
     MyDecimal h = 4.5;
+    2 i = 2;
+    4.5d j = 4.5d;
 
     decimal var5 = c % a;
     assertEqual(var5, 0.45d);
@@ -420,6 +450,8 @@ function testModDecimalInt() {
     assertEqual(var6, 0d);
     decimal var61 = h % a;
     assertEqual(var61, 0.5d);
+    decimal var62 = j % a;
+    assertEqual(var62, 0.5d);
 
     decimal var11 = c % constInt;
     assertEqual(var11, 0.45d);
@@ -427,23 +459,34 @@ function testModDecimalInt() {
     assertEqual(var12, 0d);
     decimal var121 = h % constInt;
     assertEqual(var121, 4.5d);
+    decimal var122 = j % constInt;
+    assertEqual(var122, 4.5d);
 
     decimal var13 = constDecimal % constInt;
     assertEqual(var13, 0.5d);
 
     decimal var15 = constDecimal % a;
     assertEqual(var15, 0.5d);
-    
+    decimal var16 = constDecimal % i;
+    assertEqual(var16, 0.5d);
+
     decimal var17 = c % e;
     assertEqual(var17, 0.45d);
     decimal var18 = c % f;
     assertEqual(var18, 0.45d);
-    
+
     decimal var19 = c % g;
     assertEqual(var19, 0.45d);
+    decimal var191 = c % i;
+    assertEqual(var191, 0.45d);
 
     decimal var20 = h % g;
     assertEqual(var20, 0.5d);
+    decimal var201 = h % i;
+    assertEqual(var201, 0.5d);
+
+    decimal var21 = j % i;
+    assertEqual(var21, 0.5d);
 }
 
 function testModDecimalIntSubTypes() {
@@ -480,6 +523,8 @@ function testModDecimalIntWithNullableOperands() {
     decimal? d = -10.5;
     int? e = ();
     decimal? f = ();
+    2? g = 2;
+    5.5d h = 5.5d;
 
     decimal? var2 = d % a;
     assertEqual(var2, -0.5d);
@@ -510,6 +555,15 @@ function testModDecimalIntWithNullableOperands() {
 
     decimal? var14 = constDecimal % e;
     assertEqual(var14, ());
+
+    decimal? var15 = c % g;
+    assertEqual(var15, 0.45d);
+
+    decimal? var16 = h % a;
+    assertEqual(var16, 1.5d);
+
+    decimal? var17 = h % g;
+    assertEqual(var17, 1.5d);
 }
 
 function testModDecimalIntSubTypeWithNullableOperands() {
@@ -618,75 +672,6 @@ function testResultTypeOfModDecimalIntForNilableOperandsByInfering() {
     var i = constDecimal % constInt;
     decimal? var7 = i;
     assertEqual(var7, 0.5d);
-}
-
-int intVal = 10;
-
-function testNoShortCircuitingInModWithNullable() {
-    int? result = foo() % bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 18);
-
-    result = foo() % 12;
-    assertEqual(result, ());
-    assertEqual(intVal, 20);
-
-    result = 12 % bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 26);
-
-    int? x = 12;
-    result = foo() % x;
-    assertEqual(result, ());
-    assertEqual(intVal, 28);
-
-    result = x % bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 34);
-
-    result = x % bam();
-    assertEqual(result, 2);
-    assertEqual(intVal, 44);
-
-    result = bam() % x;
-    assertEqual(result, 5);
-    assertEqual(intVal, 54);
-
-    result = foo() % bam();
-    assertEqual(result, ());
-    assertEqual(intVal, 66);
-
-    result = bam() % bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 82);
-}
-
-function testNoShortCircuitingInModWithNonNullable() {
-    intVal = 10;
-    int x = 10;
-
-    int result = x % bam();
-    assertEqual(result, 0);
-    assertEqual(intVal, 20);
-
-    result = bam() % 12;
-    assertEqual(result, 5);
-    assertEqual(intVal, 30);
-}
-
-function foo() returns int? {
-    intVal += 2;
-    return ();
-}
-
-function bar() returns int? {
-    intVal += 6;
-    return ();
-}
-
-function bam() returns int {
-    intVal += 10;
-    return 5;
 }
 
 function assertEqual(any actual, any expected) {

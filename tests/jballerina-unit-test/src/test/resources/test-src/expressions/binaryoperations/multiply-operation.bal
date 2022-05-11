@@ -301,6 +301,8 @@ function testMultiplyFloatInt() {
     int f = int:MIN_VALUE;
     MyInt g = 2;
     MyFloat h = 4.5;
+    2 i = 2;
+    4.5 j = 4.5;
 
     float var1 = a * b;
     assertEqual(var1, 9.0);
@@ -310,6 +312,8 @@ function testMultiplyFloatInt() {
     assertEqual(var3, -21.0);
     float var31 = a * h;
     assertEqual(var31, 9.0);
+    float var32 = a * j;
+    assertEqual(var32, 9.0);
 
     float var4 = b * a;
     assertEqual(var4, 9.0);
@@ -319,6 +323,8 @@ function testMultiplyFloatInt() {
     assertEqual(var6, -21.0);
     float var61 = h * a;
     assertEqual(var61, 9.0);
+    float var62 = j * a;
+    assertEqual(var62, 9.0);
 
     float var7 = constInt * b;
     assertEqual(var7, 22.5);
@@ -328,6 +334,8 @@ function testMultiplyFloatInt() {
     assertEqual(var9, -52.5);
     float var91 = constInt * h;
     assertEqual(var91, 22.5);
+    float var92 = constInt * j;
+    assertEqual(var92, 22.5);
 
     float var10 = b * constInt;
     assertEqual(var10, 22.5);
@@ -337,6 +345,8 @@ function testMultiplyFloatInt() {
     assertEqual(var12, -52.5);
     float var121 = h * constInt;
     assertEqual(var121, 22.5);
+    float var122 = j * constInt;
+    assertEqual(var122, 22.5);
 
     float var13 = constFloat * constInt;
     assertEqual(var13, 102.5);
@@ -357,6 +367,19 @@ function testMultiplyFloatInt() {
 
     float var20 = g * h;
     assertEqual(var20, 9.0);
+
+    float var21 = i * b;
+    assertEqual(var21, 9.0);
+    float var22 = b * i;
+    assertEqual(var22, 9.0);
+    float var23 = h * i;
+    assertEqual(var23, 9.0);
+    float var24 = i * h;
+    assertEqual(var24, 9.0);
+    float var25 = i * constFloat;
+    assertEqual(var25, 41.0);
+    float var26 = constFloat * i;
+    assertEqual(var26, 41.0);
 }
 
 function testMultiplyFloatIntSubTypes() {
@@ -404,33 +427,50 @@ function testMultiplyFloatIntSubTypes() {
 function testMultiplyFloatIntWithNullableOperands() {
     int a = 2;
     int? b = 4;
-    float c = 4.5e-1;
-    float? d = -10.5;
+    5? c = 5;
+    float d = 4.5e-1;
+    float? e = -10.5;
+    2.5? f = 2.5;
 
-    float? var1 = a * d;
+    float? var1 = a * e;
     assertEqual(var1, -21.0);
-    float? var2 = d * a;
+    float? var2 = e * a;
     assertEqual(var2, -21.0);
 
-    float? var3 = b * c;
+    float? var3 = b * d;
     assertEqual(var3, 1.8);
-    float? var4 = c * b;
+    float? var4 = d * b;
     assertEqual(var4, 1.8);
 
-    float? var5 = b * d;
+    float? var5 = b * e;
     assertEqual(var5, -42.0);
-    float? var6 = d * b;
+    float? var6 = e * b;
     assertEqual(var6, -42.0);
 
-    float? var7 = constInt * d;
+    float? var7 = constInt * e;
     assertEqual(var7, -52.5);
-    float? var8 = d * constInt;
+    float? var8 = e * constInt;
     assertEqual(var8, -52.5);
 
     float? var9 = constFloat * b;
     assertEqual(var9, 82.0);
     float? var10 = b * constFloat;
     assertEqual(var10, 82.0);
+
+    float? var11 = a * f;
+    assertEqual(var11, 5.0);
+    float? var12 = f * a;
+    assertEqual(var12, 5.0);
+
+    float? var13 = c * d;
+    assertEqual(var13, 2.25);
+    float? var14 = d * c;
+    assertEqual(var14, 2.25);
+
+    float? var15 = c * f;
+    assertEqual(var15, 12.5);
+    float? var16 = f * c;
+    assertEqual(var16, 12.5);
 }
 
 function testMultiplyFloatIntSubTypeWithNullableOperands() {
@@ -648,6 +688,8 @@ function testMultiplyDecimalInt() {
     int f = int:MIN_VALUE;
     MyInt g = 2;
     MyDecimal h = 4.5;
+    2 i = 2;
+    4.5d j = 4.5d;
 
     decimal var1 = a * b;
     assertEqual(var1, 9.00d);
@@ -657,6 +699,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var3, -21.00d);
     decimal var31 = a * h;
     assertEqual(var31, 9.00d);
+    decimal var32 = a * j;
+    assertEqual(var32, 9.00d);
 
     decimal var4 = b * a;
     assertEqual(var4, 9.00d);
@@ -666,6 +710,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var6, -21.00d);
     decimal var61 = h * a;
     assertEqual(var61, 9.00d);
+    decimal var62 = j * a;
+    assertEqual(var62, 9.00d);
 
     decimal var7 = constInt * b;
     assertEqual(var7, 22.50d);
@@ -675,6 +721,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var9, -52.50d);
     decimal var91 = constInt * h;
     assertEqual(var91, 22.50d);
+    decimal var92 = constInt * j;
+    assertEqual(var92, 22.50d);
 
     decimal var10 = b * constInt;
     assertEqual(var10, 22.50d);
@@ -684,6 +732,8 @@ function testMultiplyDecimalInt() {
     assertEqual(var12, -52.50d);
     decimal var121 = h * constInt;
     assertEqual(var121, 22.50d);
+    decimal var122 = j * constInt;
+    assertEqual(var122, 22.50d);
 
     decimal var13 = constDecimal * constInt;
     assertEqual(var13, 102.50d);
@@ -694,7 +744,7 @@ function testMultiplyDecimalInt() {
     assertEqual(var15, 41.00d);
     decimal var16 = a * constDecimal;
     assertEqual(var16, 41.00d);
-    
+
     decimal var17 = b * e;
     assertEqual(var17, 41505174165846491131.50d);
     decimal var18 = b * f;
@@ -704,6 +754,19 @@ function testMultiplyDecimalInt() {
 
     decimal var20 = g * h;
     assertEqual(var20, 9.00d);
+
+    decimal var21 = i * b;
+    assertEqual(var21, 9.00d);
+    decimal var22 = b * i;
+    assertEqual(var22, 9.00d);
+    decimal var23 = h * i;
+    assertEqual(var23, 9.00d);
+    decimal var24 = i * h;
+    assertEqual(var24, 9.00d);
+    decimal var25 = i * constDecimal;
+    assertEqual(var25, 41.00d);
+    decimal var26 = constDecimal * i;
+    assertEqual(var26, 41.00d);
 }
 
 function testMultiplyDecimalIntSubTypes() {
@@ -751,33 +814,50 @@ function testMultiplyDecimalIntSubTypes() {
 function testMultiplyDecimalIntWithNullableOperands() {
     int a = 2;
     int? b = 4;
-    decimal c = 4.5e-1;
-    decimal? d = -10.5;
+    5? c = 5;
+    decimal d = 4.5e-1;
+    decimal? e = -10.5;
+    2.5d? f = 2.5d;
 
-    decimal? var1 = a * d;
+    decimal? var1 = a * e;
     assertEqual(var1, -21.00d);
-    decimal? var2 = d * a;
+    decimal? var2 = e * a;
     assertEqual(var2, -21.00d);
 
-    decimal? var3 = b * c;
+    decimal? var3 = b * d;
     assertEqual(var3, 1.80d);
-    decimal? var4 = c * b;
+    decimal? var4 = d * b;
     assertEqual(var4, 1.80d);
 
-    decimal? var5 = b * d;
+    decimal? var5 = b * e;
     assertEqual(var5, -42.00d);
-    decimal? var6 = d * b;
+    decimal? var6 = e * b;
     assertEqual(var6, -42.00d);
 
-    decimal? var7 = constInt * d;
+    decimal? var7 = constInt * e;
     assertEqual(var7, -52.50d);
-    decimal? var8 = d * constInt;
+    decimal? var8 = e * constInt;
     assertEqual(var8, -52.50d);
 
     decimal? var9 = constDecimal * b;
     assertEqual(var9, 82.00d);
     decimal? var10 = b * constDecimal;
     assertEqual(var10, 82.00d);
+
+    decimal? var11 = a * f;
+    assertEqual(var11, 5.00d);
+    decimal? var12 = f * a;
+    assertEqual(var12, 5.00d);
+
+    decimal? var13 = c * d;
+    assertEqual(var13, 2.250d);
+    decimal? var14 = d * c;
+    assertEqual(var14, 2.250d);
+
+    decimal? var15 = c * f;
+    assertEqual(var15, 12.50d);
+    decimal? var16 = f * c;
+    assertEqual(var16, 12.50d);
 }
 
 function testMultiplyDecimalIntSubTypeWithNullableOperands() {
@@ -955,75 +1035,6 @@ function testResultTypeOfMultiplyDecimalIntForNilableOperandsByInfering() {
     var h = b * constDecimal;
     decimal? var6 = h;
     assertEqual(var6, 61.50d);
-}
-
-int intVal = 10;
-
-function testNoShortCircuitingInMultiplicationWithNullable() {
-    int? result = foo() * bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 18);
-
-    result = foo() * 12;
-    assertEqual(result, ());
-    assertEqual(intVal, 20);
-
-    result = 12 * bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 26);
-
-    int? x = 12;
-    result = foo() * x;
-    assertEqual(result, ());
-    assertEqual(intVal, 28);
-
-    result = x * bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 34);
-
-    result = x * bam();
-    assertEqual(result, 60);
-    assertEqual(intVal, 44);
-
-    result = bam() * x;
-    assertEqual(result, 60);
-    assertEqual(intVal, 54);
-
-    result = foo() * bam();
-    assertEqual(result, ());
-    assertEqual(intVal, 66);
-
-    result = bam() * bar();
-    assertEqual(result, ());
-    assertEqual(intVal, 82);
-}
-
-function testNoShortCircuitingInMultiplicationWithNonNullable() {
-    intVal = 10;
-    int x = 10;
-
-    int result = x * bam();
-    assertEqual(result, 50);
-    assertEqual(intVal, 20);
-
-    result = bam() * 12;
-    assertEqual(result, 60);
-    assertEqual(intVal, 30);
-}
-
-function foo() returns int? {
-    intVal += 2;
-    return ();
-}
-
-function bar() returns int? {
-    intVal += 6;
-    return ();
-}
-
-function bam() returns int {
-    intVal += 10;
-    return 5;
 }
 
 function assertEqual(any actual, any expected) {
