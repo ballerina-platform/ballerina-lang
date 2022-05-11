@@ -2629,7 +2629,7 @@ public class Types {
             for (BField sourceField : source.fields.values()) {
                 if (t.fields.containsKey(sourceField.name.value)) {
                     BField targetField = t.fields.get(sourceField.name.value);
-                    if (isSameType(sourceField.type, targetField.type, this.unresolvedTypes) &&
+                    if (isSameType(sourceField.type, targetField.type, new HashSet<>(this.unresolvedTypes)) &&
                             hasSameOptionalFlag(sourceField.symbol, targetField.symbol) &&
                             (!Symbols.isFlagOn(targetField.symbol.flags, Flags.READONLY) ||
                                      Symbols.isFlagOn(sourceField.symbol.flags, Flags.READONLY))) {
@@ -2638,7 +2638,7 @@ public class Types {
                 }
                 return false;
             }
-            return isSameType(source.restFieldType, t.restFieldType, this.unresolvedTypes);
+            return isSameType(source.restFieldType, t.restFieldType, new HashSet<>(this.unresolvedTypes));
         }
 
         private boolean hasSameOptionalFlag(BVarSymbol s, BVarSymbol t) {
