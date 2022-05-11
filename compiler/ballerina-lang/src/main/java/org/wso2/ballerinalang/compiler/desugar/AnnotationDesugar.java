@@ -189,8 +189,11 @@ public class AnnotationDesugar {
             if (isServiceDeclaration(classDef)) {
                 addIntrospectionInfoAnnotation(classDef, pkgEnv);
             }
+
+            PackageID pkgID = classDef.symbol.pkgID;
+
             LocationInfo locInfo = new LocationInfo(pkgNode, classDef.symbol.pkgID, classDef.symbol.owner,
-                    classDef.pos);
+                    classDef.pos, initBody);
             Scope scope = initFunction.symbol.scope;
             if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
                 SymbolEnv closureEnv = classDef.oceEnvData.capturedClosureEnv;
@@ -200,13 +203,14 @@ public class AnnotationDesugar {
                     // ctor expression
                     normalMode = false;
                     Location pos = invokableNode.pos;
-                    scope = invokableNode.symbol.scope;
+                    BInvokableSymbol bInvokableSymbol = invokableNode.symbol;
+                    scope = bInvokableSymbol.scope;
                     BLangFunction functionWeCreateOce = (BLangFunction) invokableNode;
                     if (functionWeCreateOce.body.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                         initBody = (BLangBlockFunctionBody) functionWeCreateOce.body;
                         pos = functionWeCreateOce.body.pos;
                     }
-                    locInfo = new LocationInfo(pkgNode, invokableNode.symbol.pkgID, invokableNode.symbol, pos);
+                    locInfo = new LocationInfo(pkgNode, bInvokableSymbol.pkgID, bInvokableSymbol, pos, initBody);
                 }
             }
 
@@ -226,8 +230,8 @@ public class AnnotationDesugar {
                         }
                     } else {
                         // Add the lambda/invocation in a temporary block.
-                        addAnnotationLambdaToGlobalAnnotationMapWithBlockDef(pkgNode, classDef,
-                                locInfo, lambdaFunction, initBody);
+                        addAnnotationLambdaToGlobalAnnotationMapWithBlockDef(classDef, locInfo, lambdaFunction,
+                                initBody);
                     }
                 } else {
                     addInvocationToGlobalAnnotMap(classDef.name.value, lambdaFunction, initBody);
@@ -236,8 +240,57 @@ public class AnnotationDesugar {
         }
     }
 
-    private void addAnnotationLambdaToGlobalAnnotationMapWithBlockDef(BLangPackage pkgNode,
-                                                                      BLangClassDefinition classDef,
+    private void addAnnotationLambdaToGlobalAnnotationMapForFields(String key,
+                                                                   BLangClassDefinition classDef,
+                                                                   LocationInfo locationInfo,
+                                                                   BLangLambdaFunction lambdaFunction,
+                                                                   BLangBlockFunctionBody initBody) {
+        BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
+
+        Location pos = locationInfo.pos;
+        target.pos = pos;
+
+        String lamdaName = "$anon" + classDef.name.value + "_lambda_" + lambdaFunction.function.name.value;
+        BVarSymbol symbolVar = new BVarSymbol(0, names.fromString(lamdaName), locationInfo.pkgID,
+                lambdaFunction.getBType(), locationInfo.owner, pos, VIRTUAL);
+
+        // function () returns (map) $anon$anonType$_1_lambda = LambdaRef:$annot_func$_0
+        BLangSimpleVariable funcVar = ASTBuilderUtil.createVariable(pos, lamdaName,
+                lambdaFunction.getBType(), lambdaFunction, symbolVar);
+        BLangSimpleVariableDef funcVarDef = ASTBuilderUtil.createVariableDef(funcVar.pos, funcVar);
+        funcVarDef.setBType(lambdaFunction.getBType());
+        target.stmts.add(funcVarDef);
+
+        // $anon$anonType$_1_lamda
+        BLangSimpleVarRef simpleVarRef = ASTBuilderUtil.createVariableRef(funcVar.pos, funcVar.symbol);
+        simpleVarRef.pkgSymbol = locationInfo.pkgNode.symbol;
+        funcVarDef.parent = initBody;
+        lambdaFunction.parent = initBody;
+        lambdaFunction.function.parent = initBody;
+
+        // $annotation_data[$anonType$_1]
+        BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        indexAccessNode.pos = pos;
+        var finalKey = StringEscapeUtils.unescapeJava(classDef.name.value + "." + key);
+        indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(pos, symTable.stringType, finalKey);
+        indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol);
+        indexAccessNode.setBType(((BMapType) annotationMap.getBType()).constraint);
+
+        // $annotation_data[$anonType$_1] = $anon$anonType$_1_lamda
+        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, target);
+        assignmentStmt.expr = simpleVarRef;
+        assignmentStmt.varRef = indexAccessNode;
+
+        simpleVarRef.parent = initBody;
+        assignmentStmt.parent = initBody;
+
+        int index = 0;
+        for (BLangStatement stmt : target.stmts) {
+            initBody.stmts.add(index++, stmt);
+        }
+    }
+
+    private void addAnnotationLambdaToGlobalAnnotationMapWithBlockDef(BLangClassDefinition classDef,
                                                                       LocationInfo locationInfo,
                                                                       BLangLambdaFunction lambdaFunction,
                                                                       BLangBlockFunctionBody initBody) {
@@ -259,7 +312,7 @@ public class AnnotationDesugar {
 
         // $anon$anonType$_1_lamda
         BLangSimpleVarRef simpleVarRef = ASTBuilderUtil.createVariableRef(funcVar.pos, funcVar.symbol);
-        simpleVarRef.pkgSymbol = pkgNode.symbol;
+        simpleVarRef.pkgSymbol = locationInfo.pkgNode.symbol;
         funcVarDef.parent = initBody;
         lambdaFunction.parent = initBody;
         lambdaFunction.function.parent = initBody;
@@ -385,14 +438,19 @@ public class AnnotationDesugar {
             if (paramAnnotLambda == null) {
                 continue;
             }
-
             if (function == null) {
                 function = defineFunction(locationInfo);
                 mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(locationInfo.pos, symTable.mapType);
             }
 
             String fieldName = FIELD + DOT + field.name.value;
-            addInvocationToLiteral(mapLiteral, fieldName, field.annAttachments.get(0).pos, paramAnnotLambda);
+            // if OCR add the lamda function to global map
+            if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+                addAnnotationLambdaToGlobalAnnotationMapForFields(fieldName, classDef, locationInfo,
+                        paramAnnotLambda, (BLangBlockFunctionBody) locationInfo.body);
+            } else {
+                addInvocationToLiteral(mapLiteral, fieldName, field.annAttachments.get(0).pos, paramAnnotLambda);
+            }
         }
 
         if (function != null && !mapLiteral.fields.isEmpty()) {
@@ -458,7 +516,7 @@ public class AnnotationDesugar {
             SymbolEnv typeEnv = SymbolEnv.createTypeEnv(typeNode, initFunction.symbol.scope, env);
             BLangLambdaFunction lambdaFunction;
             LocationInfo locationInfo = new LocationInfo(pkgNode, typeDef.symbol.pkgID, typeDef.symbol.owner,
-                    typeDef.pos);
+                    typeDef.pos, initFunction.body);
             if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                 lambdaFunction = defineAnnotationsForStructuredTypes(typeDef, locationInfo, typeEnv);
             } else {
@@ -476,7 +534,7 @@ public class AnnotationDesugar {
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
         for (BLangFunction function : functions) {
             LocationInfo locationInfo = new LocationInfo(pkgNode, function.symbol.pkgID, function.symbol.owner,
-                    function.pos);
+                    function.pos, initFnBody);
             if (function.symbol.name.getValue().equals("main")) {
                 addVarArgsAnnotation(function, env);
             }
@@ -553,7 +611,8 @@ public class AnnotationDesugar {
 
     private BLangLambdaFunction defineAnnotations(AnnotatableNode node, Location location, LocationInfo locInfo,
                                                   SymbolEnv env) {
-        LocationInfo locationInfo = new LocationInfo(locInfo.pkgNode, locInfo.pkgID, locInfo.owner, location);
+        LocationInfo locationInfo = new LocationInfo(locInfo.pkgNode, locInfo.pkgID, locInfo.owner, location,
+                locInfo.body);
         return defineAnnotations(getAnnotationList(node), locationInfo, env, false);
     }
 
@@ -1107,16 +1166,18 @@ public class AnnotationDesugar {
         public final PackageID pkgID;
         public final BSymbol owner;
         public final Location pos;
+        public final BLangFunctionBody body;
 
-        LocationInfo(BLangPackage pkgNode, PackageID pkgID, BSymbol owner, Location pos) {
+        LocationInfo(BLangPackage pkgNode, PackageID pkgID, BSymbol owner, Location pos, BLangFunctionBody body) {
             this.pkgNode = pkgNode;
             this.pkgID = pkgID;
             this.owner = owner;
             this.pos = pos;
+            this.body = body;
         }
 
         LocationInfo(LocationInfo locationInfo) {
-            this(locationInfo.pkgNode, locationInfo.pkgID, locationInfo.owner, locationInfo.pos);
+            this(locationInfo.pkgNode, locationInfo.pkgID, locationInfo.owner, locationInfo.pos, locationInfo.body);
         }
 
         void addLambdaFunctionToPackageNode(BLangLambdaFunction lambdaFunction) {

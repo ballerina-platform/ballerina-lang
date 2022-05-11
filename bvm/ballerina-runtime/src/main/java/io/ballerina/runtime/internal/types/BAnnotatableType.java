@@ -47,6 +47,10 @@ public abstract class BAnnotatableType extends BType implements AnnotatableType 
         return (BMap<BString, Object>) this.annotations.copy(new LinkedHashMap<>());
     }
 
+    public void setAnnotation(BString key, Object annotationValue) {
+        this.annotations.put(key, annotationValue);
+    }
+
     public Object getAnnotation(BString key) {
         return this.annotations.get(key);
     }
