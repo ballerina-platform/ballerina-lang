@@ -30,12 +30,13 @@ public class BaseFunctionTest {
             String oldCode = String.valueOf(element.get("oldCode"));
             String newCode = String.valueOf(element.get("newCode"));
             ProjectUtil project = new ProjectUtil();
-            BuildProject project1 = project.createProject(oldCode);
-            BuildProject project2 = project.createProject(newCode);
-            Package oldPackage = project1.currentPackage();
-            Package currentPackage = project2.currentPackage();
+            BuildProject oldProject = project.createProject(oldCode);
+            BuildProject currentProject2 = project.createProject(newCode);
+            Package oldPackage = oldProject.currentPackage();
+            Package currentPackage = currentProject2.currentPackage();
             PackageComparator packageComparator = new PackageComparator(currentPackage,oldPackage);
             Optional<PackageDiff> packageDiff = packageComparator.computeDiff();
+            packageDiff.get().getModuleDiffs();
             packageDiff.get().getAsString();
             System.out.println(packageComparator.computeDiff());
         }
