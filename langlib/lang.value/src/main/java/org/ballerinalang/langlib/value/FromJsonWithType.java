@@ -256,11 +256,7 @@ public class FromJsonWithType {
                 BArray data = ValueCreator
                         .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
                 BArray fieldNames;
-                if (tableType.getFieldNames() != null) {
-                    fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                } else {
-                    fieldNames = ValueCreator.createArrayValue(new BString[]{});
-                }
+                fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
                 return ValueCreator.createTableValue(tableType, data, fieldNames);
             case TypeTags.INTERSECTION_TAG:
                 return convertArray(array, ((IntersectionType) targetType).getEffectiveType(),

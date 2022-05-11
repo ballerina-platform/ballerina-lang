@@ -131,6 +131,8 @@ public class CodeActionUtil {
                 return CodeActionNodeType.MODULE_VARIABLE;
             case ASSIGNMENT_STATEMENT:
                 return CodeActionNodeType.ASSIGNMENT;
+            case RECORD_TYPE_DESC:
+                return CodeActionNodeType.RECORD;
             default:
                 return CodeActionNodeType.NONE;
         }
@@ -590,12 +592,15 @@ public class CodeActionUtil {
                     return Optional.of(member);
                 }
                 return Optional.empty();
-            } else if (member.kind() == SyntaxKind.RECORD_TYPE_DESC && isWithinBody) {
-                // A record type descriptor can be inside a type definition node
-                NonTerminalNode parent = member.parent();
-                if (parent != null && parent.kind() == SyntaxKind.TYPE_DEFINITION &&
-                        (isWithinStartCodeSegment(parent, cursorPosOffset) || isWithinBody(parent, cursorPosOffset))) {
-                    return Optional.of(parent);
+            } else if (member.kind() == SyntaxKind.RECORD_TYPE_DESC) {
+                if (isWithinBody) {
+                    // A record type descriptor can be inside a type definition node
+                    NonTerminalNode parent = member.parent();
+                    if (parent != null && parent.kind() == SyntaxKind.TYPE_DEFINITION &&
+                            (isWithinStartCodeSegment(parent, cursorPosOffset) || 
+                                    isWithinBody(parent, cursorPosOffset))) {
+                        return Optional.of(parent);
+                    }
                 }
                 return Optional.of(member);
             } else if (member.kind() == SyntaxKind.OBJECT_TYPE_DESC && isWithinStartSegment) {
@@ -753,6 +758,10 @@ public class CodeActionUtil {
                         .orElseGet(() -> typeDefinitionNode.textRange().startOffset() - 1);
                 return isWithinRange(positionOffset, typeStartOffset,
                         typeDefinitionNode.typeDescriptor().textRange().startOffset());
+            case RECORD_TYPE_DESC:
+                RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) node;
+                int startOffset = recordTypeDescriptorNode.bodyStartDelimiter().textRange().startOffset();
+                return isWithinRange(positionOffset, recordTypeDescriptorNode.textRange().startOffset(), startOffset);
             case IMPORT_DECLARATION:
             case LOCAL_VAR_DECL:
             case MODULE_VAR_DECL:

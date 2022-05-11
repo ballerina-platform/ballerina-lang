@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.Annotatable;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -84,6 +86,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -115,6 +119,7 @@ import java.util.function.Consumer;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
+import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.ANON_PREFIX;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
@@ -465,9 +470,6 @@ public class BIRPackageSymbolEnter {
 
         byte[] docBytes = readDocBytes(dataInStream);
 
-        // Skip annotation attachments for now
-        dataInStream.skip(dataInStream.readLong());
-
         BType type = readBType(dataInStream);
 
         BTypeReferenceType referenceType = null;
@@ -490,7 +492,8 @@ public class BIRPackageSymbolEnter {
         flags = Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT) ? flags | Flags.CLIENT : flags;
 
         BSymbol symbol;
-        if (isClass || Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM)) {
+        boolean isEnum = Symbols.isFlagOn(type.tsymbol.flags, Flags.ENUM);
+        if (isClass || isEnum) {
             symbol = type.tsymbol;
             symbol.pos = pos;
         } else {
@@ -503,6 +506,9 @@ public class BIRPackageSymbolEnter {
         symbol.flags = flags;
 
         defineMarkDownDocAttachment(symbol, docBytes);
+        defineAnnotAttachmentSymbols(dataInStream,
+                                     (isClass || isEnum || symbol.tag == SymTag.TYPE_DEF) ? (Annotatable) symbol :
+                                             null);
 
         if (type.tsymbol.name == Names.EMPTY && type.tag != TypeTags.INVOKABLE) {
             type.tsymbol.name = symbol.name;
@@ -602,7 +608,29 @@ public class BIRPackageSymbolEnter {
             type = new BIRTypeReader(new DataInputStream(new ByteArrayInputStream(e))).readType(typeCpIndex);
             addShapeCP(type, typeCpIndex);
         }
+
+        if (type.tag == TypeTags.INVOKABLE) {
+            return createClonedInvokableTypeWithTsymbol((BInvokableType) type);
+        }
+
         return type;
+    }
+
+    private BInvokableType createClonedInvokableTypeWithTsymbol(BInvokableType bInvokableType) {
+        BInvokableType clonedType;
+        if (Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION)) {
+            clonedType = new BInvokableType(null, null, null, null);
+        } else {
+            clonedType = new BInvokableType(bInvokableType.paramTypes, bInvokableType.restType, bInvokableType.retType,
+                                            null);
+        }
+        clonedType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
+                                                               bInvokableType.flags, env.pkgSymbol.pkgID, null,
+                                                               env.pkgSymbol.owner, symTable.builtinPos,
+                                                               COMPILED_SOURCE);
+        clonedType.flags = bInvokableType.flags;
+        //TODO: tsymbol param values should be read from bir and added here
+        return clonedType;
     }
 
     private void addShapeCP(BType bType, int typeCpIndex) {
@@ -644,11 +672,37 @@ public class BIRPackageSymbolEnter {
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
         defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
+        defineAnnotAttachmentSymbols(dataInStream, annotationSymbol);
 
         if (annotationType != symTable.noType) { //TODO fix properly
             annotationSymbol.attachedType = annotationType;
         }
         return annotationSymbol;
+    }
+
+    private BAnnotationAttachmentSymbol defineAnnotationAttachmentSymbol(DataInputStream dataInStream, BSymbol owner)
+            throws IOException {
+        PackageID pkgId = getPackageId(dataInStream.readInt());
+        Location pos = readPosition(dataInStream);
+        Name annotTagRef = Names.fromString(getStringCPEntryValue(dataInStream.readInt()));
+
+        boolean constAnnotation = dataInStream.readBoolean();
+
+        if (!constAnnotation) {
+            return new BAnnotationAttachmentSymbol(pkgId, annotTagRef, this.env.pkgSymbol.pkgID, owner, pos,
+                                                   COMPILED_SOURCE, null);
+        }
+
+        BType constantValType = readBType(dataInStream);
+
+        BConstantSymbol constantSymbol = new BConstantSymbol(0, Names.EMPTY, Names.EMPTY,
+                                                             this.env.pkgSymbol.pkgID, null, constantValType,
+                                                             owner, pos, COMPILED_SOURCE);
+        constantSymbol.value = readConstLiteralValue(constantValType, dataInStream);
+        constantSymbol.literalType = constantSymbol.value.type;
+        return new BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol(pkgId, annotTagRef,
+                                                                                this.env.pkgSymbol.pkgID, owner, pos,
+                                                                                COMPILED_SOURCE, constantSymbol, null);
     }
 
     private void defineConstant(DataInputStream dataInStream) throws IOException {
@@ -668,6 +722,7 @@ public class BIRPackageSymbolEnter {
                                                              pos, toOrigin(origin));
 
         defineMarkDownDocAttachment(constantSymbol, docBytes);
+        defineAnnotAttachmentSymbols(dataInStream, constantSymbol);
 
         // read and ignore constant value's byte chunk length.
         dataInStream.readLong();
@@ -706,6 +761,15 @@ public class BIRPackageSymbolEnter {
                     keyValuePairs.put(key, value);
                 }
                 return new BLangConstantValue(keyValuePairs, valueType);
+            case TypeTags.TUPLE:
+                int tupleSize = dataInStream.readInt();
+                List<BLangConstantValue> members = new ArrayList<>(tupleSize);
+                for (int i = 0; i < tupleSize; i++) {
+                    BType type = readBType(dataInStream);
+                    BLangConstantValue value = readConstLiteralValue(type, dataInStream);
+                    members.add(value);
+                }
+                return new BLangConstantValue(members, valueType);
             case TypeTags.INTERSECTION:
                 return readConstLiteralValue(((BIntersectionType) valueType).effectiveType, dataInStream);
             case TypeTags.TYPEREFDESC:
@@ -769,17 +833,17 @@ public class BIRPackageSymbolEnter {
         BType varType = readBType(dataInStream);
         Scope enclScope = this.env.pkgSymbol.scope;
         BVarSymbol varSymbol;
+
         if (varType.tag == TypeTags.INVOKABLE) {
-            BInvokableTypeSymbol bInvokableTypeSymbol = (BInvokableTypeSymbol) varType.tsymbol;
+            // Here we don't set the required-params, defaultable params and the rest param of
+            // the symbol. Because, for the function pointers we directly read the param types
+            // from the varType (i.e: from InvokableType), and assumes it can have only required
+            // params.
             BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
                                              this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
                                              toOrigin(origin));
 
             invokableSymbol.kind = SymbolKind.FUNCTION;
-            if (bInvokableTypeSymbol != null) {
-                invokableSymbol.params = bInvokableTypeSymbol.params;
-                invokableSymbol.restParam = bInvokableTypeSymbol.restParam;
-            }
             invokableSymbol.retType = ((BInvokableType) invokableSymbol.type).retType;
             varSymbol = invokableSymbol;
         } else {
@@ -793,6 +857,7 @@ public class BIRPackageSymbolEnter {
         this.globalVarMap.put(varName, varSymbol);
 
         defineMarkDownDocAttachment(varSymbol, docBytes);
+        defineAnnotAttachmentSymbols(dataInStream, varSymbol);
 
         enclScope.define(varSymbol.name, varSymbol);
     }
@@ -810,8 +875,7 @@ public class BIRPackageSymbolEnter {
                                                   invokableType.paramTypes.get(i), invokableSymbol,
                                                   symTable.builtinPos, COMPILED_SOURCE);
             varSymbol.isDefaultable = ((flags & Flags.OPTIONAL) == Flags.OPTIONAL);
-
-            defineParamAnnotSymbols(dataInStream, varSymbol);
+            defineAnnotAttachmentSymbols(dataInStream, varSymbol);
             invokableSymbol.params.add(varSymbol);
         }
 
@@ -821,7 +885,7 @@ public class BIRPackageSymbolEnter {
                                                   invokableType.restType, invokableSymbol, symTable.builtinPos,
                                                   COMPILED_SOURCE);
             invokableSymbol.restParam = restParam;
-            defineParamAnnotSymbols(dataInStream, restParam);
+            defineAnnotAttachmentSymbols(dataInStream, restParam);
         }
 
         if (Symbols.isFlagOn(invokableSymbol.retType.flags, Flags.PARAMETERIZED)) {
@@ -848,10 +912,18 @@ public class BIRPackageSymbolEnter {
         }
     }
 
-    private void defineParamAnnotSymbols(DataInputStream dataInStream, BVarSymbol varSymbol) throws IOException {
+    private void defineAnnotAttachmentSymbols(DataInputStream dataInStream, Annotatable owner) throws IOException {
+        dataInStream.readLong(); // Read and skip annotation symbol info length.
         int annotSymbolCount = dataInStream.readInt();
+
+        if (annotSymbolCount == 0) {
+            return;
+        }
+
+        List<BAnnotationAttachmentSymbol> annotationAttachmentSymbols =
+                (List<BAnnotationAttachmentSymbol>) owner.getAnnotations();
         for (int j = 0; j < annotSymbolCount; j++) {
-            varSymbol.addAnnotation(defineAnnotation(dataInStream));
+            annotationAttachmentSymbols.add(defineAnnotationAttachmentSymbol(dataInStream, (BSymbol) owner));
         }
     }
 
@@ -1018,84 +1090,6 @@ public class BIRPackageSymbolEnter {
             return readBType(inputStream);
         }
 
-        private BInvokableType setTSymbolForInvokableType(BInvokableType bInvokableType,
-                                                          BType retType) throws IOException {
-            BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, bInvokableType.flags,
-                                                                             env.pkgSymbol.pkgID, null,
-                                                                             env.pkgSymbol.owner, symTable.builtinPos,
-                                                                             COMPILED_SOURCE);
-            bInvokableType.tsymbol = tSymbol;
-            boolean hasTSymbol = inputStream.readBoolean();
-            if (!hasTSymbol) {
-                return bInvokableType;
-            }
-
-            int params = inputStream.readInt();
-            for (int i = 0; i < params; i++) {
-                String paramName = getStringCPEntryValue(inputStream);
-                var paramFlags = inputStream.readLong();
-                byte[] docBytes = readDocBytes(inputStream);
-                BType fieldType = readTypeFromCp();
-
-                BVarSymbol varSymbol = new BVarSymbol(paramFlags, names.fromString(paramName), tSymbol.pkgID,
-                                                      fieldType, tSymbol, symTable.builtinPos,
-                                                      COMPILED_SOURCE);
-
-                varSymbol.isDefaultable = ((paramFlags & Flags.OPTIONAL) == Flags.OPTIONAL);
-                defineMarkDownDocAttachment(varSymbol, docBytes);
-                tSymbol.params.add(varSymbol);
-            }
-
-            boolean hasRestParam = inputStream.readBoolean();
-            if (hasRestParam) {
-                String fieldName = getStringCPEntryValue(inputStream);
-                var fieldFlags = inputStream.readLong();
-                byte[] docBytes = readDocBytes(inputStream);
-                BType fieldType = readTypeFromCp();
-
-                BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(fieldName), tSymbol.pkgID, fieldType,
-                                                      tSymbol, symTable.builtinPos, COMPILED_SOURCE);
-                defineMarkDownDocAttachment(varSymbol, docBytes);
-                tSymbol.restParam = varSymbol;
-            }
-
-            tSymbol.returnType = retType;
-
-            int defaultValues = inputStream.readInt();
-            for (int i = 0; i < defaultValues; i++) {
-                String paramName = getStringCPEntryValue(inputStream);
-                BInvokableSymbol invokableSymbol = getSymbolOfClosure();
-                tSymbol.defaultValues.put(paramName, invokableSymbol);
-            }
-            return bInvokableType;
-        }
-
-        private BInvokableSymbol getSymbolOfClosure() throws IOException {
-            String name = getStringCPEntryValue(inputStream);
-            var flags = inputStream.readLong();
-            BType type = readTypeFromCp();
-            int pkgCpIndex = inputStream.readInt();
-            PackageID pkgId = getPackageId(pkgCpIndex);
-
-            BInvokableSymbol invokableSymbol = Symbols.createFunctionSymbol(flags, Names.fromString(name),
-                                               Names.fromString(name), pkgId, type, null, false,
-                                               symTable.builtinPos, VIRTUAL);
-            invokableSymbol.retType = invokableSymbol.type.getReturnType();
-
-            int parameters = inputStream.readInt();
-            for (int i = 0; i < parameters; i++) {
-                String fieldName = getStringCPEntryValue(inputStream);
-                var fieldFlags = inputStream.readLong();
-                byte[] docBytes = readDocBytes(inputStream);
-                BType fieldType = readTypeFromCp();
-                BVarSymbol varSymbol = new BVarSymbol(fieldFlags, Names.fromString(fieldName), pkgId, fieldType, null,
-                                                      symTable.builtinPos, COMPILED_SOURCE);
-                defineMarkDownDocAttachment(varSymbol, docBytes);
-                invokableSymbol.params.add(varSymbol);
-            }
-            return invokableSymbol;
-        }
-
         public BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
@@ -1145,7 +1139,7 @@ public class BIRPackageSymbolEnter {
                     PackageID pkgId = getPackageId(pkgCpIndex);
 
                     String recordName = getStringCPEntryValue(inputStream);
-                     BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                                                                                 names.fromString(recordName),
                                                                                 env.pkgSymbol.pkgID, null,
                                                                                 env.pkgSymbol, symTable.builtinPos,
@@ -1220,7 +1214,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     SymbolEnv pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(recordName)).type;
+                    return getType(recordType, pkgEnv, names.fromString(recordName));
                 case TypeTags.TYPEDESC:
                     BTypedescType typedescType = new BTypedescType(null, symTable.typeDesc.tsymbol);
                     typedescType.constraint = readTypeFromCp();
@@ -1306,7 +1300,7 @@ public class BIRPackageSymbolEnter {
                         bInvokableType.restType = readTypeFromCp();
                     }
                     bInvokableType.retType = readTypeFromCp();
-                    return setTSymbolForInvokableType(bInvokableType, bInvokableType.retType);
+                    return bInvokableType;
                 // All the above types are branded types
                 case TypeTags.ANY:
                     BType anyNominalType = typeParamAnalyzer.getNominalType(symTable.anyType, name, flags);
@@ -1382,8 +1376,7 @@ public class BIRPackageSymbolEnter {
                         } else {
                             pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(unionsPkgId));
                             if (pkgEnv != null) {
-                                BType existingUnionType =
-                                        symbolResolver.lookupSymbolInMainSpace(pkgEnv, unionName).type;
+                                BType existingUnionType = getType(unionType, pkgEnv, unionName);
                                 if (existingUnionType != symTable.noType) {
                                     return existingUnionType;
                                 }
@@ -1586,7 +1579,7 @@ public class BIRPackageSymbolEnter {
                     }
 
                     pkgEnv = symTable.pkgEnvMap.get(packageCache.getSymbol(pkgId));
-                    return symbolResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(objName)).type;
+                    return getType(objectType, pkgEnv, names.fromString(objName));
                 case TypeTags.BYTE_ARRAY:
                     // TODO fix
                     break;
@@ -1649,6 +1642,7 @@ public class BIRPackageSymbolEnter {
 
         private void ignoreAttachedFunc() throws IOException {
             getStringCPEntryValue(inputStream);
+            getStringCPEntryValue(inputStream);
             // TODO: check
             inputStream.readLong();
             readTypeFromCp();
@@ -1696,14 +1690,14 @@ public class BIRPackageSymbolEnter {
         private void populateIntersectionTypeReferencedFunctions(DataInputStream inputStream,
                                                                  BObjectTypeSymbol objectSymbol) throws IOException {
             String attachedFuncName = getStringCPEntryValue(inputStream);
+            String attachedFuncOrigName = getStringCPEntryValue(inputStream);
             var attachedFuncFlags = inputStream.readLong();
             if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
                     Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
                 BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
                 Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
                         objectSymbol.name.value, attachedFuncName));
-                Name funcOrigName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                        objectSymbol.originalName.value, attachedFuncName));
+                Name funcOrigName = names.fromString(attachedFuncOrigName);
                 BInvokableSymbol attachedFuncSymbol =
                         Symbols.createFunctionSymbol(attachedFuncFlags, funcName, funcOrigName,
                                 env.pkgSymbol.pkgID, attachedFuncType,
@@ -1726,6 +1720,45 @@ public class BIRPackageSymbolEnter {
                 objectSymbol.scope.define(funcName, attachedFuncSymbol);
             }
         }
+    }
+
+    private BType getType(BType readShape, SymbolEnv pkgEnv, Name name) {
+        BType type = symbolResolver.lookupSymbolInMainSpace(pkgEnv, name).type;
+
+        if (type != symTable.noType && (!name.value.contains(ANON_PREFIX) || types.isSameBIRShape(readShape, type))) {
+            return type;
+        }
+
+        if (pkgEnv.node != null) {
+            for (BLangTypeDefinition typeDefinition : ((BLangPackage) pkgEnv.node).typeDefinitions) {
+                BSymbol symbol = typeDefinition.symbol;
+
+                String typeDefName = typeDefinition.name.value;
+                if (typeDefName.contains(ANON_PREFIX)) {
+                    BType anonType = symbol.type;
+
+                    if (types.isSameBIRShape(readShape, anonType)) {
+                        return anonType;
+                    }
+                } else if (typeDefName.equals(name.value)) {
+                    return symbol.type;
+                }
+            }
+        } else {
+            for (Map.Entry<Name, Scope.ScopeEntry> value : pkgEnv.scope.entries.entrySet()) {
+                BSymbol symbol = value.getValue().symbol;
+
+                if (value.getKey().value.contains(ANON_PREFIX)) {
+                    BType anonType = symbol.type;
+
+                    if (types.isSameBIRShape(readShape, anonType)) {
+                        return anonType;
+                    }
+                }
+            }
+        }
+
+        return type;
     }
 
     private byte[] readDocBytes(DataInputStream inputStream) throws IOException {

@@ -74,9 +74,12 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"createUndefinedFunction19.json", "createUndefinedFunction9.bal"},
                 {"createUndefinedFunction20.json", "createUndefinedFunction10.bal"},
                 {"createUndefinedFunction21.json", "createUndefinedFunction11.bal"},
+                {"createUndefinedFunction22.json", "createUndefinedFunction12.bal"},
 
                 {"createUndefinedFunctionInRecord.json", "createUndefinedFunctionInRecord.bal"},
                 {"createUndefinedFunctionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
+                {"createUndefinedFunctionInRecordField1.json", "createUndefinedFunctionInRecordField.bal"},
+                {"createUndefinedFunctionInObjectField1.json", "createUndefinedFunctionInObjectField.bal"},
 
                 {"projectCreateUndefinedFunction1.json", "testproject/main.bal"},
                 {"projectCreateUndefinedFunction2.json", "testproject/main.bal"},
@@ -136,6 +139,9 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_which_returns_error1.json", "create_function_which_returns_error1.bal"},
                 {"create_function_in_fail1.json", "create_function_in_fail1.bal"},
                 {"create_function_in_return1.json", "create_function_in_return1.bal"},
+                
+                // Named Args
+                {"create_function_with_named_args1.json", "create_function_with_named_args1.bal"},
         };
     }
 

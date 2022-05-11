@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
 import io.ballerina.runtime.api.values.BString;
@@ -164,7 +166,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.CHAR_STRING_TAG:
                 this.bStringValues = new BString[initialArraySize];
                 if (arrayType.getState() == ArrayState.CLOSED) {
-                    fillerValueCheck(initialArraySize, initialArraySize);
                     fillValues(initialArraySize);
                 }
                 break;
@@ -177,7 +178,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 this.refValues = new Object[initialArraySize];
                 if (arrayType.getState() == ArrayState.CLOSED) {
-                    fillerValueCheck(initialArraySize, initialArraySize);
                     fillValues(initialArraySize);
                 }
         }
@@ -266,9 +266,20 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-        for (int index = 0; index < initialValues.length; index++) {
-            addRefValue(index, ((ListInitialValueEntry.ExpressionEntry) initialValues[index]).value);
+
+        int index = 0;
+        for (BListInitialValueEntry listEntry : initialValues) {
+            if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
+                addRefValue(index++, ((ListInitialValueEntry.ExpressionEntry) listEntry).value);
+            } else {
+                BArray values = ((ListInitialValueEntry.SpreadEntry) listEntry).values;
+                BIterator<?> iterator = values.getIterator();
+                while (iterator.hasNext()) {
+                    addRefValue(index++, iterator.next());
+                }
+            }
         }
+
         this.typedesc = getTypedescValue(arrayType, this);
     }
 

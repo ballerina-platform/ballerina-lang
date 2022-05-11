@@ -747,6 +747,11 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.exprs, data);
     }
 
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.expr, data);
+    }
+
     public void visit(BLangLiteral node, T data) {
         analyzeNode(node, data);
     }

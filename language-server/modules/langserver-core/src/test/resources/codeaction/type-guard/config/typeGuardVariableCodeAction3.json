@@ -1,6 +1,6 @@
 {
     "line": 8,
-    "character": 18,
+    "character": 12,
     "expected": [
         {
             "title": "Type guard variable 'cur'",

@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -136,13 +135,13 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
      * @param unionType flags associated with the type
      * @param typeName typename associated with the type
      */
-    protected BUnionType(BUnionType unionType, String typeName) {
+    protected BUnionType(BUnionType unionType, String typeName, boolean readonly) {
         super(typeName, unionType.pkg, unionType.valueClass);
-        this.readonly = unionType.readonly;
         this.typeFlags = unionType.typeFlags;
         this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.originalMemberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.mergeUnionType(unionType);
+        this.readonly = readonly;
     }
 
     public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, Module pkg, int typeFlags,
@@ -372,12 +371,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             }
         }
         return this.readonly == that.readonly;
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(super.hashCode(), memberTypes);
     }
 
     @Override

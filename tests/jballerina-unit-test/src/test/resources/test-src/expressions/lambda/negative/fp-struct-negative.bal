@@ -14,8 +14,7 @@ function test1() returns [string, string]{
                                                           }};
     Person tom = {fname:"tom", lname:"smith", getName: getFullName};
 
-    function (string, string) returns (string) fp = bob.getFullName;
-    string x = fp(bob.fname, bob.lname );
+    string x = bob.getFullName(bob.fname, bob.lname );
     string y = tom.getName(tom.fname, tom.lname );
     return [x, y];
 }
