@@ -21,11 +21,15 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
+
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.FAILED_TO_DECODE_BYTES;
 
 /**
  * Extern function lang.string:fromBytes(byte[]).
@@ -51,8 +55,8 @@ public class FromBytes {
             charsetDecoder.reset();
             return StringUtils.fromString(str);
         } catch (CharacterCodingException e) {
-            return ErrorCreator.createError(StringUtils.fromString("FailedToDecodeBytes"),
-                    StringUtils.fromString("byte array contains invalid value"));
+            return ErrorCreator.createError(FAILED_TO_DECODE_BYTES,
+                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_UTF_8_BYTE_ARRAY_VALUE));
         }
     }
 }
