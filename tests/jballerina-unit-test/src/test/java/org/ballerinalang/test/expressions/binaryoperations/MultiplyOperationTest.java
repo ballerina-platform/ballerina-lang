@@ -142,4 +142,17 @@ public class MultiplyOperationTest {
                 "testResultTypeOfMultiplyDecimalIntForNilableOperandsByInfering",
         };
     }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInMultiplication")
+    public void testShortCircuitingInMultiplication(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInMultiplication() {
+        return new Object[]{
+                "testNoShortCircuitingInMultiplicationWithNullable",
+                "testNoShortCircuitingInMultiplicationWithNonNullable"
+        };
+    }
 }
