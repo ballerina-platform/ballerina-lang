@@ -169,7 +169,7 @@ function testFromBytesInvalidValues() {
     assertEquals(true, negativeResult is error);
     error err = <error>negativeResult;
     assertEquals("FailedToDecodeBytes", err.message());
-    assertEquals("byte array contains invalid value", <string>checkpanic err.detail()["message"]);
+    assertEquals("array contains invalid UTF-8 byte value", <string>checkpanic err.detail()["message"]);
 }
 
 function testJoin() returns string {
