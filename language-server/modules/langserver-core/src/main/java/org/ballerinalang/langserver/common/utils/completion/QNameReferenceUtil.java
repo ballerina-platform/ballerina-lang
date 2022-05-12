@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
@@ -62,7 +63,7 @@ public class QNameReferenceUtil {
      */
     public static List<Symbol> getExpressionContextEntries(BallerinaCompletionContext ctx, String moduleAlias) {
         String alias = getAlias(moduleAlias);
-        Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, alias);
+        Optional<ModuleSymbol> moduleSymbol = ModuleOperationUtil.searchModuleForAlias(ctx, alias);
 
         return moduleSymbol.map(value -> value.allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
@@ -104,7 +105,7 @@ public class QNameReferenceUtil {
     public static List<Symbol> getModuleContent(PositionedOperationContext context,
                                                 QualifiedNameReferenceNode qNameRef,
                                                 Predicate<Symbol> predicate) {
-        Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
                 .collect(Collectors.toList()))
@@ -120,7 +121,7 @@ public class QNameReferenceUtil {
      */
     public static List<Symbol> getTypesInModule(BallerinaCompletionContext context,
                                                 QualifiedNameReferenceNode qNameRef) {
-        Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
                 .filter(CommonUtil.typesFilter())
                 .collect(Collectors.toList()))

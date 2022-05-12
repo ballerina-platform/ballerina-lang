@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -402,13 +403,13 @@ public class SortingUtil {
         if (typeDesc.get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDesc.get();
             String alias = QNameReferenceUtil.getAlias(qNameRef);
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+            Optional<ModuleSymbol> moduleSymbol = ModuleOperationUtil.searchModuleForAlias(context, alias);
 
             if (moduleSymbol.isEmpty()) {
                 return Optional.empty();
             }
             String identifier = qNameRef.identifier().text();
-            return CommonUtil.getTypeFromModule(context, alias, identifier);
+            return ModuleOperationUtil.getTypeFromModule(context, alias, identifier);
         }
         if (typeDesc.get().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();

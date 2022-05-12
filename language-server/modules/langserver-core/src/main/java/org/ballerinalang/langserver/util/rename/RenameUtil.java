@@ -38,6 +38,7 @@ import io.ballerina.tools.text.TextDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -408,7 +409,7 @@ public class RenameUtil {
                         List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
                         Range editRange = ReferencesUtil.getRange(location);
                         if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
-                            String escapedNewName = CommonUtil.escapeModuleName(newName);
+                            String escapedNewName = ModuleOperationUtil.escapeModuleName(newName);
                             textEdits.add(new AnnotatedTextEdit(editRange,
                                     escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
                             textEdits.add(new AnnotatedTextEdit(editRange,

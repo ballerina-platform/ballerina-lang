@@ -31,7 +31,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -100,7 +100,7 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
 
     private List<LSCompletionItem> getAnnotationsInModule(BallerinaCompletionContext context, String alias,
                                                           AnnotationNode annotationNode, Node attachedNode) {
-        Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
+        Optional<ModuleSymbol> moduleEntry = ModuleOperationUtil.searchModuleForAlias(context, alias);
         // TODO: Enable after annotation cache is supported
 //        if (moduleEntry.isEmpty()) {
 //            List<LSCompletionItem> completionItems = new ArrayList<>();

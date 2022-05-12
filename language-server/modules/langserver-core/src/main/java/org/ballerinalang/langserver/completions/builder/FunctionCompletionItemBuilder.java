@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.Command;
@@ -291,7 +292,7 @@ public final class FunctionCompletionItemBuilder {
             return functionName;
         }
         ModuleID moduleID = module.get().id();
-        String modulePrefix = CommonUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
+        String modulePrefix = ModuleOperationUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
 
         if (modulePrefix.isEmpty()) {
             return functionName;

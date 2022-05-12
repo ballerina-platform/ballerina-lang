@@ -44,11 +44,7 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.common.utils.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
-import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.*;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -295,7 +291,7 @@ public class ServiceTemplateGenerator {
         List<LSPackageLoader.PackageInfo> packages = LSPackageLoader.getInstance(lsContext)
                 .getDistributionRepoPackages();
         packages.forEach(distPackage -> {
-            String orgName = CommonUtil.escapeModuleName(distPackage.packageOrg().value());
+            String orgName = ModuleOperationUtil.escapeModuleName(distPackage.packageOrg().value());
             Project project = ProjectLoader.loadProject(distPackage.sourceRoot());
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             project.currentPackage().modules().forEach(module -> {
@@ -415,10 +411,10 @@ public class ServiceTemplateGenerator {
 
         String symbolReference;
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        String modulePrefix = CommonUtil.getModulePrefix(importsAcceptor, currentModuleID,
+        String modulePrefix = ModuleOperationUtil.getModulePrefix(importsAcceptor, currentModuleID,
                 serviceSnippet.moduleID, context);
         String moduleAlias = modulePrefix.replace(":", "");
-        String escapedName = CommonUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
+        String escapedName = ModuleOperationUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
         String moduleName = escapedName.replaceAll(".*\\.", "");
 
         if (!moduleAlias.isEmpty()) {

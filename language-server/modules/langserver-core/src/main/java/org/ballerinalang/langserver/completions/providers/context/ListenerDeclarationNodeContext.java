@@ -33,7 +33,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -276,7 +276,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         }
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context,
+            Optional<ModuleSymbol> moduleSymbol = ModuleOperationUtil.searchModuleForAlias(context,
                     QNameReferenceUtil.getAlias(nameReferenceNode));
 
             if (moduleSymbol.isEmpty()) {

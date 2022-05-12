@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context.util;
 
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -42,7 +42,7 @@ public class ImportDeclarationContextUtil {
      * @return {@link String} modified package name
      */
     public static String getLangLibModuleNameInsertText(String pkgName) {
-        return (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName) ? pkgName.replace(".", ".'") : pkgName) + ";";
+        return (ModuleOperationUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName) ? pkgName.replace(".", ".'") : pkgName) + ";";
     }
 
     /**

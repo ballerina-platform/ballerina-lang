@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -72,7 +73,7 @@ public class ExplicitNewExpressionNodeContext extends InvocationNodeContextProvi
              */
             QualifiedNameReferenceNode referenceNode = (QualifiedNameReferenceNode) context.getNodeAtCursor();
             String moduleName = QNameReferenceUtil.getAlias(referenceNode);
-            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, moduleName);
+            Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, moduleName);
             if (module.isEmpty()) {
                 return completionItems;
             }

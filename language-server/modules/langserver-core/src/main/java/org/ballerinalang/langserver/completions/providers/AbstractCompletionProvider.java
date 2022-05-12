@@ -47,10 +47,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
-import org.ballerinalang.langserver.common.utils.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.*;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -312,7 +309,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     .map(Token::text)
                     .collect(Collectors.joining("."));
 
-            if (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName.replace("'", ""))) {
+            if (ModuleOperationUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName.replace("'", ""))) {
                 // skip the predeclared langlib imports
                 return;
             }
@@ -335,12 +332,12 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx);
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
-            String orgName = CommonUtil.escapeModuleName(pkg.packageOrg().value());
-            if (CommonUtil.matchingImportedModule(ctx, pkg).isEmpty()
+            String orgName = ModuleOperationUtil.escapeModuleName(pkg.packageOrg().value());
+            if (ModuleOperationUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
-                    && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
+                    && !ModuleOperationUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
-                        .map(CommonUtil::escapeModuleName)
+                        .map(ModuleOperationUtil::escapeModuleName)
                         .collect(Collectors.toList());
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
@@ -572,7 +569,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      */
     protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        CommonUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
+        ModuleOperationUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });

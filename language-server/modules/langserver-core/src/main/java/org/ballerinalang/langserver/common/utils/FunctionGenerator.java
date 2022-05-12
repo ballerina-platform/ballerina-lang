@@ -30,8 +30,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePrefix;
-
 /**
  * Function generator utilities.
  */
@@ -80,7 +78,7 @@ public class FunctionGenerator {
             newText.append(text, nextStart, matcher.start(1));
             // Append module prefix(empty when in same module) and identify imports
             ModuleID moduleID = CodeActionModuleId.from(matcher.group(1), matcher.group(2), matcher.group(3));
-            newText.append(getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
+            newText.append(ModuleOperationUtil.getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
             // Update next-start position
             nextStart = matcher.end(3) + 1;
         }

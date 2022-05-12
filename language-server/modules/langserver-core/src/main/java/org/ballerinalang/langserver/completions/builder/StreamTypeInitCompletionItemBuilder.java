@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
@@ -76,7 +77,7 @@ public class StreamTypeInitCompletionItemBuilder {
             return typeDefinitionSymbol.getName().get();
         }
         ModuleID moduleID = module.get().id();
-        String modulePrefix = CommonUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
+        String modulePrefix = ModuleOperationUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
 
         // Added the annotations prefix check until #31884 is resolved
         if (modulePrefix.isEmpty() || modulePrefix.equals("annotations")) {
