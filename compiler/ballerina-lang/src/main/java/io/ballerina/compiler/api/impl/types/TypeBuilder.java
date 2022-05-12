@@ -19,8 +19,10 @@
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
@@ -41,6 +43,8 @@ public abstract class TypeBuilder {
     public STREAM STREAM_TYPE;
     public TUPLE TUPLE_TYPE;
     public ARRAY ARRAY_TYPE;
+    public ERROR ERROR_TYPE;
+    public SINGLETON SINGLETON_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -127,5 +131,16 @@ public abstract class TypeBuilder {
         ARRAY ofSize(Integer size);
 
         ArrayTypeSymbol build();
+    }
+
+    public interface ERROR {
+        ERROR withTypeParam(TypeSymbol typeParam);
+
+        ErrorTypeSymbol build();
+    }
+
+    public interface SINGLETON {
+
+        SingletonTypeSymbol build();
     }
 }

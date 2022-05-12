@@ -37,3 +37,22 @@ type MixXmlC XmlUnionA|XmlTxt|MixXmlA;
 type NewEle XmlEle;
 
 type EleTxtCmnt XmlCmnt|xml:Text|NewEle;
+
+type Detail record {
+    int code;
+    string message?;
+    error cause?;
+};
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type TrxErrorData record {|
+    string message = "";
+    error cause?;
+    string data = "";
+|};

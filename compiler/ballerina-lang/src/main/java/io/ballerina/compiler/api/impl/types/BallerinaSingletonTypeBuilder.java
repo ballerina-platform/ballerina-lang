@@ -18,24 +18,22 @@
 
 package io.ballerina.compiler.api.impl.types;
 
+import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**
- * Initialize and provide the set of builders required for certain complex types within a single semantic context.
+ * The implementation of the methods used to build the Singleton type descriptor.
  *
  * @since 2.0.0
  */
-public class BallerinaTypeBuilder extends TypeBuilder {
+public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
 
-    public BallerinaTypeBuilder(CompilerContext context) {
-        XML_TYPE = new BallerinaXMLTypeBuilder(context);
-        MAP_TYPE = new BallerinaMapTypeBuilder(context);
-        FUTURE_TYPE = new BallerinaFutureTypeBuilder(context);
-        TYPEDESC_TYPE = new BallerinaTypeDescTypeBuilder(context);
-        STREAM_TYPE = new BallerinaStreamTypeBuilder(context);
-        TUPLE_TYPE = new BallerinaTupleTypeBuilder(context);
-        ARRAY_TYPE = new BallerinaArrayTypeBuilder(context);
-        ERROR_TYPE = new BallerinaErrorTypeBuilder(context);
-        SINGLETON_TYPE = new BallerinaSingletonTypeBuilder(context);
+    public BallerinaSingletonTypeBuilder(CompilerContext context) {
+    }
+
+    @Override
+    public SingletonTypeSymbol build() {
+
+        return null;
     }
 }
