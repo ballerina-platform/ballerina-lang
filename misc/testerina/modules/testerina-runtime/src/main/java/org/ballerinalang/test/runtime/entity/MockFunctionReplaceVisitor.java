@@ -58,40 +58,46 @@ public class MockFunctionReplaceVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-        MethodVisitor defaultMethodVisitor;
+        MethodVisitor methodVisitor;
         if (!name.equals(methodName) || !desc.equals(methodDesc)) {
             // reproduce the methods where no changes needed
-            defaultMethodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
+            methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
         } else {
-            // Rename function as $ORIG_name.
-            defaultMethodVisitor = super.visitMethod(access, ORIGINAL_FUNC_NAME_PREFIX + name,
+            // Rename function as $ORIG_<name> to restore the original function with a different name.
+            methodVisitor = super.visitMethod(access, ORIGINAL_FUNC_NAME_PREFIX + name,
                     desc, signature, exceptions);
 
-            // Create a new method with the same name of original method and call the method $MOCK_name inside it.
-            MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-
-            mv.visitCode();
-            Class<?>[] parameterTypes = mockFunc.getParameterTypes();
-            int paramOffset = 0;
-            for (Class<?> parameterType : parameterTypes) {
-                generateLoadInstruction(mv, parameterType, paramOffset);
-                if (parameterType == Long.TYPE || parameterType == Double.TYPE) {
-                    paramOffset += 2;
-                } else {
-                    paramOffset++;
-                }
-            }
-
-            String mockFuncClassName = mockFunc.getDeclaringClass().getName().replace(".", "/");
-            mv.visitMethodInsn(INVOKESTATIC, mockFuncClassName, mockFunc.getName(),
-                    Type.getMethodDescriptor(mockFunc), false);
-
-            generateReturnInstruction(mv, mockFunc.getReturnType());
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            // Create a new function with the same name of original function and call the mock function
+            // $MOCK_<name> inside it.
+            generateMethodWithMockFunctionCall(access, name, desc, signature, exceptions);
         }
 
-        return defaultMethodVisitor;
+        return methodVisitor;
+    }
+
+    private void generateMethodWithMockFunctionCall(int access, String name, String desc, String signature,
+                                                    String[] exceptions) {
+        MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+
+        mv.visitCode();
+        Class<?>[] parameterTypes = mockFunc.getParameterTypes();
+        int paramOffset = 0;
+        for (Class<?> parameterType : parameterTypes) {
+            generateLoadInstruction(mv, parameterType, paramOffset);
+            if (parameterType == Long.TYPE || parameterType == Double.TYPE) {
+                paramOffset += 2;
+            } else {
+                paramOffset++;
+            }
+        }
+
+        String mockFuncClassName = mockFunc.getDeclaringClass().getName().replace(".", "/");
+        mv.visitMethodInsn(INVOKESTATIC, mockFuncClassName, mockFunc.getName(),
+                Type.getMethodDescriptor(mockFunc), false);
+
+        generateReturnInstruction(mv, mockFunc.getReturnType());
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
     }
 
     private void generateLoadInstruction(MethodVisitor mv, Class<?> type, int index) {
