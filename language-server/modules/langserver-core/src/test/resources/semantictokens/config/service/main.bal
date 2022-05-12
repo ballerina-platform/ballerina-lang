@@ -1,5 +1,5 @@
 import ballerina/http;
-import ballerina/time;
+import serviceProject.time;
 
 type Type int|time:TimeZone|time:Error;
 
