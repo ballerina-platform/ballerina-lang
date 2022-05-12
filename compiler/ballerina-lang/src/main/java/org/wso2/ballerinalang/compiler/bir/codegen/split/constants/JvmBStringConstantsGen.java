@@ -218,12 +218,14 @@ public class JvmBStringConstantsGen {
             } else {
                 byteLength += 3;
             }
+            // Split the large strings depending on the estimated byte length
             if (byteLength >= 65000) {
                 splitStrings.put(getStringVarName(varName, chunkCount++), str.substring(beginIndex, i + 1));
                 beginIndex = i + 1;
                 byteLength = 0;
             }
         }
+        // Add the last part of the already split string
         if (!splitStrings.isEmpty()) {
             splitStrings.put(getStringVarName(varName, chunkCount), str.substring(beginIndex));
         }
@@ -232,9 +234,7 @@ public class JvmBStringConstantsGen {
 
     private void visitBStringField(ClassWriter cw, String varName) {
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName,
-                GET_BSTRING, null,
-                null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, varName, GET_BSTRING, null, null);
         fv.visitEnd();
     }
 

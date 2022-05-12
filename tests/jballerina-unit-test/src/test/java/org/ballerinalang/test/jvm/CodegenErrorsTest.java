@@ -85,7 +85,8 @@ public class CodegenErrorsTest {
 
     @Test
     public void testTooLargeHardCodedStringValue() {
-        CompileResult result = BCompileUtil.compile("test-src/jvm/too-large-hard-coded-string.bal");
+        CompileResult result = BCompileUtil.compile("test-src/jvm/largeStringConstants");
         Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "main");
     }
 }
