@@ -22,6 +22,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Module;
@@ -31,6 +32,8 @@ import io.ballerina.semver.checker.diff.ModuleDiff;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getServiceName;
 
 /**
  * Comparator implementation for Ballerina modules.
@@ -43,12 +46,16 @@ public class ModuleComparator implements Comparator {
     private final Module oldModule;
     private final Map<String, FunctionDefinitionNode> newFunctions;
     private final Map<String, FunctionDefinitionNode> oldFunctions;
+    private final Map<String, ServiceDeclarationNode> newServices;
+    private final Map<String, ServiceDeclarationNode> oldServices;
 
     public ModuleComparator(Module newModule, Module oldModule) {
         this.newModule = newModule;
         this.oldModule = oldModule;
         this.newFunctions = new HashMap<>();
         this.oldFunctions = new HashMap<>();
+        this.newServices = new HashMap<>();
+        this.oldServices = new HashMap<>();
     }
 
     @Override
@@ -58,6 +65,7 @@ public class ModuleComparator implements Comparator {
         extractModuleLevelDefinitions(oldModule, false);
 
         extractFunctionDiffs(moduleDiffModifier);
+        extractServiceDiffs(moduleDiffModifier);
         // Todo: implement analyzers for other module-level definitions
         return moduleDiffModifier.build();
     }
@@ -68,6 +76,14 @@ public class ModuleComparator implements Comparator {
         funcDiffExtractor.getRemovals().forEach((name, function) -> diffModifier.withFunctionRemoved(function));
         funcDiffExtractor.getCommons().forEach((name, functions) -> diffModifier.withFunctionChanged(functions.getKey(),
                 functions.getValue()));
+    }
+
+    private void extractServiceDiffs(ModuleDiff.Builder diffModifier) {
+        DiffExtractor<ServiceDeclarationNode> serviceDiffExtractor = new DiffExtractor<>(newServices, oldServices);
+        serviceDiffExtractor.getAdditions().forEach((name, service) -> diffModifier.withServiceAdded(service));
+        serviceDiffExtractor.getRemovals().forEach((name, service) -> diffModifier.withServiceRemoved(service));
+        serviceDiffExtractor.getCommons().forEach((name, service) -> diffModifier.withServiceChanged(service.getKey(),
+                service.getValue()));
     }
 
     private void extractModuleLevelDefinitions(Module module, boolean isNewModule) {
@@ -88,12 +104,19 @@ public class ModuleComparator implements Comparator {
                             oldFunctions.put(funcNode.functionName().text(), funcNode);
                         }
                         break;
+                    case SERVICE_DECLARATION:
+                        ServiceDeclarationNode serviceNode = (ServiceDeclarationNode) member;
+                        if (isNewModule) {
+                            newServices.put(getServiceName(serviceNode), serviceNode);
+                        } else {
+                            oldServices.put(getServiceName(serviceNode), serviceNode);
+                        }
+                        break;
                     case CLASS_DEFINITION:
                     case TYPE_DEFINITION:
                     case MODULE_VAR_DECL:
                     case CONST_DECLARATION:
                     case LIST_CONSTRUCTOR:
-                    case SERVICE_DECLARATION:
                     case ENUM_DECLARATION:
                     default:
                         // Todo: implement
