@@ -33,6 +33,8 @@ jobs:
       - name: Build
         run: |
           ./gradlew build -x test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+      - name: Configure Trivy exclude CVEs
+        run: cp .trivyignore distribution/zip/jballerina-tools
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
