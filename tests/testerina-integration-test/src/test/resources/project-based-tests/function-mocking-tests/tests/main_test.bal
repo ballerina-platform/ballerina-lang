@@ -241,6 +241,11 @@ public function callOriginal_Test1() {
 
 @test:Config {}
 public function callOriginal_Test2() {
+
+    test:when(mock_stringAdd).thenReturn("test custom return");
+    test:when(mock_stringAdd).callOriginal();
+    test:assertEquals(stringAdd("stringAdd"), "test_stringAdd");
+
     test:when(mock_intAdd).thenReturn(100);
     test:when(mock2_intAdd).callOriginal();
     test:assertEquals(intAdd(7, 3), 100);
