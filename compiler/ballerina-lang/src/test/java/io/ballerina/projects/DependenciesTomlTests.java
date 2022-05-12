@@ -282,6 +282,38 @@ public class DependenciesTomlTests {
                         "Detected corrupted Dependencies.toml file. This will be updated to latest dependencies.");
     }
 
+    @Test(description = "Invalid Dependencies.toml file with additional attribute in modules array")
+    public void testDependenciesTomlWithAdditionalAttributeInModulesArray() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-modules.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "key 'name' not supported in schema 'modules'");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(31:44,31:60)");
+    }
+
+    @Test(description = "Invalid Dependencies.toml file with additional attribute in dependencies array")
+    public void testDependenciesTomlWithAdditionalAttributeInDependenciesArray() throws IOException {
+        DependencyManifest depsManifest = getDependencyManifest(
+                DEPENDENCIES_TOML_REPO.resolve("dependencies-with-additional-attribute-in-dependencies.toml"));
+        DiagnosticResult diagnostics = depsManifest.diagnostics();
+        diagnostics.errors().forEach(OUT::println);
+
+        Assert.assertTrue(diagnostics.hasErrors());
+        Assert.assertEquals(diagnostics.errors().size(), 1);
+
+        Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
+        Diagnostic firstDiagnostic = iterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "key 'version' not supported in schema 'dependencies'");
+        Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(13:37,13:54)");
+    }
+
     private DependencyManifest getDependencyManifest(Path dependenciesTomlPath) throws IOException {
         String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
         TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, dependenciesTomlContent);

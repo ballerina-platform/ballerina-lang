@@ -305,7 +305,7 @@ public class JsonToRecordConverter {
                     String type;
                     Token typeName;
                     TypeDescriptorNode memberTypeDesc;
-                    if (arraySchema.getItems().getType().equals("object")) {
+                    if (arraySchema.getItems().getType() != null && arraySchema.getItems().getType().equals("object")) {
                         type = StringUtils.capitalize(name) + "Item";
                         typeName = AbstractNodeFactory.createIdentifierToken(type);
                         if (isRecordTypeDescriptor) {
@@ -455,7 +455,9 @@ public class JsonToRecordConverter {
             cleanedMap.replace("properties", properties);
         } else if (cleanedMap.get("type").equals("array")) {
             Map<String, Object> itemsSchema = (Map<String, Object>) cleanedMap.get("items");
-            cleanedMap.replace("items", cleanSchema(itemsSchema));
+            Map<String, Object> cleanedSchema = (itemsSchema != null && !itemsSchema.isEmpty()) ?
+                    cleanSchema(itemsSchema) : itemsSchema;
+            cleanedMap.replace("items", cleanedSchema);
         }
 
         return cleanedMap;

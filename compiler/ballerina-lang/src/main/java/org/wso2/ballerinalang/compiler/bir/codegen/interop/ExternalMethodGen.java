@@ -37,14 +37,15 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
@@ -67,13 +68,13 @@ public class ExternalMethodGen {
     public static void genJMethodForBExternalFunc(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule,
                                                   BType attachedType, MethodGen methodGen, JvmPackageGen jvmPackageGen,
                                                   JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
-                                                 JvmConstantsGen jvmConstantsGen,
+                                                  JvmConstantsGen jvmConstantsGen,
                                                   String moduleClassName, AsyncDataCollector lambdaGenMetadata,
-                                                  CompilerContext compilerContext) {
+                                                  Types types) {
         if (birFunc instanceof JFieldBIRFunction) {
             genJFieldForInteropField((JFieldBIRFunction) birFunc, cw, birModule.packageID,
                                      jvmPackageGen, jvmTypeGen, jvmCastGen, jvmConstantsGen,
-                                     moduleClassName, lambdaGenMetadata, compilerContext);
+                                     moduleClassName, lambdaGenMetadata, types);
         } else {
             methodGen.genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen,
                                          moduleClassName, attachedType, lambdaGenMetadata);
@@ -134,7 +135,9 @@ public class ExternalMethodGen {
             args.add(argRef);
         }
 
-        for (BIRNode.BIRFunctionParameter birFuncParam : birFunc.parameters) {
+        Set<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters.keySet();
+
+        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
         }

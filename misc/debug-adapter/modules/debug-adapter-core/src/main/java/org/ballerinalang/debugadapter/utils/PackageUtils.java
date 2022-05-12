@@ -18,12 +18,14 @@ package org.ballerinalang.debugadapter.utils;
 
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -61,6 +63,7 @@ public class PackageUtils {
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
     static final String MODULE_DIR_NAME = "modules";
+    static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     private static final String URI_SCHEME_BALA = "bala";
 
@@ -99,6 +102,26 @@ public class PackageUtils {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
+     * editor instance in the client(plugin) side.
+     *
+     * @param filePath file path of the open/active editor instance in the plugin side.
+     */
+    public static Project loadProject(String filePath) {
+        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
+        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
+        Path projectRoot = projectKindAndProjectRootPair.getValue();
+        BuildOptions options = BuildOptions.builder().setOffline(true).build();
+        if (projectKind == ProjectKind.BUILD_PROJECT) {
+            return BuildProject.load(projectRoot, options);
+        } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
+            return SingleFileProject.load(projectRoot, options);
+        } else {
+            return ProjectLoader.loadProject(projectRoot, options);
+        }
     }
 
     /**
@@ -205,7 +228,7 @@ public class PackageUtils {
             int packageMajorVersion = document.module().packageInstance().packageVersion().value().major();
             StringJoiner classNameJoiner = new StringJoiner(".");
             classNameJoiner.add(document.module().packageInstance().packageOrg().value())
-                    .add(encodeModuleName(document.module().moduleName().toString()))
+                    .add(getFullModuleName(document))
                     .add(String.valueOf(packageMajorVersion))
                     .add(document.name().replace(BAL_FILE_EXT, "").replace(FILE_SEPARATOR_REGEX, ".")
                             .replace("/", "."));
@@ -289,6 +312,24 @@ public class PackageUtils {
         }
 
         throw new IllegalArgumentException("unsupported URI with scheme: " + fileUri.getScheme());
+    }
+
+    /**
+     * Returns the full name string of the Ballerina module (package name part + module name part) for a given
+     * Ballerina source document.
+     *
+     * @param document Ballerina document
+     * @return full name of the Ballerina module
+     */
+    private static String getFullModuleName(Document document) {
+        String packageNamePart = encodeModuleName(document.module().moduleName().packageName().value());
+        if (document.module().testDocumentIds().contains(document.documentId())) {
+            // all the generated java classes for Ballerina test sources ends with "$test" postfix
+            packageNamePart = packageNamePart + TEST_PKG_POSTFIX;
+        }
+
+        String moduleNamePart = document.module().moduleName().moduleNamePart();
+        return moduleNamePart != null ? packageNamePart + "." + encodeModuleName(moduleNamePart) : packageNamePart;
     }
 
     private static String replaceSeparators(String path) {

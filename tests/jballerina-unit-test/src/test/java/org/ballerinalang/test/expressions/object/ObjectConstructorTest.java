@@ -180,6 +180,13 @@ public class ObjectConstructorTest {
                         "'object { function onMessage () returns (); }'", 127, 14);
         validateError(negativeResult, index++, "incompatible types: expected 'any & readonly', found 'stream<int>'",
                       140, 17);
+        validateError(negativeResult, index++, "annotation not attached to a construct", 153, 14);
+        validateError(negativeResult, index++, "missing object constructor expression", 153, 14);
+        validateError(negativeResult, index++, "missing semicolon token", 154, 1);
+        validateError(negativeResult, index++, "annotation not attached to a construct", 154, 14);
+        validateError(negativeResult, index++, "missing object constructor expression", 154, 14);
+        validateError(negativeResult, index++, "annotation not attached to a construct", 154, 18);
+        validateError(negativeResult, index++, "missing semicolon token", 155, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -202,13 +209,10 @@ public class ObjectConstructorTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_redeclared_symbols_negative.bal");
         int index = 0;
-        validateError(negativeResult, index++, "redeclared symbol 'age'", 7, 36);
-        validateError(negativeResult, index++, "redeclared symbol 'age'", 11, 46);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 7, 32);
+        validateError(negativeResult, index++, "redeclared symbol 'age'", 11, 42);
         validateError(negativeResult, index++, "redeclared symbol 'age'", 12, 17);
         validateError(negativeResult, index++, "redeclared symbol 'age'", 17, 17);
-        validateError(negativeResult, index++, "incompatible types: expected 'object { public function getSum " +
-             "(int) returns (int); }', found 'isolated object { public function getSum (other) returns (int); public " +
-             "function getAge (int,other) returns (int); public function getAgeOf () returns (int); }'", 23, 12);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 

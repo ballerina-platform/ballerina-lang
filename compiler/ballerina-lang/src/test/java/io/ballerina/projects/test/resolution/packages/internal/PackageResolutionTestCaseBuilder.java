@@ -36,6 +36,9 @@ import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.environment.DefaultPackageResolver;
 import io.ballerina.projects.internal.repositories.AbstractPackageRepository;
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -180,7 +183,7 @@ public class PackageResolutionTestCaseBuilder {
             }
 
             dependencies.add(new PackageManifest.Dependency(pkgDesc.name(),
-                    pkgDesc.org(), pkgDesc.version(), repo));
+                    pkgDesc.org(), pkgDesc.version(), repo, new NullLocation()));
         }
 
         return PackageManifest.from(rootPkgDesc, null, Collections.emptyMap(), dependencies);
@@ -206,6 +209,18 @@ public class PackageResolutionTestCaseBuilder {
 
         public AbstractPackageRepository localRepo() {
             return localRepo;
+        }
+    }
+
+    private static class NullLocation implements Location {
+        @Override
+        public LineRange lineRange() {
+            return null;
+        }
+
+        @Override
+        public TextRange textRange() {
+            return null;
         }
     }
 }

@@ -27,6 +27,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -48,6 +49,11 @@ public class LangLibArrayTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/arraylib_test.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
     @Test
@@ -461,6 +467,49 @@ public class LangLibArrayTest {
                         "found 'function[]'", 199, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected " +
                 "'ballerina/lang.array:0.0.0:AnydataType', found 'function (int) returns (int)'", 199, 26);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "undefined function 'som' in type '[int,int]'", 207, 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                        "found 'function (int) returns (int)'", 215, 21);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'int', found 'boolean'", 219, 13);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'int', found 'string'", 224, 18);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "operator '>' not defined for 'string' and 'int'", 229, 25);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "undefined function 'ever' in type '[int,int]'",
+                233, 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: " +
+                "expected 'function (ballerina/lang.array:0.0.0:Type) returns (boolean)', " +
+                "found 'function (int) returns (int)'", 237, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'boolean'",
+                241, 13);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'int', found 'string'",
+                246, 19);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "operator '>' not defined for 'string' and 'int'",
+                251, 26);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                        "'[string,T][]' is not an ordered type", 258, 31);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                        "'[string,T][]' is not an ordered type", 259, 28);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid sort key function return type: " +
+                        "'[string,T]' is not an ordered type", 261, 69);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid sort key function return type: " +
+                        "'[string,T]' is not an ordered type", 264, 32);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "invalid member type of the array/tuple to sort: " +
+                "'[string,T][]' is not an ordered type", 268, 28);
+        Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
+    }
+
+    @Test
+    public void testArrayLibNegativeSemantics() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative_semantic.bal");
+        int errorIndex = 0;
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: 'int' will not be matched to 'string'", 18, 28);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: 'int' will not be matched to 'string'", 22, 29);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -516,7 +565,30 @@ public class LangLibArrayTest {
                 "testReverseRecord",
                 "testArrayReverseEquality",
                 "testPushAfterSliceOnTuple",
-                "testUnshiftLargeValues"
+                "testUnshiftLargeValues",
+                "testSome1",
+                "testSome2",
+                "testSome3",
+                "testSome4",
+                "testSome5",
+                "testSome6",
+                "testSome7",
+                "testSome8",
+                "testSome9",
+                "testModificationWithinSome",
+                "testEvery1",
+                "testEvery2",
+                "testEvery3",
+                "testEvery4",
+                "testEvery5",
+                "testEvery6",
+                "testEvery7",
+                "testEvery8",
+                "testEvery9",
+                "testModificationWithinEvery",
+                "testArrSortWithNamedArgs1",
+                "testArrSortWithNamedArgs2",
+                "testArrSortWithNamedArgs3"
         };
     }
 }

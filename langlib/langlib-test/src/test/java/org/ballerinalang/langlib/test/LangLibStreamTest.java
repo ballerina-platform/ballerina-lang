@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,6 +37,11 @@ public class LangLibStreamTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/streamlib_test.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 
     @Test
@@ -80,4 +86,8 @@ public class LangLibStreamTest {
         Assert.assertTrue((Boolean) values);
     }
 
+    @Test
+    public void testBasicTypeStream() {
+        BRunUtil.invoke(result, "testBasicTypeStream");
+    }
 }

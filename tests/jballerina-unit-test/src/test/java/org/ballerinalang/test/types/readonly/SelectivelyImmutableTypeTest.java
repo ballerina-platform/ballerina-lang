@@ -77,7 +77,8 @@ public class SelectivelyImmutableTypeTest {
                 {"testReadOnlyIntersectionWithNeverExplicitlyInType"},
                 {"testReadOnlyIntersectionWithRecordThatHasAnOptionalNeverReadOnlyField"},
                 {"testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField"},
-                {"testTypeDefinitionForReadOnlyIntersectionWithBuiltinType"}
+                {"testTypeDefinitionForReadOnlyIntersectionWithBuiltinType"},
+                {"testIsReadonlyWithInBuiltUnionType"}
         };
     }
 

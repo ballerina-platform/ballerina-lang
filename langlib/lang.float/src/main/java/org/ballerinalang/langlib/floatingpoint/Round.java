@@ -18,8 +18,11 @@
 
 package org.ballerinalang.langlib.floatingpoint;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 /**
- * Native implementation of lang.float:round(float).
+ * Native implementation of lang.float:round(float, int).
  *
  * @since 1.0
  */
@@ -31,7 +34,33 @@ package org.ballerinalang.langlib.floatingpoint;
 //)
 public class Round {
 
-    public static double round(double x) {
-        return Math.rint(x);
+    public static double round(double x, long fractionDigits) {
+        if (Double.isInfinite(x) || Double.isNaN(x) || x == 0.0d) {
+            return x;
+        }
+        if (fractionDigits == 0) {
+            return Math.rint(x);
+        }
+        if (fractionDigits > Integer.MAX_VALUE) {
+            // As per IEEE, exponent of double value lies from -308 to 307.
+            // Also, the maximum decimal digits that can have in double value are 15 or 16.
+            // Therefore, if `fractionDigits` is very large, `x` will not be changed.
+            return x;
+        }
+        if (fractionDigits < Integer.MIN_VALUE) {
+            return 0;
+        }
+        // Down cast can be done safely because of above condition.
+        int fractionDigitsAsInt = (int) fractionDigits;
+        BigDecimal xInBigDecimal = BigDecimal.valueOf(x);
+        int scale = xInBigDecimal.scale();
+        if (fractionDigitsAsInt > 0) {
+            if (fractionDigitsAsInt > scale) {
+                return x;
+            }
+        } else if (-fractionDigitsAsInt > (xInBigDecimal.precision() - scale)) {
+            return 0;
+        }
+        return xInBigDecimal.setScale(fractionDigitsAsInt, RoundingMode.HALF_EVEN).doubleValue();
     }
 }

@@ -1,0 +1,34 @@
+defaultValuesRecord.type_defs.num2 = 2
+defaultValuesRecord.type_defs.num3 = 3
+defaultValuesRecord.type_defs.word4 = "word 4"
+
+testOrg.configLib.mod1.num4 = 4
+testOrg.configLib.mod1.word5 = "word 5"
+testOrg.configLib.mod1.symbol2 = "@"
+testOrg.configLib.mod1.symbol3 = "#"
+
+word2 = "word 2"
+words = { word6 = "word 6" }
+numbers = { num5 = 5 }
+symbols = { symbol4 = "$" }
+container = { words = { word6 = "word 6" } }
+
+wordArr = [{ word6 = "word 7" }, { word1 = "word 10", word2 = "word 20", word3 = "word 30", word4 = "word 40", word5 = "word 50", word6 = "word 60" }]
+numberArr = [{ num5 = 6 }, { num1 = 10, num2 = 20, num3 = 30, num4 = 40, num5 = 50 }]
+symbolArr = [{ symbol4 = "%" }, { symbol1 = "^", symbol2 = "&", symbol3 = "*", symbol4 = "-" }]
+containerArr = [{ words = { word6 = "word 7" } }, { words = { word1 = "word 10", word2 = "word 20", word3 = "word 30", word4 = "word 40", word5 = "word 50", word6 = "word 60" } }]
+
+wordTable = [{ word6 = "word 7" }, { word1 = "word 10", word2 = "word 20", word3 = "word 30", word4 = "word 40", word5 = "word 50", word6 = "word 60" }]
+numberTable = [{ num5 = 6 }, { num1 = 10, num2 = 20, num3 = 30, num4 = 40, num5 = 50 }]
+symbolTable = [{ symbol4 = "%" }, { symbol1 = "^", symbol2 = "&", symbol3 = "*", symbol4 = "-" }]
+containerTable = [{ words = { word6 = "word 7" } }, { words = { word1 = "word 10", word2 = "word 20", word3 = "word 30", word4 = "word 40", word5 = "word 50", word6 = "word 60" } }]
+
+wordMap = { entry1 = { word6 = "word 6" }, entry2 = { word1 = "word 11", word2 = "word 22", word3 = "word 33", word4 = "word 44", word5 = "word 55", word6 = "word 66" } }
+numberMap = { entry1 = { num5 = 55 }, entry2 = { num1 = 11, num2 = 22, num3 = 33, num4 = 44, num5 = 55 } }
+symbolMap = { entry1 = { symbol4 = "=" }, entry2 = { symbol1 = "+", symbol2 = "|", symbol3 = "}", symbol4 = "?" } }
+containerMap = { entry1 = { words = { word6 = "word 6" } }, entry2 = { words = { word1 = "word 11", word2 = "word 22", word3 = "word 33", word4 = "word 44", word5 = "word 55", word6 = "word 66" } } }
+
+wordTableMap = { map1 = [{ word6 = "word 7" }], map2 = [{ word1 = "word 10", word2 = "word 20", word3 = "word 30", word4 = "word 40", word5 = "word 50", word6 = "word 60" }] }
+numberTableMap = { map1 = [{ num5 = 6 }], map2 = [{ num1 = 10, num2 = 20, num3 = 30, num4 = 40, num5 = 50 }] }
+symbolTableMap = { map1 = [{ symbol4 = "%" }], map2 = [{ symbol1 = "^", symbol2 = "&", symbol3 = "*", symbol4 = "-" }] }
+containerTableMap = { map1 = [{ words = { word6 = "word 7" } }], map2 = [{ words = { word1 = "word 10", word2 = "word 20", word3 = "word 30", word4 = "word 40", word5 = "word 50", word6 = "word 60" } }] }

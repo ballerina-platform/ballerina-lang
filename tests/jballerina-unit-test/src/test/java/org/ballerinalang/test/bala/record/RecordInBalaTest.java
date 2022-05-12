@@ -21,11 +21,8 @@ package org.ballerinalang.test.bala.record;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertEquals;
 
 /**
  * BALA test cases for records.
@@ -34,31 +31,28 @@ import static org.testng.Assert.assertEquals;
  */
 public class RecordInBalaTest {
 
-    private CompileResult result;
-
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        result = BCompileUtil.compile("test-src/record/rest_in_bala.bal");
     }
 
     @Test
     public void testRestFieldTypeDefAfterRecordDef() {
-        Object returns = BRunUtil.invoke(result, "testORRestFieldInOR");
-        assertEquals(returns.toString(), "{\"name\":\"Open Foo\",\"ob\":{\"x\":1.0}}");
-
-        returns = BRunUtil.invoke(result, "testORRestFieldInCR");
-        assertEquals(returns.toString(), "{\"name\":\"Closed Foo\",\"ob\":{\"x\":2.0}}");
-
-        returns = BRunUtil.invoke(result, "testCRRestFieldInOR");
-        assertEquals(returns.toString(), "{\"name\":\"Open Foo\",\"cb\":{\"x\":3.0}}");
-
-        returns = BRunUtil.invoke(result, "testCRRestFieldInCR");
-        assertEquals(returns.toString(), "{\"name\":\"Closed Foo\",\"cb\":{\"x\":4.0}}");
+        CompileResult result = BCompileUtil.compile("test-src/record/rest_in_bala.bal");
+        BRunUtil.invoke(result, "testORRestFieldInOR");
+        BRunUtil.invoke(result, "testORRestFieldInCR");
+        BRunUtil.invoke(result, "testCRRestFieldInOR");
+        BRunUtil.invoke(result, "testCRRestFieldInCR");
     }
 
-    @AfterClass
-    public void tearDown() {
-        result = null;
+    @Test
+    public void testComplexCyclicRecordTypeResolution() {
+        CompileResult typeResolution =
+                BCompileUtil.compile("test-src/record/complex_record_resolution.bal");
+        BRunUtil.invoke(typeResolution, "testCreatingAComplexRecordWithIncludingType");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecordWithIncludedType");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeWithActualTypes");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBala");
+        BRunUtil.invoke(typeResolution, "testCreatingComplexRecWithIncTypeFromBalaWithCM");
     }
 }

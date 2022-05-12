@@ -29,4 +29,10 @@ public interface ServiceType extends ObjectType {
         // A service type is an inherently immutable. So we shouldn't be calling this.
         throw new UnsupportedOperationException("a service type is inherently immutable");
     }
+
+    @Override
+    default void unsetImmutableType() {
+        // A service type is an inherently immutable. So we shouldn't be calling this.
+        throw new UnsupportedOperationException("a service type is inherently immutable");
+    }
 }

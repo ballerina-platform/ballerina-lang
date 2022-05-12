@@ -3243,6 +3243,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 typeParamNode);
     }
 
+    @Override
+    public SpreadMemberNode transform(
+            SpreadMemberNode spreadMemberNode) {
+        Token ellipsis =
+                modifyToken(spreadMemberNode.ellipsis());
+        ExpressionNode expression =
+                modifyNode(spreadMemberNode.expression());
+        return spreadMemberNode.modify(
+                ellipsis,
+                expression);
+    }
+
     // Tokens
 
     @Override

@@ -1,0 +1,32 @@
+{
+  "line": 1,
+  "character": 9,
+  "expected": [
+    {
+      "title": "Import module 'test/project1'",
+      "kind": "quickfix",
+      "diagnostics": [],
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "import test/project1;\n"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

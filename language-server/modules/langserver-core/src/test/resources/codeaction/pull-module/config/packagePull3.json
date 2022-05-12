@@ -10,7 +10,7 @@
         "arguments": [
           {
             "key": "module",
-            "value": "ballerina/http as ht"
+            "value": "ballerina/httpx as ht"
           }
         ]
       }

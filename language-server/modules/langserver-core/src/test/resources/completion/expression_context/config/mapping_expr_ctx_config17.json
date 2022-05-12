@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "RecordName2.rec2f2",
       "sortText": "K",
-      "insertText": "rec2f2: ${2:0}",
+      "insertText": "rec2f2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,7 @@
       "detail": "RecordName2",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "rec2f1: 0,\nrec2f2: 0",
+      "insertText": "rec2f1: ${1:0},\nrec2f2: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

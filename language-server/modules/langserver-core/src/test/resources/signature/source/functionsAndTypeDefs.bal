@@ -1,4 +1,4 @@
-import ballerina/http;
+import ballerina/httpx;
 import rasika/module2;
 
 type Annot record {
@@ -168,7 +168,7 @@ public const MY_ERROR_REASON = "MyError";
 # Custom Error
 type MyError error<record {| string message?; error cause?;  string...;|}>;
 
-listener http:MockListener mockEP = new(9090);
+listener httpx:MockListener mockEP = new(9090);
 
 public function actions() {
     //==================================================
@@ -450,12 +450,12 @@ public function expressions() returns error? {
 
 // -- service-constructor-expr
 service hello on mockEP {
-    @http:ResourceConfig {
+    @httpx:ResourceConfig {
         methods:getMethods(4),
         path:"/protocol"
     }
-    resource function protocol(http:Caller caller, http:Request req) {
-        http:Response res = new;
+    resource function protocol(httpx:Caller caller, httpx:Request req) {
+        httpx:Response res = new;
         json connectionJson = {protocol:caller.protocol};
         res.statusCode = 200;
         res.setJsonPayload(<@untainted json> connectionJson);

@@ -50,4 +50,11 @@ public interface CodeActionContext extends DocumentServiceContext {
      * @return {@link  List} of diagnostics at the cursor
      */
     List<Diagnostic> cursorDiagnostics();
+
+    /**
+     * Get the cursor position as an offset value according to the syntax tree.
+     *
+     * @return {@link Integer} offset of the cursor
+     */
+    int cursorPositionInTree();
 }
