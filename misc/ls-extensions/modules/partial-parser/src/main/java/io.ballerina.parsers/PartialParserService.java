@@ -112,7 +112,7 @@ public class PartialParserService implements ExtendedLanguageServerService {
         String formattedSourceCode = statement;
 
         try {
-            formattedSourceCode = Formatter.format(statement).trim();
+            formattedSourceCode = Formatter.format(statement);
         } catch (FormatterException e) {
             // TODO: Print a warn log in the language client.
             //  The methods are currently unavailable
