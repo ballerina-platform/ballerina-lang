@@ -1260,13 +1260,25 @@
       "endColumn": 2
     },
     "leadingMinutiae": [],
-    "trailingMinutiae": []
+    "trailingMinutiae": [
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\r\n",
+        "isInvalid": false
+      }
+    ]
   },
-  "source": "type Test record {\r\n    record {\r\n        string country;\r\n\r\n        record {\r\n            string code;\r\n            string name;\r\n        } city;\r\n        string Lane;\r\n\r\n    } address;\r\n\r\n    string school;\r\n    string name;\r\n    int age;\r\n};",
+  "source": "type Test record {\r\n    record {\r\n        string country;\r\n\r\n        record {\r\n            string code;\r\n            string name;\r\n        } city;\r\n        string Lane;\r\n\r\n    } address;\r\n\r\n    string school;\r\n    string name;\r\n    int age;\r\n};\r\n",
   "kind": "TypeDefinition",
   "syntaxDiagnostics": [],
   "leadingMinutiae": [],
-  "trailingMinutiae": [],
+  "trailingMinutiae": [
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\r\n",
+      "isInvalid": false
+    }
+  ],
   "position": {
     "startLine": 0,
     "startColumn": 0,
