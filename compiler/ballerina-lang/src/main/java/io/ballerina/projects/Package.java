@@ -578,34 +578,60 @@ public class Package {
 
             DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
                     .dependencyGraph();
-            Set<ResolvedPackageDependency> diff = this.dependencyGraph.difference(newDepGraph);
+            cleanPackageCache(this.dependencyGraph, newDepGraph);
+            return this.project.currentPackage();
+        }
+
+        private void cleanPackageCache(DependencyGraph<ResolvedPackageDependency> oldGraph,
+                                       DependencyGraph<ResolvedPackageDependency> newGraph) {
+            io.ballerina.projects.environment.PackageCache environmentPackageCache =
+                    this.project.projectEnvironmentContext().environment().getService(
+                            io.ballerina.projects.environment.PackageCache.class);
+            CompilerContext compilerContext = project.projectEnvironmentContext()
+                    .getService(CompilerContext.class);
+
+            Set<ResolvedPackageDependency> diff = oldGraph.difference(newGraph);
             if (!diff.isEmpty()) {
                 // A non-empty diff means deletion of nodes from the old graph is required
-                // to get the new graph, hence we remove these modules from the package caches.
-                CompilerContext compilerContext = project.projectEnvironmentContext()
-                        .getService(CompilerContext.class);
-                PackageCache packageCache = PackageCache.getInstance(compilerContext);
-
-                io.ballerina.projects.environment.PackageCache environmentPackageCache =
-                        project.projectEnvironmentContext().environment().getService(
-                        io.ballerina.projects.environment.PackageCache.class);
-
+                // to get the new graph, hence we remove these modules and its dependants from the package cache.
                 for (ResolvedPackageDependency dependency : diff) {
-                    for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
-                        if (!dependency.packageInstance().descriptor().isLangLibPackage()) {
-                            Module module = dependency.packageInstance().module(moduleId);
-                            PackageID packageID = module.descriptor().moduleCompilationId();
-                            // remove the module from the compiler packageCache
-                            packageCache.remove(packageID);
-                            // reset the module in the project environment packageCache to make the module recompile
-                            // and add symbols
-                            environmentPackageCache.removePackage(module.moduleId().packageId());
-                            module.moduleContext().setCompilationState(null);
-                        }
+                    environmentPackageCache.removePackage(dependency.packageInstance().packageId());
+                    deleteCaches(dependency, oldGraph, compilerContext);
+                }
+            }
+            diff = newGraph.difference(oldGraph);
+            if (!diff.isEmpty()) {
+                // A non-empty diff means there can be dependant nodes in the old graph that
+                // need to be recompiled. Hence we remove the dependant modules from the package cache.
+                for (ResolvedPackageDependency dependency : diff) {
+                    for (ResolvedPackageDependency directDependent : newGraph.getDirectDependents(dependency)) {
+                        deleteCaches(directDependent, newGraph, compilerContext);
                     }
                 }
             }
-            return this.project.currentPackage();
+        }
+
+        private void deleteCaches(ResolvedPackageDependency dependency,
+                                  DependencyGraph<ResolvedPackageDependency> depGraph,
+                                  CompilerContext compilerContext) {
+            if (dependency.equals(depGraph.getRoot())) {
+                return;
+            }
+            PackageCache packageCache = PackageCache.getInstance(compilerContext);
+            for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
+                if (!dependency.packageInstance().descriptor().isLangLibPackage()) {
+                    Module module = dependency.packageInstance().module(moduleId);
+                    PackageID packageID = module.descriptor().moduleCompilationId();
+                    // remove the module from the compiler packageCache
+                    packageCache.remove(packageID);
+                    // reset the module in the project environment packageCache to make the module recompile
+                    // and add symbols
+                    module.moduleContext().setCompilationState(null);
+                }
+            }
+            for (ResolvedPackageDependency directDependent : depGraph.getDirectDependents(dependency)) {
+                deleteCaches(directDependent, depGraph, compilerContext);
+            }
         }
 
         private void updatePackageManifest() {
