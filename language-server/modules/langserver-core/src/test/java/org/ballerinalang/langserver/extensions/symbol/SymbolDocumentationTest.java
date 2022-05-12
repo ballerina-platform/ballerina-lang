@@ -113,4 +113,24 @@ public class SymbolDocumentationTest {
         Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.FUNCTION);
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
+
+    @Test(description = "test deprecated params and description")
+    public void testDeprecatedParams() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(18);
+        functionPos.setCharacter(15);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedDocumentation(),
+                "This function is deprecated in favour of `Person` type.");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedParams().get(0).getName(), "street");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDeprecatedParams().get(0).getDescription(),
+                "deprecated for removal");
+        Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.FUNCTION);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
 }
