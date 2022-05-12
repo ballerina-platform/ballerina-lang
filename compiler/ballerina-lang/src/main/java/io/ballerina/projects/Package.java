@@ -587,13 +587,16 @@ public class Package {
             io.ballerina.projects.environment.PackageCache environmentPackageCache =
                     this.project.projectEnvironmentContext().environment().getService(
                             io.ballerina.projects.environment.PackageCache.class);
+            CompilerContext compilerContext = project.projectEnvironmentContext()
+                    .getService(CompilerContext.class);
+
             Set<ResolvedPackageDependency> diff = oldGraph.difference(newGraph);
             if (!diff.isEmpty()) {
                 // A non-empty diff means deletion of nodes from the old graph is required
                 // to get the new graph, hence we remove these modules and its dependants from the package cache.
                 for (ResolvedPackageDependency dependency : diff) {
                     environmentPackageCache.removePackage(dependency.packageInstance().packageId());
-                    deleteCaches(dependency, oldGraph);
+                    deleteCaches(dependency, oldGraph, compilerContext);
                 }
             }
             diff = newGraph.difference(oldGraph);
@@ -602,19 +605,18 @@ public class Package {
                 // need to be recompiled. Hence we remove the dependant modules from the package cache.
                 for (ResolvedPackageDependency dependency : diff) {
                     for (ResolvedPackageDependency directDependent : newGraph.getDirectDependents(dependency)) {
-                        deleteCaches(directDependent, newGraph);
+                        deleteCaches(directDependent, newGraph, compilerContext);
                     }
                 }
             }
         }
 
         private void deleteCaches(ResolvedPackageDependency dependency,
-                                  DependencyGraph<ResolvedPackageDependency> graph) {
-            if (dependency.equals(graph.getRoot())) {
+                                  DependencyGraph<ResolvedPackageDependency> depGraph,
+                                  CompilerContext compilerContext) {
+            if (dependency.equals(depGraph.getRoot())) {
                 return;
             }
-            CompilerContext compilerContext = project.projectEnvironmentContext()
-                    .getService(CompilerContext.class);
             PackageCache packageCache = PackageCache.getInstance(compilerContext);
             for (ModuleId moduleId : dependency.packageInstance().moduleIds()) {
                 if (!dependency.packageInstance().descriptor().isLangLibPackage()) {
@@ -627,8 +629,8 @@ public class Package {
                     module.moduleContext().setCompilationState(null);
                 }
             }
-            for (ResolvedPackageDependency directDependent : graph.getDirectDependents(dependency)) {
-                deleteCaches(directDependent, graph);
+            for (ResolvedPackageDependency directDependent : depGraph.getDirectDependents(dependency)) {
+                deleteCaches(directDependent, depGraph, compilerContext);
             }
         }
 
