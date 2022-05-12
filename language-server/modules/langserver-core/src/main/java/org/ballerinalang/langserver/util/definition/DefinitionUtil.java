@@ -32,6 +32,7 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Location;
@@ -75,7 +76,7 @@ public class DefinitionUtil {
         }
 
         Optional<Location> location;
-        if (context.enclosedModuleMember().isPresent() && CommonUtil.isSelfClassSymbol(symbol.get(), context,
+        if (context.enclosedModuleMember().isPresent() && SymbolUtil.isSelfClassSymbol(symbol.get(), context,
                 context.enclosedModuleMember().get())) {
             // Within the #isSelfClassSymbol we do the instance check against the symbol. Hence casting is safe
             // If the self variable is referring to the class instance, navigate to class definition

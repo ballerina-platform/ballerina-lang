@@ -39,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -449,7 +450,7 @@ public class RenameUtil {
         if (enclosingNode.isEmpty()) {
             return false;
         }
-        return CommonUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode.get());
+        return SymbolUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode.get());
     }
 
     private enum RenameChangeAnnotation {

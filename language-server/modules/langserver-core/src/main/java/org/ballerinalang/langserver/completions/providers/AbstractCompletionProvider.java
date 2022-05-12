@@ -607,8 +607,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
     private List<LSCompletionItem> populateSelfClassSymbolCompletionItems(Symbol symbol, BallerinaCompletionContext ctx,
                                                                           TypeSymbol rawType) {
         Optional<ModuleMemberDeclarationNode> moduleMember = ctx.enclosedModuleMember();
-        if (moduleMember.isEmpty() || (!CommonUtil.isSelfClassSymbol(symbol, ctx, moduleMember.get())
-                && !CommonUtil.isSelfObjectSymbol(symbol, ctx.getNodeAtCursor()))) {
+        if (moduleMember.isEmpty() || (!SymbolUtil.isSelfClassSymbol(symbol, ctx, moduleMember.get())
+                && !SymbolUtil.isSelfObjectSymbol(symbol, ctx.getNodeAtCursor()))) {
             return Collections.emptyList();
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
