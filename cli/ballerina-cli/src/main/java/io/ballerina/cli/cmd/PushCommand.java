@@ -163,7 +163,7 @@ public class PushCommand implements BLauncherCmd {
                     pushPackage(project);
                 } else {
                     if (!balaPath.toFile().exists()) {
-                        throw new ProjectException("provided bala file does not exist.");
+                        throw new ProjectException("provided path does not exist.");
                     }
                     if (!FileUtils.getExtension(balaPath).equals("bala")) {
                         throw new ProjectException("file provided is not a bala file.");
@@ -190,7 +190,7 @@ public class PushCommand implements BLauncherCmd {
                     } else {
                         try {
                             if (!balaPath.toFile().exists()) {
-                                throw new ProjectException("provided bala file does not exist.");
+                                throw new ProjectException("provided path does not exist.");
                             }
                             if (!FileUtils.getExtension(balaPath).equals("bala")) {
                                 throw new ProjectException("file provided is not a bala file.");
