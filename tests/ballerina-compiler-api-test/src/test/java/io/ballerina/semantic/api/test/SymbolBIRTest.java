@@ -146,14 +146,14 @@ public class SymbolBIRTest {
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
                 .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
-        List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
-        SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
-
-        List<String> fooConstants = getSymbolNames(fooPkgSymbol, SymTag.CONSTANT);
-        SemanticAPITestUtils.assertList(fooModule.constants(), fooConstants);
+        
+        SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman", "testAnonTypeDefSymbolsIsNotVisible", "add"));
+        SemanticAPITestUtils.assertList(fooModule.constants(), List.of("RED", "GREEN", "BLUE", "PI", "TRUE", "FALSE"));
+        
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
                 "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
                 "Annot", "Detail"));
+        
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
