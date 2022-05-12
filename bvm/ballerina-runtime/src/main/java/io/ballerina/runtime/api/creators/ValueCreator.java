@@ -758,6 +758,9 @@ public class ValueCreator {
     /**
      * Create a runtime record value with given record type.
      *
+     * <p>To create a record value using a record type defined in Ballerina,
+     * do not use this method and use another createRecordValue method.
+     *
      * @param recordType record type.
      * @return record value
      */
@@ -767,6 +770,9 @@ public class ValueCreator {
 
     /**
      * Create a runtime record value with given initial values and given record type.
+     *
+     * <p>To create a record value using a record type defined in Ballerina,
+     * do not use this method and use another createRecordValue method.
      *
      * @param recordType   record type.
      * @param keyValues initial map values to be populated.
