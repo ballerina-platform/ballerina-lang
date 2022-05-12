@@ -17,16 +17,17 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.AnonymousTypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Stack;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 
@@ -103,8 +104,8 @@ public class BLangAnonymousModelHelper {
         return ANON_TYPE + UNDERSCORE + nextValue;
     }
 
-    public String getNextAnonymousTypeKey(PackageID packageID, List<String> suffixes) {
-        String name = createAnonTypeName(ANON_TYPE, suffixes);
+    public String getNextAnonymousTypeKey(PackageID packageID, Stack<String> suffixes) {
+        String name = createAnonTypeName(suffixes);
         if (!anonTypeNames.contains(name)) {
             anonTypeNames.add(name);
             return name;
@@ -112,9 +113,10 @@ public class BLangAnonymousModelHelper {
         return getNextAnonymousTypeKey(packageID);
     }
 
-    private String createAnonTypeName(String name, List<String> suffixes) {
-        for (String suffix : suffixes) {
-            name = name.concat(suffix + DOLLAR);
+    private String createAnonTypeName(Stack<String> suffixes) {
+        String name = ANON_TYPE;
+        for (int i = suffixes.size() - 1; i >= 0; i--) {
+            name = name.concat(suffixes.elementAt(i) + DOLLAR);
         }
         return name;
     }

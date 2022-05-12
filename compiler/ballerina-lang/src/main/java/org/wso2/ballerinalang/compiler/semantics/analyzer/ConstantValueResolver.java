@@ -27,7 +27,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.ballerinalang.model.types.AnonymousTypeKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -82,6 +81,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.function.BiFunction;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -630,9 +630,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (typeNameSuffix.isEmpty()) {
             typeNameSuffix = symbol.owner.name.value;
         }
-        List<String> typeNameSuffixes = new ArrayList<>();
-        typeNameSuffixes.add(typeNameSuffix);
+        Stack<String> typeNameSuffixes = new Stack<>();
+        typeNameSuffixes.push(typeNameSuffix);
         BType resolvedType = checkType(expr, symbol, symbol.value.value, type, symbol.pos, env, typeNameSuffixes);
+        typeNameSuffixes.pop();
         if (resolvedType == null) {
             return;
         }
@@ -671,10 +672,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
                             Location pos, SymbolEnv env) {
-        return checkType(expr, constantSymbol, value, type, pos, env, new ArrayList<>());
+        return checkType(expr, constantSymbol, value, type, pos, env, new Stack<>());
     }
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
-                            Location pos, SymbolEnv env, List<String> suffixes) {
+                            Location pos, SymbolEnv env, Stack<String> suffixes) {
         if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 (((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.FINITE ||
                 ((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.INTERSECTION)) {
@@ -789,7 +790,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos,
-                                   SymbolEnv env, List<String> suffixes) {
+                                   SymbolEnv env, Stack<String> suffixes) {
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return expr.getBType();
         }
@@ -827,7 +828,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private boolean populateRecordFields(BLangExpression expr, BConstantSymbol constantSymbol, Location pos,
                                          HashMap<String, BLangConstantValue> constValueMap, BRecordType recordType,
-                                         SymbolEnv env, List<String> suffixes) {
+                                         SymbolEnv env, Stack<String> suffixes) {
         for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expr).fields) {
             String key;
             BVarSymbol newSymbol;
@@ -863,10 +864,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 key = keyValuePair.key.toString();
                 newSymbol = new BVarSymbol(constantSymbol.flags, Names.fromString(key), constantSymbol.pkgID,
                                            null, constantSymbol.owner, pos, VIRTUAL);
-                suffixes.add(key);
+                suffixes.push(key);
                 BType newType = checkType(exprValueField, constantSymbol, constValueMap.get(key).value,
                                           constValueMap.get(key).type, pos, env, suffixes);
-                suffixes.remove(key);
+                suffixes.pop();
                 if (newType == null) {
                     return false;
                 }
