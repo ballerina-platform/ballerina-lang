@@ -27,6 +27,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -80,7 +81,7 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<Path> filePath = CommonUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
+        Optional<Path> filePath = PathUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
         if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
             return Collections.emptyList();
         }

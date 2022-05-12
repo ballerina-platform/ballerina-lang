@@ -32,7 +32,7 @@ import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DidChangeWatchedFilesContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
@@ -187,7 +187,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             }
         }
 
-        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(uri);
         if (filePath.isEmpty()) {
             return Collections.emptyList();
         }
@@ -209,7 +209,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
 
         List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
         docEdits.forEach(docEdit -> {
-            Optional<SyntaxTree> originalST = CommonUtil.getPathFromURI(docEdit.getFileUri())
+            Optional<SyntaxTree> originalST = PathUtil.getPathFromURI(docEdit.getFileUri())
                     .flatMap(workspaceManagerProxy.get()::document)
                     .flatMap(doc -> Optional.of(doc.syntaxTree()));
             if (originalST.isEmpty()) {

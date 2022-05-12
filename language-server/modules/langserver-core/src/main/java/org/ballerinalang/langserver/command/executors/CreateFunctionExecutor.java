@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
@@ -96,7 +97,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
         }
 
-        Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(uri);
         if (range == null || filePath.isEmpty()) {
             throw new UserErrorException("Invalid parameters received for the create function command!");
         }

@@ -31,6 +31,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -92,7 +93,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             ExpressionTypeResponse expressionTypeResponse = new ExpressionTypeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
                 return expressionTypeResponse;
             }

@@ -184,8 +184,6 @@ public class CommonUtil {
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
             SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
 
-    public static final String SELF_KW = "self";
-
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
     static {
@@ -867,152 +865,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
-     * we convert it to file scheme and provide a valid Path.
-     *
-     * @param fileUri file uri
-     * @return {@link Optional} Path from the URI
-     */
-    public static Optional<Path> getPathFromURI(String fileUri) {
-        URI uri = URI.create(fileUri);
-        String scheme = uri.getScheme();
-        try {
-            if (EXPR_SCHEME.equals(uri.getScheme()) || URI_SCHEME_BALA.equals(uri.getScheme())) {
-                scheme = URI_SCHEME_FILE;
-            }
-            URI converted = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
-                    uri.getPath(), uri.getQuery(), uri.getFragment());
-            return Optional.of(Paths.get(converted));
-        } catch (URISyntaxException e) {
-            return Optional.empty();
-        }
-    }
-
-    /**
-     * Check if the provided path should be readonly. Paths residing in ballerina home and home repo are considered as
-     * such.
-     *
-     * @param filePath Path to be checked
-     * @return True if the provided path should be readonly
-     */
-    public static boolean isWriteProtectedPath(Path filePath) {
-        Path homeReposPath = RepoUtils.createAndGetHomeReposPath();
-        Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Paths.get(CommonUtil.BALLERINA_HOME) : null;
-
-        return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome);
-    }
-
-    /**
-     * Check and convert the URI scheme of the provided fileUri from bala (if it's bala) to file.
-     *
-     * @param fileUri URI to be converted.
-     * @return URI with file scheme
-     * @throws URISyntaxException URI parsing errors
-     */
-    public static String convertUriSchemeFromBala(String fileUri) throws URISyntaxException {
-        URI uri = URI.create(fileUri);
-        if (URI_SCHEME_BALA.equals(uri.getScheme())) {
-            URI converted = new URI(URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
-                    uri.getPath(), uri.getQuery(), uri.getFragment());
-            return converted.toString();
-        }
-        return fileUri;
-    }
-
-    /**
-     * Get the URI with bala scheme for provided path. This method checks if the LS client supports bala scheme first.
-     *
-     * @param serverContext Language server context
-     * @param filePath      File path
-     * @return URI with bala scheme
-     * @throws URISyntaxException URI creation errors
-     */
-    public static String getBalaUriForPath(LanguageServerContext serverContext,
-                                           Path filePath) throws URISyntaxException {
-        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
-        if (clientCapabilities.getInitializationOptions().isBalaSchemeSupported()) {
-            return getUriForPath(filePath, URI_SCHEME_BALA);
-        }
-        return filePath.toUri().toString();
-    }
-
-    /**
-     * Returns the URI with bala scheme for the provided file path.
-     *
-     * @param filePath File path
-     * @param scheme   URI Scheme
-     * @return URI with the given scheme
-     * @throws URISyntaxException URI parsing errors
-     */
-    public static String getUriForPath(Path filePath, String scheme) throws URISyntaxException {
-        URI uri = filePath.toUri();
-        uri = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
-                uri.getPath(), uri.getQuery(), uri.getFragment());
-        return uri.toString();
-    }
-
-    /**
-     * Returns the file path.
-     *
-     * @param orgName    organization name
-     * @param moduleName module name
-     * @param project    ballerina project
-     * @param symbol     symbol
-     * @param context    service operation context
-     * @return file path
-     */
-    public static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
-                                                          Project project, Symbol symbol,
-                                                          DocumentServiceContext context) {
-        if (symbol.getLocation().isEmpty()) {
-            return Optional.empty();
-        }
-        Collection<ResolvedPackageDependency> dependencies =
-                project.currentPackage().getResolution().dependencyGraph().getNodes();
-        Optional<Path> filepath = Optional.empty();
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
-        for (ResolvedPackageDependency depNode : dependencies) {
-            Package depPackage = depNode.packageInstance();
-            for (ModuleId moduleId : depPackage.moduleIds()) {
-                if (depPackage.packageOrg().value().equals(orgName) &&
-                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
-                    Module module = depPackage.module(moduleId);
-                    List<DocumentId> documentIds = new ArrayList<>(module.documentIds());
-                    documentIds.addAll(module.testDocumentIds());
-                    for (DocumentId docId : documentIds) {
-                        if (module.document(docId).name().equals(sourceFile)) {
-                            filepath =
-                                    module.project().documentPath(docId);
-                            break;
-                        }
-                    }
-                }
-                // Check for the cancellation after each of the module visit
-                context.checkCancelled();
-            }
-        }
-        return filepath;
-    }
-
-    /**
-     * Returns the file path.
-     *
-     * @param symbol  symbol
-     * @param project ballerina project
-     * @param context service operation context
-     * @return file path
-     */
-    public static Optional<Path> getFilePathForSymbol(Symbol symbol, Project project, DocumentServiceContext context) {
-        if (symbol.getModule().isEmpty()) {
-            return Optional.empty();
-        }
-        ModuleID moduleID = symbol.getModule().get().id();
-        String orgName = moduleID.orgName();
-        String moduleName = moduleID.moduleName();
-        return getFilePathForDependency(orgName, moduleName, project, symbol, context);
-    }
-
-    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -1424,37 +1276,6 @@ public class CommonUtil {
             return typesList.contains(rawType.typeKind());
         }
         return false;
-    }
-
-    private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        return (!openParen.isMissing())
-                && (openParen.textRange().endOffset() <= cursorPosition)
-                && (!closedParen.isMissing())
-                && (cursorPosition <= closedParen.textRange().startOffset());
-    }
-    
-
-    /**
-     * Check if the cursor is positioned in call expression context so that named arg
-     * completions can be suggested.
-     *
-     * @param context          completion context.
-     * @param argumentNodeList argument node list.
-     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
-     */
-    public static boolean isValidNamedArgContext(BallerinaCompletionContext context,
-                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
-        int cursorPosition = context.getCursorPositionInTree();
-        for (Node child : argumentNodeList) {
-            TextRange textRange = child.textRange();
-            int startOffset = textRange.startOffset();
-            if (startOffset > cursorPosition
-                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {

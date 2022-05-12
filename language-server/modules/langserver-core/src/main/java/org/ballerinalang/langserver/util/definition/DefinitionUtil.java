@@ -32,6 +32,7 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
@@ -101,7 +102,7 @@ public class DefinitionUtil {
         if (CommonUtil.isLangLib(orgName, moduleName)) {
             filepath = getFilePathForLanglib(orgName, moduleName, project.get(), symbol);
         } else {
-            filepath = CommonUtil.getFilePathForDependency(orgName, moduleName, project.get(), symbol, context);
+            filepath = PathUtil.getFilePathForDependency(orgName, moduleName, project.get(), symbol, context);
         }
 
         if (filepath.isEmpty() || symbol.getLocation().isEmpty()) {
@@ -110,9 +111,9 @@ public class DefinitionUtil {
 
         String fileUri;
         // Check if file resides in a protected dir
-        if (CommonUtil.isWriteProtectedPath(filepath.get())) {
+        if (PathUtil.isWriteProtectedPath(filepath.get())) {
             try {
-                fileUri = CommonUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
+                fileUri = PathUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
             } catch (URISyntaxException e) {
                 throw new UserErrorException("Unable create definition file URI");
             }

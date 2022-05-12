@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ContextTypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -99,7 +100,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                                                             FunctionSymbol functionSymbol,
                                                             SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!CommonUtil.isValidNamedArgContext(context, argumentNodeList)) {
+        if (!isValidNamedArgContext(context, argumentNodeList)) {
             return completionItems;
         }
         FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
@@ -142,5 +143,28 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             }
         }
         return completionItems;
+    }
+
+
+    /**
+     * Check if the cursor is positioned in call expression context so that named arg
+     * completions can be suggested.
+     *
+     * @param context          completion context.
+     * @param argumentNodeList argument node list.
+     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
+     */
+    private boolean isValidNamedArgContext(BallerinaCompletionContext context,
+                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            if (startOffset > cursorPosition
+                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
+                return false;
+            }
+        }
+        return true;
     }
 }
