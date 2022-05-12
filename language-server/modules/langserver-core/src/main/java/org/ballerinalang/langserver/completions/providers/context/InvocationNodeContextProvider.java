@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ContextTypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -69,9 +70,9 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
-                !CommonUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) ||
+                !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) ||
                 (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        !CommonUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node))) {
+                        !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node))) {
             super.sort(context, node, completionItems);
             return;
         }

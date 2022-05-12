@@ -23,7 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ContextTypeResolverUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -67,7 +67,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
              */
             List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
-        } else if (CommonUtil.isInMethodCallParameterContext(context, node)) {
+        } else if (ContextTypeResolverUtil.isInMethodCallParameterContext(context, node)) {
             /*
              * Covers the following cases:
              * 1. a->func(<cursor>)
@@ -114,7 +114,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     public void sort(BallerinaCompletionContext context,
                      RemoteMethodCallActionNode node,
                      List<LSCompletionItem> completionItems) {
-        if (CommonUtil.isInMethodCallParameterContext(context, node)) {
+        if (ContextTypeResolverUtil.isInMethodCallParameterContext(context, node)) {
             super.sort(context, node, completionItems);
             return;
         }
