@@ -37,27 +37,54 @@ public class BalShellService implements ExtendedLanguageServerService {
         return getClass();
     }
 
+    /***
+     * Execute a given source with shell implementation and provide result.
+     *
+     * @param request content of the source snippet
+     * @return evaluated result of the snippet in BalShellGetResulResponse
+     */
     @JsonRequest
     public CompletableFuture<BalShellGetResultResponse> getResult(BalShellGetResultRequest request) {
         return CompletableFuture.supplyAsync(() -> ShellWrapper.getInstance().getResult(request.getSource()));
     }
 
+    /**
+     * Creates a copy of temporary bal file used by shell with the content of it and
+     * returns the uri of newly created file and its content.
+     *
+     * @return new file details in BalFileSourceResponse
+     */
     @JsonRequest
     public CompletableFuture<ShellFileSourceResponse> getShellFileSource() {
         return CompletableFuture.supplyAsync(() -> ShellWrapper.getInstance().getShellFileSource());
     }
 
+    /**
+     * Get available variables in the memory with their name, type and current state value.
+     * @return available variables
+     */
     @JsonRequest
     public CompletableFuture<List<Map<String, String>>> getVariableValues() {
         return CompletableFuture.supplyAsync(() -> ShellWrapper.getInstance().getAvailableVariables());
     }
 
+    /**
+     * Delete defined variables and module declarations from the context
+     *
+     * @param metaInfo defined ars and declarations need to be deleted in MetaInfo format
+     * @return whether that deletion was successful
+     */
     @JsonRequest
     public CompletableFuture<Boolean> deleteDeclarations(MetaInfo metaInfo) {
         return CompletableFuture.supplyAsync(() ->
                 ShellWrapper.getInstance().deleteDeclarations(metaInfo.getDefinedVars(), metaInfo.getModuleDclns()));
     }
 
+    /**
+     * Resets the shell into initial state
+     *
+     * @return whether that restart was successful
+     */
     @JsonRequest
     public CompletableFuture<Boolean> restartNotebook() {
         return CompletableFuture.supplyAsync(() -> ShellWrapper.getInstance().restart());

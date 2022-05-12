@@ -89,6 +89,11 @@ public class BalShellGetResultResponse {
         this.errors.add(message);
     }
 
+    /**
+     * Add meta info to the shell result output
+     * @param definedVars new defined variable list
+     * @param moduleDclns new module declarations list
+     */
     public void setMetaInfo(List<String> definedVars, List<String> moduleDclns) {
         this.metaInfo = new MetaInfo(definedVars, moduleDclns);
     }

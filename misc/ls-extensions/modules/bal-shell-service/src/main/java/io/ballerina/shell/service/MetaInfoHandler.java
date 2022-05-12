@@ -38,6 +38,13 @@ public class MetaInfoHandler {
         this.moduleDclns = new ArrayList<>();
     }
 
+    /**
+     * Get all the defined variables as an argument, then identify and return newly
+     * defined variables by matching with previously defined variables.
+     *
+     * @param variableList all the defined variables
+     * @return newly defined variables
+     */
     public List<String> getNewDefinedVars(List<AvailableVariable> variableList) {
         List<String> newVars = new ArrayList<>();
         for (AvailableVariable availableVar: variableList) {
@@ -49,6 +56,13 @@ public class MetaInfoHandler {
         return newVars;
     }
 
+    /**
+     * Get all the module declarations as an argument, then identify and return newly
+     * module declarations  by matching with previously module declarations .
+     *
+     * @param moduleDclnStrings all the module declarations
+     * @return newly defined module declarations
+     */
     public List<String> getNewModuleDclns(List<String> moduleDclnStrings) {
         List<String> newDclns = new ArrayList<>();
         for (String moduleDclnString: moduleDclnStrings) {
@@ -62,14 +76,27 @@ public class MetaInfoHandler {
         return newDclns;
     }
 
+    /**
+     * Removes a given list of variables from the definedVars list.
+     *
+     * @param listToRemove list of variables to remove
+     */
     public void removeFromDefinedVars(List<String> listToRemove) {
         definedVars.removeAll(listToRemove);
     }
 
+    /**
+     * Removes given list of module declarations from moduleDclns list.
+     *
+     * @param listToRemove list of module declarations to remove
+     */
     public void removeFromModuleDclns(List<String> listToRemove) {
         moduleDclns.removeAll(listToRemove);
     }
 
+    /**
+     * Resets the meta info by clearing out
+     */
     public void reset() {
         this.definedVars = new ArrayList<>();
         this.moduleDclns = new ArrayList<>();
