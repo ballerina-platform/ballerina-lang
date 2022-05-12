@@ -179,8 +179,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();
 
                         parameterSymbolList.stream().filter((parameterSymbol) ->
-                                parameterSymbol.getName().isPresent() &&
-                                        documentation.get().parameterMap().containsKey(parameterSymbol.getName().get()))
+                                parameterSymbol.getName().isPresent())
                                 .forEach(parameterSymbol -> {
 
                                     symbolParams.add(new SymbolDocumentation.ParameterInfo(
@@ -192,8 +191,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     }
 
                     Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
-                    if (restParam.isPresent() && restParam.get().getName().isPresent() &&
-                            documentation.get().parameterMap().containsKey(restParam.get().getName().get())) {
+                    if (restParam.isPresent() && restParam.get().getName().isPresent()) {
                         ParameterSymbol restParameter = restParam.get();
                         symbolParams.add(new SymbolDocumentation.ParameterInfo(
                                 restParameter.getName().get(),
