@@ -184,21 +184,21 @@ function testInvalidRuntimeUpdateOfConstMaps() {
     };
     error? res = trap fn();
     // TODO: replace with an equality check once https://github.com/ballerina-platform/ballerina-lang/issues/34808 is fixed.
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$CONSTANT\\$BCONST\\$ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$BCONST\\$ & readonly\\)'");
 
     record {| 1 a; 2 b; |} b = foo:CCONST.a;
     fn = function () {
         b.b = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$CONSTANT\\$BCONST\\$ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$BCONST\\$ & readonly\\)'");
 
     map<map<int>> c = foo:CCONST;
     fn = function () {
         c["a"]["a"] = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$CONSTANT\\$BCONST\\$ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$BCONST\\$ & readonly\\)'");
 
     fn = function () {
         c["c"] = {};
@@ -211,7 +211,7 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         c["a"] = {a: 1, b: 2};
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$CONSTANT\\$CCONST\\$ & readonly\\)'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'foo\\:\\(testorg\\/foo\\:1\\:\\$anonType\\$CCONST\\$ & readonly\\)'");
 }
 
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
@@ -233,10 +233,6 @@ function assertEqual(anydata expected, anydata actual) {
 }
 
 isolated function matches(string stringToMatch, string regex) returns boolean {
-
-    if stringToMatch.startsWith("cannot") && stringToMatch.includes("field 'b'") {
-        // panic error(stringToMatch + regex);
-    }
     return matchesExternal(java:fromString(stringToMatch), java:fromString(regex));
 }
 

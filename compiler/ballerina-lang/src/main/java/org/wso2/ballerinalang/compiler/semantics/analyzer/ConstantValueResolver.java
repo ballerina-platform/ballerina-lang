@@ -626,7 +626,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
-        BType resolvedType = checkType(expr, symbol, symbol.value.value, type, symbol.pos, env);
+        String typeNameSuffix = symbol.name.value;
+        if (typeNameSuffix.isEmpty()) {
+            typeNameSuffix = symbol.owner.name.value;
+        }
+        List<String> typeNameSuffixes = new ArrayList<>();
+        typeNameSuffixes.add(typeNameSuffix);
+        BType resolvedType = checkType(expr, symbol, symbol.value.value, type, symbol.pos, env, typeNameSuffixes);
         if (resolvedType == null) {
             return;
         }
@@ -665,6 +671,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
                             Location pos, SymbolEnv env) {
+        return checkType(expr, constantSymbol, value, type, pos, env, new ArrayList<>());
+    }
+    private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
+                            Location pos, SymbolEnv env, List<String> suffixes) {
         if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 (((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.FINITE ||
                 ((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.INTERSECTION)) {
@@ -690,7 +700,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 if (value != null) {
-                    return createRecordType(expr, constantSymbol, value, pos, env);
+                    return createRecordType(expr, constantSymbol, value, pos, env, suffixes);
                 }
                 return null;
             case TypeTags.ARRAY:
@@ -779,7 +789,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos,
-                                   SymbolEnv env) {
+                                   SymbolEnv env, List<String> suffixes) {
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return expr.getBType();
         }
@@ -791,12 +801,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
         }
 
-        String anonTypeNameSuffix = constantSymbol.name.value;
-        if (anonTypeNameSuffix.isEmpty()) {
-            anonTypeNameSuffix = constantSymbol.owner.name.value;
-        }
-        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID,
-                AnonymousTypeKind.CONSTANT, List.of(anonTypeNameSuffix)));
+        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID, suffixes));
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(SymTag.RECORD,
                                                                    constantSymbol.flags | Flags.ANONYMOUS, genName,
                                                                    constantSymbol.pkgID,
@@ -809,7 +814,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordTypeSymbol.type = recordType;
 
         if (constValueMap.size() != 0) {
-            if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType, env)) {
+            if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType, env, suffixes)) {
                 return null;
             }
         }
@@ -822,7 +827,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private boolean populateRecordFields(BLangExpression expr, BConstantSymbol constantSymbol, Location pos,
                                          HashMap<String, BLangConstantValue> constValueMap, BRecordType recordType,
-                                         SymbolEnv env) {
+                                         SymbolEnv env, List<String> suffixes) {
         for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expr).fields) {
             String key;
             BVarSymbol newSymbol;
@@ -858,8 +863,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 key = keyValuePair.key.toString();
                 newSymbol = new BVarSymbol(constantSymbol.flags, Names.fromString(key), constantSymbol.pkgID,
                                            null, constantSymbol.owner, pos, VIRTUAL);
+                suffixes.add(key);
                 BType newType = checkType(exprValueField, constantSymbol, constValueMap.get(key).value,
-                                          constValueMap.get(key).type, pos, env);
+                                          constValueMap.get(key).type, pos, env, suffixes);
+                suffixes.remove(key);
                 if (newType == null) {
                     return false;
                 }
