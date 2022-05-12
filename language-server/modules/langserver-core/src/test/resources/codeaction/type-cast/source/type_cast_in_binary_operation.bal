@@ -14,3 +14,12 @@ function testTypeCastInBinaryOp() {
 
 function testFunction(float x) returns float =>
     let decimal x1 = f1 / d1;
+
+function testTypeCastPositionalArg() {
+    int addResult = add(i1/f1,i1);
+}
+
+
+function add(float a, int b) returns int {
+    return <int> a + b;
+}
