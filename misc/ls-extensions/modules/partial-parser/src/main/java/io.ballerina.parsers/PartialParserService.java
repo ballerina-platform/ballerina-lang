@@ -36,7 +36,11 @@ import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerSe
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
+import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
+
+import static io.ballerina.parsers.Constants.SPACE_COUNT_FOR_ST_TAB;
 
 
 /**
@@ -60,8 +64,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
             String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
                     request.getStModification());
             String formattedSourceCode = getFunctionBodiedFormattedSource(statement);
+            String sourceToBeParsed = getLinesWithoutLeadingTab(formattedSourceCode);
 
-            StatementNode statementNode = NodeParser.parseStatement(formattedSourceCode);
+            StatementNode statementNode = NodeParser.parseStatement(sourceToBeParsed);
 
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(statementNode);
             STResponse response = new STResponse();
@@ -127,12 +132,24 @@ public class PartialParserService implements ExtendedLanguageServerService {
             ModulePartNode modulePartNode = formattedTree.rootNode();
             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
             FunctionBodyBlockNode functionBodyBlockNode = (FunctionBodyBlockNode) functionDefinitionNode.functionBody();
-            formattedSourceCode = functionBodyBlockNode.statements().get(0).toSourceCode().trim();
+            formattedSourceCode = functionBodyBlockNode.statements().get(0).toSourceCode();
         } catch (FormatterException | NullPointerException e) {
             // TODO: Print a warn log in the language client.
         }
 
         return formattedSourceCode;
+    }
+
+    private String getLinesWithoutLeadingTab(String statement) {
+
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        Stream<String> lines = statement.lines();
+        lines.iterator().forEachRemaining(line -> {
+            // Drop the first four whitespaces
+            sj.add(line.replaceFirst(String.format("^ {%d}", SPACE_COUNT_FOR_ST_TAB), ""));
+        });
+
+        return sj.toString();
     }
 
     private SyntaxTree getSTForSourceWithinMain(String statement) {
