@@ -1,4 +1,4 @@
-import ballerina/http;
+import serviceProject.http;
 import serviceProject.time;
 
 type Type int|time:TimeZone|time:Error;
