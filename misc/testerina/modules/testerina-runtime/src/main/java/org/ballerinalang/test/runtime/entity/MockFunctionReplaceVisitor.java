@@ -59,7 +59,8 @@ public class MockFunctionReplaceVisitor extends ClassVisitor {
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor defaultMethodVisitor;
-        if(!name.equals(methodName) || !desc.equals(methodDesc)) {
+        if (!name.equals(methodName) || !desc.equals(methodDesc)) {
+            // reproduce the methods where no changes needed
             defaultMethodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
         } else {
             // Rename function as $ORIG_name.
