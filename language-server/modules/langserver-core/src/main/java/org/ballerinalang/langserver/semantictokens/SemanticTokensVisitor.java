@@ -125,10 +125,10 @@ public class SemanticTokensVisitor extends NodeVisitor {
         if (functionDefinitionNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
             this.addSemanticToken(functionDefinitionNode.functionName(), type, TokenTypeModifiers.DECLARATION.getId(),
                     false, -1, -1);
-            functionDefinitionNode.relativeResourcePath().forEach(resourcePath -> {
-                if (resourcePath.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+            functionDefinitionNode.relativeResourcePath().stream()
+                    .filter(resourcePath -> resourcePath.kind() == SyntaxKind.IDENTIFIER_TOKEN)
+                    .forEach(resourcePath -> {
                     this.addSemanticToken(resourcePath, type, TokenTypeModifiers.DECLARATION.getId(), false, -1, -1);
-                }
             });
         } else {
             this.addSemanticToken(functionDefinitionNode.functionName(), type, TokenTypeModifiers.DECLARATION.getId(),
@@ -442,7 +442,8 @@ public class SemanticTokensVisitor extends NodeVisitor {
      * @param startLine Start line position
      */
     private void processSymbols(Node node, LinePosition startLine) {
-        if (semanticTokens.contains(new SemanticToken(startLine.line(), startLine.offset()))) {
+        if (node.kind() == SyntaxKind.STRING_LITERAL ||
+                semanticTokens.contains(new SemanticToken(startLine.line(), startLine.offset()))) {
             return;
         }
         Optional<SemanticModel> semanticModel = this.semanticTokensContext.currentSemanticModel();
@@ -614,11 +615,6 @@ public class SemanticTokensVisitor extends NodeVisitor {
         if (referenceType != -1) {
             final int type = referenceType;
             final int modifiers = referenceModifiers == -1 ? 0 : referenceModifiers;
-
-            // No need of finding reference for strings since those are covered from the variable declaration.
-            if (node.kind() == SyntaxKind.STRING_LITERAL) {
-                return;
-            }
 
             List<Location> locations = semanticModel.get().references(symbol.get(),
                     this.semanticTokensContext.currentDocument().get(), false);
