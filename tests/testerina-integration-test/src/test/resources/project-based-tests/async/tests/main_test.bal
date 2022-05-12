@@ -28,7 +28,6 @@ public function testAsyncRemoteFunctionMain() returns (error?) {
     future<string> message = start 'client->getMessage();
     string|error msg1 = wait message;
     test:assertEquals(msg1, "Main Client");
-
 }
 
 @test:Config {}
@@ -37,5 +36,4 @@ public function testAsyncRemoteFunctionTest() returns (error?) {
     future<string> message = start 'client->getMessage();
     string|error msg1 = wait message;
     test:assertEquals(msg1, "Test Client");
-
 }
