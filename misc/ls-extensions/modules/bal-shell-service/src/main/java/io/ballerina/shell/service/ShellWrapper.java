@@ -34,7 +34,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -46,16 +45,16 @@ import static java.util.stream.Collectors.toList;
  * @since 2.0.0
  */
 public class ShellWrapper {
-    private BShellConfiguration configuration;
+    private final BShellConfiguration configuration;
     private Evaluator evaluator;
     private File tempFile;
 
-    private MetaInfoHandler metaInfoHandler;
+    private final MetaInfoHandler metaInfoHandler;
     private static final String TEMP_FILE_PREFIX = "temp-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
 
     private static class InstanceHolder {
-        private static ShellWrapper instance = new ShellWrapper();
+        private static final ShellWrapper instance = new ShellWrapper();
     }
 
     private ShellWrapper() {
@@ -81,18 +80,22 @@ public class ShellWrapper {
         System.setOut(new PrintStream(consoleOutCollector, false, Charset.defaultCharset()));
         try {
             ShellCompilation shellCompilation = evaluator.getCompilation(source);
+            // continue the execution if the compilation is done successfully
+            // info related to errors required for the Ballerina notebook in compilation
+            // will include in diagnostics
             if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
                 Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                Object out = evaluator.getValueAsObject(compilation).get();
+                Optional<Object> shellReturnValue = evaluator.getValueAsObject(compilation);
                 List<String> consoleOut = consoleOutCollector.getLines();
-                output.setValue(out, consoleOut);
+                if (shellReturnValue.isPresent()) {
+                    Object out = shellReturnValue.get();
+                    output.setValue(out, consoleOut);
+                }
             }
-        } catch (Exception error) {
+        } catch (Exception error) { // handling unidentified runtime errors
             List<String> consoleOut = consoleOutCollector.getLines();
             output.setValue(null, consoleOut);
-            if (!(error instanceof NoSuchElementException)) {
-                output.addError(error.getMessage());
-            }
+            output.addError(error.getMessage());
         } finally {
             output.addOutputDiagnostics(evaluator.diagnostics());
             output.setMetaInfo(
@@ -113,8 +116,7 @@ public class ShellWrapper {
     public ShellFileSourceResponse getShellFileSource() {
         String fileContent;
         try {
-            fileContent = new String(Files.readAllBytes(Paths.get(evaluator.getBufferFileUri())),
-                    Charset.defaultCharset()).trim();
+            fileContent = Files.readString(Paths.get(evaluator.getBufferFileUri()), Charset.defaultCharset()).trim();
             File tempFile = writeToFile(fileContent);
             return new ShellFileSourceResponse(tempFile, fileContent);
         } catch (IOException ignored) {
