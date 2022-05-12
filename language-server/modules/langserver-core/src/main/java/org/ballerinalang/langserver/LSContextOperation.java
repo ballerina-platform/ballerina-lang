@@ -51,7 +51,8 @@ public enum LSContextOperation implements LSOperation {
     SOURCE_PRUNER("sourcePruner"),
     TEST_GEN("testGeneration"),
     CREATE_PROJECT("createProject"),
-    RELOAD_PROJECT("reloadProject");
+    RELOAD_PROJECT("reloadProject"),
+    SYMBOL_DOCUMENT("symbol/documentation");
 
     private final String name;
 
