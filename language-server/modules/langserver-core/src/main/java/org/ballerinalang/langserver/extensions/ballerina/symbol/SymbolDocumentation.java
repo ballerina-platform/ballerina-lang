@@ -21,6 +21,8 @@ import java.util.List;
 
 /**
  * Represents the documentation structure of getSymbol endpoint of BallerinaSymbolService.
+ *
+ *  @since 2201.1.0
  */
 public class SymbolDocumentation {
     private final String description;
@@ -63,6 +65,8 @@ public class SymbolDocumentation {
 
     /**
      * Represents a parameter information.
+     *
+     * @since 2201.1.0
      */
     public static class ParameterInfo {
 

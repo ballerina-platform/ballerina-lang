@@ -152,6 +152,9 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                         this.serverContext);
 
                 Optional<Document> srcFile = context.currentDocument();
+                if (srcFile.isEmpty()) {
+                    return symbolInfoResponse;
+                }
                 LinePosition linePosition = LinePosition.from(request.getPosition().getLine(),
                         request.getPosition().getCharacter());
                 Optional<? extends Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(), linePosition);
@@ -167,25 +170,30 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     return symbolInfoResponse;
                 }
 
-                List<SymbolDocumentation.ParameterInfo> symbolParams = new ArrayList<>(documentation.get().
-                        parameterMap().size());
+                List<SymbolDocumentation.ParameterInfo> symbolParams = new ArrayList<>();
 
                 if (symbolAtCursor.get() instanceof FunctionSymbol) {
                     FunctionSymbol functionSymbol = (FunctionSymbol) symbolAtCursor.get();
 
                     if (functionSymbol.typeDescriptor().params().isPresent()) {
                         List<ParameterSymbol> parameterSymbolList = functionSymbol.typeDescriptor().params().get();
-                        parameterSymbolList.forEach(parameterSymbol -> {
-                            symbolParams.add(new SymbolDocumentation.ParameterInfo(
-                                    parameterSymbol.getName().get(),
-                                    documentation.get().parameterMap().get(parameterSymbol.getName().get()),
-                                    parameterSymbol.paramKind().name(),
-                                    CommonUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor())));
-                        });
+
+                        parameterSymbolList.stream().filter((parameterSymbol) ->
+                                parameterSymbol.getName().isPresent() &&
+                                        documentation.get().parameterMap().containsKey(parameterSymbol.getName().get()))
+                                .forEach(parameterSymbol -> {
+
+                                    symbolParams.add(new SymbolDocumentation.ParameterInfo(
+                                            parameterSymbol.getName().get(),
+                                            documentation.get().parameterMap().get(parameterSymbol.getName().get()),
+                                            parameterSymbol.paramKind().name(),
+                                            CommonUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor())));
+                                });
                     }
 
                     Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
-                    if (restParam.isPresent()) {
+                    if (restParam.isPresent() && restParam.get().getName().isPresent() &&
+                            documentation.get().parameterMap().containsKey(restParam.get().getName().get())) {
                         ParameterSymbol restParameter = restParam.get();
                         symbolParams.add(new SymbolDocumentation.ParameterInfo(
                                 restParameter.getName().get(),
@@ -199,11 +207,9 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                 List<SymbolDocumentation.ParameterInfo> deprecatedParams = new ArrayList<>(
                         documentation.get().deprecatedParametersMap().size());
                 Map<String, String> deprecatedParamMap = documentation.get().deprecatedParametersMap();
-                if (!deprecatedParamMap.isEmpty()) {
-                    deprecatedParamMap.forEach((param, desc) -> {
-                        deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param, desc));
-                    });
-                }
+                deprecatedParamMap.forEach((param, desc) -> {
+                    deprecatedParams.add(new SymbolDocumentation.ParameterInfo(param, desc));
+                });
 
                 SymbolDocumentation symbolDoc = new SymbolDocumentation(documentation.get(), symbolParams,
                         deprecatedParams);
