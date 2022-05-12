@@ -39,6 +39,8 @@ import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
+import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.IASTORE;
@@ -54,6 +56,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_SURROGATE_ARRAY_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LARGE_STRING_VAR_PREFIX;
@@ -81,6 +84,8 @@ public class JvmBStringConstantsGen {
     private final String stringConstantsClass;
 
     private final AtomicInteger constantIndex = new AtomicInteger();
+
+    private final Map<String, int[]> highSurrogatesMap = new HashMap<>();
 
     public JvmBStringConstantsGen(PackageID module) {
         this.bStringVarMap = new HashMap<>();
@@ -113,11 +118,63 @@ public class JvmBStringConstantsGen {
         stringVarMap.values().forEach(stringVar -> visitStringField(cw, stringVar));
 
         // Create multiple string constant init methods based on string count.
-        generateBStringInits(cw, stringVarMap);
+        generateBStringInitMethods(cw, stringVarMap);
+        // Create methods to return int array to pass when creating non-Bmp string values.
+        highSurrogatesMap.forEach((key, value) -> generateGetHighSurrogateArrayMethod(cw, key, value));
         // Create static initializer which will call previously generated string init methods.
         generateStaticInitializer(cw);
         cw.visitEnd();
         jarEntries.put(stringConstantsClass + ".class", cw.toByteArray());
+    }
+
+    private void generateGetHighSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
+        List<String> splitMethodNames = generateSplitGetSurrogateArrayMethod(cw, varName, values);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, getHighSurrogateMethodName(varName), "()[I", null, null);
+        mv.visitLdcInsn(values.length);
+        mv.visitIntInsn(NEWARRAY, T_INT);
+        mv.visitVarInsn(ASTORE, 0);
+        // Call the get surrogate array methods to populate int array
+        for (String methodName : splitMethodNames) {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC, stringConstantsClass, methodName, "([I)V", false);
+        }
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitInsn(ARETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private List<String> generateSplitGetSurrogateArrayMethod(ClassWriter cw, String varName, int[] values) {
+        List<String> methods = new ArrayList<>();
+        MethodVisitor mv = null;
+        int indexCount = 0;
+        int methodCount = 0;
+        for (int i = 0; i < values.length; i++) {
+            if (indexCount % MAX_STRINGS_PER_METHOD == 0) {
+                String methodName = getHighSurrogateMethodName(varName) + methodCount++;
+                mv = cw.visitMethod(ACC_STATIC, methodName, "([I)V", null,
+                        null);
+                methods.add(methodName);
+            }
+            // Populate the int array
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitLdcInsn(i);
+            mv.visitLdcInsn(values[i]);
+            mv.visitInsn(IASTORE);
+            indexCount++;
+            if (indexCount % MAX_STRINGS_PER_METHOD == 0) {
+                mv.visitInsn(RETURN);
+                mv.visitMaxs(0, 0);
+                mv.visitEnd();
+            }
+        }
+        // Visit the previously started get surrogate array method if not ended.
+        if (indexCount % MAX_STRINGS_PER_METHOD != 0) {
+            mv.visitInsn(RETURN);
+            mv.visitMaxs(0, 0);
+            mv.visitEnd();
+        }
+        return methods;
     }
 
     private void visitStringField(ClassWriter cw, Map<String, String> varList) {
@@ -181,7 +238,7 @@ public class JvmBStringConstantsGen {
         fv.visitEnd();
     }
 
-    private void generateBStringInits(ClassWriter cw, Map<String, Map<String, String>> stringVarMap) {
+    private void generateBStringInitMethods(ClassWriter cw, Map<String, Map<String, String>> stringVarMap) {
         MethodVisitor mv = null;
         int bStringCount = 0;
         int methodCount = 0;
@@ -192,6 +249,9 @@ public class JvmBStringConstantsGen {
             String bString = entry.getKey();
             String bStringVarName = entry.getValue();
             int[] highSurrogates = listHighSurrogates(bString);
+            if (highSurrogates.length > 0) {
+                highSurrogatesMap.put(bStringVarName, highSurrogates);
+            }
             if (stringVarMap.containsKey(bStringVarName)) {
                 Map<String, String> stringChunkMap = stringVarMap.get(bStringVarName);
                 createConcatenatedBString(mv, highSurrogates, bStringVarName, stringChunkMap);
@@ -214,6 +274,10 @@ public class JvmBStringConstantsGen {
         }
     }
 
+    private String getHighSurrogateMethodName(String bStringVar) {
+        return GET_SURROGATE_ARRAY_METHOD_PREFIX + bStringVar + "$";
+    }
+
     private void createConcatenatedBString(MethodVisitor mv, int[] highSurrogates, String bStringVarName,
                                            Map<String, String> stringChunks) {
         for (Map.Entry<String, String> stringEntry : stringChunks.entrySet()) {
@@ -223,7 +287,8 @@ public class JvmBStringConstantsGen {
         if (highSurrogates.length > 0) {
             mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
             generateAppendStringConstants(mv, stringChunks);
-            generateHighSurrogatesArray(mv, highSurrogates);
+            mv.visitMethodInsn(INVOKESTATIC, stringConstantsClass, getHighSurrogateMethodName(bStringVarName), "()[I",
+                    false);
             mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, JVM_INIT_METHOD, INIT_NON_BMP_STRING_VALUE, false);
         } else {
             mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
@@ -247,7 +312,7 @@ public class JvmBStringConstantsGen {
 
     private void createDirectBString(MethodVisitor mv, String bString, String bStringVarName, int[] highSurrogates) {
         if (highSurrogates.length > 0) {
-            createNonBmpString(mv, bString, highSurrogates, bStringVarName);
+            createNonBmpString(mv, bString, bStringVarName);
         } else {
             createBmpString(mv, bString, bStringVarName);
         }
@@ -273,27 +338,13 @@ public class JvmBStringConstantsGen {
         mv.visitFieldInsn(PUTSTATIC, stringConstantsClass, varName, GET_BSTRING);
     }
 
-    private void createNonBmpString(MethodVisitor mv, String val, int[] highSurrogates, String varName) {
+    private void createNonBmpString(MethodVisitor mv, String val, String varName) {
         mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
         mv.visitInsn(DUP);
         mv.visitLdcInsn(val);
-        generateHighSurrogatesArray(mv, highSurrogates);
+        mv.visitMethodInsn(INVOKESTATIC, stringConstantsClass, getHighSurrogateMethodName(varName), "()[I", false);
         mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, JVM_INIT_METHOD, INIT_NON_BMP_STRING_VALUE, false);
         mv.visitFieldInsn(PUTSTATIC, stringConstantsClass, varName, GET_BSTRING);
-    }
-
-    private void generateHighSurrogatesArray(MethodVisitor mv, int[] highSurrogates) {
-        mv.visitLdcInsn(highSurrogates.length);
-        mv.visitIntInsn(NEWARRAY, T_INT);
-
-        int i = 0;
-        for (int ch : highSurrogates) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(i);
-            mv.visitLdcInsn(ch);
-            i = i + 1;
-            mv.visitInsn(IASTORE);
-        }
     }
 
     public String getStringConstantsClass() {
