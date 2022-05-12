@@ -32,7 +32,6 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
 import io.ballerina.compiler.syntax.tree.Minutiae;
@@ -233,15 +232,11 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     }
 
     protected Optional<Node> getParentFunctionBlock(Node node) {
-        try {
-            if (node.kind() == SyntaxKind.FUNCTION_DEFINITION
-                    || node.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
-                return Optional.of(node);
-            }
-            return getParentFunctionBlock(node.parent());
-        } catch (NullPointerException ex) {
-            return Optional.empty();
+        if (node.kind() == SyntaxKind.FUNCTION_DEFINITION
+                || node.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            return Optional.of(node);
         }
+        return getParentFunctionBlock(node.parent());
     }
 
     private void markVisibleEp(VariableSymbol variableSymbol, JsonObject symbolJson, Node node) {
@@ -310,17 +305,17 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     }
                 }
                 break;
-            case ASSIGNMENT_STATEMENT:
-                AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
-                if (assignmentStatementNode.varRef().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                    String asgmtVarName = ((SimpleNameReferenceNode) assignmentStatementNode.varRef()).name().text();
-                    symbolMetaInfo = getModuleMetaInfo(typeSymbol, asgmtVarName, assignmentStatementNode.lineRange(),
-                            false, false);
-                    if (!isAvailableAsEndpoint(asgmtVarName)) {
-                        this.visibleEpsForEachBlock.add(symbolMetaInfo);
-                    }
-                }
-                break;
+//            case ASSIGNMENT_STATEMENT:
+//                AssignmentStatementNode assignmentStatementNode = (AssignmentStatementNode) node;
+//                if (assignmentStatementNode.varRef().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+//                    String asgmtVarName = ((SimpleNameReferenceNode) assignmentStatementNode.varRef()).name().text();
+//                    symbolMetaInfo = getModuleMetaInfo(typeSymbol, asgmtVarName, assignmentStatementNode.lineRange(),
+//                            false, false);
+//                    if (!isAvailableAsEndpoint(asgmtVarName)) {
+//                        this.visibleEpsForEachBlock.add(symbolMetaInfo);
+//                    }
+//                }
+//                break;
             case SIMPLE_NAME_REFERENCE:
                 String name = ((SimpleNameReferenceNode) node).name().text();
                 if (isRemoteAction && !isAvailableAsEndpoint(name)) {
@@ -365,10 +360,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private JsonObject getModuleMetaInfo(TypeSymbol typeSymbol, String name, LineRange lineRange,
                                          Boolean isModuleVar, Boolean isExternal, Boolean isParam) {
-        if (!typeSymbol.getModule().isPresent()) {
-            return new JsonObject();
-        }
-
         JsonObject metaInfo = getModuleMetaInfo(typeSymbol, name, lineRange, isModuleVar, isExternal);
         metaInfo.addProperty("isParameter", isParam);
 
