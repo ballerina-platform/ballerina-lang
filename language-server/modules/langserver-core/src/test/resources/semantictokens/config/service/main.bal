@@ -10,8 +10,9 @@ type Employee record {
 
 service / on new http:Listener(8080) {
 
+    int salary = 100;
     resource function get find/[string first]/[string second]() returns string {
-        Employee emp = {name: "John", "salary": 100};
+        Employee emp = {name: "John", "salary": self.salary};
         emp["salary"] = 200;
         return "First: " + first + ", and second: " + second;
     }

@@ -379,7 +379,9 @@ public class SemanticTokensVisitor extends NodeVisitor {
         SyntaxKind kind = objectFieldNode.parent().kind();
         int type = kind == SyntaxKind.CLASS_DEFINITION || kind == SyntaxKind.OBJECT_TYPE_DESC ||
                 kind == SyntaxKind.RECORD_TYPE_DESC || kind == SyntaxKind.OBJECT_CONSTRUCTOR ?
-                TokenTypes.PROPERTY.getId() : TokenTypes.TYPE_PARAMETER.getId();
+                TokenTypes.PROPERTY.getId() :
+                kind == SyntaxKind.SERVICE_DECLARATION ? TokenTypes.VARIABLE.getId() :
+                        TokenTypes.TYPE_PARAMETER.getId();
         boolean isReadOnly = isReadonly(objectFieldNode.typeName());
         this.addSemanticToken(objectFieldNode.fieldName(), type, isReadOnly ? TokenTypeModifiers.DECLARATION.getId() |
                         TokenTypeModifiers.READONLY.getId() : TokenTypeModifiers.DECLARATION.getId(), true, type,
