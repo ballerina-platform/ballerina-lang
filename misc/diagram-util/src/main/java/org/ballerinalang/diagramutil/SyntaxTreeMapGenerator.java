@@ -259,12 +259,10 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
             unionTypeSymbol.memberTypeDescriptors().forEach(member -> {
                 TypeSymbol memberRawType = getRawType(member);
-                if (memberRawType.typeKind() == TypeDescKind.OBJECT) {
-                    ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) memberRawType;
-                    if (objectTypeSymbol.qualifiers().contains(Qualifier.CLIENT)) {
-                        symbolJson.addProperty("isEndpoint", true);
-                        updateVisibleEP(node, memberRawType, false);
-                    }
+                if (memberRawType.typeKind() == TypeDescKind.OBJECT
+                        && ((ObjectTypeSymbol) memberRawType).qualifiers().contains(Qualifier.CLIENT)) {
+                    symbolJson.addProperty("isEndpoint", true);
+                    updateVisibleEP(node, memberRawType, false);
                 }
             });
         }
