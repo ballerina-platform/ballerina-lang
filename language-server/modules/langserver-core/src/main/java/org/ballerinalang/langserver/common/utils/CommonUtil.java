@@ -209,17 +209,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the last item of the Array.
-     *
-     * @param list Array to get the Last Item
-     * @param <T>  Array content Type
-     * @return Extracted last Item
-     */
-    public static <T> T getLastItem(T[] list) {
-        return (list.length == 0) ? null : list[list.length - 1];
-    }
-
-    /**
      * Get the package name components combined.
      *
      * @param importNode {@link ImportDeclarationNode}
@@ -230,43 +219,7 @@ public class CommonUtil {
                 .map(Token::text)
                 .collect(Collectors.joining("."));
     }
-
-    /**
-     * Predicate to check for the invalid type definitions.
-     *
-     * @return {@link Predicate}    Predicate for the check
-     */
-    public static Predicate<TopLevelNode> checkInvalidTypesDefs() {
-        return topLevelNode -> {
-            if (topLevelNode instanceof BLangTypeDefinition) {
-                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) topLevelNode;
-                return !(typeDefinition.flagSet.contains(Flag.SERVICE) ||
-                        typeDefinition.flagSet.contains(Flag.RESOURCE));
-            }
-            return true;
-        };
-    }
-
-    /**
-     * Generates a variable name.
-     *
-     * @param name {@link BLangNode}
-     * @return random argument name
-     */
-    public static String generateVariableName(String name, Set<String> names) {
-        return generateVariableName(1, name, names);
-    }
-
-    /**
-     * Generates a variable name.
-     *
-     * @param symbol {@link Symbol}
-     * @return random argument name
-     */
-    public static String generateVariableName(Symbol symbol, Set<String> names) {
-        return generateVariableName(1, symbol.kind().name(), names);
-    }
-
+    
     /**
      * Generates a random name.
      *
@@ -285,20 +238,6 @@ public class CommonUtil {
             result = new StringBuilder(generateName(++value, argNames));
         }
         return result.toString();
-    }
-
-    /**
-     * Generates a variable name.
-     *
-     * @param bLangNode {@link BLangNode}
-     * @return random argument name
-     */
-    public static String generateVariableName(BLangNode bLangNode, Set<String> names) {
-        String newName = generateName(1, names);
-        if (bLangNode instanceof BLangInvocation) {
-            return generateVariableName(1, ((BLangInvocation) bLangNode).name.value, names);
-        }
-        return newName;
     }
 
     /**
@@ -748,13 +687,6 @@ public class CommonUtil {
                 && !symbol.getName().orElse("").equals(Names.ERROR.getValue());
     }
 
-    private static String getQualifiedModuleName(Module module) {
-        if (module.isDefaultModule()) {
-            return module.moduleName().packageName().value();
-        }
-        return module.moduleName().packageName().value() + Names.DOT.getValue() + module.moduleName().moduleNamePart();
-    }
-
     /**
      * Check if the cursor is positioned in a lock statement node context.
      *
@@ -940,17 +872,6 @@ public class CommonUtil {
         }
 
         return Optional.ofNullable(evalNode);
-    }
-
-    /**
-     * Check if a given offset is with in the range of a given node.
-     *
-     * @param node
-     * @param offset
-     * @return
-     */
-    public static boolean isWithInRange(Node node, int offset) {
-        return node.textRange().startOffset() <= offset && offset <= node.textRange().endOffset();
     }
 
     /**
