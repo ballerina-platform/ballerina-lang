@@ -26,8 +26,10 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -96,9 +98,7 @@ public class BalShellServiceTests {
                 List<Map<String, String>> generatedResult;
                 try {
                     generatedResult = (List<Map<String, String>>) result.get();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                } catch (ExecutionException e) {
+                } catch (InterruptedException | ExecutionException e) {
                     throw new RuntimeException(e);
                 }
                 TestUtils.assertJsonValues(generatedResult, testCase.getResult());
@@ -115,13 +115,10 @@ public class BalShellServiceTests {
 
     @Test(description = "Test for definition delete")
     public void testDelete() throws ExecutionException, InterruptedException, IOException {
-        // check for variable declarations
-        runDeleteDclnsTest("basic_variables.json");
-        // check for module declarations
-        runDeleteDclnsTest("functions.json");
-    }
-
-    private void runDeleteDclnsTest(String filename) throws IOException, InterruptedException, ExecutionException {
+        String filename = "delete_vars.json";
+        // define module Declarations and variables to test
+        List<String> definedVars = new ArrayList<>();
+        List<String> moduleDclns = new ArrayList<>();
         Path file = RES_DIR.resolve("testcases").resolve(filename);
         GetResultTestCase[] testCases = TestUtils.loadResultTestCases(file);
         for (GetResultTestCase testCase: testCases) {
@@ -129,9 +126,33 @@ public class BalShellServiceTests {
             CompletableFuture<BalShellGetResultResponse> balShellResponse =
                     (CompletableFuture<BalShellGetResultResponse>) serviceEndpoint.request(GET_RESULT, request);
             MetaInfo metainfo = balShellResponse.get().getMetaInfo();
-            CompletableFuture<?> result = serviceEndpoint.request(DELETE_DCLNS, metainfo);
-            boolean generatedResult = (boolean) result.get();
-            Assert.assertTrue(generatedResult);
+            definedVars.addAll(metainfo.getDefinedVars());
+            moduleDclns.addAll(metainfo.getModuleDclns());
+        }
+
+        // get random value set from each to test
+        Random random = new Random();
+        List<String> definedVarsToTest = TestUtils.getRandomSlice(definedVars, random.nextInt(definedVars.size()));
+        List<String> moduleDclnsToTest = TestUtils.getRandomSlice(moduleDclns, random.nextInt(moduleDclns.size()));
+        MetaInfo metaInfo = new MetaInfo(definedVarsToTest, moduleDclnsToTest);
+        // invoke the end point
+        CompletableFuture<?> passed = serviceEndpoint.request(DELETE_DCLNS, metaInfo);
+        boolean passesdBool = (boolean) passed.get();
+        Assert.assertTrue(passesdBool);
+        // check those values are not in invoker memory
+        CompletableFuture<?> result = serviceEndpoint.request(GET_VARIABLES, null);
+        List<String> currentVars = new ArrayList<>();
+        try {
+            List<Map<String, String>> varMapList = (List<Map<String, String>>) result.get();
+            for (Map<String, String> varMap: varMapList) {
+                currentVars.add(varMap.get("name"));
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        for (String definedVarToTest: definedVarsToTest) {
+            // deleted vars should not contain in the current var list
+            Assert.assertFalse(currentVars.contains(definedVarToTest));
         }
     }
 
