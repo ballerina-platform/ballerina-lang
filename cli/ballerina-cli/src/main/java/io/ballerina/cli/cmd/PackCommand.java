@@ -92,16 +92,17 @@ public class PackCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = false;
     }
 
-    public PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        boolean skipCopyLibsFromDist) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.offline = true;
     }
 
-    public PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    PackCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        boolean skipCopyLibsFromDist, Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -109,6 +110,7 @@ public class PackCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @Override
