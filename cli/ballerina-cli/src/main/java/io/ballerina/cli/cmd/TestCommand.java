@@ -149,6 +149,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
 
+    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
+    private Boolean sticky;
+
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
@@ -161,6 +164,10 @@ public class TestCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
+        }
+
+        if (sticky == null) {
+            sticky = false;
         }
 
         // load project
@@ -270,6 +277,7 @@ public class TestCommand implements BLauncherCmd {
                 .setTestReport(testReport)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky)
                 .build();
 
         if (targetDir != null) {
