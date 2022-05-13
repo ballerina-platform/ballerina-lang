@@ -489,6 +489,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
+    private final Stack<String> anonTypeNameSuffixes = new Stack<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
     /* To keep track if we are inside a finite context */
@@ -1492,7 +1493,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         //Set method qualifiers
         setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
+        anonTypeNameSuffixes.push(name.value);
         populateFuncSignature(bLFunction, functionSignature);
+        anonTypeNameSuffixes.pop();
 
         // Set the function body
         if (functionBody == null) {
@@ -1554,6 +1557,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                                            anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
 
         // Set function signature
+        // TODO: check this
         populateFuncSignature(bLFunction, anonFuncExprNode.functionSignature());
 
         // Set the function body
@@ -3100,11 +3104,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RequiredParameterNode requiredParameter) {
-        BLangSimpleVariable simpleVar = createSimpleVar(requiredParameter.paramName(),
+        Optional<Token> paramName = requiredParameter.paramName();
+        paramName.ifPresent(token -> anonTypeNameSuffixes.push(token.text()));
+        BLangSimpleVariable simpleVar = createSimpleVar(paramName,
                                                         requiredParameter.typeName(), requiredParameter.annotations());
         simpleVar.pos = getPosition(requiredParameter);
-        if (requiredParameter.paramName().isPresent()) {
-            simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
+        if (paramName.isPresent()) {
+            simpleVar.name.pos = getPosition(paramName.get());
+            anonTypeNameSuffixes.pop();
         } else if (simpleVar.name.pos == null) {
             // Param doesn't have a name and also is not a missing node
             // Therefore, assigning the built-in location
@@ -5204,7 +5211,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
         if (retNode.isPresent()) {
             ReturnTypeDescriptorNode returnType = retNode.get();
+            this.anonTypeNameSuffixes.push("return");
             bLFunction.setReturnTypeNode(createTypeNode(returnType.type()));
+            this.anonTypeNameSuffixes.pop();
             bLFunction.returnTypeAnnAttachments = applyAll(returnType.annotations());
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -6172,7 +6181,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         Location pos = getPosition(recordTypeDescriptorNode);
         // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID, this.anonTypeNameSuffixes);
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);

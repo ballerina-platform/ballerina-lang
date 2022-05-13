@@ -105,6 +105,9 @@ public class BLangAnonymousModelHelper {
     }
 
     public String getNextAnonymousTypeKey(PackageID packageID, Stack<String> suffixes) {
+        if (suffixes.isEmpty()) {
+            return getNextAnonymousTypeKey(packageID);
+        }
         String name = createAnonTypeName(suffixes);
         if (!anonTypeNames.contains(name)) {
             anonTypeNames.add(name);
