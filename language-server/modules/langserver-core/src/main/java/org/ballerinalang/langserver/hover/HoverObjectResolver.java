@@ -164,9 +164,15 @@ public class HoverObjectResolver {
                 }
                 String paramName = param.getName().get();
                 String desc = paramsMap.get(paramName);
+                Optional<String> defaultValueForParam = CommonUtil.getDefaultValueForType(param.typeDescriptor());
+                String defValDesc = "";
+                if (defaultValueForParam.isPresent()) {
+                    defValDesc = String.format(" : %s", 
+                            MarkupUtils.quotedString(String.format("(default : %s)", defaultValueForParam.get())));
+                }
                 return MarkupUtils.quotedString(CommonUtil.getModifiedTypeName(context,
                         param.typeDescriptor())) + " "
-                        + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc;
+                        + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc + defValDesc;
             }).collect(Collectors.toList()));
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
