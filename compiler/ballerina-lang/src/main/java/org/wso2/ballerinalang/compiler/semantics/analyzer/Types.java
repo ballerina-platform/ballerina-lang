@@ -4278,7 +4278,7 @@ public class Types {
         return matchFound;
     }
 
-    boolean validationFunction(BType type, ValidateType validateType) {
+    boolean validNumericStringOrXmlTypeExists(BType type, TypeExistenceValidationFunction validationFunction) {
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
@@ -4323,15 +4323,15 @@ public class Types {
                     if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
                         return false;
                     }
-                    if (!validateType.validate(expr.getBType())) {
+                    if (!validationFunction.validate(expr.getBType())) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.TYPEREFDESC:
-                return validateType.validate(getReferredType(type));
+                return validationFunction.validate(getReferredType(type));
             case TypeTags.INTERSECTION:
-                return validateType.validate(((BIntersectionType) type).effectiveType);
+                return validationFunction.validate(((BIntersectionType) type).effectiveType);
             default:
                 return false;
         }
@@ -4344,14 +4344,14 @@ public class Types {
         if (isBasicNumericType(type)) {
             return true;
         }
-        return validationFunction(type, this::validNumericTypeExists);
+        return validNumericStringOrXmlTypeExists(type, this::validNumericTypeExists);
     }
 
     boolean validStringOrXmlTypeExists(BType type) {
         if (TypeTags.isStringTypeTag(type.tag) || TypeTags.isXMLTypeTag(type.tag)) {
             return true;
         }
-        return validationFunction(type, this::validStringOrXmlTypeExists);
+        return validNumericStringOrXmlTypeExists(type, this::validStringOrXmlTypeExists);
     }
 
     boolean validIntegerTypeExists(BType bType) {
@@ -6003,7 +6003,7 @@ public class Types {
      *
      * @since 2201.1.0
      */
-    private interface ValidateType {
+    private interface TypeExistenceValidationFunction {
         boolean validate(BType type);
     }
 
