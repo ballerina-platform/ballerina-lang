@@ -22,6 +22,10 @@ import io.ballerina.shell.ExceptionStatus;
 import io.ballerina.shell.ShellCompilation;
 import io.ballerina.shell.cli.BShellConfiguration;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.exceptions.InvokerPanicException;
+import io.ballerina.shell.exceptions.SnippetException;
+import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.invoker.AvailableVariable;
 
 import java.io.File;
@@ -83,7 +87,7 @@ public class ShellWrapper {
             // continue the execution if the compilation is done successfully
             // info related to errors required for the Ballerina notebook in compilation
             // will include in diagnostics
-            if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
+            if (shellCompilation.getExceptionStatus() == ExceptionStatus.SUCCESS) {
                 Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
                 Optional<Object> shellReturnValue = evaluator.getValueAsObject(compilation);
                 List<String> consoleOut = consoleOutCollector.getLines();
@@ -91,7 +95,18 @@ public class ShellWrapper {
                     Object out = shellReturnValue.get();
                     output.setValueAndConsoleOut(out, consoleOut);
                 }
+            // for other exception statuses throw errors accordingly
+            } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.SNIPPET_FAILED) {
+                throw new SnippetException();
+            } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.TREE_PARSER_FAILED) {
+                throw new TreeParserException();
+            } else {
+                throw new InvokerException();
             }
+        } catch (InvokerPanicException error) {
+            List<String> consoleOut = consoleOutCollector.getLines();
+            output.setValueAndConsoleOut(null, consoleOut);
+            output.addError("panic: " + error.getMessage());
         } catch (Exception error) { // handling unidentified runtime errors
             List<String> consoleOut = consoleOutCollector.getLines();
             output.setValueAndConsoleOut(null, consoleOut);
@@ -148,6 +163,7 @@ public class ShellWrapper {
         try {
             evaluator.delete(Stream.concat(varsToDelete.stream(), moduleDclnsToDelete.stream()).collect(toList()));
         } catch (BallerinaShellException e) {
+            evaluator.resetDiagnostics();
             return false;
         }
         metaInfoHandler.removeFromDefinedVars(varsToDelete);
@@ -187,8 +203,7 @@ public class ShellWrapper {
         this.evaluator = this.configuration.getEvaluator();
         try {
             this.evaluator.initialize();
-        } catch (BallerinaShellException error) {
-            error.printStackTrace();
+        } catch (BallerinaShellException ignored) {
         } finally {
             this.evaluator.resetDiagnostics();
         }
