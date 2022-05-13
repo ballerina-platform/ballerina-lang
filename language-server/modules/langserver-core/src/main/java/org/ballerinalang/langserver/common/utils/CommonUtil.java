@@ -61,17 +61,10 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
-import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
-import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -81,12 +74,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -101,7 +91,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
-import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SEMI_COLON_SYMBOL_KEY;
 import static org.ballerinalang.langserver.common.utils.CommonKeys.SLASH_KEYWORD_KEY;
 
@@ -209,98 +198,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get completion items list for struct fields.
-     *
-     * @param context Language server operation context
-     * @param fields  Map of field descriptors
-     * @param wrapper  Pair of Raw TypeSymbol and broader TypeSymbol
-     * @return {@link List} List of completion items for the struct fields
-     */
-    public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
-                                                                       Map<String, RecordFieldSymbol> fields,
-                                                                       RawTypeSymbolWrapper wrapper) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        fields.forEach((name, field) -> {
-            String insertText =
-                    getRecordFieldCompletionInsertText(field, 1);
-
-            String detail;
-            if (wrapper.getRawType().getName().isPresent()) {
-                detail = getModifiedTypeName(context, wrapper.getRawType()) + "." + name;
-            } else if (wrapper.getBroaderType().getName().isPresent()) {
-                detail = getModifiedTypeName(context, wrapper.getBroaderType()) + "." + name;
-            } else {
-                detail = "(" + wrapper.getRawType().signature() + ")." + name;
-            }
-            CompletionItem fieldItem = new CompletionItem();
-            fieldItem.setInsertText(insertText);
-            fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(name);
-            fieldItem.setKind(CompletionItemKind.Field);
-            fieldItem.setSortText(Priority.PRIORITY120.toString());
-            completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem, detail));
-        });
-
-        return completionItems;
-    }
-
-    /**
-     * Get the completion items to fill all record fields fields.
-     *
-     * @param context Language Server Operation Context
-     * @param fields  A non empty map of fields
-     * @param wrapper  A wrapper containing record type symbol and broader type symbol
-     * @return {@link Optional}   Completion Item to fill all the options
-     */
-    public static Optional<LSCompletionItem> getFillAllRecordFieldCompletionItems(
-            BallerinaCompletionContext context,
-            Map<String, RecordFieldSymbol> fields,
-            RawTypeSymbolWrapper<RecordTypeSymbol> wrapper) {
-        List<String> fieldEntries = new ArrayList<>();
-
-        Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
-        for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
-            if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
-                requiredFields.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        String label;
-        String detail;
-        if (wrapper.getRawType().getName().isPresent()) {
-            detail = getModifiedTypeName(context, wrapper.getRawType());
-        } else if (wrapper.getBroaderType().getName().isPresent()) {
-            detail = getModifiedTypeName(context, wrapper.getBroaderType());
-        } else {
-            detail = wrapper.getRawType().signature();
-        }
-        if (!requiredFields.isEmpty()) {
-            label = "Fill " + detail + " Required Fields";
-            int count = 1;
-            for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
-                String fieldEntry = entry.getKey()
-                        + PKG_DELIMITER_KEYWORD + " "
-                        + DefaultValueGenerationUtil.getDefaultValueForType(entry.getValue().typeDescriptor(), count).orElse(" ");
-                fieldEntries.add(fieldEntry);
-                count++;
-            }
-
-            String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
-            CompletionItem completionItem = new CompletionItem();
-            completionItem.setFilterText("fill");
-            completionItem.setLabel(label);
-            completionItem.setInsertText(insertText);
-            completionItem.setDetail(detail);
-            completionItem.setKind(CompletionItemKind.Property);
-            completionItem.setSortText(Priority.PRIORITY110.toString());
-
-            return Optional.of(new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.OTHER));
-        }
-
-        return Optional.empty();
-    }
-
-    /**
      * Get the last item of the List.
      *
      * @param list List to get the Last Item
@@ -332,31 +229,6 @@ public class CommonUtil {
         return importNode.moduleName().stream()
                 .map(Token::text)
                 .collect(Collectors.joining("."));
-    }
-
-    /**
-     * Extract the required fields from the records.
-     *
-     * @param recordType record type descriptor to evaluate
-     * @return {@link List} of required fields captured
-     */
-    public static List<RecordFieldSymbol> getMandatoryRecordFields(RecordTypeSymbol recordType) {
-        return recordType.fieldDescriptors().values().stream()
-                .filter(field -> !field.hasDefaultValue() && !field.isOptional())
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get the completion item insert text for a BField.
-     *
-     * @param bField BField to evaluate
-     * @return {@link String} Insert text
-     */
-    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
-
-        StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
-        insertText.append(DefaultValueGenerationUtil.getDefaultValueForType(bField.typeDescriptor(), tabOffset).orElse(" "));
-        return insertText.toString();
     }
 
     /**
@@ -1052,17 +924,6 @@ public class CommonUtil {
             return typesList.contains(rawType.typeKind());
         }
         return false;
-    }
-
-    public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
-        URI original = URI.create(uri);
-        try {
-            return new URI(workspaceManager.uriScheme(),
-                    original.getSchemeSpecificPart(),
-                    original.getFragment()).toString();
-        } catch (URISyntaxException e) {
-            return uri;
-        }
     }
 
     /**

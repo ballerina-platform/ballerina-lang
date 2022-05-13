@@ -114,7 +114,7 @@ public class DefaultValueGenerationUtil {
                 List<String> fieldInsertText = new ArrayList<>();
                 int count = offset;
                 valueString = "{";
-                List<RecordFieldSymbol> mandatoryFieldSymbols = CommonUtil.getMandatoryRecordFields(recordTypeSymbol).stream()
+                List<RecordFieldSymbol> mandatoryFieldSymbols = RecordFieldCompletionUtil.getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
                         .collect(Collectors.toList());
                 for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
@@ -194,7 +194,7 @@ public class DefaultValueGenerationUtil {
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
                 if (errorType.typeKind() == TypeDescKind.RECORD) {
-                    List<RecordFieldSymbol> mandatoryFields = CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) errorType);
+                    List<RecordFieldSymbol> mandatoryFields = RecordFieldCompletionUtil.getMandatoryRecordFields((RecordTypeSymbol) errorType);
                     if (!mandatoryFields.isEmpty()) {
                         errorString.append(", ");
                         List<String> detailFieldSnippets = new ArrayList<>();

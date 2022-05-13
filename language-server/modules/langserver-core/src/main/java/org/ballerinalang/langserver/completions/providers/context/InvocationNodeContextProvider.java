@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ContextTypeResolverUtil;
+import org.ballerinalang.langserver.common.utils.RecordFieldCompletionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -128,7 +129,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     continue;
                 }
                 RecordTypeSymbol includedRecordType = (RecordTypeSymbol) typeSymbol;
-                List<RecordFieldSymbol> recordFields = CommonUtil.getMandatoryRecordFields(includedRecordType);
+                List<RecordFieldSymbol> recordFields = RecordFieldCompletionUtil.getMandatoryRecordFields(includedRecordType);
                 recordFields.forEach(recordFieldSymbol -> {
                     Optional<String> fieldName = recordFieldSymbol.getName();
                     if (fieldName.isEmpty() || fieldName.get().isEmpty() || 

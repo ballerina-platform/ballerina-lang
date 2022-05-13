@@ -23,6 +23,7 @@ import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.URI;
@@ -193,6 +194,17 @@ public class PathUtil {
         String orgName = moduleID.orgName();
         String moduleName = moduleID.moduleName();
         return getFilePathForDependency(orgName, moduleName, project, symbol, context);
+    }
+
+    public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
+        URI original = URI.create(uri);
+        try {
+            return new URI(workspaceManager.uriScheme(),
+                    original.getSchemeSpecificPart(),
+                    original.getFragment()).toString();
+        } catch (URISyntaxException e) {
+            return uri;
+        }
     }
 
 }

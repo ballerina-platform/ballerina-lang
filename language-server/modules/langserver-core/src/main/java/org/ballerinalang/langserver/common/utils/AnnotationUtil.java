@@ -50,7 +50,7 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.OPEN_BRACE_KE
 import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getPackageNameComponentsCombined;
-import static org.ballerinalang.langserver.common.utils.CommonUtil.getRecordFieldCompletionInsertText;
+import static org.ballerinalang.langserver.common.utils.RecordFieldCompletionUtil.getRecordFieldCompletionInsertText;
 
 /**
  * Contains the utilities to generate an Annotation Completion Item.
@@ -201,7 +201,7 @@ public class AnnotationUtil {
                     || resultType.get().typeKind() == TypeDescKind.MAP)) {
                 List<RecordFieldSymbol> requiredFields = new ArrayList<>();
                 if (resultType.get().typeKind() == TypeDescKind.RECORD) {
-                    requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
+                    requiredFields.addAll(RecordFieldCompletionUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
                 if (!requiredFields.isEmpty()) {
                     annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);

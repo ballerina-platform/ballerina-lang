@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
+import org.ballerinalang.langserver.common.utils.RecordFieldCompletionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -154,10 +155,10 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
             validFields.addAll(fields.values());
 
             completionItems.addAll(this.getSpreadFieldCompletionItemsForRecordFields(context, validFields));
-            completionItems.addAll(CommonUtil.getRecordFieldCompletionItems(context, fields, wrapper));
+            completionItems.addAll(RecordFieldCompletionUtil.getRecordFieldCompletionItems(context, fields, wrapper));
             if (!fields.values().isEmpty()) {
                 Optional<LSCompletionItem> fillAllStructFieldsItem =
-                        CommonUtil.getFillAllRecordFieldCompletionItems(context, fields, wrapper);
+                        RecordFieldCompletionUtil.getFillAllRecordFieldCompletionItems(context, fields, wrapper);
                 fillAllStructFieldsItem.ifPresent(completionItems::add);
             }
             completionItems.addAll(this.getVariableCompletionsForFields(context, fields));
