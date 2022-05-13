@@ -22,7 +22,6 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
-import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 import org.ballerinalang.langserver.eventsync.AbstractEventPublisher;
 
 import java.util.concurrent.CompletableFuture;
@@ -48,12 +47,6 @@ public class ProjectUpdateEventPublisher extends AbstractEventPublisher {
     @Override
     public String getName() {
         return NAME;
-    }
-
-    // ToDo: whether we need unsubscribe
-    @Override
-    public void unsubscribe(EventSubscriber subscriber) {
-
     }
 
     @Override

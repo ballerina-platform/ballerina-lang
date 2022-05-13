@@ -76,7 +76,7 @@ public class EventSyncPubSubHolder {
     }
     
     public EventPublisher getPublisher(PublisherKind publisherKind) throws EventSyncException {
-        if (publisherMap.containsKey(publisherKind)) {
+        if (!publisherMap.containsKey(publisherKind)) {
             throw new EventSyncException("No publishers for the publisher kind");
         }
         return publisherMap.get(publisherKind);
@@ -85,7 +85,7 @@ public class EventSyncPubSubHolder {
     public List<EventPublisher> getPublishers(List<PublisherKind> publisherKinds) throws EventSyncException {
         List<EventPublisher> eventPublishers = new ArrayList<>();
         for (PublisherKind publisherKind : publisherKinds) {
-            if (publisherMap.containsKey(publisherKind)) {
+            if (!publisherMap.containsKey(publisherKind)) {
                 throw new EventSyncException("No publishers for the publisher kind");
             }
             eventPublishers.add(publisherMap.get(publisherKind));
