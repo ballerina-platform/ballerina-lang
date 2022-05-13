@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -51,6 +52,11 @@ public class BalShellServiceTests {
     @BeforeClass
     public void startLanguageServer() {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
+    }
+
+    @BeforeTest
+    public void restartShell() {
+        ShellWrapper.getInstance().restart();
     }
 
     @Test(description = "Test with simple arithmetic")
@@ -89,7 +95,6 @@ public class BalShellServiceTests {
     public void testGetVariables() throws IOException {
         Path file = RES_DIR.resolve("testcases").resolve("get_variables.json");
         GetVariableTestCase[] testCases = TestUtils.loadVariableTestCases(file);
-        serviceEndpoint.request(NOTEBOOK_RESTART, null); // restart the notebook
         for (GetVariableTestCase testCase: testCases) {
             BalShellGetResultRequest request = new BalShellGetResultRequest(testCase.getSource());
             CompletableFuture<?> snippetExecute = serviceEndpoint.request(GET_RESULT, request); // execute the snippets
@@ -137,23 +142,29 @@ public class BalShellServiceTests {
         MetaInfo metaInfo = new MetaInfo(definedVarsToTest, moduleDclnsToTest);
         // invoke the end point
         CompletableFuture<?> passed = serviceEndpoint.request(DELETE_DCLNS, metaInfo);
-        boolean passesdBool = (boolean) passed.get();
-        Assert.assertTrue(passesdBool);
-        // check those values are not in invoker memory
-        CompletableFuture<?> result = serviceEndpoint.request(GET_VARIABLES, null);
-        List<String> currentVars = new ArrayList<>();
-        try {
-            List<Map<String, String>> varMapList = (List<Map<String, String>>) result.get();
-            for (Map<String, String> varMap: varMapList) {
-                currentVars.add(varMap.get("name"));
+        boolean passedBool = (boolean) passed.get();
+        Assert.assertTrue(passedBool);
+        passed.thenRun(() -> {
+            // test for values not in the memory anymore
+            CompletableFuture<?> failed = serviceEndpoint.request(DELETE_DCLNS, metaInfo);
+            // check those values are not in invoker memory
+            CompletableFuture<?> result = serviceEndpoint.request(GET_VARIABLES, null);
+            List<String> currentVars = new ArrayList<>();
+            try {
+                boolean failedBool = (boolean) failed.get();
+                Assert.assertFalse(failedBool);
+                List<Map<String, String>> varMapList = (List<Map<String, String>>) result.get();
+                for (Map<String, String> varMap: varMapList) {
+                    currentVars.add(varMap.get("name"));
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-        for (String definedVarToTest: definedVarsToTest) {
-            // deleted vars should not contain in the current var list
-            Assert.assertFalse(currentVars.contains(definedVarToTest));
-        }
+            for (String definedVarToTest: definedVarsToTest) {
+                // deleted vars should not contain in the current var list
+                Assert.assertFalse(currentVars.contains(definedVarToTest));
+            }
+        });
     }
 
     private void runGetResultTest(String filename) throws ExecutionException, IOException, InterruptedException {
