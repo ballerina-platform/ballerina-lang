@@ -108,6 +108,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
+    private final Stack<String> anonTypeNameSuffixes = new Stack<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -145,7 +146,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         this.resolvingConstants.add(this.currentConstSymbol);
         this.currentConstSymbol.value = constructBLangConstantValue(constant.expr);
         this.resolvingConstants.remove(this.currentConstSymbol);
+        this.anonTypeNameSuffixes.push(constant.name.value);
         updateConstantType(constant);
+        this.anonTypeNameSuffixes.pop();
         checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
         this.currentConstSymbol = tempCurrentConstSymbol;
@@ -289,6 +292,16 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr unaryExpr) {
         BLangConstantValue value = constructBLangConstantValue(unaryExpr.expr);
         this.result = evaluateUnaryOperator(value, unaryExpr.operator);
+    }
+
+    public void setAnonTypeNameSuffixes(Stack<String> anonTypeNameSuffixes) {
+        this.anonTypeNameSuffixes.addAll(anonTypeNameSuffixes);
+    }
+
+    public void unsetAnonTypeNameSuffixes(Stack<String> anonTypeNameSuffixes) {
+        for (int i = 0; i < anonTypeNameSuffixes.size(); i++) {
+            this.anonTypeNameSuffixes.pop();
+        }
     }
 
     private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
@@ -626,14 +639,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return;
         }
 
-        String typeNameSuffix = symbol.name.value;
-        if (typeNameSuffix.isEmpty()) {
-            typeNameSuffix = symbol.owner.name.value;
-        }
-        Stack<String> typeNameSuffixes = new Stack<>();
-        typeNameSuffixes.push(typeNameSuffix);
-        BType resolvedType = checkType(expr, symbol, symbol.value.value, type, symbol.pos, env, typeNameSuffixes);
-        typeNameSuffixes.pop();
+        BType resolvedType = checkType(expr, symbol, symbol.value.value, type, symbol.pos, env);
         if (resolvedType == null) {
             return;
         }
@@ -672,10 +678,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
                             Location pos, SymbolEnv env) {
-        return checkType(expr, constantSymbol, value, type, pos, env, new Stack<>());
-    }
-    private BType checkType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, BType type,
-                            Location pos, SymbolEnv env, Stack<String> suffixes) {
         if (expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
                 (((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.FINITE ||
                 ((BLangSimpleVarRef) expr).symbol.type.getKind() == TypeKind.INTERSECTION)) {
@@ -701,7 +703,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 if (value != null) {
-                    return createRecordType(expr, constantSymbol, value, pos, env, suffixes);
+                    return createRecordType(expr, constantSymbol, value, pos, env);
                 }
                 return null;
             case TypeTags.ARRAY:
@@ -790,7 +792,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos,
-                                   SymbolEnv env, Stack<String> suffixes) {
+                                   SymbolEnv env) {
         if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return expr.getBType();
         }
@@ -802,7 +804,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
         }
 
-        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID, suffixes));
+        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID, this.anonTypeNameSuffixes));
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(SymTag.RECORD,
                                                                    constantSymbol.flags | Flags.ANONYMOUS, genName,
                                                                    constantSymbol.pkgID,
@@ -815,7 +817,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         recordTypeSymbol.type = recordType;
 
         if (constValueMap.size() != 0) {
-            if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType, env, suffixes)) {
+            if (!populateRecordFields(expr, constantSymbol, pos, constValueMap, recordType, env)) {
                 return null;
             }
         }
@@ -828,7 +830,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private boolean populateRecordFields(BLangExpression expr, BConstantSymbol constantSymbol, Location pos,
                                          HashMap<String, BLangConstantValue> constValueMap, BRecordType recordType,
-                                         SymbolEnv env, Stack<String> suffixes) {
+                                         SymbolEnv env) {
         for (RecordLiteralNode.RecordField field : ((BLangRecordLiteral) expr).fields) {
             String key;
             BVarSymbol newSymbol;
@@ -864,10 +866,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 key = keyValuePair.key.toString();
                 newSymbol = new BVarSymbol(constantSymbol.flags, Names.fromString(key), constantSymbol.pkgID,
                                            null, constantSymbol.owner, pos, VIRTUAL);
-                suffixes.push(key);
+                this.anonTypeNameSuffixes.push(key);
                 BType newType = checkType(exprValueField, constantSymbol, constValueMap.get(key).value,
-                                          constValueMap.get(key).type, pos, env, suffixes);
-                suffixes.pop();
+                                          constValueMap.get(key).type, pos, env);
+                this.anonTypeNameSuffixes.pop();
                 if (newType == null) {
                     return false;
                 }

@@ -199,7 +199,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnResourceOne() {
-        BLangFunction function = getFunction("$anonType$_1.$get$res");
+        BLangFunction function = getFunction("$anonType$_0.$get$res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v3", "val", "v34");
@@ -220,7 +220,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnServiceTwo() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getClassDefinitions().stream()
-                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_3"))
+                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_2"))
                         .findFirst()
                         .get().getAnnotationAttachments()
                         .stream()
@@ -232,7 +232,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnResourceTwo() {
-        BLangFunction function = getFunction("$anonType$_3.$get$res");
+        BLangFunction function = getFunction("$anonType$_2.$get$res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v5", "val", "542");
@@ -469,7 +469,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotWithEmptyMapConstructorOnResource() {
-        BLangFunction function = getFunction("$anonType$_7.$get$res");
+        BLangFunction function = getFunction("$anonType$_6.$get$res");
         validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v18", "A");
         validateEmptyMapConstructorExprInAnnot(function.requiredParams.get(0).annAttachments, "v19", "A");
     }

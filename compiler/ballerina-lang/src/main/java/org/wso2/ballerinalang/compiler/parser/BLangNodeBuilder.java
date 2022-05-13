@@ -838,15 +838,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
         finiteTypeNode.pos = identifierPos;
 
-        // Create a new anonymous type definition.
-        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
-        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
-        typeDef.setName(anonTypeGenName);
-        typeDef.flagSet.add(Flag.PUBLIC);
-        typeDef.flagSet.add(Flag.ANONYMOUS);
-        typeDef.typeNode = finiteTypeNode;
-        typeDef.pos = pos;
+            // Create a new anonymous type definition.
+            BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+            this.anonTypeNameSuffixes.push(constantNode.name.value);
+            String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, anonTypeNameSuffixes);
+            this.anonTypeNameSuffixes.pop();
+            IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
+            typeDef.setName(anonTypeGenName);
+            typeDef.flagSet.add(Flag.PUBLIC);
+            typeDef.flagSet.add(Flag.ANONYMOUS);
+            typeDef.typeNode = finiteTypeNode;
+            typeDef.pos = pos;
 
         // We add this type definition to the `associatedTypeDefinition` field of the constant node. Then when we
         // visit the constant node, we visit this type definition as well. By doing this, we don't need to change
@@ -1493,9 +1495,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         //Set method qualifiers
         setFunctionQualifiers(bLFunction, qualifierList);
         // Set function signature
-        anonTypeNameSuffixes.push(name.value);
+        this.anonTypeNameSuffixes.push(name.value);
         populateFuncSignature(bLFunction, functionSignature);
-        anonTypeNameSuffixes.pop();
+        this.anonTypeNameSuffixes.pop();
 
         // Set the function body
         if (functionBody == null) {
@@ -1557,7 +1559,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                                            anonymousModelHelper.getNextAnonymousFunctionKey(packageID));
 
         // Set function signature
-        // TODO: check this
         populateFuncSignature(bLFunction, anonFuncExprNode.functionSignature());
 
         // Set the function body
@@ -3105,13 +3106,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(RequiredParameterNode requiredParameter) {
         Optional<Token> paramName = requiredParameter.paramName();
-        paramName.ifPresent(token -> anonTypeNameSuffixes.push(token.text()));
+        paramName.ifPresent(token -> this.anonTypeNameSuffixes.push(token.text()));
         BLangSimpleVariable simpleVar = createSimpleVar(paramName,
                                                         requiredParameter.typeName(), requiredParameter.annotations());
         simpleVar.pos = getPosition(requiredParameter);
         if (paramName.isPresent()) {
             simpleVar.name.pos = getPosition(paramName.get());
-            anonTypeNameSuffixes.pop();
+            this.anonTypeNameSuffixes.pop();
         } else if (simpleVar.name.pos == null) {
             // Param doesn't have a name and also is not a missing node
             // Therefore, assigning the built-in location
