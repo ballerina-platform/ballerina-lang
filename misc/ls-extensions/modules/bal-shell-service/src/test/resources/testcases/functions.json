@@ -4,7 +4,8 @@
     "result": {
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":["x"],"moduleDclns":[]}
+      "metaInfo":{"definedVars":["x"],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -12,7 +13,8 @@
     "result": {
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":["multiply"]}
+      "metaInfo":{"definedVars":[],"moduleDclns":["multiply"]},
+      "consoleOut":""
     }
   },
   {
@@ -25,7 +27,8 @@
       },
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
     }
   }
 ]

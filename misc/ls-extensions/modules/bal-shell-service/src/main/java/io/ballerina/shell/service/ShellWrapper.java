@@ -89,12 +89,12 @@ public class ShellWrapper {
                 List<String> consoleOut = consoleOutCollector.getLines();
                 if (shellReturnValue.isPresent()) {
                     Object out = shellReturnValue.get();
-                    output.setValue(out, consoleOut);
+                    output.setValueAndConsoleOut(out, consoleOut);
                 }
             }
         } catch (Exception error) { // handling unidentified runtime errors
             List<String> consoleOut = consoleOutCollector.getLines();
-            output.setValue(null, consoleOut);
+            output.setValueAndConsoleOut(null, consoleOut);
             output.addError(error.getMessage());
         } finally {
             output.addOutputDiagnostics(evaluator.diagnostics());

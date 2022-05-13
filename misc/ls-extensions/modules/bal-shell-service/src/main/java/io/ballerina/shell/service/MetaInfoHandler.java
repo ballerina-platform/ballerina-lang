@@ -95,7 +95,7 @@ public class MetaInfoHandler {
     }
 
     /**
-     * Resets the meta info by clearing out
+     * Resets the meta info by clearing out.
      */
     public void reset() {
         this.definedVars = new ArrayList<>();

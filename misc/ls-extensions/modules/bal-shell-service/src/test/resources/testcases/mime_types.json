@@ -9,7 +9,8 @@
       },
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -17,7 +18,8 @@
     "result": {
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":["Employee", "name"]}
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee", "name"]},
+      "consoleOut":""
     }
   },
   {
@@ -25,7 +27,8 @@
     "result": {
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":["e"],"moduleDclns":[]}
+      "metaInfo":{"definedVars":["e"],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -38,7 +41,8 @@
       },
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -46,7 +50,8 @@
     "result": {
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":["j"],"moduleDclns":[]}
+      "metaInfo":{"definedVars":["j"],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -59,7 +64,8 @@
       },
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -80,7 +86,8 @@
       },
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -88,7 +95,8 @@
     "result": {
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":["x1"],"moduleDclns":[]}
+      "metaInfo":{"definedVars":["x1"],"moduleDclns":[]},
+      "consoleOut":""
     }
   },
   {
@@ -101,7 +109,8 @@
       },
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
     }
   }
 ]

@@ -38,32 +38,31 @@ public class BalShellGetResultResponse {
     private ArrayList<String> diagnostics;
     private MetaInfo metaInfo;
 
+    private String consoleOut;
+
     public BalShellGetResultResponse() {
         this.shellValue = null;
         this.errors = new ArrayList<>();
         this.diagnostics = new ArrayList<>();
         this.metaInfo = null;
+        this.consoleOut = "";
     }
 
     /**
-     * Set return value for response.
+     * Set return value and console output for response.
      *
      * @param value evaluated value
      * @param consoleOut collected strings from system.out
      */
-    public void setValue(Object value, List<String> consoleOut) {
+    public void setValueAndConsoleOut(Object value, List<String> consoleOut) {
+        this.consoleOut = String.join("\n", consoleOut);
         if (value == null) {
-            if (consoleOut.isEmpty()) {
-                return;
-            }
-            this.shellValue = new ShellValue(String.join("\n", consoleOut), "String", 5);
             return;
         }
 
         Type type = TypeUtils.getType(value);
         String stringValue = StringUtils.getJsonString(value);
-        consoleOut.add(stringValue);
-        this.shellValue = new ShellValue(String.join("\n", consoleOut), type.toString(), type.getTag());
+        this.shellValue = new ShellValue(stringValue, type.toString(), type.getTag());
     }
 
     /**
@@ -90,7 +89,8 @@ public class BalShellGetResultResponse {
     }
 
     /**
-     * Add meta info to the shell result output
+     * Add meta info to the shell result output.
+     *
      * @param definedVars new defined variable list
      * @param moduleDclns new module declarations list
      */
@@ -104,5 +104,9 @@ public class BalShellGetResultResponse {
 
     public MetaInfo getMetaInfo() {
         return metaInfo;
+    }
+
+    public String getConsoleOut() {
+        return consoleOut;
     }
 }
