@@ -56,11 +56,27 @@ public class PartialParserTests {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "Test getting ST for a single statement")
-    public void testSTForSingleStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
+    @Test(description = "Test getting ST for a single line statement")
+    public void testSTForSingleLineStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
 
         String statement = "string fullName = firstName + \"Cooper\";";
-        String file = "single_statement.json";
+        String file = "single_line_statement.json";
+
+        PartialSTRequest request = new PartialSTRequest(statement);
+        CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
+        STResponse json = (STResponse) result.get();
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a multi line statement")
+    public void testSTForMultiLineStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
+
+        String statement = "\nforeach var item in arr {\n            io:println(item);\n\n}";
+        String file = "multi_line_statement.json";
 
         PartialSTRequest request = new PartialSTRequest(statement);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);

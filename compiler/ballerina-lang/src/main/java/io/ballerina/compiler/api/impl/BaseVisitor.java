@@ -648,6 +648,10 @@ abstract class BaseVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+    }
+
+    @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
     }
 
