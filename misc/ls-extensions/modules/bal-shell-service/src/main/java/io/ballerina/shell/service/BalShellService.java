@@ -69,7 +69,7 @@ public class BalShellService implements ExtendedLanguageServerService {
     }
 
     /**
-     * Delete defined variables and module declarations from the context
+     * Delete defined variables and module declarations from the context.
      *
      * @param metaInfo defined ars and declarations need to be deleted in MetaInfo format
      * @return whether that deletion was successful
@@ -81,7 +81,7 @@ public class BalShellService implements ExtendedLanguageServerService {
     }
 
     /**
-     * Resets the shell into initial state
+     * Resets the shell into initial state.
      *
      * @return whether that restart was successful
      */
