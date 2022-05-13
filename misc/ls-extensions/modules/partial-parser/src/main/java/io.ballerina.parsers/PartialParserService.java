@@ -32,9 +32,15 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.MessageParams;
+import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
@@ -51,6 +57,13 @@ import static io.ballerina.parsers.Constants.SPACE_COUNT_FOR_ST_TAB;
 @JavaSPIService("org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService")
 @JsonSegment("partialParser")
 public class PartialParserService implements ExtendedLanguageServerService {
+    private LanguageServerContext serverContext;
+
+    @Override
+    public void init(LanguageServer langServer, WorkspaceManager workspaceManager,
+                     LanguageServerContext serverContext) {
+        this.serverContext = serverContext;
+    }
 
     @Override
     public Class<?> getRemoteInterface() {
@@ -114,9 +127,8 @@ public class PartialParserService implements ExtendedLanguageServerService {
         try {
             formattedSourceCode = Formatter.format(statement);
         } catch (FormatterException e) {
-            // TODO: Print a warn log in the language client.
-            //  The methods are currently unavailable
-            //  (https://github.com/wso2-enterprise/internal-support-ballerina/issues/67).
+            String msg = "[Warn] Failed to apply formatting before parsing module member";
+            this.serverContext.get(ExtendedLanguageClient.class).logMessage(new MessageParams(MessageType.Error, msg));
         }
 
         return formattedSourceCode;
@@ -134,7 +146,8 @@ public class PartialParserService implements ExtendedLanguageServerService {
             FunctionBodyBlockNode functionBodyBlockNode = (FunctionBodyBlockNode) functionDefinitionNode.functionBody();
             formattedSourceCode = functionBodyBlockNode.statements().get(0).toSourceCode();
         } catch (FormatterException | NullPointerException e) {
-            // TODO: Print a warn log in the language client.
+            String msg = "[Warn] Failed to apply formatting before parsing statement";
+            this.serverContext.get(ExtendedLanguageClient.class).logMessage(new MessageParams(MessageType.Error, msg));
         }
 
         return formattedSourceCode;
