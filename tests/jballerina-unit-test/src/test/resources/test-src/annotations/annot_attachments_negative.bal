@@ -924,6 +924,13 @@ public enum Color3 {
 @v23 // error
 public enum Color4 {
     @v23
-    BLACK,
-    BLUE
+    WHITE,
+    YELLOW
+}
+
+@v23 // error
+public enum Color5 {
+    @v22 // error
+    ORANGE,
+    GREEN
 }

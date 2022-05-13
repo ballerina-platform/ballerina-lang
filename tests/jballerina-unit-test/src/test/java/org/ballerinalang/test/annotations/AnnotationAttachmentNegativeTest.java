@@ -37,7 +37,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 270);
+        Assert.assertEquals(compileResult.getErrorCount(), 272);
     }
 
     @Test
@@ -503,6 +503,8 @@ public class AnnotationAttachmentNegativeTest {
         validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 7, 1);
         validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 6, 1);
         validateError(compileResult, index++, "annotation 'v24' is not allowed on type", ++line, 1);
-        validateError(compileResult, index, "annotation 'v23' is not allowed on type", line + 6, 1);
+        validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 6, 1);
+        validateError(compileResult, index++, "annotation 'v23' is not allowed on type", line += 7, 1);
+        validateError(compileResult, index, "annotation 'v22' is not allowed on const", line + 2, 5);
     }
 }
