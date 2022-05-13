@@ -23,6 +23,9 @@ import org.testng.Assert;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Utility functions for tests.
@@ -30,25 +33,70 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class TestUtils {
+
+    /**
+     * Loads GetResultsTestCases from a given file path.
+     *
+     * @param filePath Path of the source file
+     * @return GetResultsTestCase list
+     * @throws IOException if an I/O error occurs while reading from the file
+     */
     public static GetResultTestCase[] loadResultTestCases(Path filePath) throws IOException {
         Gson gson = new Gson();
         return gson.fromJson(readFile(filePath), GetResultTestCase[].class);
     }
 
+    /**
+     * Loads GetVariableTestCase from a given file path.
+     *
+     * @param filePath Path of the source file
+     * @return GetVariableTestCase list
+     * @throws IOException if an I/O error occurs while reading from the file
+     */
     public static GetVariableTestCase[] loadVariableTestCases(Path filePath) throws IOException {
         Gson gson = new Gson();
         return gson.fromJson(readFile(filePath), GetVariableTestCase[].class);
     }
 
+    /**
+     * Read and return a given file specified by the path.
+     *
+     * @param filePath path for the file
+     * @return content of the file
+     * @throws IOException if an I/O error occurs while reading from the file
+     */
     public static String readFile(Path filePath) throws IOException {
         return Files.readString(filePath);
     }
 
+    /**
+     * Assert given two objects are equal by comparing json string values for each.
+     *
+     * @param generated generated result
+     * @param expected expected result
+     */
     public static void assertJsonValues(Object generated, Object expected) {
         Gson gson = new Gson();
         String jsonGenerated = gson.toJson(generated)
                 .replace("\\r\\n", "\\n");
         String jsonExpected = gson.toJson(expected);
         Assert.assertEquals(jsonGenerated, jsonExpected);
+    }
+
+    /**
+     * Creates a random slice from given list for a given size.
+     * If the given size is larger than the size of list, size of the list will be used for slicing.
+     *
+     * @param list list to be randomized
+     * @param size expected size
+     * @return randomized list with applicable maximum size
+     */
+    public static List<String> getRandomSlice(List<String> list, int size) {
+        List<String> copied = new ArrayList<>(list);
+        Collections.shuffle(copied);
+        return Collections.unmodifiableList(copied.subList(0, Math.max(Math.min(copied.size(), size), 0)));
+    }
+
+    private TestUtils() {
     }
 }
