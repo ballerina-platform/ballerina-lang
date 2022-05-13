@@ -341,7 +341,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                         .collect(Collectors.toList());
                 String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-                String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+                String insertText = NameGenerationUtil.getValidatedSymbolName(ctx, aliasComponent);
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
                 CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits,
@@ -369,7 +369,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
 
             // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-            String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+            String insertText = NameGenerationUtil.getValidatedSymbolName(ctx, aliasComponent);
             String alias = !insertText.equals(aliasComponent) ? insertText : "";
             String pkgName = CommonUtil.escapeReservedKeyword(module.moduleName().packageName().value());
             String label = pkgName + "." + String.join(".", moduleNameComponents);
@@ -731,7 +731,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
                 String varName = "";
                 TypeSymbol parameterTypeSymbol = parameterSymbol.typeDescriptor();
-                varName = CommonUtil.generateParameterName(varName, argIndex, parameterTypeSymbol,
+                varName = NameGenerationUtil.generateParameterName(varName, argIndex, parameterTypeSymbol,
                         visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(context, parameterTypeSymbol) + " " + varName);
                 visibleSymbolNames.add(varName);

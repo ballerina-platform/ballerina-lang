@@ -37,10 +37,7 @@ import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.visitors.FunctionCallExpressionTypeFinder;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.common.utils.PathUtil;
-import org.ballerinalang.langserver.common.utils.PositionUtil;
+import org.ballerinalang.langserver.common.utils.*;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -160,11 +157,11 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
 
             if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                varName = CommonUtil.generateParameterName(varName, argIndex,
+                varName = NameGenerationUtil.generateParameterName(varName, argIndex,
                         CommonUtil.getRawType(type.get()), visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, type.get()) + " " + varName);
             } else {
-                varName = CommonUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
+                varName = NameGenerationUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, null) + " " + varName);
             }
             visibleSymbolNames.add(varName);

@@ -29,7 +29,7 @@ import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameGenerationUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
@@ -90,7 +90,7 @@ public class ExtractTypeCodeAction extends AbstractCodeActionProvider {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
-        String typeName = CommonUtil.generateTypeName(RECORD_NAME_PREFIX, visibleSymbolNames);
+        String typeName = NameGenerationUtil.generateTypeName(RECORD_NAME_PREFIX, visibleSymbolNames);
 
         Range extractedRecordRange = new Range(PositionUtil.toPosition(lastTypeDefPosition),
                 PositionUtil.toPosition(lastTypeDefPosition));

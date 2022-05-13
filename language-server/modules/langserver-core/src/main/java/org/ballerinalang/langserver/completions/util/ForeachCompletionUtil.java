@@ -34,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameGenerationUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -156,7 +157,7 @@ public class ForeachCompletionUtil {
         String type = getTypeOfIteratorVariable(ctx, symbol);
         StringBuilder snippet = new StringBuilder("foreach");
         snippet.append(" ").append(type).append(" ")
-                .append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
+                .append(NameGenerationUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
                 .append(" ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${1}")
                 .append(CommonUtil.LINE_SEPARATOR).append("}");
         String documentation = "foreach statement for iterable variable - " + symbolName;
@@ -177,7 +178,7 @@ public class ForeachCompletionUtil {
         String detail = "foreach int i in 0...expr";
         String label = "foreach i";
         StringBuilder snippet = new StringBuilder("foreach");
-        snippet.append(" int ").append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME_RANGE_EXP))
+        snippet.append(" int ").append(NameGenerationUtil.getValidatedSymbolName(ctx, VAR_NAME_RANGE_EXP))
                 .append(" in ").append("${1:0}").append("...").append(symbolName)
                 .append(".length() ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${2}")
                 .append(CommonUtil.LINE_SEPARATOR).append("}");

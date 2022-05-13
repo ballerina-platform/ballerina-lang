@@ -136,7 +136,7 @@ public class ModuleOperationUtil {
                     pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
             } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
-                pkgPrefix = CommonUtil.getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
+                pkgPrefix = NameGenerationUtil.getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
             }
             CodeActionModuleId codeActionModuleId =
                     CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());
