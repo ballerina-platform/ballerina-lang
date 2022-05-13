@@ -896,6 +896,11 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        find(spreadOpExpr.expr);
+    }
+
+    @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
         find(tableConstructorExpr.recordLiteralList);
         find(tableConstructorExpr.tableKeySpecifier);

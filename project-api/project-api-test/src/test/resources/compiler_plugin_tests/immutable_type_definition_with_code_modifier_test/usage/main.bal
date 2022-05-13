@@ -20,4 +20,6 @@ public function main() {
     };
     map<defns:RecordTwo> & readonly c = {b};
     defns:TupleTwo & readonly _ = c;
+
+    defns:Foo & readonly d;
 }
