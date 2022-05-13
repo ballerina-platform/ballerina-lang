@@ -171,4 +171,12 @@ public class BasicCasesTest extends BaseTestCase {
                 new HashMap<>(), projectPath, true);
         AssertionUtils.assertForTestFailures(output, "anydata type failure");
     }
+
+    @Test
+    public void testAsyncInvocation() throws BallerinaTestException {
+        String[] args = mergeCoverageArgs(new String[]{"async"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "async invocation failure");
+    }
 }
