@@ -905,7 +905,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         typeDef.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(typeDefNode.metadata()));
 
+        this.anonTypeNameSuffixes.push(typeDef.name.value);
         typeDef.typeNode = createTypeNode(typeDefNode.typeDescriptor());
+        this.anonTypeNameSuffixes.pop();
 
         typeDefNode.visibilityQualifier().ifPresent(visibilityQual -> {
             if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
@@ -1416,8 +1418,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(RecordFieldNode recordFieldNode) {
-        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName(),
+        Token fieldName = recordFieldNode.fieldName();
+        this.anonTypeNameSuffixes.push(fieldName.text());
+        BLangSimpleVariable simpleVar = createSimpleVar(fieldName, recordFieldNode.typeName(),
                 getAnnotations(recordFieldNode.metadata()));
+        this.anonTypeNameSuffixes.pop();
         simpleVar.flagSet.add(Flag.PUBLIC);
         if (recordFieldNode.questionMarkToken().isPresent()) {
             simpleVar.flagSet.add(Flag.OPTIONAL);
