@@ -78,7 +78,7 @@ public class FunctionGenerator {
             newText.append(text, nextStart, matcher.start(1));
             // Append module prefix(empty when in same module) and identify imports
             ModuleID moduleID = CodeActionModuleId.from(matcher.group(1), matcher.group(2), matcher.group(3));
-            newText.append(ModuleOperationUtil.getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
+            newText.append(ModuleUtil.getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
             // Update next-start position
             nextStart = matcher.end(3) + 1;
         }

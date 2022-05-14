@@ -31,6 +31,7 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -152,19 +153,8 @@ public class ExecutorPositionsUtil {
      * @return True if the location resides in the provided file path
      * @throws IOException On IO errors
      */
-    public static boolean isLocationInFile(Module module, Location location, Path filePath) throws IOException {
-        Path symbolPath;
-        if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            symbolPath = module.project().sourceRoot();
-        } else if (module.isDefaultModule()) {
-            symbolPath = module.project().sourceRoot().resolve(location.lineRange().filePath());
-        } else {
-            symbolPath = module.project().sourceRoot()
-                    .resolve("modules")
-                    .resolve(module.moduleName().moduleNamePart())
-                    .resolve(filePath);
-        }
-
+    private static boolean isLocationInFile(Module module, Location location, Path filePath) throws IOException {
+        Path symbolPath = PathUtil.getPathFromLocation(module, location);
         return Files.isSameFile(symbolPath, filePath);
     }
 

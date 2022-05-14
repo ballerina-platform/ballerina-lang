@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 /**
  * Carries a set of utilities used in default value generation.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
 public class DefaultValueGenerationUtil {
 
@@ -189,7 +189,7 @@ public class DefaultValueGenerationUtil {
                 List<String> fieldInsertText = new ArrayList<>();
                 int count = offset;
                 valueString = "{";
-                List<RecordFieldSymbol> mandatoryFieldSymbols = RecordFieldCompletionUtil
+                List<RecordFieldSymbol> mandatoryFieldSymbols = RecordUtil
                         .getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
                         .collect(Collectors.toList());
@@ -270,7 +270,7 @@ public class DefaultValueGenerationUtil {
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
                 if (errorType.typeKind() == TypeDescKind.RECORD) {
-                    List<RecordFieldSymbol> mandatoryFields = RecordFieldCompletionUtil
+                    List<RecordFieldSymbol> mandatoryFields = RecordUtil
                             .getMandatoryRecordFields((RecordTypeSymbol) errorType);
                     if (!mandatoryFields.isEmpty()) {
                         errorString.append(", ");

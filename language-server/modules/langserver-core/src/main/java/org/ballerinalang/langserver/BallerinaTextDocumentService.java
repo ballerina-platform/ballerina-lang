@@ -39,17 +39,17 @@ import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.definition.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.documentsymbol.DocumentSymbolUtil;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
+import org.ballerinalang.langserver.references.ReferencesUtil;
+import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.LSClientUtil;
-import org.ballerinalang.langserver.util.definition.DefinitionUtil;
-import org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.langserver.util.rename.RenameUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -260,7 +260,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 List<Location> references = new ArrayList<>();
                 referencesMap.forEach((module, locations) ->
                         locations.forEach(location -> {
-                            Path filePath = ReferencesUtil.getPathFromLocation(module, location);
+                            Path filePath = PathUtil.getPathFromLocation(module, location);
                             String uri = filePath.toUri().toString();
                             // If path is readonly, change the URI scheme
                             if (PathUtil.isWriteProtectedPath(filePath)) {
@@ -272,7 +272,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                             params.getTextDocument(), params.getPosition());
                                 }
                             }
-                            references.add(new Location(uri, ReferencesUtil.getRange(location)));
+                            references.add(new Location(uri, PathUtil.getRange(location)));
                         }));
 
                 return references;

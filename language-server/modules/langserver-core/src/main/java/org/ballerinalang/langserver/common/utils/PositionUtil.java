@@ -15,17 +15,23 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+
+import java.util.Optional;
 
 /**
  * Carries a set of utilities for position calculations.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
 public class PositionUtil {
     
@@ -74,6 +80,13 @@ public class PositionUtil {
         return new Range(PositionUtil.toPosition(startPos), PositionUtil.toPosition(endPos));
     }
 
+    /**
+     * Check if the provided position is within the enclosing line range.
+     *
+     * @param pos      Position to be checked for inclusion
+     * @param lineRange Enclosing line range in which the #position reside
+     * @return True if the provided position resides within the line range
+     */
     public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
         int sLine = lineRange.startLine().line();
         int sCol = lineRange.startLine().offset();
@@ -124,11 +137,28 @@ public class PositionUtil {
     /**
      * Check if a given offset is with in the range of a given node.
      *
-     * @param node
-     * @param offset
+     * @param node Node
+     * @param offset Offset
      * @return
      */
     public static boolean isWithInRange(Node node, int offset) {
         return node.textRange().startOffset() <= offset && offset <= node.textRange().endOffset();
+    }
+
+    /**
+     * Find the token at position.
+     *
+     * @return Token at position
+     */
+    public static Optional<Token> findTokenAtPosition(DocumentServiceContext context, Position position) {
+        Optional<Document> document = context.currentDocument();
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+        TextDocument textDocument = document.get().textDocument();
+
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        Token tokenAtPosition = ((ModulePartNode) document.get().syntaxTree().rootNode()).findToken(txtPos, true);
+        return Optional.ofNullable(tokenAtPosition);
     }
 }

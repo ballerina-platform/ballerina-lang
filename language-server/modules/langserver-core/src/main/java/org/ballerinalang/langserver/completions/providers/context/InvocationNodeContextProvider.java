@@ -33,8 +33,9 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.ContextTypeResolverUtil;
-import org.ballerinalang.langserver.common.utils.RecordFieldCompletionUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.RecordUtil;
+import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -72,9 +73,9 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
-                !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) 
+                !TypeResolverUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) 
                 || (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) 
+                        !TypeResolverUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) 
                                 node))) {
             super.sort(context, node, completionItems);
             return;
@@ -111,7 +112,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             return Collections.emptyList();
         }
 
-        List<String> existingNamedArgs = CommonUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
+        List<String> existingNamedArgs = NameUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
         for (ParameterSymbol parameterSymbol : params.get()) {
             if (parameterSymbol.paramKind() == ParameterKind.REQUIRED ||
                     parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE) {
@@ -130,7 +131,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     continue;
                 }
                 RecordTypeSymbol includedRecordType = (RecordTypeSymbol) typeSymbol;
-                List<RecordFieldSymbol> recordFields = RecordFieldCompletionUtil
+                List<RecordFieldSymbol> recordFields = RecordUtil
                         .getMandatoryRecordFields(includedRecordType);
                 recordFields.forEach(recordFieldSymbol -> {
                     Optional<String> fieldName = recordFieldSymbol.getName();

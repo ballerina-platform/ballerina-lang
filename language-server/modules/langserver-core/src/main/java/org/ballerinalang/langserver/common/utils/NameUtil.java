@@ -15,13 +15,23 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
+import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -31,12 +41,12 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
- * Carries a set of utilities used to generate names for variables, types, parameters, visible symbols.
+ * Carries a set of utilities used for operations on names of variables, types, parameters, visible symbols.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
-public class NameGenerationUtil {
-    
+public class NameUtil {
+
     /**
      * Generates a random name.
      *
@@ -190,6 +200,49 @@ public class NameGenerationUtil {
                 .map(Optional::get)
                 .collect(Collectors.toSet());
         return getValidatedSymbolName(visibleSymbolNames, symbolName);
+    }
+
+    /**
+     * Returns the type name (derived from signature) with version information removed.
+     *
+     * @param context    Context
+     * @param typeSymbol Type symbol
+     * @return Signature
+     */
+    public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
+        String typeSignature = typeSymbol.signature();
+        return CommonUtil.getModifiedSignature(context, typeSignature);
+    }
+
+    /**
+     * Provided a set of arguments and parameters, returns the list of argument names that has been already defined.
+     *
+     * @param context          Completion context.
+     * @param params           List of expected parameter symbols.
+     * @param argumentNodeList Argument list.
+     * @return {@link List<String>} already defined argument names.
+     */
+    public static List<String> getDefinedArgumentNames(BallerinaCompletionContext context,
+                                                       List<ParameterSymbol> params,
+                                                       SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        List<String> existingArgNames = new ArrayList<>();
+        int cursorPosition = context.getCursorPositionInTree();
+        int index = 1;
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            int endOffset = textRange.endOffset();
+            if ((startOffset > cursorPosition || endOffset < cursorPosition)) {
+                if (child.kind() == SyntaxKind.NAMED_ARG) {
+                    existingArgNames.add(((NamedArgumentNode) child).argumentName().name().text());
+                } else if (child.kind() == SyntaxKind.POSITIONAL_ARG && index - 1 < params.size()) {
+                    ParameterSymbol parameterSymbol = params.get(index - 1);
+                    existingArgNames.add(parameterSymbol.getName().orElse(""));
+                }
+            }
+            index++;
+        }
+        return existingArgNames;
     }
     
     /**

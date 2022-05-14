@@ -39,7 +39,7 @@ import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
-import org.ballerinalang.langserver.common.utils.NameGenerationUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -161,11 +161,11 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
             }
 
             if (type.isPresent() && type.get().typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                varName = NameGenerationUtil.generateParameterName(varName, argIndex,
+                varName = NameUtil.generateParameterName(varName, argIndex,
                         CommonUtil.getRawType(type.get()), visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, type.get()) + " " + varName);
             } else {
-                varName = NameGenerationUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
+                varName = NameUtil.generateParameterName(varName, argIndex, null, visibleSymbolNames);
                 args.add(FunctionGenerator.getParameterTypeAsString(docServiceContext, null) + " " + varName);
             }
             visibleSymbolNames.add(varName);

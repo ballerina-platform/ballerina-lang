@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.LSPackageLoader;
@@ -46,11 +47,11 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 
 /**
- * Carries a set of utilities used for module operations.
+ * Carries a set of utilities used for operations on modules.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
-public class ModuleOperationUtil {
+public class ModuleUtil {
     
     /**
      * Filter a type in the module by the name.
@@ -62,7 +63,7 @@ public class ModuleOperationUtil {
      */
     public static Optional<TypeSymbol> getTypeFromModule(BallerinaCompletionContext context, String alias,
                                                          String typeName) {
-        Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, alias);
+        Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context, alias);
         if (module.isEmpty()) {
             return Optional.empty();
         }
@@ -137,7 +138,7 @@ public class ModuleOperationUtil {
                     pkgPrefix = importDeclarationNode.prefix().get().prefix().text();
                 }
             } else if (existingModuleImports.isEmpty() && context instanceof PositionedOperationContext) {
-                pkgPrefix = NameGenerationUtil.getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
+                pkgPrefix = NameUtil.getValidatedSymbolName((PositionedOperationContext) context, pkgPrefix);
             }
             CodeActionModuleId codeActionModuleId =
                     CodeActionModuleId.from(orgName, moduleName, pkgPrefix, moduleID.version());
@@ -174,6 +175,12 @@ public class ModuleOperationUtil {
         return modNameComponents[modNameComponents.length - 1];
     }
 
+    /**
+     * Returns escaped module name.
+     *
+     * @param qualifiedModuleName Qualified module name
+     * @return escaped module name
+     */
     public static String escapeModuleName(String qualifiedModuleName) {
         String[] moduleNameParts = qualifiedModuleName.split("/");
         if (moduleNameParts.length > 1) {
@@ -215,7 +222,7 @@ public class ModuleOperationUtil {
         return currentDocImports.keySet().stream()
                 .filter(importPkg -> importPkg.orgName().isPresent()
                         && importPkg.orgName().get().orgName().text().equals(orgName)
-                        && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(name))
+                        && ModuleUtil.getPackageNameComponentsCombined(importPkg).equals(name))
                 .findFirst();
     }
 
@@ -233,8 +240,20 @@ public class ModuleOperationUtil {
         return currentDocImports.keySet().stream()
                 .filter(importPkg -> (importPkg.orgName().isEmpty()
                         || importPkg.orgName().get().orgName().text().equals(orgName))
-                        && CommonUtil.getPackageNameComponentsCombined(importPkg).equals(modName))
+                        && ModuleUtil.getPackageNameComponentsCombined(importPkg).equals(modName))
                 .findFirst();
+    }
+
+    /**
+     * Get the package name components combined.
+     *
+     * @param importNode {@link ImportDeclarationNode}
+     * @return {@link String}   Combined package name
+     */
+    public static String getPackageNameComponentsCombined(ImportDeclarationNode importNode) {
+        return importNode.moduleName().stream()
+                .map(Token::text)
+                .collect(Collectors.joining("."));
     }
 
     private static String getQualifiedModuleName(Module module) {

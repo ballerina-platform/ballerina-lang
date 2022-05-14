@@ -22,11 +22,15 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.URI;
@@ -41,7 +45,7 @@ import java.util.Optional;
 /**
  * Carries a set of utilities used to perform Path related checks.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
 public class PathUtil {
     
@@ -191,6 +195,13 @@ public class PathUtil {
         return getFilePathForDependency(orgName, moduleName, project, symbol, context);
     }
 
+    /**
+     * Returns the modified URI.
+     *
+     * @param workspaceManager  workspace manager instance
+     * @param uri original URI
+     * @return modified URI
+     */
     public static String getModifiedUri(WorkspaceManager workspaceManager, String uri) {
         URI original = URI.create(uri);
         try {
@@ -200,5 +211,61 @@ public class PathUtil {
         } catch (URISyntaxException e) {
             return uri;
         }
+    }
+
+    /**
+     * Returns the URI given the location.
+     *
+     * @param module  Module where the location resides
+     * @param location Location
+     * @return URI
+     */
+    public static String getUriFromLocation(Module module, Location location) {
+        return getPathFromLocation(module, location).toUri().toString();
+    }
+
+    /**
+     * Returns the file path given the location.
+     *
+     * @param module  Module where the location resides
+     * @param location Location
+     * @return file path
+     */
+    public static Path getPathFromLocation(Module module, Location location) {
+        String filePath = location.lineRange().filePath();
+
+        if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+            return module.project().sourceRoot();
+        }
+
+        if (module.project().kind() == ProjectKind.BALA_PROJECT) {
+            // TODO Check if bala projects can exist within nested modules dir
+            return module.project().sourceRoot().resolve("modules")
+                    .resolve(module.moduleName().toString())
+                    .resolve(filePath);
+        }
+
+        if (module.isDefaultModule()) {
+            return module.project().sourceRoot().resolve(filePath);
+        } else {
+            return module.project().sourceRoot()
+                    .resolve("modules")
+                    .resolve(module.moduleName().moduleNamePart())
+                    .resolve(filePath);
+        }
+    }
+
+    /**
+     * Returns the range given the location.
+     *
+     * @param referencePos Location
+     * @return range
+     */
+    public static Range getRange(Location referencePos) {
+        Position start = new Position(
+                referencePos.lineRange().startLine().line(), referencePos.lineRange().startLine().offset());
+        Position end = new Position(
+                referencePos.lineRange().endLine().line(), referencePos.lineRange().endLine().offset());
+        return new Range(start, end);
     }
 }

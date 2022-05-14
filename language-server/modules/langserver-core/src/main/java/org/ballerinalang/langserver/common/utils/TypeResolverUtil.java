@@ -42,9 +42,9 @@ import java.util.Optional;
 /**
  * Carries a set of utilities used to resolve the context type.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
-public class ContextTypeResolverUtil {
+public class TypeResolverUtil {
     
     /**
      * Given the function type symbol and existing arguments

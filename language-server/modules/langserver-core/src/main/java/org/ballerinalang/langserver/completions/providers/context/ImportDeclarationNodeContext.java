@@ -31,7 +31,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -193,7 +193,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             String orgName = pkg.packageOrg().value();
             String pkgName = pkg.packageName().value();
             if (orgName.equals(Names.BALLERINA_INTERNAL_ORG.getValue())
-                    || ModuleOperationUtil.matchingImportedModule(ctx, pkg).isPresent()) {
+                    || ModuleUtil.matchingImportedModule(ctx, pkg).isPresent()) {
                 // Avoid suggesting the ballerinai org name
                 return;
             }
@@ -239,7 +239,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     .collect(Collectors.joining("."));
             String qualifiedModuleName = module.moduleName().packageName().value()
                     + Names.DOT + moduleNamePart;
-            if (ModuleOperationUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
+            if (ModuleUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
                 continue;
             }
             String label = currentPackageName + "." + moduleNamePart;
@@ -271,7 +271,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                     + module.moduleName().moduleNamePart();
             if (module.isDefaultModule()
                     || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))
-                    || ModuleOperationUtil.matchingImportedModule(context, "", qualifiedModuleName).isPresent()) {
+                    || ModuleUtil.matchingImportedModule(context, "", qualifiedModuleName).isPresent()) {
                 return;
             }
 
@@ -299,7 +299,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !addedPkgNames.contains(packageName)
-                    && ModuleOperationUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
+                    && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.getValue() + Names.DOT.getValue())) {
                     insertText = getLangLibModuleNameInsertText(packageName);

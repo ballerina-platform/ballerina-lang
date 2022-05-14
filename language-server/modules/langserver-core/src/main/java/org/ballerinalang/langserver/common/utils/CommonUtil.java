@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -31,18 +30,15 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
-import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -204,18 +200,6 @@ public class CommonUtil {
     }
 
     /**
-     * Get the package name components combined.
-     *
-     * @param importNode {@link ImportDeclarationNode}
-     * @return {@link String}   Combined package name
-     */
-    public static String getPackageNameComponentsCombined(ImportDeclarationNode importNode) {
-        return importNode.moduleName().stream()
-                .map(Token::text)
-                .collect(Collectors.joining("."));
-    }
-
-    /**
      * Whether the given module is a langlib module.
      * public static String generateParameterName(String arg, Set<String> visibleNames) {
      * visibleNames.addAll(BALLERINA_KEYWORDS);
@@ -318,31 +302,6 @@ public class CommonUtil {
     }
 
     /**
-     * Given a type symbol, this method will get the record type symbols in the provided type. i.e. the provided type
-     * can be a record or a union of records for this to work.
-     *
-     * @param typeSymbol Type symbol from which record types need to be extracted.
-     * @return List of record type symbols, wrapped with a raw type and broader type container.
-     */
-    public static List<RawTypeSymbolWrapper<RecordTypeSymbol>> getRecordTypeSymbols(TypeSymbol typeSymbol) {
-        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
-        if (rawType.typeKind() == TypeDescKind.RECORD) {
-            return Collections.singletonList(RawTypeSymbolWrapper.from(typeSymbol, (RecordTypeSymbol) rawType));
-        }
-        if (rawType.typeKind() == TypeDescKind.UNION) {
-            // This will only consider the record type members and disregard other types
-            return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
-                    .filter(tSymbol -> CommonUtil.getRawType(tSymbol).typeKind() == TypeDescKind.RECORD)
-                    .map(tSymbol -> {
-                        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(tSymbol);
-                        return RawTypeSymbolWrapper.from(tSymbol, recordTypeSymbol);
-                    }).collect(Collectors.toList());
-        }
-
-        return Collections.emptyList();
-    }
-
-    /**
      * Get the completion item label for a given package.
      *
      * @param pkg {@link Package} package info to evaluate
@@ -358,18 +317,6 @@ public class CommonUtil {
     }
 
     /**
-     * Returns the type name (derived from signature) with version information removed.
-     *
-     * @param context    Context
-     * @param typeSymbol Type symbol
-     * @return Signature
-     */
-    public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
-        String typeSignature = typeSymbol.signature();
-        return getModifiedSignature(context, typeSignature);
-    }
-
-    /**
      * Given a signature, this method will remove the version information from the signature.
      *
      * @param context   Context
@@ -382,7 +329,7 @@ public class CommonUtil {
             String orgName = matcher.group(1);
             String moduleName = matcher.group(2);
             String matchedString = matcher.group();
-            String modulePrefix = ModuleOperationUtil.getModulePrefix(context, orgName, moduleName);
+            String modulePrefix = ModuleUtil.getModulePrefix(context, orgName, moduleName);
             String replaceText = modulePrefix.isEmpty() ? matchedString + Names.VERSION_SEPARATOR : matchedString;
             signature = signature.replace(replaceText, modulePrefix);
         }
@@ -448,37 +395,6 @@ public class CommonUtil {
                 symbol.kind() == SymbolKind.CLASS || symbol.kind() == SymbolKind.ENUM
                 || symbol.kind() == SymbolKind.ENUM_MEMBER || symbol.kind() == SymbolKind.CONSTANT)
                 && !Names.ERROR.getValue().equals(symbol.getName().orElse(""));
-    }
-
-    /**
-     * Provided a set of arguments and parameters, returns the list of argument names that has been already defined.
-     *
-     * @param context          Completion context.
-     * @param params           List of expected parameter symbols.
-     * @param argumentNodeList Argument list.
-     * @return {@link List<String>} already defined argument names.
-     */
-    public static List<String> getDefinedArgumentNames(BallerinaCompletionContext context,
-                                                       List<ParameterSymbol> params,
-                                                       SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
-        List<String> existingArgNames = new ArrayList<>();
-        int cursorPosition = context.getCursorPositionInTree();
-        int index = 1;
-        for (Node child : argumentNodeList) {
-            TextRange textRange = child.textRange();
-            int startOffset = textRange.startOffset();
-            int endOffset = textRange.endOffset();
-            if ((startOffset > cursorPosition || endOffset < cursorPosition)) {
-                if (child.kind() == SyntaxKind.NAMED_ARG) {
-                    existingArgNames.add(((NamedArgumentNode) child).argumentName().name().text());
-                } else if (child.kind() == SyntaxKind.POSITIONAL_ARG && index - 1 < params.size()) {
-                    ParameterSymbol parameterSymbol = params.get(index - 1);
-                    existingArgNames.add(parameterSymbol.getName().orElse(""));
-                }
-            }
-            index++;
-        }
-        return existingArgNames;
     }
 
     /**
@@ -630,7 +546,7 @@ public class CommonUtil {
 
         if (param.paramKind() == ParameterKind.REST) {
             ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
-            return Optional.of(CommonUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+            return Optional.of(NameUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
                     + (param.getName().isEmpty() ? "" : "... "
                     + param.getName().get()));
         }
@@ -639,7 +555,7 @@ public class CommonUtil {
             // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
             return Optional.empty();
         } else {
-            return Optional.of(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
+            return Optional.of(NameUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
                     (param.getName().isEmpty() ? "" : " " + param.getName().get()));
         }
     }
