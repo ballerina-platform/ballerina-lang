@@ -9,8 +9,9 @@ DESCRIPTION
        Formats the Ballerina source files. Formatting can be performed on a
        Ballerina package, module, or source file.
 
-       The formatted content will be written to the original files. By using the `dry run`
-       option, you will be able to check which files will be formatted after the execution.
+       The formatted content will be written to the original files. By using the
+       `dry run` option, you will be able to check which files will be formatted
+       after the execution.
 
        If the Ballerina sources contain syntax errors, they will be notified and
        formatting will not be proceeded until they are fixed.
