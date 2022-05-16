@@ -18,11 +18,20 @@
 
 package io.ballerina.semver.checker.diff;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import io.ballerina.semver.checker.util.DiffUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_CHILDREN;
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_VERSION_IMPACT;
 import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
@@ -104,5 +113,20 @@ public class DiffImpl implements Diff {
             childDiffs.forEach(diff -> sb.append(diff.getAsString()));
         }
         return sb.toString();
+    }
+
+    @Override
+    public JsonObject getAsJsonObject() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
+        jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name()));
+        jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()));
+        if (diffType == DiffType.MODIFIED && childDiffs != null) {
+            JsonArray childArray = new JsonArray();
+            childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
+            jsonObject.add(DIFF_ATTR_CHILDREN, childArray);
+        }
+
+        return jsonObject;
     }
 }

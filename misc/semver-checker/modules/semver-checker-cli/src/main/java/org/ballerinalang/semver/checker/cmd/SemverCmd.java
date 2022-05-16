@@ -90,13 +90,7 @@ public class SemverCmd implements BLauncherCmd {
                 }
             }
 
-            SemverChecker semverChecker;
-            if (prevVersion != null) {
-                semverChecker = new SemverChecker(projectPath, semanticVersion);
-            } else {
-                semverChecker = new SemverChecker(projectPath);
-            }
-
+            SemverChecker semverChecker = new SemverChecker(projectPath, semanticVersion);
             if (showDiff) {
                 outStream.println(semverChecker.getDiffSummary());
             } else {

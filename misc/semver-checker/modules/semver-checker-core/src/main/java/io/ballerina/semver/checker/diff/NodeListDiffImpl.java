@@ -18,7 +18,11 @@
 
 package io.ballerina.semver.checker.diff;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.semver.checker.util.DiffUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,6 +30,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_CHILDREN;
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
 import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
@@ -135,6 +143,27 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
         }
 
         return sb.toString();
+    }
+
+    @Override
+    public JsonObject getAsJsonObject() {
+        JsonObject jsonObject = new JsonObject();
+        if (childDiffs == null || childDiffs.isEmpty()) {
+            jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
+            jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name()));
+        }
+
+        if (this.getMessage().isPresent()) {
+            jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getVersionImpact().name()));
+        }
+
+        if (childDiffs != null) {
+            JsonArray childArray = new JsonArray();
+            childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
+            jsonObject.add(DIFF_ATTR_CHILDREN, childArray);
+        }
+
+        return jsonObject;
     }
 
     /**

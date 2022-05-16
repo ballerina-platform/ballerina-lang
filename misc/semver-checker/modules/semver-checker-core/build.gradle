@@ -26,6 +26,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':central-client')
     implementation project(':ballerina-tools-api')
+    implementation('com.google.code.gson:gson')
     testCompile 'org.testng:testng'
 }
 
