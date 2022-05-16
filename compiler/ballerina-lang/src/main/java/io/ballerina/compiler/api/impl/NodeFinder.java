@@ -718,6 +718,11 @@ class NodeFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        lookupNode(spreadOpExpr.expr);
+    }
+
+    @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
         lookupNode(tableConstructorExpr.tableKeySpecifier);
         lookupNodes(tableConstructorExpr.recordLiteralList);
