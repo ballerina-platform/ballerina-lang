@@ -50,8 +50,8 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
                             CodeActionContext context) {
-        return CodeActionNodeValidator.validate(context.nodeAtCursor()) && 
-                diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED);
+        return  diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     /**

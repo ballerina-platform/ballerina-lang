@@ -39,12 +39,6 @@ public class ImplementMethodCodeAction extends AbstractImplementMethodCodeAction
 
     public static final String NAME = "Implement Method";
 
-    @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
-                            CodeActionContext context) {
-        return super.validate(diagnostic, positionDetails, context);
-    }
-
     /**
      * {@inheritDoc}
      */

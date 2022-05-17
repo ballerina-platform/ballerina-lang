@@ -51,7 +51,6 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
         return diagnostic.diagnosticInfo().code()
                 .equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId()) && 
                 CodeActionNodeValidator.validate(context.nodeAtCursor());
-        
     }
 
     @Override

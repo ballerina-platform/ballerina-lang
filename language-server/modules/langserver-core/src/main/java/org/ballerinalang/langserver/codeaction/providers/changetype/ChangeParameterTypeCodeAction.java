@@ -112,7 +112,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         // Get line-range of type-desc of parameter
         SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
         Optional<NonTerminalNode> node = CommonUtil.findNode(paramSymbol, syntaxTree);
-        if (node.isEmpty() || !CodeActionNodeValidator.validate(node.get())) {
+        if (node.isEmpty()) {
             return Collections.emptyList();
         }
 
