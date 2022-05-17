@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/jballerina.java;
 
 function testOnFailEdgeTestcases() {
     testUnreachableCodeWithIf();
@@ -30,6 +31,7 @@ function testOnFailEdgeTestcases() {
     assertEquality(1, testIntReturnWithinOnfail());
     testBreakWithinOnfailForOuterLoop();
     assertEquality(44, testLambdaFunctionWithOnFail());
+    testOnFailWithinInLineServiceObj();
 }
 
 function testUnreachableCodeWithIf(){
@@ -355,6 +357,108 @@ function trxError()  returns error {
 function getError() returns error {
     error err = error("Custom Error");
     return err;
+}
+
+public class Listener {
+
+    public isolated function 'start() returns error? {
+        return externStart(self);
+    }
+    public isolated function gracefulStop() returns error? {
+    }
+    public isolated function immediateStop() returns error? {
+    }
+    public isolated function detach(service object {} s) returns error? {
+    }
+    public isolated function attach(service object {} s, string[]|string? name = ()) returns error? {
+        return self.register(s, name);
+    }
+    isolated function register(service object {} s, string[]|string? name) returns error? {
+        return externAttach(s, name);
+    }
+
+    public function init() returns error? {
+        check externLInit(self);
+    }
+}
+
+type S service object {
+};
+
+service S / on new Listener() {
+    resource isolated function get foo() returns service object {} {
+        return service object {
+            resource function get foo() returns string {
+                do {
+                    _ = check getCheckError();
+                    return "should not reach here";
+                } on fail error e {
+                    return "Error thrown from on-fail: " + e.message();
+                }
+            }
+        };
+    }
+
+    resource isolated function get bar() returns service object {} {
+        return service object {
+            resource function get bar() returns string {
+                do {
+                    do {
+                        _ = check getCheckError();
+                    } on fail error e1 {
+                        fail e1;
+                    }
+                } on fail error e2 {
+                    return "Error thrown from on-fail: " + e2.message();
+                }
+                return "should not reach here";
+            }
+        };
+    }
+}
+
+function getService() returns object {} = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "getService"
+} external;
+
+function reset() = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "reset"
+} external;
+
+public function callMethod(service object {} s, string name) returns future<any|error> = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "callMethod"
+} external;
+
+isolated function externLInit(object {} o) returns error? = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "listenerInit"
+} external;
+
+isolated function externAttach(service object {} s, string[]|string? name) returns error? = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "attach"
+} external;
+
+isolated function externStart(object {} o) returns error? = @java:Method {
+    'class: "org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+    name: "start"
+} external;
+
+function testOnFailWithinInLineServiceObj() {
+    service object {} serviceObj1 = <service object {}>
+            (checkpanic (wait callMethod(<service object {}>getService(), "$get$foo")));
+    string str1 = <string>(checkpanic (wait callMethod(serviceObj1, "$get$foo")));
+    assertEquality(str1, "Error thrown from on-fail: Custom Error");
+
+    service object {} serviceObj2 = <service object {}>
+                (checkpanic (wait callMethod(<service object {}>getService(), "$get$bar")));
+    string str2 = <string>(checkpanic (wait callMethod(serviceObj2, "$get$bar")));
+    assertEquality(str2, "Error thrown from on-fail: Custom Error");
+
+    reset();
 }
 
 //-------------------------------------------------------------------------------
