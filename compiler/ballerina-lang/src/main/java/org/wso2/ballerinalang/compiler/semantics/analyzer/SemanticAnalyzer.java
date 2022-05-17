@@ -1051,9 +1051,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
         // Validate Annotation Attachment expression against Annotation Definition type.
         validateAnnotationAttachmentExpr(annAttachmentNode, annotationSymbol, data);
-        symResolver.setAnonTypeNames(this.anonTypeNameSuffixes);
-        symResolver.populateAnnotationAttachmentSymbol(annAttachmentNode, data.env, this.constantValueResolver);
-        symResolver.unsetAnonTypeNameSuffixes(this.anonTypeNameSuffixes);
+        symResolver.populateAnnotationAttachmentSymbol(annAttachmentNode, data.env, this.constantValueResolver,
+                this.anonTypeNameSuffixes);
     }
 
     @Override

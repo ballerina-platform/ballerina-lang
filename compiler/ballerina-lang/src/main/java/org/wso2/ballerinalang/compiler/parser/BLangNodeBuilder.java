@@ -632,10 +632,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             markVariableWithFlag(variable, Flag.PUBLIC);
         }
 
-        this.anonTypeNameSuffixes.push(((BLangSimpleVariable) variable).name.value);
         initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.qualifiers());
-        this.anonTypeNameSuffixes.pop();
 
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
         if (annotations != null) {

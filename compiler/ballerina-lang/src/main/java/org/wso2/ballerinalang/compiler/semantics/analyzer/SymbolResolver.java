@@ -2517,6 +2517,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
     public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
                                                    ConstantValueResolver constantValueResolver) {
+        populateAnnotationAttachmentSymbol(annotationAttachment, env, constantValueResolver, new Stack<>());
+    }
+    public void populateAnnotationAttachmentSymbol(BLangAnnotationAttachment annotationAttachment, SymbolEnv env,
+                                                   ConstantValueResolver constantValueResolver,
+                                                   Stack<String> anonTypeNameSuffixes) {
         BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
 
         if (annotationSymbol == null) {
@@ -2561,10 +2566,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                         mappingConstructor, constantSymbol, env);
             }
         } else {
-            constantValueResolver.setAnonTypeNameSuffixes(this.anonTypeNameSuffixes);
-            constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr,
-                                                                                                  constantSymbol, env);
-            constantValueResolver.unsetAnonTypeNameSuffixes(this.anonTypeNameSuffixes);
+            constAnnotationValue = constantValueResolver.constructBLangConstantValueWithExactType(expr, constantSymbol,
+                    env, anonTypeNameSuffixes);
         }
 
         constantSymbol.type = constAnnotationValue.type;
@@ -2586,16 +2589,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             }
         }
         return configVars;
-    }
-
-    public void setAnonTypeNames(Stack<String> anonTypeNameSuffixes) {
-        this.anonTypeNameSuffixes.addAll(anonTypeNameSuffixes);
-    }
-
-    public void unsetAnonTypeNameSuffixes(Stack<String> anonTypeNameSuffixes) {
-        for (int i = 0; i < anonTypeNameSuffixes.size(); i++) {
-            this.anonTypeNameSuffixes.pop();
-        }
     }
 
     private void populateConfigurableVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {

@@ -108,7 +108,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private ArrayList<BConstantSymbol> resolvingConstants = new ArrayList<>();
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
-    private final Stack<String> anonTypeNameSuffixes = new Stack<>();
+    private Stack<String> anonTypeNameSuffixes = new Stack<>();
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -292,16 +292,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     public void visit(BLangUnaryExpr unaryExpr) {
         BLangConstantValue value = constructBLangConstantValue(unaryExpr.expr);
         this.result = evaluateUnaryOperator(value, unaryExpr.operator);
-    }
-
-    public void setAnonTypeNameSuffixes(Stack<String> anonTypeNameSuffixes) {
-        this.anonTypeNameSuffixes.addAll(anonTypeNameSuffixes);
-    }
-
-    public void unsetAnonTypeNameSuffixes(Stack<String> anonTypeNameSuffixes) {
-        for (int i = 0; i < anonTypeNameSuffixes.size(); i++) {
-            this.anonTypeNameSuffixes.pop();
-        }
     }
 
     private BLangConstantValue calculateConstValue(BLangConstantValue lhs, BLangConstantValue rhs, OperatorKind kind) {
@@ -549,6 +539,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env) {
+        return constructBLangConstantValueWithExactType(expression, constantSymbol, env, new Stack<>());
+    }
+
+    BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
+                                                                BConstantSymbol constantSymbol, SymbolEnv env,
+                                                                Stack<String> anonTypeNameSuffixes) {
         BLangConstantValue value = constructBLangConstantValue(expression);
         constantSymbol.value = value;
 
@@ -556,6 +552,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return value;
         }
 
+        this.anonTypeNameSuffixes = anonTypeNameSuffixes;
         updateConstantType(constantSymbol, expression, env);
         return value;
     }
