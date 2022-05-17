@@ -139,7 +139,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         checkAndSetCodeActionNodeType(CodeActionNodeType.FUNCTION);
 
         NodeList<Token> qualifiers = node.qualifierList();
-        int startOffset = !qualifiers.isEmpty() ? qualifiers.get(0).textRange().startOffset() : node.functionKeyword().textRange().startOffset();
+        int startOffset = !qualifiers.isEmpty() ?
+                qualifiers.get(0).textRange().startOffset() : node.functionKeyword().textRange().startOffset();
         FunctionBodyBlockNode functionBody = (FunctionBodyBlockNode) node.functionBody();
         int openBraceEnd = functionBody.openBraceToken().textRange().endOffset();
         int closeBraceEnd = functionBody.closeBraceToken().textRange().endOffset();
@@ -168,7 +169,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         }
 
         Optional<Token> qualifier = node.visibilityQualifier();
-        int startOffset = qualifier.isEmpty() ? node.typeKeyword().textRange().startOffset() : qualifier.get().textRange().startOffset();
+        int startOffset = qualifier.isEmpty() ?
+                node.typeKeyword().textRange().startOffset() : qualifier.get().textRange().startOffset();
         int typeNameEnd = node.typeName().textRange().endOffset();
         int nodeEnd = node.textRange().endOffset();
 
@@ -188,7 +190,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         checkAndSetCodeActionNodeType(CodeActionNodeType.CLASS);
 
         Optional<Token> qualifier = node.visibilityQualifier();
-        int startOffset = qualifier.isEmpty() ? node.classKeyword().textRange().startOffset() : qualifier.get().textRange().startOffset();
+        int startOffset = qualifier.isEmpty() ?
+                node.classKeyword().textRange().startOffset() : qualifier.get().textRange().startOffset();
         int openBraceEnd = node.openBrace().textRange().endOffset();
         int closeBraceEnd = node.closeBrace().textRange().endOffset();
 
@@ -239,7 +242,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         checkAndSetCodeActionNode(node);
 
         Optional<Token> visibilityQualifier = node.visibilityQualifier();
-        int startOffset = visibilityQualifier.map(token -> token.textRange().startOffset()).orElseGet(() -> node.constKeyword().textRange().startOffset());
+        int startOffset = visibilityQualifier.map(token -> token.textRange().startOffset())
+                .orElseGet(() -> node.constKeyword().textRange().startOffset());
         int varNameEnd = node.variableName().textRange().endOffset();
         int nodeEnd = node.textRange().endOffset();
 
@@ -258,7 +262,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     public void visit(EnumDeclarationNode node) {
         checkAndSetCodeActionNode(node);
 
-        int startOffset = node.qualifier().map(token -> token.textRange().startOffset()).orElseGet(() -> node.enumKeywordToken().textRange().startOffset());
+        int startOffset = node.qualifier().map(token -> token.textRange().startOffset())
+                .orElseGet(() -> node.enumKeywordToken().textRange().startOffset());
         int openBraceEnd = node.openBraceToken().textRange().endOffset();
         int closeBraceEnd = node.closeBraceToken().textRange().endOffset();
 
@@ -293,7 +298,12 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         checkAndSetCodeActionNode(node);
         checkAndSetCodeActionNodeType(CodeActionNodeType.ANNOTATION);
 
-        int startOffset = node.visibilityQualifier().map(token -> token.textRange().startOffset()).orElseGet(() -> node.constKeyword().map(token -> token.textRange().startOffset()).orElseGet(() -> node.annotationKeyword().textRange().startOffset()));
+        int startOffset = node.visibilityQualifier()
+                .map(token -> token.textRange().startOffset())
+                .orElseGet(() -> node.constKeyword()
+                        .map(token -> token.textRange().startOffset())
+                        .orElseGet(() -> node.annotationKeyword().textRange().startOffset())
+                );
         int annotationNameEnd = node.annotationTag().textRange().endOffset();
         int endOffset = node.semicolonToken().textRange().endOffset();
         if (isWithinRange(startOffset, endOffset)) {
