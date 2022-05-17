@@ -67,23 +67,22 @@ public class CodeActionRouter {
         // Get available node-type based code-actions
         SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
         Position position = ctx.cursorPosition();
-        Optional<NonTerminalNode> codeActionNode = CodeActionUtil.getCodeActionNode(position, syntaxTree);
-        CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(codeActionNode.orElse(null));
+        // Run code action node analyzer
+        CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer();
+        analyzer.analyze(position, syntaxTree);
+        Optional<NonTerminalNode> codeActionNode = analyzer.getCodeActionNode();
+        CodeActionNodeType matchedNodeType = analyzer.getCodeActionNodeType();
         if (codeActionNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
-            Range range = PositionUtil.toRange(codeActionNode.get().lineRange());
+            Range range = CommonUtil.toRange(codeActionNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(codeActionNode.get(), range);
             TypeSymbol matchedTypeSymbol = getMatchedTypeSymbol(ctx, expressionNode).orElse(null);
 
-            LinePosition cursorPosition = LinePosition.from(position.getLine(), position.getCharacter());
-            int cursorPosOffset = syntaxTree.textDocument().textPositionFrom(cursorPosition);
-            NodeBasedPositionDetailsImpl.PositionDetailsBuilder positionDetailsBuilder =
-                    new NodeBasedPositionDetailsImpl.PositionDetailsBuilder(matchedTypeSymbol);
-            CodeActionNodeAnalyzer nodeAnalyzer = new CodeActionNodeAnalyzer(positionDetailsBuilder, cursorPosOffset);
-            nodeAnalyzer.visit(CommonUtil.findNode(new Range(position, position), syntaxTree));
-            NodeBasedPositionDetails posDetails = positionDetailsBuilder
+            NodeBasedPositionDetails posDetails = NodeBasedPositionDetailsImpl.PositionDetailsBuilder.newBuilder()
+                    .setTopLevelNodeType(matchedTypeSymbol)
                     .setTopLevelNode(codeActionNode.get())
-                    .setCodeActionNode(codeActionNode.get())
-                    .setStatementNode(matchedStatementNode(ctx, syntaxTree))
+                    .setDocumentableNode(analyzer.getDocumentableNode().orElse(null))
+                    .setEnclosingDocumentableNode(analyzer.getEnclosingDocumentableNode().orElse(null))
+                    .setStatementNode(analyzer.getStatementNode().orElse(null))
                     .build();
 
             codeActionProvidersHolder.getActiveNodeBasedProviders(matchedNodeType, ctx).forEach(provider -> {
@@ -135,18 +134,6 @@ public class CodeActionRouter {
                             });
                 });
         return codeActions;
-    }
-
-    private static NonTerminalNode matchedStatementNode(CodeActionContext ctx, SyntaxTree syntaxTree) {
-        Position cursorPos = ctx.cursorPosition();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(cursorPos, cursorPos), syntaxTree);
-        while (matchedNode.parent() != null &&
-                matchedNode.parent().kind() != SyntaxKind.MODULE_PART &&
-                matchedNode.parent().kind() != SyntaxKind.FUNCTION_BODY_BLOCK &&
-                !(matchedNode.parent() instanceof BlockStatementNode)) {
-            matchedNode = matchedNode.parent();
-        }
-        return matchedNode;
     }
 
     private static Optional<TypeSymbol> getMatchedTypeSymbol(CodeActionContext context, Node node) {

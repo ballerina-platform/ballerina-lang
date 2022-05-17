@@ -95,10 +95,9 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
         private NonTerminalNode topLevelNode;
         private NonTerminalNode statementNode;
         private NonTerminalNode codeActionNode;
-        private final TypeSymbol topLevelNodeType;
+        private TypeSymbol topLevelNodeType;
 
-        public PositionDetailsBuilder(TypeSymbol topLevelNodeType) {
-            this.topLevelNodeType = topLevelNodeType;
+        private PositionDetailsBuilder() {
         }
 
         public PositionDetailsBuilder setDocumentableNode(NonTerminalNode documentableNode) {
@@ -126,6 +125,11 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
             return this;
         }
 
+        public PositionDetailsBuilder setTopLevelNodeType(TypeSymbol topLevelNodeType) {
+            this.topLevelNodeType = topLevelNodeType;
+            return this;
+        }
+
         public NodeBasedPositionDetails build() {
             return new NodeBasedPositionDetailsImpl(
                     this.topLevelNode,
@@ -134,6 +138,10 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
                     this.topLevelNodeType,
                     this.documentableNode,
                     this.enclosingDocumentableNode);
+        }
+
+        public static PositionDetailsBuilder newBuilder() {
+            return new PositionDetailsBuilder();
         }
     }
 }
