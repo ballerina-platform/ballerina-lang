@@ -758,8 +758,11 @@ public class ValueCreator {
     /**
      * Create a runtime record value with given record type.
      *
-     * <p>To create a record value using a record type defined in Ballerina,
-     * do not use this method and use another createRecordValue method.
+     * <p>This method is used to create a BMap from the given java instance of
+     * record type which can only be used inside java native code. If the
+     * recordType defined in the Ballerina code and the created map value needs
+     * to be used in the Ballerina, please use createRecordValue APIs with
+     * packageId, recordTypeName to create a BMap.
      *
      * @param recordType record type.
      * @return record value
@@ -771,8 +774,11 @@ public class ValueCreator {
     /**
      * Create a runtime record value with given initial values and given record type.
      *
-     * <p>To create a record value using a record type defined in Ballerina,
-     * do not use this method and use another createRecordValue method.
+     * <p>This method is used to create a BMap from the given java instance of
+     * record type which can only be used inside java native code. If the
+     * recordType defined in the Ballerina code and the created map value needs
+     * to be used in the Ballerina, please use createRecordValue APIs with
+     * packageId, recordTypeName to create a BMap.
      *
      * @param recordType   record type.
      * @param keyValues initial map values to be populated.
