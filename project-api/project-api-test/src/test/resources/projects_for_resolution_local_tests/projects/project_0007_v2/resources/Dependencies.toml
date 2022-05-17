@@ -11,7 +11,8 @@ org = "local_res"
 name = "package_e"
 version = "0.0.1"
 dependencies = [
-	{org = "local_res", name = "package_f"}
+	{org = "local_res", name = "package_f"},
+	{org = "local_res", name = "package_g"}
 ]
 modules = [
 	{org = "local_res", packageName = "package_e", moduleName = "package_e"}
@@ -24,10 +25,19 @@ version = "0.0.1"
 
 [[package]]
 org = "local_res"
+name = "package_g"
+version = "0.0.1"
+modules = [
+	{org = "local_res", packageName = "package_g", moduleName = "package_g"}
+]
+
+[[package]]
+org = "local_res"
 name = "project_0007"
 version = "1.0.0"
 dependencies = [
-	{org = "local_res", name = "package_e"}
+	{org = "local_res", name = "package_e"},
+	{org = "local_res", name = "package_g"}
 ]
 modules = [
 	{org = "local_res", packageName = "project_0007", moduleName = "project_0007"}

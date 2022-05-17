@@ -122,7 +122,6 @@ public class PackageResolutionLocalTests extends BaseTest {
         buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
         expectedDiagnostics(buildProject, 1, "undefined function 'funcA1'");
-        //failIfDiagnosticsExists(buildProject);
 
         Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)),
                 readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
@@ -356,7 +355,7 @@ public class PackageResolutionLocalTests extends BaseTest {
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
 
         // Push package_g:0.0.1 to central
-        cacheDependencyToLocalRepository(PACKAGES_DIRECTORY.resolve("package_g_0_0_1_central"),
+        cacheDependencyToCentralRepository(PACKAGES_DIRECTORY.resolve("package_g_0_0_1_central"),
                 projectEnvironmentBuilder);
 
         // Push package_e:0.0.1 to local
