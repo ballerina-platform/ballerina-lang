@@ -44,8 +44,10 @@ import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
@@ -93,6 +95,8 @@ public class ManifestBuilder {
     private static final String SCOPE = "scope";
     private static final String TEMPLATE = "template";
 
+    private static final String MISSING_PKG_INFO_ERROR = "missing package information in Ballerina.toml";
+
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
                             Path projectPath) {
@@ -119,6 +123,13 @@ public class ManifestBuilder {
         this.diagnosticList.addAll(ballerinaToml.toml().diagnostics());
         diagnostics = new DefaultDiagnosticResult(this.diagnosticList);
         return diagnostics;
+    }
+
+    private void reportDiagnostic(String message, String diagnosticErrorCode,
+                                  DiagnosticSeverity severity, Location location) {
+        var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
+        var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
+        this.diagnosticList.add(diagnostic);
     }
 
     public String getErrorMessage() {
@@ -247,29 +258,47 @@ public class ManifestBuilder {
         String version;
 
         if (tomlTableNode.entries().isEmpty()) {
+            reportDiagnostic(MISSING_PKG_INFO_ERROR,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING, tomlTableNode.location());
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
         if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
+            reportDiagnostic(MISSING_PKG_INFO_ERROR,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING, tomlTableNode.location());
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
         if (pkgNode.entries().isEmpty()) {
+            reportDiagnostic(MISSING_PKG_INFO_ERROR,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING, pkgNode.location());
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         org = getStringValueFromTomlTableNode(pkgNode, "org");
         if (org == null) {
+            reportDiagnostic("missing 'org' under [package]",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING, pkgNode.location());
             org = defaultOrg().value();
         }
         name = getStringValueFromTomlTableNode(pkgNode, "name");
         if (name == null) {
+            reportDiagnostic("missing 'name' under [package]",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING, pkgNode.location());
             name = defaultName(this.projectPath).value();
         }
         version = getStringValueFromTomlTableNode(pkgNode, VERSION);
         if (version == null) {
+            reportDiagnostic("missing 'version' under [package]",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING, pkgNode.location());
             version = defaultVersion().value().toString();
         }
 
