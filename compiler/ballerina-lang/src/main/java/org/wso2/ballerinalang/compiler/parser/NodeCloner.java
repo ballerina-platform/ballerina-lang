@@ -348,7 +348,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         clone.value = source.value;
         clone.originalValue = source.originalValue;
-        clone.isFiniteContext = source.isFiniteContext;
         clone.isConstant = source.isConstant;
         clone.setBType(source.getBType());
     }
