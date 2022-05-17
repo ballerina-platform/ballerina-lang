@@ -32,6 +32,7 @@ function testOnFailEdgeTestcases() {
     testBreakWithinOnfailForOuterLoop();
     assertEquality(44, testLambdaFunctionWithOnFail());
     testOnFailWithinInLineServiceObj();
+    assertTrue(testOnFailInAnonFunctionExpr() is ());
 }
 
 function testUnreachableCodeWithIf(){
@@ -459,6 +460,36 @@ function testOnFailWithinInLineServiceObj() {
     assertEquality(str2, "Error thrown from on-fail: Custom Error");
 
     reset();
+}
+
+function testOnFailInAnonFunctionExpr() returns error? {
+    stream<string, error?> strStream = ["a1", "a2"].toStream();
+    error? result1 = ();
+    check strStream.forEach(function(string str) {
+        do {
+            int _ = check int:fromString(str);
+        } on fail error e {
+            //loop continues as the error is handled. result should contain the error for second element
+            result1 = e;
+        }
+    });
+    assertTrue(result1 is error);
+    assertEquality((<error>result1).detail().get("message"), "'string' value 'a2' cannot be converted to 'int'");
+
+    string[] strArray = ["a1", "a2"];
+    error? result2 = ();
+    strArray.forEach(function(string str) {
+        do {
+            do {
+                int _ = check int:fromString(str);
+            } on fail error e1 {
+                fail e1;
+            }
+        } on fail error e2 {
+            result2 = e2;
+        }
+    });
+    assertEquality((<error>result2).detail().get("message"), "'string' value 'a2' cannot be converted to 'int'");
 }
 
 //-------------------------------------------------------------------------------
