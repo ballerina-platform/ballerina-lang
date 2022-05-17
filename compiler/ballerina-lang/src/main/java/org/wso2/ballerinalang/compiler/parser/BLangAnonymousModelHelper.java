@@ -40,7 +40,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 public class BLangAnonymousModelHelper {
 
     private Map<PackageID, Integer> anonTypeCount;
-    private List<String> anonTypeNames;
     private Map<PackageID, Integer> anonServiceCount;
     private Map<PackageID, Integer> anonFunctionCount;
     private Map<PackageID, Integer> anonForkCount;
@@ -51,6 +50,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> errorVarCount;
     private Map<PackageID, Integer> intersectionRecordCount;
     private Map<PackageID, Integer> intersectionErrorCount;
+    private Map<PackageID, Map<String, Integer>> anonTypesNamesPerPkg;
 
     public static final String ANON_PREFIX = "$anon";
     private static final String ANON_TYPE = ANON_PREFIX + "Type$";
@@ -74,7 +74,6 @@ public class BLangAnonymousModelHelper {
     private BLangAnonymousModelHelper(CompilerContext context) {
         context.put(ANONYMOUS_MODEL_HELPER_KEY, this);
         anonTypeCount = new HashMap<>();
-        anonTypeNames = new ArrayList<>();
         anonServiceCount = new HashMap<>();
         anonFunctionCount = new HashMap<>();
         anonForkCount = new HashMap<>();
@@ -85,6 +84,7 @@ public class BLangAnonymousModelHelper {
         intersectionRecordCount = new HashMap<>();
         intersectionErrorCount = new HashMap<>();
         distinctTypeIdCount = new HashMap<>();
+        anonTypesNamesPerPkg = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -108,20 +108,28 @@ public class BLangAnonymousModelHelper {
         if (suffixes.isEmpty()) {
             return getNextAnonymousTypeKey(packageID);
         }
-        String name = createAnonTypeName(suffixes);
-        if (!anonTypeNames.contains(name)) {
-            anonTypeNames.add(name);
-            return name;
-        }
-        return getNextAnonymousTypeKey(packageID);
+        return createAnonTypeName(suffixes, packageID);
     }
 
-    private String createAnonTypeName(Stack<String> suffixes) {
+    private String createAnonTypeName(Stack<String> suffixes, PackageID pkgId) {
         String name = ANON_TYPE;
         for (int i = suffixes.size() - 1; i >= 0; i--) {
             name = name.concat(suffixes.elementAt(i) + DOLLAR);
         }
-        return name;
+        if (!anonTypesNamesPerPkg.containsKey(pkgId)) {
+            Map<String, Integer> anonTypesName = new HashMap<>();
+            anonTypesName.put(name, 1);
+            anonTypesNamesPerPkg.put(pkgId, anonTypesName);
+            return name + UNDERSCORE + 0;
+        }
+        Map<String, Integer> anonTypesNames = anonTypesNamesPerPkg.get(pkgId);
+        if (!anonTypesNames.containsKey(name)) {
+            anonTypesNames.put(name, 1);
+            return name + UNDERSCORE + 0;
+        }
+        Integer id = anonTypesNames.get(name);
+        anonTypesNames.put(name, id + 1);
+        return name + UNDERSCORE + id;
     }
 
     String getNextAnonymousServiceTypeKey(PackageID packageID, String serviceName) {
