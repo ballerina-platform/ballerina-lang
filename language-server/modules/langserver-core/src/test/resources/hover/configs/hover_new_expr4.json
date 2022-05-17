@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Student constructor\n  \n  \n---  \n  \n### Parameters  \n  \n`string` ***name*** : Name   : `(default : \"\")`  \n`int` ***id*** : Id  : `(default : 0)`"
+        "value": "Student constructor\n  \n  \n---  \n  \n### Parameters  \n  \n`string` ***name*** : Name  `(default: \"\")`  \n`int` ***id*** : Id `(default: 0)`"
       }
     },
     "id": {

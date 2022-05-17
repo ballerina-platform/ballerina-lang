@@ -167,8 +167,7 @@ public class HoverObjectResolver {
                 Optional<String> defaultValueForParam = CommonUtil.getDefaultValueForType(param.typeDescriptor());
                 String defValDesc = "";
                 if (defaultValueForParam.isPresent()) {
-                    defValDesc = String.format(" : %s", 
-                            MarkupUtils.quotedString(String.format("(default : %s)", defaultValueForParam.get())));
+                    defValDesc = MarkupUtils.quotedString(String.format("(default: %s)", defaultValueForParam.get()));
                 }
                 return MarkupUtils.quotedString(CommonUtil.getModifiedTypeName(context,
                         param.typeDescriptor())) + " "

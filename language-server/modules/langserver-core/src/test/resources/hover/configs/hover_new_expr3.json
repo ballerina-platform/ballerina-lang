@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Student init function\n  \n  \n---  \n  \n### Parameters  \n  \n`string` ***name*** : Name   : `(default : \"\")`  \n`int` ***id*** : Id  : `(default : 0)`  \n  \n---  \n  \n### Return  \n`error?` : Returns an error if any occurs"
+        "value": "Student init function\n  \n  \n---  \n  \n### Parameters  \n  \n`string` ***name*** : Name  `(default: \"\")`  \n`int` ***id*** : Id `(default: 0)`  \n  \n---  \n  \n### Return  \n`error?` : Returns an error if any occurs"
       }
     },
     "id": {

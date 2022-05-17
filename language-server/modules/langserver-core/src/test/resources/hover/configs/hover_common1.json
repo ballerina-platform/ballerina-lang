@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Description for mod1Src1Function1\n  \n  \n---  \n  \n### Parameters  \n  \n`bMod:TestRecord1` ***param1*** : Parameter Description   : `(default : {})`  \n`Mod1Record1` ***param2*** : Parameter Description : `(default : {field1: 0, field2: {}})`  \n`lsmod2:Mod2Record1` ***param3*** : Parameter Description : `(default : {})`"
+        "value": "Description for mod1Src1Function1\n  \n  \n---  \n  \n### Parameters  \n  \n`bMod:TestRecord1` ***param1*** : Parameter Description  `(default: {})`  \n`Mod1Record1` ***param2*** : Parameter Description`(default: {field1: 0, field2: {}})`  \n`lsmod2:Mod2Record1` ***param3*** : Parameter Description`(default: {})`"
       }
     },
     "id": {
