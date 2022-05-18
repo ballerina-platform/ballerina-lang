@@ -95,8 +95,6 @@ public class ManifestBuilder {
     private static final String SCOPE = "scope";
     private static final String TEMPLATE = "template";
 
-    private static final String MISSING_PKG_INFO_ERROR = "missing package information in Ballerina.toml";
-
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
                             Path projectPath) {
@@ -257,8 +255,12 @@ public class ManifestBuilder {
         String name;
         String version;
 
+        String errorMessage = "missing package information in Ballerina.toml, values derived as org: '"
+                + defaultOrg().value() + "', name: '" + defaultName(this.projectPath).value() + "' and version: '"
+                + defaultVersion().value().toString() + "'";
+
         if (tomlTableNode.entries().isEmpty()) {
-            reportDiagnostic(MISSING_PKG_INFO_ERROR,
+            reportDiagnostic(errorMessage,
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING, tomlTableNode.location());
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
@@ -266,7 +268,7 @@ public class ManifestBuilder {
 
         TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
         if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
-            reportDiagnostic(MISSING_PKG_INFO_ERROR,
+            reportDiagnostic(errorMessage,
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING, tomlTableNode.location());
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
@@ -274,7 +276,7 @@ public class ManifestBuilder {
 
         TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
         if (pkgNode.entries().isEmpty()) {
-            reportDiagnostic(MISSING_PKG_INFO_ERROR,
+            reportDiagnostic(errorMessage,
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING, pkgNode.location());
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
@@ -282,24 +284,24 @@ public class ManifestBuilder {
 
         org = getStringValueFromTomlTableNode(pkgNode, "org");
         if (org == null) {
-            reportDiagnostic("missing 'org' under [package]",
+            org = defaultOrg().value();
+            reportDiagnostic("missing 'org' under [package], value derived as '" + org + "'",
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING, pkgNode.location());
-            org = defaultOrg().value();
         }
         name = getStringValueFromTomlTableNode(pkgNode, "name");
         if (name == null) {
-            reportDiagnostic("missing 'name' under [package]",
+            name = defaultName(this.projectPath).value();
+            reportDiagnostic("missing 'name' under [package], value derived as '" + name + "'",
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING, pkgNode.location());
-            name = defaultName(this.projectPath).value();
         }
         version = getStringValueFromTomlTableNode(pkgNode, VERSION);
         if (version == null) {
-            reportDiagnostic("missing 'version' under [package]",
+            version = defaultVersion().value().toString();
+            reportDiagnostic("missing 'version' under [package], value derived as '" + version + "'",
                     ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
                     DiagnosticSeverity.WARNING, pkgNode.location());
-            version = defaultVersion().value().toString();
         }
 
         // check org is valid identifier
