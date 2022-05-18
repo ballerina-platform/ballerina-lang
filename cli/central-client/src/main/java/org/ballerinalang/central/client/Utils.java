@@ -38,6 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,9 +130,28 @@ public class Utils {
                     logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
         }
 
-        createBalaFileDirectory(balaCacheWithPkgPath, logFormatter);
-        writeBalaFile(balaDownloadResponse, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName +
+        // Create the following temp path bala/<org-name>/<pkg-name>/<pkg-version_temp/<platform>
+        Path tempPath = pkgPathInBalaCache.resolve(validPkgVersion + "_temp").resolve(platform);
+        createBalaFileDirectory(tempPath, logFormatter);
+
+        // Write balaFiles to tempPath
+        writeBalaFile(balaDownloadResponse, tempPath.resolve(balaFile),
+                pkgOrg + "/" + pkgName +
                 ":" + validPkgVersion, responseContentLength, outStream, logFormatter);
+
+        // Once files are written to temp path, rename temp path with platform name
+        try {
+            File tempDir = tempPath.getParent().toFile();
+            File platformDir = balaCacheWithPkgPath.getParent().toFile();
+
+            if (!tempDir.renameTo(platformDir)) {
+                throw new CentralClientException(logFormatter.formatLog("error creating directory for bala file"));
+            }
+        } catch (NullPointerException e) {
+            throw new CentralClientException(logFormatter.formatLog("error creating directory for bala file :"
+                    + e.getMessage()));
+        }
+
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
     }
 

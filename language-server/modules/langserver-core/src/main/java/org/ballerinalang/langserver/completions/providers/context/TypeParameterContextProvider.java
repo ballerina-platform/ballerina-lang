@@ -108,8 +108,9 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
             if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
                 return false;
             }
-            TypeDescKind rawType = CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind();
-            return rawType == TypeDescKind.MAP || rawType == TypeDescKind.RECORD;
+            TypeSymbol rawType = CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor());
+            return rawType.typeKind() == TypeDescKind.MAP || CommonUtil.isUnionOfType(rawType, TypeDescKind.MAP) ||
+                    rawType.typeKind() == TypeDescKind.RECORD || CommonUtil.isUnionOfType(rawType, TypeDescKind.RECORD);
         };
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {

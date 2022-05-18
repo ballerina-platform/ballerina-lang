@@ -55,6 +55,7 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.RECORD,
                 CodeActionNodeType.OBJECT_FUNCTION,
                 CodeActionNodeType.CLASS_FUNCTION,
+                CodeActionNodeType.ANNOTATION,
                 CodeActionNodeType.MODULE_VARIABLE));
     }
 

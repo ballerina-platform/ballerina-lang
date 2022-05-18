@@ -34,7 +34,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
+          scan-type: 'rootfs'
           format: 'table'
           timeout: '10m0s'
           exit-code: '1'

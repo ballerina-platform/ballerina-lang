@@ -1,5 +1,6 @@
 NAME
-       ballerina-init - Create a new Ballerina package inside the current directory
+       ballerina-init - Create a new Ballerina package inside the current
+       directory
 
 SYNOPSIS
        bal init [<package>]
@@ -8,9 +9,9 @@ SYNOPSIS
 DESCRIPTION
        Initialize a Ballerina package inside the current directory.
 
-       A Ballerina package is a collection of logically-related Ballerina modules that
-       are versioned and shared as a single unit. All modules of the package share the
-       same 'Ballerina.toml' and the 'target' directory.
+       A Ballerina package is a collection of logically-related Ballerina
+       modules that are versioned and shared as a single unit. All modules of
+       the package share the same 'Ballerina.toml' and the 'target' directory.
 
        The package directory will have the structure below.
             .
@@ -18,15 +19,15 @@ DESCRIPTION
             └── main.bal
 
        Any directory becomes a Ballerina package if that directory has a
-       'Ballerina.toml' file. For library packages, it contains the organization name,
-       package name, and the version.
+       'Ballerina.toml' file. For library packages, it contains the organization
+       name, package name, and the version.
        The package root directory is the default module directory.
 
        The 'modules' directory contains other non-default Ballerina modules. Use
        the 'bal add <module-name>' command to create modules.
 
-       The 'target' directory is created during the build process. It is the output directory, 
-       which contains the build artifacts.
+       The 'target' directory is created during the build process. It is the
+       output directory, which contains the build artifacts.
 
 
 EXAMPLES
