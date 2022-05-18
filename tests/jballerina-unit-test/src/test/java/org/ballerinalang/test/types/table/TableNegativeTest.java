@@ -195,10 +195,10 @@ public class TableNegativeTest {
 
         validateError(compileResult, index++,
                 "field name 'name' used in key specifier is not found in table constraint type 'map<(any|error)>'",
-                2, 24);
+                18, 24);
         validateError(compileResult, index++,
                 "field name 'name' used in key specifier is not found in table constraint type 'map<(any|error)>'",
-                9, 19);
+                25, 19);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
