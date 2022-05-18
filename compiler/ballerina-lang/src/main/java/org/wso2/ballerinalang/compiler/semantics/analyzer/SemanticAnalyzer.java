@@ -308,11 +308,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         validateEnumMemberMetadata(pkgNode.constants);
 
-        // Then resolve user defined types
-        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++)  {
-            // Prevent analyzing type definitions that get added while analyzing other nodes
-            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION &&
-                    i <= originalTopLevelNodeSize - 1) {
+        // Then resolve user defined types without analyzing type definitions that get added while analyzing other nodes
+        for (int i = 0; i < originalTopLevelNodeSize; i++)  {
+            if (pkgNode.topLevelNodes.get(i).getKind() == NodeKind.TYPE_DEFINITION) {
                 analyzeDef((BLangNode) pkgNode.topLevelNodes.get(i), data);
             }
         }
@@ -339,7 +337,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
 
             // Analyze type definitions that get added while analyzing other nodes
-            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION && i <= originalTopLevelNodeSize - 1) {
+            if (pkgLevelNode.getKind() == NodeKind.TYPE_DEFINITION && i < originalTopLevelNodeSize) {
                 continue;
             }
 
@@ -718,47 +716,17 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateAnnotationAttachmentCount(conversionExpr.annAttachments);
     }
 
-    public BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
-        BLangExpression exprInUnary = unaryExpr.expr;
-        BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
-        Object objectValueInUnary = numericLiteralInUnary.value;
-        String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+    private void replaceUnaryExpr() {
 
-        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-            strValueInUnary = "+" + strValueInUnary;
-        } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
-            strValueInUnary = "-" + strValueInUnary;
-        }
-
-        if (objectValueInUnary instanceof Long) {
-            objectValueInUnary = Long.parseLong(strValueInUnary);
-        } else if (objectValueInUnary instanceof Double) {
-            objectValueInUnary = Double.parseDouble(strValueInUnary);
-        } else if (objectValueInUnary instanceof String) {
-            objectValueInUnary = strValueInUnary;
-        }
-
-        BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
-                TreeBuilder.createNumericLiteralExpression();
-        newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
-        newNumericLiteral.pos = unaryExpr.pos;
-        newNumericLiteral.setBType(exprInUnary.getBType());
-        newNumericLiteral.value = objectValueInUnary;
-        newNumericLiteral.originalValue = strValueInUnary;
-        newNumericLiteral.typeChecked = unaryExpr.typeChecked;
-
-        return newNumericLiteral;
     }
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
         boolean foundUnaryExpr = false;
-        Set<BLangExpression> newValueSpace = new LinkedHashSet<>();
         boolean isErroredExprInFiniteType = false;
 
         for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
             BLangExpression value = finiteTypeNode.valueSpace.get(i);
-            newValueSpace.add(value);
 
             if (value.getKind() == NodeKind.UNARY_EXPR) {
                 foundUnaryExpr = true;
@@ -768,29 +736,27 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     continue;
                 }
                 // Replacing unary expression with numeric literal type for + and - numeric values
-                BLangNumericLiteral newNumericLiteral = constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+                BLangNumericLiteral newNumericLiteral =
+                        types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
                 finiteTypeNode.valueSpace.set(i, newNumericLiteral);
-
-                // Remove unary expression and add the constructed literal
-                newValueSpace.remove(value);
-                newValueSpace.add(newNumericLiteral);
             } else {
                 if ((value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) &&
                         ((BLangLiteral) value).originalValue == null) {
-                    //to handle enums
+                    // To handle enums
                     continue;
                 } else {
                     analyzeNode(value, data);
                 }
             }
         }
+
         // Modify BType if Unary expressions were found
         BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
         if (foundUnaryExpr && finiteType != null) {
             if (isErroredExprInFiniteType) {
                 finiteTypeNode.setBType(symTable.semanticError);
             } else {
-                finiteType.setValueSpace(newValueSpace);
+                finiteType.setValueSpace(new LinkedHashSet<>(finiteTypeNode.valueSpace));
             }
         }
 

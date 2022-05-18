@@ -24,6 +24,7 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
@@ -78,11 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPat
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
@@ -149,8 +146,6 @@ public class Types {
     private static final CompilerContext.Key<Types> TYPES_KEY =
             new CompilerContext.Key<>();
     private final Unifier unifier;
-
-    private SemanticAnalyzer semanticAnalyzer;
     private SymbolTable symTable;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
@@ -174,7 +169,6 @@ public class Types {
     public Types(CompilerContext context) {
         context.put(TYPES_KEY, this);
 
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
@@ -477,6 +471,38 @@ public class Types {
         return symTable.noType;
     }
 
+    public BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
+        BLangExpression exprInUnary = unaryExpr.expr;
+        BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
+        Object objectValueInUnary = numericLiteralInUnary.value;
+        String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+
+        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+            strValueInUnary = "+" + strValueInUnary;
+        } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+            strValueInUnary = "-" + strValueInUnary;
+        }
+
+        if (objectValueInUnary instanceof Long) {
+            objectValueInUnary = Long.parseLong(strValueInUnary);
+        } else if (objectValueInUnary instanceof Double) {
+            objectValueInUnary = Double.parseDouble(strValueInUnary);
+        } else if (objectValueInUnary instanceof String) {
+            objectValueInUnary = strValueInUnary;
+        }
+
+        BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
+                TreeBuilder.createNumericLiteralExpression();
+        newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
+        newNumericLiteral.pos = unaryExpr.pos;
+        newNumericLiteral.setBType(exprInUnary.getBType());
+        newNumericLiteral.value = objectValueInUnary;
+        newNumericLiteral.originalValue = strValueInUnary;
+        newNumericLiteral.typeChecked = unaryExpr.typeChecked;
+
+        return newNumericLiteral;
+    }
+
     BType resolvePatternTypeFromMatchExpr(BLangConstPattern constPattern, BLangExpression constPatternExpr) {
         if (constPattern.matchExpr == null) {
             if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -499,9 +525,7 @@ public class Types {
         }
         BLangLiteral constPatternLiteral;
         if (constPatternExpr.getKind() == NodeKind.UNARY_EXPR) {
-            // Construct numeric literal for + and - numeric values in unary expression
-            constPatternLiteral = semanticAnalyzer.constructNumericLiteralFromUnaryExpr(
-                    (BLangUnaryExpr) constPatternExpr);
+            constPatternLiteral = constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) constPatternExpr);
         } else {
             // After the above checks, according to spec all other const-patterns should be literals.
             constPatternLiteral = (BLangLiteral) constPatternExpr;
@@ -4001,7 +4025,7 @@ public class Types {
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     if (candidateLiteral.value instanceof Double) {
-                        // out of range value for int but in range for float
+                        // Out of range value for int but in range for float
                         candidateDoubleVal = Double.parseDouble(String.valueOf(candidateValue));
                         return baseDoubleVal == candidateDoubleVal;
                     } else {
@@ -4055,7 +4079,7 @@ public class Types {
         }
 
         if (Double.isInfinite(value)) {
-            dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral, "Float");
+            dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral, "float");
             return false;
         }
         if (value != 0.0) {
@@ -4069,7 +4093,7 @@ public class Types {
                 break;
             }
             if (numericLiteral.charAt(i) >= '1' && numericLiteral.charAt(i) <= '9') {
-                dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral, "Float");
+                dlog.error(pos, DiagnosticErrorCode.OUT_OF_RANGE, numericLiteral, "float");
                 return false;
             }
 

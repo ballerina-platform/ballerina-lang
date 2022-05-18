@@ -287,7 +287,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             new CompilerContext.Key<>();
 
     private final SymbolResolver symResolver;
-    private SemanticAnalyzer semanticAnalyzer;
     private final SymbolTable symTable;
     private final Types types;
     private final BLangDiagnosticLog dlog;
@@ -311,7 +310,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.reachabilityAnalyzer = ReachabilityAnalyzer.getInstance(context);
     }
 
@@ -1081,7 +1079,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 constValAndType.put(((BLangSimpleVarRef) constPattern.expr).variableName, constPattern.getBType());
                 break;
             case UNARY_EXPR:
-                BLangNumericLiteral newNumericLiteral = semanticAnalyzer.constructNumericLiteralFromUnaryExpr(
+                BLangNumericLiteral newNumericLiteral = types.constructNumericLiteralFromUnaryExpr(
                         (BLangUnaryExpr) constPattern.expr);
                 constValAndType.put(newNumericLiteral.value, null);
         }

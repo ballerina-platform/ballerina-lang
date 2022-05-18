@@ -877,7 +877,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
 
         // Check whether the value is a literal or a unary expression with `+` or `-` numeric literal
-        // If it is not any one of te above, it is an invalid case. So we don't need to consider it.
+        // If it is not any one of the above, it is an invalid case, so we don't need to consider it.
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL || (isUnaryExpr &&
                 unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && (OperatorKind.SUB.equals(unaryOperator) ||
                 OperatorKind.ADD.equals(unaryOperator)))) {
@@ -5943,10 +5943,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private Object parseLong(String originalNodeValue, String processedNodeValue, int radix) {
         try {
             return Long.parseLong(processedNodeValue, radix);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             try {
                 return Double.parseDouble(processedNodeValue);
-            } catch (Exception f) {
+            } catch (NumberFormatException f) {
                 // Out of range values for Java Long and Double will be returned as a string and evaluated in
                 // the TypeChecker
                 return originalNodeValue;

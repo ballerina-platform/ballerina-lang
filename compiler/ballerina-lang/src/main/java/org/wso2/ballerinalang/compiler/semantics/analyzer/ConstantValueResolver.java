@@ -499,7 +499,10 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateNegation(BLangConstantValue value) {
         Object result = null;
-        switch (this.currentConstSymbol.type.tag) {
+        BType constSymbolValType = value.type;
+        int constSymbolValTypeTag = constSymbolValType.tag;
+
+        switch (constSymbolValTypeTag) {
             case TypeTags.INT:
                 result = calculateNegationForInt(value);
                 break;
@@ -509,29 +512,9 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             case TypeTags.DECIMAL:
                 result = calculateNegationForDecimal(value);
                 break;
-            case TypeTags.FINITE:
-                // Constants declared without a type node having union expressions containing numeric
-                // literals with `-` and `+` operators will have the `currentConstSymbol.type` as Finite type
-                switch (value.type.tag) {
-                    case TypeTags.INT:
-                        result = calculateNegationForInt(value);
-                        break;
-                    case TypeTags.FLOAT:
-                        result = calculateNegationForFloat(value);
-                        break;
-                    case TypeTags.DECIMAL:
-                        result = calculateNegationForDecimal(value);
-                        break;
-                }
-                break;
         }
 
-        if (this.currentConstSymbol.type.tag == TypeTags.FINITE) {
-            BType valType = ((BFiniteType) currentConstSymbol.type).getValueSpace().iterator().next().getBType();
-            return new BLangConstantValue(result, valType);
-        } else  {
-            return new BLangConstantValue(result, currentConstSymbol.type);
-        }
+        return new BLangConstantValue(result, constSymbolValType);
     }
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {

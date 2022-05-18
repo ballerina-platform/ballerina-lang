@@ -35,16 +35,16 @@ public class BIntegerValueNegativeTest {
         Assert.assertEquals(compileResult.getErrorCount(), 8);
 
         int index = 0;
-        String expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range for 'Integer'";
+        String expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range for 'int'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 2, 13);
 
-        expectedError = "'9999999999999999999' is out of range for 'Integer'";
+        expectedError = "'9999999999999999999' is out of range for 'int'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 3, 13);
 
-        expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range for 'Integer'";
+        expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range for 'int'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 5, 14);
 
-        expectedError = "'9999999999999999999' is out of range for 'Integer'";
+        expectedError = "'9999999999999999999' is out of range for 'int'";
         BAssertUtil.validateError(compileResult, index++, expectedError, 6, 14);
 
         expectedError = "missing semicolon token";

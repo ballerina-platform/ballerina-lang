@@ -7274,7 +7274,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
                 TreeBuilder.createNumericLiteralExpression();
-        newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
+        newNumericLiteral.kind = ((BLangNumericLiteral) exprInUnary).kind;
         newNumericLiteral.pos = unaryExpr.pos;
         newNumericLiteral.value = objectValueInUnary;
         newNumericLiteral.originalValue = strValueInUnary;

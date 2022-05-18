@@ -69,7 +69,6 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private SymbolTable symTable;
-    private SemanticAnalyzer semanticAnalyzer;
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
@@ -78,7 +77,6 @@ public class TypeNarrower extends BLangNodeVisitor {
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -414,7 +412,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
 
         if (expr.getKind() == NodeKind.UNARY_EXPR) {
-            finiteType.addValue(semanticAnalyzer.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
+            finiteType.addValue(types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
         } else {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
             finiteType.addValue(expr);

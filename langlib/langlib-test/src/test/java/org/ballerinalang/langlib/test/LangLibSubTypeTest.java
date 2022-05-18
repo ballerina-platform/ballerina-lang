@@ -274,7 +274,7 @@ public class LangLibSubTypeTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 352, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned16', found 'int'", 353, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'int:Unsigned8', found 'int'", 354, 24);
-        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range for 'Integer'", 355, 25);
+        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range for 'int:Unsigned8'", 355, 25);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed16)', " +
                 "found 'int'", 367, 34);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int:Signed8|int:Signed16)', " +
@@ -573,8 +573,8 @@ public class LangLibSubTypeTest {
                 "'(int:Signed8|int:Signed32|int:Unsigned32)', found 'int'", 560, 49);
         BAssertUtil.validateError(result, err++, "incompatible types: expected " +
                 "'(int:Unsigned32|int:Unsigned8|int:Signed16)', found 'int'", 561, 51);
-        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range for 'Integer'", 565, 21);
-        BAssertUtil.validateError(result, err++, "'9223372036854775809' is out of range for 'Integer'", 566, 23);
+        BAssertUtil.validateError(result, err++, "'9223372036854775808' is out of range for 'int'", 565, 21);
+        BAssertUtil.validateError(result, err++, "'9223372036854775809' is out of range for 'int'", 566, 23);
 
         Assert.assertEquals(result.getErrorCount(), err);
     }
