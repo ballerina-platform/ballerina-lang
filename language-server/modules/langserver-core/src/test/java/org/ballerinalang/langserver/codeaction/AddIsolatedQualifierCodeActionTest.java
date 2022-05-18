@@ -22,9 +22,9 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test Cases for CodeActions.
+ * Test Cases for Add Isolated Qualifier Code Action.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
 public class AddIsolatedQualifierCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")
