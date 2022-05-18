@@ -476,6 +476,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 10; // -10 was added due to the JVM limitations
     private static final String IDENTIFIER_LITERAL_PREFIX = "'";
+    private static final String DOLLAR = "$";
     private BLangDiagnosticLog dlog;
     private SymbolTable symTable;
 
@@ -632,8 +633,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             markVariableWithFlag(variable, Flag.PUBLIC);
         }
 
+        this.anonTypeNameSuffixes.push(getVariableName(variable));
         initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.qualifiers());
+        this.anonTypeNameSuffixes.pop();
 
         NodeList<AnnotationNode> annotations = getAnnotations(modVarDeclrNode.metadata());
         if (annotations != null) {
@@ -1015,7 +1018,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
         // Generate a name for the anonymous object
-        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
+        String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID, this.anonTypeNameSuffixes);
         IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName);
         bLTypeDef.setName(anonTypeGenName);
         bLTypeDef.flagSet.add(Flag.PUBLIC);
@@ -2939,6 +2942,44 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
     }
 
+    private String getVariableName(BLangVariable variable) {
+        NodeKind kind = variable.getKind();
+        String name = DOLLAR;
+        switch (kind) {
+            case VARIABLE:
+                return name.concat(((BLangSimpleVariable) variable).name.value + DOLLAR);
+            case RECORD_VARIABLE:
+                for (BLangRecordVariableKeyValue keyValue : ((BLangRecordVariable) variable).getVariables()) {
+                    name = name.concat(keyValue.key.value + DOLLAR);
+                }
+                return name;
+            case TUPLE_VARIABLE:
+                for (BLangVariable var : ((BLangTupleVariable) variable).memberVariables) {
+                    name = name.concat(getVariableName(var) + DOLLAR);
+                }
+                return name;
+            case ERROR_VARIABLE:
+            default:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                BLangSimpleVariable message = errorVariable.message;
+                if (message != null) {
+                    name = name.concat(message.name.value + DOLLAR);
+                }
+                BLangVariable cause = errorVariable.cause;
+                if (cause != null) {
+                    name = name.concat(getVariableName(cause) + DOLLAR);
+                }
+                BLangSimpleVariable restDetail = errorVariable.restDetail;
+                if (restDetail != null) {
+                    name = name.concat(restDetail.name.value + DOLLAR);
+                }
+                for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : errorVariable.detail) {
+                    name = name.concat(detailEntry.key.value);
+                }
+                return name;
+        }
+    }
+
     private BLangRecordVariableDef createRecordVariableDef(BLangVariable var, Location nodePos) {
 
         BLangRecordVariableDef varDefNode = (BLangRecordVariableDef) TreeBuilder.createRecordVariableDefinitionNode();
@@ -3686,7 +3727,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLangConstant.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(member.metadata()));
 
-        bLangConstant.setName((BLangIdentifier) transform(member.identifier()));
+        BLangIdentifier memberName = (BLangIdentifier) transform(member.identifier());
+        bLangConstant.setName(memberName);
+        this.anonTypeNameSuffixes.push(memberName.value);
 
         BLangExpression deepLiteral;
         if (member.constExprNode().isPresent()) {
@@ -3719,6 +3762,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             typeNodeAssociated.addValue(deepLiteral);
             bLangConstant.associatedTypeDefinition = createTypeDefinitionWithTypeNode(typeNodeAssociated);
         }
+        this.anonTypeNameSuffixes.pop();
         return bLangConstant;
     }
 

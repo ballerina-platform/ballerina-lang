@@ -801,7 +801,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             }
         }
 
-        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID, this.anonTypeNameSuffixes));
+        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID,
+                this.anonTypeNameSuffixes));
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(SymTag.RECORD,
                                                                    constantSymbol.flags | Flags.ANONYMOUS, genName,
                                                                    constantSymbol.pkgID,
