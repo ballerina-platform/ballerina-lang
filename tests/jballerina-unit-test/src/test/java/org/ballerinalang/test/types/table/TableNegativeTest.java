@@ -192,7 +192,6 @@ public class TableNegativeTest {
     public void testAnyTypedTableWithKeySpecifiers() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-value-any-negative.bal");
         int index = 0;
-
         validateError(compileResult, index++,
                 "field name 'name' used in key specifier is not found in table constraint type 'map<(any|error)>'",
                 18, 24);
