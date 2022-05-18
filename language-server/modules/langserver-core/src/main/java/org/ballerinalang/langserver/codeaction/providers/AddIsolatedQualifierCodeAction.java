@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -33,32 +34,37 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Code Action to add isolated qualifier.
  *
- * @since 2201.1.0
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Add Isolated Qualifier";
-    public static final String DIAGNOSTIC_CODE_BCE3946 = "BCE3946";
-    public static final String DIAGNOSTIC_CODE_BCE3947 = "BCE3947";
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE3946", "BCE3947");
+
+    @Override
+    public boolean validate(Diagnostic diagnostic, 
+                            DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
+                || context.currentSemanticModel().isEmpty()) {
+            return false;
+        }
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
 
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODE_BCE3946.equals(diagnostic.diagnosticInfo().code()) 
-                && !DIAGNOSTIC_CODE_BCE3947.equals(diagnostic.diagnosticInfo().code()) 
-                || context.currentSyntaxTree().isEmpty() || context.currentSemanticModel().isEmpty()) {
-            return Collections.emptyList();
-        }
         Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
         
@@ -79,7 +85,6 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
         if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
             return Collections.emptyList();
         }
-        URI uri = filePath.get().toUri();
 
         Optional<NonTerminalNode> node = CommonUtil.findNode(symbol.get(), 
                 context.workspace().syntaxTree(filePath.get()).get());
@@ -95,7 +100,7 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
         TextEdit textEdit = new TextEdit(range, editText);
         List<TextEdit> editList = List.of(textEdit);
         String commandTitle = String.format(CommandConstants.MAKE_FUNCTION_ISOLATE, symbol.get().getName().orElse(""));
-        return Collections.singletonList(createCodeAction(commandTitle, editList, uri.toString(), 
+        return Collections.singletonList(createCodeAction(commandTitle, editList, filePath.get().toUri().toString(), 
                 CodeActionKind.QuickFix));
     }
 
