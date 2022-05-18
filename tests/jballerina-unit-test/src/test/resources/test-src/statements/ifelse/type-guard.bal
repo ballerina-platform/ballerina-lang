@@ -1752,37 +1752,27 @@ type R1 readonly & record {|int i;|}?;
 type R2 (readonly & record {|int i;|})?;
 type R record {|int i;|};
 
-function testR1(R1 r) returns boolean {
-    return r is record {|int i;|};
-}
-
-function testR2(R2 r) returns boolean {
-    return r is record {|int i;|};
-}
-
-function testR3(R1 r) {
+function testR1(R1 r) {
     if r is R {
-        R _ = r; // no error
+        R x = r; // no error
+        assertEquality(x.i, 2);
     } else {
         panic error("Type of 'r' should be 'R'");
     }
 }
 
-function testR4(R2 r) {
+function testR2(R2 r) {
     if r is R {
-        R _ = r; // no error
+        R x = r; // no error
+        assertEquality(x.i, 3);
     } else {
         panic error("Type of 'r' should be 'R'");
     }
 }
 
 function testTypeTestingInReadonlyRecord() {
-    assertTrue(testR1({i: 2}));
-    assertTrue(testR2({i: 2}));
-    assertFalse(testR1(()));
-    assertFalse((testR2(())));
-    testR3({i: 2});
-    testR4({i: 2});
+    testR1({i: 2});
+    testR2({i: 3});
 }
 
 function assertTrue(anydata actual) {

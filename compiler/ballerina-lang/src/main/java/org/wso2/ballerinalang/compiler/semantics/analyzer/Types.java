@@ -6824,10 +6824,8 @@ public class Types {
          * @return a {@link IntersectionContext}
          */
         public static IntersectionContext typeTestIntersectionCalculationContext(Location intersectionPos) {
-            IntersectionContext intersectionContext = new IntersectionContext(null, null, null, intersectionPos);
-            intersectionContext.ignoreDefaultValues = true;
-            intersectionContext.preferNonGenerativeIntersection = true;
-            intersectionContext.createTypeDefs = true;
+            IntersectionContext intersectionContext = typeTestIntersectionCalculationContext();
+            intersectionContext.pos = intersectionPos;
             return intersectionContext;
         }
 
