@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -61,8 +76,8 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
         BinaryExpressionNode binaryExpressionNode = (BinaryExpressionNode) expressionNode.get();
 
         //Check if the binary expression is used for an assignment. 
-        // If so, check if the type of the variable and the types of lsh and rhs operands is a 
-        // match and select te operand to cast accordingly.
+        // If so, check if the type of the variable and any of the types of lhs and rhs operands is a 
+        // match and select the operand to cast accordingly.
         CodeActionContextTypeResolver contextTypeResolver = new CodeActionContextTypeResolver(context);
         Optional<TypeSymbol> contextType = binaryExpressionNode.apply(contextTypeResolver);
 
