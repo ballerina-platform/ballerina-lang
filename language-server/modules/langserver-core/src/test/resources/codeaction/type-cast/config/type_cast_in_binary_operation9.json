@@ -1,6 +1,6 @@
 {
-  "line": 4,
-  "character": 15,
+  "line": 27,
+  "character": 17,
   "expected": [
     {
       "title": "Add type cast to 'd1'",
@@ -8,12 +8,12 @@
         {
           "range": {
             "start": {
-              "line": 4,
-              "character": 16
+              "line": 27,
+              "character": 18
             },
             "end": {
-              "line": 4,
-              "character": 16
+              "line": 27,
+              "character": 18
             }
           },
           "newText": "<float>"

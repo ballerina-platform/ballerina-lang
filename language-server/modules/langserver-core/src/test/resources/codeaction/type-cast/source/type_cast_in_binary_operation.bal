@@ -23,3 +23,7 @@ function testTypeCastPositionalArg() {
 function add(float a, int b) returns int {
     return <int> a + b;
 }
+
+function testNestedBinaryOp() {
+    float f2 = f1/d1/2.1;
+}

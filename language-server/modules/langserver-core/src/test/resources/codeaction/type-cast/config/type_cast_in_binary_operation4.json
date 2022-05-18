@@ -3,7 +3,7 @@
   "character": 15,
   "expected": [
     {
-      "title": "Add type cast to 'RHS' operand",
+      "title": "Add type cast to 'd1'",
       "edits": [
         {
           "range": {

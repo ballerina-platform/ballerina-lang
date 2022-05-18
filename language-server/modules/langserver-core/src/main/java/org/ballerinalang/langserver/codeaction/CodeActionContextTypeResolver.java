@@ -34,6 +34,7 @@ import java.util.Optional;
 /**
  * This visitor is used to resolve the type of given code action context.
  * 
+ * Todo: Use the ContextTypeResolver instead.
  * @since 2201.1.1
  */
 public class CodeActionContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {

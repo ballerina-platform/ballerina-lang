@@ -82,26 +82,23 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
         Optional<TypeSymbol> contextType = binaryExpressionNode.apply(contextTypeResolver);
 
         String typeName;
-        Node castExpr;
-        String operand;
+        Node castExprNode;
         if (contextType.isPresent() && contextType.get().typeKind() == lhsOperand.get().typeKind()) {
             typeName = CommonUtil.getModifiedTypeName(context, lhsOperand.get());
-            castExpr = binaryExpressionNode.rhsExpr();
-            operand = "RHS";
+            castExprNode = binaryExpressionNode.rhsExpr();
         } else {
             //If the context type can't be determined or the context type is same as the rhs expr,
             // we add the type cast to the lhs expr.
             typeName = CommonUtil.getModifiedTypeName(context, rhsOperand.get());
-            castExpr = binaryExpressionNode.lhsExpr();
-            operand = "LHS";
+            castExprNode = binaryExpressionNode.lhsExpr();
         }
-
+        String exprSourceCode = castExprNode.toSourceCode().strip(); 
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
 
-        List<TextEdit> edits = new ArrayList<>(getTextEdits(castExpr, typeName));
-        String commandTitle = String.format(CommandConstants.ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE, operand);
+        List<TextEdit> edits = new ArrayList<>(getTextEdits(castExprNode, typeName));
+        String commandTitle = String.format(CommandConstants.ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE, exprSourceCode);
         return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
