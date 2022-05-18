@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -7041,6 +7042,11 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
+            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
         if (lhsExprTypeTag == TypeTags.DECIMAL) {
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
             return;
@@ -7069,10 +7075,6 @@ public class Desugar extends BLangNodeVisitor {
         if (isBinaryShiftOperator) {
             createTypeCastExprForBinaryShiftExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
             return;
-        }
-
-        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
-            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
         }
     }
 
@@ -7251,25 +7253,77 @@ public class Desugar extends BLangNodeVisitor {
                                                                 int rhsExprTypeTag) {
         boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
         boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+        BType lhsExprType = binaryExpr.lhsExpr.getBType();
+        BType rhsExprType = binaryExpr.rhsExpr.getBType();
 
         if ((isLhsIntegerType && isRhsIntegerType) || (lhsExprTypeTag == TypeTags.BYTE &&
                 rhsExprTypeTag == TypeTags.BYTE)) {
             return;
         }
 
+        if (lhsExprTypeTag == TypeTags.DECIMAL) {
+            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
+                binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
+                return;
+            }
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.DECIMAL) {
+            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
+                binaryExpr.rhsExpr = addNilType(lhsExprType, binaryExpr.rhsExpr);
+                return;
+            }
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.rhsExpr.getBType());
+            return;
+        }
+
+        if (lhsExprTypeTag == TypeTags.FLOAT) {
+            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
+                binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
+                return;
+            }
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
+            return;
+        }
+
+        if (rhsExprTypeTag == TypeTags.FLOAT) {
+            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
+                binaryExpr.rhsExpr = addNilType(lhsExprType, binaryExpr.rhsExpr);
+                return;
+            }
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.rhsExpr.getBType());
+            return;
+        }
+
         if (isLhsIntegerType && !isRhsIntegerType) {
+            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
+                binaryExpr.lhsExpr = addNilType(symTable.intType, binaryExpr.lhsExpr);
+                return;
+            }
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
             return;
         }
 
         if (!isLhsIntegerType && isRhsIntegerType) {
+            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
+                binaryExpr.rhsExpr = addNilType(symTable.intType, binaryExpr.rhsExpr);
+                return;
+            }
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
             return;
         }
 
         if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            if ((lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) ||
+                    (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable())) {
+                binaryExpr.lhsExpr = addNilType(symTable.intType, binaryExpr.lhsExpr);
+                binaryExpr.rhsExpr = addNilType(symTable.intType, binaryExpr.rhsExpr);
+                return;
+            }
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
             return;
         }
 
@@ -7281,13 +7335,29 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (isLhsStringType && !isRhsStringType) {
+            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
+                binaryExpr.lhsExpr = addNilType(symTable.stringType, binaryExpr.lhsExpr);
+                return;
+            }
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
             return;
         }
 
         if (!isLhsStringType && isRhsStringType) {
+            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
+                binaryExpr.rhsExpr = addNilType(symTable.stringType, binaryExpr.rhsExpr);
+                return;
+            }
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
         }
+    }
+
+    private BLangExpression addNilType(BType exprType, BLangExpression expr) {
+        LinkedHashSet<BType> members = new LinkedHashSet<>();
+        members.add(exprType);
+        members.add(new BNilType());
+        BUnionType unionType = new BUnionType(null, members, true, false);
+        return createTypeCastExpr(expr, unionType);
     }
 
     private BLangInvocation replaceWithIntRange(Location location, BLangExpression lhsExpr,
