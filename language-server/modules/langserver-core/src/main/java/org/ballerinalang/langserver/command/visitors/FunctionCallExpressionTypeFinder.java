@@ -428,9 +428,6 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
         if (typeSymbol.isPresent()) {
             checkAndSetTypeResult(typeSymbol.get());
-            if (!resultFound) {
-                checkAndSetTypeDescResult(typeSymbol.get().typeKind());
-            }
         } else {
             conditionalExpressionNode.parent().accept(this);
         }
