@@ -300,6 +300,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             if (containsCheckExpr) {
                 // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
                 // so that it will propagate the error properly.
+                desugar.resetSkipFailStmtRewrite();
                 BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
                 checkedExpr.equivalentErrorTypeList.addAll(this.checkedErrorList);
                 streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
@@ -1702,6 +1703,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         listConstructorExpr.exprs.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        this.acceptNode(spreadOpExpr.expr);
     }
 
     @Override

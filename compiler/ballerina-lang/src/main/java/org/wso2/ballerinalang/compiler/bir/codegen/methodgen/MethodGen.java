@@ -510,7 +510,6 @@ public class MethodGen {
                                    BIRTerminator terminator) {
         if (terminator.kind == InstructionKind.GOTO &&
                 ((BIRTerminator.GOTO) terminator).targetBB.terminator.kind == InstructionKind.RETURN &&
-                !JvmCodeGenUtil.isExternFunc(func) &&
                 ((BIRTerminator.GOTO) terminator).targetBB.terminator.pos != null) {
             // The ending line number of the function is added to the line number table to prevent wrong code
             // coverage for generated return statements.

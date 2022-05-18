@@ -91,7 +91,7 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testMultiplyStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 8);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'string'", 14, 9);
@@ -101,8 +101,6 @@ public class MultiplyOperationTest {
                 "'(string|string:Char)'", 30, 17);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 37, 14);
         BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
-        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and 'float'", 45, 14);
-        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and 'float'", 46, 14);
         BAssertUtil.validateError(resultNegative, i++, "'9223372036854775808' is out of range " +
                 "for 'Integer'", 51, 17);
     }
@@ -144,6 +142,19 @@ public class MultiplyOperationTest {
                 "testMultiplyDecimalIntSubTypeWithNullableOperands",
                 "testResultTypeOfMultiplyDecimalIntByInfering",
                 "testResultTypeOfMultiplyDecimalIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInMultiplication")
+    public void testShortCircuitingInMultiplication(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInMultiplication() {
+        return new Object[]{
+                "testNoShortCircuitingInMultiplicationWithNullable",
+                "testNoShortCircuitingInMultiplicationWithNonNullable"
         };
     }
 }

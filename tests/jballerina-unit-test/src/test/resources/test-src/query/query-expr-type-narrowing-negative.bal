@@ -488,13 +488,6 @@ function test11(Integers[] numbers, Chars[] chars) returns error? {
             int _ = num * 2;
         };
 
-    //    Should be enabled once issue #32271 is fixed
-    //    check from Chars item in chars
-    //        where item == "C"
-    //        do {
-    //            item = "B";
-    //        };
-
     IntStrOrBoolean[] intArr = [1, 2, 3, 4];
 
     check from var item in intArr

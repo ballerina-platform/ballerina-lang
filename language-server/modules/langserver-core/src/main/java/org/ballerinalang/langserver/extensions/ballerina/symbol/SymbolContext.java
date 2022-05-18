@@ -23,7 +23,8 @@ import org.ballerinalang.langserver.commons.LSOperation;
  * @since 2.0.0
  */
 public enum SymbolContext implements LSOperation {
-    SC_TYPE_API("ballerinaSymbol/type");
+    SC_TYPE_API("ballerinaSymbol/type"),
+    SC_GET_SYMBOL_API("ballerinaSymbol/getSymbol");
     private final String name;
 
     SymbolContext(String name) {

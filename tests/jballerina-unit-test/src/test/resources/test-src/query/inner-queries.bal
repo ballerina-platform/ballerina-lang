@@ -368,6 +368,48 @@ function testQueryExpWithinQueryAction() returns error? {
 //   assertEquality(expected, res);
 //}
 
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+type Team readonly & record {|
+    string user;
+    int teamId;
+|};
+
+function testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() {
+    ScoreEvent[] events = [
+        {email: "jake@abc.com", problemId: "12", score: 80.0},
+        {email: "anne@abc.com", problemId: "20", score: 95.0},
+        {email: "peter@abc.com", problemId: "3", score: 72.0}
+    ];
+
+    Team[] team = [
+        {user: "jake@abc.com", teamId: 1},
+        {user: "anne@abc.com", teamId: 2},
+        {user: "peter@abc.com", teamId: 2}
+    ];
+
+    json j = from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
+        where ev.score > 85.5
+        select {
+            email: ev.email
+        };
+    assertEquality(true, [{email: "anne@abc.com"}] == j);
+
+    j = from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
+        join var {us, ti} in (from var {user: us, teamId: ti} in team select {us, ti})
+        on ev.email equals us
+        where ev.score > 85.5
+        select {
+            email: ev.email,
+            teamId: ti
+        };
+    assertEquality(true, [{email: "anne@abc.com", teamId: 2}] == j);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

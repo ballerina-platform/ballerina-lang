@@ -665,6 +665,10 @@ public class Types {
                 return true;
             }
 
+            if (TypeTags.isXMLTypeTag(type.tag) && TypeTags.XML == baseTypeTag) {
+                return true;
+            }
+
             return type.tag == baseTypeTag || (baseTypeTag == TypeTags.TUPLE && type.tag == TypeTags.ARRAY)
                     || (baseTypeTag == TypeTags.ARRAY && type.tag == TypeTags.TUPLE);
         }
@@ -4325,19 +4329,12 @@ public class Types {
         return matchFound;
     }
 
-    boolean validNumericTypeExists(BType type) {
-
-        if (type.isNullable() && type.tag != TypeTags.NIL) {
-            type = getSafeType(type, true, false);
-        }
-        if (isBasicNumericType(type)) {
-            return true;
-        }
+    boolean validNumericStringOrXmlTypeExists(BType type, ValidateType validateType) {
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
-                BType firstTypeInUnion = getReferredType(memberTypes.iterator().next());
+                BType firstTypeInUnion = getBasicTypeOfBuiltinSubtype(getReferredType(memberTypes.iterator().next()));
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
@@ -4351,7 +4348,7 @@ public class Types {
                             }
                             continue;
                         }
-                        if (!validNumericTypeExists(memType)) {
+                        if (!isSubTypeOfBaseType(memType, baseExprType.tag)) {
                             return false;
                         }
                     }
@@ -4364,7 +4361,7 @@ public class Types {
                             }
                             continue;
                         }
-                        if (!validNumericTypeExists(memType)) {
+                        if (!isSubTypeOfBaseType(memType, firstTypeInUnion.tag)) {
                             return false;
                         }
                     }
@@ -4377,30 +4374,35 @@ public class Types {
                     if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
                         return false;
                     }
-                    if (!validNumericTypeExists(expr.getBType())) {
+                    if (!validateType.validate(expr.getBType())) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.TYPEREFDESC:
-                return validNumericTypeExists(getReferredType(type));
+                return validateType.validate(getReferredType(type));
             case TypeTags.INTERSECTION:
-                return validNumericTypeExists(((BIntersectionType) type).effectiveType);
+                return validateType.validate(((BIntersectionType) type).effectiveType);
             default:
                 return false;
         }
     }
 
-    private boolean checkValidNumericTypesInUnion(BType memType, int firstTypeTag) {
-        if (memType.tag != firstTypeTag && !checkTypesBelongToInt(memType.tag, firstTypeTag)) {
-            return false;
+    boolean validNumericTypeExists(BType type) {
+        if (type.isNullable() && type.tag != TypeTags.NIL) {
+            type = getSafeType(type, true, false);
         }
-        return validNumericTypeExists(memType);
+        if (isBasicNumericType(type)) {
+            return true;
+        }
+        return validNumericStringOrXmlTypeExists(type, this::validNumericTypeExists);
     }
 
-    private boolean checkTypesBelongToInt(int firstTypeTag, int secondTypeTag) {
-        return ((TypeTags.isIntegerTypeTag(firstTypeTag) || firstTypeTag == TypeTags.BYTE) &&
-                (TypeTags.isIntegerTypeTag(secondTypeTag) || secondTypeTag == TypeTags.BYTE));
+    boolean validStringOrXmlTypeExists(BType type) {
+        if (TypeTags.isStringTypeTag(type.tag) || TypeTags.isXMLTypeTag(type.tag)) {
+            return true;
+        }
+        return validNumericStringOrXmlTypeExists(type, this::validStringOrXmlTypeExists);
     }
 
     boolean validIntegerTypeExists(BType bType) {
@@ -4438,60 +4440,17 @@ public class Types {
         }
     }
 
-    boolean validStringOrXmlTypeExists(BType bType) {
-        BType type = getReferredType(bType);
+    public BType getBasicTypeOfBuiltinSubtype(BType type) {
+        if (TypeTags.isIntegerTypeTag(type.tag) || type.tag == TypeTags.BYTE) {
+            return symTable.intType;
+        }
         if (TypeTags.isStringTypeTag(type.tag)) {
-            return true;
+            return symTable.stringType;
         }
-        switch (type.tag) {
-            case TypeTags.XML:
-            case TypeTags.XML_TEXT:
-            case TypeTags.XML_ELEMENT:
-            case TypeTags.XML_PI:
-            case TypeTags.XML_COMMENT:
-                return true;
-            case TypeTags.UNION:
-                BUnionType unionType = (BUnionType) type;
-                Set<BType> memberTypes = unionType.getMemberTypes();
-                BType firstTypeInUnion = getReferredType(memberTypes.iterator().next());
-                if (firstTypeInUnion.tag == TypeTags.FINITE) {
-                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
-                    BType baseExprType = valSpace.iterator().next().getBType();
-                    for (BType memType : memberTypes) {
-                        memType = getReferredType(memType);
-                        if (memType.tag == TypeTags.FINITE) {
-                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
-                                return false;
-                            }
-                        }
-                        if (!validStringOrXmlTypeExists(memType)) {
-                            return false;
-                        }
-                    }
-                } else {
-                    for (BType memType : memberTypes) {
-                       memType = getReferredType(memType);
-                        if (!validStringOrXmlTypeExists(memType)) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
-            case TypeTags.FINITE:
-                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
-                BType baseExprType = valSpace.iterator().next().getBType();
-                for (BLangExpression expr : valSpace) {
-                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
-                        return false;
-                    }
-                    if (!validStringOrXmlTypeExists(expr.getBType())) {
-                        return false;
-                    }
-                }
-                return true;
-            default:
-                return false;
+        if (TypeTags.isXMLTypeTag(type.tag)) {
+            return symTable.xmlType;
         }
+        return type;
     }
 
     public boolean checkTypeContainString(BType type) {
@@ -6088,6 +6047,15 @@ public class Types {
      */
     private interface TypeEqualityPredicate {
         boolean test(BType source, BType target, Set<TypePair> unresolvedTypes);
+    }
+
+    /**
+     * A functional interface for validate numeric, string or xml type exists.
+     *
+     * @since 2201.1.0
+     */
+    private interface ValidateType {
+        boolean validate(BType type);
     }
 
     public boolean hasFillerValue(BType type) {

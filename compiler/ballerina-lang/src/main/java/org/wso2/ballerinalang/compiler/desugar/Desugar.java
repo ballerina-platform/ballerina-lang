@@ -5130,6 +5130,10 @@ public class Desugar extends BLangNodeVisitor {
         this.onFailClause = onFailClause;
     }
 
+    public void resetSkipFailStmtRewrite() {
+        this.skipFailStmtRewrite = false;
+    }
+
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
         if (onFailClause != null) {
             this.enclosingOnFailClause.add(this.onFailClause);
@@ -6131,10 +6135,11 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol originalMemberFuncSymbol = (BInvokableSymbol) fieldAccessExpr.symbol;
         // Can we cache this?
         BLangFunction func = (BLangFunction) TreeBuilder.createFunctionNode();
-        String funcName = "$annon$method$delegate$" + lambdaFunctionCount++;
+        String funcName = "$anon$method$delegate$" + originalMemberFuncSymbol.name.value + "$" + lambdaFunctionCount++;
         BInvokableSymbol funcSymbol = new BInvokableSymbol(SymTag.INVOKABLE, (Flags.ANONYMOUS | Flags.LAMBDA),
-                names.fromString(funcName),
-                env.enclPkg.packageID, originalMemberFuncSymbol.type, env.scope.owner, pos, VIRTUAL);
+                                                           Names.fromString(funcName), env.enclPkg.packageID,
+                                                           originalMemberFuncSymbol.type, env.scope.owner, pos,
+                                                           VIRTUAL);
         funcSymbol.retType = originalMemberFuncSymbol.retType;
         funcSymbol.bodyExist = true;
         funcSymbol.params = new ArrayList<>();
@@ -6962,10 +6967,13 @@ public class Desugar extends BLangNodeVisitor {
          * int? z = x + y;
          * Above is desugared to
          * int? $result$;
-         * if (x is () or y is ()) {
+         * // Evaluate both operands to avoid short-circuiting.
+         * int? $lhsExprVar$ = x;
+         * int? $rhsExprVar$ = y;
+         * if (lhsVar is () or rhsVar is ()) {
          *    $result$ = ();
          * } else {
-         *    $result$ = x + y;
+         *    $result$ = $lhsExprVar$ + $rhsExprVar$;
          * }
          * int z = $result$;
          */
@@ -7006,12 +7014,20 @@ public class Desugar extends BLangNodeVisitor {
         BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, tempVarDef.var.symbol);
         blockStmt.addStatement(tempVarDef);
 
-        BLangTypeTestExpr typeTestExprOne = createTypeCheckExpr(binaryExpr.pos, binaryExpr.lhsExpr,
-                getNillTypeNode());
+        BLangSimpleVariableDef lhsVarDef = createVarDef("$lhsExprVar$", binaryExpr.lhsExpr.getBType(),
+                binaryExpr.lhsExpr, binaryExpr.pos);
+        BLangSimpleVarRef lhsVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, lhsVarDef.var.symbol);
+        blockStmt.addStatement(lhsVarDef);
+
+        BLangSimpleVariableDef rhsVarDef = createVarDef("$rhsExprVar$", binaryExpr.rhsExpr.getBType(),
+                binaryExpr.rhsExpr, binaryExpr.pos);
+        BLangSimpleVarRef rhsVarRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, rhsVarDef.var.symbol);
+        blockStmt.addStatement(rhsVarDef);
+
+        BLangTypeTestExpr typeTestExprOne = createTypeCheckExpr(binaryExpr.pos, lhsVarRef, getNillTypeNode());
         typeTestExprOne.setBType(symTable.booleanType);
 
-        BLangTypeTestExpr typeTestExprTwo = createTypeCheckExpr(binaryExpr.pos,
-                binaryExpr.rhsExpr, getNillTypeNode());
+        BLangTypeTestExpr typeTestExprTwo = createTypeCheckExpr(binaryExpr.pos, rhsVarRef, getNillTypeNode());
         typeTestExprTwo.setBType(symTable.booleanType);
 
         BLangBinaryExpr ifBlockCondition = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, typeTestExprOne,
@@ -7026,10 +7042,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangAssignment bLangAssignmentElse = ASTBuilderUtil.createAssignmentStmt(binaryExpr.pos, elseBody);
         bLangAssignmentElse.varRef = tempVarRef;
 
-        BLangBinaryExpr newBinaryExpr = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, binaryExpr.lhsExpr,
-                binaryExpr.rhsExpr, nonNilType, binaryExpr.opKind, binaryExpr.opSymbol);
-        newBinaryExpr.lhsExpr = createTypeCastExpr(newBinaryExpr.lhsExpr, lhsType);
-        newBinaryExpr.rhsExpr = createTypeCastExpr(newBinaryExpr.rhsExpr, rhsType);
+        BLangBinaryExpr newBinaryExpr = ASTBuilderUtil.createBinaryExpr(binaryExpr.pos, lhsVarRef, rhsVarRef,
+                nonNilType, binaryExpr.opKind, binaryExpr.opSymbol);
+        newBinaryExpr.lhsExpr = createTypeCastExpr(lhsVarRef, lhsType);
+        newBinaryExpr.rhsExpr = createTypeCastExpr(rhsVarRef, rhsType);
         bLangAssignmentElse.expr = newBinaryExpr;
 
         BLangIf ifStatement = ASTBuilderUtil.createIfStmt(binaryExpr.pos, blockStmt);
