@@ -28,7 +28,6 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.types.UnionType;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -3157,7 +3156,7 @@ public class Types {
         @Override
         public Boolean visit(BUnionType target, BType source) {
             if (source.tag != TypeTags.UNION || !hasSameReadonlyFlag(source, target)) {
-                return checkUnionHasSameType(target.getMemberTypes(), source);
+                return checkUnionHasSameType(target, source);
             }
 
             BUnionType sUnionType = (BUnionType) source;
@@ -3295,7 +3294,19 @@ public class Types {
         }
     }
 
-    private boolean checkUnionHasSameType(LinkedHashSet<BType> memberTypes, BType baseType) {
+    private boolean isNil(BType type) {
+        BType referredType = getReferredType(type);
+        if (referredType.getKind() == TypeKind.NIL) {
+            return true;
+        } else if (referredType.getKind() == TypeKind.FINITE) {
+            Set<BLangExpression>  valueSpace = ((BFiniteType) referredType).getValueSpace();
+            return valueSpace.size() == 1 && valueSpace.iterator().next().getBType().getKind() == TypeKind.NIL;
+        }
+        return false;
+    }
+
+    private boolean checkUnionHasSameType(BUnionType unionType, BType baseType) {
+        LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
         boolean isSameType = false;
         for (BType type : memberTypes) {
             type = getReferredType(type);
@@ -3307,9 +3318,10 @@ public class Types {
                     }
                 }
             } else if (type.tag == TypeTags.UNION) {
-                return checkUnionHasSameType((LinkedHashSet<BType>) ((UnionType) type).getMemberTypes(), baseType);
+                return checkUnionHasSameType((BUnionType) type, baseType);
             } else if (isSimpleBasicType(type.tag)) {
-                isSameType = isSameOrderedType(type, baseType);
+                isSameType = isSameOrderedType(type, baseType) ||
+                        (unionType.isNullable() && isNil(type));
                 if (!isSameType) {
                     return false;
                 }
@@ -3337,7 +3349,7 @@ public class Types {
     private boolean checkUnionHasAllFiniteOrNilMembers(LinkedHashSet<BType> memberTypes) {
         for (BType bType : memberTypes) {
             BType type = getReferredType(bType);
-            if (type.tag != TypeTags.FINITE && type.tag != TypeTags.NIL) {
+            if (type.tag != TypeTags.FINITE && !isNil(type)) {
                 return false;
             }
         }
@@ -6143,7 +6155,8 @@ public class Types {
                         }
                     } else if (memType.tag == TypeTags.UNION) {
                         return isOrderedType(memType, hasCycle);
-                    } else if (memType.tag != firstTypeInUnion.tag && memType.tag != TypeTags.NIL &&
+                    } else if (memType.tag != firstTypeInUnion.tag &&
+                            (firstTypeInUnion.tag != TypeTags.NIL && memType.tag != TypeTags.NIL) &&
                             !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {
                         return false;
                     }
