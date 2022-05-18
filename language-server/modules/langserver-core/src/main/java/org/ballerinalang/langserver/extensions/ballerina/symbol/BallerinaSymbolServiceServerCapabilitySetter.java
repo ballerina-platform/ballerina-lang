@@ -34,6 +34,7 @@ public class BallerinaSymbolServiceServerCapabilitySetter extends
         BallerinaSymbolServerCapabilities capabilities = new BallerinaSymbolServerCapabilities();
         capabilities.setEndpoints(true);
         capabilities.setType(true);
+        capabilities.setGetSymbol(true);
         return Optional.of(capabilities);
     }
 

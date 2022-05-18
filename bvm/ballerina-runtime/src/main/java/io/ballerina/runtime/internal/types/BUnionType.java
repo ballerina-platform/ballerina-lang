@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
@@ -301,7 +302,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        return memberTypes.get(0).getZeroValue();
+        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return TypeChecker.getType(
+                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getZeroValue();
+        } else {
+            return memberTypes.get(0).getZeroValue();
+        }
     }
 
     @Override
@@ -310,7 +316,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        return memberTypes.get(0).getEmptyValue();
+        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return TypeChecker.getType(
+                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getEmptyValue();
+        } else {
+            return memberTypes.get(0).getEmptyValue();
+        }
     }
 
     @Override

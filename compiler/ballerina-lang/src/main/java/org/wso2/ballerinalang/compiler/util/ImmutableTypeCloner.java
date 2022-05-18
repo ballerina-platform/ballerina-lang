@@ -918,7 +918,8 @@ public class ImmutableTypeCloner {
                 SelectivelyImmutableReferenceType selectivelyImmutableReferenceType =
                         (SelectivelyImmutableReferenceType) Types.getReferredType(nonReadOnlyType);
 
-                if (relevantTypeDefExists(env, selectivelyImmutableReferenceType.getImmutableType().effectiveType)) {
+                BIntersectionType immutableType = selectivelyImmutableReferenceType.getImmutableType();
+                if (immutableType != null && relevantTypeDefExists(env, immutableType.effectiveType)) {
                     return true;
                 }
 

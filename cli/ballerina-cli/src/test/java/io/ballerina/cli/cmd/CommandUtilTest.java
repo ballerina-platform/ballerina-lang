@@ -19,10 +19,12 @@
 package io.ballerina.cli.cmd;
 
 import com.google.gson.Gson;
+import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.PackageJson;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -36,7 +38,9 @@ import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
 import static io.ballerina.cli.cmd.CommandUtil.writeBallerinaToml;
+import static io.ballerina.cli.cmd.CommandUtil.writeDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 
 /**
  * Unit tests for @code{CommandUtil} class used in commands.
@@ -67,8 +71,30 @@ public class CommandUtilTest {
                 readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve("expected-ballerina.toml")));
     }
 
+    @Test(description = "Test write new project Dependencies.toml from template dependency-graph.json")
+    public void testWriteDependenciesToml() throws IOException {
+        // Read sample dependency-graph.json
+        DependencyGraphJson dependencyGraphJson;
+        try (InputStream inputStream = new FileInputStream(
+                String.valueOf(COMMAND_UTIL_RESOURCE_DIR.resolve("sample-dependency-graph.json")))) {
+            Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+            dependencyGraphJson = new Gson().fromJson(fileReader, DependencyGraphJson.class);
+        }
+
+        // Create empty Dependencies.toml
+        Path depsTomlPath = Files.createFile(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML));
+
+        // Test writeBallerinaToml method
+        writeDependenciesToml(depsTomlPath, dependencyGraphJson);
+        String expected = readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve("expected-dependencies.toml"))
+                .replace("<BALLERINA_VERSION>", RepoUtils.getBallerinaShortVersion());
+        Assert.assertEquals(readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML)),
+                expected);
+    }
+
     @AfterMethod
     public void tearDown() throws IOException {
         Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(BALLERINA_TOML));
+        Files.deleteIfExists(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML));
     }
 }
