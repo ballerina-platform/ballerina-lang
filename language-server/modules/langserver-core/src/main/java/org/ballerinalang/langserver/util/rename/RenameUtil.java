@@ -108,8 +108,12 @@ public class RenameUtil {
 
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
-
-        if (onImportDeclarationNode(context, nodeAtCursor)) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(nodeAtCursor);
+        if (symbolAtCursor.isEmpty() || onImportDeclarationNode(context, nodeAtCursor)) {
             return Optional.empty();
         }
         
