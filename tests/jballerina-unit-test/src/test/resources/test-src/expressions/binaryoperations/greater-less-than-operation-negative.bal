@@ -213,7 +213,7 @@ function checkComparisonWithUnorderedTypes11() {
 }
 
 function checkComparisonWithUnorderedTypes12() {
-    TwoInts a = 1;
+    TwoInts|float a = 1;
     TwoInts? b = 2;
 
     boolean x1 = a < b;
@@ -234,7 +234,7 @@ function checkComparisonWithUnorderedTypes13() {
 
 function checkComparisonWithUnorderedTypes14() {
     string? a = "1";
-    string b = "2";
+    string|int b = "2";
 
     boolean x1 = a < b;
     boolean x2 = a <= b;
