@@ -3165,17 +3165,9 @@ public class Types {
 
             if (checkUnionHasAllFiniteOrNilMembers(sourceTypes) &&
                     checkUnionHasAllFiniteOrNilMembers(targetTypes)) {
-                if (sourceTypes.contains(symTable.nilType) != targetTypes.contains(symTable.nilType)) {
-                    return false;
-                }
                 BType type = target.getMemberTypes().iterator().next();
                 return checkValueSpaceHasSameType(((BFiniteType) getReferredType(type)),
                         sUnionType.getMemberTypes().iterator().next());
-            }
-
-            if (sUnionType.getMemberTypes().size()
-                    != target.getMemberTypes().size()) {
-                return false;
             }
 
             return checkSameOrderedTypesInUnionMembers(sourceTypes, targetTypes);
@@ -3186,10 +3178,17 @@ public class Types {
 
             for (BType sourceT : sourceTypes) {
                 boolean foundSameOrderedType = false;
+                if (sourceTypes.size() > 1 && isNil(sourceT)) {
+                    continue;
+                }
                 for (BType targetT : targetTypes) {
+                    if (targetTypes.size() > 1 && isNil(targetT)) {
+                        continue;
+                    }
                     if (isSameOrderedType(targetT, sourceT, this.unresolvedTypes)) {
                         foundSameOrderedType = true;
-                        break;
+                    } else {
+                        return false;
                     }
                 }
                 if (!foundSameOrderedType) {
@@ -3312,7 +3311,8 @@ public class Types {
             type = getReferredType(type);
             if (type.tag == TypeTags.FINITE) {
                 for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
-                    isSameType = isSameOrderedType(expr.getBType(), baseType);
+                    isSameType = isSameOrderedType(expr.getBType(), baseType) ||
+                            (unionType.isNullable() && isNil(type));
                     if (!isSameType) {
                         return false;
                     }
@@ -6147,7 +6147,8 @@ public class Types {
                 BType firstTypeInUnion = getReferredType(memberTypes.iterator().next());
                 for (BType memType : memberTypes) {
                     memType = getReferredType(memType);
-                    if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE) {
+                    if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE &&
+                            (!isNil(firstTypeInUnion) && !isNil(memType))) {
                         Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                         BType baseExprType = valSpace.iterator().next().getBType();
                         if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
@@ -6156,7 +6157,7 @@ public class Types {
                     } else if (memType.tag == TypeTags.UNION) {
                         return isOrderedType(memType, hasCycle);
                     } else if (memType.tag != firstTypeInUnion.tag &&
-                            (firstTypeInUnion.tag != TypeTags.NIL && memType.tag != TypeTags.NIL) &&
+                            (!isNil(firstTypeInUnion) && !isNil(memType)) &&
                             !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {
                         return false;
                     }
