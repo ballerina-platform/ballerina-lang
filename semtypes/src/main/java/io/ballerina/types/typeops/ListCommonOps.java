@@ -226,7 +226,9 @@ public class ListCommonOps {
             initial.add(intersect(listMemberAt(members1, rest1, i), listMemberAt(members2, rest2, i)));
         }
         return TwoTuple.from(FixedLengthArray.from(initial,
-                Integer.max(members1.fixedLength, members2.fixedLength)), Core.intersect(rest1, rest2));
+                Integer.max(members1.fixedLength,
+                            members2.fixedLength)),
+                Core.intersect(rest1, rest2));
     }
 
     // This function determines whether a list type P & N is inhabited.
