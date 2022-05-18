@@ -272,7 +272,7 @@ public class TypeConverter {
             case TypeTags.UNION_TAG:
                 inputValueType = TypeChecker.getType(inputValue);
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    if ((inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType)) {
+                    if (isDirectlyConvertible(inputValue, inputValueType, memType, (BUnionType) targetType)) {
                         return Set.of(memType);
                     }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
@@ -363,6 +363,22 @@ public class TypeConverter {
                 }
         }
         return convertibleTypes;
+    }
+
+    private static boolean isDirectlyConvertible(Object inputValue, Type inputValueType, Type memType,
+                                                 BUnionType targetType) {
+        if (isSimpleBasicType(inputValueType)) {
+            return (inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType);
+        }
+        if (!TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+            return false;
+        }
+        for (Type member : targetType.getMemberTypes()) {
+            if (TypeChecker.checkIsLikeType(inputValue, member, false) && member != memType) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
