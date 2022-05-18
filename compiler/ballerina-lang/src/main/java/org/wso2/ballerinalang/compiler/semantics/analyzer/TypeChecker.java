@@ -6783,7 +6783,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             requiredParams.add(nonRestParam);
         }
 
-        List<String> includedRecordParamNames = new ArrayList<>();
+        List<String> includedRecordParamNames = new ArrayList<>(incRecordParams.size());
         for (BVarSymbol incRecordParam : incRecordParams) {
             if (Symbols.isFlagOn(Flags.asMask(incRecordParam.getFlags()), Flags.REQUIRED)) {
                 requiredIncRecordParams.add(incRecordParam);
@@ -6791,7 +6791,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             includedRecordParamNames.add(incRecordParam.name.value);
         }
 
-        List<String> includedRecordFields = new ArrayList<>();
+        HashSet<String> includedRecordFields = new HashSet<>();
         List<BLangExpression> namedArgs = new ArrayList<>();
         int i = 0;
         for (; i < nonRestArgCount; i++) {
@@ -7032,7 +7032,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private void populateIncludedRecordParams(BVarSymbol param, List<String> includedRecordFields) {
+    private void populateIncludedRecordParams(BVarSymbol param, HashSet<String> includedRecordFields) {
         if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
             Set<String> fields = ((BRecordType) Types.getReferredType(param.type)).fields.keySet();
             includedRecordFields.addAll(fields);
@@ -7041,7 +7041,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     // If there is a named-arg or positional-arg corresponding to an included-record-param,
     // it is an error for a named-arg to specify a field of that included-record-param.
-    private void checkSameNamedArgsInIncludedRecords(List<BLangExpression> namedArgs, List<String> incRecordFields,
+    private void checkSameNamedArgsInIncludedRecords(List<BLangExpression> namedArgs, HashSet<String> incRecordFields,
                                                      List<String> includedRecordParamNames) {
         incRecordFields.removeIf(field -> !includedRecordParamNames.contains(field));
         for (BLangExpression namedArg : namedArgs) {
