@@ -121,13 +121,13 @@ public class ListProj {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    ListCommonOps.FixedLengthArraySemtypePair intersected = listIntersectWith(members, rest,
+                    TwoTuple intersected = listIntersectWith(members, rest,
                             lt.members, lt.rest);
                     if (intersected == null) {
                         return NEVER;
                     }
-                    members = intersected.members;
-                    rest = intersected.rest;
+                    members = (FixedLengthArray) intersected.item1;
+                    rest = (SemType) intersected.item2;
                 }
             }
             if (fixedArrayAnyEmpty(cx, members)) {
@@ -141,11 +141,11 @@ public class ListProj {
         // return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));
         List<Integer> indices = ListCommonOps.listSamples(cx, members, rest, neg);
         int[] keyIndices;
-        IntListPair projSamples = listProjSamples(indices, k);
-        SemtypesIntPair sampleTypes = ListCommonOps.listSampleTypes(cx, members, rest, indices);
-        return listProjExclude(cx, projSamples.indices.toArray(new Integer[0]),
-                projSamples.keyIndices.toArray(new Integer[0]), sampleTypes.memberTypes.toArray(new SemType[0]),
-                sampleTypes.nRequired, neg);
+        TwoTuple projSamples = listProjSamples(indices, k);
+        TwoTuple sampleTypes = ListCommonOps.listSampleTypes(cx, members, rest, indices);
+        return listProjExclude(cx, ((List<Integer>) projSamples.item1).toArray(new Integer[0]),
+                ((List<Integer>) projSamples.item2).toArray(new Integer[0]), ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
+                ((int) sampleTypes.item2), neg);
     }
 
     // In order to adapt listInhabited to do projection, we need
@@ -155,35 +155,35 @@ public class ListProj {
     // Here we add samples for both ends of each range. This doesn't handle the
     // case where the key is properly within a partition: but that is handled
     // because we already have a sample of the end of the partition.
-    private static IntListPair listProjSamples(List<Integer> indices, SubtypeData k) {
-        List<IntBooleanPair> v = new ArrayList<>();
+    private static TwoTuple listProjSamples(List<Integer> indices, SubtypeData k) {
+        List<TwoTuple> v = new ArrayList<>();
         for (int i : indices) {
-            v.add(IntBooleanPair.from(i, intSubtypeContains(k, i)));
+            v.add(TwoTuple.from(i, intSubtypeContains(k, i)));
         }
         if (k instanceof IntSubtype) {
             for (Range range : ((IntSubtype) k).ranges) {
                 long max = range.max;
                 if (range.max >= 0) {
-                    v.add(new IntBooleanPair((int) max, true));
+                    v.add(TwoTuple.from((int) max, true));
                     int min = Integer.max(0, (int) range.min);
                     if (min < max) {
-                        v.add(IntBooleanPair.from(min, true));
+                        v.add(TwoTuple.from(min, true));
                     }
                 }
             }
         }
-        Collections.sort(v, new SortIntBool());
+        Collections.sort(v, (p1, p2) -> (int) p1.item1 - (int) p2.item2);
         List<Integer> indices1 = new ArrayList<>();
         List<Integer> keyIndices = new ArrayList<>();
         for (var ib : v) {
-            if (indices1.size() == 0 || ib.i != indices1.get(indices1.size() - 1)) {
-                if (ib.inKey) {
+            if (indices1.size() == 0 || ib.item1 != indices1.get(indices1.size() - 1)) {
+                if ((boolean) ib.item2) {
                     keyIndices.add(indices1.size());
                 }
-                indices1.add(ib.i);
+                indices1.add((Integer) ib.item1);
             }
         }
-        return IntListPair.from(indices1, keyIndices);
+        return TwoTuple.from(indices1, keyIndices);
     }
 
     // `keyIndices` are the indices in `memberTypes` of those samples that belong to the key type.

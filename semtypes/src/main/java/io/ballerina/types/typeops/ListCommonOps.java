@@ -103,12 +103,12 @@ public class ListCommonOps {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    FixedLengthArraySemtypePair intersected = listIntersectWith(members, rest, lt.members, lt.rest);
+                    TwoTuple intersected = listIntersectWith(members, rest, lt.members, lt.rest);
                     if (intersected == null) {
                         return true;
                     }
-                    members = intersected.members;
-                    rest = intersected.rest;
+                    members = (FixedLengthArray) intersected.item1;
+                    rest = (SemType) intersected.item2;
                 }
             }
             if (fixedArrayAnyEmpty(cx, members)) {
@@ -120,12 +120,12 @@ public class ListCommonOps {
             }
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
-        SemtypesIntPair sampleTypes = listSampleTypes(cx, members, rest, indices);
-        return !listInhabited(cx, indices.toArray(new Integer[0]), sampleTypes.memberTypes.toArray(new SemType[0]),
-                sampleTypes.nRequired, neg);
+        TwoTuple sampleTypes = listSampleTypes(cx, members, rest, indices);
+        return !listInhabited(cx, indices.toArray(new Integer[0]), ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
+                ((int) sampleTypes.item2), neg);
     }
 
-    public static SemtypesIntPair listSampleTypes(Context cx, FixedLengthArray members, SemType rest,
+    public static TwoTuple listSampleTypes(Context cx, FixedLengthArray members, SemType rest,
                                                    List<Integer> indices) {
         List<SemType> memberTypes = new ArrayList<>();
         int nRequired = 0;
@@ -141,7 +141,7 @@ public class ListCommonOps {
             }
         }
         // Note that indices may be longer
-        return SemtypesIntPair.from(memberTypes, nRequired);
+        return TwoTuple.from(memberTypes, nRequired);
     }
 
     // Return a list of sample indices for use as second argument of `listInhabited`.
@@ -156,7 +156,8 @@ public class ListCommonOps {
     // to avoid being matched by that negative.
     public static List<Integer> listSamples(Context cx, FixedLengthArray members, SemType rest, Conjunction neg) {
         int maxInitialLength = members.initial.size();
-        List<Integer> fixedLengths = new ArrayList<>(members.fixedLength);
+        List<Integer> fixedLengths = new ArrayList<>();
+        fixedLengths.add(members.fixedLength);
         Conjunction tem = neg;
         int nNeg = 0;
         while (true) {
@@ -214,7 +215,7 @@ public class ListCommonOps {
         return indices;
     }
 
-    static FixedLengthArraySemtypePair listIntersectWith(FixedLengthArray members1, SemType rest1,
+    static TwoTuple listIntersectWith(FixedLengthArray members1, SemType rest1,
                                                          FixedLengthArray members2, SemType rest2) {
         if (listLengthsDisjoint(members1, rest1, members2, rest2)) {
             return null;
@@ -224,7 +225,7 @@ public class ListCommonOps {
         for (int i = 0; i < max; i++) {
             initial.add(intersect(listMemberAt(members1, rest1, i), listMemberAt(members2, rest2, i)));
         }
-        return FixedLengthArraySemtypePair.from(FixedLengthArray.from(initial,
+        return TwoTuple.from(FixedLengthArray.from(initial,
                 Integer.max(members1.fixedLength, members2.fixedLength)), Core.intersect(rest1, rest2));
     }
 
@@ -389,17 +390,4 @@ public class ListCommonOps {
         }
     }
 
-    static class FixedLengthArraySemtypePair {
-        FixedLengthArray members;
-        SemType rest;
-
-        private FixedLengthArraySemtypePair(FixedLengthArray members, SemType rest) {
-            this.members = members;
-            this.rest = rest;
-        }
-
-        public static FixedLengthArraySemtypePair from(FixedLengthArray members, SemType rest) {
-            return new FixedLengthArraySemtypePair(members, rest);
-        }
-    }
 }

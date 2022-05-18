@@ -17,23 +17,21 @@
  */
 package io.ballerina.types.typeops;
 
-import java.util.List;
-
 /**
  * used to return [int[], int[]].
  *
  * @since 3.0.0
  */
-public class IntListPair {
-    List<Integer> indices;
-    List<Integer> keyIndices;
+public class TwoTuple {
+    Object item1;
+    Object item2;
 
-    private IntListPair(List<Integer> indices, List<Integer> keyIndices) {
-        this.indices = indices;
-        this.keyIndices = keyIndices;
+    private TwoTuple(Object tuple1, Object tuple2) {
+        this.item1 = tuple1;
+        this.item2 = tuple2;
     }
 
-    public static IntListPair from(List<Integer> indices, List<Integer> keyIndices) {
-        return new IntListPair(indices, keyIndices);
+    public static TwoTuple from(Object item1, Object item2) {
+        return new TwoTuple(item1, item2);
     }
 }
