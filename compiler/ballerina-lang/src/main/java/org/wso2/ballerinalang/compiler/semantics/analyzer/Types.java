@@ -4311,7 +4311,7 @@ public class Types {
         return matchFound;
     }
 
-    boolean validNumericStringOrXmlTypeExists(BType type, ValidateType validateType) {
+    boolean validNumericStringOrXmlTypeExists(BType type, TypeExistenceValidationFunction validationFunction) {
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
@@ -4356,15 +4356,15 @@ public class Types {
                     if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
                         return false;
                     }
-                    if (!validateType.validate(expr.getBType())) {
+                    if (!validationFunction.validate(expr.getBType())) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.TYPEREFDESC:
-                return validateType.validate(getReferredType(type));
+                return validationFunction.validate(getReferredType(type));
             case TypeTags.INTERSECTION:
-                return validateType.validate(((BIntersectionType) type).effectiveType);
+                return validationFunction.validate(((BIntersectionType) type).effectiveType);
             default:
                 return false;
         }
@@ -6032,11 +6032,11 @@ public class Types {
     }
 
     /**
-     * A functional interface for validate numeric, string or xml type exists.
+     * A functional interface to validate numeric, string or xml type existence.
      *
      * @since 2201.1.0
      */
-    private interface ValidateType {
+    private interface TypeExistenceValidationFunction {
         boolean validate(BType type);
     }
 
