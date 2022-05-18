@@ -128,6 +128,22 @@ function test2DObjectArrays3() returns PersonObj3[][] {
     return arr;
 }
 
+class PersonObj4 {
+    int id;
+    string name;
+
+    public function init(int id, string name = "Alex") {
+        self.id = id;
+        self.name = name;
+    }
+}
+
+function testObjectArrays2() {
+    PersonObj4 p = new(1001);
+    PersonObj4[] arr = [];
+    arr[1] = p;
+}
+
 type Foo record {
     Person[][][] arr;
 };
