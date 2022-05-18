@@ -660,3 +660,426 @@ function testUnorderedTypeComparison8() {
     test:assertFalse(a > b);
     test:assertFalse(a >= b);
 }
+
+function testUnorderedTypeComparison9() {
+    decimal? a0 = ();
+    decimal b0 = (-32);
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+function testUnorderedTypeComparison10() {
+    float? a0 = ();
+    float b0 = (-32);
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+type TwoInts 1|2;
+type ThreeInts 3|4|5;
+
+function testUnorderedTypeComparison11() {
+    TwoInts a1 = 1;
+    TwoInts|ThreeInts a2 = 1;
+    byte|int:Signed32 a3 = -1;
+    TwoInts? b1 = ();
+    TwoInts|null b2 = ();
+    TwoInts|ThreeInts|null b3 = ();
+
+    boolean x1 = a1 < b1;
+    test:assertFalse(x1);
+
+    boolean x2 = a1 <= b1;
+    test:assertFalse(x2);
+
+    boolean x3 = a1 > b1;
+    test:assertFalse(x3);
+
+    boolean x4 = a1 >= b1;
+    test:assertFalse(x4);
+
+    boolean x5 = a1 < b2;
+    test:assertFalse(x5);
+
+    boolean x6 = a1 <= b2;
+    test:assertFalse(x6);
+
+    boolean x7 = a1 > b2;
+    test:assertFalse(x7);
+
+    boolean x8 = a1 >= b2;
+    test:assertFalse(x8);
+
+    boolean x9 = b2 < b1;
+    test:assertFalse(x9);
+
+    boolean x10 = b2 <= b1;
+    test:assertTrue(x10);
+
+    boolean x11 = b2 > b1;
+    test:assertFalse(x11);
+
+    boolean x12 = b2 >= b1;
+    test:assertTrue(x12);
+
+    boolean x13 = a2 < b2;
+    test:assertFalse(x13);
+
+    boolean x14 = a2 <= b2;
+    test:assertFalse(x14);
+
+    boolean x15 = a2 > b2;
+    test:assertFalse(x15);
+
+    boolean x16 = a2 >= b2;
+    test:assertFalse(x15);
+
+    boolean x17 = a3 < b3;
+    boolean x18 = b3 < a3;
+    test:assertFalse(x17);
+    test:assertFalse(x18);
+
+    boolean x19 = a3 <= b3;
+    boolean x20 = b3 <= a3;
+    test:assertFalse(x19);
+    test:assertFalse(x20);
+
+    boolean x21 = a3 > b3;
+    boolean x22 = b3 > a3;
+    test:assertFalse(x21);
+    test:assertFalse(x22);
+
+    boolean x23 = a2 >= b2;
+    boolean x24 = b3 >= a3;
+    test:assertFalse(x23);
+    test:assertFalse(x24);
+}
+
+function testUnorderedTypeComparison12() {
+    byte? a0 = ();
+    byte b0 = 32;
+    byte|null a1 = ();
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+
+    boolean x8 = a1 > b0;
+    boolean x9 = b0 > a1;
+    test:assertFalse(x8);
+    test:assertFalse(x9);
+
+    boolean x10 = a1 >= b0;
+    boolean x11 = b0 >= a1;
+    test:assertFalse(x10);
+    test:assertFalse(x11);
+
+    boolean x12 = a1 < b0;
+    boolean x13 = b0 < a1;
+    test:assertFalse(x12);
+    test:assertFalse(x13);
+
+    boolean x14 = a1 <= b0;
+    boolean x15 = b0 <= a1;
+    test:assertFalse(x14);
+    test:assertFalse(x15);
+
+    boolean x16 = a1 < a0;
+    boolean x17 = a0 <= a1;
+    test:assertFalse(x16);
+    test:assertTrue(x17);
+
+    boolean x18 = a1 > a0;
+    boolean x19 = a0 >= a1;
+    test:assertFalse(x18);
+    test:assertTrue(x19);
+}
+
+function testUnorderedTypeComparison13() {
+    int:Signed32? a0 = ();
+    int:Signed16 b0 = (-32);
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+function testUnorderedTypeComparison14() {
+    int:Unsigned16? a0 = ();
+    int:Unsigned8 b0 = 32;
+    int:Unsigned16|null a1 = ();
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+
+    boolean x8 = a1 > b0;
+    boolean x9 = b0 > a1;
+    test:assertFalse(x8);
+    test:assertFalse(x9);
+
+    boolean x10 = a1 >= b0;
+    boolean x11 = b0 >= a1;
+    test:assertFalse(x10);
+    test:assertFalse(x11);
+
+    boolean x12 = a1 < b0;
+    boolean x13 = b0 < a1;
+    test:assertFalse(x12);
+    test:assertFalse(x13);
+
+    boolean x14 = a1 <= b0;
+    boolean x15 = b0 <= a1;
+    test:assertFalse(x14);
+    test:assertFalse(x15);
+
+    boolean x16 = a1 < a0;
+    boolean x17 = a0 <= a1;
+    test:assertFalse(x16);
+    test:assertTrue(x17);
+
+    boolean x18 = a1 > a0;
+    boolean x19 = a0 >= a1;
+    test:assertFalse(x18);
+    test:assertTrue(x19);
+}
+
+function testUnorderedTypeComparison15() {
+    string? a0 = ();
+    string b0 = "abc";
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+function testUnorderedTypeComparison16() {
+    string? a0 = "abc";
+    string b0 = "abc";
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertTrue(x2);
+    test:assertTrue(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertTrue(x6);
+    test:assertTrue(x7);
+}
+
+function testUnorderedTypeComparison17() {
+    string:Char? a0 = ();
+    string b0 = "abc";
+    string:Char|null a1 = ();
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+
+    boolean x8 = a1 > b0;
+    boolean x9 = b0 > a1;
+    test:assertFalse(x8);
+    test:assertFalse(x9);
+
+    boolean x10 = a1 >= b0;
+    boolean x11 = b0 >= a1;
+    test:assertFalse(x10);
+    test:assertFalse(x11);
+
+    boolean x12 = a1 < b0;
+    boolean x13 = b0 < a1;
+    test:assertFalse(x12);
+    test:assertFalse(x13);
+
+    boolean x14 = a1 <= b0;
+    boolean x15 = b0 <= a1;
+    test:assertFalse(x14);
+    test:assertFalse(x15);
+
+    boolean x16 = a1 < a0;
+    boolean x17 = a0 <= a1;
+    test:assertFalse(x16);
+    test:assertTrue(x17);
+
+    boolean x18 = a1 > a0;
+    boolean x19 = a0 >= a1;
+    test:assertFalse(x18);
+    test:assertTrue(x19);
+}
+
+function testUnorderedTypeComparison18() {
+    string:Char? a0 = ();
+    string:Char b0 = "a";
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+function testUnorderedTypeComparison19() {
+    string? a0 = ();
+    string:Char b0 = "a";
+
+    boolean x0 = a0 > b0;
+    boolean x1 = b0 > a0;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a0 >= b0;
+    boolean x3 = b0 >= a0;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a0 < b0;
+    boolean x5 = b0 < a0;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a0 <= b0;
+    boolean x7 = b0 <= a0;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}

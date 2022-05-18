@@ -95,7 +95,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 89);
+        Assert.assertEquals(resultNegative.getErrorCount(), 97);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -265,8 +265,24 @@ public class GreaterLessThanOperationTest {
                 "'[float,int,string,float...]' and '[float,int,float...]'", 270, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for " +
                 "'[float,int,string,float...]' and '[float,int,float...]'", 271, 18);
-        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for " +
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for " +
                 "'[float,int,string,float...]' and '[float,int,float...]'", 272, 18);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '(byte|int:Signed32)' and 'null'", 279, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '(byte|int:Signed32)' and 'null'", 280, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '(byte|int:Signed32)' and 'null'", 281, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '(byte|int:Signed32)' and 'null'", 282, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'null' and '(byte|int:Signed32)'", 284, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'null' and '(byte|int:Signed32)'", 285, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'null' and '(byte|int:Signed32)'", 286, 17);
+        BAssertUtil.validateError(resultNegative, index,
+                "operator '>=' not defined for 'null' and '(byte|int:Signed32)'", 287, 17);
     }
 
     @Test(description = "Test byte greater than, less than expression")
@@ -323,7 +339,18 @@ public class GreaterLessThanOperationTest {
                 "testUnorderedTypeComparison5",
                 "testUnorderedTypeComparison6",
                 "testUnorderedTypeComparison7",
-                "testUnorderedTypeComparison8"
+                "testUnorderedTypeComparison8",
+                "testUnorderedTypeComparison9",
+                "testUnorderedTypeComparison10",
+                "testUnorderedTypeComparison11",
+                "testUnorderedTypeComparison12",
+                "testUnorderedTypeComparison13",
+                "testUnorderedTypeComparison14",
+                "testUnorderedTypeComparison15",
+                "testUnorderedTypeComparison16",
+                "testUnorderedTypeComparison17",
+                "testUnorderedTypeComparison18",
+                "testUnorderedTypeComparison19"
         };
     }
 }

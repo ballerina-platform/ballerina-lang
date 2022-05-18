@@ -271,3 +271,18 @@ function checkComparisonWithUnorderedTypes17() {
     boolean x3 = a > b;
     boolean x4 = a >= b;
 }
+
+function checkComparisonWithUnorderedTypes18() {
+    byte|int:Signed32 a = -1;
+    ()|null b = ();
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
