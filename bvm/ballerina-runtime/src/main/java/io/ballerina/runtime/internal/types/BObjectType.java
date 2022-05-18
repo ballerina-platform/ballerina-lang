@@ -21,7 +21,6 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -30,6 +29,7 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.ValueUtils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) ValueCreator.createObjectValue(this.pkg, this.typeName);
+        return (V) ValueUtils.createObjectValue(this.pkg, this);
     }
 
     @Override

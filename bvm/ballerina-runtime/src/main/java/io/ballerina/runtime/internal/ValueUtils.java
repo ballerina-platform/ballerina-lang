@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -117,6 +118,20 @@ public class ValueUtils {
         return mapValue;
     }
 
+    public static BObject createObjectValue(Module packageId, BObjectType objectType) {
+        Strand currentStrand = Scheduler.getStrandNoException();
+        Map<String, Field> fieldsMap = objectType.getFields();
+        Field[] fields = fieldsMap.values().toArray(new Field[0]);
+        Object[] fieldValues = new Object[fields.length * 2];
+
+        for (int i = 0, j = 0; i < fields.length; i++) {
+            Type type = fields[i].getFieldType();
+            fieldValues[j++] = type.getZeroValue();
+            fieldValues[j++] = false;
+        }
+        return createObjectValue(currentStrand, packageId, objectType.getName(), fieldValues);
+    }
+
     /**
      * Create an object value using the given package id and object type name.
      *
@@ -127,23 +142,28 @@ public class ValueUtils {
      */
     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
         Strand currentStrand = Scheduler.getStrandNoException();
-        // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
-        io.ballerina.runtime.internal.values.ValueCreator
-                valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
-                .getLookupKey(packageId, false));
         Object[] fields = new Object[fieldValues.length * 2];
-
-        // Here the variables are initialized with default values
-        Scheduler scheduler = null;
-        State prevState = State.RUNNABLE;
-        boolean prevBlockedOnExtern = false;
-        BObject objectValue;
-
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
             fields[j++] = true;
         }
+        return createObjectValue(currentStrand, packageId, objectTypeName, fields);
+    }
+
+    private static BObject createObjectValue(Strand currentStrand, Module packageId, String objectTypeName,
+                                             Object[] fieldValues) {
+
+        // This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
+        io.ballerina.runtime.internal.values.ValueCreator
+                valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
+                .getLookupKey(packageId, false));
+
+        // Here the variables are initialized with default values
+        Scheduler scheduler = null;
+        State prevState = State.RUNNABLE;
+        boolean prevBlockedOnExtern = false;
+
         try {
             // Check for non-blocking call
             if (currentStrand != null) {
@@ -154,13 +174,15 @@ public class ValueUtils {
                 currentStrand.setState(State.RUNNABLE);
             }
             try {
-                return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fields);
+                return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+                        null, fieldValues);
             } catch (BError e) {
                 // If object type definition not found, get it from test module.
                 String testLookupKey = ValueCreator.getLookupKey(packageId, true);
                 if (ValueCreator.containsValueCreator(testLookupKey)) {
                     valueCreator = ValueCreator.getValueCreator(testLookupKey);
-                    return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fields);
+                    return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand,
+                            null, fieldValues);
                 }
                 throw e;
             }
