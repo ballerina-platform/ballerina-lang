@@ -187,4 +187,18 @@ public class TableNegativeTest {
         validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
                 136, 9);
     }
+
+    @Test
+    public void testAnyTypedTableWithKeySpecifiers() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-value-any-negative.bal");
+        int index = 0;
+
+        validateError(compileResult, index++,
+                "field name 'name' used in key specifier is not found in table constraint type 'map<(any|error)>'",
+                2, 24);
+        validateError(compileResult, index++,
+                "field name 'name' used in key specifier is not found in table constraint type 'map<(any|error)>'",
+                9, 19);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
 }

@@ -45,14 +45,16 @@ function testAssignKeyedTableValueToAny() {
         {name: "John", id: 4567}
     ];
     any a1 = tbl1;
-    any a2 = table key(name) [
+    var a2 = table key(name) [
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
     ];
 
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table key(name) [{name: "Amy", id: 1234}, {name: "John", id: 4567}], a2);
+
+    var tbl2 = table key(name) [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    assertEqual(tbl2, a2);
 }
 
 function testAssignKeyedTableValueToVar() {
@@ -84,9 +86,9 @@ function testAssignKeyedTableValueToTableType() {
     ];
     var a2 = checkpanic table key(id) from var {id} in tbl1 select {id};
     table<record {| readonly int id; |}> key(id) a3 = a2;
-    any a4 = table key(id) [{"id": 1234}, {"id": 4567}];
-
-    assertEqual(table key(id) [{"id": 1234}, {"id": 4567}], a3);
+    var a4 = table key(id) [{"id": 1234}, {"id": 4567}];
+    var tbl = table key(id) [{"id": 1234}, {"id": 4567}];
+    assertEqual(tbl, a3);
     assertEqual(a3, a4);
 }
 
