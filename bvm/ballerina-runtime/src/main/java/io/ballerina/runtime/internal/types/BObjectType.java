@@ -27,12 +27,17 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.ValueUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -72,7 +77,21 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) ValueUtils.createObjectValue(this.pkg, this);
+        return (V) createObjectValue(this.pkg, this);
+    }
+
+    private static BObject createObjectValue(Module packageId, BObjectType objectType) {
+        Strand currentStrand = Scheduler.getStrand();
+        Map<String, Field> fieldsMap = objectType.getFields();
+        Field[] fields = fieldsMap.values().toArray(new Field[0]);
+        Object[] fieldValues = new Object[fields.length * 2];
+
+        for (int i = 0, j = 0; i < fields.length; i++) {
+            Type type = fields[i].getFieldType();
+            fieldValues[j++] = type.getZeroValue();
+            fieldValues[j++] = false;
+        }
+        return ValueUtils.createObjectValue(currentStrand, packageId, objectType.getName(), fieldValues);
     }
 
     @Override
