@@ -67,8 +67,8 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'abc'", 144, 63);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'id'", 161, 53);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'name'", 161, 72);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'name' via named argument and argument " +
-                        "for included record parameter", 166, 42);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'name' via the named" +
+                " argument and the argument for the included record parameter", 166, 42);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 166, 49);
         BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 169, 15);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int[]', found 'int'", 179, 36);
@@ -80,42 +80,42 @@ public class FunctionWithIncludedRecordParam {
                 "defaultable parameter not allowed after included record parameters", 190, 69);
         BAssertUtil.validateError(result, i++,
                 "defaultable parameter not allowed after included record parameters", 194, 81);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'id' via named argument and argument for included record parameter", 217, 9);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'id' via named argument and argument for included record parameter", 218, 38);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'name' via named argument and argument for " +
-                "included record parameter", 219, 38);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'name' via named argument and argument for " +
-                "included record parameter", 220, 28);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'name' via named argument and argument for " +
-                "included record parameter", 221, 38);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'id' via named argument and argument for included record parameter", 223, 9);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'id' via named argument and argument for included record parameter", 224, 31);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'name' via named argument and argument for " +
-                        "included record parameter", 225, 31);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'idNew' via named argument and argument " +
-                        "for included record parameter", 239, 38);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'idNew' via named argument and argument " +
-                        "for included record parameter", 240, 38);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'idNew' via named argument and argument " +
-                        "for included record parameter", 241, 43);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'idNew' via named argument and argument for " +
-                        "included record parameter", 242, 36);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'id' via named argument and argument for included record parameter", 242, 48);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'id' via named argument and argument for included record parameter", 243, 9);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'idNew' via named argument and argument for " +
-                "included record parameter", 244, 9);
-        BAssertUtil.validateError(result, i++, "duplicate argument for 'idNew' via named argument and argument for " +
-                "included record parameter", 245, 9);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'id' via named argument and argument for included record parameter", 245, 20);
-        BAssertUtil.validateError(result, i++,
-                "duplicate argument for 'rec' via named argument and argument for included record parameter", 259, 9);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'id' via the named " +
+                "argument and the argument for the included record parameter", 217, 9);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'id' via the named" +
+                " argument and the argument for the included record parameter", 218, 38);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'name' via the named" +
+                " argument and the argument for the included record parameter", 219, 38);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'name' via the named" +
+                " argument and the argument for the included record parameter", 220, 28);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'name' via the named" +
+                " argument and the argument for the included record parameter", 221, 38);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'id' via the named" +
+                " argument and the argument for the included record parameter", 223, 9);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'id' via the named" +
+                        " argument and the argument for the included record parameter", 224, 31);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'name' via the named" +
+                " argument and the argument for the included record parameter", 225, 31);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'idNew' via the named" +
+                " argument and the argument for the included record parameter", 239, 38);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'idNew' via the named" +
+                " argument and the argument for the included record parameter", 240, 38);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'idNew' via the named" +
+                " argument and the argument for the included record parameter", 241, 43);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'idNew' via the named" +
+                " argument and the argument for the included record parameter", 242, 36);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'id' via the named" +
+                        " argument and the argument for the included record parameter", 242, 48);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'id' via the named" +
+                        " argument and the argument for the included record parameter", 243, 9);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'idNew' via the named" +
+                " argument and the argument for the included record parameter", 244, 9);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'idNew' via the named" +
+                " argument and the argument for the included record parameter", 245, 9);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'id' via the named" +
+                        " argument and the argument for the included record parameter", 245, 20);
+        BAssertUtil.validateError(result, i++, "duplicate arguments may have been specified for 'rec' via the named" +
+                        " argument and the argument for the included record parameter", 259, 9);
         Assert.assertEquals(i, result.getErrorCount());
     }
 
