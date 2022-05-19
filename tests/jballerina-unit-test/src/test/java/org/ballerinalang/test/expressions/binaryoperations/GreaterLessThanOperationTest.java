@@ -95,7 +95,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 97);
+        Assert.assertEquals(resultNegative.getErrorCount(), 105);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -268,21 +268,37 @@ public class GreaterLessThanOperationTest {
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for " +
                 "'[float,int,string,float...]' and '[float,int,float...]'", 272, 18);
         BAssertUtil.validateError(resultNegative, index++,
-                "operator '<' not defined for '(byte|int:Signed32)' and 'null'", 279, 17);
+                "operator '<' not defined for 'Y1' and 'X1'", 282, 17);
         BAssertUtil.validateError(resultNegative, index++,
-                "operator '<=' not defined for '(byte|int:Signed32)' and 'null'", 280, 17);
+                "operator '<=' not defined for 'Y1' and 'X1'", 283, 17);
         BAssertUtil.validateError(resultNegative, index++,
-                "operator '>' not defined for '(byte|int:Signed32)' and 'null'", 281, 17);
+                "operator '>' not defined for 'Y1' and 'X1'", 284, 17);
         BAssertUtil.validateError(resultNegative, index++,
-                "operator '>=' not defined for '(byte|int:Signed32)' and 'null'", 282, 17);
+                "operator '>=' not defined for 'Y1' and 'X1'", 285, 17);
         BAssertUtil.validateError(resultNegative, index++,
-                "operator '<' not defined for 'null' and '(byte|int:Signed32)'", 284, 17);
+                "operator '<' not defined for 'X1' and 'Y1'", 286, 17);
         BAssertUtil.validateError(resultNegative, index++,
-                "operator '<=' not defined for 'null' and '(byte|int:Signed32)'", 285, 17);
+                "operator '<=' not defined for 'X1' and 'Y1'", 287, 17);
         BAssertUtil.validateError(resultNegative, index++,
-                "operator '>' not defined for 'null' and '(byte|int:Signed32)'", 286, 17);
+                "operator '>' not defined for 'X1' and 'Y1'", 288, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'X1' and 'Y1'", 289, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'Y2' and 'X2'", 299, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'Y2' and 'X2'", 300, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'Y2' and 'X2'", 301, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for 'Y2' and 'X2'", 302, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'X2' and 'Y2'", 303, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'X2' and 'Y2'", 304, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'X2' and 'Y2'", 305, 17);
         BAssertUtil.validateError(resultNegative, index,
-                "operator '>=' not defined for 'null' and '(byte|int:Signed32)'", 287, 17);
+                "operator '>=' not defined for 'X2' and 'Y2'", 306, 17);
     }
 
     @Test(description = "Test byte greater than, less than expression")
@@ -350,7 +366,17 @@ public class GreaterLessThanOperationTest {
                 "testUnorderedTypeComparison16",
                 "testUnorderedTypeComparison17",
                 "testUnorderedTypeComparison18",
-                "testUnorderedTypeComparison19"
+                "testUnorderedTypeComparison19",
+                "testUnorderedTypeComparison20",
+                "testUnorderedTypeComparison21",
+                "testUnorderedTypeComparison22",
+                "testUnorderedTypeComparison23",
+                "testUnorderedTypeComparison24",
+                "testUnorderedTypeComparison25",
+                "testUnorderedTypeComparison26",
+                "testUnorderedTypeComparison27",
+                "testUnorderedTypeComparison28",
+                "testUnorderedTypeComparison29"
         };
     }
 }

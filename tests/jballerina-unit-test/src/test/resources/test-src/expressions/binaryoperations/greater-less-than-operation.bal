@@ -1083,3 +1083,295 @@ function testUnorderedTypeComparison19() {
     test:assertFalse(x6);
     test:assertFalse(x7);
 }
+
+type Type1 [boolean?, int, decimal?]; // ordered type -> [boolean?, int, decimal?]
+type Type2 [boolean?, int?]; // ordered type -> [boolean?, int?]
+// for Type1 and Type2, ordered type can be taken as [boolean?, int?, decimal?...]
+
+function testUnorderedTypeComparison20() {
+    Type1 a = [(), 1];
+    Type2 b = [()];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+type Type3 [boolean?, int, decimal?]; // ordered type -> [boolean?, int, decimal?]
+type Type4 [boolean?, int?]; // ordered type -> [boolean?, int?]
+// for Type3 and Type4, ordered type can be taken as [boolean?, int?, decimal?...]
+
+function testUnorderedTypeComparison21() {
+    Type3 a = [true, 1];
+    Type4 b = [true, 1];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertTrue(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertTrue(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertTrue(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertTrue(x7);
+}
+
+type Type5 [boolean?, int, byte?, int:Signed32, byte...]; // ordered type -> [boolean?, int, byte?, int:Signed32, byte...]
+type Type6 [boolean?, int...]; // ordered type -> [boolean?, int...]
+// for Type5 and Type6, ordered type can be taken as [boolean?, int?...]
+
+function testUnorderedTypeComparison22() {
+    Type5 a = [(), 1];
+    Type6 b = [()];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertTrue(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertTrue(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertTrue(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertTrue(x7);
+}
+
+type Type7 [boolean?, int, byte?, int:Signed32, byte...] & readonly; // ordered type -> [boolean?, int, byte?, int:Signed32, byte...] & readonly
+type Type8 [boolean?, int...]; // ordered type -> [boolean?, int...]
+// for Type7 and Type8, ordered type can be taken as [boolean?, int?...]
+
+function testUnorderedTypeComparison23() {
+    Type7 a = [(), 1];
+    Type8 b = [()];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertTrue(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertTrue(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertTrue(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertTrue(x7);
+}
+
+type Type9 int?[2]|int[3]; // ordered type -> [int?, int?, int]
+type Type10 int?[2]; // ordered type -> [int?, int?]
+// for Type9 and Type10, ordered type can be taken as [int?, int?, int...]
+
+function testUnorderedTypeComparison24() {
+    Type9 a = [(), 1];
+    Type10 b = [()];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+type Type11 byte?[3]|[int, int, byte...]; // ordered type -> [int?, int?, byte?...]
+type Type12 int?[2]; // ordered type -> [int?, int?]
+// for Type11 and Type12, ordered type can be taken as [int?, int?, byte?...]
+
+function testUnorderedTypeComparison25() {
+    Type11 a = [(), 1];
+    Type12 b = [()];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+type Int1 1|2;
+type Int2 3|4;
+type Type13 Int1[3]|Int2[4]; // ordered type -> [int, int, int, int]
+type Type14 [int?, byte...] & readonly; // ordered type -> [int?, byte...]
+// for Type13 and Type14, ordered type can be taken as [int?, int, int...]
+
+function testUnorderedTypeComparison26() {
+    Type13 a = [1, 1, 2];
+    Type14 b = [()];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+type Type15 Int1[3]|(Int2[4] & readonly); // ordered type -> [int, int, int, int]
+type Type16 [int?, byte...]; // ordered type -> [int?, byte...]
+// for Type15 and Type16, ordered type can be taken as [int?, int...]
+
+function testUnorderedTypeComparison27() {
+    Type15 a = [1, 1, 2];
+    Type16 b = [(), 1, 255, 1];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+function testUnorderedTypeComparison28() {
+    byte|int:Signed32 a = -1; // ordered type -> int
+    ()|null b = (); // ordered type -> ()
+    // for 'byte|int:Signed32' and '()|null', ordered type can be taken as int?
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
+
+const float FIVE = 5.0;
+const float SIX = 6.0;
+
+type X [()|null, (), (), (), int, (), null]; // ordered type -> [(), (), (), (), int, (), ()]
+type Y [FIVE|SIX]; // ordered type -> [int]
+// for X and Y, ordered type can be taken as [int?...]
+
+function testUnorderedTypeComparison29() {
+    X a = [null];
+    Y b = [5];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertFalse(x7);
+}
