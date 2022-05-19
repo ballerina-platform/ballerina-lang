@@ -189,8 +189,10 @@ public class TypeParameterContextProvider<T extends Node> extends AbstractComple
             if (symbol.kind() != SymbolKind.TYPE_DEFINITION) {
                 return false;
             }
-            Optional<? extends TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-            return typeDescriptor.isPresent() && typeDescriptor.get().typeKind().isXMLType();
+            return SymbolUtil.getTypeDescriptor(symbol)
+                    .map(CommonUtil::getRawType)
+                    .filter(typeSymbol -> typeSymbol.typeKind().isXMLType())
+                    .isPresent();
         });
 
         if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
