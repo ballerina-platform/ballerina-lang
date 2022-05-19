@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_CHILDREN;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
@@ -119,8 +120,9 @@ public class DiffImpl implements Diff {
     public JsonObject getAsJsonObject() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
-        jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name()));
-        jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()));
+        jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.diffType.name().toLowerCase(Locale.getDefault())));
+        jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.versionImpact.name()
+                .toLowerCase(Locale.getDefault())));
         if (diffType == DiffType.MODIFIED && childDiffs != null) {
             JsonArray childArray = new JsonArray();
             childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));

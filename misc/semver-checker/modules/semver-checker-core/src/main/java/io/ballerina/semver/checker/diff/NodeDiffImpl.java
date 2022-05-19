@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_CHILDREN;
@@ -166,8 +167,9 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
 
         if (childDiffs == null || childDiffs.isEmpty() || this instanceof FunctionDiff) {
             jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
-            jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name()));
-            jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()));
+            jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.getDefault())));
+            jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()
+                    .toLowerCase(Locale.getDefault())));
         }
 
         if (this.getMessage().isPresent()) {
