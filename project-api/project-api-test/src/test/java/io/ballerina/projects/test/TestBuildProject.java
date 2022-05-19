@@ -1888,16 +1888,24 @@ public class TestBuildProject extends BaseTest {
         String content1 =
                 "";
         List<String> warnings1 =
-                List.of("WARNING [Ballerina.toml:(2:1,2:1)] missing package information in Ballerina.toml, " +
-                        "values derived as org: testuserorg, name: my_package and version: 0.1.0");
+                List.of("WARNING [Ballerina.toml:(2:1,2:1)] missing table '[package]' in 'Ballerina.toml'. " +
+                        "Defaulting to:\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"my_package\"\n" +
+                        "version = \"0.1.0\"");
 
         String content2 =
                 "# this is a comment\n" +
                         "\n" +
                         "[package]";
         List<String> warnings2 =
-                List.of("WARNING [Ballerina.toml:(3:1,3:10)] missing package information in Ballerina.toml, " +
-                        "values derived as org: testuserorg, name: my_package and version: 0.1.0");
+                List.of("WARNING [Ballerina.toml:(3:1,3:10)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"my_package\"'",
+                        "WARNING [Ballerina.toml:(3:1,3:10)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'",
+                        "WARNING [Ballerina.toml:(3:1,3:10)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
 
         String content3 =
                 "# this is a comment\n" +
@@ -1906,14 +1914,18 @@ public class TestBuildProject extends BaseTest {
                         "org = \"winery\"\n" +
                         "version = \"2.0.0\"";
         List<String> warnings3 =
-                List.of("WARNING [Ballerina.toml:(3:1,5:18)] missing name under [package], " +
-                        "value derived as my_package");
+                List.of("WARNING [Ballerina.toml:(3:1,5:18)] missing key 'name' in table '[package]' " +
+                        "in 'Ballerina.toml'. Defaulting to 'name = \"my_package\"'");
 
         String content4 =
                 "";
         List<String> warnings4 =
-                List.of("WARNING [Ballerina.toml:(2:1,2:1)] missing package information in Ballerina.toml, " +
-                        "values derived as org: testuserorg, name: app1994 and version: 0.1.0");
+                List.of("WARNING [Ballerina.toml:(2:1,2:1)] missing table '[package]' in 'Ballerina.toml'. " +
+                        "Defaulting to:\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"");
 
         String content5 =
                 "[package]\n" +
@@ -1924,8 +1936,10 @@ public class TestBuildProject extends BaseTest {
                         "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
                         "visibility = \"private\"";
         List<String> warnings5 =
-                List.of("WARNING [Ballerina.toml:(1:1,7:23)] missing name under [package], value derived as app1994",
-                        "WARNING [Ballerina.toml:(1:1,7:23)] missing version under [package], value derived as 0.1.0");
+                List.of("WARNING [Ballerina.toml:(1:1,7:23)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"app1994\"'",
+                        "WARNING [Ballerina.toml:(1:1,7:23)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
 
         String content6 =
                 "[package]\n" +
@@ -1936,9 +1950,9 @@ public class TestBuildProject extends BaseTest {
                         "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
                         "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
                         "visibility = \"private\"";
-                List<String> warnings6 =
-                        List.of("WARNING [Ballerina.toml:(1:1,8:23)] missing version under [package], " +
-                                "value derived as 0.1.0");
+        List<String> warnings6 =
+                List.of("WARNING [Ballerina.toml:(1:1,8:23)] missing key 'version' in table '[package]' in " +
+                        "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
 
         String content7 =
                 "# this is a comment\n" +
@@ -1946,8 +1960,10 @@ public class TestBuildProject extends BaseTest {
                         "[package]\n" +
                         "name = \"winery\"";
         List<String> warnings7 =
-                List.of("WARNING [Ballerina.toml:(3:1,4:16)] missing org under [package], value derived as testuserorg",
-                        "WARNING [Ballerina.toml:(3:1,4:16)] missing version under [package], value derived as 0.1.0");
+                List.of("WARNING [Ballerina.toml:(3:1,4:16)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'",
+                        "WARNING [Ballerina.toml:(3:1,4:16)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
 
         String content8 =
                 "[package]\n" +
@@ -1962,8 +1978,10 @@ public class TestBuildProject extends BaseTest {
                         "name = \"ro\"\n" +
                         "version = \"1.2.3\"";
         List<String> warnings8 =
-                List.of("WARNING [Ballerina.toml:(1:1,3:35)] missing org under [package], value derived as testuserorg",
-                        "WARNING [Ballerina.toml:(1:1,3:35)] missing name under [package], value derived as app1994");
+                List.of("WARNING [Ballerina.toml:(1:1,3:35)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"app1994\"'",
+                        "WARNING [Ballerina.toml:(1:1,3:35)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'");
 
         String content9 =
                 "[package]\n" +
@@ -1976,8 +1994,12 @@ public class TestBuildProject extends BaseTest {
                         "name = \"ro\"\n" +
                         "version = \"1.2.3\"";
         List<String> warnings9 =
-                List.of("WARNING [Ballerina.toml:(1:1,1:10)] missing package information in Ballerina.toml, " +
-                        "values derived as org: testuserorg, name: app1994 and version: 0.1.0");
+                List.of("WARNING [Ballerina.toml:(1:1,1:10)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"app1994\"'",
+                        "WARNING [Ballerina.toml:(1:1,1:10)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'",
+                        "WARNING [Ballerina.toml:(1:1,1:10)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
 
         String content10 =
                 "[build-options]\n" +
@@ -1988,8 +2010,12 @@ public class TestBuildProject extends BaseTest {
                         "name = \"ro\"\n" +
                         "version = \"1.2.3\"";
         List<String> warnings10 =
-                List.of("WARNING [Ballerina.toml:(1:1,7:18)] missing package information in Ballerina.toml, " +
-                        "values derived as org: testuserorg, name: app1994 and version: 0.1.0");
+                List.of("WARNING [Ballerina.toml:(1:1,7:18)] missing table '[package]' in 'Ballerina.toml'. " +
+                        "Defaulting to:\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"");
 
         return new Object[][]{
                 {myPkgDir, content1, warnings1},
