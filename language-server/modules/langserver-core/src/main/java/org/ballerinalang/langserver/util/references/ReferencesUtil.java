@@ -111,7 +111,6 @@ public class ReferencesUtil {
     /**
      * Returns the symbol at cursor handling a special case where cursor position is at the RHS end of the symbol.
      *
-     * @param context Project
      * @param context Operation context triggered with a cursor position
      * @return Symbol at cursor
      */
