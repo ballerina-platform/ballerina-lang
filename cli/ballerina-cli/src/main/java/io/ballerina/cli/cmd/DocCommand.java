@@ -102,9 +102,6 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
-
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
@@ -216,7 +213,6 @@ public class DocCommand implements BLauncherCmd {
 
         buildOptionsBuilder
                 .setCodeCoverage(false)
-                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setTestReport(false)
                 .setObservabilityIncluded(false)

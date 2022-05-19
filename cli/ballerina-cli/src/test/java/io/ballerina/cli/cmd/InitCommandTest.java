@@ -222,7 +222,8 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         Assert.assertTrue(readOutput().contains(
-                "ballerina-init - Create a new Ballerina package inside the current directory"));
+                " ballerina-init - Create a new Ballerina package inside the current\n"));
+
     }
 
     @Test(description = "Test init command with help flag")
@@ -234,7 +235,7 @@ public class InitCommandTest extends BaseCommandTest {
         initCommand.execute();
 
         Assert.assertTrue(readOutput().contains(
-                "ballerina-init - Create a new Ballerina package inside the current directory"));
+                "ballerina-init - Create a new Ballerina package inside the current\n"));
     }
 
     @Test(description = "Test init command inside a directory with invalid package name")

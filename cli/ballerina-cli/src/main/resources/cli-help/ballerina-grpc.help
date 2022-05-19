@@ -13,7 +13,8 @@ DESCRIPTION
 
 OPTIONS
        --input <path>
-           Path to a '.proto' file or a directory containing multiple '.proto' files.
+           Path to a '.proto' file or a directory containing multiple '.proto'
+           files.
 
        --output <path>
            Location of the generated Ballerina source files.
@@ -27,7 +28,8 @@ OPTIONS
            If not specified, only the stub file is generated.
 
        --proto-path <path>
-            Path to a directory in which to look for '.proto' files when resolving import directives.
+            Path to a directory in which to look for '.proto' files when
+            resolving import directives.
 
 EXAMPLES
        Generate the Ballerina gRPC stub file (for the given '.proto' file) in a

@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -55,6 +56,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         return 998;
     }
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -63,9 +71,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         String uri = context.fileUri();
-        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
-            return Collections.emptyList();
-        }
+
         Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
