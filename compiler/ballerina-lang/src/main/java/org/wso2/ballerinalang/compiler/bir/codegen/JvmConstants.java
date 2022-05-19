@@ -277,6 +277,7 @@ public class JvmConstants {
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
+    public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
     public static final String CONSTANTS_CLASS_NAME = "constants/$_constants";
     public static final String MODULE_TYPES_CLASS_NAME = "types/$_types";
