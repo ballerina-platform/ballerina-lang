@@ -101,6 +101,13 @@ public class RenameUtil {
                 || isSelfClassSymbol(context)) {
             return Optional.empty();
         }
+        
+        // Check if symbol at cursor is empty
+        Optional<Symbol> symbolAtCursor = ReferencesUtil.getSymbolAtCursor(context);
+        if (symbolAtCursor.isEmpty()) {
+            return Optional.empty();
+        }
+        
         Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             return Optional.empty();
@@ -108,12 +115,8 @@ public class RenameUtil {
 
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
-        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        if (semanticModel.isEmpty()) {
-            return Optional.empty();
-        }
-        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(nodeAtCursor);
-        if (symbolAtCursor.isEmpty() || onImportDeclarationNode(context, nodeAtCursor)) {
+        
+        if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Optional.empty();
         }
         
