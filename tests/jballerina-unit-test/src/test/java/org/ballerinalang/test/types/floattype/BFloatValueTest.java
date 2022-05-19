@@ -168,15 +168,15 @@ public class BFloatValueTest {
         BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals",
                 3, 9);
         BAssertUtil.validateError(negativeResult, 1, "'999e9999999999' is out of range " +
-                "for 'Float'", 8, 15);
+                "for 'float'", 8, 15);
         BAssertUtil.validateError(negativeResult, 2, "'999e-9999999999' is out of range " +
-                "for 'Float'", 9, 15);
+                "for 'float'", 9, 15);
         BAssertUtil.validateError(negativeResult, 3, "'999e9999999999' is out of range " +
-                "for 'Float'", 10, 23);
+                "for 'float'", 10, 23);
         BAssertUtil.validateError(negativeResult, 4, "'99.9E99999999' is out of range for " +
-                "'Float'", 11, 27);
+                "'float'", 11, 27);
         BAssertUtil.validateError(negativeResult, 5, "'99.9E-99999999' is out of range for" +
-                " 'Float'", 12, 27);
+                " 'float'", 12, 27);
         BAssertUtil.validateError(negativeResult, 6, "'0x9999999p999999999999999999999999' " +
                 "is out of range for 'float'", 15, 10);
         BAssertUtil.validateError(negativeResult, 7, "'0x9999999p-999999999999999999999999' " +
