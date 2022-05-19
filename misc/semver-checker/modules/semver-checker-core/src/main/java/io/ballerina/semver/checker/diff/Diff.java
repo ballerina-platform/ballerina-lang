@@ -18,7 +18,7 @@
 
 package io.ballerina.semver.checker.diff;
 
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
 
 import java.util.List;
 
@@ -42,5 +42,5 @@ public interface Diff {
 
     String getAsString();
 
-    JsonObject getAsJsonObject();
+    JsonElement getAsJsonObject();
 }
