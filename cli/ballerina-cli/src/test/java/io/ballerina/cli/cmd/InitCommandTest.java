@@ -58,9 +58,6 @@ public class InitCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
-                "org = \"testuserorg\"\n" +
-                "name = \"" + projectPath.getFileName().toString() + "\"\n" +
-                "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
