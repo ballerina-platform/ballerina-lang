@@ -18,6 +18,8 @@
 
 package io.ballerina.semver.checker.diff;
 
+import com.google.gson.JsonObject;
+
 import java.util.List;
 
 /**
@@ -39,4 +41,6 @@ public interface Diff {
     List<? extends Diff> getChildDiffs(SemverImpact versionImpact);
 
     String getAsString();
+
+    JsonObject getAsJsonObject();
 }
