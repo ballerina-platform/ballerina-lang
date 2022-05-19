@@ -110,7 +110,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
 
         NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
         paramDiffBuilder = paramDiffBuilder.withMessage(String.format("parameter kind is changed from '%s' to '%s'",
-                newParam.kind(), oldParam.kind()));
+                oldParam.kind(), newParam.kind()));
         if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
         } else if (newParam.kind() == SyntaxKind.DEFAULTABLE_PARAM && oldParam.kind() == SyntaxKind.REQUIRED_PARAM) {

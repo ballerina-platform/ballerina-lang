@@ -123,7 +123,7 @@ public class DiffImpl implements Diff {
         jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.diffType.name().toLowerCase(Locale.getDefault())));
         jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.versionImpact.name()
                 .toLowerCase(Locale.getDefault())));
-        if (diffType == DiffType.MODIFIED && childDiffs != null) {
+        if (diffType == DiffType.MODIFIED && childDiffs != null && !childDiffs.isEmpty()) {
             JsonArray childArray = new JsonArray();
             childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
             jsonObject.add(DIFF_ATTR_CHILDREN, childArray);

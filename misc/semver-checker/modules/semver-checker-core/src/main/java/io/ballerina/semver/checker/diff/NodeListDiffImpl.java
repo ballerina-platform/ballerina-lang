@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_CHILDREN;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
@@ -148,26 +147,23 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     }
 
     @Override
-    public JsonObject getAsJsonObject() {
-        JsonObject jsonObject = new JsonObject();
+    public JsonArray getAsJsonObject() {
+        JsonArray childArray = new JsonArray();
         if (childDiffs == null || childDiffs.isEmpty()) {
+            JsonObject jsonObject = new JsonObject();
             jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
             jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.getDefault())));
             jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()
                     .toLowerCase(Locale.getDefault())));
-        }
-
-        if (this.getMessage().isPresent()) {
-            jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getVersionImpact().name()));
-        }
-
-        if (childDiffs != null) {
-            JsonArray childArray = new JsonArray();
+            if (this.getMessage().isPresent()) {
+                jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getVersionImpact().name()));
+            }
+            childArray.add(jsonObject);
+        } else {
             childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
-            jsonObject.add(DIFF_ATTR_CHILDREN, childArray);
         }
 
-        return jsonObject;
+        return childArray;
     }
 
     /**

@@ -165,6 +165,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     public JsonObject getAsJsonObject() {
         JsonObject jsonObject = new JsonObject();
 
+        // Todo: Add the rest of module-level definition types
         if (childDiffs == null || childDiffs.isEmpty() || this instanceof FunctionDiff) {
             jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
             jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.getDefault())));
@@ -176,8 +177,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getMessage().get()));
         }
 
-        if (childDiffs != null) {
-            // Todo: Add the rest of module-level definition types
+        if (childDiffs != null && !childDiffs.isEmpty()) {
             JsonArray childArray = new JsonArray();
             childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
             jsonObject.add(DIFF_ATTR_CHILDREN, childArray);
