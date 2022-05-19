@@ -186,9 +186,9 @@ public class BFloatValueTest {
         BAssertUtil.validateError(negativeResult, 9, "'9999999999e-9999999999999999999' " +
                 "is out of range for 'float'", 21, 11);
         BAssertUtil.validateError(negativeResult, 10, "'0x999.9p999999999999999' is out " +
-                "of range for 'Float'", 23, 1);
+                "of range for 'float'", 23, 1);
         BAssertUtil.validateError(negativeResult, 11, "'0x999.9p999999999999999' is out " +
-                "of range for 'Float'", 23, 29);
+                "of range for 'float'", 23, 29);
     }
 
     @Test(description = "Test float literal discrimination error")
