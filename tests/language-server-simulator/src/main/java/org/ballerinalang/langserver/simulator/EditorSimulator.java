@@ -114,8 +114,8 @@ public class EditorSimulator {
             Generators.Type type = getRandomGenerator();
             logger.info("Generating snippet of type: {}", type);
             String content = Generators.generate(type);
-            
-            if(type == Generators.Type.IMPORT_STATEMENT) {
+
+            if (type == Generators.Type.IMPORT_STATEMENT) {
                 // Set cursor to start of the file
                 editorTab.cursor(0, 0);
             } else {
@@ -127,13 +127,13 @@ public class EditorSimulator {
                 // Set cursor to start of random node
                 editorTab.cursor(linePosition.line(), linePosition.offset());
             }
-            
+
             logger.info("Typing in editor tab: {} -> {}", editorTab, content);
             CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
                 editorTab.type(content);
                 editorTab.completions();
             });
-            
+
             // While the snippet is being typed, check if we have reached a timeout
             while (!future.isDone() && Instant.now().getEpochSecond() < endTime) {
                 logger.info("Remaining time: {}", endTime - Instant.now().getEpochSecond());
@@ -168,7 +168,7 @@ public class EditorSimulator {
         List<Generators.Type> types = Arrays.stream(Generators.Type.values())
                 .filter(Generators.Type::isTopLevelNode)
                 .collect(Collectors.toList());
-        
+
         // Get random generator
         Generators.Type type = types.get(random.nextInt(types.size()));
         return type;
