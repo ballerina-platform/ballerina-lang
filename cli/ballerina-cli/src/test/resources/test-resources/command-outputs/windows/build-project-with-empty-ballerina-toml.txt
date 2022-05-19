@@ -7,4 +7,4 @@ name = "validProjectWithEmptyBallerinaToml"
 version = "0.1.0"
 
 Generating executable
-	target/bin/validProjectWithEmptyBallerinaToml.jar
+	target\bin\validProjectWithEmptyBallerinaToml.jar
