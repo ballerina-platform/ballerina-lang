@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
+import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_CHILDREN;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
@@ -147,7 +149,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
     }
 
     @Override
-    public JsonArray getAsJsonObject() {
+    public JsonArray getAsJson() {
         JsonArray childArray = new JsonArray();
         if (childDiffs == null || childDiffs.isEmpty()) {
             JsonObject jsonObject = new JsonObject();
@@ -160,7 +162,14 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
             }
             childArray.add(jsonObject);
         } else {
-            childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
+            for (Diff diff : childDiffs) {
+                JsonElement jsonDiff = diff.getAsJson();
+                if (jsonDiff.isJsonArray()) {
+                    childArray.addAll((JsonArray) jsonDiff);
+                } else {
+                    childArray.add(diff.getAsJson());
+                }
+            }
         }
 
         return childArray;

@@ -42,5 +42,5 @@ public interface Diff {
 
     String getAsString();
 
-    JsonElement getAsJsonObject();
+    JsonElement getAsJson();
 }

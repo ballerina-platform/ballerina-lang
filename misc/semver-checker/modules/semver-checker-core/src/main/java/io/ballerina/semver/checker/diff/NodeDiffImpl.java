@@ -162,7 +162,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     }
 
     @Override
-    public JsonObject getAsJsonObject() {
+    public JsonObject getAsJson() {
         JsonObject jsonObject = new JsonObject();
 
         // Todo: Add the rest of module-level definition types
@@ -179,7 +179,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
 
         if (childDiffs != null && !childDiffs.isEmpty()) {
             JsonArray childArray = new JsonArray();
-            childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
+            childDiffs.forEach(diff -> childArray.add(diff.getAsJson()));
             jsonObject.add(DIFF_ATTR_CHILDREN, childArray);
         }
 
