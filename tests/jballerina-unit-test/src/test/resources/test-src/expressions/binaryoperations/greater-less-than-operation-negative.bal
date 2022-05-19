@@ -272,15 +272,34 @@ function checkComparisonWithUnorderedTypes17() {
     boolean x4 = a >= b;
 }
 
+type X1 [()|null]|[string...];
+type Y1 [FIVE|SIX];
+
 function checkComparisonWithUnorderedTypes18() {
-    byte|int:Signed32 a = -1;
-    ()|null b = ();
+    Y1 a = [5];
+    X1 b = [null];
 
     boolean _ = a < b;
     boolean _ = a <= b;
     boolean _ = a > b;
     boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
 
+type X2 [()|null, (), (), (), int, (), null, string];
+type Y2 [FIVE|SIX];
+
+function checkComparisonWithUnorderedTypes19() {
+    Y2 a = [5];
+    X2 b = [null];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
     boolean _ = b < a;
     boolean _ = b <= a;
     boolean _ = b > a;
