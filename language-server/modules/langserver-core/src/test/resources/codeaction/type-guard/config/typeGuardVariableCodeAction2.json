@@ -1,9 +1,12 @@
 {
+  "position": {
     "line": 7,
-    "character": 35,
-    "expected": [
-        {
-            "title": "Type guard variable 'val'"
-        }
-    ]
+    "character": 35
+  },
+  "source": "typeGuardVariable1.bal",
+  "expected": [
+    {
+      "title": "Type guard variable \u0027val\u0027"
+    }
+  ]
 }

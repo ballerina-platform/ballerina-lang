@@ -1,9 +1,12 @@
 {
-  "line": 2,
-  "character": 5,
+  "position": {
+    "line": 2,
+    "character": 5
+  },
+  "source": "importModule1.bal",
   "expected": [
     {
-      "title": "Import module 'ballerina/module1'",
+      "title": "Import module \u0027ballerina/module1\u0027",
       "kind": "quickfix",
       "diagnostics": [],
       "edit": {

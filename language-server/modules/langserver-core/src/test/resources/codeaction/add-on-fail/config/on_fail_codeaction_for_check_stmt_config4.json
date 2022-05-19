@@ -1,6 +1,9 @@
 {
-  "line": 3,
-  "character": 20,
+  "position": {
+    "line": 3,
+    "character": 20
+  },
+  "source": "on_fail_codeaction_for_check_stmt_source4.bal",
   "expected": [
     {
       "title": "Create on fail clause",

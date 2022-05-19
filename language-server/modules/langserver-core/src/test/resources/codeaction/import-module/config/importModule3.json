@@ -1,9 +1,12 @@
 {
-  "line": 1,
-  "character": 9,
+  "position": {
+    "line": 1,
+    "character": 9
+  },
+  "source": "importModule3.bal",
   "expected": [
     {
-      "title": "Import module 'test/project1'",
+      "title": "Import module \u0027test/project1\u0027",
       "kind": "quickfix",
       "diagnostics": [],
       "edit": {

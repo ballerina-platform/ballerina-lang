@@ -1,6 +1,9 @@
 {
-  "line": 74,
-  "character": 18,
+  "position": {
+    "line": 74,
+    "character": 18
+  },
+  "source": "typeCast.bal",
   "expected": [
     {
       "title": "Add type cast",
@@ -17,7 +20,7 @@
               "character": 16
             }
           },
-          "newText": "<int>"
+          "newText": "\u003cint\u003e"
         }
       ]
     }

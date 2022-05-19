@@ -1,6 +1,9 @@
 {
-  "line": 22,
-  "character": 3,
+  "position": {
+    "line": 22,
+    "character": 3
+  },
+  "source": "createVariable.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 3
             }
           },
-          "newText": "string color = "
+          "newText": "string color \u003d "
         }
       ]
     }

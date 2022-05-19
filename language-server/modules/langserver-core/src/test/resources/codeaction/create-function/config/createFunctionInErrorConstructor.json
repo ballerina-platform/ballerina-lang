@@ -1,6 +1,9 @@
 {
-  "line": 7,
-  "character": 33,
+  "position": {
+    "line": 7,
+    "character": 33
+  },
+  "source": "createFunctionInErrorConstructor.bal",
   "expected": [
     {
       "title": "Create function 'getMessage(...)'",

@@ -1,6 +1,9 @@
 {
-  "line": 129,
-  "character": 25,
+  "position": {
+    "line": 129,
+    "character": 25
+  },
+  "source": "typeCast.bal",
   "expected": [
     {
       "title": "Add type cast",
@@ -17,7 +20,7 @@
               "character": 24
             }
           },
-          "newText": "<future<string>>"
+          "newText": "\u003cfuture\u003cstring\u003e\u003e"
         }
       ]
     }

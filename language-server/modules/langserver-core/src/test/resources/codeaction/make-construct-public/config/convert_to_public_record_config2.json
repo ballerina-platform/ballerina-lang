@@ -1,6 +1,9 @@
 {
-  "line": 0,
-  "character": 38,
+  "position": {
+    "line": 0,
+    "character": 38
+  },
+  "source": "publicCodeAction/modules/module2/convert_to_public_record_source2.bal",
   "expected": [
     {
       "title": "Convert 'DefaultModRecord3' to public",
@@ -9,7 +12,6 @@
         "documentChanges": [
           {
             "textDocument": {
-              "version": null,
               "uri": "publicCodeAction/modules/module2/convert_to_public_record_source2_test.bal"
             },
             "edits": [

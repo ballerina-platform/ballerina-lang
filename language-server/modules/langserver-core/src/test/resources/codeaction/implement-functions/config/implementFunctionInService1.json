@@ -1,6 +1,9 @@
 {
-  "line": 8,
-  "character": 11,
+  "position": {
+    "line": 8,
+    "character": 11
+  },
+  "source": "implementFunctionInService.bal",
   "expected": [
     {
       "title": "Implement method 'getName'",

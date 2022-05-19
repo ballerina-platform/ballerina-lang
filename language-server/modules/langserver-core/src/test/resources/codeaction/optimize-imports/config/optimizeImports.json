@@ -1,6 +1,9 @@
 {
-  "line": 4,
-  "character": 1,
+  "position": {
+    "line": 4,
+    "character": 1
+  },
+  "source": "optimizeImports.bal",
   "expected": [
     {
       "title": "Optimize all imports",
@@ -47,7 +50,7 @@
                     "character": 0
                   }
                 },
-                "newText": "import ballerina/lang.'object;\nimport ballerina/module1;\nimport ballerina/lang.'int as i;\nimport ballerina/lang.'string as s;\nimport wso2/twitter;\n"
+                "newText": "import ballerina/lang.\u0027object;\nimport ballerina/module1;\nimport ballerina/lang.\u0027int as i;\nimport ballerina/lang.\u0027string as s;\nimport wso2/twitter;\n"
               }
             ]
           }

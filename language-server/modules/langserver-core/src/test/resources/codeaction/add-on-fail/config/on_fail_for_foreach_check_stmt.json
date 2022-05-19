@@ -1,6 +1,9 @@
 {
-  "line": 3,
-  "character": 16,
+  "position": {
+    "line": 3,
+    "character": 16
+  },
+  "source": "on_fail_for_foreach_check_stmt.bal",
   "expected": [
     {
       "title": "Create on fail clause",

@@ -1,6 +1,9 @@
 {
-  "line": 23,
-  "character": 3,
+  "position": {
+    "line": 23,
+    "character": 3
+  },
+  "source": "createVariable.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 3
             }
           },
-          "newText": "Apple appleResult = "
+          "newText": "Apple appleResult \u003d "
         }
       ]
     }

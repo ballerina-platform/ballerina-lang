@@ -1,6 +1,9 @@
 {
-  "line": 14,
-  "character": 13,
+  "position": {
+    "line": 14,
+    "character": 13
+  },
+  "source": "optimizeImports1.bal",
   "expected": [
     {
       "title": "Optimize all imports",

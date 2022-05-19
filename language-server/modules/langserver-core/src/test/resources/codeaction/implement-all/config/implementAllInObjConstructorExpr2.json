@@ -1,6 +1,9 @@
 {
-  "line": 8,
-  "character": 8,
+  "position": {
+    "line": 8,
+    "character": 8
+  },
+  "source": "implementAllInObjConstructorExpr.bal",
   "expected": [
     {
       "title": "Implement all",

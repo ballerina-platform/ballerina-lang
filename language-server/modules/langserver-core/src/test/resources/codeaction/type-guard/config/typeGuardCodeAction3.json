@@ -1,37 +1,40 @@
 {
+  "position": {
     "line": 5,
-    "character": 6,
-    "expected": [
+    "character": 6
+  },
+  "source": "typeGuard.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "edits": [
         {
-            "title": "Create variable and type guard",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 5,
-                            "character": 19
-                        },
-                        "end": {
-                            "line": 5,
-                            "character": 19
-                        }
-                    },
-                    "newText": "\n    if apple is int {\n\n    }"
-                },
-                {
-                    "range": {
-                        "start": {
-                            "line": 5,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 5,
-                            "character": 4
-                        }
-                    },
-                    "newText": "int|error apple \u003d "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 19
+            },
+            "end": {
+              "line": 5,
+              "character": 19
+            }
+          },
+          "newText": "\n    if apple is int {\n\n    }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "int|error apple \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

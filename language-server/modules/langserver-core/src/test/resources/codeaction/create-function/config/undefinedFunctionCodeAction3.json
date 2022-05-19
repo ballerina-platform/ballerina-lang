@@ -1,6 +1,9 @@
 {
-  "line": 4,
-  "character": 7,
+  "position": {
+    "line": 4,
+    "character": 7
+  },
+  "source": "createUndefinedFunction2.bal",
   "expected": [
     {
       "title": "Create function 'addTwoIntegers3(...)'",

@@ -1,6 +1,9 @@
 {
-  "line": 5,
-  "character": 32,
+  "position": {
+    "line": 5,
+    "character": 32
+  },
+  "source": "convert_to_readonly_clone_source1.bal",
   "expected": [
     {
       "title": "Convert to Readonly Clone",

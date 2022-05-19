@@ -1,6 +1,9 @@
 {
-  "line": 5,
-  "character": 27,
+  "position": {
+    "line": 5,
+    "character": 27
+  },
+  "source": "createFunctionCodeActionWithStrands.bal",
   "expected": [
     {
       "title": "Create function 'testAsync(...)'",

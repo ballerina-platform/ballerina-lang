@@ -1,6 +1,9 @@
 {
-  "line": 2,
-  "character": 4,
+  "position": {
+    "line": 2,
+    "character": 4
+  },
+  "source": "createVariable7.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "object {public isolated function next() returns record {|int value;|}?;} iterator = "
+          "newText": "object {public isolated function next() returns record {|int value;|}?;} iterator \u003d "
         }
       ]
     }

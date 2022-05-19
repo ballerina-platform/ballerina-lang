@@ -1,6 +1,9 @@
 {
-  "line": 2,
-  "character": 5,
+  "position": {
+    "line": 2,
+    "character": 5
+  },
+  "source": "createVariableWithFunctionType1.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "(function () returns int)[] funcResult = "
+          "newText": "(function () returns int)[] funcResult \u003d "
         }
       ]
     }
