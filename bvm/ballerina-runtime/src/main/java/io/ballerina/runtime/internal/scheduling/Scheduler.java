@@ -16,6 +16,7 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.Diagnostics;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
@@ -263,6 +264,7 @@ public class Scheduler {
     }
 
     public void start() {
+        Diagnostics.addToSchedulers(this);
         this.mainBlockSem = new Semaphore(-(numThreads - 1));
         for (int i = 0; i < numThreads - 1; i++) {
             new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
@@ -405,6 +407,7 @@ public class Scheduler {
                 }
 
                 cleanUp(justCompleted);
+                Diagnostics.removeFromStrands(justCompleted.getId());
 
                 int strandsLeft = totalStrands.decrementAndGet();
                 if (strandsLeft == 0) {
@@ -503,6 +506,7 @@ public class Scheduler {
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties);
+        Diagnostics.addToStrands(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -510,6 +514,7 @@ public class Scheduler {
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
+        Diagnostics.addToStrands(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -551,6 +556,31 @@ public class Scheduler {
                     RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         return poolSize;
+    }
+
+    public String dumpState() {
+        StringBuilder infoStr = new StringBuilder();
+        infoStr.append("Scheduler toString: " + this.toString() + "\n");
+        infoStr.append("No. of items in runnable list: " + this.runnableList.size() + "\n");
+        for (ItemGroup itemGroup : this.runnableList) {
+            infoStr.append("\tItem group toString: " + itemGroup.toString() + "\n\n");
+            Stack<SchedulerItem> schedulerItemStack = itemGroup.items;
+            infoStr.append("\tNo. of SchedulerItem in stack: " + schedulerItemStack.size() + "\n");
+            infoStr.append("\tstack toString: " + schedulerItemStack.toString() + "\n");
+//            for (SchedulerItem schedulerItem : schedulerItemStack) {
+//                infoStr.append("\t\t scheduler item: " + schedulerItem.toString() + "\n");
+//            }
+        }
+        infoStr.append("No. of total strands: " + this.totalStrands.toString() + "\n");
+        infoStr.append("poolSizeConf: " + poolSizeConf + "\n");
+        if (strandHolder.get().strand == null) {
+            infoStr.append("strandholder strand is null\n");
+        } else {
+            infoStr.append("strandholder strand :" + strandHolder.get().strand.getState() + "\n");
+        }
+        infoStr.append("numThreads: " + this.numThreads + "\n");
+        infoStr.append("poolSize: " + poolSize + "\n");
+        return infoStr.toString();
     }
 
     /**
