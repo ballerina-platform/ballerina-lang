@@ -116,13 +116,13 @@ public class AsyncUtils {
      * @param scheduler            The scheduler for invoking functions
      */
     public static void invokeFunctionPointerAsyncIteratively(BFunctionPointer<?, ?> func, String strandName,
-                                                             StrandMetadata metadata, int noOfIterations,
+                                                             StrandMetadata metadata, Supplier<Integer> noOfIterations,
                                                              Supplier<Object[]> argsSupplier,
                                                              Consumer<Object> futureResultConsumer,
                                                              Supplier<Object> returnValueSupplier,
                                                              Scheduler scheduler) {
 
-        if (noOfIterations <= 0) {
+        if (noOfIterations.get() <= 0) {
             return;
         }
         Strand strand = Scheduler.getStrand();
@@ -133,7 +133,7 @@ public class AsyncUtils {
     }
 
     private static void scheduleNextFunction(BFunctionPointer<?, ?> func, Strand strand, String strandName,
-                                             StrandMetadata metadata, int noOfIterations,
+                                             StrandMetadata metadata, Supplier<Integer> noOfIterations,
                                              AtomicInteger callCount, Supplier<Object[]> argsSupplier,
                                              Consumer<Object> futureResultConsumer,
                                              Supplier<Object> returnValueSupplier, Scheduler scheduler) {
@@ -141,7 +141,7 @@ public class AsyncUtils {
             @Override
             public void notifySuccess(Object result) {
                 futureResultConsumer.accept(getFutureResult());
-                if (callCount.incrementAndGet() != noOfIterations) {
+                if (callCount.incrementAndGet() < noOfIterations.get()) {
                     scheduleNextFunction(func, strand, strandName, metadata, noOfIterations, callCount, argsSupplier,
                                          futureResultConsumer, returnValueSupplier, scheduler);
                 } else {
@@ -154,13 +154,7 @@ public class AsyncUtils {
                 handleRuntimeErrors(error);
             }
         };
-
-        try {
-            invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
-        } catch (BError error) {
-            strand.panic = error;
-            strand.scheduler.unblockStrand(strand);
-        }
+        invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {

@@ -55,13 +55,12 @@ public class Filter {
         BTable newTable =
                 ValueCreator.createTableValue(TypeCreator.createTableType(tableType.getConstrainedType(),
                         tableType.getFieldNames(), false));
-        int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
         Object[] keys = tbl.getKeys();
         AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, tbl::size,
                         () -> new Object[]{parentStrand,
                                 tbl.get(keys[index.incrementAndGet()]), true},
                         result -> {

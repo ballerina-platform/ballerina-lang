@@ -325,18 +325,12 @@ public class LangLibArrayTest {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}IndexOutOfRange \\{\"message\":\"array index out of range: " +
-                            "index: 2, size: 1\"}.*")
+    @Test
     public void testForEachWhileRemoveElements() {
         BRunUtil.invoke(compileResult, "testForEachWhileRemoveElements");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}IndexOutOfRange \\{\"message\":\"array index out of range: " +
-                            "index: 3, size: 2\"}.*")
+    @Test
     public void testFilterWhileShrinkingArray() {
         BRunUtil.invoke(compileResult, "testFilterWhileShrinkingArray");
     }

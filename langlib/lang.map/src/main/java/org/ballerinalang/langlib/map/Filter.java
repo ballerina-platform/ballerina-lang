@@ -65,11 +65,10 @@ public class Filter {
                 throw createOpNotSupportedError(mapType, "filter()");
         }
         BMap<BString, Object> newMap = ValueCreator.createMapValue(TypeCreator.createMapType(constraint));
-        int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
         Object[] keys = m.getKeys();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, m::size,
                 () -> new Object[]{parentStrand,
                         m.get(keys[index.incrementAndGet()]), true},
                 result -> {

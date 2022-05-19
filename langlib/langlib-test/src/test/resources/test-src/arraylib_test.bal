@@ -1726,16 +1726,19 @@ function testArrSortWithNamedArgs3() {
 }
 
 function testForEachWhileRemoveElements() {
-    int[] arr = [1, 2, 3];
+    int[] arr = [1, 2, 3, 4, 5];
     arr.forEach(function (int i) {
         _ = arr.pop();
     });
+
+    assertValueEquality([1, 2], arr);
 }
 
 function testFilterWhileShrinkingArray() {
-    int[] arr = [1, 2, 3, 4, 5];
-    _ = arr.filter(function (int i) returns boolean {
+    int[] arr = [12, 24, 5, 4, 3, 8];
+    int[] new_arr = arr.filter(function (int i) returns boolean {
         _ = arr.pop();
         return i > 4;
     });
+    assertValueEquality([12, 24, 5], new_arr);
 }

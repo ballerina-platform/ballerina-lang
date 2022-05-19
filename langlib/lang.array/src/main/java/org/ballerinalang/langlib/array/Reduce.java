@@ -47,18 +47,15 @@ public class Reduce {
 
     public static Object reduce(BArray arr, BFunctionPointer<Object, Boolean> func, Object initial) {
         Type arrType = arr.getType();
-        int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, arr::size,
                                                        () -> new Object[]{parentStrand, accum.get(), true,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);
         return accum.get();
-
-        
     }
 }

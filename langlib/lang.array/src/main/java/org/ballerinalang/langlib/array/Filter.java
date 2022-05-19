@@ -61,11 +61,10 @@ public class Filter {
                 throw createOpNotSupportedError(arrType, "filter()");
 
         }
-        int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, arr::size,
                                                          () -> new Object[]{parentStrand,
                                                                  arr.get(index.incrementAndGet()),
                                                                  true},

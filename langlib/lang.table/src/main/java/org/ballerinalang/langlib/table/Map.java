@@ -54,11 +54,10 @@ public class Map {
                 TypeCreator.createTableType(newConstraintType, PredefinedTypes.TYPE_NEVER, tblType.isReadOnly());
 
         BTable newTable = ValueCreator.createTableValue(newTableType);
-        int size = tbl.size();
         Object[] tableValues = tbl.values().toArray();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, tbl::size,
                 () -> new Object[]{parentStrand,
                         tableValues[index.incrementAndGet()], true},
                 newTable::add, () -> newTable, Scheduler.getStrand().scheduler);

@@ -50,13 +50,12 @@ public class Reduce {
                                                                       TABLE_VERSION, "reduce");
 
     public static Object reduce(BTable tbl, BFunctionPointer<Object, Object> func, Object initial) {
-        int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
         Object[] values = tbl.values().toArray();
         AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, () -> tbl.values().size(),
                         () -> new Object[]{parentStrand, accum.get(), true,
                                 values[index.incrementAndGet()], true},
                                                        accum::set, accum::get, Scheduler.getStrand().scheduler);

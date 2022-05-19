@@ -137,7 +137,7 @@ public class IterableOperationsWithVarMutabilityTests {
         Object arr = BRunUtil.invoke(compileResult, "testInExpression");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
-        Assert.assertEquals(returns.get(0).toString(), "total count 4");
+        Assert.assertEquals(returns.get(0).toString(), "total count 5");
         Assert.assertEquals(returns.get(1).toString(), "10");
     }
 

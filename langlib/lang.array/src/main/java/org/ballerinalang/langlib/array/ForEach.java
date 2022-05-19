@@ -50,12 +50,11 @@ public class ForEach {
                                                                       ARRAY_VERSION, "forEach");
 
     public static void forEach(BArray arr, BFunctionPointer<Object, Object> func) {
-        int size = arr.size();
         Type arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
-        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+        AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, arr::size,
                                                          () -> new Object[]{parentStrand,
                                                                  getFn.get(arr, index.incrementAndGet()), true},
                                                          result -> {

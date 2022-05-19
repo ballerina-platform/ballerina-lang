@@ -47,12 +47,11 @@ public class Foreach {
                                                                       TABLE_VERSION, "forEach");
 
     public static void forEach(BTable tbl, BFunctionPointer<Object, Object> func) {
-        int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
         Object[] values = tbl.values().toArray();
         AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, tbl::size,
                         () -> new Object[]{parentStrand,
                                 values[index.incrementAndGet()], true},
                         result -> {

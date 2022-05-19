@@ -59,7 +59,6 @@ public class Map {
         Type elemType = ((FunctionType) func.getType()).getReturnType();
         Type retArrType = TypeCreator.createArrayType(elemType);
         BArray retArr = ValueCreator.createArrayValue((ArrayType) retArrType);
-        int size = arr.size();
         GetFunction getFn;
 
         Type arrType = arr.getType();
@@ -76,7 +75,7 @@ public class Map {
         AtomicInteger index = new AtomicInteger(-1);
         Strand parentStrand = Scheduler.getStrand();
         AsyncUtils
-                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, arr::size,
                                                        () -> new Object[]{parentStrand,
                                                                getFn.get(arr, index.incrementAndGet()), true},
                                                        result -> retArr.add(index.get(), result),
