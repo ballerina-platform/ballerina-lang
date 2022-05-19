@@ -3078,7 +3078,8 @@ public class Types {
                 targetTag = getEffectiveTypeForIntersection(targetType).tag;
             }
             if (isSimpleBasicType(sourceTag) && isSimpleBasicType(targetTag)) {
-                return (source == target) || isIntOrStringType(sourceTag, targetTag);
+                return (source == target) || sourceTag == TypeTags.NIL || targetTag == TypeTags.NIL ||
+                        isIntOrStringType(sourceTag, targetTag);
             }
             if (sourceTag == TypeTags.FINITE) {
                 return checkValueSpaceHasSameType(((BFiniteType) sourceType), targetType);
@@ -3088,7 +3089,14 @@ public class Types {
 
         @Override
         public Boolean visit(BArrayType target, BType source) {
+            source = getReferredType(source);
+            if (source.tag == TypeTags.INTERSECTION) {
+                source = getEffectiveTypeForIntersection(source);
+            }
             if (source.tag != TypeTags.ARRAY) {
+                if (source.tag == TypeTags.TUPLE || source.tag == TypeTags.UNION) {
+                    return isSameOrderedType(target, source);
+                }
                 return false;
             }
 
@@ -3102,8 +3110,25 @@ public class Types {
 
         @Override
         public Boolean visit(BTupleType target, BType source) {
-            if (source.tag != TypeTags.TUPLE || !hasSameReadonlyFlag(source, target)) {
+            source = getReferredType(source);
+            if (source.tag == TypeTags.INTERSECTION) {
+                source = getEffectiveTypeForIntersection(source);
+            }
+            if (source.tag == TypeTags.UNION) {
+                return isSameOrderedType(target, source);
+            }
+            if (source.tag != TypeTags.TUPLE && source.tag != TypeTags.ARRAY) {
                 return false;
+            }
+
+            if (source.tag == TypeTags.ARRAY) {
+                BType eType = ((BArrayType) source).eType;
+                for (int i = 0; i < target.tupleTypes.size(); i++) {
+                    if (!isSameOrderedType(eType, target.tupleTypes.get(i), this.unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                return true;
             }
 
             BTupleType sourceT = (BTupleType) source;
@@ -3119,6 +3144,32 @@ public class Types {
                 if (!isSameOrderedType(sourceT.getTupleTypes().get(i), target.tupleTypes.get(i),
                         this.unresolvedTypes)) {
                     return false;
+                }
+            }
+
+            if (sourceTupleCount > targetTupleCount) {
+                BType baseType = sourceT.getTupleTypes().get(targetTupleCount);
+                for (int i = targetTupleCount + 1; i < sourceTupleCount; i++) {
+                    if (isNil(baseType)) {
+                        baseType = sourceT.getTupleTypes().get(i);
+                        continue;
+                    }
+                    if (!isSameOrderedType(baseType, sourceT.getTupleTypes().get(i),
+                            this.unresolvedTypes)) {
+                        return false;
+                    }
+                }
+            } else if (sourceTupleCount < targetTupleCount) {
+                BType baseType = target.getTupleTypes().get(sourceTupleCount);
+                for (int i = sourceTupleCount + 1; i < targetTupleCount; i++) {
+                    if (isNil(baseType)) {
+                        baseType = target.getTupleTypes().get(i);
+                        continue;
+                    }
+                    if (!isSameOrderedType(baseType, target.getTupleTypes().get(i),
+                            this.unresolvedTypes)) {
+                        return false;
+                    }
                 }
             }
 
@@ -3178,11 +3229,12 @@ public class Types {
 
             for (BType sourceT : sourceTypes) {
                 boolean foundSameOrderedType = false;
-                if (sourceTypes.size() > 1 && isNil(sourceT)) {
+                if (isNil(sourceT)) {
                     continue;
                 }
                 for (BType targetT : targetTypes) {
-                    if (targetTypes.size() > 1 && isNil(targetT)) {
+                    if (isNil(targetT)) {
+                        foundSameOrderedType = true;
                         continue;
                     }
                     if (isSameOrderedType(targetT, sourceT, this.unresolvedTypes)) {
@@ -3311,17 +3363,31 @@ public class Types {
             type = getReferredType(type);
             if (type.tag == TypeTags.FINITE) {
                 for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
-                    isSameType = isSameOrderedType(expr.getBType(), baseType) ||
-                            (unionType.isNullable() && isNil(type));
+                    isSameType = isSameOrderedType(expr.getBType(), baseType) || isNil(type);
                     if (!isSameType) {
                         return false;
                     }
                 }
             } else if (type.tag == TypeTags.UNION) {
-                return checkUnionHasSameType((BUnionType) type, baseType);
+                if (checkUnionHasSameType((BUnionType) type, baseType)) {
+                    isSameType = true;
+                    continue;
+                }
+                return false;
+            } else if (type.tag == TypeTags.TUPLE || type.tag == TypeTags.ARRAY) {
+                if (isSameOrderedType(type, baseType)) {
+                    isSameType = true;
+                    continue;
+                }
+                return false;
+            } else if (type.tag == TypeTags.INTERSECTION) {
+                if (isSameOrderedType(getEffectiveTypeForIntersection(type), baseType)) {
+                    isSameType = true;
+                    continue;
+                }
+                return false;
             } else if (isSimpleBasicType(type.tag)) {
-                isSameType = isSameOrderedType(type, baseType) ||
-                        (unionType.isNullable() && isNil(type));
+                isSameType = isSameOrderedType(type, baseType) || isNil(type);
                 if (!isSameType) {
                     return false;
                 }
@@ -6144,9 +6210,10 @@ public class Types {
                 }
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 boolean allMembersOrdered = false;
-                BType firstTypeInUnion = getReferredType(memberTypes.iterator().next());
+                BType firstTypeInUnion =
+                        getTypeWithEffectiveIntersectionTypes(getReferredType(memberTypes.iterator().next()));
                 for (BType memType : memberTypes) {
-                    memType = getReferredType(memType);
+                    memType = getEffectiveTypeForIntersection(getReferredType(memType));
                     if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE &&
                             (!isNil(firstTypeInUnion) && !isNil(memType))) {
                         Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
@@ -6154,8 +6221,13 @@ public class Types {
                         if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                             return false;
                         }
-                    } else if (memType.tag == TypeTags.UNION) {
-                        return isOrderedType(memType, hasCycle);
+                    } else if (memType.tag == TypeTags.UNION || memType.tag == TypeTags.ARRAY ||
+                            memType.tag == TypeTags.TUPLE) {
+                        if (isSameOrderedType(memType, firstTypeInUnion)) {
+                            allMembersOrdered = true;
+                            continue;
+                        }
+                        return false;
                     } else if (memType.tag != firstTypeInUnion.tag &&
                             (!isNil(firstTypeInUnion) && !isNil(memType)) &&
                             !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {
