@@ -722,7 +722,7 @@ public class CommandUtil {
         // replace manifest distribution with a guessed value
         defaultManifest = defaultManifest
                 .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, packageName)
+                .replaceAll(PKG_NAME, guessPkgName(packageName, "app"))
                 .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
         Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
     }
@@ -734,7 +734,7 @@ public class CommandUtil {
         String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-lib.toml");
         // replace manifest org and name with a guessed value.
         defaultManifest = defaultManifest.replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
-                .replaceAll(PKG_NAME, packageName)
+                .replaceAll(PKG_NAME, guessPkgName(packageName, "lib"))
                 .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
 
         write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
