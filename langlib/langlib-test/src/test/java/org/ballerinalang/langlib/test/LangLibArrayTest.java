@@ -325,14 +325,21 @@ public class LangLibArrayTest {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
     }
 
-    @Test
-    public void testForEachWhileRemoveElements() {
-        BRunUtil.invoke(compileResult, "testForEachWhileRemoveElements");
+    @Test(dataProvider = "testIterativeFunctionsWhileModifyingArrays")
+    public void testIterativeFunctionsWhileModifyingArray(String functionName) {
+        BRunUtil.invoke(compileResult, functionName);
     }
 
-    @Test
-    public void testFilterWhileShrinkingArray() {
-        BRunUtil.invoke(compileResult, "testFilterWhileShrinkingArray");
+    @DataProvider(name = "testIterativeFunctionsWhileModifyingArrays")
+    public Object[] testIterativeFunctionsWhileModifyingArrays() {
+        return new String[] {
+                "testForEachWhileRemoveElements",
+                "testFilterWhileShrinkingArray",
+                "testFilterWhileAddMoreElementToArray",
+                "testReduceWhileRemoveElements",
+                "testMapWhileRemoveElements",
+                "testMapWhileAddElements"
+        };
     }
 
     @Test

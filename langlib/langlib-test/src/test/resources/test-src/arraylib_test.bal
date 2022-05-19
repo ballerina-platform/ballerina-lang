@@ -1742,3 +1742,40 @@ function testFilterWhileShrinkingArray() {
     });
     assertValueEquality([12, 24, 5], new_arr);
 }
+
+function testFilterWhileAddMoreElementToArray() {
+    int[] arr = [5, 4, 3, 8, 11];
+    int[] new_arr = arr.filter(function (int i) returns boolean {
+        arr[5] = 10;
+        return i > 4;
+    });
+    assertValueEquality([5, 8, 11, 10], new_arr);
+}
+
+function testReduceWhileRemoveElements() {
+    int[] arr = [7, 6, 8, 3, 5, 4];
+    int r = arr.reduce(function (int total, int n) returns int {
+        _ = arr.pop();
+        return total + n;
+    }, 0);
+    assertValueEquality(21, r);
+}
+
+function testMapWhileRemoveElements() {
+    int[] arr = [1, 2, 3, 4, 5];
+    int[] new_arr = arr.map(function (int i) returns int {
+        _ = arr.pop();
+        return i * 2;
+    });
+    assertValueEquality([2, 4, 6], new_arr);
+}
+
+function testMapWhileAddElements() {
+    int[] arr = [1, 2, 3, 4, 5];
+    int[] new_arr = arr.map(function (int i) returns int {
+        arr[5] = 8;
+        arr[7] = 10;
+        return i * 2;
+    });
+    assertValueEquality([2, 4, 6, 8, 10, 16, 0, 20], new_arr);
+}
