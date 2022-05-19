@@ -117,7 +117,7 @@ public class DiffImpl implements Diff {
     }
 
     @Override
-    public JsonObject getAsJsonObject() {
+    public JsonObject getAsJson() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
         jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.diffType.name().toLowerCase(Locale.getDefault())));
@@ -125,7 +125,7 @@ public class DiffImpl implements Diff {
                 .toLowerCase(Locale.getDefault())));
         if (diffType == DiffType.MODIFIED && childDiffs != null && !childDiffs.isEmpty()) {
             JsonArray childArray = new JsonArray();
-            childDiffs.forEach(diff -> childArray.add(diff.getAsJsonObject()));
+            childDiffs.forEach(diff -> childArray.add(diff.getAsJson()));
             jsonObject.add(DIFF_ATTR_CHILDREN, childArray);
         }
 

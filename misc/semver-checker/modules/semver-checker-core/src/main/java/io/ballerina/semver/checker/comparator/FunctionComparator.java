@@ -30,11 +30,14 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
+import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
+import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -165,7 +168,9 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         List<ParameterNode> oldParams = oldNode.functionSignature().parameters().stream().collect(Collectors.toList());
 
         ParamListComparator paramComparator = new ParamListComparator(newParams, oldParams);
-        paramComparator.computeDiff().ifPresent(paramDiffs::add);
+        paramComparator.computeDiff().ifPresent(diff -> {
+            paramDiffs.addAll(extractTerminalDiffs(diff, new LinkedList<>()));
+        });
 
         return paramDiffs;
     }
@@ -257,5 +262,19 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
 
     private Optional<Token> getQualifier(NodeList<Token> qualifierList, SyntaxKind qualifier) {
         return qualifierList.stream().filter(token -> token.kind() == qualifier).findAny();
+    }
+
+    private List<Diff> extractTerminalDiffs(Diff diff, List<Diff> extractedDiffs) {
+        if (diff instanceof NodeDiff<?> && ((NodeDiff<?>) diff).getMessage().isPresent()) {
+            extractedDiffs.add(diff);
+        } else if (diff instanceof NodeListDiff<?> && ((NodeListDiff<?>) diff).getMessage().isPresent()) {
+            extractedDiffs.add(diff);
+        } else {
+            for (Diff childDiff : diff.getChildDiffs()) {
+                extractTerminalDiffs(childDiff, extractedDiffs);
+            }
+        }
+
+        return extractedDiffs;
     }
 }

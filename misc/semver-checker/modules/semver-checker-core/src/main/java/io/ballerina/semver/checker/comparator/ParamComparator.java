@@ -86,8 +86,8 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
     }
 
     private Optional<? extends Diff> compareParamType(ParameterNode newParam, ParameterNode oldParam) {
-        Node newType = extractParamType(newParam);
-        Node oldType = extractParamType(oldParam);
+        Node newType = getParamType(newParam);
+        Node oldType = getParamType(oldParam);
 
         if (newType == null || oldType == null) {
             return Optional.empty();
@@ -95,8 +95,8 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
             diffBuilder = diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
-            diffBuilder.withMessage(String.format("parameter type changed from '%s' to '%s'",
-                    oldType.toSourceCode().trim(), newType.toSourceCode().trim()));
+            diffBuilder.withMessage(String.format("type of parameter '%s' is changed from '%s' to '%s'",
+                    getParamName(newParam), oldType.toSourceCode().trim(), newType.toSourceCode().trim()));
             return diffBuilder.build();
         }
 
@@ -109,8 +109,8 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         }
 
         NodeDiffBuilder paramDiffBuilder = new NodeDiffImpl.Builder<>(newParam, oldParam);
-        paramDiffBuilder = paramDiffBuilder.withMessage(String.format("parameter kind is changed from '%s' to '%s'",
-                oldParam.kind(), newParam.kind()));
+        paramDiffBuilder = paramDiffBuilder.withMessage(String.format("kind of parameter '%s' is changed from '%s' to" +
+                " '%s'", getParamName(newParam), oldParam.kind(), newParam.kind()));
         if (newParam.kind() == SyntaxKind.REQUIRED_PARAM && oldParam.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             paramDiffBuilder.withVersionImpact(SemverImpact.MAJOR);
         } else if (newParam.kind() == SyntaxKind.DEFAULTABLE_PARAM && oldParam.kind() == SyntaxKind.REQUIRED_PARAM) {
@@ -128,7 +128,7 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         return paramDiffBuilder.build();
     }
 
-    private Node extractParamType(ParameterNode paramNode) {
+    private Node getParamType(ParameterNode paramNode) {
         if (paramNode.kind() == SyntaxKind.REQUIRED_PARAM) {
             return ((RequiredParameterNode) paramNode).typeName();
         } else if (paramNode.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
@@ -138,5 +138,18 @@ public class ParamComparator extends NodeComparator<ParameterNode> {
         } else {
             return null;
         }
+    }
+
+    private String getParamName(ParameterNode paramNode) {
+        Node paramName = null;
+        if (paramNode.kind() == SyntaxKind.REQUIRED_PARAM) {
+            paramName = ((RequiredParameterNode) paramNode).paramName().orElse(null);
+        } else if (paramNode.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
+            paramName = ((DefaultableParameterNode) paramNode).paramName().orElse(null);
+        } else if (paramNode.kind() == SyntaxKind.REST_PARAM) {
+            paramName = ((RestParameterNode) paramNode).paramName().orElse(null);
+        }
+
+        return paramName != null ? paramName.toSourceCode().trim() : "unknown";
     }
 }
