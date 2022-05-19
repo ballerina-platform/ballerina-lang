@@ -49,13 +49,11 @@ public class BalShellGetResultResponse {
     }
 
     /**
-     * Set return value and console output for response.
+     * Set return value for response.
      *
      * @param value evaluated value
-     * @param consoleOut collected strings from system.out
      */
-    public void setValueAndConsoleOut(Object value, List<String> consoleOut) {
-        this.consoleOut = String.join("\n", consoleOut);
+    public void setValue(Object value) {
         if (value == null) {
             return;
         }
@@ -96,6 +94,15 @@ public class BalShellGetResultResponse {
      */
     public void setMetaInfo(List<String> definedVars, List<String> moduleDclns) {
         this.metaInfo = new MetaInfo(definedVars, moduleDclns);
+    }
+
+    /**
+     * Set console output for response.
+     *
+     * @param consoleOut collected strings from system.out
+     */
+    public void setConsoleOut(List<String> consoleOut) {
+        this.consoleOut = String.join("\n", consoleOut);
     }
 
     public ShellValue getShellValue() {

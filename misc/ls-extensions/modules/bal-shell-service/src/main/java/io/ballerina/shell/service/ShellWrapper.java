@@ -90,10 +90,9 @@ public class ShellWrapper {
             if (shellCompilation.getExceptionStatus() == ExceptionStatus.SUCCESS) {
                 Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
                 Optional<Object> shellReturnValue = evaluator.getValueAsObject(compilation);
-                List<String> consoleOut = consoleOutCollector.getLines();
                 if (shellReturnValue.isPresent()) {
                     Object out = shellReturnValue.get();
-                    output.setValueAndConsoleOut(out, consoleOut);
+                    output.setValue(out);
                 }
             // for other exception statuses throw errors accordingly
             } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.SNIPPET_FAILED) {
@@ -104,14 +103,11 @@ public class ShellWrapper {
                 throw new InvokerException();
             }
         } catch (InvokerPanicException error) {
-            List<String> consoleOut = consoleOutCollector.getLines();
-            output.setValueAndConsoleOut(null, consoleOut);
             output.addError("panic: " + error.getMessage());
-        } catch (Exception error) { // handling unidentified runtime errors
-            List<String> consoleOut = consoleOutCollector.getLines();
-            output.setValueAndConsoleOut(null, consoleOut);
+        } catch (Exception error) { // handling unidentified runtime errors and invoker exceptions
             output.addError(error.getMessage());
         } finally {
+            output.setConsoleOut(consoleOutCollector.getLines());
             output.addOutputDiagnostics(evaluator.diagnostics());
             output.setMetaInfo(
                     this.metaInfoHandler.getNewDefinedVars(evaluator.availableVariablesAsObjects()),
