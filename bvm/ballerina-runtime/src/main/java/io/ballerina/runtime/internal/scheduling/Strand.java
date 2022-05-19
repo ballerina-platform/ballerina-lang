@@ -416,6 +416,72 @@ public class Strand {
         return metadata;
     }
 
+    public String dumpState() {
+        StringBuilder infoStr = new StringBuilder();
+        try {
+            infoStr.append("Strand id: " + this.id + "\n");
+            infoStr.append("Strand toString: " + this.toString() + "\n");
+            infoStr.append("Strand hashcode: " + this.hashCode() + "\n");
+            infoStr.append("Strand name: " + this.getName().toString() + "\n");
+
+            infoStr.append("Strand metadata:\n");
+            infoStr.append("\tstrand initiated module: " + this.metadata.getModuleOrg() + "/" +
+                    this.metadata.getModuleName() + "/" + this.metadata.getModuleVersion() + "\n");
+            if (this.metadata.getTypeName() != null) {
+                infoStr.append("\ttype strand was initiated inside: " + this.metadata.getTypeName() + '\n');
+            }
+            infoStr.append("\tparent function where strand was initiated: " + this.metadata.getParentFunctionName() + "\n");
+
+            infoStr.append("frame count :" + this.frames.size() + "\n");
+            infoStr.append("resume index :" + this.resumeIndex + "\n");
+
+            if (this.returnValue != null) {
+                infoStr.append("notnull return value: " + this.returnValue.toString() + "\n");
+            }
+            if (this.panic != null) {
+                infoStr.append("notnull panic: " + this.panic.toString() + "\n");
+                infoStr.append("\tPrintableStackTrace: " + this.panic.getPrintableStackTrace() + "\n");
+                infoStr.append("\tErrorMessage: " + this.panic.getErrorMessage() + "\n");
+            }
+            infoStr.append("scheduler :" + this.scheduler.toString() + "\n");
+            if (this.parent != null) {
+                infoStr.append("parent strand :" + this.parent.getId() + "\n");
+            }
+            infoStr.append("blockedOnExtern :" + this.blockedOnExtern + "\n");
+            infoStr.append("cancel :" + this.cancel + "\n");
+
+            infoStr.append("state :" + this.getState().toString() + "\n");
+            infoStr.append("schedulerItem :" + this.schedulerItem.toString() + "\n");
+            // infoStr.append("schedulerItem function is private :" + this.schedulerItem.function.toString() + "\n");
+            infoStr.append("\t" + this.schedulerItem.future.toString() + "\n");
+
+            if (this.dependants != null) {
+                infoStr.append("dependent Scheduler items count :" + this.dependants.size() + "\n");
+                for (SchedulerItem dependant : dependants) {
+                    infoStr.append("\t" + dependant.toString() + "\n");
+                }
+            }
+
+
+            infoStr.append("strandGroup :" + this.strandGroup.toString() + "\n");
+
+            if (this.waitContext != null) {
+                infoStr.append("waitContext :" + this.waitContext.toString() + "\n");
+                infoStr.append("\twaitContext.schedulerItem :" + this.waitContext.schedulerItem.toString() + "\n");
+            }
+
+            if (this.waitingContexts != null) {
+                infoStr.append("waitingContexts size:" + this.waitingContexts.size() + "\n");
+                for (WaitContext context : this.waitingContexts) {
+                    infoStr.append("\twaitingContexts.schedulerItem :" + context.schedulerItem.toString() + "\n");
+                }
+            }
+        } catch (NullPointerException e) {
+            infoStr.append(e.getLocalizedMessage() + "\n");
+        }
+        return infoStr.toString();
+    }
+
     /**
      * Class to hold flush action related details.
      *
