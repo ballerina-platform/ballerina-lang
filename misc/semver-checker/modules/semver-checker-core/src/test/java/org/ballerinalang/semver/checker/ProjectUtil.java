@@ -39,9 +39,7 @@ public class ProjectUtil {
     private static final String PACKAGE_NAME = "patch_validator";
     private static final String PACKAGE_VERSION = "1.0.0";
 
-
     public static BuildProject createProject(String mainBalContent) throws Exception {
-
         try {
             // Creates a new directory in the default temporary file directory.
             tempProjectDir = Files.createTempDirectory(TEMP_DIR_PREFIX + System.currentTimeMillis());
@@ -62,14 +60,12 @@ public class ProjectUtil {
     }
 
     public static void createMainBalFile(String content) throws Exception {
-
         File mainBalFile = File.createTempFile(MAIN_FILE_PREFIX, BAL_FILE_EXT, tempProjectDir.toFile());
         mainBalFile.deleteOnExit();
         FileUtils.writeToFile(mainBalFile, content);
     }
 
     public static void createBallerinaToml() throws Exception {
-
         Path ballerinaTomlPath = tempProjectDir.resolve(BAL_TOML_FILE_NAME);
         File balTomlFile = Files.createFile(ballerinaTomlPath).toFile();
         balTomlFile.deleteOnExit();
@@ -79,6 +75,5 @@ public class ProjectUtil {
         balTomlContent.add(String.format("name = \"%s\"", PACKAGE_NAME));
         balTomlContent.add(String.format("version = \"%s\"", PACKAGE_VERSION));
         FileUtils.writeToFile(balTomlFile, balTomlContent.toString());
-
     }
 }

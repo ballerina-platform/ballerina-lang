@@ -41,7 +41,6 @@ public class BaseFunctionTest {
      * @param testFileName Name of the testcase file name
      */
     protected static void testEvaluate(String testFileName) throws Exception {
-
         Object obj;
         JsonArray fileData = null;
         try (FileReader reader = new FileReader(testFileName)) {
@@ -50,7 +49,6 @@ public class BaseFunctionTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         for (int i = 0; i < Objects.requireNonNull(fileData).size(); i++) {
             JsonObject element = (JsonObject) fileData.get(i);
@@ -68,14 +66,13 @@ public class BaseFunctionTest {
     public static void compare(Package oldPackage , Package currentPackage , JsonObject expectedOutput ){
         PackageComparator packageComparator = new PackageComparator(currentPackage,oldPackage);
         Optional<PackageDiff> packageDiff = packageComparator.computeDiff();
-        if (expectedOutput.equals(new JsonObject())){}
+        if (expectedOutput.equals(new JsonObject())){
+            //For now disabled test cases.
+        }
         else{
             packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
         }
-
     }
-
-
 }
 
 

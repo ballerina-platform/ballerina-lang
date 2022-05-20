@@ -32,5 +32,4 @@ public class FileUtils {
             fileWriter.write(content);
         }
     }
-
 }
