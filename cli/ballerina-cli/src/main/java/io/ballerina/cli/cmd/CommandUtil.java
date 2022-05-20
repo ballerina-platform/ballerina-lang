@@ -27,6 +27,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
+import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.FileUtils;
@@ -227,7 +228,7 @@ public class CommandUtil {
             // Create Dependencies.toml
             Path dependenciesToml = projectPath.resolve(DEPENDENCIES_TOML);
             Files.createFile(dependenciesToml);
-            writeDependenciesToml(dependenciesToml, dependencyGraphJson);
+            writeDependenciesToml(dependenciesToml, dependencyGraphJson, packageJson);
         }
 
         // Create Package.md
@@ -440,7 +441,8 @@ public class CommandUtil {
         }
     }
 
-    public static void writeDependenciesToml(Path depsTomlPath, DependencyGraphJson dependencyGraphJson)
+    public static void writeDependenciesToml(Path depsTomlPath, DependencyGraphJson dependencyGraphJson,
+                                             PackageJson packageJson)
             throws IOException {
         String autoGenCode = "# AUTO-GENERATED FILE. DO NOT MODIFY.\n" +
                 "\n" +
@@ -449,10 +451,19 @@ public class CommandUtil {
                 "\n";
         Files.writeString(depsTomlPath, autoGenCode, StandardOpenOption.APPEND);
         String balTomlVersion = "[ballerina]\n" +
-                "version = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n" +
                 "dependencies-toml-version = \"" + ProjectConstants.DEPENDENCIES_TOML_VERSION + "\"\n" +
                 "\n";
         Files.writeString(depsTomlPath, balTomlVersion, StandardOpenOption.APPEND);
+
+        // Get current package module dependencies from dependency graph modules list
+        List<ModuleDependency> currentPkgModules = new ArrayList<>();
+        for (ModuleDependency module : dependencyGraphJson.getModuleDependencies()) {
+            if (module.getOrg().equals(packageJson.getOrganization())
+                    && module.getPackageName().equals(packageJson.getName())) {
+                List<ModuleDependency> currentPkgModuleDeps = module.getDependencies();
+                currentPkgModules.addAll(currentPkgModuleDeps);
+            }
+        }
 
         StringBuilder pkgDesc = new StringBuilder();
         for (Dependency packageDependency : dependencyGraphJson.getPackageDependencyGraph()) {
@@ -475,23 +486,55 @@ public class CommandUtil {
                         .append("\n]\n");
             }
 
-            StringBuilder modulesContent = new StringBuilder();
-            if (!packageDependency.getModules().isEmpty()) {
-                for (Dependency.Module module : packageDependency.getModules()) {
-                    modulesContent.append("\t{org = \"").append(module.org()).append("\", packageName = \"")
-                            .append(module.packageName()).append("\", moduleName = \"").append(module.moduleName())
-                            .append("\"},\n");
+            // Current package
+            if (packageJson.getOrganization().equals(packageDependency.getOrg())
+                    && packageJson.getName().equals(packageDependency.getName())) {
+                // Get current package modules from dependency graph modules list
+                // Write them to the `modules` array
+                pkgDesc.append(getDependencyModulesArrayContent(dependencyGraphJson.getModuleDependencies()));
+            } else {
+                // Not current package
+                // Check this package dependency has current package modules
+                // If yes, add to `packageDependencyModules` list to write to the `modules` array
+                List<ModuleDependency> packageDependencyModules = new ArrayList<>();
+                for (ModuleDependency module : currentPkgModules) {
+                    if (packageDependency.getOrg().equals(module.getOrg())
+                            && packageDependency.getName().equals(module.getPackageName())) {
+                        packageDependencyModules.add(module);
+                    }
                 }
-                String modulesPart = modulesContent.toString();
-                modulesPart = modulesPart.replaceFirst("\\s++$", "")
-                        .substring(0, modulesPart.replaceFirst("\\s++$", "").length() - 1);
-                pkgDesc.append("modules = [\n")
-                        .append(modulesPart)
-                        .append("\n]\n");
+                // Write `packageDependencyModules` to `modules` array
+                if (!packageDependencyModules.isEmpty()) {
+                    pkgDesc.append(getDependencyModulesArrayContent(packageDependencyModules));
+                }
             }
             pkgDesc.append("\n");
         }
         Files.writeString(depsTomlPath, pkgDesc.toString(), StandardOpenOption.APPEND);
+    }
+
+    /**
+     * Get formatted modules array content for Dependencies.toml dependency.
+     * <code>
+     * modules = [
+     *     {org = "ballerinax", packageName = "redis", moduleName = "redis"}
+     * ]
+     * </code>
+     *
+     * @param dependencyModules modules of the given dependency package
+     * @return formatted modules array content
+     */
+    private static String getDependencyModulesArrayContent(List<ModuleDependency> dependencyModules) {
+        StringBuilder modulesContent = new StringBuilder();
+        for (ModuleDependency module : dependencyModules) {
+            modulesContent.append("\t{org = \"").append(module.getOrg())
+                    .append("\", packageName = \"").append(module.getPackageName())
+                    .append("\", moduleName = \"").append(module.getModuleName())
+                    .append("\"},\n");
+        }
+        String modulesPart = modulesContent.toString();
+        modulesPart = removeLastCharacter(trimStartingWhitespaces(modulesPart));
+        return "modules = [\n" + modulesPart + "\n]\n";
     }
 
     /**
@@ -797,5 +840,25 @@ public class CommandUtil {
             }
         });
         return availableVersions;
+    }
+
+    /**
+     * Remove starting whitespaces of a string.
+     *
+     * @param str given string
+     * @return starting whitespaces removed string
+     */
+    private static String trimStartingWhitespaces(String str) {
+        return str.replaceFirst("\\s++$", "");
+    }
+
+    /**
+     * Remove last character of a string.
+     *
+     * @param str given string
+     * @return last character removed string
+     */
+    private static String removeLastCharacter(String str) {
+        return str.substring(0, str.length() - 1);
     }
 }

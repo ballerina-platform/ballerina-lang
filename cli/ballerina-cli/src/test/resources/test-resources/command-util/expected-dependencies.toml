@@ -4,7 +4,6 @@
 # It should not be modified by hand.
 
 [ballerina]
-version = "<BALLERINA_VERSION>"
 dependencies-toml-version = "2"
 
 [[package]]

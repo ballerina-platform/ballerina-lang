@@ -85,9 +85,8 @@ public class CommandUtilTest {
         Path depsTomlPath = Files.createFile(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML));
 
         // Test writeBallerinaToml method
-        writeDependenciesToml(depsTomlPath, dependencyGraphJson);
-        String expected = readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve("expected-dependencies.toml"))
-                .replace("<BALLERINA_VERSION>", RepoUtils.getBallerinaShortVersion());
+        writeDependenciesToml(depsTomlPath, dependencyGraphJson, null);
+        String expected = readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve("expected-dependencies.toml"));
         Assert.assertEquals(readFileAsString(COMMAND_UTIL_RESOURCE_DIR.resolve(DEPENDENCIES_TOML)),
                 expected);
     }
