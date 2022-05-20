@@ -117,20 +117,20 @@ public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCa
                 case SYMBOL:
                     Optional<Symbol> symbol = ((SymbolCompletionItem) completionItem).getSymbol();
                     if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.METHOD)) {
-                        rank = withinParameterCtx ? 3 : 1;
+                        rank = withinParameterCtx ? SortingUtil.toRank(context, completionItem, 2) : 1;
                         break;
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.FUNCTION)) {
-                        rank = withinParameterCtx ? 3 : 1;
+                        rank = withinParameterCtx ? SortingUtil.toRank(context, completionItem, 2) : 1;
                         break;
                     } else if (symbol.stream().anyMatch(sym -> sym.kind() == SymbolKind.XMLNS)) {
-                        rank = withinParameterCtx ? 2 : 3;
+                        rank = withinParameterCtx ? 2 : SortingUtil.toRank(context, completionItem, 2);
                         break;
                     } else {
-                        rank = SortingUtil.toRank(context, completionItem, 3);
+                        rank = SortingUtil.toRank(context, completionItem, 2);
                         break;
                     }
                 default:
-                    rank = SortingUtil.toRank(context, completionItem, 3);
+                    rank = SortingUtil.toRank(context, completionItem, 2);
             }
 
             sortByAssignability(context, completionItem, rank);

@@ -111,6 +111,7 @@ public class WorkerDataChannel {
                     throw panic;
                 } else if (this.error != null) {
                     ErrorValue ret = this.error;
+                    this.waitingSender = null;
                     return ret;
                 }
 
@@ -125,6 +126,7 @@ public class WorkerDataChannel {
                 throw e;
             } else if (this.error != null && this.channel.peek() != null) {
                 ErrorValue ret = this.error;
+                this.waitingSender = null;
                 return ret;
             }
 
@@ -146,9 +148,11 @@ public class WorkerDataChannel {
 
                 if (result.isSync) {
                     // sync sender will pick the this.error as result, which is null
-                    Strand waiting  = this.waitingSender.waitingStrand;
-                    waiting.scheduler.unblockStrand(waiting);
-                    this.waitingSender = null;
+                    if (this.waitingSender != null) {
+                        Strand waiting  = this.waitingSender.waitingStrand;
+                        waiting.scheduler.unblockStrand(waiting);
+                        this.waitingSender = null;
+                    }
                 } else if (this.flushSender != null && this.flushSender.flushCount == this.receiverCounter) {
                     this.flushSender.waitingStrand.flushDetail.flushLock.lock();
                     this.flushSender.waitingStrand.flushDetail.flushedCount++;

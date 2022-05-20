@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -51,13 +52,18 @@ public class MakeConstructPublicCodeAction extends AbstractCodeActionProvider {
     public static final String DIAGNOSTIC_CODE = "BCE2038";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) &&
+                context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
-                || context.currentSemanticModel().isEmpty()) {
-            return Collections.emptyList();
-        }
+        
         Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
         Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(nonTerminalNode);

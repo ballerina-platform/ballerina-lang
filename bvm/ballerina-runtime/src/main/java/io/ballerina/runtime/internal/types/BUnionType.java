@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
@@ -32,7 +33,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -140,13 +140,13 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
      * @param unionType flags associated with the type
      * @param typeName typename associated with the type
      */
-    protected BUnionType(BUnionType unionType, String typeName) {
+    protected BUnionType(BUnionType unionType, String typeName, boolean readonly) {
         super(typeName, unionType.pkg, unionType.valueClass);
-        this.readonly = unionType.readonly;
         this.typeFlags = unionType.typeFlags;
         this.memberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.originalMemberTypes = new ArrayList<>(unionType.memberTypes.size());
         this.mergeUnionType(unionType);
+        this.readonly = readonly;
     }
 
     public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, Module pkg, int typeFlags,
@@ -302,7 +302,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        return memberTypes.get(0).getZeroValue();
+        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return TypeChecker.getType(
+                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getZeroValue();
+        } else {
+            return memberTypes.get(0).getZeroValue();
+        }
     }
 
     @Override
@@ -311,7 +316,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        return memberTypes.get(0).getEmptyValue();
+        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return TypeChecker.getType(
+                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getEmptyValue();
+        } else {
+            return memberTypes.get(0).getEmptyValue();
+        }
     }
 
     @Override
@@ -376,12 +386,6 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             }
         }
         return this.readonly == that.readonly;
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(super.hashCode(), memberTypes);
     }
 
     @Override

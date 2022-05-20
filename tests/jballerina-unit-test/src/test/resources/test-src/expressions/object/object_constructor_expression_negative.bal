@@ -145,3 +145,11 @@ function testObjectConstructorWithReferredIntersectionType() {
         }
     };
 }
+
+annotation s1 on class;
+annotation map<int> s2 on class;
+
+function testMissingObjConstructorDiagnosticWithAnnots() {
+    var f1 = @s1
+    var f3 = @s1 @s2 {}
+}

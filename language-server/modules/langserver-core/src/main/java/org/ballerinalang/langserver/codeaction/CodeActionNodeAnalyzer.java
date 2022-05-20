@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -65,6 +66,23 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
             }
         }
 
+        this.visitNode(node);
+    }
+
+    @Override
+    public void visit(AnnotationDeclarationNode node) {
+        int startOffset = node.visibilityQualifier().map(token -> token.textRange().startOffset())
+                .orElseGet(() -> node.constKeyword().map(token -> token.textRange().startOffset())
+                        .orElseGet(() -> node.annotationKeyword().textRange().startOffset()));
+        int annotationNameEnd = node.annotationTag().textRange().endOffset();
+        int endOffset = node.semicolonToken().textRange().endOffset();
+        if (isWithinRange(startOffset, endOffset)) {
+            positionDetailsBuilder.setEnclosingDocumentableNode(node);
+            if (isWithinRange(startOffset, annotationNameEnd)) {
+                positionDetailsBuilder.setDocumentableNode(node);
+                return;
+            }
+        }
         this.visitNode(node);
     }
 

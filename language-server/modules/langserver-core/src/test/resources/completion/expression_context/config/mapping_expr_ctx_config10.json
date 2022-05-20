@@ -46,6 +46,24 @@
       "filterText": "fill",
       "insertText": "field1: ${1:0}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "TestRecord2",
+      "sortText": "AB",
+      "filterText": "rec",
+      "insertText": "...rec",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec1",
+      "kind": "Variable",
+      "detail": "TestRecord1",
+      "sortText": "F",
+      "filterText": "rec1",
+      "insertText": "...rec1",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
