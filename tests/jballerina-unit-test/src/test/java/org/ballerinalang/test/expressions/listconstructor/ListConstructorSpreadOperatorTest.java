@@ -84,8 +84,11 @@ public class ListConstructorSpreadOperatorTest {
     @Test
     public void testSpreadOpInference() {
         BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithVar");
+        BRunUtil.invoke(inferenceResult, "testSpreadOpOnVariableLengthListsWithVar");
         BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithReadonly");
+        BRunUtil.invoke(inferenceResult, "testSpreadOpOnVariableLengthListsWithReadonly");
         BRunUtil.invoke(inferenceResult, "testSpreadOpWithTypedesc");
+        BRunUtil.invoke(inferenceResult, "testSpreadOpOnVariableLengthListsWithTypedesc");
         BRunUtil.invoke(inferenceResult, "testInferenceViaSpreadOpWithTypeRef");
         BRunUtil.invoke(inferenceResult, "testSpreadOpInferenceWithNeverRestDescriptor");
     }
@@ -229,113 +232,93 @@ public class ListConstructorSpreadOperatorTest {
                 "cannot infer type from spread operator: fixed length list expected", 21, 17);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type from spread operator: fixed length list expected", 22, 23);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[int,int]'", 28, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 25, 17);
+                "incompatible types: expected 'int', found '[int,string,int,int,boolean]'", 29, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 26, 23);
+                "incompatible types: expected 'int', found '[string,(int|boolean)]'", 35, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 29, 17);
+                "incompatible types: expected 'int', found '[int,string,string,(int|boolean),boolean]'", 36, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 30, 23);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[int,int]'", 36, 13);
+                "cannot infer type from spread operator: fixed length list expected", 40, 23);
+        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 40, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[int,string,int,int,boolean]'", 37, 13);
+                "cannot infer type from spread operator: fixed length list expected", 43, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[string,(int|boolean)]'", 43, 13);
+                "cannot infer type from spread operator: fixed length list expected", 44, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[int,string,string,(int|boolean),boolean]'", 44, 13);
+                "cannot infer type from spread operator: fixed length list expected", 47, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 48, 23);
-        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 48, 23);
+                "incompatible types: expected 'readonly', found 'int[]'", 47, 23);
+        BAssertUtil.validateError(resultNegative, i++,
+                "cannot infer type from spread operator: fixed length list expected", 48, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'readonly', found 'int[]'", 48, 29);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type from spread operator: fixed length list expected", 51, 23);
         BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'readonly', found '[int,int...]'", 51, 23);
+        BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type from spread operator: fixed length list expected", 52, 29);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'readonly', found '[int,int...]'", 52, 29);
         BAssertUtil.validateError(resultNegative, i++,
                 "cannot infer type from spread operator: fixed length list expected", 55, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[]'", 55, 23);
+                "incompatible types: expected 'readonly', found 'int[2]'", 55, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 56, 29);
+                "cannot infer type from spread operator: fixed length list expected", 56, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[]'", 56, 29);
+                "incompatible types: expected 'readonly', found 'int[2]'", 56, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 59, 23);
+                "cannot infer type from spread operator: fixed length list expected", 59, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,int...]'", 59, 23);
+                "incompatible types: expected 'readonly', found '[int,string]'", 59, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 60, 29);
+                "cannot infer type from spread operator: fixed length list expected", 60, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,int...]'", 60, 29);
+                "incompatible types: expected 'readonly', found '[int,string]'", 60, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 63, 23);
+                "cannot infer type from spread operator: fixed length list expected", 63, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[2]'", 63, 23);
+                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 63, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 64, 31);
+                "cannot infer type from spread operator: fixed length list expected", 64, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[2]'", 64, 31);
+                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 64, 32);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 74, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 75, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 81, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 82, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 88, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 89, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 95, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 96, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 101, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 67, 24);
+                "incompatible types: expected 'boolean', found '(readonly|int)'", 106, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,string]'", 67, 24);
+                "incompatible types: expected 'boolean', found '((int|string)[] & readonly)'", 107, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 68, 32);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,string]'", 68, 32);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 71, 24);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 71, 24);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 72, 32);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 72, 32);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 77, 23);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 78, 29);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 81, 23);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 82, 29);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 92, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 93, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 99, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 100, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 106, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 107, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 113, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 114, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 119, 13);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '(readonly|int)'", 124, 17);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '((int|string)[] & readonly)'", 125, 17);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[int]'", 135, 17);
+                "incompatible types: expected 'boolean', found '[int]'", 117, 17);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'boolean'," +
-                        " found '[int,int,string,(int|string),string,boolean]'", 136, 17);
+                        " found '[int,int,string,(int|string),string,boolean]'", 118, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[string,int,int,int]'", 150, 17);
+                "incompatible types: expected 'boolean', found '[string,int,int,int]'", 132, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[string,int,int,int,boolean]'", 151, 17);
+                "incompatible types: expected 'boolean', found '[string,int,int,int,boolean]'", 133, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 157, 17);
+                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 139, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 158, 17);
+                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 140, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 161, 23);
+                "incompatible types: expected 'boolean', found '[string,int...]'", 144, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 165, 22);
-        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 165, 22);
+                "cannot infer type from spread operator: fixed length list expected", 148, 22);
+        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 148, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 168, 35);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 171, 27);
-        BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: fixed length list expected", 174, 36);
+                "cannot infer type from spread operator: fixed length list expected", 151, 35);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
