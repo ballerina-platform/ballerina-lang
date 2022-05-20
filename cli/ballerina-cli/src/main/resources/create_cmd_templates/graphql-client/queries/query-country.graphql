@@ -1,0 +1,7 @@
+## Add the queries and mutations here.
+
+query countryByCode($code: ID!) {
+    country(code: $code) {
+        name
+    }
+}

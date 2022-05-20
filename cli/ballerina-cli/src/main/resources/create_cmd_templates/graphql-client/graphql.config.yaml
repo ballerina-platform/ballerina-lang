@@ -1,0 +1,13 @@
+## The GraphQL schema. Ex: https://countries.trevorblades.com or ./schemas/country.graphql
+schema: https://countries.trevorblades.com
+
+## The GraphQL documents that have queries/mutations
+documents:
+   - ./queries/query-country.graphql
+
+## If the GraphQL API is secured, add the extensions section with the relevant tokens/headers. The schema must be Web URL in this case.
+# extensions:
+#   endpoints:
+#     default:
+#       headers:
+#         { "HeaderKey1": "HeaderValue1", "HeaderKey2": "HeaderValue2" }

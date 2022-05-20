@@ -57,8 +57,8 @@ public class NewCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
-    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib] " +
-            "default: default")
+    @CommandLine.Option(names = {"--template", "-t"}, description = "Acceptable values: [main, service, lib, " +
+            "graphql-client] default: default")
     public String template = "default";
 
     public NewCommand() {
