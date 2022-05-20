@@ -20,7 +20,7 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 /**
  * Client capabilities for the balShell service.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class BalShellServiceClientCapabilities extends BallerinaClientCapability {
 

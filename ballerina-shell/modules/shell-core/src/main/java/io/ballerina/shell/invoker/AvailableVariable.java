@@ -22,7 +22,7 @@ package io.ballerina.shell.invoker;
  * Holds information about variable name, type and
  * current value.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class AvailableVariable {
     private final String name;

@@ -29,7 +29,7 @@ import java.io.PrintStream;
 /**
  * Unit test for ConsoleOutCollector.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class ConsoleOutCollectorTests {
     private PrintStream original;

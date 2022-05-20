@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 /**
  * Utility functions related with type.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class TypeUtils {
     /**

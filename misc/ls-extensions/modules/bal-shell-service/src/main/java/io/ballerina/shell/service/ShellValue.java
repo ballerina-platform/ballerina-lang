@@ -22,7 +22,7 @@ import io.ballerina.shell.service.util.TypeUtils;
 /**
  * Format for the generated result by execution.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class ShellValue {
     private final String value;
