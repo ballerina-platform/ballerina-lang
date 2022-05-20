@@ -56,7 +56,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Test Cases for CodeActions.
+ * Abstract test for code action related tests
  *
  * @since 2.0.0
  */
@@ -70,7 +70,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     private LanguageServerContext serverContext;
 
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
+    public void test(String config) throws IOException, WorkspaceDocumentException {
         Path configJsonPath = getConfigJsonPath(config);
         TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(testConfig.source);
@@ -80,7 +80,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = new Position(testConfig.line, testConfig.character);
+        Position pos = testConfig.position;
         diags = diags.stream().
                 filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
@@ -169,7 +169,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                             expTitle, cursorStr, sourcePath, testConfig.description));
         }
         TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
-        updateConfig(testConfig, configJsonPath);
+//        updateConfig(testConfig, configJsonPath);
     }
 
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
@@ -180,9 +180,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
      * For testing negative cases like cases where code actions should not be suggested.
      *
      * @param config Config file name
-     * @param source Source file name
      */
-    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
         Endpoint endpoint = getServiceEndpoint();
         Path configJsonPath = getConfigJsonPath(config);
         TestConfig testConfig = gson.fromJson(Files.newBufferedReader(configJsonPath), TestConfig.class);
@@ -193,7 +192,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
                 = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
         List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
-        Position pos = new Position(testConfig.line, testConfig.character);
+        Position pos = testConfig.position;
         diags = diags.stream().
                 filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
@@ -218,7 +217,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         String.format("Found an unexpected code action: %s", testConfig.description));
             }
         }
-        updateConfig(testConfig, configJsonPath);
+//        updateConfig(testConfig, configJsonPath);
     }
 
     private Path getConfigJsonPath(String configFilePath) {
@@ -256,9 +255,10 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         this.workspaceManager = null;
     }
 
+    /**
+     * Represents a code action test config
+     */
     static class TestConfig {
-        int line;
-        int character;
         Position position;
         String source;
         JsonArray expected;

@@ -1,4 +1,6 @@
 {
+  "line": 0,
+  "character": 0,
   "position": {
     "line": 7,
     "character": 36
@@ -20,7 +22,7 @@
               "character": 45
             }
           },
-          "newText": "testXml.<ns:*>.cloneReadOnly()"
+          "newText": "testXml.\u003cns:*\u003e.cloneReadOnly()"
         }
       ]
     }

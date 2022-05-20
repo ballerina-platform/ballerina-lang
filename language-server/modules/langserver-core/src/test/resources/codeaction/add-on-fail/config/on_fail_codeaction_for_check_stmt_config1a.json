@@ -1,4 +1,6 @@
 {
+  "line": 0,
+  "character": 0,
   "position": {
     "line": 2,
     "character": 8
@@ -20,7 +22,7 @@
               "character": 27
             }
           },
-          "newText": "do {\n\t    int i = \n\t        check checkError();\n    } on fail var e {\n    \t\n    }"
+          "newText": "do {\n\t    int i \u003d \n\t        check checkError();\n    } on fail var e {\n    \t\n    }"
         }
       ]
     }
