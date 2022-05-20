@@ -22,7 +22,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
@@ -473,9 +472,9 @@ public class CommandUtil {
             if (templatePackageJson.getOrganization().equals(packageDependency.getOrg())
                     && templatePackageJson.getName().equals(packageDependency.getName())) {
                 pkgDesc.append("[[package]]\n")
-                        .append("org = \"").append(ProjectUtils.defaultOrg()).append("\"\n")
+                        .append("org = \"").append(packageDependency.getOrg()).append("\"\n")
                         .append("name = \"").append(ProjectUtils.defaultName(projectPath)).append("\"\n")
-                        .append("version = \"").append(ProjectUtils.defaultVersion()).append("\"\n");
+                        .append("version = \"").append(packageDependency.getVersion()).append("\"\n");
                 // write `dependencies` array content
                 pkgDesc.append(getDependenciesArrayContent(packageDependency));
                 // Get current package modules from dependency graph modules list
@@ -553,7 +552,7 @@ public class CommandUtil {
                 String currentPkgName = ProjectUtils.defaultName(projectPath).value();
                 String modulePkgPart = module.getModuleName().split("\\.")[0];
                 String currentPkgModuleName = module.getModuleName().replaceFirst(modulePkgPart, currentPkgName);
-                modulesContent.append("\t{org = \"").append(ProjectUtils.defaultOrg().value())
+                modulesContent.append("\t{org = \"").append(module.getOrg())
                         .append("\", packageName = \"").append(currentPkgName)
                         .append("\", moduleName = \"").append(currentPkgModuleName)
                         .append("\"},\n");
