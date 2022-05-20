@@ -89,7 +89,7 @@
       "shellValue": {
         "value": "{\"q\":0, \"r\":6}",
         "mimeType": "ballerina-notebook/json-view",
-        "type": "map"
+        "type": "map\u003c(any|error)\u003e"
       },
       "errors": [],
       "diagnostics": [],
