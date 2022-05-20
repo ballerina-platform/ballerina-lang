@@ -193,11 +193,9 @@ public class TableNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-value-any-negative.bal");
         int index = 0;
         validateError(compileResult, index++,
-                "field name 'name' used in key specifier is not found in table constraint type 'map<(any|error)>'",
-                18, 24);
+                "key specifier not allowed when the target type is any", 18, 20);
         validateError(compileResult, index++,
-                "field name 'name' used in key specifier is not found in table constraint type 'map<(any|error)>'",
-                25, 19);
+                "key specifier not allowed when the target type is any", 25, 15);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

@@ -965,8 +965,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // if the contextually expected type is `any` and the key specifier is defined,
             // then we cannot derive a table type
             if (expType.tag == TypeTags.ANY && tableConstructorExpr.tableKeySpecifier != null) {
-                validateKeySpecifier(tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList,
-                        symTable.mapAllType);
+                dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                        DiagnosticErrorCode.KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY);
                 data.resultType = symTable.semanticError;
                 return;
             }
