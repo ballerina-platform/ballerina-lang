@@ -55,8 +55,8 @@ public class OCEDynamicEnvData {
     public SymbolEnv fieldEnv;
 
     public BVarSymbol classEnclosedFunctionMap;
-    public BVarSymbol mapBlockMapSymbol;
-    public BVarSymbol mapFunctionMapSymbol;
+    public BVarSymbol blockLevelMapSymbol;
+    public BVarSymbol functionLevelMapSymbol;
 
     public Set<BSymbol> closureBlockSymbols;
     public Set<BSymbol> closureFuncSymbols;
@@ -72,7 +72,7 @@ public class OCEDynamicEnvData {
 
     // These can be removed by an proper design
     public LinkedList<BLangClassDefinition> parents;
-    public boolean closureDesugaringInProgress;
+    public boolean fieldClosureDesugaringInProgress;
     public boolean isDirty;
     public List<BLangSimpleVarRef> desugaredClosureVars;
     public BLangExpression initInvocation;
@@ -94,8 +94,8 @@ public class OCEDynamicEnvData {
         closureSymbols.clear();
         desugaredClosureVars.clear();
         functionEnvs.clear();
-        mapFunctionMapSymbol = null;
-        mapBlockMapSymbol = null;
+        functionLevelMapSymbol = null;
+        blockLevelMapSymbol = null;
         cloneAttempts = 0;
         throw new UnsupportedOperationException("Not tested");
     }

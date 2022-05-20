@@ -647,7 +647,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         if (parent != null && parent.getKind() == NodeKind.OBJECT_CTOR_EXPRESSION) {
             BLangObjectConstructorExpression oce = (BLangObjectConstructorExpression) parent;
             BLangClassDefinition dirtyOceClass = oce.classNode;
-            if (dirtyOceClass.hasClosureVars && classDef.oceEnvData.closureDesugaringInProgress) {
+            if (dirtyOceClass.hasClosureVars && classDef.oceEnvData.fieldClosureDesugaringInProgress) {
                 // below lines are probably not needed after proper handling
                 dirtyOceClass.hasClosureVars = false;
                 OCEDynamicEnvData dirtyOceEnvData = dirtyOceClass.oceEnvData;
@@ -1261,19 +1261,19 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     }
 
     private BVarSymbol createMapSymbolIfAbsent(BLangClassDefinition classDef, int closureMapCount) {
-        if (classDef.oceEnvData.mapBlockMapSymbol == null) {
-            classDef.oceEnvData.mapBlockMapSymbol = createMapSymbol(OBJECT_CTOR_MAP_SYM_NAME + closureMapCount,
+        if (classDef.oceEnvData.blockLevelMapSymbol == null) {
+            classDef.oceEnvData.blockLevelMapSymbol = createMapSymbol(OBJECT_CTOR_MAP_SYM_NAME + closureMapCount,
                     classDef.oceEnvData.capturedClosureEnv);
         }
-        return classDef.oceEnvData.mapBlockMapSymbol;
+        return classDef.oceEnvData.blockLevelMapSymbol;
     }
 
     private BVarSymbol getVarMapSymbol(BVarSymbol symbol) {
         BVarSymbol mapSymbol = null;
         if (classDef.oceEnvData.closureFuncSymbols.contains(symbol)) {
-            mapSymbol = classDef.oceEnvData.mapFunctionMapSymbol;
+            mapSymbol = classDef.oceEnvData.functionLevelMapSymbol;
         } else if (classDef.oceEnvData.closureBlockSymbols.contains(symbol)) {
-            mapSymbol = classDef.oceEnvData.mapBlockMapSymbol;
+            mapSymbol = classDef.oceEnvData.blockLevelMapSymbol;
         }
         return mapSymbol;
     }
@@ -1324,7 +1324,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         addFunctionLevelClosureMapToClassDefinition(classDef);
         updateFields(classDef);
         addBlockLevelClosureMapToClassDefinition(classDef);
-        //updateFunctions(classDef);
+//        updateFunctions(classDef);
 
         reset();
     }
@@ -1340,7 +1340,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private void updateFields(BLangClassDefinition bLangClassDefinition) {
 
-        bLangClassDefinition.oceEnvData.closureDesugaringInProgress = true;
+        bLangClassDefinition.oceEnvData.fieldClosureDesugaringInProgress = true;
         for (BLangSimpleVariable field : bLangClassDefinition.fields) {
             if (!field.symbol.isDefaultable) {
                 continue;
@@ -1354,7 +1354,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             }
             field.expr = rewrite(field.expr, this.env);
         }
-        bLangClassDefinition.oceEnvData.closureDesugaringInProgress = false;
+        bLangClassDefinition.oceEnvData.fieldClosureDesugaringInProgress = false;
     }
 
     private BLangNode getNextPossibleNode(SymbolEnv envArg) {
@@ -1382,7 +1382,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private void addBlockLevelClosureMapToClassDefinition(BLangClassDefinition classDef) {
         OCEDynamicEnvData oceData = classDef.oceEnvData;
-        if (oceData.blockMapUpdatedInInitMethod || oceData.mapBlockMapSymbol == null ||
+        if (oceData.blockMapUpdatedInInitMethod || oceData.blockLevelMapSymbol == null ||
                 oceData.closureBlockSymbols.isEmpty()) {
             return;
         }
@@ -1397,7 +1397,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             node = function.body;
         }
         BVarSymbol blockMap = createMapSymbolIfAbsent(node, oceData.closureBlockSymbols.size());
-        BVarSymbol mapSymbol = oceData.mapBlockMapSymbol;
+        BVarSymbol mapSymbol = oceData.blockLevelMapSymbol;
 
         addMapSymbolAsAClassField(classDef, mapSymbol);
         addClosureMapUpdateStmtToClassInit(classDef, blockMap, mapSymbol);
@@ -1407,12 +1407,12 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private void addFunctionLevelClosureMapToClassDefinition(BLangClassDefinition classDef) {
         OCEDynamicEnvData oceData = classDef.oceEnvData;
-        if (oceData.functionMapUpdatedInInitMethod || oceData.mapFunctionMapSymbol == null) {
+        if (oceData.functionMapUpdatedInInitMethod || oceData.functionLevelMapSymbol == null) {
             return;
         }
-        SymbolEnv env = oceData.capturedClosureEnv;
-        this.env = env;
-        if (env.enclEnv.node == null) {
+        SymbolEnv capturedClosureEnv = oceData.capturedClosureEnv;
+        this.env = capturedClosureEnv;
+        if (capturedClosureEnv.enclEnv.node == null) {
             return;
         }
         if (oceData.closureFuncSymbols.isEmpty()) {
@@ -1420,7 +1420,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         }
         BLangFunction function = (BLangFunction) oceData.capturedClosureEnv.enclInvokable;
         BVarSymbol functionMap = createMapSymbolIfAbsent(function, oceData.closureFuncSymbols.size());
-        BVarSymbol mapSymbol = oceData.mapFunctionMapSymbol;
+        BVarSymbol mapSymbol = oceData.functionLevelMapSymbol;
 
         addMapSymbolAsAClassField(classDef, mapSymbol);
         addClosureMapUpdateStmtToClassInit(classDef, functionMap, mapSymbol);
@@ -1430,12 +1430,12 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private void createMapSymbolsIfAbsent(BLangClassDefinition classDef) {
         OCEDynamicEnvData oceData = classDef.oceEnvData;
-        if (!oceData.closureBlockSymbols.isEmpty() && classDef.oceEnvData.mapBlockMapSymbol == null) {
-            classDef.oceEnvData.mapBlockMapSymbol =
+        if (!oceData.closureBlockSymbols.isEmpty() && classDef.oceEnvData.blockLevelMapSymbol == null) {
+            classDef.oceEnvData.blockLevelMapSymbol =
                     createMapSymbol(OBJECT_CTOR_BLOCK_MAP_SYM_NAME, classDef.oceEnvData.capturedClosureEnv);
         }
-        if (!oceData.closureFuncSymbols.isEmpty() && classDef.oceEnvData.mapFunctionMapSymbol == null) {
-            classDef.oceEnvData.mapFunctionMapSymbol =
+        if (!oceData.closureFuncSymbols.isEmpty() && classDef.oceEnvData.functionLevelMapSymbol == null) {
+            classDef.oceEnvData.functionLevelMapSymbol =
                     createMapSymbol(OBJECT_CTOR_FUNCTION_MAP_SYM_NAME, classDef.oceEnvData.capturedClosureEnv);
         }
     }
@@ -1456,7 +1456,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
                                                    BVarSymbol classMapSymbol) {
 
         OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
-        BVarSymbol oceMap = oceEnvData.mapBlockMapSymbol;
+        BVarSymbol oceMap = oceEnvData.blockLevelMapSymbol;
 
         BLangFunction function = classDef.generatedInitFunction;
 
