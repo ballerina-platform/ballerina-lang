@@ -1,0 +1,86 @@
+{
+    "position": {
+        "line": 35,
+        "character": 29
+    },
+    "source": "included_record/source1.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "testFunction3(int field1, int field2, int r2field1, string r2field2)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 18,
+                                    "second": 24
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 30,
+                                    "second": 36
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 42,
+                                    "second": 50
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 59,
+                                    "second": 67
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "label": "testFunction3(Record1 rec1, Record2 rec2)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 22,
+                                    "second": 26
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`Record1`rec1**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 36,
+                                    "second": 40
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`Record2`rec2**"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 1
+        },
+        "jsonrpc": "2.0"
+    }
+}

@@ -32,6 +32,7 @@ import io.ballerina.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerina.compiler.internal.parser.tree.STErrorConstructorExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFieldAccessExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionArgumentNode;
+import io.ballerina.compiler.internal.parser.tree.STFunctionCallExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionSignatureNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STIndexedExpressionNode;
@@ -18518,6 +18519,10 @@ public class BallerinaParser extends AbstractParser {
                 STSyncSendActionNode syncSend = (STSyncSendActionNode) exprOrAction;
                 newLhsExpr = mergeQualifiedNameWithExpr(qualifiedName, syncSend.expression);
                 return STNodeFactory.createAsyncSendActionNode(newLhsExpr, syncSend.syncSendToken, syncSend.peerWorker);
+            case FUNCTION_CALL:
+                STFunctionCallExpressionNode funcCall = (STFunctionCallExpressionNode) exprOrAction;
+                return STNodeFactory.createFunctionCallExpressionNode(qualifiedName, funcCall.openParenToken,
+                        funcCall.arguments, funcCall.closeParenToken);
             default:
                 return exprOrAction;
         }

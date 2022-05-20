@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -53,6 +54,23 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Fix Return Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
+            return false;
+        }
+
+        //Suggest the code action only if the immediate parent of the matched node is a return statement 
+        // and the return statement corresponds to the enclosing function's signature. 
+        NonTerminalNode parentNode = positionDetails.matchedNode().parent();
+        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT) {
+            return false;
+        }
+
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -60,17 +78,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
-
-        //Suggest the code action only if the immediate parent of the matched node is a return statement 
-        // and the return statement corresponds to the enclosing function's signature. 
-        NonTerminalNode parentNode = positionDetails.matchedNode().parent();
-        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT) {
-            return Collections.emptyList();
-        }
-
+        
         Optional<TypeSymbol> foundType;
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
             foundType = positionDetails.diagnosticProperty(CodeActionUtil
