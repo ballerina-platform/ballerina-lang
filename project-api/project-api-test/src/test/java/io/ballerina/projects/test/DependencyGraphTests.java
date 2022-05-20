@@ -43,6 +43,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -56,6 +57,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -498,5 +504,104 @@ public class DependencyGraphTests extends BaseTest {
         Assert.assertEquals(packageMetadataResponse.resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(packageMetadataResponse.resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
+    }
+
+    @Test(dataProvider = "provideDependenciesInDifferentOrder")
+    public void testTopologicalSortConsistency(Map<String, Set<String>> dependencies) {
+        DependencyGraph<String> dependencyGraph = DependencyGraph.from(dependencies);
+        Assert.assertEquals(dependencyGraph.toTopologicallySortedList(), new LinkedList<>() {{
+            add("package7");
+            add("package8");
+            add("package6");
+            add("package3");
+            add("package4");
+            add("package5");
+            add("package1");
+            add("package2");
+        }});
+    }
+
+    @DataProvider(name = "provideDependenciesInDifferentOrder")
+    public Object[][] provideDependenciesInDifferentOrder() {
+        return new Object[][]{
+                {new LinkedHashMap<>() {{
+                    put("package1", new LinkedHashSet<>() {{
+                        add("package3");
+                        add("package4");
+                        add("package5");
+                    }});
+                    put("package2", new LinkedHashSet<>() {{
+                        add("package5");
+                    }});
+                    put("package3", new LinkedHashSet<>() {{
+                        add("package6");
+                        add("package7");
+                    }});
+                    put("package4", new LinkedHashSet<>() {{
+                        add("package6");
+                    }});
+                    put("package5", new LinkedHashSet<>() {{
+                        add("package8");
+                    }});
+                    put("package6", new LinkedHashSet<>() {{
+                        add("package7");
+                        add("package8");
+                    }});
+                    put("package7", new LinkedHashSet<>());
+                    put("package8", new LinkedHashSet<>());
+                }}},
+                {new LinkedHashMap<>() {{
+                    put("package8", new LinkedHashSet<>());
+                    put("package7", new LinkedHashSet<>());
+                    put("package6", new LinkedHashSet<>() {{
+                        add("package8");
+                        add("package7");
+                    }});
+                    put("package4", new LinkedHashSet<>() {{
+                        add("package6");
+                    }});
+                    put("package5", new LinkedHashSet<>() {{
+                        add("package8");
+                    }});
+                    put("package3", new LinkedHashSet<>() {{
+                        add("package7");
+                        add("package6");
+                    }});
+                    put("package2", new LinkedHashSet<>() {{
+                        add("package5");
+                    }});
+                    put("package1", new LinkedHashSet<>() {{
+                        add("package5");
+                        add("package4");
+                        add("package3");
+                    }});
+                }}},
+                {new LinkedHashMap<>() {{
+                    put("package4", new LinkedHashSet<>() {{
+                        add("package6");
+                    }});
+                    put("package3", new LinkedHashSet<>() {{
+                        add("package6");
+                        add("package7");
+                    }});
+                    put("package2", new LinkedHashSet<>() {{
+                        add("package5");
+                    }});
+                    put("package1", new LinkedHashSet<>() {{
+                        add("package5");
+                        add("package3");
+                        add("package4");
+                    }});
+                    put("package8", new LinkedHashSet<>());
+                    put("package7", new LinkedHashSet<>());
+                    put("package6", new LinkedHashSet<>() {{
+                        add("package8");
+                        add("package7");
+                    }});
+                    put("package5", new LinkedHashSet<>() {{
+                        add("package8");
+                    }});
+                }}}
+        };
     }
 }

@@ -489,7 +489,7 @@ public class ResolutionEngine {
      *
      * @since 2.0.0
      */
-    public static class DependencyNode {
+    public static class DependencyNode implements Comparable<DependencyNode> {
         private final PackageDescriptor pkgDesc;
         private final PackageDependencyScope scope;
         private final DependencyResolutionType resolutionType;
@@ -564,6 +564,11 @@ public class ResolutionEngine {
             String attr = " [scope=" + scope + ",kind=" + resolutionType +
                     ",repo=" + pkgDesc.repository().orElse(null) + ",error=" + isError + "]";
             return pkgDesc.toString() + attr;
+        }
+
+        @Override
+        public int compareTo(ResolutionEngine.DependencyNode dependencyNode) {
+            return this.pkgDesc.name().toString().compareTo(pkgDesc.name().toString());
         }
     }
 }
