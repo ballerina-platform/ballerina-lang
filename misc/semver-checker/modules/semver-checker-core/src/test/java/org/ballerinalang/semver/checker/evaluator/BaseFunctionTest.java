@@ -25,15 +25,14 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.semver.checker.comparator.PackageComparator;
 import io.ballerina.semver.checker.diff.PackageDiff;
-import org.ballerinalang.semver.checker.ProjectUtil;
+import org.ballerinalang.semver.checker.ProjectUtils;
 import org.testng.Assert;
 import java.io.FileReader;
-import java.io.IOException;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Base class for testing all function definition related test cases.
+ * @since 2201.2.0
  */
 public class BaseFunctionTest {
 
@@ -41,28 +40,30 @@ public class BaseFunctionTest {
      * @param testFileName Name of the testcase file name
      */
     protected static void testEvaluate(String testFileName) throws Exception {
-        Object obj;
-        JsonArray fileData = null;
+        JsonArray fileData;
         try (FileReader reader = new FileReader(testFileName)) {
-            obj = JsonParser.parseReader(reader);
-            fileData = (JsonArray) obj;
-        } catch (IOException e) {
-            e.printStackTrace();
+            Object testCaseObject = JsonParser.parseReader(reader);
+            fileData = (JsonArray) testCaseObject;
         }
 
-        for (int i = 0; i < Objects.requireNonNull(fileData).size(); i++) {
+        for (int i = 0; i < fileData.size(); i++) {
             JsonObject element = (JsonObject) fileData.get(i);
             String oldCode =element.get("oldCode").getAsString();
             String newCode = element.get("newCode").getAsString();
             JsonObject expectedOutput = (JsonObject) element.get("expectedOutput");
-            BuildProject oldProject = ProjectUtil.createProject(oldCode);
-            BuildProject currentProject = ProjectUtil.createProject(newCode);
+            BuildProject oldProject = ProjectUtils.createProject(oldCode);
+            BuildProject currentProject = ProjectUtils.createProject(newCode);
             Package oldPackage = oldProject.currentPackage();
             Package currentPackage = currentProject.currentPackage();
             compare(oldPackage , currentPackage , expectedOutput );
         }
     }
 
+    /**
+     * @param oldPackage Package instance of previous code
+     * @param currentPackage package instance of current code
+     * @param expectedOutput Expected json output for the test case
+     */
     public static void compare(Package oldPackage , Package currentPackage , JsonObject expectedOutput ){
         PackageComparator packageComparator = new PackageComparator(currentPackage,oldPackage);
         Optional<PackageDiff> packageDiff = packageComparator.computeDiff();

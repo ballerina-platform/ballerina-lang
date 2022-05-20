@@ -24,9 +24,16 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 /**
- * Write the text into a file.
+ * Purpose for handling the file with its content
+ * @since 2201.2.0
  */
 public class FileUtils {
+
+    /**
+     * @param file Name of the expected file
+     * @param content String data which we want to write into that file
+     * @throws IOException for handling the error while handling the file
+     */
     public static void writeToFile(File file, String content) throws IOException {
         try (FileWriter fileWriter = new FileWriter(file, Charset.defaultCharset())) {
             fileWriter.write(content);

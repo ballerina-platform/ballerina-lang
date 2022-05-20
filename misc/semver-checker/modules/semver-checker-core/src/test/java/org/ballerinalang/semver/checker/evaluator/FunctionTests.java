@@ -22,66 +22,56 @@ import org.testng.annotations.Test;
 
 /**
  * Extended FunctionTest class for test each test case scenarios separately.
+ * @since 2201.2.0
  */
 public class FunctionTests extends BaseFunctionTest {
-    private static final String FunctionTestBaseFolder = "src/test/resources/testcases/functionDefinition";
-
-    private static final String FUNCTION_ANNOTATION_TESTCASE = FunctionTestBaseFolder + "/annotation.json";
-    private static final String FUNCTION_DOCUMENTATION_TESTCASE = FunctionTestBaseFolder +  "/documentation.json";
-    private static final String FUNCTION_BODY_TESTCASE = FunctionTestBaseFolder + "/functionBody.json";
-    private static final String FUNCTION_IDENTIFIER_TESTCASE = FunctionTestBaseFolder + "/identifier.json";
-    private static final String FUNCTION_PARAMETER_TESTCASE = FunctionTestBaseFolder + "/parameter.json";
-    private static final String FUNCTION_QUALIFIER_TESTCASE = FunctionTestBaseFolder + "/qualifier.json";
-    private static final String FUNCTION_RETURN_TYPE_TESTCASE = FunctionTestBaseFolder + "/returnType.json";
-    private static final String ADVANCE_FUNCTION_TESTCASE = FunctionTestBaseFolder + "/advanceFunction.json";
-
+    private static final String FUNCTION_TEST_DATA_ROOT  = "src/test/resources/testcases/functionDefinition";
+    private static final String FUNCTION_ANNOTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/annotation.json";
+    private static final String FUNCTION_DOCUMENTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT  +  "/documentation.json";
+    private static final String FUNCTION_BODY_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/functionBody.json";
+    private static final String FUNCTION_IDENTIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/identifier.json";
+    private static final String FUNCTION_PARAMETER_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/parameter.json";
+    private static final String FUNCTION_QUALIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/qualifier.json";
+    private static final String FUNCTION_RETURN_TYPE_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/returnType.json";
+    private static final String ADVANCE_FUNCTION_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/advanceFunction.json";
 
     @Test
     public void testFunctionAnnotation() throws Exception {
-
         testEvaluate(FUNCTION_ANNOTATION_TESTCASE );
     }
 
     @Test
     public void testFunctionDocumentation() throws Exception {
-
         testEvaluate(FUNCTION_DOCUMENTATION_TESTCASE );
     }
 
     @Test
     public void testFunctionBody() throws Exception {
-
         testEvaluate(FUNCTION_BODY_TESTCASE );
     }
 
     @Test
     public void testFunctionIdentifier() throws Exception {
-
         testEvaluate(FUNCTION_IDENTIFIER_TESTCASE );
     }
 
     @Test
     public void testFunctionParameter() throws Exception {
-
         testEvaluate(FUNCTION_PARAMETER_TESTCASE );
     }
 
     @Test
     public void testFunctionQualifier() throws Exception {
-
         testEvaluate(FUNCTION_QUALIFIER_TESTCASE );
     }
 
     @Test
     public void testFunctionReturnType() throws Exception {
-
         testEvaluate(FUNCTION_RETURN_TYPE_TESTCASE );
     }
 
     @Test
     public void testAdvanceFunction() throws Exception {
-
         testEvaluate(ADVANCE_FUNCTION_TESTCASE );
     }
-
 }
