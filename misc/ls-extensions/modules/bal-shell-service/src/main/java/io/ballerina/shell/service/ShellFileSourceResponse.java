@@ -22,7 +22,7 @@ import java.io.File;
 /**
  * Response format for balShell/getShellFileSource endpoint.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class ShellFileSourceResponse {
     private final String filePath;

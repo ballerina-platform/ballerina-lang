@@ -28,6 +28,8 @@ import java.util.regex.Pattern;
  * Responsible to hold all declared variables and module declarations.
  *
  * Provide new definitions if available
+ *
+ * @since 2201.1.1
  */
 public class MetaInfoHandler {
     private List<String> definedVars;

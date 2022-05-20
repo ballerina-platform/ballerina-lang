@@ -47,7 +47,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Wrapper for Ballerina Shell.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class ShellWrapper {
     private final BShellConfiguration configuration;

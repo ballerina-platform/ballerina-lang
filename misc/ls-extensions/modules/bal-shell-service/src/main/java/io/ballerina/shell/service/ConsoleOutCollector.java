@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * Collector to collect output passed in to the console.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class ConsoleOutCollector extends OutputStream {
     private List<String> lines;

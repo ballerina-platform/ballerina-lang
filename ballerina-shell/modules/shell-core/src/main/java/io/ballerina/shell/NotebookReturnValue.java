@@ -22,7 +22,7 @@ package io.ballerina.shell;
  * Return value after invoking snippet.
  * Contains result as an object & exception status related to compilation
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class NotebookReturnValue {
 

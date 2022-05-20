@@ -20,7 +20,7 @@ package io.ballerina.shell.service;
 /**
  * Class to represent GetResultTestCase json.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class GetResultTestCase {
     private String source;

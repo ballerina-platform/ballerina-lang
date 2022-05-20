@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Class to represent GetVariableTestCase json.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class GetVariableTestCase {
     private String source;

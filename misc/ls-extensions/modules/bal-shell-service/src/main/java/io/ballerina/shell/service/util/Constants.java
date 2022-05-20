@@ -18,7 +18,7 @@ package io.ballerina.shell.service.util;
 /**
  * Represents the Service constants.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 public class Constants {
     public static final String MIME_TYPE_PLAIN_TEXT = "plain/text";
