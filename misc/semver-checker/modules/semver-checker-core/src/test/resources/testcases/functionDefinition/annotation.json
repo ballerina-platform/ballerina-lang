@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Add annotation to a function.",
+    "oldCode": "public function transform(){}",
+    "newCode": "@display {\nlabel:”Transform”,\niconPath:”Transform.png”\n} \npublic function transform(){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove annotation from a function",
+    "oldCode": "@display {\nlabel:”Transform”,\niconPath:”Transform.png”\n} \npublic function transform(){}",
+    "newCode": "public function transform(){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify annotation in a function.",
+    "oldCode": "@display {\nlabel:”Transform”,\niconPath:”Transform.png”\n} \npublic function transform(){}",
+    "newCode": "@test:Config{\nbefore: beforeFunc,\nafter: afterFunc \n}\npublic function transform(){}",
+    "expectedOutput": {}
+  }
+]

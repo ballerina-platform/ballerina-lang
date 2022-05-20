@@ -1,0 +1,60 @@
+[
+  {
+    "description": "Modify the function body",
+    "oldCode": "public function add(int x, int y) returns int {\n\tint Sum = x + y;\n\treturns sum; \n}",
+    "newCode": "public function add(int x, int y) returns int {\n\tint Sum = x - y;\n\treturns sum; \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "modified",
+                "versionImpact": "patch",
+                "message": "function body is modified"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add function body",
+    "oldCode": "public function add(int x, int y) {}",
+    "newCode": "public function add(int x, int y)  {\n\tint Sum = x + y;\n}",
+    "expectedOutput": {
+      "kind":"package",
+      "type":"modified",
+      "versionImpact":"patch",
+      "childDiffs":[
+        {"kind":"module",
+          "type":"modified",
+          "versionImpact":"patch",
+          "childDiffs":[
+            {"kind":"function",
+              "type":"modified",
+              "versionImpact":"patch",
+              "childDiffs":[
+                {"kind":"unknown",
+                  "type":"modified",
+                  "versionImpact":"patch",
+                  "message":"function body is modified"
+                }]}]}]}
+  },
+  {
+    "description": "Remove function body",
+    "oldCode": "public function add(int x, int y) {\nint Sum = x + y;\n}",
+    "newCode": "public function add(int x, int y) {}",
+    "expectedOutput": {"kind":"package","type":"modified","versionImpact":"patch","childDiffs":[{"kind":"module","type":"modified","versionImpact":"patch","childDiffs":[{"kind":"function","type":"modified","versionImpact":"patch","childDiffs":[{"kind":"unknown","type":"modified","versionImpact":"patch","message":"function body is modified"}]}]}]}
+  }
+]
