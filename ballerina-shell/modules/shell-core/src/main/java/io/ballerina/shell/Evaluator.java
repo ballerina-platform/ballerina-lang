@@ -112,7 +112,7 @@ public abstract class Evaluator extends DiagnosticReporter {
      * @param compilation compilation.
      * @return Object output from the evaluator.
      */
-    public abstract Optional<Object> getValueAsObject(Optional<PackageCompilation> compilation) throws
+    public abstract Optional<NotebookReturnValue> getValueAsObject(Optional<PackageCompilation> compilation) throws
             BallerinaShellException;
 
 

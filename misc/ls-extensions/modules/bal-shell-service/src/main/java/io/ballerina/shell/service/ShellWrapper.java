@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.ExceptionStatus;
+import io.ballerina.shell.NotebookReturnValue;
 import io.ballerina.shell.ShellCompilation;
 import io.ballerina.shell.cli.BShellConfiguration;
 import io.ballerina.shell.exceptions.BallerinaShellException;
@@ -89,10 +90,14 @@ public class ShellWrapper {
             // will include in diagnostics
             if (shellCompilation.getExceptionStatus() == ExceptionStatus.SUCCESS) {
                 Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                Optional<Object> shellReturnValue = evaluator.getValueAsObject(compilation);
-                if (shellReturnValue.isPresent()) {
-                    Object out = shellReturnValue.get();
+                Optional<NotebookReturnValue> notebookReturnValue = evaluator.getValueAsObject(compilation);
+                if (notebookReturnValue.isPresent() &&
+                        notebookReturnValue.get().getExceptionStatus() == ExceptionStatus.SUCCESS) {
+                    Object out = notebookReturnValue.get().getResult();
                     output.setValue(out);
+                } else if (notebookReturnValue.isPresent() &&
+                        notebookReturnValue.get().getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
+                    throw new InvokerException();
                 }
             // for other exception statuses throw errors accordingly
             } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.SNIPPET_FAILED) {

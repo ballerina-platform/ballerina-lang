@@ -132,14 +132,26 @@ class EvaluatorImpl extends Evaluator {
     }
 
     @Override
-    public Optional<Object> getValueAsObject(Optional<PackageCompilation> compilation) throws
+    public Optional<NotebookReturnValue> getValueAsObject(Optional<PackageCompilation> compilation) throws
             BallerinaShellException {
+        Object result;
+        ExceptionStatus exceptionStatus;
         try {
-            return invoker.execute(compilation);
-        } catch (InvokerException e) {
+            Optional<Object> invokerOut = invoker.execute(compilation);
+            result = invokerOut.orElse(null);
+            exceptionStatus = ExceptionStatus.SUCCESS;
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            return Optional.of(new NotebookReturnValue(result, exceptionStatus));
+        } catch (InvokerPanicException e) {
             addAllDiagnostics(invoker.diagnostics());
             invoker.resetDiagnostics();
             throw e;
+        } catch (InvokerException e) {
+            exceptionStatus = ExceptionStatus.INVOKER_FAILED;
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            return Optional.of(new NotebookReturnValue(exceptionStatus));
         } catch (Exception e) {
             throw e;
         }
