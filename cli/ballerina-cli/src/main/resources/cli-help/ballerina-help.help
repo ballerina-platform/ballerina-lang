@@ -38,6 +38,7 @@ COMMANDS
         grpc            Generate the Ballerina sources for a given Protocol Buffer definition
         openapi         Generate the Ballerina sources for a given OpenAPI definition and 
                         vice versa
+        asyncapi        Generate the Ballerina sources for a given AsyncAPI definition
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL
         version         Print the Ballerina version
