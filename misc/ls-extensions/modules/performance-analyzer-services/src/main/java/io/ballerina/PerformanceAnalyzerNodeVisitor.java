@@ -343,9 +343,8 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             if (waitNode.isEmpty() || waitNode.get().getLocation().isEmpty()) {
                 return;
             }
-            SymbolKind kind = waitNode.get().kind();
             if (!isWorkerWaiting) {
-                isWorkerWaiting = kind == SymbolKind.WORKER;
+                isWorkerWaiting = waitNode.get().kind() == SymbolKind.WORKER;
             }
         }
     }
