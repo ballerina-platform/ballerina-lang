@@ -2944,39 +2944,40 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private String getVariableName(BLangVariable variable) {
         NodeKind kind = variable.getKind();
-        String name = DOLLAR;
+        StringBuilder name = new StringBuilder(DOLLAR);
         switch (kind) {
             case VARIABLE:
-                return name.concat(((BLangSimpleVariable) variable).name.value + DOLLAR);
+                name.append(((BLangSimpleVariable) variable).name.value).append(DOLLAR);
+                return name.toString();
             case RECORD_VARIABLE:
                 for (BLangRecordVariableKeyValue keyValue : ((BLangRecordVariable) variable).getVariables()) {
-                    name = name.concat(keyValue.key.value + DOLLAR);
+                    name.append(keyValue.key.value).append(DOLLAR);
                 }
-                return name;
+                return name.toString();
             case TUPLE_VARIABLE:
                 for (BLangVariable var : ((BLangTupleVariable) variable).memberVariables) {
-                    name = name.concat(getVariableName(var) + DOLLAR);
+                    name.append(getVariableName(var)).append(DOLLAR);
                 }
-                return name;
+                return name.toString();
             case ERROR_VARIABLE:
             default:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
                 BLangSimpleVariable message = errorVariable.message;
                 if (message != null) {
-                    name = name.concat(message.name.value + DOLLAR);
+                    name.append(message.name.value).append(DOLLAR);
                 }
                 BLangVariable cause = errorVariable.cause;
                 if (cause != null) {
-                    name = name.concat(getVariableName(cause) + DOLLAR);
+                    name.append(getVariableName(cause)).append(DOLLAR);
                 }
                 BLangSimpleVariable restDetail = errorVariable.restDetail;
                 if (restDetail != null) {
-                    name = name.concat(restDetail.name.value + DOLLAR);
+                    name.append(restDetail.name.value).append(DOLLAR);
                 }
                 for (BLangErrorVariable.BLangErrorDetailEntry detailEntry : errorVariable.detail) {
-                    name = name.concat(detailEntry.key.value);
+                    name.append(detailEntry.key.value);
                 }
-                return name;
+                return name.toString();
         }
     }
 
