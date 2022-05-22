@@ -35,6 +35,15 @@ import java.util.Optional;
  * @since 2201.2.0
  */
 public class BaseFunctionTest {
+    private static final String FUNCTION_TEST_DATA_ROOT  = "src/test/resources/testcases/functionDefinition";
+    protected static final String FUNCTION_ANNOTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/annotation.json";
+    protected static final String FUNCTION_DOCUMENTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT  +  "/documentation.json";
+    protected static final String FUNCTION_BODY_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/functionBody.json";
+    protected static final String FUNCTION_IDENTIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/identifier.json";
+    protected static final String FUNCTION_PARAMETER_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/parameter.json";
+    protected static final String FUNCTION_QUALIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/qualifier.json";
+    protected static final String FUNCTION_RETURN_TYPE_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/returnType.json";
+    protected static final String ADVANCE_FUNCTION_TESTCASE = FUNCTION_TEST_DATA_ROOT  + "/advanceFunction.json";
 
     /**
      * @param testFileName Name of the testcase file name
@@ -69,8 +78,7 @@ public class BaseFunctionTest {
         Optional<PackageDiff> packageDiff = packageComparator.computeDiff();
         if (expectedOutput.equals(new JsonObject())){
             //For now disabled test cases.
-        }
-        else{
+        } else {
             packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
         }
     }

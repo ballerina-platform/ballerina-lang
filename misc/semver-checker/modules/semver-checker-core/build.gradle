@@ -29,7 +29,6 @@ dependencies {
     implementation project(':ballerina-tools-api')
     testCompile 'org.testng:testng'
     implementation('com.google.code.gson:gson')
-
 }
 
 description = 'Ballerina - Semver Checker Core'
