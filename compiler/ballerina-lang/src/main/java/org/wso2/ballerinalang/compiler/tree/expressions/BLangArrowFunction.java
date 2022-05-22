@@ -44,7 +44,7 @@ import java.util.Set;
 public class BLangArrowFunction extends BLangExpression implements ArrowFunctionNode {
 
     // BLangNodes
-    public List<BLangSimpleVariable> params = new ArrayList<>();
+    public List<BLangSimpleVariable> params;
     public IdentifierNode functionName;
     public BLangExprFunctionBody body;
 

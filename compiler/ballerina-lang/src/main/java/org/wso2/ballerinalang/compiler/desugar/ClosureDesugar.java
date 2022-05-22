@@ -221,7 +221,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangPackage pkgNode) {
-        SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
 
         // Process nodes that are not lambdas
         for (TopLevelNode pkgLevelNode : pkgNode.topLevelNodes) {
@@ -1404,7 +1404,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 }
             } else {
                 // Update the closure vars.
-                invokableFunc.paramClosureMap.putIfAbsent(absoluteLevel, createMapSymbol(
+                invokableFunc.paramClosureMap.computeIfAbsent(absoluteLevel, k -> createMapSymbol(
                         PARAMETER_MAP_NAME + absoluteLevel, env));
                 updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
             }
@@ -2004,7 +2004,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         node.accept(this);
         BLangNode resultNode = this.result;
-        this.result = null;
+        result = null;
 
         this.env = previousEnv;
         return (E) resultNode;
