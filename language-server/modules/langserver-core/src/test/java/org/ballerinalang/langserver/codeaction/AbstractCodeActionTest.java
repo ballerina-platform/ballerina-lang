@@ -305,7 +305,13 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
     static class CodeActionObj {
         String title;
+        String kind;
         List<TextEdit> edits;
         JsonObject command;
+
+        @Override
+        public String toString() {
+            return title;
+        }
     }
 }
