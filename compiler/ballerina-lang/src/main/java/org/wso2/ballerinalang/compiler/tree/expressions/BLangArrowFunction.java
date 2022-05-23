@@ -44,7 +44,7 @@ import java.util.Set;
 public class BLangArrowFunction extends BLangExpression implements ArrowFunctionNode {
 
     // BLangNodes
-    public List<BLangSimpleVariable> params;
+    public List<BLangSimpleVariable> params = new ArrayList<>();
     public IdentifierNode functionName;
     public BLangExprFunctionBody body;
 
@@ -53,6 +53,7 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
 
     // Used to track uninitialized closure variables in DataFlowAnalyzer.
     public Set<ClosureVarSymbol> closureVarSymbols = new LinkedHashSet<>();
+    public boolean insideOCE;
 
     @Override
     public List<BLangSimpleVariable> getParameters() {

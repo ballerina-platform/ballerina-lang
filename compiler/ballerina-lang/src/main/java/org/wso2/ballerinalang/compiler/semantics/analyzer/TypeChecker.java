@@ -6552,6 +6552,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (!function.flagSet.contains(Flag.OBJECT_CTOR) && !function.flagSet.contains(Flag.ATTACHED)) {
                     break;
                 }
+                BLangSimpleVariable receiver = function.receiver;
+                if (receiver != null) {
+                    receiver.symbol.closure = true;
+                    if (originalNode.getKind() == NodeKind.ARROW_EXPR) {
+                        BLangArrowFunction arrowFunction = (BLangArrowFunction) originalNode;
+                        arrowFunction.closureVarSymbols.add(new ClosureVarSymbol(receiver.symbol, receiver.pos));
+                    }
+                }
             }
             if (!symbol.closure) {
                 searchClosureVariableInExpressions(symbol, pos, env, encInvokable, node);
