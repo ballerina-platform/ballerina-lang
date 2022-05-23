@@ -77,10 +77,10 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) createObjectValue(this.pkg, this);
+        return (V) createObjectValueWithDefaultValues(this.pkg, this);
     }
 
-    private static BObject createObjectValue(Module packageId, BObjectType objectType) {
+    private static BObject createObjectValueWithDefaultValues(Module packageId, BObjectType objectType) {
         Strand currentStrand = Scheduler.getStrand();
         Map<String, Field> fieldsMap = objectType.getFields();
         Field[] fields = fieldsMap.values().toArray(new Field[0]);
@@ -88,7 +88,9 @@ public class BObjectType extends BStructureType implements ObjectType {
 
         for (int i = 0, j = 0; i < fields.length; i++) {
             Type type = fields[i].getFieldType();
+            // Add default value of the field type as initial argument.
             fieldValues[j++] = type.getZeroValue();
+            // Add boolean value for each argument to indicate the default value case.
             fieldValues[j++] = false;
         }
         return ValueUtils.createObjectValue(currentStrand, packageId, objectType.getName(), fieldValues);
