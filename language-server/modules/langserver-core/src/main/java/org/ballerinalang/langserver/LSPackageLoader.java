@@ -119,8 +119,7 @@ public class LSPackageLoader {
     public List<PackageInfo> getAllVisiblePackages(DocumentServiceContext ctx) {
         Map<String, PackageInfo> packagesList = new HashMap<>();
         this.getDistributionRepoPackages().forEach(packageInfo ->
-                packagesList.put(packageInfo.packageOrg.toString() + "/"
-                        + packageInfo.packageName.toString(), packageInfo));
+                packagesList.put(packageInfo.packageIdentifier(), packageInfo));
 
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
