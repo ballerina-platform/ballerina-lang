@@ -154,9 +154,9 @@ public class ShellWrapper {
      *
      * returns true when successfully completed else false
      */
-    public boolean deleteDeclarations(List<String> varsToDelete, List<String> moduleDclnsToDelete) {
+    public boolean deleteDeclarations(String varToDelete) {
         try {
-            evaluator.delete(Stream.concat(varsToDelete.stream(), moduleDclnsToDelete.stream()).collect(toList()));
+            evaluator.delete(List.of(varToDelete));
         } catch (BallerinaShellException e) {
             evaluator.resetDiagnostics();
             return false;
