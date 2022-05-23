@@ -1978,15 +1978,27 @@ function testCloneWithTypeWithAmbiguousUnion() {
     assert(arrTupleUnionVal1, [23.0d, 24]);
     assertTrue(arrTupleUnionVal1 is [decimal, int]);
 
+    int[]|[decimal, int...] arrTupleRestUnionVal1 = checkpanic jsonTuple1.cloneWithType();
+    assert(arrTupleRestUnionVal1, [23.0d, 24]);
+    assertTrue(arrTupleRestUnionVal1 is [decimal, int...]);
+
     val = [[1.2d, 2.3d]];
     int[][]|decimal[][] clone2D = checkpanic val.cloneWithType();
     assert(clone2D, [[1.2d, 2.3d]]);
     assertTrue(clone2D is decimal[][]);
 
+    [[int,int...]]|[decimal,decimal...][] clone2DRest = checkpanic val.cloneWithType();
+    assert(clone2DRest, [[1.2d, 2.3d]]);
+    assertTrue(clone2DRest is [decimal,decimal...][] );
+
     val = [[1.2d, "l"], 9];
     [[decimal, string], int]|int[][]|decimal[][] cloneTuple = checkpanic val.cloneWithType();
     assert(cloneTuple, [[1.2d, "l"], 9]);
     assertTrue(cloneTuple is [[decimal, string], int]);
+
+    [[decimal, string...], int...]|int[][]|decimal[][] cloneTupleRest = checkpanic val.cloneWithType();
+    assert(cloneTupleRest, [[1.2d, "l"], 9]);
+    assertTrue(cloneTupleRest is [[decimal, string...], int...]);
 
     json jsonMap = {
         title: "Inception",
@@ -2085,6 +2097,10 @@ function testCloneWithTypeWithAmbiguousUnion() {
     int[]|[decimal, int] arrTupleUnionVal3 = checkpanic  anydataTuple1.cloneWithType();
     assert(arrTupleUnionVal3, [23.0d, 24]);
     assertTrue(arrTupleUnionVal3 is [decimal, int]);
+
+    int[]|[decimal, int...] arrTupleUnionVal3Rest = checkpanic  anydataTuple1.cloneWithType();
+    assert(arrTupleUnionVal3Rest, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal3Rest is [decimal, int...]);
 
     anydata anydataMap = {
         title: "Inception",
@@ -2232,7 +2248,9 @@ function testCloneWithTypeWithAmbiguousUnion() {
     assertTrue(arrayFiniteVal2 is error);
     error err = <error>arrayFiniteVal2;
     assertEquality("{ballerina/lang.value}ConversionError", err.message());
-    assertEquality("'json[]' value cannot be converted to '(string[]|Finite[])': \n\t	array element '[0]' should be of type 'string', found '2.0'\n\t	value '2.0' cannot be converted to 'Finite': ambiguous target type", <string>checkpanic err.detail()["message"]);
+    assertEquality("'json[]' value cannot be converted to '(string[]|Finite[])': \n\t	array element '[0]' should " +
+    "be of type 'string', found '2.0'\n\t	value '2.0' cannot be converted to 'Finite': ambiguous target type",
+    <string>checkpanic err.detail()["message"]);
 
     // Negative cases
     json jVal = [23.0d, 24];
@@ -2240,34 +2258,59 @@ function testCloneWithTypeWithAmbiguousUnion() {
     assertTrue(result1 is error);
     err = <error>result1;
     assertEquality("{ballerina/lang.value}ConversionError", err.message());
-    assertEquality("'json[]' value cannot be converted to '(int[]|[decimal,float])': \n\t	value '[23.0,24]' cannot be converted to '(int[]|[decimal,float])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+    assertEquality("'json[]' value cannot be converted to '(int[]|[decimal,float])': \n\t	value '[23.0,24]' cannot" +
+    " be converted to '(int[]|[decimal,float])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+
+    decimal[]|[decimal, decimal...]|[decimal, float...]|error result1Rest = jVal.cloneWithType();
+    assertTrue(result1Rest is error);
+    err = <error>result1Rest;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '(decimal[]|[decimal,decimal...]|[decimal,float...])': " +
+    "\n\t\tvalue '[23.0,24]' cannot be converted to '(decimal[]|[decimal,decimal...]|[decimal,float...])': ambiguous" +
+    " target type", <string>checkpanic err.detail()["message"]);
 
     jVal = [23.0, 24];
     int[]|decimal[]|float[]|error result2 = jVal.cloneWithType();
     assertTrue(result2 is error);
     err = <error>result2;
     assertEquality("{ballerina/lang.value}ConversionError", err.message());
-    assertEquality("'json[]' value cannot be converted to '(int[]|decimal[]|float[])': \n\t	value '[23.0,24]' cannot be converted to '(int[]|decimal[]|float[])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+    assertEquality("'json[]' value cannot be converted to '(int[]|decimal[]|float[])': \n\t\tvalue '[23.0,24]' cannot" +
+    " be converted to '(int[]|decimal[]|float[])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+
+    jVal = [[1.2d, 2.3d]];
+    [int...][]|[[int, decimal...]]|error result2Rest = jVal.cloneWithType();
+    assertTrue(result2Rest is error);
+    err = <error>result2Rest;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '([int...][]|[[int,decimal...]])': \n\t\tvalue " +
+    "'[[1.2,2.3]]' cannot be converted to '([int...][]|[[int,decimal...]])': ambiguous target type",
+    <string>checkpanic err.detail()["message"]);
 
     jVal = {a: [1d, 2.03], b: [2, 3d, 4]};
     map<int[]|decimal[]>|error result3 = jVal.cloneWithType();
     assertTrue(result3 is error);
     err = <error>result3;
     assertEquality("{ballerina/lang.value}ConversionError", err.message());
-    assertEquality("'map<json>' value cannot be converted to 'map<(int[]|decimal[])>': \n\t	value '[1,2.03]' cannot be converted to '(int[]|decimal[])': ambiguous target type\n\t	value '[2,3,4]' cannot be converted to '(int[]|decimal[])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+    assertEquality("'map<json>' value cannot be converted to 'map<(int[]|decimal[])>': \n\t	value '[1,2.03]' cannot " +
+    "be converted to '(int[]|decimal[])': ambiguous target type\n\t	value '[2,3,4]' cannot be converted to " +
+    "'(int[]|decimal[])': ambiguous target type", <string>checkpanic err.detail()["message"]);
 
     jVal = {a: ["aaa"], b: [3.2]};
     map<int|decimal>|error result4 = jVal.cloneWithType();
     err = <error>result4;
     assertEquality("{ballerina/lang.value}ConversionError", err.message());
-    assertEquality("'map<json>' value cannot be converted to 'map<(int|decimal)>': \n\t	map field 'a' should be of type '(int|decimal)', found '[\"aaa\"]'\n\t	map field 'b' should be of type '(int|decimal)', found '[3.2]'", <string>checkpanic err.detail()["message"]);
+    assertEquality("'map<json>' value cannot be converted to 'map<(int|decimal)>': \n\t	map field 'a' should be of " +
+    "type '(int|decimal)', found '[\"aaa\"]'\n\t	map field 'b' should be of type '(int|decimal)', found '[3.2]'",
+    <string>checkpanic err.detail()["message"]);
 
     [int, string] tuple = [1, "aaa"];
     jVal = {a: tuple, b: [3.2]};
     result4 = jVal.cloneWithType();
     err = <error>result4;
     assertEquality("{ballerina/lang.value}ConversionError", err.message());
-    assertEquality("'map<json>' value cannot be converted to 'map<(int|decimal)>': \n\t	map field 'a' should be of type '(int|decimal)', found '[1,\"aaa\"]'\n\t	map field 'b' should be of type '(int|decimal)', found '[3.2]'", <string>checkpanic err.detail()["message"]);
+    assertEquality("'map<json>' value cannot be converted to 'map<(int|decimal)>': \n\t	map field 'a' should be of " +
+    "type '(int|decimal)', found '[1,\"aaa\"]'\n\t	map field 'b' should be of type '(int|decimal)', found '[3.2]'",
+    <string>checkpanic err.detail()["message"]);
 }
 
 /////////////////////////// Tests for `toJson()` ///////////////////////////

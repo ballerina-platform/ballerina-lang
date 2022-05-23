@@ -271,10 +271,20 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 inputValueType = TypeChecker.getType(inputValue);
-                for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    if (isDirectlyConvertible(inputValue, inputValueType, memType, (BUnionType) targetType)) {
-                        return Set.of(memType);
+
+                Set<Type> directlyConvertibleTypesInUnion = getDirectlyConvertibleTypesInUnion(
+                        inputValue, inputValueType, (BUnionType) targetType);
+                if (!directlyConvertibleTypesInUnion.isEmpty()) {
+                    if (directlyConvertibleTypesInUnion.size() == 1) {
+                        return directlyConvertibleTypesInUnion;
+                    } else {
+                        addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
+                                + "' cannot be converted to '" + targetType + "': ambiguous target type");
+                        return new LinkedHashSet<>();
                     }
+                }
+
+                for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
                             isFromJson, unresolvedValues, errors, allowAmbiguity));
                 }
@@ -365,20 +375,22 @@ public class TypeConverter {
         return convertibleTypes;
     }
 
-    private static boolean isDirectlyConvertible(Object inputValue, Type inputValueType, Type memType,
-                                                 BUnionType targetType) {
-        if (isSimpleBasicType(inputValueType)) {
-            return (inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType);
-        }
-        if (!TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-            return false;
-        }
-        for (Type member : targetType.getMemberTypes()) {
-            if (TypeChecker.checkIsLikeType(inputValue, member, false) && member != memType) {
-                return false;
+    private static Set<Type> getDirectlyConvertibleTypesInUnion(Object inputValue, Type inputValueType,
+                                                                BUnionType targetType) {
+        boolean isInputValueSimpleBasicType = isSimpleBasicType(inputValueType);
+        Set<Type> directlyConvertibleTypes = new LinkedHashSet<>();
+        for (Type memType : targetType.getMemberTypes()) {
+            if (isInputValueSimpleBasicType) {
+                if ((inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType)) {
+                    return Set.of(memType);
+                }
+            } else {
+                if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+                    directlyConvertibleTypes.add(memType);
+                }
             }
         }
-        return true;
+        return directlyConvertibleTypes;
     }
 
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
