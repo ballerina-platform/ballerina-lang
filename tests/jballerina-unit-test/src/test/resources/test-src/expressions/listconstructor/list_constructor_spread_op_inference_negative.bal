@@ -34,6 +34,13 @@ function testSpreadOpInferenceWithVar() {
 
     int _ = v3; // error: expected 'int', found '[int,int]'
     int _ = v4; // error: expected 'int', found '[int,int,int,int,int]'
+
+    int[] a5 = [];
+    var v5 = [...a5, ...a4]; // OK
+
+    int _ = v5; // error: expected 'int', found '[(string|int|boolean)...]'
+
+    var _ = [...a5, ...n]; // error
 }
 
 function testSpreadOpInferenceWithReadonly() {

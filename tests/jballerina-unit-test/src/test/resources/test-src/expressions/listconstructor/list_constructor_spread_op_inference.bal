@@ -58,6 +58,10 @@ function testSpreadOpOnVariableLengthListsWithVar() {
     [string, int, boolean, "x"] a3 = ["s", 7, false, "x"];
     var v5 = [4, ...a1, 2.3d, ...a3];
     assertArrayEquality(v5, [4, 4, 5, 2.3d, "s", 7, false, "x"]);
+
+    [string, boolean...] a4 = ["s"];
+    var v6 = [...a1, ...a4];
+    assertArrayEquality(v6, [4, 5, "s"]);
 }
 
 type ReadonlyIntArr readonly & int[3];
@@ -145,8 +149,9 @@ function testSpreadOpWithTypedesc() {
     typedesc v4 = [string , ...a2, any];
     assertEquality(v4.toString(), "typedesc [string,string,(int|boolean),any]");
 
-    typedesc v5 = [string , ...[int, string], [3]];
-    assertEquality(v5.toString(), "typedesc [string,typedesc<int>,typedesc<string>,[int]]");
+    int x = 7;
+    typedesc v5 = [string , ...[int, string], [3], x];
+    assertEquality(v5.toString(), "typedesc [string,typedesc<int>,typedesc<string>,[int],int]");
 
     [int] a3 = [];
 
