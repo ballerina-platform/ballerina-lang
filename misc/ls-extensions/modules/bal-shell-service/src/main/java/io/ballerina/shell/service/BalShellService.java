@@ -71,13 +71,13 @@ public class BalShellService implements ExtendedLanguageServerService {
     /**
      * Delete defined variables and module declarations from the context.
      *
-     * @param metaInfo defined ars and declarations need to be deleted in MetaInfo format
+     * @param request defined variable or declaration that need to be deleted
      * @return whether that deletion was successful
      */
     @JsonRequest
-    public CompletableFuture<Boolean> deleteDeclarations(MetaInfo metaInfo) {
+    public CompletableFuture<Boolean> deleteDeclarations(DeleteRequest request) {
         return CompletableFuture.supplyAsync(() ->
-                ShellWrapper.getInstance().deleteDeclarations(metaInfo.getDefinedVars(), metaInfo.getModuleDclns()));
+                ShellWrapper.getInstance().deleteDeclarations(request.getVarToDelete()));
     }
 
     /**
