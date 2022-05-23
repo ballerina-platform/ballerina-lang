@@ -90,7 +90,7 @@ public class FunctionComparatorTest {
         executeTestData(testData);
     }
 
-    @DataProvider(name = "functionDataProvider")
+    @DataProvider(name = "functionTestDataProvider")
     public Object[] functionTestDataProvider(Method method) throws SemverTestException {
         String filePath;
         switch (method.getName()) {
