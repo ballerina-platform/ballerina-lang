@@ -30,7 +30,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-config')
     implementation 'com.google.code.gson:gson'
-    dist 'com.google.code.gson:gson:2.7'
+    dist 'com.google.code.gson:gson:2.8.9'
     dist 'org.jacoco:org.jacoco.core:0.8.5'
     dist 'org.jacoco:org.jacoco.report:0.8.5'
     dist 'org.ow2.asm:asm:7.2'
