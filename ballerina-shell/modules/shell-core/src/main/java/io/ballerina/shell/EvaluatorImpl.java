@@ -83,6 +83,9 @@ class EvaluatorImpl extends Evaluator {
     public ShellCompilation getCompilation(String source) {
         PackageCompilation compilation;
         ExceptionStatus exceptionStatus;
+
+        // need to do this first to address fails of tree parser and snippet factoryee
+        invoker.clearPreviousVariablesAndModuleDclnsNames();
         try {
             Collection<Node> nodes = treeParser.parseString(source);
             Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);

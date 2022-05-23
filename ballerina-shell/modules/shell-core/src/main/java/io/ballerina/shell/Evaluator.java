@@ -167,6 +167,14 @@ public abstract class Evaluator extends DiagnosticReporter {
         return invoker.availableModuleDeclarations();
     }
 
+    public List<String> newVariableNames() {
+        return invoker.newVariableNames();
+    }
+
+    public List<String> newModuleDeclarations() {
+        return invoker.newModuleDeclarations();
+    }
+
     public Preprocessor getPreprocessor() {
         return preprocessor;
     }
