@@ -40,9 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Wrapper for Ballerina Shell.
@@ -53,8 +50,6 @@ public class ShellWrapper {
     private final BShellConfiguration configuration;
     private Evaluator evaluator;
     private File tempFile;
-
-    private final MetaInfoHandler metaInfoHandler;
     private static final String TEMP_FILE_PREFIX = "temp-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
 
@@ -64,7 +59,6 @@ public class ShellWrapper {
 
     private ShellWrapper() {
         this.configuration = new BShellConfiguration.Builder().build();
-        this.metaInfoHandler = new MetaInfoHandler();
         this.initializeEvaluator();
     }
 
@@ -115,8 +109,8 @@ public class ShellWrapper {
             output.setConsoleOut(consoleOutCollector.getLines());
             output.addOutputDiagnostics(evaluator.diagnostics());
             output.setMetaInfo(
-                    this.metaInfoHandler.getNewDefinedVars(evaluator.availableVariablesAsObjects()),
-                    this.metaInfoHandler.getNewModuleDclns(evaluator.availableModuleDeclarations())
+                    evaluator.newVariableNames(),
+                    evaluator.newModuleDeclarations()
             );
             evaluator.resetDiagnostics();
             System.setOut(original);
@@ -167,8 +161,6 @@ public class ShellWrapper {
             evaluator.resetDiagnostics();
             return false;
         }
-        metaInfoHandler.removeFromDefinedVars(varsToDelete);
-        metaInfoHandler.removeFromModuleDclns(moduleDclnsToDelete);
         return true;
     }
 
@@ -180,7 +172,6 @@ public class ShellWrapper {
     public boolean restart() {
         this.evaluator.reset();
         this.initializeEvaluator();
-        this.metaInfoHandler.reset();
         return true;
     }
 
