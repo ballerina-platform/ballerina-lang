@@ -18,9 +18,8 @@
 
 package org.ballerinalang.semver.checker.util;
 
-import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.semver.checker.comparator.PackageComparator;
@@ -28,8 +27,6 @@ import io.ballerina.semver.checker.diff.PackageDiff;
 import org.ballerinalang.semver.checker.exception.SemverTestException;
 import org.testng.Assert;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -44,33 +41,23 @@ public class TestUtils {
     private static final String JSON_ATTR_EXPECTED_RESULTS = "expectedOutput";
 
     /**
-     * Execute all the test cases available in the provided test file.
+     * Executes test cases using the provided data set.
      *
-     * @param testFileName test file name
+     * @param testData test data as a JSON element
      */
-    public static void executeTestFile(String testFileName) throws SemverTestException {
-        JsonArray fileData;
-        try (FileReader reader = new FileReader(testFileName)) {
-            Object testCaseObject = JsonParser.parseReader(reader);
-            fileData = (JsonArray) testCaseObject;
-        } catch (IOException e) {
-            throw new SemverTestException("failed to load test data");
-        }
-
-        for (int i = 0; i < fileData.size(); i++) {
-            try {
-                JsonObject element = (JsonObject) fileData.get(i);
-                String oldCode = element.get(JSON_ATTR_OLD_CODE).getAsString();
-                String newCode = element.get(JSON_ATTR_NEW_CODE).getAsString();
-                JsonObject expectedOutput = (JsonObject) element.get(JSON_ATTR_EXPECTED_RESULTS);
-                BuildProject oldProject = ProjectUtils.createProject(oldCode);
-                BuildProject currentProject = ProjectUtils.createProject(newCode);
-                Package oldPackage = oldProject.currentPackage();
-                Package currentPackage = currentProject.currentPackage();
-                assertPackageDiff(oldPackage, currentPackage, expectedOutput);
-            } catch (Exception e) {
-                throw new SemverTestException("failed to load Ballerina package using test data");
-            }
+    public static void executeTestData(JsonElement testData) throws SemverTestException {
+        try {
+            JsonObject testDataObject = (JsonObject) testData;
+            String oldCode = testDataObject.get(JSON_ATTR_OLD_CODE).getAsString();
+            String newCode = testDataObject.get(JSON_ATTR_NEW_CODE).getAsString();
+            JsonObject expectedOutput = (JsonObject) testDataObject.get(JSON_ATTR_EXPECTED_RESULTS);
+            BuildProject oldProject = ProjectUtils.createProject(oldCode);
+            BuildProject currentProject = ProjectUtils.createProject(newCode);
+            Package oldPackage = oldProject.currentPackage();
+            Package currentPackage = currentProject.currentPackage();
+            assertPackageDiff(oldPackage, currentPackage, expectedOutput);
+        } catch (Exception e) {
+            throw new SemverTestException("failed to load Ballerina package using test data");
         }
     }
 

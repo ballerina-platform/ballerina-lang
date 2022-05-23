@@ -18,9 +18,20 @@
 
 package org.ballerinalang.semver.checker.comparator;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import org.ballerinalang.semver.checker.exception.SemverTestException;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.semver.checker.util.TestUtils.executeTestFile;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.ballerinalang.semver.checker.util.TestUtils.executeTestData;
 
 /**
  * Function definition comparator related test cases.
@@ -36,46 +47,92 @@ public class FunctionComparatorTest {
     protected static final String FUNCTION_IDENTIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "identifier.json";
     protected static final String FUNCTION_PARAMETER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "parameter.json";
     protected static final String FUNCTION_QUALIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "qualifier.json";
-    protected static final String FUNCTION_RETURN_TYPE_TESTCASE = FUNCTION_TEST_DATA_ROOT + "returnType.json";
+    protected static final String FUNCTION_RETURN_TESTCASE = FUNCTION_TEST_DATA_ROOT + "returnType.json";
     protected static final String ADVANCE_FUNCTION_TESTCASE = FUNCTION_TEST_DATA_ROOT + "advanceFunction.json";
 
-    @Test
-    public void testFunctionAnnotation() throws Exception {
-        executeTestFile(FUNCTION_ANNOTATION_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testFunctionAnnotation(JsonElement testData) throws Exception {
+        executeTestData(testData);
     }
 
-    @Test
-    public void testFunctionDocumentation() throws Exception {
-        executeTestFile(FUNCTION_DOCUMENTATION_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testFunctionDocumentation(JsonElement testData) throws Exception {
+        executeTestData(testData);
     }
 
-    @Test
-    public void testFunctionBody() throws Exception {
-        executeTestFile(FUNCTION_BODY_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testFunctionBody(JsonElement testData) throws Exception {
+        executeTestData(testData);
     }
 
-    @Test
-    public void testFunctionIdentifier() throws Exception {
-        executeTestFile(FUNCTION_IDENTIFIER_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testFunctionIdentifier(JsonElement testData) throws Exception {
+        executeTestData(testData);
     }
 
-    @Test
-    public void testFunctionParameter() throws Exception {
-        executeTestFile(FUNCTION_PARAMETER_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testFunctionParameter(JsonElement testData) throws Exception {
+        executeTestData(testData);
     }
 
-    @Test
-    public void testFunctionQualifier() throws Exception {
-        executeTestFile(FUNCTION_QUALIFIER_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testFunctionQualifier(JsonElement testData) throws Exception {
+        executeTestData(testData);
     }
 
-    @Test
-    public void testFunctionReturnType() throws Exception {
-        executeTestFile(FUNCTION_RETURN_TYPE_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testFunctionReturn(JsonElement testData) throws Exception {
+        executeTestData(testData);
     }
 
-    @Test
-    public void testAdvanceFunction() throws Exception {
-        executeTestFile(ADVANCE_FUNCTION_TESTCASE);
+    @Test(dataProvider = "functionTestDataProvider")
+    public void testAdvanceFunction(JsonElement testData) throws Exception {
+        executeTestData(testData);
+    }
+
+    @DataProvider(name = "functionDataProvider")
+    public Object[] functionTestDataProvider(Method method) throws SemverTestException {
+        String filePath;
+        switch (method.getName()) {
+            case "testFunctionAnnotation":
+                filePath = FUNCTION_ANNOTATION_TESTCASE;
+                break;
+            case "testFunctionDocumentation":
+                filePath = FUNCTION_DOCUMENTATION_TESTCASE;
+                break;
+            case "testFunctionBody":
+                filePath = FUNCTION_BODY_TESTCASE;
+                break;
+            case "testFunctionIdentifier":
+                filePath = FUNCTION_IDENTIFIER_TESTCASE;
+                break;
+            case "testFunctionParameter":
+                filePath = FUNCTION_PARAMETER_TESTCASE;
+                break;
+            case "testFunctionQualifier":
+                filePath = FUNCTION_QUALIFIER_TESTCASE;
+                break;
+            case "testFunctionReturn":
+                filePath = FUNCTION_RETURN_TESTCASE;
+                break;
+            case "testAdvanceFunction":
+                filePath = ADVANCE_FUNCTION_TESTCASE;
+                break;
+            default:
+                filePath = null;
+        }
+
+        if (filePath == null) {
+            throw new SemverTestException("Failed to load dataset for method: " + method.getName());
+        }
+        try (FileReader reader = new FileReader(filePath)) {
+            Object testCaseObject = JsonParser.parseReader(reader);
+            JsonArray fileData = (JsonArray) testCaseObject;
+            List<JsonElement> elementList = new LinkedList<>();
+            fileData.forEach(elementList::add);
+            return elementList.toArray();
+        } catch (IOException e) {
+            throw new SemverTestException("failed to load test data");
+        }
     }
 }
