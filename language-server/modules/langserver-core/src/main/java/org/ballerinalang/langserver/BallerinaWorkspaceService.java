@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DidChangeWatchedFilesContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -220,7 +221,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             LinePosition startPos = textDocument.linePositionFrom(textRange.startOffset());
             LinePosition endPos = textDocument.linePositionFrom(textRange.endOffset());
             LineRange lineRange = LineRange.from(originalST.get().filePath(), startPos, endPos);
-            Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), 
+            Range range = PositionUtil.toRange(LineRange.from(docEdit.getFileUri(), 
                     lineRange.startLine(), lineRange.endLine()));
             TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
             TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(

@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -165,7 +166,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         int dotStart = faNode.dotToken().textRange().startOffset();
         int dotEnd = faNode.dotToken().textRange().endOffset();
         // Here we do not check for the existence of the current document because otherwise it will not reach here
-        Range range = CommonUtil.toRange(dotStart, dotEnd, context.currentDocument().get().textDocument());
+        Range range = PositionUtil.toRange(dotStart, dotEnd, context.currentDocument().get().textDocument());
 
         TextEdit textEdit = new TextEdit();
         textEdit.setNewText("");

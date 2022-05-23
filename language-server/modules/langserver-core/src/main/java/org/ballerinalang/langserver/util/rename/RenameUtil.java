@@ -38,6 +38,7 @@ import io.ballerina.tools.text.TextDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -130,7 +131,7 @@ public class RenameUtil {
             }
         }
 
-        return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
+        return Optional.of(PositionUtil.toRange(tokenAtCursor.lineRange()));
     }
 
     private static Map<String, List<TextEdit>> getChanges(
@@ -350,12 +351,12 @@ public class RenameUtil {
                         }
                         // If location is within import declaration node
                         Range editRange = ReferencesUtil.getRange(location);
-                        if (CommonUtil.isWithinLineRange(location.lineRange(), importDeclaration.lineRange()) &&
+                        if (PositionUtil.isWithinLineRange(location.lineRange(), importDeclaration.lineRange()) &&
                                 importDeclaration.prefix().isEmpty()) {
                             // If there's no prefix, we have to add " as $newName" to the import
                             SeparatedNodeList<IdentifierToken> moduleNames = importDeclaration.moduleName();
                             LinePosition endPos = moduleNames.get(moduleNames.size() - 1).lineRange().endLine();
-                            Range range = new Range(CommonUtil.toPosition(endPos), CommonUtil.toPosition(endPos));
+                            Range range = new Range(PositionUtil.toPosition(endPos), PositionUtil.toPosition(endPos));
                             List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
                             if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
                                 String escapedNewName = CommonUtil.escapeReservedKeyword(newName);

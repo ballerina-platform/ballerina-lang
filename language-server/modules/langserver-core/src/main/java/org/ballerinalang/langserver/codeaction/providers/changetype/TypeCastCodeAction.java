@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvi
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -167,8 +168,8 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      */
     protected List<TextEdit> getTextEdits(Node expressionNode, String expectedTypeName) {
 
-        Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
-        Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
+        Position startPosition = PositionUtil.toPosition(expressionNode.lineRange().startLine());
+        Position endPosition = PositionUtil.toPosition(expressionNode.lineRange().endLine());
 
         String editText = "<" + expectedTypeName + ">";
 

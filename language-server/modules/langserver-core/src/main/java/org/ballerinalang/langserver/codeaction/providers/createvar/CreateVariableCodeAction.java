@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -79,7 +80,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         }
 
         String uri = context.fileUri();
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol.get(),
                 context);
         List<String> types = createVarTextEdits.types;
@@ -109,7 +110,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                  TypeSymbol typeDescriptor, CodeActionContext context) {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
 
-        Position position = CommonUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
+        Position position = PositionUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
                 .filter(s -> s.getName().isPresent())
                 .map(s -> s.getName().get())

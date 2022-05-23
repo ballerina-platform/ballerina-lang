@@ -28,7 +28,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -102,7 +102,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         Position end;
         if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
             // eg. function test() {...}
-            Position funcBodyStart = CommonUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
+            Position funcBodyStart = PositionUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
             start = funcBodyStart;
             end = funcBodyStart;
         } else {

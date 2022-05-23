@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
@@ -71,8 +72,8 @@ public class CreateTypeCodeAction extends AbstractCodeActionProvider {
             tlNode = tlNode.parent();
         }
         
-        Range range = new Range(CommonUtil.toPosition(tlNode.lineRange().startLine()), 
-                CommonUtil.toPosition(tlNode.lineRange().startLine()));
+        Range range = new Range(PositionUtil.toPosition(tlNode.lineRange().startLine()), 
+                PositionUtil.toPosition(tlNode.lineRange().startLine()));
         String paddingStr = StringUtils.repeat(" ", 4);
         
         // Here, we create a closed record if the unknown type is in the return type descriptor.

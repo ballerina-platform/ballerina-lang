@@ -21,7 +21,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -76,8 +76,8 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
         }
 
         List<Diagnostic> diags = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> CommonUtil
-                        .isWithinRange(context.cursorPosition(), CommonUtil.toRange(diag.location().lineRange()))
+                .filter(diag -> PositionUtil
+                        .isWithinRange(context.cursorPosition(), PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .filter(diagnostic -> DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()))
                 .collect(Collectors.toList());

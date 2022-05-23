@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -184,7 +185,7 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         Range insertRange;
         if (enclosingNode.isPresent()) {
             newLineAtEnd = addNewLineAtEnd(enclosingNode.get());
-            insertRange = CommonUtil.toRange(enclosingNode.get().lineRange().endLine());
+            insertRange = PositionUtil.toRange(enclosingNode.get().lineRange().endLine());
         } else {
             insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         }

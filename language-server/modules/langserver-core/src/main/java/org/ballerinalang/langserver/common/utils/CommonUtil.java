@@ -200,51 +200,6 @@ public class CommonUtil {
     }
 
     /**
-     * Convert the syntax-node line range into a lsp4j range.
-     *
-     * @param lineRange - line range
-     * @return {@link Range} converted range
-     */
-    public static Range toRange(LineRange lineRange) {
-        return new Range(toPosition(lineRange.startLine()), toPosition(lineRange.endLine()));
-    }
-
-    /**
-     * Convert the syntax-node line position into a lsp4j range.
-     *
-     * @param linePosition - line position.
-     * @return {@link Range} converted range
-     */
-    public static Range toRange(LinePosition linePosition) {
-        return new Range(toPosition(linePosition), toPosition(linePosition));
-    }
-
-    /**
-     * Converts syntax-node line position into a lsp4j position.
-     *
-     * @param linePosition - line position
-     * @return {@link Position} converted position
-     */
-    public static Position toPosition(LinePosition linePosition) {
-        return new Position(linePosition.line(), linePosition.offset());
-    }
-
-    /**
-     * Convert a given pair of start and end offsets to LSP Range.
-     *
-     * @param startOffset starting offset
-     * @param endOffset end offset
-     * @param document text document where the position resides
-     * @return {@link Range} calculated range
-     */
-    public static Range toRange(int startOffset, int endOffset, TextDocument document) {
-        LinePosition startPos = document.linePositionFrom(startOffset);
-        LinePosition endPos = document.linePositionFrom(endOffset);
-
-        return new Range(CommonUtil.toPosition(startPos), CommonUtil.toPosition(endPos));
-    }
-
-    /**
      * Get the text edit for an auto import statement.
      * Here we do not check whether the package is not already imported or a predeclared lang-lib, Particular
      * check should be done before usage
@@ -1353,53 +1308,7 @@ public class CommonUtil {
         return Optional.ofNullable(((ModulePartNode) syntaxTree.rootNode())
                 .findNode(TextRange.from(start, end - start), true));
     }
-
-    public static boolean isWithinLineRange(Position pos, LineRange lineRange) {
-        int sLine = lineRange.startLine().line();
-        int sCol = lineRange.startLine().offset();
-        int eLine = lineRange.endLine().line();
-        int eCol = lineRange.endLine().offset();
-        return ((sLine == eLine && pos.getLine() == sLine) &&
-                (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
-        ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||
-                pos.getLine() == eLine && pos.getCharacter() <= eCol ||
-                pos.getLine() == sLine && pos.getCharacter() >= sCol
-        ));
-    }
-
-    /**
-     * Check if the provided line range is within the enclosing line range.
-     *
-     * @param lineRange      Line range to be checked for inclusion
-     * @param enclosingRange Enclosing line range in which the #lineRange reside
-     * @return True if the provided line range resides within the provided enclosing line range
-     */
-    public static boolean isWithinLineRange(LineRange lineRange, LineRange enclosingRange) {
-        Position start = CommonUtil.toPosition(lineRange.startLine());
-        Position end = CommonUtil.toPosition(lineRange.endLine());
-        return CommonUtil.isWithinLineRange(start, enclosingRange) && CommonUtil.isWithinLineRange(end, enclosingRange);
-    }
-
-    /**
-     * Returns whether the position is within the range.
-     *
-     * @param pos   position
-     * @param range range
-     * @return True if within range, False otherwise
-     */
-    public static boolean isWithinRange(Position pos, Range range) {
-        int sLine = range.getStart().getLine();
-        int sCol = range.getStart().getCharacter();
-        int eLine = range.getEnd().getLine();
-        int eCol = range.getEnd().getCharacter();
-        return ((sLine == eLine && pos.getLine() == sLine) &&
-                (pos.getCharacter() >= sCol && pos.getCharacter() <= eCol)
-        ) || ((sLine != eLine) && (pos.getLine() > sLine && pos.getLine() < eLine ||
-                pos.getLine() == eLine && pos.getCharacter() <= eCol ||
-                pos.getLine() == sLine && pos.getCharacter() >= sCol
-        ));
-    }
-
+    
     /**
      * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
      * type descriptor.
