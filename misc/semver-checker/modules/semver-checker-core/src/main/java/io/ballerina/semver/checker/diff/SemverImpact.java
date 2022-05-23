@@ -20,6 +20,8 @@ package io.ballerina.semver.checker.diff;
 
 /**
  * Semantic version impact levels which are ranked based on the severity.
+ *
+ * @since 2201.2.0
  */
 public enum SemverImpact {
     MAJOR(4),

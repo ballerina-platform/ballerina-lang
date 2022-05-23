@@ -32,7 +32,7 @@ import java.util.Optional;
 /**
  * Utilities to execute/test semver unit test cases.
  *
- * @since 220.2.0
+ * @since 2201.2.0
  */
 public class TestUtils {
 
