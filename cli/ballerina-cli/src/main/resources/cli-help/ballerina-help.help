@@ -36,6 +36,8 @@ COMMANDS
         clean           Clean the artifacts generated during the build
         format          Format Ballerina source files
         grpc            Generate the Ballerina sources for a given Protocol Buffer definition
+        graphql         Generate Ballerina client sources
+                        for a given GraphQL schema(SDL) and GraphQL queries
         openapi         Generate the Ballerina sources for a given OpenAPI definition and 
                         vice versa
         bindgen         Generate the Ballerina bindings for Java APIs
