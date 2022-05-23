@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "testproject/langlib.bal",
   "expected": {
     "result": {
       "edit": {
