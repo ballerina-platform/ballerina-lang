@@ -173,6 +173,31 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      */
     public abstract List<String> availableModuleDeclarations();
 
+    /**
+     * Clears out the module declarations and variables definitions
+     * from the previous execution.
+     * Whether last invocation was successful or not this method needs to be
+     * called as for a new execution because stored values for newDefinedVariableNames
+     * and newModuleDeclnNames both are for the previous execution
+     */
+    public abstract void clearPreviousVariablesAndModuleDclnsNames();
+
+    /**
+     * Returns new variables in the module.
+     *
+     * @return New variables defined by the last executed code
+     * snippet as a list of string.
+     */
+    public abstract List<String> newVariableNames();
+
+    /**
+     * Returns new declarations in the module.
+     *
+     * @return new declarations declared by the last executed code
+     * snippet as a list of string.
+     */
+    public abstract List<String> newModuleDeclarations();
+
     /* Template methods */
 
     /**
