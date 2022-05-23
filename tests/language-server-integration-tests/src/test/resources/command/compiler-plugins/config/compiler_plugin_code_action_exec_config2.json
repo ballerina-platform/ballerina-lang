@@ -13,6 +13,7 @@
     },
     "var.type": "int"
   },
+  "source": "source1.bal",
   "expected": {
     "result": {
       "edit": {

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -37,6 +38,7 @@ import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -46,10 +48,12 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -89,9 +93,10 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Range range = new Range(pos, pos);
         String res = getResponse(sourcePath, range, codeActionContext);
 
-        for (JsonElement element : testConfig.expected) {
-            JsonObject expected = element.getAsJsonObject();
-            String expTitle = expected.get("title").getAsString();
+        List<CodeActionObj> mismatchedCodeActions = new ArrayList<>();
+        for (CodeActionObj expected : testConfig.expected) {
+            // Create an object to keep track of the actual code action received
+            CodeActionObj actual = new CodeActionObj();
 
             boolean codeActionFound = false;
             JsonObject responseJson = getResponseJson(res);
@@ -103,34 +108,46 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                 // Match title
                 String actualTitle = right.get("title").getAsString();
-                if (!expTitle.equals(actualTitle)) {
+                if (!expected.title.equals(actualTitle)) {
                     continue;
                 }
+
+                // We have to make sure the title is a match since we are checking against all the
+                // code actions received.
+                actual.title = actualTitle;
+
                 // Match edits
-                if (expected.get("edits") != null) {
-                    JsonArray actualEdit = right.get("edit").getAsJsonObject().get("documentChanges")
-                            .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
-                    JsonArray expEdit = expected.get("edits").getAsJsonArray();
+                if (expected.edits != null) {
+                    JsonElement editsElement = right.get("edit").getAsJsonObject().get("documentChanges")
+                            .getAsJsonArray().get(0).getAsJsonObject().get("edits");
+                    Type type = new TypeToken<List<TextEdit>>() {
+                    }.getType();
+                    List<TextEdit> actualEdit = gson.fromJson(editsElement, type);
+                    List<TextEdit> expEdit = expected.edits;
                     if (!expEdit.equals(actualEdit)) {
+                        actual.edits = actualEdit;
                         continue;
                     }
                 }
                 // Match args
-                if (expected.get("command") != null) {
-                    JsonObject expectedCommand = expected.get("command").getAsJsonObject();
+                if (expected.command != null) {
+                    JsonObject expectedCommand = expected.command;
                     JsonObject actualCommand = right.get("command").getAsJsonObject();
 
                     if (!Objects.equals(actualCommand.get("command"), expectedCommand.get("command"))) {
+                        actual.command = actualCommand;
                         continue;
                     }
 
                     if (!Objects.equals(actualCommand.get("title"), expectedCommand.get("title"))) {
+                        actual.command = actualCommand;
                         continue;
                     }
 
                     JsonArray actualArgs = actualCommand.getAsJsonArray("arguments");
                     JsonArray expArgs = expectedCommand.getAsJsonArray("arguments");
                     if (!TestUtil.isArgumentsSubArray(actualArgs, expArgs)) {
+                        actual.command = actualCommand;
                         continue;
                     }
 
@@ -148,6 +165,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     }
 
                     if (!docUriFound) {
+                        actual.command = actualCommand;
                         continue;
                     }
                 }
@@ -163,13 +181,19 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 codeActionFound = true;
                 break;
             }
-            String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
-            Assert.assertTrue(codeActionFound,
-                    String.format("Cannot find expected Code Action for: '%s', cursor at [%s] in '%s': %s",
-                            expTitle, cursorStr, sourcePath, testConfig.description));
+
+            if (!codeActionFound) {
+                mismatchedCodeActions.add(actual);
+            }
         }
         TestUtil.closeDocument(getServiceEndpoint(), sourcePath);
-//        updateConfig(testConfig, configJsonPath);
+
+        String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
+        if (!mismatchedCodeActions.isEmpty()) {
+//            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
+            Assert.fail(String.format("Cannot find expected code action(s) for: '%s', cursor at [%s] in '%s': %s",
+                            Arrays.toString(mismatchedCodeActions.toArray()), cursorStr, sourcePath, testConfig.description));
+        }
     }
 
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
@@ -200,10 +224,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
         Range range = new Range(pos, pos);
         String res = TestUtil.getCodeActionResponse(endpoint, sourcePath.toString(), range, codeActionContext);
-        for (JsonElement element : testConfig.expected) {
-            JsonObject expected = element.getAsJsonObject();
-            String notExpectedTitle = expected.get("title").getAsString();
-
+        for (CodeActionObj expected : testConfig.expected) {
             JsonObject responseJson = this.getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
                 JsonObject right = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
@@ -213,11 +234,10 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                 // Match title
                 String actualTitle = right.get("title").getAsString();
-                Assert.assertNotEquals(notExpectedTitle, actualTitle,
+                Assert.assertNotEquals(expected.title, actualTitle,
                         String.format("Found an unexpected code action: %s", testConfig.description));
             }
         }
-//        updateConfig(testConfig, configJsonPath);
     }
 
     private Path getConfigJsonPath(String configFilePath) {
@@ -239,7 +259,24 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         serverContext = new LanguageServerContextImpl();
     }
 
-    private void updateConfig(TestConfig testConfig, Path configPath) throws IOException {
+    /**
+     * Update mismatched code actions in the test config.
+     *
+     * @param testConfig            Original test config
+     * @param mismatchedCodeActions Mismatched code actions
+     * @param configPath            Config file path
+     * @throws IOException File operations, etc
+     */
+    private void updateConfig(TestConfig testConfig, List<CodeActionObj> mismatchedCodeActions, Path configPath)
+            throws IOException {
+        for (int i = 0; i < testConfig.expected.size(); i++) {
+            CodeActionObj codeAction = testConfig.expected.get(i);
+            final int idx = i;
+            mismatchedCodeActions.stream()
+                    .filter(item -> item.title.equals(codeAction.title))
+                    .findFirst()
+                    .ifPresent(mismatchedCodeAction -> testConfig.expected.set(idx, mismatchedCodeAction));
+        }
         String objStr = gson.toJson(testConfig).concat(System.lineSeparator());
         Files.write(configPath, objStr.getBytes(StandardCharsets.UTF_8));
     }
@@ -261,8 +298,14 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     static class TestConfig {
         Position position;
         String source;
-        JsonArray expected;
+        List<CodeActionObj> expected;
 
         String description;
+    }
+
+    static class CodeActionObj {
+        String title;
+        List<TextEdit> edits;
+        JsonObject command;
     }
 }
