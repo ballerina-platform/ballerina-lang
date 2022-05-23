@@ -115,6 +115,21 @@ public class PartialParserService implements ExtendedLanguageServerService {
         });
     }
 
+    @JsonRequest
+    public CompletableFuture<STResponse> getSTForModulePart(PartialSTRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+                    request.getStModification());
+            String formattedSourceCode = getModuleMemberFormattedSource(statement);
+
+            ModulePartNode modulePartNode = SyntaxTree.from(TextDocuments.from(formattedSourceCode)).rootNode();
+            JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(modulePartNode);
+            STResponse response = new STResponse();
+            response.setSyntaxTree(syntaxTreeJSON);
+            return response;
+        });
+    }
+
     @Override
     public String getName() {
         return Constants.CAPABILITY_NAME;
