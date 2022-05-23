@@ -23,9 +23,6 @@ import org.testng.Assert;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Utility functions for tests.
@@ -81,20 +78,6 @@ public class TestUtils {
                 .replace("\\r\\n", "\\n");
         String jsonExpected = gson.toJson(expected);
         Assert.assertEquals(jsonGenerated, jsonExpected);
-    }
-
-    /**
-     * Creates a random slice from given list for a given size.
-     * If the given size is larger than the size of list, size of the list will be used for slicing.
-     *
-     * @param list list to be randomized
-     * @param size expected size
-     * @return randomized list with applicable maximum size
-     */
-    public static List<String> getRandomSlice(List<String> list, int size) {
-        List<String> copied = new ArrayList<>(list);
-        Collections.shuffle(copied);
-        return Collections.unmodifiableList(copied.subList(0, Math.max(Math.min(copied.size(), size), 0)));
     }
 
     private TestUtils() {
