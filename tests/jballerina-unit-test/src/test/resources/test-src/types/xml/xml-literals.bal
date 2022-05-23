@@ -363,3 +363,22 @@ function testXMLReturnUnion() returns error? {
     test:assertTrue(xmlSequence is xml);
     test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
 }
+
+function testQueryInXMLTemplateExpr() {
+    int[] a = [1, 2, 3];
+
+    var x1 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+    xml x2 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+    xml:Element x3 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+
+    string str1 = "<doc><num>1</num><num>2</num><num>3</num></doc>";
+    test:assertEquals(x1.toString(), str1);
+    test:assertEquals(x2.toString(), str1);
+    test:assertEquals(x3.toString(), str1);
+
+    int[] b = [1, 2];
+    var x4 = xml `<doc>${from int i in b select xml `<row>${from int j in a select xml `<num>${j}</num>`}</row>`}</doc>`;
+
+    string str2 = "<doc><row><num>1</num><num>2</num><num>3</num></row><row><num>1</num><num>2</num><num>3</num></row></doc>";
+    test:assertEquals(x4.toString(), str2);
+}

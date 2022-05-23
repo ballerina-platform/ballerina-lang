@@ -7573,7 +7573,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangExpression expr : exprs) {
             BType exprType;
             if (expr.getKind() == NodeKind.QUERY_EXPR) {
-                exprType = checkExpr(expr, xmlElementEnv, data.expType, data);
+                exprType = checkExpr(expr, xmlElementEnv, symTable.xmlType, data);
             } else {
                 exprType = checkExpr(expr, xmlElementEnv, data);
             }
