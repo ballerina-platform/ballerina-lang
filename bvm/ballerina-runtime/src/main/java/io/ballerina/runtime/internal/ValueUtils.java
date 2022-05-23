@@ -131,7 +131,6 @@ public class ValueUtils {
         io.ballerina.runtime.internal.values.ValueCreator
                 valueCreator =  io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(ValueCreator
                 .getLookupKey(packageId, false));
-        Object[] fields = new Object[fieldValues.length * 2];
 
         // Here the variables are initialized with default values
         Scheduler scheduler = null;
@@ -139,11 +138,6 @@ public class ValueUtils {
         boolean prevBlockedOnExtern = false;
         BObject objectValue;
 
-        // Adding boolean values for each arg
-        for (int i = 0, j = 0; i < fieldValues.length; i++) {
-            fields[j++] = fieldValues[i];
-            fields[j++] = true;
-        }
         try {
             // Check for non-blocking call
             if (currentStrand != null) {
@@ -154,13 +148,13 @@ public class ValueUtils {
                 currentStrand.setState(State.RUNNABLE);
             }
             try {
-                return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fields);
+                return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fieldValues);
             } catch (BError e) {
                 // If object type definition not found, get it from test module.
                 String testLookupKey = ValueCreator.getLookupKey(packageId, true);
                 if (ValueCreator.containsValueCreator(testLookupKey)) {
                     valueCreator = ValueCreator.getValueCreator(testLookupKey);
-                    return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fields);
+                    return valueCreator.createObjectValue(objectTypeName, scheduler, currentStrand, null, fieldValues);
                 }
                 throw e;
             }

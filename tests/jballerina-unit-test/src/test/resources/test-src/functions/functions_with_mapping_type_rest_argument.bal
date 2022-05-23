@@ -55,9 +55,9 @@ function testFunctionWithMappingTypeRestArg() {
     Foo f1 = {c:20, d:15};
     Foo f2 = {c:20};
     Foo f3 = {d:20};
-    assertEquality(36, getSum(10, 15, ...f));
+    assertEquality(35, getSum(10, 15, ...f));
     assertEquality(60, getSum(10, 15, ...f1));
-    assertEquality(46, getSum(10, 15, ...f2));
+    assertEquality(45, getSum(10, 15, ...f2));
     assertEquality(55, getSum(10, 15, ...f3));
 
     Bar b = {a: 10, b: 10, d: 10};
