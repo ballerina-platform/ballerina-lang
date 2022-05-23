@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package org.ballerinalang.semver.checker;
+package org.ballerinalang.semver.checker.util;
 
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.directory.BuildProject;
+
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +28,7 @@ import java.util.StringJoiner;
 
 /**
  * Contains Ballerina project API related utilities.
+ *
  * @since 2201.2.0
  */
 public class ProjectUtils {

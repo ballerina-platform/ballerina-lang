@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_CHILDREN;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
