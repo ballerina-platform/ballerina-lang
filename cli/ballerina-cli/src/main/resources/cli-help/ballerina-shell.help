@@ -36,5 +36,6 @@ EXAMPLES
        Run the Ballerina Shell with a one second time out.
            $ bal shell -t 1000
 
-       Run the Ballerina Shell by loading the initial declarations from the `main.bal` file.
+       Run the Ballerina Shell by loading the initial declarations from the
+       `main.bal` file.
            $ bal shell -f main.bal

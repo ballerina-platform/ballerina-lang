@@ -80,6 +80,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
@@ -2314,7 +2315,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (tag == TypeTags.TYPEREFDESC) {
             BType refType = Types.getReferredType(bType);
             BType compatibleType = checkMappingConstructorCompatibility(refType, mappingConstructor, data);
-            return (refType.tag != TypeTags.UNION && refType.tag != TypeTags.INTERSECTION) ? bType : compatibleType;
+            return compatibleType == refType ? bType : compatibleType;
         }
 
         if (tag == TypeTags.INTERSECTION) {
@@ -2394,7 +2395,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
             case TypeTags.TYPEREFDESC:
-                return Types.getReferredType(type);
+                return getMappingConstructorCompatibleNonUnionType(((BTypeReferenceType) type).referredType, data);
         }
         return symTable.semanticError;
     }
@@ -8040,6 +8041,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
                 unionType.getMemberTypes().forEach(bType -> memberTypes.add(getLaxFieldAccessType(bType)));
                 return memberTypes.size() == 1 ? memberTypes.iterator().next() : BUnionType.create(null, memberTypes);
+            case TypeTags.TYPEREFDESC:
+                return getLaxFieldAccessType(((BTypeReferenceType) exprType).referredType);
         }
         return symTable.semanticError;
     }
@@ -8047,12 +8050,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType checkOptionalFieldAccessExpr(BLangFieldBasedAccess fieldAccessExpr, BType varRefType, Name fieldName,
                                                AnalyzerData data) {
         BType actualType = symTable.semanticError;
+        BType referredType = Types.getReferredType(varRefType);
 
         boolean nillableExprType = false;
         BType effectiveType = varRefType;
 
-        if (varRefType.tag == TypeTags.UNION) {
-            Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
+        if (referredType.tag == TypeTags.UNION) {
+            Set<BType> memTypes = ((BUnionType) referredType).getMemberTypes();
 
             if (memTypes.contains(symTable.nilType)) {
                 LinkedHashSet<BType> nilRemovedSet = new LinkedHashSet<>();
@@ -8114,7 +8118,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return actualType;
     }
 
-    private boolean accessCouldResultInError(BType type) {
+    private boolean accessCouldResultInError(BType bType) {
+        BType type = Types.getReferredType(bType);
         if (type.tag == TypeTags.JSON) {
             return true;
         }

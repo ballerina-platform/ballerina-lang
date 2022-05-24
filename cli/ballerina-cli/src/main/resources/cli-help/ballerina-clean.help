@@ -9,8 +9,9 @@ DESCRIPTION
        Remove the 'target' directory created during the build. This will delete
        all files and directories in the target directory.
 
-       The default target directory that will be cleaned is the '<package-root>/target'.
-       You may also provide a custom target to be cleaned.
+       The default target directory that will be cleaned is the
+       '<package-root>/target'. You may also provide a custom target to be
+       cleaned.
 
 
 OPTIONS
