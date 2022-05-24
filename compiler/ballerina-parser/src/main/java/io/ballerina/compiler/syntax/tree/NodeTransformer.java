@@ -832,6 +832,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(spreadMemberNode);
     }
 
+    public T transform(ResourceMethodCallActionNode resourceMethodCallActionNode) {
+        return transformSyntaxNode(resourceMethodCallActionNode);
+    }
+
+    public T transform(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        return transformSyntaxNode(computedResourceAccessSegmentNode);
+    }
+
+    public T transform(ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        return transformSyntaxNode(resourceAccessRestSegmentNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

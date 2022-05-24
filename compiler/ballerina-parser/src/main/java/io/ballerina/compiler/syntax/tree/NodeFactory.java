@@ -3171,5 +3171,64 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode());
         return stSpreadMemberNode.createUnlinkedFacade();
     }
+
+    public static ResourceMethodCallActionNode createResourceMethodCallActionNode(
+            ExpressionNode expression,
+            Token resourceMethodCallToken,
+            NodeList<Node> resourceAccessPath,
+            Token dotToken,
+            SimpleNameReferenceNode methodName,
+            Token openParenToken,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
+            Token closeParenToken) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(resourceMethodCallToken, "resourceMethodCallToken must not be null");
+        Objects.requireNonNull(resourceAccessPath, "resourceAccessPath must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
+
+        STNode stResourceMethodCallActionNode = STNodeFactory.createResourceMethodCallActionNode(
+                expression.internalNode(),
+                resourceMethodCallToken.internalNode(),
+                resourceAccessPath.underlyingListNode().internalNode(),
+                getOptionalSTNode(dotToken),
+                getOptionalSTNode(methodName),
+                getOptionalSTNode(openParenToken),
+                arguments.underlyingListNode().internalNode(),
+                getOptionalSTNode(closeParenToken));
+        return stResourceMethodCallActionNode.createUnlinkedFacade();
+    }
+
+    public static ComputedResourceAccessSegmentNode createComputedResourceAccessSegmentNode(
+            Token openBracketToken,
+            ExpressionNode expression,
+            Token closeBracketToken) {
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
+
+        STNode stComputedResourceAccessSegmentNode = STNodeFactory.createComputedResourceAccessSegmentNode(
+                openBracketToken.internalNode(),
+                expression.internalNode(),
+                closeBracketToken.internalNode());
+        return stComputedResourceAccessSegmentNode.createUnlinkedFacade();
+    }
+
+    public static ResourceAccessRestSegmentNode createResourceAccessRestSegmentNode(
+            Token openBracketToken,
+            Token ellipsisToken,
+            ExpressionNode expression,
+            Token closeBracketToken) {
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
+
+        STNode stResourceAccessRestSegmentNode = STNodeFactory.createResourceAccessRestSegmentNode(
+                openBracketToken.internalNode(),
+                ellipsisToken.internalNode(),
+                expression.internalNode(),
+                closeBracketToken.internalNode());
+        return stResourceAccessRestSegmentNode.createUnlinkedFacade();
+    }
 }
 

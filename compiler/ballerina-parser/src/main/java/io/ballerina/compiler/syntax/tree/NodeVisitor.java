@@ -831,6 +831,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(spreadMemberNode);
     }
 
+    public void visit(ResourceMethodCallActionNode resourceMethodCallActionNode) {
+        visitSyntaxNode(resourceMethodCallActionNode);
+    }
+
+    public void visit(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        visitSyntaxNode(computedResourceAccessSegmentNode);
+    }
+
+    public void visit(ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        visitSyntaxNode(resourceAccessRestSegmentNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

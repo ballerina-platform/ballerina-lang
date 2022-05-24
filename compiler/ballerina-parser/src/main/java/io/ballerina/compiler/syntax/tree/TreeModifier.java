@@ -3255,6 +3255,69 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 expression);
     }
 
+    @Override
+    public ResourceMethodCallActionNode transform(
+            ResourceMethodCallActionNode resourceMethodCallActionNode) {
+        ExpressionNode expression =
+                modifyNode(resourceMethodCallActionNode.expression());
+        Token resourceMethodCallToken =
+                modifyToken(resourceMethodCallActionNode.resourceMethodCallToken());
+        NodeList<Node> resourceAccessPath =
+                modifyNodeList(resourceMethodCallActionNode.resourceAccessPath());
+        Token dotToken =
+                modifyToken(resourceMethodCallActionNode.dotToken().orElse(null));
+        SimpleNameReferenceNode methodName =
+                modifyNode(resourceMethodCallActionNode.methodName().orElse(null));
+        Token openParenToken =
+                modifyToken(resourceMethodCallActionNode.openParenToken().orElse(null));
+        SeparatedNodeList<FunctionArgumentNode> arguments =
+                modifySeparatedNodeList(resourceMethodCallActionNode.arguments());
+        Token closeParenToken =
+                modifyToken(resourceMethodCallActionNode.closeParenToken().orElse(null));
+        return resourceMethodCallActionNode.modify(
+                expression,
+                resourceMethodCallToken,
+                resourceAccessPath,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
+    @Override
+    public ComputedResourceAccessSegmentNode transform(
+            ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        Token openBracketToken =
+                modifyToken(computedResourceAccessSegmentNode.openBracketToken());
+        ExpressionNode expression =
+                modifyNode(computedResourceAccessSegmentNode.expression());
+        Token closeBracketToken =
+                modifyToken(computedResourceAccessSegmentNode.closeBracketToken());
+        return computedResourceAccessSegmentNode.modify(
+                openBracketToken,
+                expression,
+                closeBracketToken);
+    }
+
+    @Override
+    public ResourceAccessRestSegmentNode transform(
+            ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        Token openBracketToken =
+                modifyToken(resourceAccessRestSegmentNode.openBracketToken());
+        Token ellipsisToken =
+                modifyToken(resourceAccessRestSegmentNode.ellipsisToken());
+        ExpressionNode expression =
+                modifyNode(resourceAccessRestSegmentNode.expression());
+        Token closeBracketToken =
+                modifyToken(resourceAccessRestSegmentNode.closeBracketToken());
+        return resourceAccessRestSegmentNode.modify(
+                openBracketToken,
+                ellipsisToken,
+                expression,
+                closeBracketToken);
+    }
+
     // Tokens
 
     @Override

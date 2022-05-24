@@ -2577,6 +2577,54 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 expression);
     }
 
+    @Override
+    public STResourceMethodCallActionNode transform(
+            STResourceMethodCallActionNode resourceMethodCallActionNode) {
+        STNode expression = modifyNode(resourceMethodCallActionNode.expression);
+        STNode resourceMethodCallToken = modifyNode(resourceMethodCallActionNode.resourceMethodCallToken);
+        STNode resourceAccessPath = modifyNode(resourceMethodCallActionNode.resourceAccessPath);
+        STNode dotToken = modifyNode(resourceMethodCallActionNode.dotToken);
+        STNode methodName = modifyNode(resourceMethodCallActionNode.methodName);
+        STNode openParenToken = modifyNode(resourceMethodCallActionNode.openParenToken);
+        STNode arguments = modifyNode(resourceMethodCallActionNode.arguments);
+        STNode closeParenToken = modifyNode(resourceMethodCallActionNode.closeParenToken);
+        return resourceMethodCallActionNode.modify(
+                expression,
+                resourceMethodCallToken,
+                resourceAccessPath,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
+    @Override
+    public STComputedResourceAccessSegmentNode transform(
+            STComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        STNode openBracketToken = modifyNode(computedResourceAccessSegmentNode.openBracketToken);
+        STNode expression = modifyNode(computedResourceAccessSegmentNode.expression);
+        STNode closeBracketToken = modifyNode(computedResourceAccessSegmentNode.closeBracketToken);
+        return computedResourceAccessSegmentNode.modify(
+                openBracketToken,
+                expression,
+                closeBracketToken);
+    }
+
+    @Override
+    public STResourceAccessRestSegmentNode transform(
+            STResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        STNode openBracketToken = modifyNode(resourceAccessRestSegmentNode.openBracketToken);
+        STNode ellipsisToken = modifyNode(resourceAccessRestSegmentNode.ellipsisToken);
+        STNode expression = modifyNode(resourceAccessRestSegmentNode.expression);
+        STNode closeBracketToken = modifyNode(resourceAccessRestSegmentNode.closeBracketToken);
+        return resourceAccessRestSegmentNode.modify(
+                openBracketToken,
+                ellipsisToken,
+                expression,
+                closeBracketToken);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

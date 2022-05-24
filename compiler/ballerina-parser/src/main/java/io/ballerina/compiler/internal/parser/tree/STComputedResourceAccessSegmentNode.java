@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SpreadMemberNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,56 +30,66 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STSpreadMemberNode extends STNode {
-    public final STNode ellipsis;
+public class STComputedResourceAccessSegmentNode extends STNode {
+    public final STNode openBracketToken;
     public final STNode expression;
+    public final STNode closeBracketToken;
 
-    STSpreadMemberNode(
-            STNode ellipsis,
-            STNode expression) {
+    STComputedResourceAccessSegmentNode(
+            STNode openBracketToken,
+            STNode expression,
+            STNode closeBracketToken) {
         this(
-                ellipsis,
+                openBracketToken,
                 expression,
+                closeBracketToken,
                 Collections.emptyList());
     }
 
-    STSpreadMemberNode(
-            STNode ellipsis,
+    STComputedResourceAccessSegmentNode(
+            STNode openBracketToken,
             STNode expression,
+            STNode closeBracketToken,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.SPREAD_MEMBER, diagnostics);
-        this.ellipsis = ellipsis;
+        super(SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT, diagnostics);
+        this.openBracketToken = openBracketToken;
         this.expression = expression;
+        this.closeBracketToken = closeBracketToken;
 
         addChildren(
-                ellipsis,
-                expression);
+                openBracketToken,
+                expression,
+                closeBracketToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STSpreadMemberNode(
-                this.ellipsis,
+        return new STComputedResourceAccessSegmentNode(
+                this.openBracketToken,
                 this.expression,
+                this.closeBracketToken,
                 diagnostics);
     }
 
-    public STSpreadMemberNode modify(
-            STNode ellipsis,
-            STNode expression) {
+    public STComputedResourceAccessSegmentNode modify(
+            STNode openBracketToken,
+            STNode expression,
+            STNode closeBracketToken) {
         if (checkForReferenceEquality(
-                ellipsis,
-                expression)) {
+                openBracketToken,
+                expression,
+                closeBracketToken)) {
             return this;
         }
 
-        return new STSpreadMemberNode(
-                ellipsis,
+        return new STComputedResourceAccessSegmentNode(
+                openBracketToken,
                 expression,
+                closeBracketToken,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new SpreadMemberNode(this, position, parent);
+        return new ComputedResourceAccessSegmentNode(this, position, parent);
     }
 
     @Override
