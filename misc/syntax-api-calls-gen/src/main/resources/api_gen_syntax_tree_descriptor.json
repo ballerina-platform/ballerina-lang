@@ -4371,6 +4371,93 @@
           "type": "ExpressionNode"
         }
       ]
+    },
+    {
+      "name": "ResourceMethodCallActionNode",
+      "base": "ActionNode",
+      "kind": "RESOURCE_METHOD_CALL_ACTION",
+      "attributes": [
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "resourceMethodCallToken",
+          "type": "Token"
+        },
+        {
+          "name": "resourceAccessPath",
+          "type": "Node",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "dotToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "methodName",
+          "type": "SimpleNameReferenceNode",
+          "isOptional": true
+        },
+        {
+          "name": "openParenToken",
+          "type": "Token",
+          "isOptional": true
+        },
+        {
+          "name": "arguments",
+          "type": "FunctionArgumentNode",
+          "occurrences": "MULTIPLE_SEPARATED"
+        },
+        {
+          "name": "closeParenToken",
+          "type": "Token",
+          "isOptional": true
+        }
+      ]
+    },
+    {
+      "name": "ComputedResourceAccessSegmentNode",
+      "base": "Node",
+      "kind": "COMPUTED_RESOURCE_ACCESS_SEGMENT",
+      "attributes": [
+        {
+          "name": "openBracketToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracketToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "ResourceAccessRestSegmentNode",
+      "base": "Node",
+      "kind": "RESOURCE_ACCESS_REST_SEGMENT",
+      "attributes": [
+        {
+          "name": "openBracketToken",
+          "type": "Token"
+        },
+        {
+          "name": "ellipsisToken",
+          "type": "Token"
+        },
+        {
+          "name": "expression",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "closeBracketToken",
+          "type": "Token"
+        }
+      ]
     }
   ]
 }
