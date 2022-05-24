@@ -27,7 +27,6 @@ public class BalShellServiceClientCapabilities extends BallerinaClientCapability
     private boolean getResult;
     private boolean getShellFileSource;
     private boolean getVariableValues;
-
     private boolean deleteDefined;
     private boolean restartNotebook;
 
