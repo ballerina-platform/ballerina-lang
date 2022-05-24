@@ -115,8 +115,13 @@ public class ErrorQueryTest {
     }
 
     @Test
-    public void testErrorReturnedFromJoiClause() {
-        BRunUtil.invoke(result, "testErrorReturnedFromJoiClause");
+    public void testErrorReturnedFromJoinClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromJoinClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromOrderByClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromOrderByClause");
     }
 
     @AfterClass

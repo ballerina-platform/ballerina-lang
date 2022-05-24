@@ -57,7 +57,7 @@ function createFilterFunction(function(_Frame _frame) returns boolean|error filt
     return new _FilterFunction(filterFunc);
 }
 
-function createOrderByFunction(function(_Frame _frame) orderFunc)
+function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
         returns _StreamFunction {
     return new _OrderByFunction(orderFunc);
 }

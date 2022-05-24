@@ -340,6 +340,16 @@ function testCatchingErrorAtOnFail() {
         res12 = err;
     }
     assertTrue(res12 is error);
+
+    error? res13 = ();
+    do {
+        _ = from int i in 1 ... 3
+           order by check verifyCheck(i)
+           select i;
+    } on fail error err {
+        res13 = err;
+    }
+    assertTrue(res13 is error);
 }
 
 function testErrorReturnedFromSelect() {
@@ -405,7 +415,7 @@ function checkErrorAtLimitClause2() returns error? {
         select v;
 }
 
-function testErrorReturnedFromJoiClause() {
+function testErrorReturnedFromJoinClause() {
     assertTrue(checkErrorAtJoinClause() is error);
     assertTrue(checkErrorAtOnEqualLHS() is error);
     assertTrue(checkErrorAtOnEqualRHS() is error);
@@ -431,6 +441,16 @@ function checkErrorAtOnEqualRHS() returns error? {
         join int j in 1 ... 3
         on i equals check verifyCheck(j)
         select i;
+}
+
+function testErrorReturnedFromOrderByClause() {
+    assertTrue(checkErrorAtOrderBy() is error);
+}
+
+function checkErrorAtOrderBy() returns error? {
+    _ = from int i in 1...3
+       order by check verifyCheck(i)
+       select i;
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------

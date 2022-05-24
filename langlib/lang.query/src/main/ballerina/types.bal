@@ -554,10 +554,10 @@ class _OrderByFunction {
 
     # Desugared function to do;
     # order by person.fname true, person.age false
-    function (_Frame _frame) orderKeyFunc;
+    function (_Frame _frame) returns error? orderKeyFunc;
     stream<_Frame>? orderedStream;
 
-    function init(function (_Frame _frame) orderKeyFunc) {
+    function init(function (_Frame _frame) returns error? orderKeyFunc) {
         self.orderKeyFunc = orderKeyFunc;
         self.orderedStream = ();
         self.prevFunc = ();
@@ -566,13 +566,13 @@ class _OrderByFunction {
     public function process() returns _Frame|error? {
         if (self.orderedStream is ()) {
             _StreamFunction pf = <_StreamFunction>self.prevFunc;
-            function (_Frame _frame) orderKeyFunc = self.orderKeyFunc;
+            function (_Frame _frame) returns error? orderKeyFunc = self.orderKeyFunc;
             _Frame|error? f = pf.process();
             boolean[] directions = [];
             _OrderTreeNode oTree = new;
             // consume all events for ordering.
             while (f is _Frame) {
-                orderKeyFunc(f);
+                check orderKeyFunc(f);
                 oTree.add(f, <any[]>(checkpanic f["$orderDirection$"]), <any[]>(checkpanic f["$orderKey$"]));
                 f = pf.process();
             }
