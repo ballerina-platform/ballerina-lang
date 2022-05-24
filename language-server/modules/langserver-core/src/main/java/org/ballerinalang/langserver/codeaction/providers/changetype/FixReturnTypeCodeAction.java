@@ -104,11 +104,12 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         boolean returnsClause = funcDef.get().functionSignature().returnTypeDesc().isPresent();
 
         if (checkExprDiagnostic) {
-            // Add optional error for check expression
+            // Add error return type for check expression
+            String error = "error";
             String optionalError = "error?";
             if (returnsClause) {
                 types.add(funcDef.get().functionSignature().returnTypeDesc().get().type().toString().trim().concat("|")
-                        .concat(optionalError));
+                        .concat(error));
             } else {
                 types.add(optionalError);
             }

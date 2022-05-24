@@ -1,6 +1,6 @@
-public function name() returns int {
-      var myvar = check findNum();
-      return 0;
+public function name() {
+    var myvar = check findNum();
+    return;
 }
 
 function findNum() returns int|error { 
