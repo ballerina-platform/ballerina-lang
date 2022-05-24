@@ -160,6 +160,9 @@ public class BallerinaLexer extends AbstractLexer {
                     if (peek() == LexerTerminals.GT) {
                         reader.advance();
                         token = getSyntaxToken(SyntaxKind.SYNC_SEND_TOKEN);
+                    } else if (peek() == LexerTerminals.SLASH){
+                        reader.advance();
+                        token = getSyntaxToken(SyntaxKind.RESOURCE_METHOD_CALL_TOKEN);
                     } else {
                         token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
                     }
