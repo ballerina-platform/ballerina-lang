@@ -5967,7 +5967,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 dlog.warning(checkedExpr.expr.pos,
                         DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS,
                         operatorType);
+                checkedExpr.isRedundantChecking = true;
                 data.resultType = checkedExpr.expr.getBType();
+
+                // Reset impConversionExpr as it was previously based on default error added union type
+                resetImpConversionExpr(checkedExpr.expr, data.resultType, data.expType);
             }
             checkedExpr.setBType(symTable.semanticError);
             return;
@@ -5999,6 +6003,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // No member types in this union is equivalent to the error type
             dlog.warning(checkedExpr.expr.pos,
                     DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
+            checkedExpr.isRedundantChecking = true;
+
+            // Reset impConversionExpr as it was previously based on default error added union type
+            resetImpConversionExpr(checkedExpr.expr, data.resultType, data.expType);
+
             checkedExpr.setBType(symTable.semanticError);
             return;
         }
@@ -6013,6 +6022,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(checkedExpr, actualType, data.expType);
+    }
+
+    private void resetImpConversionExpr(BLangExpression expr, BType actualType, BType targetType) {
+        expr.impConversionExpr = null;
+        types.setImplicitCastExpr(expr, actualType, targetType);
     }
 
     private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BType type, AnalyzerData data) {
@@ -7146,12 +7160,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // Need to infer the type. Calculate matching bound type, with no type.
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, expType, data);
-            typeParamAnalyzer.checkForTypeParamsInArg(pos, inferredType, data.env, expectedType);
+            typeParamAnalyzer.checkForTypeParamsInArg(arg, pos, inferredType, data.env, expectedType);
             types.checkType(arg.pos, inferredType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
         }
         checkExpr(arg, expectedType, data);
-        typeParamAnalyzer.checkForTypeParamsInArg(pos, arg.getBType(), data.env, expectedType);
+        typeParamAnalyzer.checkForTypeParamsInArg(arg, pos, arg.getBType(), data.env, expectedType);
     }
 
     private boolean requireTypeInference(BLangExpression expr, boolean inferTypeForNumericLiteral) {

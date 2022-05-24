@@ -281,7 +281,7 @@ public class Main {
             throw new BallerinaTestException("failed to get the class reader object for the class "
                     + clazz.getSimpleName());
         }
-        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
                 Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);
@@ -290,7 +290,7 @@ public class Main {
 
     private static byte[] replaceMethodBody(byte[] classFile, Method method, Method mockMethod) {
         ClassReader cr = new ClassReader(classFile);
-        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_MAXS);
+        ClassWriter cw = new ClassWriter(cr, ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS);
         ClassVisitor cv = new MockFunctionReplaceVisitor(Opcodes.ASM7, cw, method.getName(),
                 Type.getMethodDescriptor(method), mockMethod);
         cr.accept(cv, 0);

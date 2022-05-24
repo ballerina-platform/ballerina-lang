@@ -141,7 +141,7 @@ public class BFiniteType extends BType implements FiniteType {
 
     @Override
     public String toString() {
-        if (typeName != null && !typeName.isEmpty()) {
+        if (typeName != null && !typeName.isEmpty() && !typeName.startsWith("$anonType$")) {
             return typeName;
         }
         StringJoiner joiner = new StringJoiner("|");
