@@ -647,8 +647,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
     @Override
     public void clearPreviousVariablesAndModuleDclnsNames() {
-        newDefinedVariableNames = new ArrayList<>();
-        newModuleDeclnNames = new ArrayList<>();
+        newDefinedVariableNames.clear();
+        newModuleDeclnNames.clear();
     }
 
     /**
