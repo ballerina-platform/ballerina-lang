@@ -37,7 +37,6 @@ public class BalShellGetResultResponse {
     private ArrayList<String> errors;
     private ArrayList<String> diagnostics;
     private MetaInfo metaInfo;
-
     private String consoleOut;
 
     public BalShellGetResultResponse() {
