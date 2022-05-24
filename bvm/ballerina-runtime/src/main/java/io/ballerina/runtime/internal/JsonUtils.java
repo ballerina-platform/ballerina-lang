@@ -376,7 +376,7 @@ public class JsonUtils {
                     if (jsonValue == valueSpaceItem) {
                         return convertJSON(jsonValue, inputValueType);
                     }
-                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem)) {
+                    if (TypeChecker.isFiniteTypeValue(jsonValue, inputValueType, valueSpaceItem, true)) {
                         matchedValues.add(valueSpaceItem);
                     }
                 }

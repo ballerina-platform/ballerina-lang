@@ -120,6 +120,11 @@ public class BStreamValueTest {
         Assert.assertTrue((Boolean) values);
     }
 
+    @Test(description = "Test passing a stream constructor to create an unbounded stream")
+    public void testUnboundedStreams() {
+        BRunUtil.invoke(result, "testUnboundedStreams", new Object[]{});
+    }
+
     @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
@@ -248,6 +253,12 @@ public class BStreamValueTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid stream constructor. expected a subtype " +
                 "of 'object { public isolated function next() returns record {| int value; |}?; }', but found " +
                 "'string'", 381, 31);
+//        todo should be enabled once #35847 is fixed
+//        BAssertUtil.validateError(negativeResult, i++, "type 'readonly' not allowed here; " +
+//                        "expected an 'error' or a subtype of 'error'.", 387, 31);
+        BAssertUtil.validateError(negativeResult, i++, "no stream constructor provided. " +
+                "expected a subtype of 'object { public isolated function next() " +
+                "returns (record {| int value; |}|error); }'", 389, 28);
 
         Assert.assertEquals(i, negativeResult.getErrorCount());
 
