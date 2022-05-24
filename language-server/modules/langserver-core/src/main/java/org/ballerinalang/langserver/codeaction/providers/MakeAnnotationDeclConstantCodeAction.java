@@ -15,16 +15,13 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -35,8 +32,6 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
-import java.net.URI;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -55,41 +50,36 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
     public boolean validate(Diagnostic diagnostic,
                             DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        if (!DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty() ||
-                context.currentSemanticModel().isEmpty()) {
-            return false;
-        }
-
-        SyntaxTree syntaxTree = context.currentSyntaxTree().get();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(),
-                context.cursorPosition()), syntaxTree);
-        return CodeActionNodeValidator.validate(matchedNode);
+        return DIAGNOSTIC_CODE.equals(diagnostic.diagnosticInfo().code()) &&
+                context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() &&
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
     
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        Optional<Pair<Symbol, Path>> symbolAndPath = CodeActionUtil.findSymbolAndPathForDiagnosticRange(diagnostic, 
-                context);
-        if (symbolAndPath.isEmpty()) {
-           return Collections.emptyList();
-        } 
-        Symbol symbol = symbolAndPath.get().getLeft();
-        Path filePath = symbolAndPath.get().getRight();
         
-        URI uri = filePath.toUri();
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode node = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
+        if (node.kind() != SyntaxKind.ANNOTATION_DECLARATION) {
+            return Collections.emptyList();
+        }
 
         AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node;
         Position position = CommonUtil.toPosition(annotationDeclarationNode.annotationKeyword().lineRange()
                 .startLine());
         
-        TextEdit textEdit = new TextEdit(new Range(position, position), SyntaxKind.CONST_KEYWORD.stringValue() + " ");
-        List<TextEdit> editList = List.of(textEdit);
-        String commandTitle = String.format(CommandConstants.MAKE_ANNOT_DECL_CONST, symbol.getName().orElse(""));
-        return Collections.singletonList(createCodeAction(commandTitle, editList, uri.toString(),
+        TextEdit textEdit = new TextEdit(new Range(position, position), SyntaxKind.CONST_KEYWORD.stringValue() 
+                + " ");
+        String commandTitle = String.format(CommandConstants.MAKE_ANNOT_DECL_CONST, 
+                annotationDeclarationNode.annotationTag().toString().strip());
+        return Collections.singletonList(createCodeAction(commandTitle, List.of(textEdit), context.fileUri(),
                 CodeActionKind.QuickFix));
     }
 
