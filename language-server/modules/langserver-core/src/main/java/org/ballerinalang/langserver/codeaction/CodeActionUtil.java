@@ -916,7 +916,7 @@ public class CodeActionUtil {
     }
     
     public static Optional<Pair<Symbol, Path>> getSymbolAndPath(Diagnostic diagnostic, String diagnosticCode,
-                                                                                             CodeActionContext context) {
+                                                                CodeActionContext context) {
        
         if (!diagnosticCode.equals(diagnostic.diagnosticInfo().code()) || context.currentSyntaxTree().isEmpty()
                 || context.currentSemanticModel().isEmpty()) {

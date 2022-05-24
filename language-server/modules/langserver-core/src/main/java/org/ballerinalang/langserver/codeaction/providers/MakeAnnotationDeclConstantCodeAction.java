@@ -69,7 +69,8 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
         }
 
         AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node.get();
-        Position position = CommonUtil.toPosition(annotationDeclarationNode.annotationKeyword().lineRange().startLine());
+        Position position = CommonUtil.toPosition(annotationDeclarationNode.annotationKeyword().lineRange()
+                .startLine());
 
         Range range = new Range(position, position);
         String editText = SyntaxKind.CONST_KEYWORD.stringValue() + " ";
