@@ -26,8 +26,8 @@ package io.ballerina.shell.service;
 public class DeleteRequest {
     private final String varToDelete;
 
-    public DeleteRequest(String source) {
-        this.varToDelete = source;
+    public DeleteRequest(String varToDelete) {
+        this.varToDelete = varToDelete;
     }
 
     /**
