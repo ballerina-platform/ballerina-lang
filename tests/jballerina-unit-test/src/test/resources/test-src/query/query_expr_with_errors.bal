@@ -26,26 +26,26 @@ type FooError error<FooDetail>;
 
 class ErrorGenerator {
     int i = 0;
-    public isolated function next() returns record {|FooError value;|}? {
+    public isolated function next() returns record {| FooError value; |}? {
         if (self.i < 10) {
             self.i += 1;
             int i = self.i;
             string si = i.toString();
             FooError e = error FooError("CE", error("CE" + si, message = "error messge #" + si), code = i);
-            return {value: e};
+            return { value: e };
         }
     }
 }
 
 public function queryAnErrorStream() {
-    ErrorGenerator errGen = new ();
-    stream<FooError> errStream = new (errGen);
+    ErrorGenerator errGen = new();
+    stream<FooError> errStream = new(errGen);
     string[] causeErrorMsgs =
             from var err in errStream
-    let map<value:Cloneable> detail = err.detail(), error cause = <error>err.cause()
-    where <int>checkpanic detail.get("code") % 2 == 0
-    limit 4
-    select <string>checkpanic cause.detail().get("message");
+            let map<value:Cloneable> detail = err.detail(), error cause = <error>err.cause()
+            where <int> checkpanic detail.get("code") % 2 == 0
+            limit 4
+            select <string> checkpanic cause.detail().get("message");
 
     assertEquality("error messge #2", causeErrorMsgs[0]);
     assertEquality("error messge #4", causeErrorMsgs[1]);
@@ -83,7 +83,7 @@ class IterableWithError {
 public function queryWithoutErrors() {
     // Normally, the result of evaluating a query expression is a single value (i.e int[]).
     var intArr = from var item in [1, 2, 3]
-        select item;
+                 select item;
     assertEquality(true, intArr is int[]);
     assertEquality(3, intArr.length());
     assertEquality(1, intArr[0]);
@@ -111,7 +111,7 @@ public function queryWithACheckFail() returns int[]|error {
     // If the evaluation of an expression within the query-expr completing abruptly with a check-fail,
     // an error will get propagated to the query result level.
     int[] intArr = from var item in [1, 2, 3]
-        select check verifyCheck(item);
+                 select check verifyCheck(item);
     assertEquality(true, false); // this shouldn't be reachable.
     return intArr;
 }
@@ -126,7 +126,7 @@ public function queryWithAPanic() {
     // If there's an expression within the query-expr completing abruptly with a panic,
     // evaluation of the whole query-expr can complete abruptly with panic.
     int[] intArr = from var item in [1, 2, 3]
-        select verifyPanic(item);
+             select verifyPanic(item);
 }
 
 // Query to streams
