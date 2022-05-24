@@ -130,14 +130,14 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
      * Introduced in order to collect new defined variables to support Ballerina
      * VSCode Notebook.
      */
-    private List<String> newDefinedVariableNames;
+    private final List<String> newDefinedVariableNames;
     /**
      * Stores all the newly found module declarations.
      *
      * Introduced in order to collect new module declarations to support Ballerina
      * VSCode Notebook.
      */
-    private List<String> newModuleDeclnNames;
+    private final List<String> newModuleDeclnNames;
 
     /**
      * Creates a class load invoker from the given ballerina home.
@@ -152,6 +152,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         this.newImports = new HashMap<>();
         this.initialIdentifiers = new HashSet<>();
         this.importsManager = new ImportsManager();
+        this.newDefinedVariableNames = new ArrayList<>();
+        this.newModuleDeclnNames = new ArrayList<>();
     }
 
     /**

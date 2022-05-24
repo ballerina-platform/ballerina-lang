@@ -113,6 +113,7 @@ public class ShellWrapper {
                     evaluator.newModuleDeclarations()
             );
             evaluator.resetDiagnostics();
+            evaluator.clearPreviousVariablesAndModuleDclnsNames();
             System.setOut(original);
         }
         return output;
