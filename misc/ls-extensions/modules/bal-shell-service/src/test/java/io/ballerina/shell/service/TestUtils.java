@@ -74,8 +74,7 @@ public class TestUtils {
      */
     public static void assertJsonValues(Object generated, Object expected) {
         Gson gson = new Gson();
-        String jsonGenerated = gson.toJson(generated)
-                .replace("\\r\\n", "\\n");
+        String jsonGenerated = gson.toJson(generated).replace("\\r\\n", "\\n");
         String jsonExpected = gson.toJson(expected);
         Assert.assertEquals(jsonGenerated, jsonExpected);
     }
