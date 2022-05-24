@@ -99,6 +99,16 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testErrorReturnedFromSelect");
     }
 
+    @Test
+    public void testErrorReturnedFromWhere() {
+        BRunUtil.invoke(result, "testErrorReturnedFromWhere");
+    }
+
+    @Test
+    public void testErrorReturnedFromLet() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLet");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

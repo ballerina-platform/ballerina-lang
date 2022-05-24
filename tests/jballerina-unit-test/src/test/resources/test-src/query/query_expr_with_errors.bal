@@ -285,6 +285,28 @@ function testCatchingErrorAtOnFail() {
         res7 = err;
     }
     assertTrue(res7 is error);
+
+    error? res8 = ();
+    do {
+        _ = from int v in 1 ... 3
+            where check verifyCheck(v) == 1
+            select v;
+    } on fail error err {
+        res8 = err;
+    }
+    assertTrue(res8 is error);
+
+    error? res9 = ();
+    do {
+        _ = from int v in (from int i in 1 ... 3
+                where check verifyCheck(i) == 1
+                select i)
+            select v;
+    } on fail error err {
+        res9 = err;
+    }
+    assertTrue(res9 is error);
+
 }
 
 function testErrorReturnedFromSelect() {
@@ -294,6 +316,43 @@ function testErrorReturnedFromSelect() {
 function checkErrorAtSelect() returns error? {
     _ = from int v in 1 ... 3
         select check verifyCheck(v);
+}
+
+function testErrorReturnedFromWhere() {
+    assertTrue(checkErrorAtWhere1() is error);
+    assertTrue(checkErrorAtWhere2() is error);
+}
+
+function checkErrorAtWhere1() returns error? {
+    _ = from int v in 1 ... 3
+        where check verifyCheck(v) == 1
+        select v;
+}
+
+function checkErrorAtWhere2() returns error? {
+    _ = from int v in (from int i in 1 ... 3
+            where check verifyCheck(i) == 1
+            select i)
+        select v;
+}
+
+function testErrorReturnedFromLet() {
+    assertTrue(checkErrorAtLet1() is error);
+    assertTrue(checkErrorAtLet2() is error);
+}
+
+function checkErrorAtLet1() returns error? {
+    _ = from int v in 1 ... 3
+        let int newVar = check verifyCheck(v)
+        select v;
+}
+
+
+function checkErrorAtLet2() returns error? {
+    _ = from int v in (from int i in 1 ... 3
+            let int newVar = check verifyCheck(i)
+            select i)
+        select v;
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------
