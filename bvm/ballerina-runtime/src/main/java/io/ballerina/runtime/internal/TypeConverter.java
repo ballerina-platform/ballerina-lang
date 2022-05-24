@@ -268,20 +268,21 @@ public class TypeConverter {
         int targetTypeTag = targetType.getTag();
         int initialErrorCount = errors.size();
 
+        String errorMessage =
+                "value '" + getShortSourceValue(inputValue) + "' cannot be converted to '" + targetType + "': " +
+                        "ambiguous target type";
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 inputValueType = TypeChecker.getType(inputValue);
 
                 Set<Type> directlyConvertibleTypesInUnion = getDirectlyConvertibleTypesInUnion(
                         inputValue, inputValueType, (BUnionType) targetType);
+                if (directlyConvertibleTypesInUnion.size() == 1) {
+                    return directlyConvertibleTypesInUnion;
+                }
                 if (!directlyConvertibleTypesInUnion.isEmpty()) {
-                    if (directlyConvertibleTypesInUnion.size() == 1) {
-                        return directlyConvertibleTypesInUnion;
-                    } else {
-                        addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
-                                + "' cannot be converted to '" + targetType + "': ambiguous target type");
-                        return new LinkedHashSet<>();
-                    }
+                    addErrorMessage(0, errors, errorMessage);
+                    return new LinkedHashSet<>();
                 }
 
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
@@ -291,8 +292,7 @@ public class TypeConverter {
                 if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
-                    addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
-                            + "' cannot be converted to '" + targetType + "': ambiguous target type");
+                    addErrorMessage(0, errors, errorMessage);
                     return new LinkedHashSet<>();
                 }
                 break;
@@ -362,8 +362,7 @@ public class TypeConverter {
                 if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
-                    addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
-                            + "' cannot be converted to '" + targetType + "': ambiguous target type");
+                    addErrorMessage(0, errors, errorMessage);
                     return new LinkedHashSet<>();
                 }
                 break;
