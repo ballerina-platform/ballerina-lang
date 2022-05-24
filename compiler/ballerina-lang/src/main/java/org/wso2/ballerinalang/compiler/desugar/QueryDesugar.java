@@ -452,7 +452,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
-        BType completionType = symTable.nilType;
+        BType completionType = symTable.errorOrNilType;
         BType refType = Types.getReferredType(resultType);
         if (refType.tag == TypeTags.ARRAY) {
             constraintType = ((BArrayType) refType).eType;
@@ -621,7 +621,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
-        returnNode.setExpression(whereClause.expression);
+        returnNode.setExpression(addTypeConversionExpr(whereClause.expression,
+                lambda.function.returnTypeNode.getBType()));
         body.addStatement(returnNode);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
@@ -848,8 +849,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return created lambda function.
      */
     private BLangLambdaFunction createFilterLambda(Location pos) {
-        // returns boolean
-        BLangValueType returnType = getBooleanTypeNode();
+        // returns boolean|error
+        BLangUnionTypeNode returnType = getBooleanErrorTypeNode();
         return createLambdaFunction(pos, returnType, null, false);
     }
 
@@ -1283,6 +1284,16 @@ public class QueryDesugar extends BLangNodeVisitor {
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
         unionTypeNode.memberTypeNodes.add(getNilTypeNode());
+        unionTypeNode.desugared = true;
+        return unionTypeNode;
+    }
+
+    private BLangUnionTypeNode getBooleanErrorTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.errorType, symTable.booleanType);
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.setBType(unionType);
+        unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
+        unionTypeNode.memberTypeNodes.add(getBooleanTypeNode());
         unionTypeNode.desugared = true;
         return unionTypeNode;
     }

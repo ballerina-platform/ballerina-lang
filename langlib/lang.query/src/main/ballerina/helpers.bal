@@ -52,7 +52,7 @@ function createOuterJoinFunction(
     return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
 }
 
-function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)
+function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc)
         returns _StreamFunction {
     return new _FilterFunction(filterFunc);
 }

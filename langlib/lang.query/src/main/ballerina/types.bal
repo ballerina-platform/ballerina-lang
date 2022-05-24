@@ -491,19 +491,28 @@ class _FilterFunction {
     # Desugared function to do;
     # where person.age >= 70
     # emit the next frame which satisfies the condition
-    function (_Frame _frame) returns boolean filterFunc;
+    function (_Frame _frame) returns error|boolean filterFunc;
 
-    function init(function (_Frame _frame) returns boolean filterFunc) {
+    function init(function (_Frame _frame) returns boolean|error filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        function (_Frame _frame) returns boolean filterFunc = self.filterFunc;
+        function (_Frame _frame) returns boolean|error filterFunc = self.filterFunc;
         _Frame|error? pFrame = pf.process();
-        while (pFrame is _Frame && !filterFunc(pFrame)) {
-            pFrame = pf.process();
+        while (pFrame is _Frame) {
+            boolean|error filterResult = filterFunc(pFrame);
+            if filterResult is boolean {
+                if !filterResult {
+                    pFrame = pf.process();
+                } else {
+                    return pFrame;
+                }
+            } else {
+                return filterResult;
+            }
         }
         return pFrame;
     }
