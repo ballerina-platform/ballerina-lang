@@ -60,14 +60,14 @@ public class ModuleComparator implements Comparator {
 
     @Override
     public Optional<ModuleDiff> computeDiff() {
-        ModuleDiff.Builder moduleDiffModifier = new ModuleDiff.Builder(newModule, oldModule);
+        ModuleDiff.Builder moduleDiffBuilder = new ModuleDiff.Builder(newModule, oldModule);
         extractModuleLevelDefinitions(newModule, true);
         extractModuleLevelDefinitions(oldModule, false);
 
-        extractFunctionDiffs(moduleDiffModifier);
-        extractServiceDiffs(moduleDiffModifier);
+        extractFunctionDiffs(moduleDiffBuilder);
+        extractServiceDiffs(moduleDiffBuilder);
         // Todo: implement analyzers for other module-level definitions
-        return moduleDiffModifier.build();
+        return moduleDiffBuilder.build();
     }
 
     private void extractFunctionDiffs(ModuleDiff.Builder diffModifier) {

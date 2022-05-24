@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -74,6 +75,11 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     @Override
     public Optional<T> getOldNode() {
         return Optional.ofNullable(oldNode);
+    }
+
+    @Override
+    public SyntaxKind getNodeKind() {
+        return newNode != null ? newNode.kind() : oldNode.kind();
     }
 
     @Override
@@ -142,7 +148,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             sb.append(stringifyDiff(this));
         } else {
             // Todo: Add the rest of module-level definition types
-            if (this instanceof FunctionDiff) {
+            if (this instanceof FunctionDiff || this instanceof ServiceDiff) {
                 sb.append(stringifyDiff(this));
             }
             childDiffs.forEach(diff -> sb.append(diff.getAsString()));

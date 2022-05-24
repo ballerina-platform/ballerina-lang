@@ -26,6 +26,7 @@ import io.ballerina.semver.checker.diff.NodeDiff;
 import io.ballerina.semver.checker.diff.NodeListDiff;
 import io.ballerina.semver.checker.diff.PackageDiff;
 import io.ballerina.semver.checker.diff.SemverImpact;
+import io.ballerina.semver.checker.diff.ServiceDiff;
 
 import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVersion;
 
@@ -192,30 +193,6 @@ public class DiffUtils {
     }
 
     /**
-     * Retrieves function name of the given {@link FunctionDiff} instance.
-     *
-     * @param functionDiff FunctionDiff instance
-     */
-    private static String getFunctionName(FunctionDiff functionDiff) {
-        switch (functionDiff.getType()) {
-            case NEW:
-                return functionDiff.getNewNode().orElseThrow().functionName().text();
-            case REMOVED:
-                return functionDiff.getOldNode().orElseThrow().functionName().text();
-            case MODIFIED:
-            case UNKNOWN:
-            default:
-                if (functionDiff.getNewNode().isPresent()) {
-                    return functionDiff.getNewNode().orElseThrow().functionName().text();
-                } else if (functionDiff.getOldNode().isPresent()) {
-                    return functionDiff.getOldNode().orElseThrow().functionName().text();
-                } else {
-                    return "unknown";
-                }
-        }
-    }
-
-    /**
      * Returns the string sign to represent a given {@link Diff}.
      *
      * @param diff diff type
@@ -255,6 +232,8 @@ public class DiffUtils {
             return getModuleName((ModuleDiff) diff);
         } else if (diff instanceof FunctionDiff) {
             return getFunctionName((FunctionDiff) diff);
+        } else if (diff instanceof ServiceDiff) {
+            return getServiceName((ServiceDiff) diff);
         } else {
             return "unknown";
         }
@@ -265,8 +244,17 @@ public class DiffUtils {
             return "package";
         } else if (diff instanceof ModuleDiff) {
             return "module";
+        } else if (diff instanceof ServiceDiff) {
+            return "service";
         } else if (diff instanceof FunctionDiff) {
-            return "function";
+            FunctionDiff functionDiff = (FunctionDiff) diff;
+            if (functionDiff.isResource()) {
+                return "resource function";
+            } else if (functionDiff.isRemote()) {
+                return "remote function";
+            } else {
+                return "function";
+            }
         } else {
             return "unknown";
         }
@@ -277,10 +265,49 @@ public class DiffUtils {
             return " ".repeat(0);
         } else if (diff instanceof ModuleDiff) {
             return " ".repeat(2);
-        } else if (diff instanceof FunctionDiff) {
+        } else if (diff instanceof ServiceDiff) {
             return " ".repeat(4);
+        } else if (diff instanceof FunctionDiff) {
+            FunctionDiff functionDiff = (FunctionDiff) diff;
+            if (functionDiff.isResource()) {
+                return " ".repeat(6);
+            } else if (functionDiff.isRemote()) {
+                return " ".repeat(6);
+            } else {
+                return " ".repeat(4);
+            }
         } else {
             return " ".repeat(6);
+        }
+    }
+
+    /**
+     * Retrieves function name of the given {@link FunctionDiff} instance.
+     *
+     * @param functionDiff FunctionDiff instance
+     */
+    private static String getFunctionName(FunctionDiff functionDiff) {
+        if (functionDiff.getNewNode().isPresent()) {
+            return functionDiff.getNewNode().get().functionName().text();
+        } else if (functionDiff.getOldNode().isPresent()) {
+            return functionDiff.getOldNode().get().functionName().text();
+        } else {
+            return "unknown";
+        }
+    }
+
+    /**
+     * Retrieves service name from the given {@link ServiceDiff} instance.
+     *
+     * @param serviceDiff ServiceDiff instance
+     */
+    private static String getServiceName(ServiceDiff serviceDiff) {
+        if (serviceDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getServiceName(serviceDiff.getNewNode().get());
+        } else if (serviceDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getServiceName(serviceDiff.getOldNode().get());
+        } else {
+            return "unknown";
         }
     }
 }

@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Optional;
 
@@ -33,6 +34,8 @@ public interface NodeDiff<T extends Node> extends Diff {
     Optional<T> getNewNode();
 
     Optional<T> getOldNode();
+
+    SyntaxKind getNodeKind();
 
     Optional<String> getMessage();
 }

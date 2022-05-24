@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.Diff;
@@ -35,13 +36,13 @@ import io.ballerina.semver.checker.diff.ServiceDiff;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.syntax.tree.SyntaxKind.FUNCTION_DEFINITION;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
 
 /**
@@ -51,8 +52,17 @@ import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
  */
 public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
 
+    private final Map<String, FunctionDefinitionNode> newFunctions;
+    private final Map<String, FunctionDefinitionNode> oldFunctions;
+    private final Map<String, ObjectFieldNode> newServiceFields;
+    private final Map<String, ObjectFieldNode> oldServiceFields;
+
     public ServiceComparator(ServiceDeclarationNode newNode, ServiceDeclarationNode oldNode) {
         super(newNode, oldNode);
+        newFunctions = new HashMap<>();
+        oldFunctions = new HashMap<>();
+        newServiceFields = new HashMap<>();
+        oldServiceFields = new HashMap<>();
     }
 
     @Override
@@ -146,20 +156,11 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
 
     private List<Diff> compareMembers() {
         List<Diff> memberDiffs = new LinkedList<>();
-        NodeList<Node> newMembers = newNode.members();
-        NodeList<Node> oldMembers = oldNode.members();
-
         // TODO: implement other service member comparators
-        Map<String, FunctionDefinitionNode> newResources = newMembers.stream()
-                .filter(node -> node.kind() == FUNCTION_DEFINITION)
-                .collect(Collectors.toMap(node -> ((FunctionDefinitionNode) node).functionName().text(),
-                        node -> (FunctionDefinitionNode) node));
-        Map<String, FunctionDefinitionNode> oldResources = oldMembers.stream()
-                .filter(node -> node.kind() == FUNCTION_DEFINITION)
-                .collect(Collectors.toMap(node -> ((FunctionDefinitionNode) node).functionName().text(),
-                        node -> (FunctionDefinitionNode) node));
+        extractServiceMembers(newNode, true);
+        extractServiceMembers(oldNode, false);
 
-        DiffExtractor<FunctionDefinitionNode> resourceDiffExtractor = new DiffExtractor<>(newResources, oldResources);
+        DiffExtractor<FunctionDefinitionNode> resourceDiffExtractor = new DiffExtractor<>(newFunctions, oldFunctions);
         resourceDiffExtractor.getAdditions().forEach((name, function) -> {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(function, null);
             funcDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(memberDiffs::add);
@@ -171,6 +172,43 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
         resourceDiffExtractor.getCommons().forEach((name, functions) -> new FunctionComparator(functions.getKey(),
                 functions.getValue()).computeDiff().ifPresent(memberDiffs::add));
 
+        DiffExtractor<ObjectFieldNode> varDiffExtractor = new DiffExtractor<>(newServiceFields, oldServiceFields);
+        varDiffExtractor.getAdditions().forEach((name, function) -> {
+            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(function, null);
+            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(memberDiffs::add);
+        });
+        varDiffExtractor.getRemovals().forEach((name, function) -> {
+            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(null, function);
+            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(memberDiffs::add);
+        });
+        varDiffExtractor.getCommons().forEach((name, serviceVars) -> new DumbNodeComparator<>(serviceVars.getKey(),
+                serviceVars.getValue()).computeDiff().ifPresent(memberDiffs::add));
+
         return memberDiffs;
+    }
+
+    private void extractServiceMembers(ServiceDeclarationNode service, boolean isNewService) {
+        service.members().forEach(member -> {
+            switch (member.kind()) {
+                case OBJECT_METHOD_DEFINITION:
+                    FunctionDefinitionNode funcNode = (FunctionDefinitionNode) member;
+                    if (isNewService) {
+                        newFunctions.put(funcNode.functionName().text(), funcNode);
+                    } else {
+                        oldFunctions.put(funcNode.functionName().text(), funcNode);
+                    }
+                    break;
+                case OBJECT_FIELD:
+                    ObjectFieldNode objectField = (ObjectFieldNode) member;
+                    if (isNewService) {
+                        newServiceFields.put(objectField.fieldName().toSourceCode(), objectField);
+                    } else {
+                        oldServiceFields.put(objectField.fieldName().toSourceCode(), objectField);
+                    }
+                    break;
+                default:
+                    // Todo: prompt a warning on the unsupported service member type
+            }
+        });
     }
 }
