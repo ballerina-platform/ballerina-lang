@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test checking statement.
  *
- * @since 2.1.0
+ * @since 2.2.0
  */
 public class CheckingStmtTest {
     private CompileResult result;
