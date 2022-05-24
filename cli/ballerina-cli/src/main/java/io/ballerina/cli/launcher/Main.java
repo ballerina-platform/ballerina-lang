@@ -162,8 +162,11 @@ public class Main {
             Properties properties = new Properties();
             properties.load(inputStream);
 
-            String output = "Ballerina " + properties.getProperty("ballerina.packVersion").split("-")[0] +
-                   " (" + properties.getProperty("ballerina.channel") + ")\n";
+            String version = properties.getProperty("ballerina.packVersion").split("-")[0];
+            int minorVersion = Integer.parseInt(version.split("\\.")[1]);
+            String updateVersionText = minorVersion > 0 ? " Update " + minorVersion : "";
+            String output = "Ballerina " + version +
+                   " (" + properties.getProperty("ballerina.channel") + updateVersionText + ")\n";
             output += "Language specification " + properties.getProperty("spec.version") + "\n";
             outStream.print(output);
         } catch (Throwable ignore) {
