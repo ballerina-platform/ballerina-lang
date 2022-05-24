@@ -60,7 +60,7 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
             return false;
         }
 
-        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
+        SyntaxTree syntaxTree = context.currentSyntaxTree().get();
         NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(),
                 context.cursorPosition()), syntaxTree);
         return CodeActionNodeValidator.validate(matchedNode);
@@ -79,19 +79,14 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
         Path filePath = symbolAndPath.get().getRight();
         
         URI uri = filePath.toUri();
-        Optional<NonTerminalNode> node = CommonUtil.findNode(symbol,
-                context.workspace().syntaxTree(filePath).get());
-        if (node.isEmpty()) {
-            return Collections.emptyList();
-        }
+        Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
+        NonTerminalNode node = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
 
-        AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node.get();
+        AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node;
         Position position = CommonUtil.toPosition(annotationDeclarationNode.annotationKeyword().lineRange()
                 .startLine());
-
-        Range range = new Range(position, position);
-        String editText = SyntaxKind.CONST_KEYWORD.stringValue() + " ";
-        TextEdit textEdit = new TextEdit(range, editText);
+        
+        TextEdit textEdit = new TextEdit(new Range(position, position), SyntaxKind.CONST_KEYWORD.stringValue() + " ");
         List<TextEdit> editList = List.of(textEdit);
         String commandTitle = String.format(CommandConstants.MAKE_ANNOT_DECL_CONST, symbol.getName().orElse(""));
         return Collections.singletonList(createCodeAction(commandTitle, editList, uri.toString(),

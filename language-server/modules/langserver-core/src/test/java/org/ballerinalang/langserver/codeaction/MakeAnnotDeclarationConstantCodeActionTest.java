@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test Cases for CodeActions.
+ * Test Cases for Make Annotation Declaration Constant code action.
  *
  * @since 2201.1.1
  */
