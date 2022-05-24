@@ -2547,34 +2547,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangExpressionStmt exprStmtNode, AnalyzerData data) {
         BLangExpression expr = exprStmtNode.expr;
         analyzeExpr(expr, data);
-        validateExprStatementExpression(exprStmtNode);
-    }
-
-    private void validateExprStatementExpression(BLangExpressionStmt exprStmtNode) {
-        BLangExpression expr = exprStmtNode.expr;
-        NodeKind kind = expr.getKind();
-        if (kind == NodeKind.WORKER_SYNC_SEND) {
-            return;
-        }
-
-        while (kind == NodeKind.MATCH_EXPRESSION || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
-            if (kind == NodeKind.MATCH_EXPRESSION) {
-                expr = ((BLangMatchExpression) expr).expr;
-            } else if (expr.getKind() == NodeKind.CHECK_EXPR) {
-                expr = ((BLangCheckedExpr) expr).expr;
-            } else if (expr.getKind() == NodeKind.CHECK_PANIC_EXPR) {
-                expr = ((BLangCheckPanickedExpr) expr).expr;
-            }
-            kind = expr.getKind();
-        }
-        // Allowed expression kinds
-        if (kind == NodeKind.INVOCATION || kind == NodeKind.WAIT_EXPR) {
-            return;
-        }
-        // For other expressions, error is logged already.
-        if (expr.getBType() == symTable.nilType) {
-            dlog.error(exprStmtNode.pos, DiagnosticErrorCode.INVALID_EXPR_STATEMENT);
-        }
     }
 
     private boolean isTopLevel(SymbolEnv env) {
