@@ -3995,6 +3995,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OUTER_KEYWORD:
                 return ParserRuleContext.JOIN_KEYWORD;
             case MAP_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION) {
+                    return ParserRuleContext.QUERY_EXPRESSION;
+                }
                 return ParserRuleContext.LT;
             default:
                 throw new IllegalStateException("getNextRuleForKeywords found: " + currentCtx);

@@ -5132,6 +5132,7 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
             case FROM_KEYWORD:
+            case MAP_KEYWORD:
                 return parseTableConstructorOrQuery(isRhsExpr);
             case ERROR_KEYWORD:
                 return parseErrorConstructorExpr(consume());
@@ -10525,6 +10526,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse map-keyword.
+     *
+     * @return map-keyword node
+     */
+    private STNode parseMapKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MAP_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.MAP_KEYWORD);
+            return parseMapKeyword();
+        }
+    }
+
+    /**
      * Parse error-keyword.
      *
      * @return Parsed error-keyword node
@@ -11513,6 +11529,9 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
                 STNode tableKeyword = parseTableKeyword();
                 return parseTableConstructorOrQuery(tableKeyword, isRhsExpr);
+            case MAP_KEYWORD:
+                queryConstructType = parseQueryConstructType(parseMapKeyword(), null);
+                return parseQueryExprRhs(queryConstructType, isRhsExpr);
             default:
                 recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START);
                 return parseTableConstructorOrQueryInternal(isRhsExpr);
