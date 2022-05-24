@@ -17,6 +17,7 @@
  */
 package io.ballerina.shell.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,8 +31,8 @@ public class MetaInfo {
     private final List<String> moduleDclns;
 
     public MetaInfo(List<String> definedVars, List<String> moduleDclns) {
-        this.definedVars = definedVars;
-        this.moduleDclns = moduleDclns;
+        this.definedVars = new ArrayList<>(definedVars);
+        this.moduleDclns = new ArrayList<>(moduleDclns);
     }
 
     public List<String> getDefinedVars() {
