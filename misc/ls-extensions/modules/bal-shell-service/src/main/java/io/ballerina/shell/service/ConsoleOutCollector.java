@@ -35,12 +35,12 @@ public class ConsoleOutCollector extends OutputStream {
     }
 
     @Override
-    public void write(int i) throws IOException {
-        if (i == '\n') {
+    public void write(int characterInt) throws IOException {
+        if (characterInt == '\n') {
             lines.add(buffer.toString());
             buffer = new StringBuilder();
         } else {
-            buffer.append((char) i);
+            buffer.append((char) characterInt);
         }
     }
 
