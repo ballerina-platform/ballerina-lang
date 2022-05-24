@@ -1917,15 +1917,16 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         switch (opKind) {
             case ADD:
                 validNumericOrStringTypeExists = (types.validNumericTypeExists(lhsType) &&
-                        types.validNumericTypeExists(rhsType)) || (types.validStringOrXmlTypeExists(lhsType) &&
-                        types.validStringOrXmlTypeExists(rhsType));
+                                                  types.validNumericTypeExists(rhsType)) ||
+                                                 (types.validStringOrXmlTypeExists(lhsType) &&
+                                                  types.validStringOrXmlTypeExists(rhsType));
                 break;
             case SUB:
             case DIV:
             case MUL:
             case MOD:
                 validNumericOrStringTypeExists = types.validNumericTypeExists(lhsType) &&
-                        types.validNumericTypeExists(rhsType);
+                                                 types.validNumericTypeExists(rhsType);
                 break;
             default:
                 return symTable.notFoundSymbol;
@@ -1946,23 +1947,37 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 compatibleType2 = types.findCompatibleType(rhsType);
             }
 
-            if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2) {
+            if (compatibleType1 != compatibleType2 && types.isBasicNumericType(compatibleType1) && 
+                    !isIntFloatingPointMultiplication(opKind, compatibleType1, compatibleType2)) {
                 return symTable.notFoundSymbol;
             }
-            if (compatibleType1.tag < compatibleType2.tag) {
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
+
+            BType returnType = compatibleType1.tag < compatibleType2.tag ? compatibleType2 : compatibleType1;
+            if (lhsType.isNullable() || rhsType.isNullable()) {
+                returnType = BUnionType.create(null, returnType, symTable.nilType);
             }
-            if (lhsType.isNullable()) {
-                compatibleType1 = BUnionType.create(null, compatibleType1, symTable.nilType);
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
-            }
-            if (rhsType.isNullable()) {
-                compatibleType2 = BUnionType.create(null, compatibleType2, symTable.nilType);
-                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
-            }
-            return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
+
+            return createBinaryOperator(opKind, lhsType, rhsType, returnType);
         }
         return symTable.notFoundSymbol;
+    }
+    
+    private boolean isIntFloatingPointMultiplication(OperatorKind opKind, BType lhsCompatibleType, 
+                                                     BType rhsCompatibleType) {
+        switch (opKind) {
+            case MUL:
+                return lhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(rhsCompatibleType) ||
+                        rhsCompatibleType.tag == TypeTags.INT && isFloatingPointType(lhsCompatibleType);
+            case DIV:
+            case MOD:
+                return isFloatingPointType(lhsCompatibleType) && rhsCompatibleType.tag == TypeTags.INT;
+            default:
+                return false;
+        }
+    }
+    
+    private boolean isFloatingPointType(BType type) {
+        return type.tag == TypeTags.DECIMAL || type.tag == TypeTags.FLOAT;
     }
 
     public BSymbol getUnaryOpsForTypeSets(OperatorKind opKind, BType type) {

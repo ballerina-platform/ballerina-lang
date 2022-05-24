@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -515,9 +516,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         Map<BSymbol, Location> prevUnusedLocalVariables = null;
         Map<BSymbol, InitStatus> prevUninitializedVars = null;
         boolean visitedOCE = false;
-        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null &&
-                        classDef.oceEnvData.capturedClosureEnv.enclEnv != null) {
-            env = classDef.oceEnvData.capturedClosureEnv.enclEnv;
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR) && classDef.oceEnvData.capturedClosureEnv != null) {
+            env = classDef.oceEnvData.capturedClosureEnv;
             prevUnusedLocalVariables = this.unusedLocalVariables;
             prevUninitializedVars = this.uninitializedVars;
             this.unusedLocalVariables = new HashMap<>();
@@ -1452,7 +1452,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol symbol = invocationExpr.symbol;
         this.unusedLocalVariables.remove(symbol);
 
-        if (!isGlobalVarsInitialized(invocationExpr.pos)) {
+        if (isFunctionOrMethodDefinedInCurrentModule(symbol.owner, env) &&
+                !isGlobalVarsInitialized(invocationExpr.pos, invocationExpr)) {
+            checkVarRef(symbol, invocationExpr.pos);
             return;
         }
         if (!isFieldsInitializedForSelfArgument(invocationExpr)) {
@@ -1623,11 +1625,20 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private boolean isGlobalVarsInitialized(Location pos) {
+    private boolean isGlobalVarsInitialized(Location pos, BLangInvocation invocation) {
         if (env.isModuleInit) {
             boolean isFirstUninitializedField = true;
             StringBuilder uninitializedFields = new StringBuilder();
+
+            BLangExpression expr = invocation.expr;
+            boolean methodCallOnVarRef = expr != null && expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF;
+
             for (BSymbol symbol : this.uninitializedVars.keySet()) {
+                if (symbol.owner.getKind() != SymbolKind.PACKAGE || symbol == invocation.symbol ||
+                        (methodCallOnVarRef && ((BLangSimpleVarRef) expr).symbol == symbol)) {
+                    continue;
+                }
+
                 if (isFirstUninitializedField) {
                     uninitializedFields = new StringBuilder(symbol.getName().value);
                     isFirstUninitializedField = false;
@@ -1636,7 +1647,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 }
             }
             if (uninitializedFields.length() != 0) {
-                this.dlog.error(pos, DiagnosticErrorCode.CONTAINS_UNINITIALIZED_VARIABLES,
+                this.dlog.error(pos, DiagnosticErrorCode.INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES,
                         uninitializedFields.toString());
                 return false;
             }
@@ -2634,6 +2645,29 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         OperatorKind opKind = ((BLangBinaryExpr) collection).opKind;
         return opKind != OperatorKind.HALF_OPEN_RANGE && opKind != OperatorKind.CLOSED_RANGE;
+    }
+
+    private boolean isFunctionOrMethodDefinedInCurrentModule(BSymbol owner, SymbolEnv env) {
+        if (Symbols.isFlagOn(owner.flags, Flags.CLASS)) {
+            return owner.owner == getEnclPkgSymbol(env);
+        }
+
+        return owner == getEnclPkgSymbol(env);
+    }
+
+    private BPackageSymbol getEnclPkgSymbol(SymbolEnv env) {
+        BLangPackage enclPkg = env.enclPkg;
+
+        if (enclPkg != null) {
+            return enclPkg.symbol;
+        }
+
+        SymbolEnv enclEnv = env.enclEnv;
+        if (enclEnv == null) {
+            return null;
+        }
+
+        return getEnclPkgSymbol(enclEnv);
     }
 
     private enum InitStatus {

@@ -15,9 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -37,6 +39,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -123,6 +126,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
 
     @Override
     public void sort(BallerinaCompletionContext context, WaitActionNode node, List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> contextType = context.getContextType();
         for (LSCompletionItem lsCompletionItem : completionItems) {
             CompletionItem completionItem = lsCompletionItem.getCompletionItem();
             int rank;
@@ -137,7 +141,14 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                     rank = 1;
                 } else if (symbol.kind() == VARIABLE
                         && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE) {
-                    rank = 2;
+                    Optional<TypeSymbol> typeSymbol 
+                            = ((FutureTypeSymbol) ((VariableSymbol) symbol).typeDescriptor()).typeParameter();
+                    if (typeSymbol.isPresent() && contextType.isPresent() 
+                            && typeSymbol.get().subtypeOf(contextType.get())) {
+                        rank = 1;
+                    } else {
+                        rank = 2;
+                    }
                 } else {
                     rank = SortingUtil.toRank(context, lsCompletionItem, 2);
                 }

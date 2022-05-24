@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.command.docs;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
@@ -121,6 +122,9 @@ public class DocumentationGenerator {
             case MODULE_VAR_DECL: {
                 return Optional.of(generateModuleVarDocumentation((ModuleVariableDeclarationNode) node, syntaxTree));
             }
+            case ANNOTATION_DECLARATION: {
+                return Optional.of(generateAnnotationDocumentation((AnnotationDeclarationNode) node, syntaxTree));
+            }
             default:
                 break;
         }
@@ -140,6 +144,7 @@ public class DocumentationGenerator {
 //                .startLine()).);
 //            }
             case TYPE_DEFINITION:
+            case ANNOTATION_DECLARATION:
             case CLASS_DEFINITION:
                 return semanticModel.symbol(node);
             default:
@@ -205,7 +210,7 @@ public class DocumentationGenerator {
      *
      * @param methodDeclrNode method declaration node
      * @param syntaxTree      syntaxTree {@link SyntaxTree}
-     * @return
+     * @return generated doc attachment
      */
     private static DocAttachmentInfo generateMethodDocumentation(MethodDeclarationNode methodDeclrNode,
                                                                  SyntaxTree syntaxTree) {
@@ -344,6 +349,24 @@ public class DocumentationGenerator {
         //TODO: Handle deprecated parameters
         return new DocAttachmentInfo(desc, parameters, returnDesc, deprecatedDesc, docStart,
                                      getPadding(signatureNode.parent(), syntaxTree));
+    }
+    
+    /**
+     * Generate documentation for annotation declaration node.
+     *
+     * @param annotationDeclarationNode    service declaration node
+     * @param syntaxTree                   syntaxTree {@link SyntaxTree}
+     * @return generated doc attachment
+     */
+    private static DocAttachmentInfo generateAnnotationDocumentation(
+            AnnotationDeclarationNode annotationDeclarationNode, SyntaxTree syntaxTree) {
+        MetadataNode metadata = annotationDeclarationNode.metadata().orElse(null);
+        Position docStart = CommonUtil.toRange(annotationDeclarationNode.lineRange()).getStart();
+        if (metadata != null && !metadata.annotations().isEmpty()) {
+            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+        }
+        String desc = String.format("Description%n");
+        return new DocAttachmentInfo(desc, docStart, getPadding(annotationDeclarationNode, syntaxTree));
     }
 
     private static String getPadding(NonTerminalNode bLangFunction, SyntaxTree syntaxTree) {

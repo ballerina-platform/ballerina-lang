@@ -1,0 +1,37 @@
+{
+  "line": 0,
+  "character": 44,
+  "expected": [
+    {
+      "title": "Extract type",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\ntype Record record {\n    string jobId;\n    json data;\n};\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 27
+            },
+            "end": {
+              "line": 0,
+              "character": 60
+            }
+          },
+          "newText": "Record"
+        }
+      ]
+    }
+  ]
+}

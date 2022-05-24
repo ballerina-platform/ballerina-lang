@@ -1,0 +1,49 @@
+{
+    "position": {
+        "line": 33,
+        "character": 20
+    },
+    "source": "included_record/source1.bal",
+    "expected": {
+        "result": {
+            "signatures": [
+                {
+                    "label": "testFunction1(int arg1, int arg2)",
+                    "parameters": [
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 18,
+                                    "second": 22
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`arg1**"
+                                }
+                            }
+                        },
+                        {
+                            "label": {
+                                "right": {
+                                    "first": 28,
+                                    "second": 32
+                                }
+                            },
+                            "documentation": {
+                                "right": {
+                                    "kind": "markdown",
+                                    "value": "**Parameter**  \n**`int`arg2**"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "activeSignature": 0,
+            "activeParameter": 1
+        },
+        "jsonrpc": "2.0"
+    }
+}

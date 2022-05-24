@@ -62,5 +62,8 @@ function thirdFunc() returns boolean {
 function fourthFunc(ExternalClient exEpP2) returns boolean {
     var temp;
     temp = exEpP2;
+
+    ExternalClient|error exEp10 = new ("http://example.com/2");
+
     return true;
 }

@@ -36,7 +36,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 40);
+        Assert.assertEquals(compileResult.getErrorCount(), 42);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -94,7 +94,9 @@ public class QueryNegativeTests {
                 "table constraint type 'record {| User user; |}'", 474, 24);
         validateError(compileResult, index++, "field name 'firstName' used in key specifier is not found in " +
                 "table constraint type 'record {| User user; |}'", 474, 28);
-        validateError(compileResult, index, "incompatible types: expected 'ScoreEventType', found 'int'", 490, 14);
+        validateError(compileResult, index++, "incompatible types: expected 'ScoreEventType', found 'int'", 490, 14);
+        validateError(compileResult, index++, "unknown type 'UndefinedType'", 494, 1);
+        validateError(compileResult, index, "unknown type 'UndefinedType'", 505, 14);
     }
 
     @Test
