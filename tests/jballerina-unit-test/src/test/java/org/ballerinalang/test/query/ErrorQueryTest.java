@@ -95,18 +95,28 @@ public class ErrorQueryTest {
     }
 
     @Test
-    public void testErrorReturnedFromSelect() {
+    public void testErrorReturnedFromSelectClause() {
         BRunUtil.invoke(result, "testErrorReturnedFromSelect");
     }
 
     @Test
-    public void testErrorReturnedFromWhere() {
-        BRunUtil.invoke(result, "testErrorReturnedFromWhere");
+    public void testErrorReturnedFromWhereClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromWhereClause");
     }
 
     @Test
-    public void testErrorReturnedFromLet() {
-        BRunUtil.invoke(result, "testErrorReturnedFromLet");
+    public void testErrorReturnedFromLetClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLetClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromLimitClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLimitClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromJoiClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromJoiClause");
     }
 
     @AfterClass
