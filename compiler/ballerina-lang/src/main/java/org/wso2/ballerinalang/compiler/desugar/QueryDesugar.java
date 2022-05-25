@@ -452,7 +452,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
         BType constraintType = resultType;
-        BType completionType = symTable.nilType;
+        BType completionType = symTable.errorOrNilType;
         BType refType = Types.getReferredType(resultType);
         if (refType.tag == TypeTags.ARRAY) {
             constraintType = ((BArrayType) refType).eType;
@@ -621,7 +621,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
-        returnNode.setExpression(whereClause.expression);
+        returnNode.expr = desugar.addConversionExprIfRequired(whereClause.expression,
+                lambda.function.returnTypeNode.getBType());
         body.addStatement(returnNode);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
@@ -730,10 +731,11 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangVariableReference addLimitFunction(BLangBlockStmt blockStmt, BLangLimitClause limitClause) {
         Location pos = limitClause.pos;
+        BLangUnionTypeNode returnTypeNode = getIntErrorTypeNode();
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.expr = desugar.addConversionExprIfRequired(limitClause.expression, symTable.intType);
+        returnNode.expr = desugar.addConversionExprIfRequired(limitClause.expression, returnTypeNode.getBType());
         returnNode.pos = pos;
-        BLangLambdaFunction limitFunction = createLambdaFunction(pos, getIntTypeNode(), returnNode, false);
+        BLangLambdaFunction limitFunction = createLambdaFunction(pos, returnTypeNode, returnNode, false);
         limitFunction.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LIMIT_FUNCTION, Lists.of(limitFunction), pos);
     }
@@ -848,8 +850,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return created lambda function.
      */
     private BLangLambdaFunction createFilterLambda(Location pos) {
-        // returns boolean
-        BLangValueType returnType = getBooleanTypeNode();
+        // returns boolean|error
+        BLangUnionTypeNode returnType = getBooleanErrorTypeNode();
         return createLambdaFunction(pos, returnType, null, false);
     }
 
@@ -1126,9 +1128,9 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BLangLambdaFunction createKeyFunction(BLangExpression expr) {
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
-        returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyType);
+        returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyOrErrorType);
         returnNode.pos = expr.pos;
-        BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyTypeNode(), returnNode, false);
+        BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyAndErrorTypeNode(), returnNode, false);
         keyFunction.accept(this);
         return keyFunction;
     }
@@ -1283,6 +1285,26 @@ public class QueryDesugar extends BLangNodeVisitor {
         unionTypeNode.memberTypeNodes.add(getFrameTypeNode());
         unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
         unionTypeNode.memberTypeNodes.add(getNilTypeNode());
+        unionTypeNode.desugared = true;
+        return unionTypeNode;
+    }
+
+    private BLangUnionTypeNode getBooleanErrorTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.errorType, symTable.booleanType);
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.setBType(unionType);
+        unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
+        unionTypeNode.memberTypeNodes.add(getBooleanTypeNode());
+        unionTypeNode.desugared = true;
+        return unionTypeNode;
+    }
+
+    private BLangUnionTypeNode getIntErrorTypeNode() {
+        BUnionType unionType = BUnionType.create(null, symTable.errorType, symTable.intType);
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.setBType(unionType);
+        unionTypeNode.memberTypeNodes.add(getErrorTypeNode());
+        unionTypeNode.memberTypeNodes.add(getIntTypeNode());
         unionTypeNode.desugared = true;
         return unionTypeNode;
     }
