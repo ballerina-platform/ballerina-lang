@@ -42,12 +42,11 @@ public class BallerinaSingletonTypeSymbol extends AbstractTypeSymbol implements 
     public BallerinaSingletonTypeSymbol(CompilerContext context, BLangLiteral shape, BType bType) {
         super(context, TypeDescKind.SINGLETON, bType);
 
-        // Special case handling for `()` since in BLangLiteral, `null` is used to represent nil.
-        if (shape.value == null
-                && shape.getBType().tag == TypeTags.NIL) {
-            this.typeName = "()";
-        } else if (shape.toString() == null) {
+        if (shape.value == null && shape.originalValue == null) {
             this.typeName = "";
+        // Special case handling for `()` since in BLangLiteral, `null` is used to represent nil.
+        } else if (shape.getBType().tag == TypeTags.NIL) {
+            this.typeName = "()";
         // Special case handling for string type.
         } else if (shape.getBType().tag == TypeTags.STRING) {
             this.typeName = "\"" + shape + "\"";
