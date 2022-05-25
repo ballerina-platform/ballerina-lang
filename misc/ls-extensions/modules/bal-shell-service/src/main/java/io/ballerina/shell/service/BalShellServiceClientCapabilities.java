@@ -23,51 +23,50 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
  * @since 2201.1.1
  */
 public class BalShellServiceClientCapabilities extends BallerinaClientCapability {
-
-    private boolean getResult;
-    private boolean getShellFileSource;
-    private boolean getVariableValues;
-    private boolean deleteDefined;
-    private boolean restartNotebook;
+    private boolean isGetResult;
+    private boolean isGetShellFileSource;
+    private boolean isGetVariableValues;
+    private boolean isDeleteDeclarations;
+    private boolean isRestartNotebook;
 
     public boolean isGetResult() {
-        return getResult;
+        return isGetResult;
     }
 
     public void setGetResult(boolean getResult) {
-        this.getResult = getResult;
-    }
-
-    public void setGetShellFileSource(boolean getShellFileSource) {
-        this.getShellFileSource = getShellFileSource;
+        isGetResult = getResult;
     }
 
     public boolean isGetShellFileSource() {
-        return getShellFileSource;
+        return isGetShellFileSource;
     }
 
-    public void setGetVariableValues(boolean getVariableValues) {
-        this.getVariableValues = getVariableValues;
+    public void setGetShellFileSource(boolean getShellFileSource) {
+        isGetShellFileSource = getShellFileSource;
     }
 
     public boolean isGetVariableValues() {
-        return getVariableValues;
+        return isGetVariableValues;
     }
 
-    public void setDeleteDefined(boolean deleteDefined) {
-        this.deleteDefined = deleteDefined;
+    public void setGetVariableValues(boolean getVariableValues) {
+        isGetVariableValues = getVariableValues;
     }
 
-    public boolean isDeleteDefined() {
-        return deleteDefined;
+    public boolean isDeleteDeclarations() {
+        return isDeleteDeclarations;
     }
 
-    public void setRestartNotebook(boolean restartNotebook) {
-        this.restartNotebook = restartNotebook;
+    public void setDeleteDeclarations(boolean deleteDeclarations) {
+        isDeleteDeclarations = deleteDeclarations;
     }
 
     public boolean isRestartNotebook() {
-        return restartNotebook;
+        return isRestartNotebook;
+    }
+
+    public void setRestartNotebook(boolean restartNotebook) {
+        isRestartNotebook = restartNotebook;
     }
 
     public BalShellServiceClientCapabilities() {
