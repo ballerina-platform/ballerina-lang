@@ -173,11 +173,11 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             newObjectFields.put(entry.getKey(), newField);
         }
 
-        // Attachments
+        // Attached functions
         List<BAttachedFunction> newAttachedFuncs = new ArrayList<>();
         for (BAttachedFunction attachedFunc : objectTypeSymbol.attachedFuncs) {
             BType newType = resolve(attachedFunc.type, boundType);
-            BInvokableSymbol newInvokableSymbol = createInvokableSymbol(attachedFunc.symbol, newType, boundType);
+            BInvokableSymbol newInvokableSymbol = resolveInvokableSymbol(attachedFunc.symbol, newType, boundType);
             BAttachedFunction newAttachedFunc = new BAttachedFunction(attachedFunc.funcName, newInvokableSymbol,
                                                     (BInvokableType) newType, attachedFunc.pos);
             newAttachedFuncs.add(newAttachedFunc);
@@ -196,9 +196,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BRecordType typeInSymbol, BType boundType) {
-
         LinkedHashMap<String, BField> newRecordFields = new LinkedHashMap<>();
-
         Set<Map.Entry<String, BField>> entries = typeInSymbol.fields.entrySet();
         for (Map.Entry<String, BField> entry: entries) {
             BType newType = resolve(entry.getValue().type, boundType);
@@ -212,7 +210,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
         newRecordType.fields = newRecordFields;
         newRecordType.restFieldType = newRestType;
-
         return newRecordType;
     }
 
@@ -343,20 +340,21 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         return duplicateSymbol;
     }
 
-    private BInvokableSymbol createInvokableSymbol(BInvokableSymbol symbol, BType newInvokableType, BType boundType) {
-        BInvokableSymbol newInvokableSymbol = new BInvokableSymbol(symbol.tag, symbol.flags, symbol.name,
-                symbol.originalName, symbol.pkgID, newInvokableType,
-                symbol.owner, symbol.pos, symbol.origin);
+    private BInvokableSymbol resolveInvokableSymbol(BInvokableSymbol symbol, BType newInvokableType, BType boundType) {
+        BInvokableSymbol newInvokableSymbol = duplicateSymbol(symbol);
+        newInvokableSymbol.type = newInvokableType;
 
         for (BVarSymbol param : symbol.params) {
             BType newParamType = resolve(param.type, boundType);
             BVarSymbol newVarSymbol = createNewVarSymbol(param, newParamType);
             newInvokableSymbol.params.add(newVarSymbol);
         }
+
         if (symbol.restParam != null) {
             BType newReturnType = resolve(symbol.restParam.type, boundType);
             newInvokableSymbol.restParam = createNewVarSymbol(symbol.restParam, newReturnType);
         }
+
         newInvokableSymbol.retType = resolve(symbol.retType, boundType);
         return newInvokableSymbol;
     }
