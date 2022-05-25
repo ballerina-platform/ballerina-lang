@@ -223,7 +223,7 @@ public enum ParserRuleContext {
     TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
     TUPLE_TYPE_MEMBER_RHS("tuple-type-member-rhs"),
     NIL_OR_PARENTHESISED_TYPE_DESC_RHS("nil-or-parenthesised-tpe-desc-rhs"),
-    REMOTE_CALL_OR_ASYNC_SEND_RHS("remote-call-or-async-send-rhs"),
+    REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS("remote-or-resource-call-or-async-send-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),
     DEFAULT_WORKER_NAME_IN_ASYNC_SEND("default-worker-name-in-async-send"),
     RECEIVE_WORKERS("receive-workers"),
@@ -350,6 +350,11 @@ public enum ParserRuleContext {
     MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
     MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
     FUNC_DEF_OR_TYPE_DESC_RHS("func-def-or-type-desc-rhs"),
+    RESOURCE_METHOD_CALL_ACTION_RHS("resource-method-call-action-rhs"),
+    RESOURCE_ACCESS_PATH_SEGMENT("resource-access-path-segment"),
+    RESOURCE_ACCESS_SEGMENT_END("resource-access-segment-end"),
+    RESOURCE_ACCESS_PATH_RHS("resource-access-path-rhs"),
+    RESOURCE_METHOD_CALL_ARG_LIST("resource-method-call-arg-list"),
 
     // Statements
     STATEMENT("statement"),

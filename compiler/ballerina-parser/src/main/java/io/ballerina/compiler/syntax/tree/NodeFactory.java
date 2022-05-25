@@ -3174,18 +3174,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ResourceMethodCallActionNode createResourceMethodCallActionNode(
             ExpressionNode expression,
-            Token resourceMethodCallToken,
+            Token rightArrowToken,
+            Token slashToken,
             NodeList<Node> resourceAccessPath,
             Token dotToken,
             SimpleNameReferenceNode methodName,
             ParenthesizedArgList arguments) {
         Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(resourceMethodCallToken, "resourceMethodCallToken must not be null");
+        Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+        Objects.requireNonNull(slashToken, "slashToken must not be null");
         Objects.requireNonNull(resourceAccessPath, "resourceAccessPath must not be null");
 
         STNode stResourceMethodCallActionNode = STNodeFactory.createResourceMethodCallActionNode(
                 expression.internalNode(),
-                resourceMethodCallToken.internalNode(),
+                rightArrowToken.internalNode(),
+                slashToken.internalNode(),
                 resourceAccessPath.underlyingListNode().internalNode(),
                 getOptionalSTNode(dotToken),
                 getOptionalSTNode(methodName),

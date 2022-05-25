@@ -2581,14 +2581,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STResourceMethodCallActionNode transform(
             STResourceMethodCallActionNode resourceMethodCallActionNode) {
         STNode expression = modifyNode(resourceMethodCallActionNode.expression);
-        STNode resourceMethodCallToken = modifyNode(resourceMethodCallActionNode.resourceMethodCallToken);
+        STNode rightArrowToken = modifyNode(resourceMethodCallActionNode.rightArrowToken);
+        STNode slashToken = modifyNode(resourceMethodCallActionNode.slashToken);
         STNode resourceAccessPath = modifyNode(resourceMethodCallActionNode.resourceAccessPath);
         STNode dotToken = modifyNode(resourceMethodCallActionNode.dotToken);
         STNode methodName = modifyNode(resourceMethodCallActionNode.methodName);
         STNode arguments = modifyNode(resourceMethodCallActionNode.arguments);
         return resourceMethodCallActionNode.modify(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,

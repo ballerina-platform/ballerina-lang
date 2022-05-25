@@ -32,7 +32,8 @@ import java.util.Collections;
  */
 public class STResourceMethodCallActionNode extends STActionNode {
     public final STNode expression;
-    public final STNode resourceMethodCallToken;
+    public final STNode rightArrowToken;
+    public final STNode slashToken;
     public final STNode resourceAccessPath;
     public final STNode dotToken;
     public final STNode methodName;
@@ -40,14 +41,16 @@ public class STResourceMethodCallActionNode extends STActionNode {
 
     STResourceMethodCallActionNode(
             STNode expression,
-            STNode resourceMethodCallToken,
+            STNode rightArrowToken,
+            STNode slashToken,
             STNode resourceAccessPath,
             STNode dotToken,
             STNode methodName,
             STNode arguments) {
         this(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,
@@ -57,7 +60,8 @@ public class STResourceMethodCallActionNode extends STActionNode {
 
     STResourceMethodCallActionNode(
             STNode expression,
-            STNode resourceMethodCallToken,
+            STNode rightArrowToken,
+            STNode slashToken,
             STNode resourceAccessPath,
             STNode dotToken,
             STNode methodName,
@@ -65,7 +69,8 @@ public class STResourceMethodCallActionNode extends STActionNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RESOURCE_METHOD_CALL_ACTION, diagnostics);
         this.expression = expression;
-        this.resourceMethodCallToken = resourceMethodCallToken;
+        this.rightArrowToken = rightArrowToken;
+        this.slashToken = slashToken;
         this.resourceAccessPath = resourceAccessPath;
         this.dotToken = dotToken;
         this.methodName = methodName;
@@ -73,7 +78,8 @@ public class STResourceMethodCallActionNode extends STActionNode {
 
         addChildren(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,
@@ -83,7 +89,8 @@ public class STResourceMethodCallActionNode extends STActionNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STResourceMethodCallActionNode(
                 this.expression,
-                this.resourceMethodCallToken,
+                this.rightArrowToken,
+                this.slashToken,
                 this.resourceAccessPath,
                 this.dotToken,
                 this.methodName,
@@ -93,14 +100,16 @@ public class STResourceMethodCallActionNode extends STActionNode {
 
     public STResourceMethodCallActionNode modify(
             STNode expression,
-            STNode resourceMethodCallToken,
+            STNode rightArrowToken,
+            STNode slashToken,
             STNode resourceAccessPath,
             STNode dotToken,
             STNode methodName,
             STNode arguments) {
         if (checkForReferenceEquality(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,
@@ -110,7 +119,8 @@ public class STResourceMethodCallActionNode extends STActionNode {
 
         return new STResourceMethodCallActionNode(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,

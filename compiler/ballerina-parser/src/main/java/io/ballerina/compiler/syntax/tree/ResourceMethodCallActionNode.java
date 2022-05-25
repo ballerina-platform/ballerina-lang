@@ -37,24 +37,28 @@ public class ResourceMethodCallActionNode extends ActionNode {
         return childInBucket(0);
     }
 
-    public Token resourceMethodCallToken() {
+    public Token rightArrowToken() {
         return childInBucket(1);
     }
 
+    public Token slashToken() {
+        return childInBucket(2);
+    }
+
     public NodeList<Node> resourceAccessPath() {
-        return new NodeList<>(childInBucket(2));
+        return new NodeList<>(childInBucket(3));
     }
 
     public Optional<Token> dotToken() {
-        return optionalChildInBucket(3);
-    }
-
-    public Optional<SimpleNameReferenceNode> methodName() {
         return optionalChildInBucket(4);
     }
 
-    public Optional<ParenthesizedArgList> arguments() {
+    public Optional<SimpleNameReferenceNode> methodName() {
         return optionalChildInBucket(5);
+    }
+
+    public Optional<ParenthesizedArgList> arguments() {
+        return optionalChildInBucket(6);
     }
 
     @Override
@@ -71,7 +75,8 @@ public class ResourceMethodCallActionNode extends ActionNode {
     protected String[] childNames() {
         return new String[]{
                 "expression",
-                "resourceMethodCallToken",
+                "rightArrowToken",
+                "slashToken",
                 "resourceAccessPath",
                 "dotToken",
                 "methodName",
@@ -80,14 +85,16 @@ public class ResourceMethodCallActionNode extends ActionNode {
 
     public ResourceMethodCallActionNode modify(
             ExpressionNode expression,
-            Token resourceMethodCallToken,
+            Token rightArrowToken,
+            Token slashToken,
             NodeList<Node> resourceAccessPath,
             Token dotToken,
             SimpleNameReferenceNode methodName,
             ParenthesizedArgList arguments) {
         if (checkForReferenceEquality(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath.underlyingListNode(),
                 dotToken,
                 methodName,
@@ -97,7 +104,8 @@ public class ResourceMethodCallActionNode extends ActionNode {
 
         return NodeFactory.createResourceMethodCallActionNode(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,
@@ -116,7 +124,8 @@ public class ResourceMethodCallActionNode extends ActionNode {
     public static class ResourceMethodCallActionNodeModifier {
         private final ResourceMethodCallActionNode oldNode;
         private ExpressionNode expression;
-        private Token resourceMethodCallToken;
+        private Token rightArrowToken;
+        private Token slashToken;
         private NodeList<Node> resourceAccessPath;
         private Token dotToken;
         private SimpleNameReferenceNode methodName;
@@ -125,7 +134,8 @@ public class ResourceMethodCallActionNode extends ActionNode {
         public ResourceMethodCallActionNodeModifier(ResourceMethodCallActionNode oldNode) {
             this.oldNode = oldNode;
             this.expression = oldNode.expression();
-            this.resourceMethodCallToken = oldNode.resourceMethodCallToken();
+            this.rightArrowToken = oldNode.rightArrowToken();
+            this.slashToken = oldNode.slashToken();
             this.resourceAccessPath = oldNode.resourceAccessPath();
             this.dotToken = oldNode.dotToken().orElse(null);
             this.methodName = oldNode.methodName().orElse(null);
@@ -139,10 +149,17 @@ public class ResourceMethodCallActionNode extends ActionNode {
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withResourceMethodCallToken(
-                Token resourceMethodCallToken) {
-            Objects.requireNonNull(resourceMethodCallToken, "resourceMethodCallToken must not be null");
-            this.resourceMethodCallToken = resourceMethodCallToken;
+        public ResourceMethodCallActionNodeModifier withRightArrowToken(
+                Token rightArrowToken) {
+            Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+            this.rightArrowToken = rightArrowToken;
+            return this;
+        }
+
+        public ResourceMethodCallActionNodeModifier withSlashToken(
+                Token slashToken) {
+            Objects.requireNonNull(slashToken, "slashToken must not be null");
+            this.slashToken = slashToken;
             return this;
         }
 
@@ -174,7 +191,8 @@ public class ResourceMethodCallActionNode extends ActionNode {
         public ResourceMethodCallActionNode apply() {
             return oldNode.modify(
                     expression,
-                    resourceMethodCallToken,
+                    rightArrowToken,
+                    slashToken,
                     resourceAccessPath,
                     dotToken,
                     methodName,

@@ -345,7 +345,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_BINDING_PATTERN("BCE0677", "error.invalid.binding.pattern"),
     ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH("BCE0678", "error.resource.path.cannot.begin.with.slash"),
     REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE0679",
-            "error.rest.parameter.cannot.be.included.record.parameter")
+            "error.rest.parameter.cannot.be.included.record.parameter"),
+    RESOURCE_ACCESS_ASEMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680", 
+            "error.resource.access.segment.is.not.allowed.after.rest.segment");
     ;
 
     String diagnosticId;

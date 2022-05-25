@@ -3260,8 +3260,10 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ResourceMethodCallActionNode resourceMethodCallActionNode) {
         ExpressionNode expression =
                 modifyNode(resourceMethodCallActionNode.expression());
-        Token resourceMethodCallToken =
-                modifyToken(resourceMethodCallActionNode.resourceMethodCallToken());
+        Token rightArrowToken =
+                modifyToken(resourceMethodCallActionNode.rightArrowToken());
+        Token slashToken =
+                modifyToken(resourceMethodCallActionNode.slashToken());
         NodeList<Node> resourceAccessPath =
                 modifyNodeList(resourceMethodCallActionNode.resourceAccessPath());
         Token dotToken =
@@ -3272,7 +3274,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(resourceMethodCallActionNode.arguments().orElse(null));
         return resourceMethodCallActionNode.modify(
                 expression,
-                resourceMethodCallToken,
+                rightArrowToken,
+                slashToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,

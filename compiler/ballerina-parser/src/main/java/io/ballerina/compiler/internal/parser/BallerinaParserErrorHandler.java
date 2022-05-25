@@ -1433,7 +1433,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TUPLE_TYPE_MEMBER_RHS:
             case LIST_CONSTRUCTOR_MEMBER_END:
             case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
-            case REMOTE_CALL_OR_ASYNC_SEND_RHS:
+            case REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS:
             case REMOTE_CALL_OR_ASYNC_SEND_END:
             case RECEIVE_WORKERS:
             case RECEIVE_FIELD:
@@ -1771,7 +1771,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.CLOSE_BRACKET;
             case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
                 return ParserRuleContext.CLOSE_PARENTHESIS;
-            case REMOTE_CALL_OR_ASYNC_SEND_RHS:
+            case REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS:
                 return ParserRuleContext.WORKER_NAME_OR_METHOD_NAME;
             case REMOTE_CALL_OR_ASYNC_SEND_END:
                 return ParserRuleContext.SEMICOLON;
@@ -2460,7 +2460,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
                 alternativeRules = NIL_OR_PARENTHESISED_TYPE_DESC_RHS;
                 break;
-            case REMOTE_CALL_OR_ASYNC_SEND_RHS:
+            case REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS:
                 alternativeRules = REMOTE_CALL_OR_ASYNC_SEND_RHS;
                 break;
             case REMOTE_CALL_OR_ASYNC_SEND_END:

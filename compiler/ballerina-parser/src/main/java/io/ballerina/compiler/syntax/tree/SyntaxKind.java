@@ -197,7 +197,6 @@ public enum SyntaxKind {
     TRIPPLE_GT_TOKEN(590, ">>>"),
     XML_CDATA_START_TOKEN(591, "<![CDATA["),
     XML_CDATA_END_TOKEN(592, "]]>"),
-    RESOURCE_METHOD_CALL_TOKEN(593, "->/"),
 
     // Documentation reference types
     TYPE_DOC_REFERENCE_TOKEN(900, "type"),

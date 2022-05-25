@@ -4382,7 +4382,11 @@
           "type": "ExpressionNode"
         },
         {
-          "name": "resourceMethodCallToken",
+          "name": "rightArrowToken",
+          "type": "Token"
+        },
+        {
+          "name": "slashToken",
           "type": "Token"
         },
         {
