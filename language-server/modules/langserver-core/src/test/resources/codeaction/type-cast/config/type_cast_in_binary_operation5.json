@@ -1,19 +1,19 @@
 {
-  "line": 91,
-  "character": 41,
+  "line": 8,
+  "character": 15,
   "expected": [
     {
-      "title": "Add type cast",
+      "title": "Add type cast to 'i1'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 91,
-              "character": 38
+              "line": 8,
+              "character": 13
             },
             "end": {
-              "line": 91,
-              "character": 38
+              "line": 8,
+              "character": 13
             }
           },
           "newText": "<decimal>"

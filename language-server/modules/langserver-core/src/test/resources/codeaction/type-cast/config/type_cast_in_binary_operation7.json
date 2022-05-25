@@ -1,22 +1,22 @@
 {
-  "line": 129,
+  "line": 15,
   "character": 25,
   "expected": [
     {
-      "title": "Add type cast",
+      "title": "Add type cast to 'f1'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 129,
-              "character": 24
+              "line": 15,
+              "character": 21
             },
             "end": {
-              "line": 129,
-              "character": 24
+              "line": 15,
+              "character": 21
             }
           },
-          "newText": "<future<string>>"
+          "newText": "<decimal>"
         }
       ]
     }

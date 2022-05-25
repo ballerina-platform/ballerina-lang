@@ -1,22 +1,22 @@
 {
-  "line": 64,
+  "line": 4,
   "character": 15,
   "expected": [
     {
-      "title": "Add type cast",
+      "title": "Add type cast to 'd1'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 64,
-              "character": 15
+              "line": 4,
+              "character": 16
             },
             "end": {
-              "line": 64,
-              "character": 15
+              "line": 4,
+              "character": 16
             }
           },
-          "newText": "<string>"
+          "newText": "<float>"
         }
       ]
     }

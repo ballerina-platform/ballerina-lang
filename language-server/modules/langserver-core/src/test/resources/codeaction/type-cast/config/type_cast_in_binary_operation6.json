@@ -1,19 +1,19 @@
 {
-  "line": 84,
-  "character": 74,
+  "line": 11,
+  "character": 15,
   "expected": [
     {
-      "title": "Add type cast",
+      "title": "Add type cast to 'f1'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 84,
-              "character": 72
+              "line": 11,
+              "character": 17
             },
             "end": {
-              "line": 84,
-              "character": 72
+              "line": 11,
+              "character": 17
             }
           },
           "newText": "<int>"
