@@ -432,6 +432,8 @@ function testErrorReturnedFromJoinClause() {
     assertTrue(checkErrorAtOnEqualLHS() is error);
     assertTrue(checkErrorAtOnEqualRHS() is error);
     assertTrue(checkErrorAtOuterJoin() is error);
+    assertTrue(checkErrorAtOuterJoinOnEqualLHS() is error);
+    assertTrue(checkErrorAtOuterJoinOnEqualRHS() is error);
 }
 
 function checkErrorAtJoinClause() returns error? {
@@ -461,6 +463,20 @@ function checkErrorAtOuterJoin() returns error? {
         outer join int j in (from int jj in 1 ... 3
             select check verifyCheck(jj))
         on i equals j
+        select i;
+}
+
+function checkErrorAtOuterJoinOnEqualLHS() returns error? {
+    _ = from int i in 1 ... 3
+        outer join int j in 1 ... 3
+        on check verifyCheck(i) equals j
+        select i;
+}
+
+function checkErrorAtOuterJoinOnEqualRHS() returns error? {
+    _ = from int i in 1 ... 3
+        outer join int j in 1 ... 3
+        on i equals check verifyCheck(j)
         select i;
 }
 
