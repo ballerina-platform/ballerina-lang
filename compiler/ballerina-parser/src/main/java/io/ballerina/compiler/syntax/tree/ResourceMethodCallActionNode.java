@@ -53,16 +53,8 @@ public class ResourceMethodCallActionNode extends ActionNode {
         return optionalChildInBucket(4);
     }
 
-    public Optional<Token> openParenToken() {
+    public Optional<ParenthesizedArgList> arguments() {
         return optionalChildInBucket(5);
-    }
-
-    public SeparatedNodeList<FunctionArgumentNode> arguments() {
-        return new SeparatedNodeList<>(childInBucket(6));
-    }
-
-    public Optional<Token> closeParenToken() {
-        return optionalChildInBucket(7);
     }
 
     @Override
@@ -83,9 +75,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
                 "resourceAccessPath",
                 "dotToken",
                 "methodName",
-                "openParenToken",
-                "arguments",
-                "closeParenToken"};
+                "arguments"};
     }
 
     public ResourceMethodCallActionNode modify(
@@ -94,18 +84,14 @@ public class ResourceMethodCallActionNode extends ActionNode {
             NodeList<Node> resourceAccessPath,
             Token dotToken,
             SimpleNameReferenceNode methodName,
-            Token openParenToken,
-            SeparatedNodeList<FunctionArgumentNode> arguments,
-            Token closeParenToken) {
+            ParenthesizedArgList arguments) {
         if (checkForReferenceEquality(
                 expression,
                 resourceMethodCallToken,
                 resourceAccessPath.underlyingListNode(),
                 dotToken,
                 methodName,
-                openParenToken,
-                arguments.underlyingListNode(),
-                closeParenToken)) {
+                arguments)) {
             return this;
         }
 
@@ -115,9 +101,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
                 resourceAccessPath,
                 dotToken,
                 methodName,
-                openParenToken,
-                arguments,
-                closeParenToken);
+                arguments);
     }
 
     public ResourceMethodCallActionNodeModifier modify() {
@@ -136,9 +120,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
         private NodeList<Node> resourceAccessPath;
         private Token dotToken;
         private SimpleNameReferenceNode methodName;
-        private Token openParenToken;
-        private SeparatedNodeList<FunctionArgumentNode> arguments;
-        private Token closeParenToken;
+        private ParenthesizedArgList arguments;
 
         public ResourceMethodCallActionNodeModifier(ResourceMethodCallActionNode oldNode) {
             this.oldNode = oldNode;
@@ -147,9 +129,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
             this.resourceAccessPath = oldNode.resourceAccessPath();
             this.dotToken = oldNode.dotToken().orElse(null);
             this.methodName = oldNode.methodName().orElse(null);
-            this.openParenToken = oldNode.openParenToken().orElse(null);
-            this.arguments = oldNode.arguments();
-            this.closeParenToken = oldNode.closeParenToken().orElse(null);
+            this.arguments = oldNode.arguments().orElse(null);
         }
 
         public ResourceMethodCallActionNodeModifier withExpression(
@@ -185,22 +165,9 @@ public class ResourceMethodCallActionNode extends ActionNode {
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withOpenParenToken(
-                Token openParenToken) {
-            this.openParenToken = openParenToken;
-            return this;
-        }
-
         public ResourceMethodCallActionNodeModifier withArguments(
-                SeparatedNodeList<FunctionArgumentNode> arguments) {
-            Objects.requireNonNull(arguments, "arguments must not be null");
+                ParenthesizedArgList arguments) {
             this.arguments = arguments;
-            return this;
-        }
-
-        public ResourceMethodCallActionNodeModifier withCloseParenToken(
-                Token closeParenToken) {
-            this.closeParenToken = closeParenToken;
             return this;
         }
 
@@ -211,9 +178,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
                     resourceAccessPath,
                     dotToken,
                     methodName,
-                    openParenToken,
-                    arguments,
-                    closeParenToken);
+                    arguments);
         }
     }
 }

@@ -4401,18 +4401,8 @@
                     "isOptional": true
                 },
                 {
-                    "name": "openParenToken",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "arguments",
-                    "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "closeParenToken",
-                    "type": "Token",
+                    "type": "ParenthesizedArgList",
                     "isOptional": true
                 }
             ]

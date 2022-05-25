@@ -3178,13 +3178,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Node> resourceAccessPath,
             Token dotToken,
             SimpleNameReferenceNode methodName,
-            Token openParenToken,
-            SeparatedNodeList<FunctionArgumentNode> arguments,
-            Token closeParenToken) {
+            ParenthesizedArgList arguments) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(resourceMethodCallToken, "resourceMethodCallToken must not be null");
         Objects.requireNonNull(resourceAccessPath, "resourceAccessPath must not be null");
-        Objects.requireNonNull(arguments, "arguments must not be null");
 
         STNode stResourceMethodCallActionNode = STNodeFactory.createResourceMethodCallActionNode(
                 expression.internalNode(),
@@ -3192,9 +3189,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 resourceAccessPath.underlyingListNode().internalNode(),
                 getOptionalSTNode(dotToken),
                 getOptionalSTNode(methodName),
-                getOptionalSTNode(openParenToken),
-                arguments.underlyingListNode().internalNode(),
-                getOptionalSTNode(closeParenToken));
+                getOptionalSTNode(arguments));
         return stResourceMethodCallActionNode.createUnlinkedFacade();
     }
 

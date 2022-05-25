@@ -3268,21 +3268,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(resourceMethodCallActionNode.dotToken().orElse(null));
         SimpleNameReferenceNode methodName =
                 modifyNode(resourceMethodCallActionNode.methodName().orElse(null));
-        Token openParenToken =
-                modifyToken(resourceMethodCallActionNode.openParenToken().orElse(null));
-        SeparatedNodeList<FunctionArgumentNode> arguments =
-                modifySeparatedNodeList(resourceMethodCallActionNode.arguments());
-        Token closeParenToken =
-                modifyToken(resourceMethodCallActionNode.closeParenToken().orElse(null));
+        ParenthesizedArgList arguments =
+                modifyNode(resourceMethodCallActionNode.arguments().orElse(null));
         return resourceMethodCallActionNode.modify(
                 expression,
                 resourceMethodCallToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,
-                openParenToken,
-                arguments,
-                closeParenToken);
+                arguments);
     }
 
     @Override

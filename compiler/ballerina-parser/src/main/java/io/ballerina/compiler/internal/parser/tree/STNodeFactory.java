@@ -2408,9 +2408,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode resourceAccessPath,
             STNode dotToken,
             STNode methodName,
-            STNode openParenToken,
-            STNode arguments,
-            STNode closeParenToken) {
+            STNode arguments) {
 
         return new STResourceMethodCallActionNode(
                 expression,
@@ -2418,9 +2416,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 resourceAccessPath,
                 dotToken,
                 methodName,
-                openParenToken,
-                arguments,
-                closeParenToken);
+                arguments);
     }
 
     public static STNode createComputedResourceAccessSegmentNode(

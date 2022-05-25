@@ -36,9 +36,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
     public final STNode resourceAccessPath;
     public final STNode dotToken;
     public final STNode methodName;
-    public final STNode openParenToken;
     public final STNode arguments;
-    public final STNode closeParenToken;
 
     STResourceMethodCallActionNode(
             STNode expression,
@@ -46,18 +44,14 @@ public class STResourceMethodCallActionNode extends STActionNode {
             STNode resourceAccessPath,
             STNode dotToken,
             STNode methodName,
-            STNode openParenToken,
-            STNode arguments,
-            STNode closeParenToken) {
+            STNode arguments) {
         this(
                 expression,
                 resourceMethodCallToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,
-                openParenToken,
                 arguments,
-                closeParenToken,
                 Collections.emptyList());
     }
 
@@ -67,9 +61,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
             STNode resourceAccessPath,
             STNode dotToken,
             STNode methodName,
-            STNode openParenToken,
             STNode arguments,
-            STNode closeParenToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RESOURCE_METHOD_CALL_ACTION, diagnostics);
         this.expression = expression;
@@ -77,9 +69,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
         this.resourceAccessPath = resourceAccessPath;
         this.dotToken = dotToken;
         this.methodName = methodName;
-        this.openParenToken = openParenToken;
         this.arguments = arguments;
-        this.closeParenToken = closeParenToken;
 
         addChildren(
                 expression,
@@ -87,9 +77,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
                 resourceAccessPath,
                 dotToken,
                 methodName,
-                openParenToken,
-                arguments,
-                closeParenToken);
+                arguments);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -99,9 +87,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
                 this.resourceAccessPath,
                 this.dotToken,
                 this.methodName,
-                this.openParenToken,
                 this.arguments,
-                this.closeParenToken,
                 diagnostics);
     }
 
@@ -111,18 +97,14 @@ public class STResourceMethodCallActionNode extends STActionNode {
             STNode resourceAccessPath,
             STNode dotToken,
             STNode methodName,
-            STNode openParenToken,
-            STNode arguments,
-            STNode closeParenToken) {
+            STNode arguments) {
         if (checkForReferenceEquality(
                 expression,
                 resourceMethodCallToken,
                 resourceAccessPath,
                 dotToken,
                 methodName,
-                openParenToken,
-                arguments,
-                closeParenToken)) {
+                arguments)) {
             return this;
         }
 
@@ -132,9 +114,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
                 resourceAccessPath,
                 dotToken,
                 methodName,
-                openParenToken,
                 arguments,
-                closeParenToken,
                 diagnostics);
     }
 
