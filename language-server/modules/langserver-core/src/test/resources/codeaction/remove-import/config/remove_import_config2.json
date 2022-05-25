@@ -1,0 +1,42 @@
+{
+  "line": 1,
+  "character": 20,
+  "expected": [
+    {
+      "title": "Optimize all imports",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "title": "Remove import 'ballerina/module1'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

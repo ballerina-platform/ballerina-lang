@@ -1,0 +1,42 @@
+{
+  "line": 1,
+  "character": 30,
+  "expected": [
+    {
+      "title": "Optimize all imports",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText":""
+        }
+      ]
+    },
+    {
+      "title": "Remove import 'mod'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}
