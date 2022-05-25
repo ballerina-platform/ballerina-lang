@@ -123,25 +123,32 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_in_named_arg_context2.json", "create_function_in_named_arg_context2.bal"},
                 {"create_function_in_named_arg_context3.json", "create_function_in_named_arg_context3.bal"},
                 {"create_function_in_named_arg_context4.json", "create_function_in_named_arg_context4.bal"},
-                
+
                 // Error constructor
                 {"create_function_in_error_constructor1.json", "create_function_in_error_constructor1.bal"},
                 {"create_function_in_error_constructor2.json", "create_function_in_error_constructor2.bal"},
                 {"create_function_in_error_constructor3.json", "create_function_in_error_constructor3.bal"},
-                
+
                 // Variable Declaration
                 {"create_function_in_var_decl1.json", "create_function_in_var_decl1.bal"},
                 {"create_function_in_var_decl2.json", "create_function_in_var_decl2.bal"},
                 {"create_function_in_var_decl3.json", "create_function_in_var_decl3.bal"},
                 // TODO Blocked by #34448
                 // {"create_function_in_var_decl14.json", "create_function_in_var_decl4.bal"}
-                
+
                 {"create_function_which_returns_error1.json", "create_function_which_returns_error1.bal"},
                 {"create_function_in_fail1.json", "create_function_in_fail1.bal"},
                 {"create_function_in_return1.json", "create_function_in_return1.bal"},
                 
                 // Named Args
                 {"create_function_with_named_args1.json", "create_function_with_named_args1.bal"},
+
+                {"createUndefinedFunctionInConditionalExpression1.json", 
+                        "createUndefinedFunctionInConditionalExpression.bal"},
+                {"createUndefinedFunctionInConditionalExpression2.json", 
+                        "createUndefinedFunctionInConditionalExpression.bal"},
+                {"createUndefinedFunctionInConditionalExpression3.json", 
+                        "createUndefinedFunctionInConditionalExpression.bal"},
         };
     }
 

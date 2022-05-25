@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 9,
+        "character": 19
+      },
+      "end": {
+        "line": 9,
+        "character": 33
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 10,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 10,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction getString(int i) returns string {\n    return \"\";\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}
