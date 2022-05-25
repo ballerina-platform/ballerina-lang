@@ -60,7 +60,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Abstract test for code action related tests
+ * Abstract test for code action related tests.
  *
  * @since 2.0.0
  */
@@ -192,7 +192,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         if (!mismatchedCodeActions.isEmpty()) {
 //            updateConfig(testConfig, mismatchedCodeActions, configJsonPath);
             Assert.fail(String.format("Cannot find expected code action(s) for: '%s', cursor at [%s] in '%s': %s",
-                            Arrays.toString(mismatchedCodeActions.toArray()), cursorStr, sourcePath, testConfig.description));
+                    Arrays.toString(mismatchedCodeActions.toArray()),
+                    cursorStr, sourcePath, testConfig.description));
         }
     }
 
@@ -293,7 +294,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
     }
 
     /**
-     * Represents a code action test config
+     * Represents a code action test config.
      */
     static class TestConfig {
         Position position;

@@ -196,7 +196,7 @@ public abstract class CompletionTest extends AbstractLSTest {
     }
 
     /**
-     * Represents a test configuration
+     * Represents a test configuration.
      */
     protected static class TestConfig {
 
