@@ -6894,9 +6894,9 @@ public class BallerinaParser extends AbstractParser {
             STNode pathSegment = pathElementList.get(i + 1);
 
             if (hasRestPram) {
-                updateLastNodeInListWithInvalidNode(validatedList, leadingSlash,
-                        DiagnosticErrorCode.ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH);
-                updateLastNodeInListWithInvalidNode(validatedList, pathSegment, null);
+                updateLastNodeInListWithInvalidNode(validatedList, leadingSlash, null);
+                updateLastNodeInListWithInvalidNode(validatedList, pathSegment, 
+                        DiagnosticErrorCode.ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM);
                 continue;
             }
 
