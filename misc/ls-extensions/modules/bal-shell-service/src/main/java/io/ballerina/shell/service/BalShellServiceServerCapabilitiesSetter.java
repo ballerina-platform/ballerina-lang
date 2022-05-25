@@ -35,7 +35,7 @@ public class BalShellServiceServerCapabilitiesSetter extends
         capabilities.setGetResult(true);
         capabilities.setGetShellFileSource(true);
         capabilities.setGetVariableValues(true);
-        capabilities.setDeleteDefined(true);
+        capabilities.setDeleteDeclarations(true);
         capabilities.setRestartNotebook(true);
         return Optional.of(capabilities);
     }
