@@ -185,6 +185,8 @@ public class NeverTypeTest {
                 189, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
                 "or equivalent to type 'never'", 207, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid usage of list constructor: type " +
+                "'never' does not have a filler value", 207, 17);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter" +
                 " cannot be of type 'never' or equivalent to type 'never'", 210, 48);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter" +

@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
 import java.util.ArrayList;
@@ -115,13 +116,17 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         this(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes), typeFlags, isCyclic, flags);
     }
 
-    public BUnionType(String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
+    public BUnionType(List<Type> memberTypes, String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
         super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
-        this.memberTypes = new ArrayList<>(0);
+        this.memberTypes = memberTypes;
         this.isCyclic = isCyclic;
         this.flags = flags;
+    }
+
+    public BUnionType(String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
+        this(new ArrayList<>(0), name, pkg, typeFlags, isCyclic, flags);
     }
 
     protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
@@ -297,7 +302,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        return memberTypes.get(0).getZeroValue();
+        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return TypeChecker.getType(
+                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getZeroValue();
+        } else {
+            return memberTypes.get(0).getZeroValue();
+        }
     }
 
     @Override
@@ -306,7 +316,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        return memberTypes.get(0).getEmptyValue();
+        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return TypeChecker.getType(
+                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getEmptyValue();
+        } else {
+            return memberTypes.get(0).getEmptyValue();
+        }
     }
 
     @Override

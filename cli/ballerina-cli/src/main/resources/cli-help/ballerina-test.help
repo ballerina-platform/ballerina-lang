@@ -9,19 +9,19 @@ DESCRIPTION
        Compiles and executes test functions and prints a summary of
        the test results.
 
-       Test runs test functions defined in each module of a package when building the
-       current package. It runs test functions defined in the given source file
-       when building a single '.bal' file.
+       Test runs the test functions defined in each module of a package when
+       building the current package. It runs the test functions defined in the
+       given source file when building a single '.bal' file.
 
        Note: Testing individual '.bal' files of a package is not allowed.
 
 
 OPTIONS
        --code-coverage
-           Enable code coverage. This will analyze the line coverage of
+           Enable code coverage. This will analyze the line coverage of the
            source `.bal` files in the Ballerina package and add a section
-           to the test report with the code coverage details.
-           This feature is not supported with standalone Ballerina file executions.
+           to the test report with the code coverage details. This feature is
+           not supported with standalone Ballerina file executions.
 
        --coverage-format
            Generate a coverage report in the specified format. Only
@@ -43,29 +43,32 @@ OPTIONS
            Include the dependencies that are required to enable observability.
 
        --offline
-           Proceed without accessing the network. Attempt to proceed with the previously
-           downloaded dependencies in local caches, fail otherwise.
+           Proceed without accessing the network. Attempt to proceed with the
+           previously downloaded dependencies in local caches,
+           will fail otherwise.
 
        --sticky
-       	   Attempt to stick to the dependency versions available in the 'Dependencies.toml' file.
-           If the file doesn't exist, this option is ignored.
+       	   Attempt to stick to the dependency versions available in the
+       	   'Dependencies.toml' file. If the file doesn't exist, this option is
+       	   ignored.
 
        --rerun-failed
-           Execute only the test cases in the packages that failed in the previous run.
+           Execute only the test cases in the packages that failed in the
+           previous run.
 
        --target-dir <path>
            Target directory path.
 
        --tests <test_function_name, ...>
-           Specify the test functions to be executed. A specific set of
-           test functions can be executed using this command.
+           Specify the test functions to be executed. A specific set of test
+           functions can be executed using this command.
 
        --tests <FullyQualifiedModuleName>:<test_function_name, ...>
            Specify the test functions to be executed only from the given
-           module. The fully qualified module name for the default module is <PackageName>.
+           module. The fully qualified module name for the default module is
+           <PackageName>.
            For other modules, it is <PackageName>.<ModuleDirectoryName>.
-           Wildcards can be used to specify the set of functions
-           to be executed.
+           Wildcards can be used to specify the set of functions to be executed.
 
        --test-report
            Generate an HTML report containing the test results.
@@ -78,7 +81,8 @@ EXAMPLES
        List all the test groups in the current package.
            $ bal test --list-groups
 
-       Run only the set of test functions belonging to the `group_x` in the current package.
+       Run only the set of test functions belonging to the `group_x` in the
+       current package.
            $ bal test --groups group_x
 
        Run only the given set of test functions in the current package.
@@ -93,7 +97,8 @@ EXAMPLES
        Run only the previously-failed test functions in the current package.
            $ bal test --rerun-failed
 
-       Run the tests in a standalone Ballerina file. The file path can be relative or absolute.
+       Run the tests in a standalone Ballerina file. The file path can be
+       relative or absolute.
            $ bal test main_test.bal
 
        Run the tests and generate a test report.
@@ -106,5 +111,6 @@ EXAMPLES
        with test statuses and code coverage information.
            $ bal test --test-report --code-coverage
 
-       Run the test functions with the code coverage and generate a coverage report in the XML format.
+       Run the test functions with the code coverage and generate a coverage
+       report in the XML format.
            $ bal test --test-report --code-coverage --coverage-format=xml

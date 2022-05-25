@@ -76,6 +76,7 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -638,6 +639,39 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(MatchStatementNode matchStatementNode) {
         return context.currentSemanticModel()
                 .flatMap(semanticModel -> semanticModel.typeOf(matchStatementNode.condition()));
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(TableConstructorExpressionNode node) {
+        Optional<TypeSymbol> optionalTypeSymbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node))
+                .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR)
+                .or(() -> node.parent().apply(this))
+                .filter(tSymbol -> tSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR);
+        
+        if (optionalTypeSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        TypeSymbol typeSymbol = CommonUtil.getRawType(optionalTypeSymbol.get());
+        if (typeSymbol.typeKind() != TypeDescKind.TABLE) {
+            // We have got the row type already
+            return Optional.of(typeSymbol);
+        }
+        
+        if (node.keySpecifier().isPresent() &&
+                node.keySpecifier().get().textRange().startOffset() < context.getCursorPositionInTree() &&
+                context.getCursorPositionInTree() < node.keySpecifier().get().textRange().endOffset()) {
+            // Check if cursor is within the key specifier node
+            typeSymbol = ((TableTypeSymbol) typeSymbol).rowTypeParameter();
+        } else if (node.openBracket().textRange().endOffset() < context.getCursorPositionInTree() &&
+                context.getCursorPositionInTree() < node.closeBracket().textRange().startOffset()) {
+            // Check if the cursor is within the brackets. If so, we return the row type parameter.
+            // NOTE: We don't check if the typeSymbol's type desc kind to be TABLE because, it cannot be otherwise.
+            typeSymbol = ((TableTypeSymbol) typeSymbol).rowTypeParameter();
+        }
+        
+        return Optional.of(typeSymbol);
     }
 
     //    @Override
