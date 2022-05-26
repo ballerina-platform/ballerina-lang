@@ -86,8 +86,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
@@ -166,9 +164,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -347,10 +342,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangMatch matchNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangMatchStatement matchStatementNode) {
         throw new AssertionError();
     }
@@ -456,10 +447,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangNamedArgBindingPattern namedArgBindingPattern) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
         throw new AssertionError();
     }
 
@@ -741,14 +728,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangCheckedExpr checkedExpr) {
         throw new AssertionError();
     }
@@ -1014,14 +993,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
         throw new AssertionError();
     }
 
