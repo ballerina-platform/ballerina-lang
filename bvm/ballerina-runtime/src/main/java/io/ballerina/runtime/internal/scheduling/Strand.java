@@ -420,8 +420,7 @@ public class Strand {
         StringBuilder infoStr = new StringBuilder();
         try {
             infoStr.append("Strand id: " + this.id + "\n");
-            infoStr.append("Strand toString: " + this.toString() + "\n");
-            infoStr.append("Strand hashcode: " + this.hashCode() + "\n");
+            infoStr.append("Strand hashcode: " + Integer.toHexString(this.hashCode()) + "\n");
             infoStr.append("Strand name: " + this.getName().toString() + "\n");
 
             infoStr.append("Strand metadata:\n");
@@ -430,11 +429,16 @@ public class Strand {
             if (this.metadata.getTypeName() != null) {
                 infoStr.append("\ttype strand was initiated inside: " + this.metadata.getTypeName() + '\n');
             }
-            infoStr.append("\tparent function where strand was initiated: " + this.metadata.getParentFunctionName() + "\n");
+            infoStr.append("\tparent function where strand was initiated: " + this.metadata.getParentFunctionName() +
+                    "\n");
 
-            infoStr.append("frame count :" + this.frames.size() + "\n");
-            infoStr.append("resume index :" + this.resumeIndex + "\n");
-
+            if (this.frames != null) {
+                infoStr.append("frame count :" + this.frames.size() + "\n");
+                for (Object frame : frames) {
+                    infoStr.append("\tframe toString: " + frame.toString() + "\n");
+                }
+            }
+            
             if (this.returnValue != null) {
                 infoStr.append("notnull return value: " + this.returnValue.toString() + "\n");
             }
@@ -443,17 +447,15 @@ public class Strand {
                 infoStr.append("\tPrintableStackTrace: " + this.panic.getPrintableStackTrace() + "\n");
                 infoStr.append("\tErrorMessage: " + this.panic.getErrorMessage() + "\n");
             }
-            infoStr.append("scheduler :" + this.scheduler.toString() + "\n");
+            infoStr.append("scheduler (hashcode in hex):" + Integer.toHexString(this.scheduler.hashCode()) + "\n");
             if (this.parent != null) {
-                infoStr.append("parent strand :" + this.parent.getId() + "\n");
+                infoStr.append("parent strand id:" + this.parent.getId() + "\n");
             }
             infoStr.append("blockedOnExtern :" + this.blockedOnExtern + "\n");
             infoStr.append("cancel :" + this.cancel + "\n");
 
             infoStr.append("state :" + this.getState().toString() + "\n");
             infoStr.append("schedulerItem :" + this.schedulerItem.toString() + "\n");
-            // infoStr.append("schedulerItem function is private :" + this.schedulerItem.function.toString() + "\n");
-            infoStr.append("\t" + this.schedulerItem.future.toString() + "\n");
 
             if (this.dependants != null) {
                 infoStr.append("dependent Scheduler items count :" + this.dependants.size() + "\n");

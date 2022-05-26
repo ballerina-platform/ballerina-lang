@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -560,17 +561,20 @@ public class Scheduler {
 
     public String dumpState() {
         StringBuilder infoStr = new StringBuilder();
-        infoStr.append("Scheduler toString: " + this.toString() + "\n");
-        infoStr.append("No. of items in runnable list: " + this.runnableList.size() + "\n");
-        for (ItemGroup itemGroup : this.runnableList) {
-            infoStr.append("\tItem group toString: " + itemGroup.toString() + "\n\n");
-            Stack<SchedulerItem> schedulerItemStack = itemGroup.items;
-            infoStr.append("\tNo. of SchedulerItem in stack: " + schedulerItemStack.size() + "\n");
-            infoStr.append("\tstack toString: " + schedulerItemStack.toString() + "\n");
-//            for (SchedulerItem schedulerItem : schedulerItemStack) {
-//                infoStr.append("\t\t scheduler item: " + schedulerItem.toString() + "\n");
-//            }
+        infoStr.append("Scheduler hashcode (hex) :" + Integer.toHexString(this.hashCode()) + "\n");
+
+        synchronized (this.runnableList) {
+            infoStr.append("No. of items in runnable list: " + this.runnableList.size() + "\n");
+            for (ItemGroup itemGroup : this.runnableList) {
+                infoStr.append("\tItem group hashcode: " + Integer.toHexString(itemGroup.hashCode()) + "\n\n");
+                Stack<SchedulerItem> schedulerItemStack = itemGroup.items;
+                infoStr.append("\tNo. of SchedulerItem in stack: " + schedulerItemStack.size() + "\n");
+                for (SchedulerItem schedulerItem : schedulerItemStack) {
+                    infoStr.append("\t\t scheduler item: " + Integer.toHexString(schedulerItem.hashCode()) + "\n");
+                }
+            }
         }
+
         infoStr.append("No. of total strands: " + this.totalStrands.toString() + "\n");
         infoStr.append("poolSizeConf: " + poolSizeConf + "\n");
         if (strandHolder.get().strand == null) {
@@ -654,8 +658,25 @@ class SchedulerItem {
 
     @Override
     public String toString() {
-        return future == null ? "POISON_PILL" : String.valueOf(future.strand.hashCode());
+        if (future == null) {
+            return "POISON_PILL";
+        } else {
+            final StringBuilder sb = new StringBuilder("SchedulerItem{");
+            sb.append("hashcode=").append(Integer.toHexString(this.hashCode()));
+            sb.append(", function=").append(function);
+            sb.append(", params=").append(Arrays.toString(params));
+            sb.append(", future=").append(future);
+            sb.append(", parked=").append(parked);
+            sb.append(", future.strand.hashCode=").append(Integer.toHexString(future.strand.hashCode()));
+            sb.append('}');
+            return sb.toString();
+        }
     }
+
+    //    @Override
+//    public String toString() {
+//        return future == null ? "POISON_PILL" : String.valueOf(future.strand.hashCode());
+//    }
 }
 
 /**
