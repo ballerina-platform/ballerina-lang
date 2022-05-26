@@ -26,10 +26,8 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.Module;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageCompilation;
@@ -173,9 +171,9 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      */
     public abstract List<String> availableModuleDeclarations();
 
-    private static ClassLoader classLoader = null;
+    private ClassLoader classLoader = null;
 
-    private static ClassLoader importClassLoader = null;
+    private ClassLoader importClassLoader = null;
 
     /* Template methods */
 
@@ -351,7 +349,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             ArrayList<URL> urlList = new ArrayList<>();
             if (imports.size() > 0) {
                 jarResolver.getJarFilePathsRequiredForExecution().stream()
-                        .filter( jarLibrary -> !jarLibrary.path().toString().contains("main"))
+                        .filter(jarLibrary -> !jarLibrary.path().toString().contains("main"))
                         .forEach(jarLibrary -> {
                             try {
                                 urlList.add(new URL(jarLibrary.path().toUri().toURL().toString()));

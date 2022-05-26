@@ -124,7 +124,7 @@ public class JarResolver {
 
         Collection<JarLibrary> jarLibraries = new ArrayList<>();
         getJarFilePathsRequiredForExecution().stream()
-                .filter( jarLibrary -> !jarLibrary.path().toString().contains("main")).forEach(jarLibraries::add);
+                .filter(jarLibrary -> !jarLibrary.path().toString().contains("main")).forEach(jarLibraries::add);
 
         classLoaderWithAllJars = createClassLoader(jarLibraries);
         return classLoaderWithAllJars;
