@@ -101,17 +101,15 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
         List<TextEdit> importEdits = new ArrayList<>();
         List<String> types = new ArrayList<>();
-        boolean returnsClause = funcDef.get().functionSignature().returnTypeDesc().isPresent();
+        boolean returnTypeDescPresent = funcDef.get().functionSignature().returnTypeDesc().isPresent();
 
         if (checkExprDiagnostic) {
             // Add error return type for check expression
-            String error = "error";
-            String optionalError = "error?";
-            if (returnsClause) {
+            if (returnTypeDescPresent) {
                 types.add(funcDef.get().functionSignature().returnTypeDesc().get().type().toString().trim().concat("|")
-                        .concat(error));
+                        .concat("error"));
             } else {
-                types.add(optionalError);
+                types.add("error?");
             }
         } else {
             // Get all possible return types including ambiguous scenarios
@@ -121,7 +119,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         // Where to insert the edit: Depends on if a return statement already available or not
         Position start;
         Position end;
-        if (returnsClause) {
+        if (returnTypeDescPresent) {
             // eg. function test() returns () {...}
             ReturnTypeDescriptorNode returnTypeDesc = funcDef.get().functionSignature().returnTypeDesc().get();
             LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
