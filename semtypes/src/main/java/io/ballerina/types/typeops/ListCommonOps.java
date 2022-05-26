@@ -121,7 +121,8 @@ public class ListCommonOps {
         }
         List<Integer> indices = listSamples(cx, members, rest, neg);
         TwoTuple sampleTypes = listSampleTypes(cx, members, rest, indices);
-        return !listInhabited(cx, indices.toArray(new Integer[0]), ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
+        return !listInhabited(cx, indices.toArray(new Integer[0]),
+                ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
                 ((int) sampleTypes.item2), neg);
     }
 
@@ -245,8 +246,7 @@ public class ListCommonOps {
     static boolean listInhabited(Context cx, Integer[] indices, SemType[] memberTypes, int nRequired, Conjunction neg) {
         if (neg == null) {
             return true;
-        }
-        else {
+        } else {
             final ListAtomicType nt = cx.listAtomType(neg.atom);
             if (nRequired > 0 && Core.isNever(listMemberAt(nt.members, nt.rest, indices[nRequired - 1]))) {
                 // Skip this negative if it is always shorter than the minimum required by the positive

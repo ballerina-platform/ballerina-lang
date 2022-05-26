@@ -144,7 +144,8 @@ public class ListProj {
         TwoTuple projSamples = listProjSamples(indices, k);
         TwoTuple sampleTypes = ListCommonOps.listSampleTypes(cx, members, rest, indices);
         return listProjExclude(cx, ((List<Integer>) projSamples.item1).toArray(new Integer[0]),
-                ((List<Integer>) projSamples.item2).toArray(new Integer[0]), ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
+                ((List<Integer>) projSamples.item2).toArray(new Integer[0]),
+                ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
                 ((int) sampleTypes.item2), neg);
     }
 
