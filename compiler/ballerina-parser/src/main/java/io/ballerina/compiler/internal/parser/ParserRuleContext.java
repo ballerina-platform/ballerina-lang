@@ -350,11 +350,14 @@ public enum ParserRuleContext {
     MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
     MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
     FUNC_DEF_OR_TYPE_DESC_RHS("func-def-or-type-desc-rhs"),
-    RESOURCE_METHOD_CALL_ACTION_RHS("resource-method-call-action-rhs"),
+    RESOURCE_METHOD_CALL_ACTION("resource-method-call-action"),
+    OPTIONAL_RESOURCE_ACCESS_PATH("optional-resource-access-path"),
     RESOURCE_ACCESS_PATH_SEGMENT("resource-access-path-segment"),
     RESOURCE_ACCESS_SEGMENT_END("resource-access-segment-end"),
-    RESOURCE_ACCESS_PATH_RHS("resource-access-path-rhs"),
-    RESOURCE_METHOD_CALL_ARG_LIST("resource-method-call-arg-list"),
+    OPTIONAL_RESOURCE_ACCESS_METHOD("optional-resource-access-method"),
+    OPTIONAL_RESOURCE_METHOD_CALL_ARG_LIST("optional-resource-method-call-arg-list"),
+    RESOURCE_METHOD_CALL_ACTION_END("resource-method-call-action-end"),
+    
 
     // Statements
     STATEMENT("statement"),
@@ -556,6 +559,7 @@ public enum ParserRuleContext {
     VAR_REF_COLON("var-ref-colon"),
     TYPE_REF_COLON("type-ref-colon"),
     METHOD_CALL_DOT("method-call-dot"),
+    RESOURCE_METHOD_CALL_SLASH_TOKEN("resource-method-call-slash-token"),
 
     // Expressions
     EXPRESSION("expression"),

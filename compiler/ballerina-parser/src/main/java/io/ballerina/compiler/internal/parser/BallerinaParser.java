@@ -5446,7 +5446,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * <p>
-     * Parse the parenthesized argument list
+     * Parse the parenthesized argument list.
      * <br/>
      * <code>
      *     parenthesized-arg-list:= ( arg-list )
@@ -8889,7 +8889,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse resource method call action, given the starting expression
+     * Parse resource method call action, given the starting expression.
      * <br/><br/>
      * <code>
      * resource-method-call-action := expression "->/" [resource-access-path] ["." method-name] ["(" arg-list ")"]
@@ -8900,7 +8900,24 @@ public class BallerinaParser extends AbstractParser {
      * @param slashToken
      * @return
      */
-    private STNode parseResourceMethodCallActionRhs(STNode expression, STNode rightArrow, STNode slashToken) {
+    private STNode parseResourceMethodCallAction(STNode expression, STNode rightArrow, STNode slashToken) {
+        startContext(ParserRuleContext.RESOURCE_METHOD_CALL_ACTION);
+        
+        STNode resourceAccessPath = parseOptionalResourceAccessPath();
+        STNode resourceAccessMethodDot = parseOptionalResourceAccessMethodDot();
+        STNode resourceAccessMethodName = STNodeFactory.createEmptyNode();
+        if (resourceAccessMethodDot != null) {
+            resourceAccessMethodName = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
+        }
+        
+        STNode resourceMethodCallArgList = parseOptionalResourceMethodCallArgList();
+        endContext();
+        
+        return STNodeFactory.createResourceMethodCallActionNode(expression, rightArrow, slashToken, resourceAccessPath,
+                resourceAccessMethodDot, resourceAccessMethodName, resourceMethodCallArgList);
+    }
+    
+    private STNode parseOptionalResourceAccessPath() {
         STNode resourceAccessPath = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -8916,22 +8933,18 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                recover(nextToken, ParserRuleContext.RESOURCE_METHOD_CALL_ACTION_RHS);
-                return parseResourceMethodCallActionRhs(expression, rightArrow, slashToken);
+                recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_PATH);
+                return parseOptionalResourceAccessPath();
         }
-        
-        return parseResourceAccessPathRhs(expression, rightArrow, slashToken, resourceAccessPath);
+        return  resourceAccessPath;
     }
     
-    private STNode parseResourceAccessPathRhs(STNode expression, STNode rightArrow, STNode slashToken, 
-                                              STNode resourceAccessPath) {
+    private STNode parseOptionalResourceAccessMethodDot() {
         STNode dotToken = STNodeFactory.createEmptyNode();
-        STNode methodName = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case DOT_TOKEN:
                 dotToken = consume();
-                methodName = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
                 break;
             case OPEN_PAREN_TOKEN:
                 break;
@@ -8940,18 +8953,15 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                recover(nextToken, ParserRuleContext.RESOURCE_ACCESS_PATH_RHS);
-                return parseResourceAccessPathRhs(expression, rightArrow, slashToken, resourceAccessPath);
+                recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_METHOD);
+                return parseOptionalResourceAccessMethodDot();
         }
         
-        return parseResourceMethodCallArgList(expression, rightArrow, slashToken, resourceAccessPath, dotToken,
-                methodName);
+        return dotToken;
     }
     
-    private STNode parseResourceMethodCallArgList(STNode expression, STNode rightArrow, STNode slashToken, 
-                                                  STNode resourceAccessPath, STNode dotToken, STNode methodName) {
+    private STNode parseOptionalResourceMethodCallArgList() {
         STNode argList = STNodeFactory.createEmptyNode();
-        
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case OPEN_PAREN_TOKEN:
@@ -8962,17 +8972,15 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                recover(nextToken, ParserRuleContext.RESOURCE_METHOD_CALL_ARG_LIST);
-                return parseResourceMethodCallArgList(expression, rightArrow, slashToken, resourceAccessPath, 
-                        dotToken, methodName);
+                recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_METHOD_CALL_ARG_LIST);
+                return parseOptionalResourceMethodCallArgList();
         }
         
-        return STNodeFactory.createResourceMethodCallActionNode(expression, rightArrow, slashToken, resourceAccessPath, 
-                dotToken, methodName, argList);
+        return argList;
     }
 
     /**
-     * Parse resource access path
+     * Parse resource access path.
      * <br/><br/>
      * <code>
      * resource-access-path :=
@@ -9033,7 +9041,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse computed resource path segment or resource access rest segment
+     * Parse computed resource path segment or resource access rest segment.
      * <code>
      * <br/>
      * computed-resource-access-segment := "[" expression "]"
@@ -9133,7 +9141,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case SLASH_TOKEN:
                 STNode slashToken = consume();
-                return parseResourceMethodCallActionRhs(expression, rightArrow, slashToken);
+                return parseResourceMethodCallAction(expression, rightArrow, slashToken);
             default:
                 STToken token = peek();
                 recover(token, ParserRuleContext.REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS);
