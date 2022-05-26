@@ -271,4 +271,26 @@ function testXmlInterpolationWithQuery() returns error? {
     if (s10 != expectedStr5) {
         panic error("Assertion error", expected = expectedStr5, found = s10);
     }
+
+    do {
+        xmlns "http://www.so2w1.org" as doNS;
+        xml x14 = from int i in [1]
+            select xml `<localNS:empRecord employeeId="${i}"><doNS:id>${i}</doNS:id></localNS:empRecord>`;
+        string s11 = x14.toString();
+        string expectedStr7 = "<localNS:empRecord xmlns:localNS=\"http://www.so2w.org\" employeeId=\"1\"><doNS:id xmlns:doNS=\"http://www.so2w1.org\">1</doNS:id></localNS:empRecord>";
+        if (s11 != expectedStr7) {
+            panic error("Assertion error", expected = expectedStr7, found = s11);
+        }
+    }
+
+    do {
+        xmlns "http://www.so2w2.org" as doNS;
+        xml x15 = from int i in [1]
+            select xml `<localNS:empRecord employeeId="${i}"><doNS:id>${i}</doNS:id></localNS:empRecord>`;
+        string s12 = x15.toString();
+        string expectedStr8 = "<localNS:empRecord xmlns:localNS=\"http://www.so2w.org\" employeeId=\"1\"><doNS:id xmlns:doNS=\"http://www.so2w2.org\">1</doNS:id></localNS:empRecord>";
+        if (s12 != expectedStr8) {
+            panic error("Assertion error", expected = expectedStr8, found = s12);
+        }
+    }
 }

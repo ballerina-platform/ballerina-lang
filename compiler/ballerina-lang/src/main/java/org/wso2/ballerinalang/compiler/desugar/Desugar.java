@@ -306,11 +306,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -411,7 +411,7 @@ public class Desugar extends BLangNodeVisitor {
     private List<BLangStatement> matchStmtsForPattern = new ArrayList<>();
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
-    private Map<BSymbol, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -1376,7 +1376,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
-        Map<BSymbol, BLangStatement> prevXmlnsDecls = this.stmtsToBePropagatedToQuery;
+        Map<Name, BLangStatement> prevXmlnsDecls = this.stmtsToBePropagatedToQuery;
         if (!funcNode.flagSet.contains(Flag.QUERY_LAMBDA)) {
             this.stmtsToBePropagatedToQuery = new HashMap<>();
         }
@@ -3386,8 +3386,8 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         xmlnsStmtNode.xmlnsDecl = rewrite(xmlnsStmtNode.xmlnsDecl, env);
-        //need to propagate the local namespace to be used at the query clauses
-        this.stmtsToBePropagatedToQuery.put(xmlnsStmtNode.xmlnsDecl.symbol, xmlnsStmtNode);
+        // need to propagate the local namespace to be used at the query clauses
+        this.stmtsToBePropagatedToQuery.put(xmlnsStmtNode.xmlnsDecl.symbol.name, xmlnsStmtNode);
         result = xmlnsStmtNode;
     }
 
@@ -7511,7 +7511,7 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BLangXMLNS> prevInlineNamespaces = this.inlineXMLNamespaces;
         if (isVisitingQuery && this.inlineXMLNamespaces != null) {
-            //if xml has an interpolated query, the inline namespace should be propagated
+            // if xml has an interpolated query, the inline namespace should be propagated
             xmlElementLiteral.inlineNamespaces.addAll(this.inlineXMLNamespaces);
         }
         this.inlineXMLNamespaces = xmlElementLiteral.inlineNamespaces;
@@ -8171,31 +8171,28 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        boolean prevSkipFailStmtRewrite = this.isVisitingQuery;
+        boolean prevIsVisitingQuery = this.isVisitingQuery;
         this.isVisitingQuery = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
-        this.isVisitingQuery = prevSkipFailStmtRewrite;
+        this.isVisitingQuery = prevIsVisitingQuery;
     }
 
     List<BLangStatement> getVisibleXMLNSStmts(SymbolEnv env) {
-        List<BLangStatement> list = new ArrayList();
-        for (BSymbol symbol : this.stmtsToBePropagatedToQuery.keySet()) {
-            BSymbol resolvedSym = symResolver.lookupSymbolInMainSpace(env, symbol.name);
-            if (resolvedSym != null) {
-                list.add(this.stmtsToBePropagatedToQuery.get(symbol));
-            }
-        }
-        return list;
+        Map<Name, BXMLNSSymbol> nameBXMLNSSymbolMap = symResolver.resolveAllNamespaces(env);
+        return nameBXMLNSSymbolMap.keySet().stream()
+                .map(key -> this.stmtsToBePropagatedToQuery.get(key))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        boolean prevSkipFailStmtRewrite = this.isVisitingQuery;
+        boolean prevIsVisitingQuery = this.isVisitingQuery;
         this.isVisitingQuery = true;
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
-        this.isVisitingQuery = prevSkipFailStmtRewrite;
+        this.isVisitingQuery = prevIsVisitingQuery;
     }
 
     @Override
