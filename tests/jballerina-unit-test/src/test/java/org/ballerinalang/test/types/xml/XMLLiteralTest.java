@@ -420,6 +420,11 @@ public class XMLLiteralTest {
     }
 
     @Test
+    public void testXMLInterpolationExprWithUserDefinedType() {
+        BRunUtil.invoke(result, "testXMLInterpolationExprWithUserDefinedType");
+    }
+
+    @Test
     public void testQueryInXMLTemplateExpr() {
         BRunUtil.invoke(result, "testQueryInXMLTemplateExpr");
     }

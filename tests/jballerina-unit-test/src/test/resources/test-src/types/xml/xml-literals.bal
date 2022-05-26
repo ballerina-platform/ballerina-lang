@@ -364,6 +364,14 @@ function testXMLReturnUnion() returns error? {
     test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
 }
 
+type T xml;
+
+function testXMLInterpolationExprWithUserDefinedType() {
+    T x1 = xml `<foo></foo>`;
+    xml x2 = xml `<doc>${x1}</doc>`;
+    test:assertEquals(x2.toString(), "<doc><foo></foo></doc>");
+}
+
 function testQueryInXMLTemplateExpr() {
     int[] a = [1, 2, 3];
 
@@ -381,4 +389,10 @@ function testQueryInXMLTemplateExpr() {
 
     string str2 = "<doc><row><num>1</num><num>2</num><num>3</num></row><row><num>1</num><num>2</num><num>3</num></row></doc>";
     test:assertEquals(x4.toString(), str2);
+
+    xml<xml:Element> x5 = xml `<doc><num>1</num><num>2</num><num>3</num></doc>`;
+    xml x6 = xml `<doc>${from xml:Element i in x5 select i}</doc>`;
+
+    string str3 = "<doc><doc><num>1</num><num>2</num><num>3</num></doc></doc>";
+    test:assertEquals(x6.toString(), str3);
 }

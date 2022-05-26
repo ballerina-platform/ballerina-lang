@@ -7577,7 +7577,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else {
                 exprType = checkExpr(expr, xmlElementEnv, data);
             }
-            if (TypeTags.isXMLTypeTag(exprType.tag)) {
+            if (TypeTags.isXMLTypeTag(Types.getReferredType(exprType).tag)) {
                 if (!tempConcatExpressions.isEmpty()) {
                     newChildren.add(getXMLTextLiteral(tempConcatExpressions));
                     tempConcatExpressions = new ArrayList<>();
@@ -7587,9 +7587,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
 
             BType type = expr.getBType();
-            if (type.tag >= TypeTags.JSON &&
-                    !TypeTags.isIntegerTypeTag(type.tag) && !TypeTags.isStringTypeTag(type.tag)) {
-                if (type != symTable.semanticError && !TypeTags.isXMLTypeTag(type.tag)) {
+            BType referredType = Types.getReferredType(type);
+            if (referredType.tag >= TypeTags.JSON &&
+                    !TypeTags.isIntegerTypeTag(referredType.tag) && !TypeTags.isStringTypeTag(referredType.tag)) {
+                if (referredType != symTable.semanticError && !TypeTags.isXMLTypeTag(referredType.tag)) {
                     dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             BUnionType.create(null, symTable.intType, symTable.floatType,
                                     symTable.decimalType, symTable.stringType,
