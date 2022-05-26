@@ -248,6 +248,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @param queryExpr query expression to be desugared.
      * @param env       symbol env.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return desugared query expression.
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env,
@@ -372,6 +373,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param resultType result type of the query output.
      * @param env symbol env.
      * @param block parent block to write to.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created _StreamPipeline.
      */
     BLangVariableReference buildStream(List<BLangNode> clauses, BType resultType, SymbolEnv env,
@@ -490,6 +492,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @param blockStmt  parent block to write to.
      * @param inputClause to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created from _StreamFunction.
      */
     BLangVariableReference addInputFunction(BLangBlockStmt blockStmt, BLangInputClause inputClause,
@@ -537,6 +540,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @param blockStmt  parent block to write to.
      * @param fromClause to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created from _StreamFunction.
      */
     BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause,
@@ -595,6 +599,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @param blockStmt parent block to write to.
      * @param letClause to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created let _StreamFunction.
      */
     BLangVariableReference addLetFunction(BLangBlockStmt blockStmt, BLangLetClause letClause,
@@ -628,6 +633,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @param blockStmt   parent block to write to.
      * @param whereClause to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created filter _StreamFunction.
      */
     BLangVariableReference addWhereFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause,
@@ -652,6 +658,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      *
      * @param blockStmt parent block to write to.
      * @param orderByClause  to be desugared.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created orderBy _StreamFunction.
      */
     BLangVariableReference addOrderByFunction(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause,
@@ -1146,6 +1153,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * }
      *
      * @param expr key function expression.
+     * @param stmtsToBePropagated list of statements to be propagated.
      * @return created key function lambda.
      */
     private BLangLambdaFunction createKeyFunction(BLangExpression expr, List<BLangStatement> stmtsToBePropagated) {
