@@ -401,7 +401,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                             joinClause.collection, resultType);
                     BLangVariableReference joinInputFunc = addInputFunction(block, joinClause, stmtsToBePropagated);
                     addStreamFunction(block, joinPipeline, joinInputFunc);
-                    BLangVariableReference joinFunc = addJoinFunction(block, joinClause, joinPipeline, stmtsToBePropagated);
+                    BLangVariableReference joinFunc = addJoinFunction(block, joinClause, joinPipeline,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, joinFunc);
                     break;
                 case LET_CLAUSE:
@@ -554,7 +555,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         returnNode.expr = fromClause.collection;
         returnNode.pos = pos;
         BLangLambdaFunction lambda = createLambdaFunction(pos, returnType, returnNode, false);
-        ((BLangBlockFunctionBody)lambda.function.body).stmts.addAll(0, stmtsToBePropagated);
+        ((BLangBlockFunctionBody) lambda.function.body).stmts.addAll(0, stmtsToBePropagated);
         lambda.accept(this);
         // at this point;
         // function(_Frame frame) returns any|error? {
@@ -1165,7 +1166,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyOrErrorType);
         returnNode.pos = expr.pos;
         BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyAndErrorTypeNode(), returnNode, false);
-        ((BLangBlockFunctionBody)keyFunction.function.body).stmts.addAll(0, stmtsToBePropagated);
+        ((BLangBlockFunctionBody) keyFunction.function.body).stmts.addAll(0, stmtsToBePropagated);
         keyFunction.accept(this);
         return keyFunction;
     }
