@@ -14,12 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type STR string;
+
 function testSpreadOpInferenceWithVar() {
     var _ = [...a]; // error
 
     int n = 3;
     var _ = [...n]; // error
     var _ = [1, 2, ...n, 3]; // error
+
+    STR s = "s";
+    var _ = [...s]; // error
 
     int[2] a3 = [];
     var v1 = [...a3]; // OK

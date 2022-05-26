@@ -226,103 +226,105 @@ public class ListConstructorSpreadOperatorTest {
                 "test-src/expressions/listconstructor/list_constructor_spread_op_inference_negative.bal");
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 18, 17);
-        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 18, 17);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 20, 17);
+        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 20, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 21, 17);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 23, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 22, 23);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[int,int]'", 28, 13);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 24, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[int,string,int,int,boolean]'", 29, 13);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'STR'", 27, 17);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found '[int,int]'", 33, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[string,(int|boolean)]'", 35, 13);
+                "incompatible types: expected 'int', found '[int,string,int,int,boolean]'", 34, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[int,string,string,(int|boolean),boolean]'", 36, 13);
+                "incompatible types: expected 'int', found '[string,(int|boolean)]'", 40, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[(string|int|boolean)...]'", 41, 13);
+                "incompatible types: expected 'int', found '[int,string,string,(int|boolean),boolean]'", 41, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 43, 24);
+                "incompatible types: expected 'int', found '[(string|int|boolean)...]'", 46, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 47, 23);
-        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 47, 23);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 48, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 50, 23);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 52, 23);
+        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 52, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 51, 29);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 55, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 54, 23);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 56, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[]'", 54, 23);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 59, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 55, 29);
+                "incompatible types: expected 'readonly', found 'int[]'", 59, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[]'", 55, 29);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 60, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 58, 23);
+                "incompatible types: expected 'readonly', found 'int[]'", 60, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,int...]'", 58, 23);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 63, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 59, 29);
+                "incompatible types: expected 'readonly', found '[int,int...]'", 63, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,int...]'", 59, 29);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 64, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 62, 23);
+                "incompatible types: expected 'readonly', found '[int,int...]'", 64, 29);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[2]'", 62, 23);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 67, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 63, 31);
+                "incompatible types: expected 'readonly', found 'int[2]'", 67, 23);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found 'int[2]'", 63, 31);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 68, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 66, 24);
+                "incompatible types: expected 'readonly', found 'int[2]'", 68, 31);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,string]'", 66, 24);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 67, 32);
+                "incompatible types: expected 'readonly', found '[int,string]'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[int,string]'", 67, 32);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 72, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 70, 24);
+                "incompatible types: expected 'readonly', found '[int,string]'", 72, 32);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 70, 24);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 75, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 71, 32);
+                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 75, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 71, 32);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 81, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 82, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 88, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 89, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 95, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 96, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 102, 13);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 103, 13);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 76, 32);
+        BAssertUtil.validateError(resultNegative, i++,
+                "incompatible types: expected 'readonly', found '[string,(int|boolean)]'", 76, 32);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 86, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 87, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 93, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 94, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 100, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 101, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 107, 13);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 108, 13);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', found 'readonly'", 113, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '(readonly|int)'", 113, 17);
+                "incompatible types: expected 'boolean', found '(readonly|int)'", 118, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '((int|string)[] & readonly)'", 114, 17);
+                "incompatible types: expected 'boolean', found '((int|string)[] & readonly)'", 119, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[int]'", 124, 17);
+                "incompatible types: expected 'boolean', found '[int]'", 129, 17);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'boolean'," +
-                        " found '[int,int,string,(int|string),string,boolean]'", 125, 17);
+                        " found '[int,int,string,(int|string),string,boolean]'", 130, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[string,int,int,int]'", 139, 17);
+                "incompatible types: expected 'boolean', found '[string,int,int,int]'", 144, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[string,int,int,int,boolean]'", 140, 17);
+                "incompatible types: expected 'boolean', found '[string,int,int,int,boolean]'", 145, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 146, 17);
+                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 151, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 147, 17);
+                "incompatible types: expected 'boolean', found '[anydata,string,int]'", 152, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'boolean', found '[string,int...]'", 151, 17);
+                "incompatible types: expected 'boolean', found '[string,int...]'", 156, 17);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 155, 22);
-        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 155, 22);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'other'", 160, 22);
+        BAssertUtil.validateError(resultNegative, i++, "undefined symbol 'a'", 160, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 158, 35);
+                "cannot infer type from spread operator: expected an array or a tuple, found 'int'", 163, 35);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
