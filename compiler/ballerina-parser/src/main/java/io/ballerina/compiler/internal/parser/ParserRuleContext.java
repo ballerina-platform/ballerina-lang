@@ -218,7 +218,7 @@ public enum ParserRuleContext {
     ANON_FUNC_PARAM_RHS("anon-func-param-rhs"),
     IMPLICIT_ANON_FUNC_PARAM("implicit-anon-func-param"),
     OPTIONAL_PEER_WORKER("optional-peer-worker"),
-    WORKER_NAME_OR_METHOD_NAME("worker-name-or-method-name"),
+    METHOD_NAME("method-name"),
     PEER_WORKER_NAME("peer-worker-name"),
     TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
     TUPLE_TYPE_MEMBER_RHS("tuple-type-member-rhs"),
@@ -353,10 +353,11 @@ public enum ParserRuleContext {
     RESOURCE_METHOD_CALL_ACTION("resource-method-call-action"),
     OPTIONAL_RESOURCE_ACCESS_PATH("optional-resource-access-path"),
     RESOURCE_ACCESS_PATH_SEGMENT("resource-access-path-segment"),
-    RESOURCE_ACCESS_SEGMENT_END("resource-access-segment-end"),
+    COMPUTED_SEGMENT_OR_REST_SEGMENT("computed-segment-or-rest-segment"),
+    RESOURCE_ACCESS_SEGMENT_RHS("resource-access-segment-rhs"),
     OPTIONAL_RESOURCE_ACCESS_METHOD("optional-resource-access-method"),
     OPTIONAL_RESOURCE_METHOD_CALL_ARG_LIST("optional-resource-method-call-arg-list"),
-    RESOURCE_METHOD_CALL_ACTION_END("resource-method-call-action-end"),
+    ACTION_END("action-end"),
     
 
     // Statements

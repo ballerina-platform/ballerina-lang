@@ -5990,6 +5990,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
+            case RESOURCE_METHOD_CALL_ACTION:    
                 return true;
             default:
                 return false;
@@ -9004,7 +9005,7 @@ public class BallerinaParser extends AbstractParser {
         STNode leadingSlash;
         STNode previousPathSegmentNode = pathSegment;
         while (!isEndOfResourceAccessPathSegments(peek().kind)) {
-            leadingSlash = parseResourceAccessSegmentEnd();
+            leadingSlash = parseResourceAccessSegmentRhs();
             if (leadingSlash == null) {
                 break;
             }
@@ -9052,17 +9053,25 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseComputedOrResourceAccessRestPathSegment() {
         STNode openBracket = parseOpenBracket();
-        if (peek().kind == SyntaxKind.ELLIPSIS_TOKEN) {
-            STNode ellipsisToken = consume();
-            STNode expression = parseExpression();
-            STNode closeBracketToken = parseCloseBracket();
-            return STNodeFactory.createResourceAccessRestSegmentNode(openBracket, ellipsisToken,
-                    expression, closeBracketToken);
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case ELLIPSIS_TOKEN:
+                STNode ellipsisToken = consume();
+                STNode expression = parseExpression();
+                STNode closeBracketToken = parseCloseBracket();
+                return STNodeFactory.createResourceAccessRestSegmentNode(openBracket, ellipsisToken,
+                        expression, closeBracketToken);
+            default:
+                if (isValidExprStart(nextToken.kind)) {
+                    expression = parseExpression();
+                    closeBracketToken = parseCloseBracket();
+                    return STNodeFactory.createComputedResourceAccessSegmentNode(openBracket, expression, 
+                            closeBracketToken);
+                }
+                
+                recover(nextToken, ParserRuleContext.COMPUTED_SEGMENT_OR_REST_SEGMENT);
+                return parseComputedOrResourceAccessRestPathSegment();
         }
-        
-        STNode expression = parseExpression();
-        STNode closeBracketToken = parseCloseBracket();
-        return STNodeFactory.createComputedResourceAccessSegmentNode(openBracket, expression, closeBracketToken);
     }
 
     /**
@@ -9070,18 +9079,18 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseResourceAccessSegmentEnd() {
+    private STNode parseResourceAccessSegmentRhs() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case SLASH_TOKEN:
                 return consume();
             default:
-                if (isEndOfResourceAccessPathSegments(nextToken.kind)) {
+                if (isEndOfAction(nextToken.kind)) {
                     return null;
                 }
                 
-                recover(nextToken, ParserRuleContext.RESOURCE_ACCESS_SEGMENT_END);
-                return parseResourceAccessSegmentEnd();
+                recover(nextToken, ParserRuleContext.RESOURCE_ACCESS_SEGMENT_RHS);
+                return parseResourceAccessSegmentRhs();
         }
     }
     
@@ -9097,10 +9106,9 @@ public class BallerinaParser extends AbstractParser {
     
     private boolean isEndOfAction(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
-            case SEMICOLON_TOKEN: // variable decl context
+            case SEMICOLON_TOKEN: // variable decl and stmt context
             case EOF_TOKEN:
-            case OPEN_BRACE_TOKEN: // foreach-stmt context
-            case CLOSE_PAREN_TOKEN: // match expression context
+            case OPEN_BRACE_TOKEN: // foreach-stmt, match-stmt context
                 return true;
             default:
                 return false;
