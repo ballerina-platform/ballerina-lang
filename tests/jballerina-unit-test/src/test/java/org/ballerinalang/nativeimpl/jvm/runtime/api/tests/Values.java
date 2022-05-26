@@ -47,7 +47,9 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import org.ballerinalang.langlib.value.FromJsonWithType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -196,6 +198,10 @@ public class Values {
                 StringUtils.fromString("name"), StringUtils.fromString("studentName")),
                 ValueCreator.createKeyFieldEntry(StringUtils.fromString("id"), 123L)};
         return ValueCreator.createRecordValue(recordType, mapInitialValueEntries);
+    }
+
+    public static Object getRecordValueFromJson(Object jsonValue, BTypedesc type) {
+        return FromJsonWithType.convert(jsonValue, type.getDescribingType());
     }
 
     public static BObject getInvalidObject(BString objectName) {

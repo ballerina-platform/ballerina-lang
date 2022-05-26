@@ -276,6 +276,9 @@ public class SortingUtil {
      * @return True if assignable
      */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
+        if (completionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter) {
+            return false;
+        }
         Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);
         return optionalTypeSymbol.isPresent() && optionalTypeSymbol.get().subtypeOf(typeSymbol);
     }
@@ -541,27 +544,27 @@ public class SortingUtil {
     /**
      * Checks whether the symbol completion item is within the range of given node and cursor.
      *
-     * @param context       Completion Context
-     * @param lsCItem       LS Completion Item
-     * @param startNode     Starting Node
-     * @return  {@link Boolean}
+     * @param context   Completion Context
+     * @param lsCItem   LS Completion Item
+     * @param startNode Starting Node
+     * @return {@link Boolean}
      */
-    public static boolean isSymbolCItemWithinNodeAndCursor(BallerinaCompletionContext context, 
-                                                               LSCompletionItem lsCItem, Node startNode) {
-        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL 
+    public static boolean isSymbolCItemWithinNodeAndCursor(BallerinaCompletionContext context,
+                                                           LSCompletionItem lsCItem, Node startNode) {
+        if (lsCItem.getType() != LSCompletionItem.CompletionItemType.SYMBOL
                 || ((SymbolCompletionItem) lsCItem).getSymbol().isEmpty()) {
-                return false;
+            return false;
         }
         return ((SymbolCompletionItem) lsCItem).getSymbol().get().getLocation()
                 .filter(location -> startNode.textRange().startOffset() < location.textRange().startOffset())
                 .filter(location -> location.textRange().endOffset() < context.getCursorPositionInTree())
                 .isPresent();
     }
-    
+
     /**
      * Loop through the parent clauseNode to find the outermost Query Expression Node if exists.
      *
-     * @param clauseNode           clauseNode
+     * @param clauseNode clauseNode
      * @return {@link Optional}    outermost QueryExpressionNode related to the clause node
      */
     public static Optional<QueryExpressionNode> getTheOutermostQueryExpressionNode(Node clauseNode) {

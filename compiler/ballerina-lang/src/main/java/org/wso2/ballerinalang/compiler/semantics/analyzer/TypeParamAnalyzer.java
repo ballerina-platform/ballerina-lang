@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
@@ -53,6 +54,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -129,7 +132,7 @@ public class TypeParamAnalyzer {
         return containsTypeParam(type, new HashSet<>());
     }
 
-    void checkForTypeParamsInArg(Location loc, BType actualType, SymbolEnv env, BType expType) {
+    void checkForTypeParamsInArg(BLangExpression arg, Location loc, BType actualType, SymbolEnv env, BType expType) {
 
         // Not a langlib module invocation
         if (notRequireTypeParams(env)) {
@@ -137,7 +140,7 @@ public class TypeParamAnalyzer {
         }
 
         FindTypeParamResult findTypeParamResult = new FindTypeParamResult();
-        findTypeParam(loc, expType, actualType, env, new HashSet<>(), findTypeParamResult);
+        findTypeParam(arg, loc, expType, actualType, env, new HashSet<>(), findTypeParamResult);
     }
 
     boolean notRequireTypeParams(SymbolEnv env) {
@@ -286,6 +289,16 @@ public class TypeParamAnalyzer {
     private void findTypeParam(Location loc, BType expType, BType actualType, SymbolEnv env,
                                HashSet<BType> resolvedTypes, FindTypeParamResult result, boolean checkContravariance) {
 
+        findTypeParam(null, loc, expType, actualType, env, resolvedTypes, result, checkContravariance);
+    }
+
+    private void findTypeParam(BLangExpression expr, Location loc, BType expType, BType actualType, SymbolEnv env,
+                               HashSet<BType> resolvedTypes, FindTypeParamResult result) {
+        findTypeParam(expr, loc, expType, actualType, env, resolvedTypes, result, false);
+    }
+
+    private void findTypeParam(BLangExpression expr, Location loc, BType expType, BType actualType, SymbolEnv env,
+                               HashSet<BType> resolvedTypes, FindTypeParamResult result, boolean checkContravariance) {
         if (resolvedTypes.contains(expType)) {
             return;
         }
@@ -298,17 +311,17 @@ public class TypeParamAnalyzer {
 
             if (checkContravariance) {
                 types.checkType(loc, getMatchingBoundType(expType, env, new HashSet<>()), actualType,
-                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                        DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             } else {
                 types.checkType(loc, actualType, getMatchingBoundType(expType, env, new HashSet<>()),
-                                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                        DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             }
             return;
         }
-        visitType(loc, expType, actualType, env, resolvedTypes, result, checkContravariance);
+        visitType(expr, loc, expType, actualType, env, resolvedTypes, result, checkContravariance);
     }
 
-    private void visitType(Location loc, BType expType, BType actualType, SymbolEnv env,
+    private void visitType(BLangExpression expr, Location loc, BType expType, BType actualType, SymbolEnv env,
                       HashSet<BType> resolvedTypes, FindTypeParamResult result, boolean checkContravariance) {
         // Bound type is a structure. Visit recursively to find bound type.
         switch (expType.tag) {
@@ -408,6 +421,10 @@ public class TypeParamAnalyzer {
                     findTypeParamInInvokableType(loc, (BInvokableType) expType, (BInvokableType) actualType, env,
                             resolvedTypes, result);
                 }
+                if (actualType.tag == TypeTags.SEMANTIC_ERROR && expr != null && expr.getKind() == NodeKind.LAMBDA) {
+                    updateTypeParamAndBoundTypeForInvokableType(loc, env, (BInvokableType) expType,
+                            (BInvokableType) ((BLangLambdaFunction) expr).function.getBType());
+                }
                 break;
             case TypeTags.OBJECT:
                 if (actualType.tag == TypeTags.OBJECT) {
@@ -443,17 +460,31 @@ public class TypeParamAnalyzer {
                 }
                 break;
             case TypeTags.TYPEREFDESC:
-                visitType(loc, Types.getReferredType(expType), actualType, env, resolvedTypes,
+                visitType(expr, loc, Types.getReferredType(expType), actualType, env, resolvedTypes,
                         result, checkContravariance);
                 break;
         }
         if (actualType.tag == TypeTags.INTERSECTION) {
-            visitType(loc, expType, ((BIntersectionType) actualType).effectiveType, env, resolvedTypes,
+            visitType(expr, loc, expType, ((BIntersectionType) actualType).effectiveType, env, resolvedTypes,
                     result, checkContravariance);
         }
         if (actualType.tag == TypeTags.TYPEREFDESC) {
-            visitType(loc, expType, Types.getReferredType(actualType), env, resolvedTypes,
+            visitType(expr, loc, expType, Types.getReferredType(actualType), env, resolvedTypes,
                     result, checkContravariance);
+        }
+    }
+
+    private void updateTypeParamAndBoundTypeForInvokableType(Location loc, SymbolEnv env,
+                                                             BInvokableType parentTypeParamType,
+                                                             BInvokableType parentBoundedType) {
+        for (int i = 0; i < parentTypeParamType.paramTypes.size() && i < parentBoundedType.paramTypes.size(); i++) {
+            BType paramType = parentTypeParamType.paramTypes.get(i);
+            if (isTypeParam(paramType)) {
+                updateTypeParamAndBoundType(loc, env, paramType, parentBoundedType.paramTypes.get(i));
+            }
+        }
+        if (isTypeParam(parentTypeParamType.retType)) {
+            updateTypeParamAndBoundType(loc, env, parentTypeParamType.retType, parentBoundedType.retType);
         }
     }
 

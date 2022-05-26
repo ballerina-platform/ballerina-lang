@@ -1468,7 +1468,9 @@
     5,
     11,
     "struct",
-    [],
+    [
+      "declaration"
+    ],
     264,
     8,
     5,
@@ -1588,13 +1590,6 @@
     286,
     41,
     6,
-    "function",
-    [
-      "declaration"
-    ],
-    286,
-    47,
-    1,
     "function",
     [
       "declaration"
@@ -1826,7 +1821,9 @@
     12,
     13,
     "struct",
-    [],
+    [
+      "declaration"
+    ],
     311,
     11,
     7,

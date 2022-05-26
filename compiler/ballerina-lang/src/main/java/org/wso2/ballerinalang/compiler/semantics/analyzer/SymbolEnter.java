@@ -5187,7 +5187,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BType resolvedInvokableType = symResolver.createInvokableType(function.getParameters(),
                 function.restParam,
                 function.returnTypeNode,
-                new SymbolResolver.AnalyzerData(),
+                new SymbolResolver.AnalyzerData(env),
                 Flags.asMask(variable.flagSet),
                 env,
                 function.pos);

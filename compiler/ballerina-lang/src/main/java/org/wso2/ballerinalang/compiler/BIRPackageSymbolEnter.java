@@ -380,6 +380,9 @@ public class BIRPackageSymbolEnter {
         BPackageSymbol importPackageSymbol = packageCache.getSymbol(importPkgID);
         //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
+        if (importPackageSymbol == null) {
+            throw new BLangCompilerException("cannot resolve module " + importPkgID);
+        }
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
         this.env.pkgSymbol.imports.add(importPackageSymbol);
     }

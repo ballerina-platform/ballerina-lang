@@ -54,7 +54,7 @@ public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean exitWhenFinish;
+    private final boolean exitWhenFinish;
 
     public TestCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -63,30 +63,23 @@ public class TestCommand implements BLauncherCmd {
         this.exitWhenFinish = true;
     }
 
-    public TestCommand(Path projectPath, boolean exitWhenFinish) {
+    TestCommand(Path projectPath, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = System.out;
         this.errStream = System.err;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+        this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                       boolean dumpBuildTime) {
-        this.projectPath = projectPath;
-        this.outStream = outStream;
-        this.errStream = errStream;
-        this.exitWhenFinish = exitWhenFinish;
-        this.dumpBuildTime = dumpBuildTime;
-    }
-
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        Boolean testReport, Boolean coverage, String coverageFormat) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -95,9 +88,10 @@ public class TestCommand implements BLauncherCmd {
         this.testReport = testReport;
         this.coverage = coverage;
         this.coverageFormat = coverageFormat;
+        this.offline = true;
     }
 
-    public TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+    TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
                        Boolean testReport, Path targetDir) {
         this.projectPath = projectPath;
         this.outStream = outStream;
@@ -105,6 +99,7 @@ public class TestCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
         this.testReport = testReport;
         this.targetDir = targetDir;
+        this.offline = true;
     }
 
     @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
@@ -157,6 +152,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-build-time", description = "calculate and dump build time", hidden = true)
     private Boolean dumpBuildTime;
 
+    @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
+    private Boolean sticky;
+
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
@@ -169,6 +167,10 @@ public class TestCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
+        }
+
+        if (sticky == null) {
+            sticky = false;
         }
 
         // load project
@@ -279,6 +281,7 @@ public class TestCommand implements BLauncherCmd {
                 .setTestReport(testReport)
                 .setObservabilityIncluded(observabilityIncluded)
                 .setDumpBuildTime(dumpBuildTime)
+                .setSticky(sticky)
                 .build();
 
         if (targetDir != null) {

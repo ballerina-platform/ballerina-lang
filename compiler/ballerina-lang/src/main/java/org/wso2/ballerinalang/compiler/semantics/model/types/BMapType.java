@@ -81,6 +81,11 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     }
 
     @Override
+    public void unsetImmutableType() {
+        this.immutableType = null;
+    }
+
+    @Override
     public Optional<BIntersectionType> getIntersectionType() {
         return Optional.ofNullable(this.intersectionType);
     }

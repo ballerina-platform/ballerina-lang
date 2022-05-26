@@ -246,31 +246,52 @@ public class ManifestBuilder {
         String name;
         String version;
 
+        String errorMessage = "missing table '[package]' in 'Ballerina.toml'. Defaulting to:\n" +
+                "[package]\n" +
+                "org = \"" + defaultOrg().value() + "\"\n" +
+                "name = \"" + defaultName(this.projectPath).value() + "\"\n" +
+                "version = \"" + defaultVersion().value().toString() + "\"";
+
         if (tomlTableNode.entries().isEmpty()) {
+            reportDiagnostic(tomlTableNode, errorMessage,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TopLevelNode topLevelPkgNode = tomlTableNode.entries().get(PACKAGE);
         if (topLevelPkgNode == null || topLevelPkgNode.kind() != TomlType.TABLE) {
+            reportDiagnostic(tomlTableNode, errorMessage,
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
             return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
         }
 
         TomlTableNode pkgNode = (TomlTableNode) topLevelPkgNode;
-        if (pkgNode.entries().isEmpty()) {
-            return PackageDescriptor.from(defaultOrg(), defaultName(this.projectPath), defaultVersion());
-        }
 
         org = getStringValueFromTomlTableNode(pkgNode, "org");
         if (org == null) {
             org = defaultOrg().value();
+            reportDiagnostic(pkgNode, "missing key 'org' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'org = \"" + org + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
         }
         name = getStringValueFromTomlTableNode(pkgNode, "name");
         if (name == null) {
             name = defaultName(this.projectPath).value();
+            reportDiagnostic(pkgNode, "missing key 'name' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'name = \"" + name + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
         }
         version = getStringValueFromTomlTableNode(pkgNode, VERSION);
         if (version == null) {
             version = defaultVersion().value().toString();
+            reportDiagnostic(pkgNode, "missing key 'version' in table '[package]' in 'Ballerina.toml'. " +
+                            "Defaulting to 'version = \"" + version + "\"'",
+                    ProjectDiagnosticErrorCode.MISSING_PKG_INFO_IN_BALLERINA_TOML.diagnosticId(),
+                    DiagnosticSeverity.WARNING);
         }
 
         // check org is valid identifier

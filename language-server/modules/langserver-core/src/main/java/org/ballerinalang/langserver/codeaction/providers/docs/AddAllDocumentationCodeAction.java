@@ -50,6 +50,7 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
                 CodeActionNodeType.RESOURCE,
                 CodeActionNodeType.RECORD,
                 CodeActionNodeType.OBJECT_FUNCTION,
+                CodeActionNodeType.ANNOTATION,
                 CodeActionNodeType.CLASS_FUNCTION));
     }
 

@@ -1,4 +1,0 @@
-[package]
-org = "immutable_def_test"
-name = "records"
-version = "0.1.0"

@@ -51,6 +51,11 @@ public function validateAPI() {
 
     Details recordVal2 = getRecordValueWithInitialValues();
     test:assertEquals(recordVal2, {"name": "studentName", "id": 123});
+
+    json jsonValue = {name: "Jane", id: 234};
+    anydata recordVal3 = getRecordValueFromJson(jsonValue, Details);
+    test:assertEquals(recordVal3, {"name": "Jane", "id": 234});
+    test:assertTrue(recordVal3 is Details);
 }
 
 function getRecordValue() returns anydata = @java:Method {
@@ -58,6 +63,10 @@ function getRecordValue() returns anydata = @java:Method {
 } external;
 
 function getRecordValueWithInitialValues() returns Details = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getRecordValueFromJson(json value, typedesc<Details> recType) returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
