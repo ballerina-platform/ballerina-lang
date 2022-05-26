@@ -380,36 +380,39 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangFromClause initFromClause = (BLangFromClause) clauses.get(0);
         final BLangVariableReference initPipeline = addPipeline(block, initFromClause.pos,
                 initFromClause.collection, resultType);
-        BLangVariableReference initFrom = addInputFunction(block, initFromClause);
+        BLangVariableReference initFrom = addInputFunction(block, initFromClause, stmtsToBePropagated);
         addStreamFunction(block, initPipeline, initFrom);
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
                     BLangFromClause fromClause = (BLangFromClause) clause;
-                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause);
+                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause, stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, nestedFromFunc);
-                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause);
+                    BLangVariableReference fromInputFunc = addInputFunction(block, fromClause, stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, fromInputFunc);
                     break;
                 case JOIN:
                     BLangJoinClause joinClause = (BLangJoinClause) clause;
                     BLangVariableReference joinPipeline = addPipeline(block, joinClause.pos,
                             joinClause.collection, resultType);
-                    BLangVariableReference joinInputFunc = addInputFunction(block, joinClause);
+                    BLangVariableReference joinInputFunc = addInputFunction(block, joinClause, stmtsToBePropagated);
                     addStreamFunction(block, joinPipeline, joinInputFunc);
-                    BLangVariableReference joinFunc = addJoinFunction(block, joinClause, joinPipeline);
+                    BLangVariableReference joinFunc = addJoinFunction(block, joinClause, joinPipeline, stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, joinFunc);
                     break;
                 case LET_CLAUSE:
-                    BLangVariableReference letFunc = addLetFunction(block, (BLangLetClause) clause);
+                    BLangVariableReference letFunc = addLetFunction(block, (BLangLetClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, letFunc);
                     break;
                 case WHERE:
-                    BLangVariableReference whereFunc = addWhereFunction(block, (BLangWhereClause) clause);
+                    BLangVariableReference whereFunc = addWhereFunction(block, (BLangWhereClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, whereFunc);
                     break;
                 case ORDER_BY:
-                    BLangVariableReference orderFunc = addOrderByFunction(block, (BLangOrderByClause) clause);
+                    BLangVariableReference orderFunc = addOrderByFunction(block, (BLangOrderByClause) clause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, orderFunc);
                     break;
                 case SELECT:
@@ -489,11 +492,13 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param inputClause to be desugared.
      * @return variableReference to created from _StreamFunction.
      */
-    BLangVariableReference addInputFunction(BLangBlockStmt blockStmt, BLangInputClause inputClause) {
+    BLangVariableReference addInputFunction(BLangBlockStmt blockStmt, BLangInputClause inputClause,
+                                            List<BLangStatement> stmtsToBePropagated) {
         Location pos = inputClause.pos;
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
 
         // frame["x"] = x;, note: stmts will get added in reverse order.
@@ -534,7 +539,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param fromClause to be desugared.
      * @return variableReference to created from _StreamFunction.
      */
-    BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
+    BLangVariableReference addNestedFromFunction(BLangBlockStmt blockStmt, BLangFromClause fromClause,
+                                                 List<BLangStatement> stmtsToBePropagated) {
         Location pos = fromClause.pos;
         // function(_Frame frame) returns any|error? { return collection; }
         BLangUnionTypeNode returnType = getAnyAndErrorTypeNode();
@@ -542,6 +548,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         returnNode.expr = fromClause.collection;
         returnNode.pos = pos;
         BLangLambdaFunction lambda = createLambdaFunction(pos, returnType, returnNode, false);
+        ((BLangBlockFunctionBody)lambda.function.body).stmts.addAll(0, stmtsToBePropagated);
         lambda.accept(this);
         // at this point;
         // function(_Frame frame) returns any|error? {
@@ -561,11 +568,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to created join _StreamFunction.
      */
     BLangVariableReference addJoinFunction(BLangBlockStmt blockStmt, BLangJoinClause joinClause,
-                                           BLangVariableReference joinPipeline) {
+                                           BLangVariableReference joinPipeline,
+                                           List<BLangStatement> stmtsToBePropagated) {
         BLangExpression lhsExpr = (BLangExpression) joinClause.onClause.getLeftExpression();
         BLangExpression rhsExpr = (BLangExpression) joinClause.onClause.getRightExpression();
-        BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr);
-        BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr);
+        BLangLambdaFunction lhsKeyFunction = createKeyFunction(lhsExpr, stmtsToBePropagated);
+        BLangLambdaFunction rhsKeyFunction = createKeyFunction(rhsExpr, stmtsToBePropagated);
         if (joinClause.isOuterJoin) {
             List<BVarSymbol> symbols =
                     getIntroducedSymbols((BLangVariable) joinClause.variableDefinitionNode.getVariable());
@@ -589,7 +597,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param letClause to be desugared.
      * @return variableReference to created let _StreamFunction.
      */
-    BLangVariableReference addLetFunction(BLangBlockStmt blockStmt, BLangLetClause letClause) {
+    BLangVariableReference addLetFunction(BLangBlockStmt blockStmt, BLangLetClause letClause,
+                                          List<BLangStatement> stmtsToBePropagated) {
         Location pos = letClause.pos;
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
@@ -606,6 +615,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
             setSymbolOwner((BLangVariable) letVariable.definitionNode.getVariable(), env.scope.owner);
         }
+        body.stmts.addAll(0, stmtsToBePropagated);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
     }
@@ -620,12 +630,14 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param whereClause to be desugared.
      * @return variableReference to created filter _StreamFunction.
      */
-    BLangVariableReference addWhereFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause) {
+    BLangVariableReference addWhereFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause,
+                                            List<BLangStatement> stmtsToBePropagated) {
         Location pos = whereClause.pos;
         BLangLambdaFunction lambda = createFilterLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
+        body.stmts.addAll(0, stmtsToBePropagated);
         returnNode.setExpression(whereClause.expression);
         body.addStatement(returnNode);
         lambda.accept(this);
@@ -642,10 +654,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param orderByClause  to be desugared.
      * @return variableReference to created orderBy _StreamFunction.
      */
-    BLangVariableReference addOrderByFunction(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause) {
+    BLangVariableReference addOrderByFunction(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause,
+                                              List<BLangStatement> stmtsToBePropagated) {
         Location pos = orderByClause.pos;
         BLangLambdaFunction lambda = createActionLambda(pos);
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
         BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
 
@@ -1134,11 +1148,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param expr key function expression.
      * @return created key function lambda.
      */
-    private BLangLambdaFunction createKeyFunction(BLangExpression expr) {
+    private BLangLambdaFunction createKeyFunction(BLangExpression expr, List<BLangStatement> stmtsToBePropagated) {
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.expr = desugar.addConversionExprIfRequired(expr, symTable.anyType);
         returnNode.pos = expr.pos;
         BLangLambdaFunction keyFunction = createLambdaFunction(expr.pos, getAnyTypeNode(), returnNode, false);
+        ((BLangBlockFunctionBody)keyFunction.function.body).stmts.addAll(0, stmtsToBePropagated);
         keyFunction.accept(this);
         return keyFunction;
     }

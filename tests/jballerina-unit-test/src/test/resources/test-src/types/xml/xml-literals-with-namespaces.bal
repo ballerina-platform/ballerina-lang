@@ -232,6 +232,43 @@ function testXmlInterpolationWithQuery() returns error? {
     };
     string s6 = x9.toString();
     if (s6 != expectedStr3) {
-        panic error("Assertion error", expected = expectedStr3, found = s5);
+        panic error("Assertion error", expected = expectedStr3, found = s6);
+    }
+
+    xml x10 = from int i in [1]
+        let xml y = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`
+        select xml `<record>${y}</record>`;
+    string s7 = x10.toString();
+    string expectedStr5 = "<record><empRecord employeeId=\"1\"><localNS:id xmlns:localNS=\"http://www.so2w.org\">1</localNS:id></empRecord></record>";
+    if (s7 != expectedStr5) {
+        panic error("Assertion error", expected = expectedStr3, found = s7);
+    }
+
+    xml x11 = from xml x in (from int j in [1]
+            select xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`)
+        select xml `<record>${x}</record>`;
+    string s8 = x11.toString();
+    if (s8 != expectedStr5) {
+       panic error("Assertion error", expected = expectedStr3, found = s7);
+    }
+
+    xml x12 = from int i in [1]
+        join int j in [1]
+    on xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`
+    equals xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`
+        select xml `<record>${i}</record>`;
+    string s9 = x12.toString();
+    string expectedStr6 = "<record>1</record>";
+    if (s9 != expectedStr6) {
+       panic error("Assertion error", expected = expectedStr3, found = s7);
+    }
+
+    xml expectedXml = xml `<empRecord employeeId="1"><localNS:id>1</localNS:id></empRecord>`;
+    xml x13 = from int i in [1]
+                where xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>` == expectedXml
+                select xml `<record>${expectedXml}</record>`;
+    string s10 = x13.toString();
+    if (s10 != expectedStr5) {
+       panic error("Assertion error", expected = expectedStr5, found = s10);
     }
 }
