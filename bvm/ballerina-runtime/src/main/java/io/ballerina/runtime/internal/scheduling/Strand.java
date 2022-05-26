@@ -435,7 +435,11 @@ public class Strand {
             if (this.frames != null) {
                 infoStr.append("frame count :" + this.frames.size() + "\n");
                 for (Object frame : frames) {
-                    infoStr.append("\tframe toString: " + frame.toString() + "\n");
+                    if (frame != null) {
+                        infoStr.append("\n\tframe toString: \n\t");
+                        infoStr.append(frame);
+                        infoStr.append("\n");
+                    }
                 }
             }
             
