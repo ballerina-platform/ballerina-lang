@@ -26,10 +26,14 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.PredefinedTypes;
@@ -51,8 +55,12 @@ import java.io.PrintStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -164,6 +172,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Available declarations as a list of string.
      */
     public abstract List<String> availableModuleDeclarations();
+
+    private static ClassLoader classLoader = null;
+
+    private static ClassLoader importClassLoader = null;
 
     /* Template methods */
 
@@ -304,11 +316,12 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param templateName Template to evaluate.
      * @throws InvokerException If execution/compilation failed.
      */
-    protected void executeProject(ClassLoadContext context, String templateName) throws InvokerException {
+    protected void executeProject(ClassLoadContext context, String templateName, List<String> imports)
+            throws InvokerException {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-        executeProject(jBallerinaBackend);
+        executeProject(jBallerinaBackend, project, imports);
     }
 
     /**
@@ -319,7 +332,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param jBallerinaBackend Backed to use.
      * @throws InvokerException If execution failed.
      */
-    protected void executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend, Project project, List<String> imports)
+            throws InvokerException {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
@@ -329,9 +343,34 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             // Main method class name is file name without extension
             String fileName = bufferFile.getName();
             String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
-
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
-            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+            if (importClassLoader == null) {
+                importClassLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar();
+            }
+
+            ArrayList<URL> urlList = new ArrayList<>();
+            if (imports.size() > 0) {
+                jarResolver.getJarFilePathsRequiredForExecution().stream()
+                        .filter( jarLibrary -> !jarLibrary.path().toString().contains("main"))
+                        .forEach(jarLibrary -> {
+                            try {
+                                urlList.add(new URL(jarLibrary.path().toUri().toURL().toString()));
+                            } catch (MalformedURLException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+
+                URL[] urlArr = new URL[urlList.size()];
+                urlArr = urlList.toArray(urlArr);
+                importClassLoader = URLClassLoader.newInstance(urlArr, importClassLoader);
+            }
+
+            ModuleName moduleName = project.currentPackage().getDefaultModule().moduleName();
+            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
+                    project.currentPackage().packageId(), moduleName);
+            URL u = new URL(generatedJarLibrary.path().toUri().toURL().toString());
+            classLoader = URLClassLoader.newInstance(new URL[]{u}, importClassLoader);
+
             // First run configure initialization
             // TODO: (#28662) After configurables can be supported, change this to that file location
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
@@ -346,10 +385,14 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             if (failErrorMessage != null) {
                 errorStream.println("fail: " + failErrorMessage);
             }
-        } catch (InvokerPanicException panicError) {
+        } catch (InvokerPanicException | MalformedURLException panicError) {
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
-            throw panicError;
+            try {
+                throw panicError;
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
