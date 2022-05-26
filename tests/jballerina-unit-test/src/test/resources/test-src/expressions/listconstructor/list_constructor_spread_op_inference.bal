@@ -62,6 +62,10 @@ function testSpreadOpOnVariableLengthListsWithVar() {
     [string, boolean...] a4 = ["s"];
     var v6 = [...a1, ...a4];
     assertArrayEquality(v6, [4, 5, "s"]);
+
+    string[] a5 = ["x", "y"];
+    var v7 = [...a1, ...a5];
+    assertArrayEquality(v7, [4, 5, "x", "y"]);
 }
 
 type ReadonlyIntArr readonly & int[3];

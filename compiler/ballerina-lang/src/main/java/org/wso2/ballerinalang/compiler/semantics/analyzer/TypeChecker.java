@@ -945,7 +945,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType = data.expType;
         if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
             InferredTupleDetails inferredTupleDetails =
-                    checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), data.env, data);
+                    checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), data);
 
             // inferredTupleDetails cannot have restMemberTypes as it does not support spread operator yet.
             List<BType> memTypes = inferredTupleDetails.fixedMemberTypes;
@@ -1089,7 +1089,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType getInferredTableType(BLangTableConstructorExpr exprToLog, AnalyzerData data) {
         InferredTupleDetails inferredTupleDetails =
-                checkExprList(new ArrayList<>(exprToLog.recordLiteralList), data.env, data);
+                checkExprList(new ArrayList<>(exprToLog.recordLiteralList), data);
 
         // inferredTupleDetails cannot have restMemberTypes as it does not support spread operator yet.
         List<BType> memTypes = inferredTupleDetails.fixedMemberTypes;
@@ -1667,13 +1667,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
 
                     BType resultType = checkExpr(expr, symTable.noType, data);
-                    BType memberType;
+
+                    BType memberType = resultType;
                     if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
                         memberType = ((BLangTypedescExpr) expr).resolvedType;
                     } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                         memberType = ((BLangSimpleVarRef) expr).symbol.type;
-                    } else {
-                        memberType = resultType;
                     }
 
                     if (inferredTupleDetails.restMemberTypes.isEmpty()) {
@@ -2081,16 +2080,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return checkExpr(exprToCheck, eType, data) == symTable.semanticError;
     }
 
-    private InferredTupleDetails checkExprList(List<BLangExpression> exprs, SymbolEnv env, AnalyzerData data) {
-        return checkExprList(exprs, env, symTable.noType, data);
+    private InferredTupleDetails checkExprList(List<BLangExpression> exprs, AnalyzerData data) {
+        return checkExprList(exprs, symTable.noType, data);
     }
 
-    private InferredTupleDetails checkExprList(List<BLangExpression> exprs, SymbolEnv env, BType expType,
-                                               AnalyzerData data) {
+    private InferredTupleDetails checkExprList(List<BLangExpression> exprs, BType expType, AnalyzerData data) {
         InferredTupleDetails inferredTupleDetails = new InferredTupleDetails();
         SymbolEnv prevEnv = data.env;
         BType preExpType = data.expType;
-        data.env = env;
         data.expType = expType;
         for (BLangExpression e : exprs) {
             if (e.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
@@ -2118,7 +2115,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType, AnalyzerData data) {
-        InferredTupleDetails inferredTupleDetails = checkExprList(listConstructor.exprs, data.env, expType, data);
+        InferredTupleDetails inferredTupleDetails = checkExprList(listConstructor.exprs, expType, data);
         List<BType> fixedMemberTypes = inferredTupleDetails.fixedMemberTypes;
         List<BType> restMemberTypes = inferredTupleDetails.restMemberTypes;
 
