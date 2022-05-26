@@ -389,7 +389,8 @@ public class QueryDesugar extends BLangNodeVisitor {
             switch (clause.getKind()) {
                 case FROM:
                     BLangFromClause fromClause = (BLangFromClause) clause;
-                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause, stmtsToBePropagated);
+                    BLangVariableReference nestedFromFunc = addNestedFromFunction(block, fromClause,
+                            stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, nestedFromFunc);
                     BLangVariableReference fromInputFunc = addInputFunction(block, fromClause, stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, fromInputFunc);
@@ -491,8 +492,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt  parent block to write to.
-     * @param inputClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param inputClause         to be desugared.
      * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created from _StreamFunction.
      */
@@ -539,8 +540,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return collection;
      * });
      *
-     * @param blockStmt  parent block to write to.
-     * @param fromClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param fromClause          to be desugared.
      * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created from _StreamFunction.
      */
@@ -598,8 +599,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return frame;
      * });
      *
-     * @param blockStmt parent block to write to.
-     * @param letClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param letClause           to be desugared.
      * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created let _StreamFunction.
      */
@@ -632,8 +633,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * return <int>frame["x"] > 0;
      * });
      *
-     * @param blockStmt   parent block to write to.
-     * @param whereClause to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param whereClause         to be desugared.
      * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created filter _StreamFunction.
      */
@@ -658,8 +659,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * _Frame frame = {"orderKey": frame["x2"] + frame["y2"], $orderDirection$: true + false"};
      * });
      *
-     * @param blockStmt parent block to write to.
-     * @param orderByClause  to be desugared.
+     * @param blockStmt           parent block to write to.
+     * @param orderByClause       to be desugared.
      * @param stmtsToBePropagated list of statements to be propagated.
      * @return variableReference to created orderBy _StreamFunction.
      */
