@@ -25,12 +25,18 @@ import io.ballerina.types.Context;
 import io.ballerina.types.Core;
 import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.ListAtomicType;
-import io.ballerina.types.ListConjunction;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SubtypeData;
 import io.ballerina.types.UniformTypeBitSet;
 import io.ballerina.types.subtypedata.BddAllOrNothing;
 import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.Range;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static io.ballerina.types.Common.isListBitsSet;
 import static io.ballerina.types.Common.isNothingSubtype;
@@ -44,12 +50,9 @@ import static io.ballerina.types.PredefinedType.NEVER;
 import static io.ballerina.types.PredefinedType.TOP;
 import static io.ballerina.types.UniformTypeCode.UT_LIST_RO;
 import static io.ballerina.types.UniformTypeCode.UT_LIST_RW;
+import static io.ballerina.types.subtypedata.IntSubtype.intSubtypeContains;
 import static io.ballerina.types.typeops.ListCommonOps.fixedArrayAnyEmpty;
-import static io.ballerina.types.typeops.ListCommonOps.fixedArrayFill;
-import static io.ballerina.types.typeops.ListCommonOps.fixedArrayReplace;
 import static io.ballerina.types.typeops.ListCommonOps.fixedArrayShallowCopy;
-import static io.ballerina.types.typeops.ListCommonOps.listAtomicMemberTypeAt;
-import static io.ballerina.types.typeops.ListCommonOps.listConjunction;
 import static io.ballerina.types.typeops.ListCommonOps.listIntersectWith;
 import static io.ballerina.types.typeops.ListCommonOps.listMemberAt;
 
@@ -118,12 +121,13 @@ public class ListProj {
                     Atom d = p.atom;
                     p = p.next;
                     lt = cx.listAtomType(d);
-                    ListCommonOps.FixedLengthArraySemtypePair intersected = listIntersectWith(members, rest, lt);
+                    TwoTuple intersected = listIntersectWith(members, rest,
+                            lt.members, lt.rest);
                     if (intersected == null) {
                         return NEVER;
                     }
-                    members = intersected.members;
-                    rest = intersected.rest;
+                    members = (FixedLengthArray) intersected.item1;
+                    rest = (SemType) intersected.item2;
                 }
             }
             if (fixedArrayAnyEmpty(cx, members)) {
@@ -134,44 +138,98 @@ public class ListProj {
                 rest = NEVER;
             }
         }
-        return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));
+        // return listProjExclude(cx, k, members, rest, listConjunction(cx, neg));
+        List<Integer> indices = ListCommonOps.listSamples(cx, members, rest, neg);
+        int[] keyIndices;
+        TwoTuple projSamples = listProjSamples(indices, k);
+        TwoTuple sampleTypes = ListCommonOps.listSampleTypes(cx, members, rest, indices);
+        return listProjExclude(cx, ((List<Integer>) projSamples.item1).toArray(new Integer[0]),
+                ((List<Integer>) projSamples.item2).toArray(new Integer[0]),
+                ((List<SemType>) sampleTypes.item1).toArray(new SemType[0]),
+                ((int) sampleTypes.item2), neg);
     }
 
-    // Precondition k >= 0 and members[i] not empty for all i
-    // This finds the projection of e[k], excluding the list of atoms in neg
-    // when the type of e is given by members and rest.
+    // In order to adapt listInhabited to do projection, we need
+    // to know which samples correspond to keys and to ensure that
+    // every equivalence class that overlaps with a key has a sample in the
+    // intersection.
+    // Here we add samples for both ends of each range. This doesn't handle the
+    // case where the key is properly within a partition: but that is handled
+    // because we already have a sample of the end of the partition.
+    private static TwoTuple listProjSamples(List<Integer> indices, SubtypeData k) {
+        List<TwoTuple> v = new ArrayList<>();
+        for (int i : indices) {
+            v.add(TwoTuple.from(i, intSubtypeContains(k, i)));
+        }
+        if (k instanceof IntSubtype) {
+            for (Range range : ((IntSubtype) k).ranges) {
+                long max = range.max;
+                if (range.max >= 0) {
+                    v.add(TwoTuple.from((int) max, true));
+                    int min = Integer.max(0, (int) range.min);
+                    if (min < max) {
+                        v.add(TwoTuple.from(min, true));
+                    }
+                }
+            }
+        }
+        Collections.sort(v, (p1, p2) -> (int) p1.item1 - (int) p2.item2);
+        List<Integer> indices1 = new ArrayList<>();
+        List<Integer> keyIndices = new ArrayList<>();
+        for (var ib : v) {
+            if (indices1.size() == 0 || ib.item1 != indices1.get(indices1.size() - 1)) {
+                if ((boolean) ib.item2) {
+                    keyIndices.add(indices1.size());
+                }
+                indices1.add((Integer) ib.item1);
+            }
+        }
+        return TwoTuple.from(indices1, keyIndices);
+    }
+
+    // `keyIndices` are the indices in `memberTypes` of those samples that belong to the key type.
     // Based on listInhabited
     // Corresponds to phi^x in AMK tutorial generalized for list types.
-    static SemType listProjExclude(Context cx, SubtypeData k, FixedLengthArray members, SemType rest,
-                                   ListConjunction neg) {
+    static SemType listProjExclude(Context cx, Integer[] indices, Integer[] keyIndices, SemType[] memberTypes,
+                                   int nRequired, Conjunction neg) {
+        SemType p = NEVER;
         if (neg == null) {
-            return listAtomicMemberTypeAt(members, rest, k);
+            int len = memberTypes.length;
+            for (int k : keyIndices) {
+                if (k < len) {
+                    p = union(p, memberTypes[k]);
+                }
+            }
         } else {
-            int len = members.fixedLength;
-            ListAtomicType nt = neg.listType;
+            final ListAtomicType nt = cx.listAtomType(neg.atom);
+            if (nRequired > 0 && isNever(listMemberAt(nt.members, nt.rest, indices[nRequired - 1]))) {
+                return listProjExclude(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
+            }
             int negLen = nt.members.fixedLength;
-            if (len < negLen) {
-                if (isNever(rest)) {
-                    return listProjExclude(cx, k, members, rest, neg.next);
+            if (negLen > 0) {
+                int len = memberTypes.length;
+                if (len < indices.length && indices[len] < negLen) {
+                    return listProjExclude(cx, indices, keyIndices, memberTypes, nRequired, neg.next);
                 }
-                fixedArrayFill(members, negLen, rest);
-            } else if (negLen < len && isNever(nt.rest)) {
-                return listProjExclude(cx, k, members, rest, neg.next);
-            }
-            // now we have nt.members.length() <= len
-            SemType p = NEVER;
-            for (int i = 0; i < Integer.max(members.initial.size(), neg.maxInitialLen); i++) {
-                SemType d = diff(listMemberAt(members, rest, i), listMemberAt(nt.members, nt.rest, i));
-                if (!isEmpty(cx, d)) {
-                    FixedLengthArray s = fixedArrayReplace(members, i, d, rest);
-                    p = union(p, listProjExclude(cx, k, s, rest, neg.next));
+                for (int i = nRequired; i < memberTypes.length; i++) {
+                    if (indices[i] >= negLen) {
+                        break;
+                    }
+                    SemType[] t = Arrays.copyOfRange(memberTypes, 0, i);
+                    p = union(p, listProjExclude(cx, indices, keyIndices, t, nRequired, neg.next));
                 }
             }
-            SemType rd = diff(rest, nt.rest);
-            if (!isEmpty(cx, rd)) {
-                p = union(p, listProjExclude(cx, k, members, rd, neg.next));
+            for (int i = 0; i < memberTypes.length; i++) {
+                SemType d = diff(memberTypes[i], listMemberAt(nt.members, nt.rest, indices[i]));
+                if (!Core.isEmpty(cx, d)) {
+                    SemType[] t = memberTypes.clone();
+                    t[i] = d;
+                    // We need to make index i be required
+                    p = union(p, listProjExclude(cx, indices, keyIndices, t, Integer.max(nRequired, i + 1),
+                            neg.next));
+                }
             }
-            return p;
         }
+        return p;
     }
 }
