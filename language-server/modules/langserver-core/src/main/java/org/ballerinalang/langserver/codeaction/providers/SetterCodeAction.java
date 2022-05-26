@@ -61,7 +61,7 @@ public class SetterCodeAction extends AbstractCodeActionProvider {
         String fieldName = String.valueOf(objectFieldNode.fieldName());
         String typeName = String.valueOf(objectFieldNode.typeName());
         String functionName = "set" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
-        if (CodeActionUtil.isfunctionDefined(functionName, objectFieldNode)) {
+        if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
 

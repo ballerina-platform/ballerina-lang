@@ -64,12 +64,12 @@ public class GetterSetterCodeAction extends AbstractCodeActionProvider {
         String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
                 fieldName.substring(1);
         Optional<FunctionDefinitionNode> initNode = CodeActionUtil.getInitNode(objectFieldNode);
-        if (CodeActionUtil.isfunctionDefined(functionName, objectFieldNode)) {
+        if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
 
         functionName = "set" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) + fieldName.substring(1);
-        if (CodeActionUtil.isfunctionDefined(functionName, objectFieldNode)) {
+        if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
 

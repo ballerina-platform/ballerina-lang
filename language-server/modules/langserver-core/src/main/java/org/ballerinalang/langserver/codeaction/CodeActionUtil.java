@@ -963,17 +963,17 @@ public class CodeActionUtil {
         int startOffset;
         int textOffset;
         if (initNode.isEmpty()) {
-            startLine = ((ClassDefinitionNode) objectFieldNode.parent()).
+            LinePosition linePosition =  ((ClassDefinitionNode) objectFieldNode.parent()).
                     members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
-                    lineRange().endLine().line();
-            startOffset = ((ClassDefinitionNode) objectFieldNode.parent()).
-                    members().get(((ClassDefinitionNode) objectFieldNode.parent()).members().size() - 1).
-                    lineRange().endLine().offset();
+                    lineRange().endLine();
+            startLine = linePosition.line();
+            startOffset = linePosition.offset();
             textOffset = objectFieldNode.lineRange().startLine().offset();
         } else {
-            startLine = initNode.get().lineRange().endLine().line();
-            startOffset = initNode.get().lineRange().endLine().offset();
-            textOffset = initNode.get().lineRange().startLine().offset();
+            LineRange lineRange = initNode.get().lineRange();
+            startLine = lineRange.endLine().line();
+            startOffset = lineRange.endLine().offset();
+            textOffset = lineRange.startLine().offset();
         }
 
         Position startPos = new Position(startLine, startOffset);
@@ -1005,7 +1005,7 @@ public class CodeActionUtil {
         return Optional.ofNullable(initNode);
     }
 
-    public static boolean isfunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
+    public static boolean isFunctionDefined(String functionName, ObjectFieldNode objectFieldNode) {
         for (Node node: ((ClassDefinitionNode) objectFieldNode.parent()).members()) {
             if (node.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                 if (((FunctionDefinitionNode) node).functionName().toString().equals(functionName)) {

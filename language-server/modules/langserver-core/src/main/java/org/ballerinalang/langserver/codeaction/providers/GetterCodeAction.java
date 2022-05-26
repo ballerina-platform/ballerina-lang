@@ -58,7 +58,7 @@ public class GetterCodeAction extends AbstractCodeActionProvider {
         String typeName = String.valueOf(objectFieldNode.typeName());
         String functionName = "get" + fieldName.substring(0, 1).toUpperCase(Locale.ROOT) +
                 fieldName.substring(1);
-        if (CodeActionUtil.isfunctionDefined(functionName, objectFieldNode)) {
+        if (CodeActionUtil.isFunctionDefined(functionName, objectFieldNode)) {
             return Collections.emptyList();
         }
 
