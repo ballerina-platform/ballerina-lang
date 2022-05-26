@@ -947,7 +947,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType = data.expType;
         if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
             List<BType> memTypes = checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), data.env,
-                                                 data);
+                    data);
             for (BType memType : memTypes) {
                 if (memType == symTable.semanticError) {
                     data.resultType = symTable.semanticError;
@@ -955,23 +955,37 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
 
-            if (tableConstructorExpr.recordLiteralList.size() == 0) {
+            // If we don't have a contextually applicable type and don't have members in the table constructor expr,
+            // we cannot derive the table type
+            if (expType.tag == TypeTags.NONE && tableConstructorExpr.recordLiteralList.size() == 0) {
                 dlog.error(tableConstructorExpr.pos, DiagnosticErrorCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE);
                 data.resultType = symTable.semanticError;
                 return;
             }
 
-            BType inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr, data);
-            BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
-            for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
-                recordLiteral.setBType(inherentMemberType);
-            }
-
-            if (!validateTableConstructorExpr(tableConstructorExpr, tableType, data)) {
+            // if the contextually expected type is `any` and the key specifier is defined,
+            // then we cannot derive a table type
+            if (expType.tag == TypeTags.ANY && tableConstructorExpr.tableKeySpecifier != null) {
+                dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                        DiagnosticErrorCode.KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY);
                 data.resultType = symTable.semanticError;
                 return;
             }
 
+            BType inherentMemberType;
+            if (tableConstructorExpr.tableKeySpecifier == null && expType.tag != TypeTags.NONE) {
+                inherentMemberType = getMappingConstructorCompatibleNonUnionType(expType, data);
+            } else {
+                inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr, data);
+                for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
+                    recordLiteral.setBType(inherentMemberType);
+                }
+            }
+            BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
+            if (!validateTableConstructorExpr(tableConstructorExpr, tableType, data)) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
             if (checkKeySpecifier(tableConstructorExpr, tableType, data)) {
                 return;
             }
@@ -1000,6 +1014,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 memTypes.add(recordType);
             }
 
+            if (!(validateKeySpecifierInTableConstructor((BTableType) applicableExpType,
+                    tableConstructorExpr.recordLiteralList, data) &&
+                    validateTableConstructorExpr(tableConstructorExpr, (BTableType) applicableExpType, data))) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+
             BTableType expectedTableType = (BTableType) applicableExpType;
             if (expectedTableType.constraint.tag == TypeTags.MAP && expectedTableType.isTypeInlineDefined) {
                 if (validateMapConstraintTable(applicableExpType)) {
@@ -1007,13 +1028,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return;
                 }
                 data.resultType = expType;
-                return;
-            }
-
-            if (!(validateKeySpecifierInTableConstructor((BTableType) applicableExpType,
-                    tableConstructorExpr.recordLiteralList, data) &&
-                    validateTableConstructorExpr(tableConstructorExpr, (BTableType) applicableExpType, data))) {
-                data.resultType = symTable.semanticError;
                 return;
             }
 
