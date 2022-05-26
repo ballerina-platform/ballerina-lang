@@ -5138,7 +5138,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void resetSkipFailStmtRewrite() {
-        this.skipFailStmtRewrite = false;
+        this.isVisitingQuery = false;
     }
 
     private void analyzeOnFailClause(BLangOnFailClause onFailClause, BLangBlockStmt blockStmt) {
