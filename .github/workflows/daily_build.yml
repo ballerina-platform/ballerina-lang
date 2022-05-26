@@ -99,6 +99,10 @@ jobs:
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/misc/ballerina-config-schema-builder
           mkdir -p /home/runner/work/ballerina-lang/ballerina-lang/ballerina-stringutils
       - name: Build with Gradle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: "${{ env.SONAR_TOKEN != '' }}"
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
@@ -107,3 +111,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Print log message  
+        env: 
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        if: "${{ env.SONAR_TOKEN == '' }}"
+        run: echo "Sonarcloud scan is skipped"
