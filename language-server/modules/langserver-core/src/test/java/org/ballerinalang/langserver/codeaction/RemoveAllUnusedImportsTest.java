@@ -24,14 +24,14 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test Cases for remove import code action.
+ * Test Cases for remove all unused imports code action.
  *
  * @since 2201.1.1
  */
-public class RemoveImportCodeActionTest extends AbstractCodeActionTest {
+public class RemoveAllUnusedImportsTest extends AbstractCodeActionTest {
     @Override
     public String getResourceDir() {
-        return "remove-import";
+        return "remove-all-unused-imports";
     }
 
     @Override
@@ -44,16 +44,9 @@ public class RemoveImportCodeActionTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"remove_unused_import_config1.json", "remove_unused_import_source1.bal"},
-                {"remove_unused_import_config2.json", "remove_unused_import_source2.bal"},
-                {"remove_unused_import_config3.json", "remove_unused_import_source3.bal"},
-                {"remove_unused_import_config4.json", "remove_unused_import_source4.bal"},
-                {"remove_unused_import_config5.json", "remove_unused_import_source5.bal"},
-                {"remove_unused_import_config6.json", "remove_unused_import_source6.bal"},
-                {"remove_unused_import_config7.json", "remove_unused_import_source7.bal"},
-                {"remove_unused_import_config8.json", "remove_unused_import_source8.bal"},
-                {"remove_unused_import_config9.json", "remove_unused_import_source9.bal"},
-                {"remove_redeclared_import_config.json", "remove_redeclared_import_source.bal"}
+                {"remove_all_unused_imports_config1.json", "remove_all_unused_imports_source1.bal"},
+                {"remove_all_unused_imports_config2.json", "remove_all_unused_imports_source2.bal"},
+                {"remove_all_unused_imports_config2.json", "remove_all_unused_imports_source2.bal"},
         };
     }
 }

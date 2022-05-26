@@ -39,8 +39,10 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -48,6 +50,7 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
@@ -906,5 +909,44 @@ public class CodeActionUtil {
             return Optional.ofNullable((T) diagnosticProperty.value());
         };
         return filterFunction;
+    }
+    
+    public static int removeImportAndUpdateIterator(List<ImportDeclarationNode> fileImports,
+                                                    List<LineRange> toBeRemovedImportsLocations, int i,
+                                                    ImportDeclarationNode importPkg) {
+        for (int j = 0; j < toBeRemovedImportsLocations.size(); j++) {
+            LineRange rmLineRange = toBeRemovedImportsLocations.get(j);
+            LineRange prefixLineRange = importPkg.prefix().isPresent()
+                    ? importPkg.prefix().get().prefix().lineRange()
+                    : importPkg.moduleName().get(importPkg.moduleName().size() - 1).lineRange();
+            if (prefixLineRange.equals(rmLineRange)) {
+                fileImports.remove(i);
+                toBeRemovedImportsLocations.remove(j);
+                i--;
+                break;
+            }
+        }
+        return i;
+    }
+
+    public static void buildEditText(StringBuilder editText, ImportDeclarationNode importNode) {
+
+        MinutiaeList leadingMinutiae = NodeFactory.createEmptyMinutiaeList();
+        MinutiaeList trailingMinutiae = importNode.importKeyword().trailingMinutiae();
+        Token modifiedImportKeyword = importNode.importKeyword().modify(leadingMinutiae, trailingMinutiae);
+
+        ImportDeclarationNode.ImportDeclarationNodeModifier importModifier = importNode.modify();
+        importModifier.withImportKeyword(modifiedImportKeyword);
+        if (importNode.orgName().isPresent()) {
+            importModifier.withOrgName(importNode.orgName().get());
+        }
+        importModifier.withModuleName(importNode.moduleName());
+        if (importNode.prefix().isPresent()) {
+            importModifier.withPrefix(importNode.prefix().get());
+        }
+        importNode.semicolon();
+        importModifier.withSemicolon(importNode.semicolon());
+
+        editText.append(importModifier.apply().toSourceCode());
     }
 }

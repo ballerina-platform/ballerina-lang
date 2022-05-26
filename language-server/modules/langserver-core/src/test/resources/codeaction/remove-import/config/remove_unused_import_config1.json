@@ -1,9 +1,9 @@
 {
   "line": 0,
-  "character": 25,
+  "character": 20,
   "expected": [
     {
-      "title": "Optimize all imports",
+      "title": "Remove all unused imports",
       "edits": [
         {
           "range": {
@@ -21,7 +21,7 @@
       ]
     },
     {
-      "title": "Remove import 'ballerina/lang.array'",
+      "title": "Remove unused import 'ballerina/module1'",
       "edits": [
         {
           "range": {

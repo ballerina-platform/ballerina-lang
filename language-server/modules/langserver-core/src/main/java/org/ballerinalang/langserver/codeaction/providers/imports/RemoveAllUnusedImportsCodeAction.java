@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -35,24 +34,21 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Code Action for optimizing all imports.
+ * Code Action to remove all unused imports, except when there is a re-declared import statement.
  *
- * @since 1.2.0
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
+public class RemoveAllUnusedImportsCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Optimize Imports";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2002", "BCE2004");
+    public static final String DIAGNOSTIC_CODE = "BCE2002";
 
-    public OptimizeImportsCodeAction() {
+    public RemoveAllUnusedImportsCodeAction() {
         super(Collections.singletonList(CodeActionNodeType.IMPORTS));
     }
 
@@ -70,13 +66,13 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
         List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> DIAGNOSTIC_CODES.contains(diag.diagnosticInfo().code()))
+                .filter(diag -> DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
                 .collect(Collectors.toList());
 
         // Skip, when nothing to remove and only single import pending
         if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.size() == 0)) {
-            return actions;
+            return Collections.emptyList();
         }
 
         // Find the imports range
@@ -102,30 +98,18 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
 
         // Re-create imports list text
         StringBuilder editText = new StringBuilder();
-        sortImports(fileImports).forEach(importNode -> CodeActionUtil.buildEditText(editText, importNode));
+        fileImports.forEach(importNode -> CodeActionUtil.buildEditText(editText, importNode));
 
         Position importStart = new Position(importSLine, 0);
         Position importEnd = new Position(importELine + 1, 0);
         TextEdit textEdit = new TextEdit(new Range(importStart, importEnd), editText.toString());
         List<TextEdit> edits = Collections.singletonList(textEdit);
-        actions.add(createCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri,
-                CodeActionKind.SourceOrganizeImports));
+        actions.add(createCodeAction(CommandConstants.REMOVE_ALL_UNUSED_IMPORTS, edits, uri, CodeActionKind.QuickFix));
         return actions;
     }
 
     @Override
     public String getName() {
         return NAME;
-    }
-
-    private List<ImportDeclarationNode> sortImports(List<ImportDeclarationNode> fileImports) {
-        return fileImports.stream()
-                .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
-                        o.orgName().get().orgName().text()
-                        : o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
-                                .thenComparing(
-                                        o -> o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
-                                .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
-                .collect(Collectors.toList());
     }
 }

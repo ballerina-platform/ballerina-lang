@@ -1,9 +1,9 @@
 {
-  "line": 1,
-  "character": 20,
+  "line": 0,
+  "character": 21,
   "expected": [
     {
-      "title": "Optimize all imports",
+      "title": "Remove all unused imports",
       "edits": [
         {
           "range": {
@@ -12,25 +12,25 @@
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },
-          "newText":"import ballerina/module1;\nimport ballerina/module1;\n"
+          "newText": ""
         }
       ]
     },
     {
-      "title": "Remove import 'ballerina/module1'",
+      "title": "Remove unused import 'ballerina/module1'",
       "edits": [
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 2,
+              "line": 1,
               "character": 0
             }
           },

@@ -37,7 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Code Action to remove import module.
+ * Code Action to remove an unused/ re-declared module import.
  *
  * @since 2201.1.1
  */
@@ -66,10 +66,12 @@ public class RemoveImportCodeAction extends AbstractCodeActionProvider {
         Range range = CommonUtil.toRange(importDeclNode.textRange().startOffset(), 
                 importDeclNode.textRangeWithMinutiae().endOffset(), (context.currentDocument().get().textDocument()));
         List<TextEdit> edits = List.of(new TextEdit(range, ""));
-        String moduleName =  importDeclNode.prefix().isPresent() ? importDeclNode.prefix().get().prefix().toString() 
+        String pkgName =  importDeclNode.prefix().isPresent() ? importDeclNode.prefix().get().prefix().toString() 
                 : importDeclNode.orgName().get() 
                 + importDeclNode.moduleName().stream().map(Node::toString).collect(Collectors.joining("."));
-        String commandTitle = String.format(CommandConstants.REMOVE_IMPORT, moduleName);
+        String commandTitle = "BCE2002".equals(diagnostic.diagnosticInfo().code()) 
+                ? String.format(CommandConstants.REMOVE_UNUSED_IMPORT, pkgName) 
+                : String.format(CommandConstants.REMOVE_REDECLARED_IMPORT, pkgName);
         return List.of(createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
