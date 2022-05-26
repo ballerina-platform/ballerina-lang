@@ -138,9 +138,8 @@ public class ReferencesUtil {
             // right end column being excluded when searching. To overcome that, here we search for the symbol at 
             // (col - 1). Ideally this shouldn't be an issue, because if we had cursor at the start col or middle, the
             // 1st search (above) would have found that.
-            position = new Position(position.getLine(), position.getCharacter() - 1);
             symbolAtCursor = semanticModel.get().symbol(srcFile.get(),
-                    LinePosition.from(position.getLine(), position.getCharacter()));
+                    LinePosition.from(position.getLine(), position.getCharacter() - 1));
             if (symbolAtCursor.isEmpty()) {
                 return Optional.empty();
             }

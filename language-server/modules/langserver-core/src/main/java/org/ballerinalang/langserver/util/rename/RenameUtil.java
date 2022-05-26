@@ -115,7 +115,7 @@ public class RenameUtil {
 
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
-        
+
         if (onImportDeclarationNode(context, nodeAtCursor)) {
             return Optional.empty();
         }
