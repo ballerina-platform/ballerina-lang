@@ -16,27 +16,28 @@
  * under the License.
  */
 
-package io.ballerina.semver.checker.diff;
+package org.ballerinalang.semver.checker.util;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
 
 /**
- * Semantic version impact levels which are ranked based on the severity.
+ * File I/O related utilities.
  *
  * @since 2201.2.0
  */
-public enum SemverImpact {
-    MAJOR(4),
-    UNKNOWN(3),
-    AMBIGUOUS(2),
-    MINOR(1),
-    PATCH(0);
+public class FileUtils {
 
-    private final int rank;
-
-    SemverImpact(int rank) {
-        this.rank = rank;
-    }
-
-    public int getRank() {
-        return rank;
+    /**
+     * @param file    Name of the expected file
+     * @param content string data which we want to write into the file
+     * @throws IOException for handling the error while handling the file
+     */
+    public static void writeToFile(File file, String content) throws IOException {
+        try (FileWriter fileWriter = new FileWriter(file, Charset.defaultCharset())) {
+            fileWriter.write(content);
+        }
     }
 }

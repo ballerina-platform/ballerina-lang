@@ -37,6 +37,12 @@ import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVer
  */
 public class DiffUtils {
 
+    public static final String DIFF_ATTR_KIND = "kind";
+    public static final String DIFF_ATTR_TYPE = "type";
+    public static final String DIFF_ATTR_MESSAGE = "message";
+    public static final String DIFF_ATTR_VERSION_IMPACT = "versionImpact";
+    public static final String DIFF_ATTR_CHILDREN = "childDiffs";
+
     /**
      * Returns the summary of changes in string format based on the current version, last published version and the set
      * of detected changes.
@@ -239,7 +245,7 @@ public class DiffUtils {
         }
     }
 
-    private static String getDiffTypeName(Diff diff) {
+    public static String getDiffTypeName(Diff diff) {
         if (diff instanceof PackageDiff) {
             return "package";
         } else if (diff instanceof ModuleDiff) {

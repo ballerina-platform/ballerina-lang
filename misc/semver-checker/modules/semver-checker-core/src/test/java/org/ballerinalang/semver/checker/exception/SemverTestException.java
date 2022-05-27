@@ -16,27 +16,16 @@
  * under the License.
  */
 
-package io.ballerina.semver.checker.diff;
+package org.ballerinalang.semver.checker.exception;
 
 /**
- * Semantic version impact levels which are ranked based on the severity.
+ * Base exception class for all exceptions in the Ballerina semver checker test suite.
  *
  * @since 2201.2.0
  */
-public enum SemverImpact {
-    MAJOR(4),
-    UNKNOWN(3),
-    AMBIGUOUS(2),
-    MINOR(1),
-    PATCH(0);
+public class SemverTestException extends Exception {
 
-    private final int rank;
-
-    SemverImpact(int rank) {
-        this.rank = rank;
-    }
-
-    public int getRank() {
-        return rank;
+    public SemverTestException(String message) {
+        super(message);
     }
 }
