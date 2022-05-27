@@ -526,8 +526,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         blockClosureMapCount++;
         rewriteStmts(body.stmts, blockEnv);
 
+        boolean mapSymbolUpdated = false;
+        if (body.parent != null) {
+            BLangFunction function = (BLangFunction) body.parent;
+            mapSymbolUpdated = function.mapSymbolUpdated;
+        }
+
         // Add block map to the 0th position if a block map symbol is there.
-        if (body.mapSymbol != null) {
+        if (!mapSymbolUpdated && body.mapSymbol != null) {
             body.stmts.add(0, getClosureMap(body.mapSymbol, blockEnv));
         }
 
@@ -546,11 +552,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @param funcEnv  function environment
      */
     private void createFunctionMap(BLangFunction funcNode, SymbolEnv funcEnv) {
+        if (funcNode.mapSymbolUpdated) { // TODO: check this : ideally should work as first condition
+            return;
+        }
         if (funcNode.mapSymbol == null) {
             funcNode.mapSymbol = createMapSymbol(FUNCTION_MAP_SYM_NAME  + funClosureMapCount, funcEnv);
-        }
-        if (funcNode.mapSymbolUpdated) {
-            return;
         }
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapType);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.mapSymbol.name.value,
@@ -1402,6 +1408,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 } else {
                     updateClosureVarsForAttachedObjects(classDef, invokableFunc.receiver.symbol, localVarRef);
                 }
+            } if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR)) {
+                // will be handled in ClassClosureDesugar
+                result = localVarRef;
+                return;
             } else {
                 // Update the closure vars.
                 invokableFunc.paramClosureMap.computeIfAbsent(absoluteLevel, k -> createMapSymbol(
