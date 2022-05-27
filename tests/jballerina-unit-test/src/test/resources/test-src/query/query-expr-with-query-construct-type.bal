@@ -593,6 +593,26 @@ function testTableOnConflict() {
         on conflict onConflictError5;
 
     assertEqual(customerTable5, onConflictError5);
+
+    var customerTable6 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict null;
+
+    assertEqual(customerTable6, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
+
+    var customerTable7 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict ();
+
+    assertEqual(customerTable7, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
 }
 
 function assertEqual(anydata|error actual, anydata|error expected) {
