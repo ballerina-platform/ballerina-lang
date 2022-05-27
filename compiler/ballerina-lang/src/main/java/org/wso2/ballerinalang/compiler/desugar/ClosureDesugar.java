@@ -1513,46 +1513,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         result = rewriteExpr(accessExpr);
     }
 
-//    /**
-//     * Update the closure variables with the relevant map access expression.
-//     *  a + b can become a + self[$map$func_4][b]
-//     *  a + b ==> a + self[$map$func_4][b]
-//     *  we are dealing with the simple var ref `b` here
-//     * @param classDef   OCE class definition
-//     * @param selfSymbol self symbol of attached method
-//     * @param varRefExpr closure variable reference to be updated
-//     */
-//    private void updateClosureVarsWithMapAccessExpression(BLangClassDefinition classDef,
-//                                                          BVarSymbol selfSymbol,
-//                                                          BLangSimpleVarRef varRefExpr,
-//                                                          BVarSymbol mapSymbol) {
-//        // self
-//        BLangSimpleVarRef.BLangLocalVarRef localSelfVarRef = new BLangSimpleVarRef.BLangLocalVarRef(selfSymbol);
-//        localSelfVarRef.setBType(classDef.getBType());
-//        Location pos = varRefExpr.pos;
-//
-//        // self[mapSymbol]
-//        BLangIndexBasedAccess.BLangStructFieldAccessExpr accessExprForClassField =
-//                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(pos, localSelfVarRef,
-//                        ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-//                                mapSymbol.name), mapSymbol, false, true);
-//        accessExprForClassField.setBType(mapSymbol.type);
-//        accessExprForClassField.isLValue = true;
-//
-//        // self[mapSymbol][varRefExpr]
-//        BLangIndexBasedAccess.BLangMapAccessExpr closureMapAccessForField =
-//                new BLangIndexBasedAccess.BLangMapAccessExpr(pos, accessExprForClassField,
-//                        ASTBuilderUtil.createLiteral(pos, symTable.stringType, varRefExpr.symbol.name));
-//        closureMapAccessForField.setBType(varRefExpr.symbol.type);
-//        closureMapAccessForField.isLValue = false;
-//
-//        // <varRefExpr.type> self[mapSymbol][varRefExpr]
-//        BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
-//        castExpr.expr = closureMapAccessForField;
-//        castExpr.setBType(varRefExpr.symbol.type);
-//        castExpr.targetType = varRefExpr.symbol.type;
-//        result = desugar.rewrite(castExpr, classDef.oceEnvData.objMethodsEnv);
-//    }
 
     /**
      * Update the closure variables with the relevant map access expression.
