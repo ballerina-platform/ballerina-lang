@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.query;
 
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
