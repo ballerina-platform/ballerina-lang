@@ -1406,7 +1406,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 // Update the closure vars.
                 invokableFunc.paramClosureMap.computeIfAbsent(absoluteLevel, k -> createMapSymbol(
                         PARAMETER_MAP_NAME + absoluteLevel, env));
-                updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
+                updateClosureVars(localVarRef, invokableFunc.paramClosureMap.get(absoluteLevel));
             }
         }
 

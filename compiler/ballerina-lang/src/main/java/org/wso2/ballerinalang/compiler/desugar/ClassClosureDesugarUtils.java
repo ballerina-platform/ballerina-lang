@@ -62,8 +62,10 @@ public class ClassClosureDesugarUtils {
         }
         if (originalNode.getKind() == NodeKind.ARROW_EXPR) {
             BLangArrowFunction arrowFunction = (BLangArrowFunction) originalNode;
-            arrowFunction.insideOCE = true;
-//            arrowFunction.closureVarSymbols.add(resolvedSymbol);
+            arrowFunction.isInsideOCE = true;
+            if (arrowFunction.parent == null) {
+                arrowFunction.parent = classDef;
+            }
             resolvedSymbol.flags |= Flags.ATTACHED;
         }
 

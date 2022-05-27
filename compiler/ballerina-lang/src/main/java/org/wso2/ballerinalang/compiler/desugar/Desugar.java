@@ -1146,10 +1146,14 @@ public class Desugar extends BLangNodeVisitor {
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
         // gets defined before its first use.
         for (BLangFunction fn : classDefinition.functions) {
-            rewrite(fn, this.env);
+            rewrite(fn, env);
         }
-        rewrite(generatedInitFunction, this.env);
-        rewrite(classDefinition.initFunction, this.env);
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+            // TODO: ongoing dev
+            classClosureDesugar.desugarFunctions(classDef);
+        }
+        rewrite(generatedInitFunction, env);
+        rewrite(classDefinition.initFunction, env);
 
         result = classDefinition;
     }
@@ -7377,6 +7381,10 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLangFunction.setName(bLangArrowFunction.functionName);
         bLangFunction.addFlag(Flag.LAMBDA);
+        if (bLangArrowFunction.isInsideOCE) { // information used by closure desugar
+            bLangFunction.flagSet.add(Flag.OBJECT_CTOR);
+            bLangFunction.parent = bLangArrowFunction.parent;
+        }
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
         lambdaFunction.function = bLangFunction;

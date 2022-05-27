@@ -232,12 +232,18 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockFunctionBody body) {
         SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        boolean updated = false;
+        if (body.parent != null && body.parent.getKind() == NodeKind.FUNCTION) {
+            BLangFunction function = (BLangFunction) body.parent;
+            if (!function.mapSymbolUpdated && function.attachedFunction) {
+                body.mapSymbol = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
+                updated = true;
+            }
+        }
         rewriteStmts(body.stmts, blockEnv);
 
-        if (body.mapSymbol != null) {
+        if (!updated && (body.mapSymbol != null)) {
             body.stmts.add(0, getClosureMap(body.mapSymbol, blockEnv));
-
-            // TODO: add body map reassignment statement
         }
 
         result = body;
