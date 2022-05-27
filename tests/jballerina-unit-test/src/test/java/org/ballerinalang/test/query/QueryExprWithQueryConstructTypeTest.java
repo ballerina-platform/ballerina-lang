@@ -174,6 +174,11 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic2");
     }
 
+    @Test
+    public void testTableOnConflict() {
+        BRunUtil.invoke(result, "testTableOnConflict");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
