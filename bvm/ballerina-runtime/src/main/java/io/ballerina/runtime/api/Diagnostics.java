@@ -58,7 +58,7 @@ public class Diagnostics {
 
     public static String getAllStrandInfo() {
         StringBuilder infoStr = new StringBuilder();
-        infoStr.append("No. of currently available Strands: " + allStrands.size() + "\n");
+        infoStr.append("No. of currently available Strands: " + allStrands.size() + "\n\n");
         for (Strand strand : allStrands.values()) {
             infoStr.append(strand.dumpState());
             infoStr.append("\n");
