@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.FunctionDiff;
@@ -42,6 +41,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PUBLIC_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.TRANSACTIONAL_KEYWORD;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.lookupQualifier;
 
 /**
  * Comparator implementation for Ballerina function definitions.
@@ -94,8 +94,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         NodeList<Token> oldQualifiers = oldNode.qualifierList();
 
         // analyzes public qualifier changes
-        Optional<Token> newPublicQual = getQualifier(newQualifiers, PUBLIC_KEYWORD);
-        Optional<Token> oldPublicQual = getQualifier(oldQualifiers, PUBLIC_KEYWORD);
+        Optional<Token> newPublicQual = lookupQualifier(newQualifiers, PUBLIC_KEYWORD);
+        Optional<Token> oldPublicQual = lookupQualifier(oldQualifiers, PUBLIC_KEYWORD);
         if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
             // public qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newPublicQual.get(), null);
@@ -115,8 +115,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         }
 
         // analyzes isolated qualifier changes
-        Optional<Token> newIsolatedQual = getQualifier(newQualifiers, ISOLATED_KEYWORD);
-        Optional<Token> oldIsolatedQual = getQualifier(oldQualifiers, ISOLATED_KEYWORD);
+        Optional<Token> newIsolatedQual = lookupQualifier(newQualifiers, ISOLATED_KEYWORD);
+        Optional<Token> oldIsolatedQual = lookupQualifier(oldQualifiers, ISOLATED_KEYWORD);
         if (newIsolatedQual.isPresent() && oldIsolatedQual.isEmpty()) {
             // isolated qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newIsolatedQual.get(), null);
@@ -136,8 +136,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         }
 
         // analyzes transactional qualifier changes
-        Optional<Token> newTransactionalQual = getQualifier(newQualifiers, TRANSACTIONAL_KEYWORD);
-        Optional<Token> oldTransactionalQual = getQualifier(oldQualifiers, TRANSACTIONAL_KEYWORD);
+        Optional<Token> newTransactionalQual = lookupQualifier(newQualifiers, TRANSACTIONAL_KEYWORD);
+        Optional<Token> oldTransactionalQual = lookupQualifier(oldQualifiers, TRANSACTIONAL_KEYWORD);
         if (newTransactionalQual.isPresent() && oldTransactionalQual.isEmpty()) {
             // transactional qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newTransactionalQual.get(), null);
@@ -253,9 +253,5 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         }
 
         return functionBodyDiff;
-    }
-
-    private Optional<Token> getQualifier(NodeList<Token> qualifierList, SyntaxKind qualifier) {
-        return qualifierList.stream().filter(token -> token.kind() == qualifier).findAny();
     }
 }

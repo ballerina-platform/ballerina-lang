@@ -24,7 +24,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import java.util.Optional;
 
 /**
- * Base representation of changes in Ballerina syntax tree nodes.
+ * Base representation for changes in Ballerina syntax tree nodes.
  *
  * @param <T> node type
  * @since 2201.2.0

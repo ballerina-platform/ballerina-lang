@@ -18,10 +18,13 @@
 package io.ballerina.semver.checker.util;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -58,5 +61,16 @@ public class SyntaxTreeUtils {
         } else {
             return String.valueOf(serviceNode.hashCode());
         }
+    }
+
+    /**
+     * Returns the specified qualifier if it exist within the provided qualifier list.
+     *
+     * @param qualifierList qualifier list
+     * @param qualifierType expected qualifier kind
+     * @return the specified qualifier if it exist in the provided qualifier list
+     */
+    public static Optional<Token> lookupQualifier(NodeList<Token> qualifierList, SyntaxKind qualifierType) {
+        return qualifierList.stream().filter(token -> token.kind() == qualifierType).findAny();
     }
 }

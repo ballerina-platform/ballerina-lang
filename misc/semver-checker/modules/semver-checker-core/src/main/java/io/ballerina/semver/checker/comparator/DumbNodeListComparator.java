@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.semver.checker.diff.NodeListDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
 
@@ -43,6 +44,11 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
     DumbNodeListComparator(List<T> newNodesList, List<T> oldNodesList) {
         this.newNodesList = newNodesList;
         this.oldNodesList = oldNodesList;
+    }
+
+    DumbNodeListComparator(NodeList<T> newNodesList, NodeList<T> oldNodesList) {
+        this.newNodesList = newNodesList != null ? newNodesList.stream().collect(Collectors.toList()) : null;
+        this.oldNodesList = oldNodesList != null ? oldNodesList.stream().collect(Collectors.toList()) : null;
     }
 
     @Override

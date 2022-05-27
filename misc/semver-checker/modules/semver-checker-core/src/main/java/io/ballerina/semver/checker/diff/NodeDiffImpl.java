@@ -31,7 +31,7 @@ import java.util.Optional;
 import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
- * Implementation of changes in Ballerina syntax tree nodes.
+ * Base implementation for changes in Ballerina syntax tree nodes.
  *
  * @param <T> node type
  * @since 2201.2.0
@@ -173,7 +173,9 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
         @Override
         public Optional<? extends NodeDiff<T>> build() {
             if (!nodeDiff.getChildDiffs().isEmpty()) {
-                nodeDiff.computeVersionImpact();
+                if (nodeDiff.getVersionImpact() == SemverImpact.UNKNOWN) {
+                    nodeDiff.computeVersionImpact();
+                }
                 nodeDiff.setType(DiffType.MODIFIED);
                 return Optional.of(nodeDiff);
             } else if (nodeDiff.getType() == DiffType.NEW || nodeDiff.getType() == DiffType.REMOVED
