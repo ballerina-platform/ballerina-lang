@@ -88,13 +88,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test query expr with table having duplicate keys")
     public void testTableWithDuplicateKeys() {
-
-        Object returnValues = BRunUtil.invoke(result, "testTableWithDuplicateKeys");
-        Assert.assertNotNull(returnValues);
-
-        BError expectedError = (BError) returnValues;
-        Assert.assertEquals(expectedError.toString(), "error(\"{ballerina/lang.table}KeyConstraintViolation\"," +
-                "message=\"a value found for key '[1,\"Melina\"]'\")");
+        BRunUtil.invoke(result, "testTableWithDuplicateKeys");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
@@ -150,7 +144,7 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'CustomerTable', found '(table<Customer> key(id, name)|error)'",
                 86, 35);
-        validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
+        validateError(negativeResult, index++, "incompatible types: expected 'error?', found 'boolean'",
                 107, 21);
         validateError(negativeResult, index, "type 'error' not allowed here; expected " +
                 "an 'error' or a subtype of 'error'.", 107, 21);

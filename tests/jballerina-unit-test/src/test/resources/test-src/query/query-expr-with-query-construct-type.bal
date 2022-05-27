@@ -275,7 +275,7 @@ function testSimpleQueryExprReturnTable() returns boolean {
     return testPassed;
 }
 
-function testTableWithDuplicateKeys() returns CustomerTable|error {
+function testTableWithDuplicateKeys() {
     boolean testPassed = false;
 
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
@@ -290,7 +290,7 @@ function testTableWithDuplicateKeys() returns CustomerTable|error {
             noOfItems: customer.noOfItems
         };
 
-    return customerTable;
+    assertEqual(customerTable, table key(id,name) [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5}]);
 }
 
 function testTableNoDuplicatesAndOnConflictReturnTable() returns boolean {
