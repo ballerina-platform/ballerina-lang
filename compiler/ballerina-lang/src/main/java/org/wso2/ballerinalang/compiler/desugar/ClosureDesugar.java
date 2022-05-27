@@ -287,7 +287,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
         if (typeInit.argsExpr == null) {
             typeInit.argsExpr = new ArrayList<>(1);
         }
-//        typeInit.argsExpr.add(refToBlockClosureMap);
 
         // update new expression
         initInvocation.requiredArgs.add(refToBlockClosureMap);
@@ -526,8 +525,14 @@ public class ClosureDesugar extends BLangNodeVisitor {
         blockClosureMapCount++;
         rewriteStmts(body.stmts, blockEnv);
 
+        boolean mapSymbolUpdated = false;
+        if (body.parent != null) {
+            BLangFunction function = (BLangFunction) body.parent;
+            mapSymbolUpdated = function.mapSymbolUpdated;
+        }
+
         // Add block map to the 0th position if a block map symbol is there.
-        if (body.mapSymbol != null) {
+        if (!mapSymbolUpdated && body.mapSymbol != null) {
             body.stmts.add(0, getClosureMap(body.mapSymbol, blockEnv));
         }
 
@@ -546,11 +551,11 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @param funcEnv  function environment
      */
     private void createFunctionMap(BLangFunction funcNode, SymbolEnv funcEnv) {
+        if (funcNode.mapSymbolUpdated) { // TODO: check this : ideally should work as first condition
+            return;
+        }
         if (funcNode.mapSymbol == null) {
             funcNode.mapSymbol = createMapSymbol(FUNCTION_MAP_SYM_NAME  + funClosureMapCount, funcEnv);
-        }
-        if (funcNode.mapSymbolUpdated) {
-            return;
         }
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapType);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.mapSymbol.name.value,
@@ -774,30 +779,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private static BVarSymbol getMapSymbol(BLangNode node) {
         switch (node.getKind()) {
             case BLOCK_FUNCTION_BODY:
-//                BLangNode parent = node.parent;
-//                if (parent == null) {
-//                    return ((BLangBlockFunctionBody) node).mapSymbol;
-//                }
-//                if (parent.getKind() == NodeKind.FUNCTION) {
-//                    BLangFunction blockFunction = (BLangFunction) parent;
-//                    if (blockFunction.mapSymbol == null &&
-//                            blockFunction.attachedFunction && blockFunction.flagSet.contains(Flag.OBJECT_CTOR)) {
-//                        BLangClassDefinition classDefinition = (BLangClassDefinition) blockFunction.parent;
-//                        return classDefinition.oceEnvData.mapBlockMapSymbol;
-//                    }
-//                }
                 return ((BLangBlockFunctionBody) node).mapSymbol;
             case BLOCK:
                 return ((BLangBlockStmt) node).mapSymbol;
             case FUNCTION:
             case RESOURCE_FUNC:
-                BLangFunction function = (BLangFunction) node;
-//                if (function.mapSymbol == null &&
-//                        function.attachedFunction && function.flagSet.contains(Flag.OBJECT_CTOR)) {
-//                    BLangClassDefinition classDefinition = (BLangClassDefinition) function.parent;
-//                    return classDefinition.oceEnvData.mapBlockMapSymbol;
-//                }
-                return function.mapSymbol;
+                return ((BLangFunction) node).mapSymbol;
             case CLASS_DEFN:
                 BLangClassDefinition classNode = (BLangClassDefinition) node;
                 if (!classNode.isObjectContructorDecl) {
@@ -1223,8 +1210,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         SymbolEnv symbolEnv = env.createClone();
         bLangLambdaFunction.capturedClosureEnv = symbolEnv;
-//        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, symbolEnv);
-
         BLangFunction enclInvokable = (BLangFunction) symbolEnv.enclInvokable;
         // Save param closure map of the encl invokable.
         bLangLambdaFunction.paramMapSymbolsOfEnclInvokable = enclInvokable.paramClosureMap;
@@ -1402,11 +1387,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 } else {
                     updateClosureVarsForAttachedObjects(classDef, invokableFunc.receiver.symbol, localVarRef);
                 }
+            } if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR)) {
+                // will be handled in ClassClosureDesugar
+                result = localVarRef;
+                return;
             } else {
                 // Update the closure vars.
                 invokableFunc.paramClosureMap.computeIfAbsent(absoluteLevel, k -> createMapSymbol(
                         PARAMETER_MAP_NAME + absoluteLevel, env));
-                updateClosureVars(localVarRef, ((BLangFunction) env.enclInvokable).paramClosureMap.get(absoluteLevel));
+                updateClosureVars(localVarRef, invokableFunc.paramClosureMap.get(absoluteLevel));
             }
         }
 
@@ -1964,7 +1953,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         node.accept(this);
         BLangNode resultNode = this.result;
-        result = null;
+        this.result = null;
 
         this.env = previousEnv;
         return (E) resultNode;

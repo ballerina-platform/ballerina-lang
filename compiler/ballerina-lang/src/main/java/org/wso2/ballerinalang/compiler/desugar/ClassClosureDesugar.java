@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -170,6 +171,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private static final String OBJECT_CTOR_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE;
     private static final String OBJECT_CTOR_BLOCK_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE + "block";
     private static final String OBJECT_CTOR_FUNCTION_MAP_SYM_NAME = "$map$objectCtor" + UNDERSCORE + "function";
+    private static final String PARAMETER_MAP_NAME = "$paramMap$" + UNDERSCORE;
     private static final BVarSymbol CLOSURE_MAP_NOT_FOUND;
 
     private int blockClosureMapCount = 1;
@@ -181,10 +183,16 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private final Desugar desugar;
     private final Names names;
     private final BLangDiagnosticLog dlog;
+    private boolean enableSelfViaMapMode;
+
+    private int absoluteLevel = 1;
+
 
     static {
         CLOSURE_MAP_NOT_FOUND = new BVarSymbol(0, new Name("$not$found"), null, null, null, null, VIRTUAL);
     }
+
+    private BLangSimpleVariable currentReceiver;
 
     public static ClassClosureDesugar getInstance(CompilerContext context) {
         ClassClosureDesugar desugar = context.get(CLASS_CLOSURE_DESUGAR_KEY);
@@ -222,22 +230,34 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        BLangSimpleVariable prevReceiver = currentReceiver;
+        if (funcNode.receiver != null) {
+            currentReceiver = funcNode.receiver;
+        }
         if (funcNode.funcEnv == null) {
             funcNode.funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         }
         funcNode.body = rewrite(funcNode.body, funcNode.funcEnv);
+
+        currentReceiver = prevReceiver;
         result = funcNode;
     }
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
         SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
+        boolean updated = false;
+        if (body.parent != null && body.parent.getKind() == NodeKind.FUNCTION) {
+            BLangFunction function = (BLangFunction) body.parent;
+            if (!function.mapSymbolUpdated && function.attachedFunction) {
+                body.mapSymbol = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
+                updated = true;
+            }
+        }
         rewriteStmts(body.stmts, blockEnv);
 
-        if (body.mapSymbol != null) {
+        if (!updated && (body.mapSymbol != null)) {
             body.stmts.add(0, getClosureMap(body.mapSymbol, blockEnv));
-
-            // TODO: add body map reassignment statement
         }
 
         result = body;
@@ -733,14 +753,16 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        enableSelfViaMapMode = true;
+        if (bLangLambdaFunction.function.flagSet.contains(Flag.OBJECT_CTOR)) {
+            visit(bLangLambdaFunction.function);
+        }
+        enableSelfViaMapMode = false;
         result = bLangLambdaFunction;
     }
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        if (!bLangArrowFunction.closureVarSymbols.isEmpty()) {
-//            bLangArrowFunction.body.expr = rewriteExpr(bLangArrowFunction.body.expr);
-        }
         result = bLangArrowFunction;
     }
 
@@ -825,10 +847,57 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             result = localVarRef;
             return;
         }
+        BLangFunction invokableFunc = (BLangFunction) env.enclInvokable;
+        invokableFunc.paramClosureMap.computeIfAbsent(absoluteLevel, k -> createMapSymbol(
+                PARAMETER_MAP_NAME + absoluteLevel, env));
+        BVarSymbol mapSymbol = invokableFunc.paramClosureMap.get(absoluteLevel);
 
-        BVarSymbol mapSym = null;
-        //createMapSymbolIfAbsent(symbolEnv.node, symbolEnv.envCount);
-        updateClosureVars(localVarRef, mapSym);
+        Location varRefPos = localVarRef.pos;
+        BType finalType = localVarRef.symbol.type;
+
+        // $paramMap$_1
+        BLangSimpleVarRef.BLangLocalVarRef localVarForMap =
+                new BLangSimpleVarRef.BLangLocalVarRef(mapSymbol);
+        localVarForMap.setBType(mapSymbol.type);
+
+        // self literal
+        BLangLiteral selfLiteral = ASTBuilderUtil.createLiteral(
+                currentReceiver.symbol.pos, symTable.stringType, currentReceiver.name);
+
+        // $paramMap$_1[self]
+        BLangIndexBasedAccess.BLangMapAccessExpr paramMapAccessExpr =
+                new BLangIndexBasedAccess.BLangMapAccessExpr(varRefPos, localVarForMap, selfLiteral);
+        paramMapAccessExpr.setBType(classDef.getBType());
+
+        BVarSymbol blockMap = classDef.oceEnvData.blockLevelMapSymbol;
+
+        // $map$objectCtor_block
+        BLangLiteral oceMapLiteral = ASTBuilderUtil.createLiteral(blockMap.pos, symTable.stringType, blockMap.name);
+
+        // $paramMap$_1[self][$map$objectCtor_block]
+        BLangIndexBasedAccess.BLangStructFieldAccessExpr mapFieldAccessExpr =
+                new BLangIndexBasedAccess.BLangStructFieldAccessExpr(varRefPos, paramMapAccessExpr, oceMapLiteral,
+                        blockMap, true);
+        mapFieldAccessExpr.setBType(blockMap.type);
+
+        // "localVarRef"
+        BLangLiteral varRefMapIndex = ASTBuilderUtil.createLiteral(varRefPos, symTable.stringType, localVarRef.symbol.name);
+
+
+        // $paramMap$_1[self][$map$objectCtor_block][localVarRef]
+        BLangIndexBasedAccess.BLangMapAccessExpr localVarRefMapAccess =
+                new BLangIndexBasedAccess.BLangMapAccessExpr(varRefPos, mapFieldAccessExpr, varRefMapIndex);
+        localVarRefMapAccess.setBType(finalType);
+
+        // <localVarRef.type> $paramMap$_1[self][$map$objectCtor_block][localVarRef]
+        BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
+        castExpr.expr = localVarRefMapAccess;
+        castExpr.setBType(localVarRef.symbol.type);
+        castExpr.targetType = localVarRef.symbol.type;
+
+        localVarRef.closureDesugared = true;
+
+        result = desugar.rewrite(castExpr, env);
     }
 
     @Override
@@ -1297,6 +1366,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
      * @param mapSymbol  map symbol to be used
      */
     private void updateClosureVars(BLangSimpleVarRef varRefExpr, BVarSymbol mapSymbol) {
+        if (mapSymbol == null) {
+            return;
+        }
         BLangIndexBasedAccess.BLangStructFieldAccessExpr
                 accessExprForClassField = ClassClosureDesugarUtils.getClassMapAccessExpression(varRefExpr.pos,
                 mapSymbol, classDef, symTable.stringType);
@@ -1319,12 +1391,22 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             }
             return;
         }
-        this.env = classDef.oceEnvData.capturedClosureEnv;
+        env = classDef.oceEnvData.capturedClosureEnv;
         createMapSymbolsIfAbsent(classDef);
         addFunctionLevelClosureMapToClassDefinition(classDef);
         updateFields(classDef);
         addBlockLevelClosureMapToClassDefinition(classDef);
-//        updateFunctions(classDef);
+
+        reset();
+    }
+
+    public void desugarFunctions(BLangClassDefinition classDef) {
+        this.classDef = classDef;
+        env = classDef.oceEnvData.capturedClosureEnv;
+        if (!classDef.hasClosureVars) {
+            return;
+        }
+        updateFunctions(classDef);
 
         reset();
     }
@@ -1334,7 +1416,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             if (fn.funcEnv == null) {
                 fn.funcEnv = SymbolEnv.createFunctionEnv(fn, fn.symbol.scope, env);
             }
-            rewrite(fn, this.env);
+            rewrite(fn, env);
         }
     }
 

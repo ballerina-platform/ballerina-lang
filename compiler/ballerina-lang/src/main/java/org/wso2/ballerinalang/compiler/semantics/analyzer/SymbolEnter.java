@@ -512,6 +512,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineErrorType(Location pos, BErrorType errorType, SymbolEnv env) {
+        SymbolEnv prevEnv = this.env;
+        this.env = env;
+
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
         BTypeSymbol errorTSymbol = errorType.tsymbol;
         errorTSymbol.scope = new Scope(errorTSymbol);
@@ -520,17 +523,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
         }
 
-        SymbolEnv prevEnv = this.env;
-        this.env = pkgEnv;
         this.env = prevEnv;
-    }
-
-    private boolean isObjectCtor(BLangNode node) {
-        if (node.getKind() == NodeKind.CLASS_DEFN) {
-            BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-            return isObjectCtor(classDefinition);
-        }
-        return false;
     }
 
     private boolean isObjectCtor(BLangClassDefinition classDefinition) {
@@ -1245,10 +1238,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
                 continue;
             }
-//            if (isObjectCtor(typeDef)) {
-//                continue;
-//            }
-
             defineNode(typeDef, env);
         }
 

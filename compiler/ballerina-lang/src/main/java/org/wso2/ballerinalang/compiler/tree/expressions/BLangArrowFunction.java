@@ -53,7 +53,7 @@ public class BLangArrowFunction extends BLangExpression implements ArrowFunction
 
     // Used to track uninitialized closure variables in DataFlowAnalyzer.
     public Set<ClosureVarSymbol> closureVarSymbols = new LinkedHashSet<>();
-    public boolean insideOCE;
+    public boolean isInsideOCE;
 
     @Override
     public List<BLangSimpleVariable> getParameters() {

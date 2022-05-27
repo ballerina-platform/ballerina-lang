@@ -1139,10 +1139,14 @@ public class Desugar extends BLangNodeVisitor {
         // Rewrite the object methods to ensure that any anonymous types defined in method params, return type etc.
         // gets defined before its first use.
         for (BLangFunction fn : classDefinition.functions) {
-            rewrite(fn, this.env);
+            rewrite(fn, env);
         }
-        rewrite(generatedInitFunction, this.env);
-        rewrite(classDefinition.initFunction, this.env);
+        if (classDef.flagSet.contains(Flag.OBJECT_CTOR)) {
+            // TODO: ongoing dev
+            classClosureDesugar.desugarFunctions(classDef);
+        }
+        rewrite(generatedInitFunction, env);
+        rewrite(classDefinition.initFunction, env);
 
         result = classDefinition;
     }
@@ -7340,31 +7344,25 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         BLangFunction bLangFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLangFunction.setName(bLangArrowFunction.functionName);
-        bLangFunction.addFlag(Flag.LAMBDA);
 
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+        lambdaFunction.pos = bLangArrowFunction.pos;
+        bLangFunction.addFlag(Flag.LAMBDA);
+        if (bLangArrowFunction.isInsideOCE) { // information used by closure desugar
+            bLangFunction.flagSet.add(Flag.OBJECT_CTOR);
+            bLangFunction.parent = bLangArrowFunction.parent;
+        }
         lambdaFunction.function = bLangFunction;
-        Location posArrowFunc = bLangArrowFunction.pos;
-        lambdaFunction.function.pos = posArrowFunc;
-        lambdaFunction.pos = posArrowFunc;
-        lambdaFunction.parent = bLangArrowFunction.parent;
-        // At this phase lambda function is semantically correct. Therefore, simply env can be assigned.
-        lambdaFunction.capturedClosureEnv = env;
-        lambdaFunction.setBType(bLangArrowFunction.funcType);
-        bLangArrowFunction.params.forEach(bLangFunction::addParameter);
 
         // Create function body with return node
         BLangValueType returnType = (BLangValueType) TreeBuilder.createValueTypeNode();
         returnType.setBType(bLangArrowFunction.body.expr.getBType());
         bLangFunction.setReturnTypeNode(returnType);
         bLangFunction.setBody(populateArrowExprBodyBlock(bLangArrowFunction));
-        bLangFunction.body.pos = posArrowFunc;
 
-//        BLangSimpleVariable receiver = funcNode.receiver;
-//        if (receiver != null && receiver.symbol.closure && funcNode.flagSet.contains(Flag.ATTACHED)) {
-//            createFunctionMap(funcNode, funcEnv);
-//            addToFunctionMap(funcNode, funcEnv, position, receiver.symbol, receiver.getBType());
-//        }
+        bLangArrowFunction.params.forEach(bLangFunction::addParameter);
+        lambdaFunction.parent = bLangArrowFunction.parent;
+        lambdaFunction.setBType(bLangArrowFunction.funcType);
 
         // Create function symbol.
         BLangFunction funcNode = lambdaFunction.function;
@@ -7374,7 +7372,9 @@ public class Desugar extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID,
                                                                    bLangArrowFunction.funcType,
                                                                    env.enclEnv.enclVarSym, true,
-                                                                    posArrowFunc, VIRTUAL);
+                                                                   bLangArrowFunction.pos, VIRTUAL);
+
+        funcSymbol.originalName = new Name(funcNode.name.originalValue);
 
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -7395,7 +7395,11 @@ public class Desugar extends BLangNodeVisitor {
         funcNode.setBType(
                 new BInvokableType(paramTypes, getRestType(funcSymbol), funcNode.returnTypeNode.getBType(), null));
 
-//        rewrite(lambdaFunction.function, env);
+        lambdaFunction.function.pos = bLangArrowFunction.pos;
+        lambdaFunction.function.body.pos = bLangArrowFunction.pos;
+        // At this phase lambda function is semantically correct. Therefore simply env can be assigned.
+        lambdaFunction.capturedClosureEnv = env;
+        rewrite(lambdaFunction.function, env);
         env.enclPkg.addFunction(lambdaFunction.function);
         result = rewriteExpr(lambdaFunction);
     }
@@ -8788,7 +8792,7 @@ public class Desugar extends BLangNodeVisitor {
                 }
             }
         }
-        if (namedArgs.size() > 0) {
+        if (!namedArgs.isEmpty()) {
             setFieldsForIncRecordLiterals(namedArgs, incRecordLiterals, incRecordParamAllowAdditionalFields);
         }
         iExpr.requiredArgs = args;
@@ -8797,9 +8801,10 @@ public class Desugar extends BLangNodeVisitor {
     private void setFieldsForIncRecordLiterals(Map<String, BLangExpression> namedArgs,
                                                List<BLangRecordLiteral> incRecordLiterals,
                                                BLangRecordLiteral incRecordParamAllowAdditionalFields) {
-        for (String name : namedArgs.keySet()) {
+        for (Map.Entry<String, BLangExpression> entry : namedArgs.entrySet()) {
+            String name = entry.getKey();
             boolean isAdditionalField = true;
-            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) namedArgs.get(name);
+            BLangNamedArgsExpression expr = (BLangNamedArgsExpression) entry.getValue();
             for (BLangRecordLiteral recordLiteral : incRecordLiterals) {
                 LinkedHashMap<String, BField> fields =
                         ((BRecordType) Types.getReferredType(recordLiteral.getBType())).fields;

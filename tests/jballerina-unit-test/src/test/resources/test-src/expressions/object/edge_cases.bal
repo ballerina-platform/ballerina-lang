@@ -1,4 +1,4 @@
-public function main() {
+public function testArrowExprInsideOCE() {
     int i = 10; // Unused variable
     Foo foo = object {
         function foo() returns int {
