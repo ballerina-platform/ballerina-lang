@@ -5812,10 +5812,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
-        BType exprType = checkExpr(onConflictClause.expression, data.queryEnvs.peek(), symTable.errorType, data);
-        if (!types.isAssignable(exprType, symTable.errorType)) {
+        BType exprType = checkExpr(onConflictClause.expression, data.queryEnvs.peek(), symTable.errorOrNilType, data);
+        if (!types.isAssignable(exprType, symTable.errorOrNilType)) {
             dlog.error(onConflictClause.expression.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED,
-                    symTable.errorType, exprType);
+                    symTable.errorOrNilType, exprType);
         }
     }
 
