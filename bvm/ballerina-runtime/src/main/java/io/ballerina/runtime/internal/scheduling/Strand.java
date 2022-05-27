@@ -436,12 +436,13 @@ public class Strand {
                 infoStr.append("frame count :" + this.frames.size() + "\n");
                 for (Object frame : frames) {
                     if (frame != null) {
-                        infoStr.append("\n\tframe toString: \n\t");
+                        infoStr.append("\tframe data:\n\t\t");
                         infoStr.append(frame);
                         infoStr.append("\n");
                     }
                 }
             }
+            infoStr.append("\n");
             
             if (this.returnValue != null) {
                 infoStr.append("notnull return value: " + this.returnValue.toString() + "\n");
@@ -451,35 +452,35 @@ public class Strand {
                 infoStr.append("\tPrintableStackTrace: " + this.panic.getPrintableStackTrace() + "\n");
                 infoStr.append("\tErrorMessage: " + this.panic.getErrorMessage() + "\n");
             }
-            infoStr.append("scheduler (hashcode in hex):" + Integer.toHexString(this.scheduler.hashCode()) + "\n");
+            infoStr.append("scheduler (hashcode in hex): " + Integer.toHexString(this.scheduler.hashCode()) + "\n");
             if (this.parent != null) {
-                infoStr.append("parent strand id:" + this.parent.getId() + "\n");
+                infoStr.append("parent strand id: " + this.parent.getId() + "\n");
             }
-            infoStr.append("blockedOnExtern :" + this.blockedOnExtern + "\n");
-            infoStr.append("cancel :" + this.cancel + "\n");
+            infoStr.append("blockedOnExtern: " + this.blockedOnExtern + "\n");
+            infoStr.append("cancel: " + this.cancel + "\n");
 
-            infoStr.append("state :" + this.getState().toString() + "\n");
-            infoStr.append("schedulerItem :" + this.schedulerItem.toString() + "\n");
+            infoStr.append("state: " + this.getState().toString() + "\n");
+            infoStr.append("schedulerItem:\n\t" + this.schedulerItem.toString() + "\n");
 
             if (this.dependants != null) {
-                infoStr.append("dependent Scheduler items count :" + this.dependants.size() + "\n");
+                infoStr.append("dependent Scheduler items count: " + this.dependants.size() + "\n");
                 for (SchedulerItem dependant : dependants) {
                     infoStr.append("\t" + dependant.toString() + "\n");
                 }
             }
 
 
-            infoStr.append("strandGroup :" + this.strandGroup.toString() + "\n");
+            infoStr.append("strandGroup: " + this.strandGroup.toString() + "\n");
 
             if (this.waitContext != null) {
-                infoStr.append("waitContext :" + this.waitContext.toString() + "\n");
-                infoStr.append("\twaitContext.schedulerItem :" + this.waitContext.schedulerItem.toString() + "\n");
+                infoStr.append("waitContext:\n\t" + this.waitContext.toString() + "\n");
+                infoStr.append("\t\twaitContext.schedulerItem :" + this.waitContext.schedulerItem.toString() + "\n");
             }
 
             if (this.waitingContexts != null) {
-                infoStr.append("waitingContexts size:" + this.waitingContexts.size() + "\n");
+                infoStr.append("No. of waitingContexts: " + this.waitingContexts.size() + "\n");
                 for (WaitContext context : this.waitingContexts) {
-                    infoStr.append("\twaitingContexts.schedulerItem :" + context.schedulerItem.toString() + "\n");
+                    infoStr.append("\twaitingContexts.schedulerItem: " + context.schedulerItem.toString() + "\n");
                 }
             }
         } catch (NullPointerException e) {
