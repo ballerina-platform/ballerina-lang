@@ -15,7 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service;
+package io.ballerina.shell.service.test.getgesult;
+
+import io.ballerina.shell.service.BalShellGetResultResponse;
 
 /**
  * Class to represent GetResultTestCase json.

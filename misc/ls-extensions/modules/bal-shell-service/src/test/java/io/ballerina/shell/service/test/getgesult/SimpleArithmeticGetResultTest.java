@@ -15,24 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service;
+package io.ballerina.shell.service.test.getgesult;
 
-import java.util.List;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 /**
- * Class to represent GetVariableTestCase json.
+ * getResult End point tests for simple arithmetics.
  *
  * @since 2201.1.1
  */
-public class GetVariableTestCase {
-    private String source;
-    private List<Object> result;
-
-    public String getSource() {
-        return source;
-    }
-
-    public List<Object> getResult() {
-        return result;
+public class SimpleArithmeticGetResultTest extends AbstractGetResultTest {
+    @Test(description = "Test with simple arithmetic")
+    public void testSimpleArithmetic() throws ExecutionException, IOException, InterruptedException {
+        runGetResultTest("simple_arithmetic.json");
     }
 }
