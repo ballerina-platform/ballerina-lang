@@ -14,11 +14,11 @@
     }
   },
   {
-    "source": "type name record {\n   string firstname;\n   string lastname;\n};\ntype Employee record { \n    readonly string username; \n    int salary;\n    name fullname;\n};\n",
+    "source": "type Name record {\n   string firstname;\n   string lastname;\n};\ntype Employee record { \n    readonly string username; \n    int salary;\n    Name fullname;\n};\n",
     "result": {
       "errors":[],
       "diagnostics":[],
-      "metaInfo":{"definedVars":[],"moduleDclns":["Employee", "name"]},
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee", "Name"]},
       "consoleOut":""
     }
   },

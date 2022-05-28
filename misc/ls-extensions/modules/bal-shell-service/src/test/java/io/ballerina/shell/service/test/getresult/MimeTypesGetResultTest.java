@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service.test.getgesult;
+package io.ballerina.shell.service.test.getresult;
 
 import org.testng.annotations.Test;
 

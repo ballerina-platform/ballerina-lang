@@ -37,5 +37,18 @@
       "diagnostics":[],
       "metaInfo":{"definedVars":[],"moduleDclns":[]}
     }
+  },
+  {
+    "source": "10>4",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+    }
   }
 ]
