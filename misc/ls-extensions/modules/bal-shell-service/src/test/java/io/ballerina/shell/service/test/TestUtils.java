@@ -15,9 +15,10 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service;
+package io.ballerina.shell.service.test;
 
 import com.google.gson.Gson;
+import io.ballerina.shell.service.test.getgesult.GetResultTestCase;
 import org.testng.Assert;
 
 import java.io.IOException;

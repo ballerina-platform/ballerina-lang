@@ -21,9 +21,9 @@ under the License.
 
 <suite name="bal-shell-service-test-suite">
     <test name="openapi-cli-test-suite" parallel="false">
-        <classes>
-            <class name="io.ballerina.shell.service.BalShellServiceTests"/>
-            <class name="io.ballerina.shell.service.unittests.ConsoleOutCollectorTests"/>
-        </classes>
+        <packages>
+            <package name="io.ballerina.shell.service.test.*"/>
+            <package name="io.ballerina.shell.service.test.unittests.*"/>
+        </packages>
     </test>
 </suite>

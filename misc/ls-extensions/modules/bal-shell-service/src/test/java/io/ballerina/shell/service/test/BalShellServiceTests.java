@@ -15,18 +15,19 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service;
+package io.ballerina.shell.service.test;
 
-import org.ballerinalang.langserver.util.TestUtil;
-import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import io.ballerina.shell.service.BalShellGetResultRequest;
+import io.ballerina.shell.service.BalShellGetResultResponse;
+import io.ballerina.shell.service.DeleteRequest;
+import io.ballerina.shell.service.MetaInfo;
+import io.ballerina.shell.service.ShellFileSourceResponse;
+import io.ballerina.shell.service.test.getgesult.GetResultTestCase;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -38,53 +39,9 @@ import java.util.concurrent.ExecutionException;
  *
  * @since 2201.1.1
  */
-public class BalShellServiceTests {
-    private static final String GET_RESULT = "balShell/getResult";
-    private static final String NOTEBOOK_RESTART = "balShell/restartNotebook";
-    private static final String GET_VARIABLES = "balShell/getVariableValues";
-    private static final String DELETE_DCLNS = "balShell/deleteDeclarations";
-    private static final String GET_SHELL_FILE_SOURCE = "balShell/getShellFileSource";
-    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
-
-    private Endpoint serviceEndpoint;
-
-    @BeforeClass
-    public void startLanguageServer() {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
-
-    @BeforeTest
-    public void restartShell() {
-        ShellWrapper.getInstance().restart();
-    }
-
-    @Test(description = "Test with simple arithmetic")
-    public void testSimpleArithmetic() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("simple_arithmetic.json");
-    }
-
-    @Test(description = "Test with variable definitions")
-    public void testBasicVariables() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("basic_variables.json");
-    }
-
-    @Test(description = "Test with function definitions")
-    public void testFunctions() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("functions.json");
-    }
-
-    @Test(description = "Test with mime types")
-    public void testMimeTypes() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("mime_types.json");
-    }
-
-    @Test(description = "Test with errors")
-    public void testErrors() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("errors.json");
-    }
-
+public class BalShellServiceTests extends AbstractShellServiceTest {
     @Test(description = "Test for get bal shell file source")
-    public void getShellFileSource() throws ExecutionException, InterruptedException {
+    public void testGetShellFileSource() throws ExecutionException, InterruptedException {
         CompletableFuture<?> result = serviceEndpoint.request(GET_SHELL_FILE_SOURCE, null);
         ShellFileSourceResponse generatedResult  = (ShellFileSourceResponse) result.get();
         Assert.assertNotNull(generatedResult.getFilePath());

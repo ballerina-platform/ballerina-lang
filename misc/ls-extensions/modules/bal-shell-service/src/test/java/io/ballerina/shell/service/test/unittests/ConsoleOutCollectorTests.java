@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service.unittests;
+package io.ballerina.shell.service.test.unittests;
 
 import io.ballerina.shell.service.ConsoleOutCollector;
 import org.testng.Assert;
