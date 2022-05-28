@@ -1161,7 +1161,7 @@ public class Types {
         return Symbols.isFlagOn(targetFlags, Flags.READONLY) && !Symbols.isFlagOn(sourceFlags, Flags.READONLY);
     }
 
-    private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
+    private boolean     isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
         if (target == symTable.errorType) {
             return true;
         }
@@ -1172,6 +1172,19 @@ public class Types {
         unresolvedTypes.add(pair);
         return isAssignable(source.detailType, target.detailType, unresolvedTypes)
                 && target.typeIdSet.isAssignableFrom(source.typeIdSet);
+    }
+
+    private boolean isErrorTypeAssignableWithNoTypeIds(BErrorType source, BErrorType target,
+                                                       Set<TypePair> unresolvedTypes) {
+        if (target == symTable.errorType) {
+            return true;
+        }
+        TypePair pair = new TypePair(source, target);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+        return isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
     private boolean isXMLTypeAssignable(BType sourceT, BType targetT, Set<TypePair> unresolvedTypes) {
@@ -3528,10 +3541,16 @@ public class Types {
             sourceTypes.add(source);
         }
 
+        boolean targetUnionIsDistinctError = false;
+        boolean allTargetTypesErrors = false;
         boolean targetIsAUnion = false;
         if (target.tag == TypeTags.UNION) {
             targetIsAUnion = true;
             targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
+            allTargetTypesErrors = allTypesErrors(targetTypes);
+            if (allTargetTypesErrors) {
+                targetUnionIsDistinctError = isUnionDistinctError(targetTypes);
+            }
         } else {
             targetTypes.add(target);
         }
@@ -3616,8 +3635,26 @@ public class Types {
                     break;
                 }
 
-                if (isAssignable(sourceMember, targetMember, unresolvedTypes)) {
-                    sourceTypeIsNotAssignableToAnyTargetType = false;
+                if (sourceMember.tag == TypeTags.ERROR) {
+                    if (targetUnionIsDistinctError) {
+                        sourceTypeIsNotAssignableToAnyTargetType = !isErrorTypeAssignable((BErrorType) sourceMember,
+                                (BErrorType) targetMember, unresolvedTypes);
+                    } else {
+                        if (targetMember.tag == TypeTags.ERROR && allTargetTypesErrors) {
+                            sourceTypeIsNotAssignableToAnyTargetType =
+                                    !isErrorTypeAssignableWithNoTypeIds((BErrorType) sourceMember,
+                                            (BErrorType) targetMember, unresolvedTypes);
+                        } else {
+                            sourceTypeIsNotAssignableToAnyTargetType = !isAssignable(sourceMember, targetMember,
+                                    unresolvedTypes);
+                        }
+                    }
+                } else {
+                    sourceTypeIsNotAssignableToAnyTargetType = !isAssignable(sourceMember, targetMember,
+                            unresolvedTypes);
+                }
+
+                if (!sourceTypeIsNotAssignableToAnyTargetType) {
                     break;
                 }
             }
@@ -3627,6 +3664,30 @@ public class Types {
         }
 
         unresolvedTypes.add(pair);
+        return true;
+    }
+
+    private boolean isUnionDistinctError(Set<BType> memberTypesSet) {
+        List<BType> memberTypes = new ArrayList<>(memberTypesSet);
+        int size = memberTypes.size();
+        for (int i = 0; i < size - 1; i++) {
+            BErrorType t1 = (BErrorType) memberTypes.get(i);
+            BErrorType t2 = (BErrorType) memberTypes.get(i + 1);
+            Set<BTypeIdSet.BTypeId> t1TypeIds = t1.typeIdSet.getAll();
+            Set<BTypeIdSet.BTypeId> t2TypeIds = t2.typeIdSet.getAll();
+            if (!t1TypeIds.containsAll(t2TypeIds) || !t2TypeIds.containsAll(t1TypeIds)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean allTypesErrors(Set<BType> memberTypes) {
+        for (BType type : memberTypes) {
+            if (type.tag != TypeTags.ERROR) {
+                return false;
+            }
+        }
         return true;
     }
 
