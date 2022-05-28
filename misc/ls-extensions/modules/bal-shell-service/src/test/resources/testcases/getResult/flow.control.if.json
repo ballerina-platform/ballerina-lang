@@ -1,0 +1,80 @@
+[
+  {
+    "source": "int a = 1; int b = 2; int c = 0",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["a", "b", "c"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "if (a == 1) { c += a; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "c",
+    "result": {
+      "shellValue": {
+        "value":"1",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "if (a > b) { c += a; } else { c *= b; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "c",
+    "result": {
+      "shellValue": {
+        "value":"2",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "if (b < 1) { c = 10; } else if (b > 0) { c = 20; } else { c = 0; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "c",
+    "result": {
+      "shellValue": {
+        "value":"20",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]
