@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service.test.getgesult;
+package io.ballerina.shell.service.test.getresult;
 
 import org.testng.annotations.Test;
 
@@ -27,9 +27,24 @@ import java.util.concurrent.ExecutionException;
  *
  * @since 2201.1.1
  */
-public class BasicVariableGetResultTest extends AbstractGetResultTest {
+public class BasicTests extends AbstractGetResultTest {
     @Test(description = "Test with variable definitions")
     public void testBasicVariables() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("basic_variables.json");
+        runGetResultTest("basic.values.json");
+    }
+
+    @Test(description = "Test with variable definitions with arrays")
+    public void testArrays() throws ExecutionException, IOException, InterruptedException {
+        runGetResultTest("basic.arrays.json");
+    }
+
+    @Test(description = "Test with functions and their invocation")
+    public void testFunctions() throws ExecutionException, IOException, InterruptedException {
+        runGetResultTest("basics.functions.json");
+    }
+
+    @Test(description = "Test with module imports")
+    public void testModules() throws ExecutionException, IOException, InterruptedException {
+        runGetResultTest("basics.modules.json");
     }
 }

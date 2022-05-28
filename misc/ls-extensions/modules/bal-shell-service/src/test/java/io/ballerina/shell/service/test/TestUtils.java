@@ -18,7 +18,7 @@
 package io.ballerina.shell.service.test;
 
 import com.google.gson.Gson;
-import io.ballerina.shell.service.test.getgesult.GetResultTestCase;
+import io.ballerina.shell.service.test.getresult.GetResultTestCase;
 import org.testng.Assert;
 
 import java.io.IOException;

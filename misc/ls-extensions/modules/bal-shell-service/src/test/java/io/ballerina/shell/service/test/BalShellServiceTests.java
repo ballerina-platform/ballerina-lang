@@ -22,7 +22,7 @@ import io.ballerina.shell.service.BalShellGetResultResponse;
 import io.ballerina.shell.service.DeleteRequest;
 import io.ballerina.shell.service.MetaInfo;
 import io.ballerina.shell.service.ShellFileSourceResponse;
-import io.ballerina.shell.service.test.getgesult.GetResultTestCase;
+import io.ballerina.shell.service.test.getresult.GetResultTestCase;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
