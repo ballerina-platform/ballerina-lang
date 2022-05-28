@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.shell.service.test.getgesult;
+package io.ballerina.shell.service.test.getresult;
 
 import org.testng.annotations.Test;
 
@@ -23,13 +23,18 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 /**
- * getResult End point tests for functions.
+ * getResult End point tests for flow controlling.
  *
  * @since 2201.1.1
  */
-public class FunctionsGetResultTest extends AbstractGetResultTest {
-    @Test(description = "Test with function definitions")
-    public void testFunctions() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("functions.json");
+public class FlowControlTests extends AbstractGetResultTest {
+    @Test(description = "Test for flow controls with if statements")
+    public void testFlowControlIf() throws ExecutionException, IOException, InterruptedException {
+        runGetResultTest("flow.control.if.json");
+    }
+
+    @Test(description = "Test for flow controls with elvis operator")
+    public void testFlowControlElvis() throws ExecutionException, IOException, InterruptedException {
+        runGetResultTest("flow.control.elvis.json");
     }
 }
