@@ -13,7 +13,7 @@
     "result": {
       "shellValue": {
         "value":"[10,\"John\"]",
-        "mimeType":"plain/text",
+        "mimeType":"ballerina-notebook/json-view",
         "type":"[int,string]"
       },
       "errors":[],
@@ -115,7 +115,7 @@
     "result": {
       "shellValue": {
         "value": "[0,9]",
-        "mimeType":"plain/text",
+        "mimeType":"ballerina-notebook/json-view",
         "type":"[int,int]"
       },
       "errors": [],
