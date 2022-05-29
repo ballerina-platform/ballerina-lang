@@ -26,6 +26,7 @@ import io.ballerina.shell.DiagnosticKind;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Response format for get Result from BalShell endpoint.
@@ -34,8 +35,8 @@ import java.util.List;
  */
 public class BalShellGetResultResponse {
     private ShellValue shellValue;
-    private ArrayList<String> errors;
-    private ArrayList<String> diagnostics;
+    private final ArrayList<String> errors;
+    private final ArrayList<String> diagnostics;
     private MetaInfo metaInfo;
     private String consoleOut;
 
@@ -59,6 +60,9 @@ public class BalShellGetResultResponse {
 
         Type type = TypeUtils.getType(value);
         String stringValue = StringUtils.getJsonString(value);
+        if (Objects.equals(stringValue, "[]")) {
+            stringValue = StringUtils.getExpressionStringValue(value, null);
+        }
         this.shellValue = new ShellValue(stringValue, type.toString(), type.getTag());
     }
 
