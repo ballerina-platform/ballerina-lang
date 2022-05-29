@@ -21,7 +21,7 @@ import io.ballerina.shell.service.ShellWrapper;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,7 +46,7 @@ public abstract class AbstractShellServiceTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @BeforeTest
+    @BeforeMethod
     public void restartShell() {
         ShellWrapper.getInstance().restart();
     }
