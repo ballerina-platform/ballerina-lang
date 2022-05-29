@@ -34,14 +34,18 @@ public class TypeUtils {
     public static String getMimeTypeFromName(int typeTag) {
         switch (typeTag) {
             case TypeTags.JSON_TAG:
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.MAP_TAG:
+            case TypeTags.ARRAY_TAG:
+            case TypeTags.TUPLE_TAG:
                 return Constants.MIME_TYPE_JSON;
             case TypeTags.TABLE_TAG:
                 return Constants.MIME_TYPE_TABLE;
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_TEXT_TAG:
                 return Constants.MIME_TYPE_XML;
             default:
                 return Constants.MIME_TYPE_PLAIN_TEXT;
