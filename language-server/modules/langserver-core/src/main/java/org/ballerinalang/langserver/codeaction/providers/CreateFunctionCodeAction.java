@@ -22,7 +22,6 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
@@ -105,11 +104,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         if (!diagnostic.message().startsWith(UNDEFINED_FUNCTION) || positionDetails.matchedNode() == null) {
             return false;
         }
-        
-        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-        NonTerminalNode matchedNode = CommonUtil.findNode(new Range(context.cursorPosition(), 
-                context.cursorPosition()), syntaxTree);
-        return CodeActionNodeValidator.validate(matchedNode);
+        return CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     /**

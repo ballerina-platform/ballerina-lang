@@ -3501,9 +3501,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location pos = getPosition(streamTypeDescriptorNode);
         Optional<Node> paramsNode = streamTypeDescriptorNode.streamTypeParamsNode();
 
-        boolean hasConstraint = paramsNode.isPresent();
-        if (!hasConstraint) {
-            constraint = addValueType(pos, TypeKind.ANY);
+        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
+        if (!paramsNode.isPresent()) {
+            constraint = getbLangUnionTypeNode(pos, TypeKind.ANY, TypeKind.ERROR);
+            error = getbLangUnionTypeNode(pos, TypeKind.NIL, TypeKind.ERROR);
         } else {
             StreamTypeParamsNode params = (StreamTypeParamsNode) paramsNode.get();
             if (params.rightTypeDescNode().isPresent()) {
@@ -3516,7 +3517,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         refType.typeKind = TypeKind.STREAM;
         refType.pos = pos;
 
-        BLangStreamType streamType = (BLangStreamType) TreeBuilder.createStreamTypeNode();
         streamType.type = refType;
         streamType.constraint = constraint;
         streamType.error = error;
@@ -3525,13 +3525,22 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         return streamType;
     }
 
+    private BLangUnionTypeNode getbLangUnionTypeNode(Location pos, TypeKind... typeKinds) {
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.pos = pos;
+        for (TypeKind kind : typeKinds) {
+            unionTypeNode.memberTypeNodes.add(addValueType(pos, kind));
+        }
+        return unionTypeNode;
+    }
+
     @Override
     public BLangNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
-        List<BLangExpression> sizes = new ArrayList<>();
         Location position = getPosition(arrayTypeDescriptorNode);
         NodeList<ArrayDimensionNode> dimensionNodes = arrayTypeDescriptorNode.dimensions();
         int dimensionSize = dimensionNodes.size();
-        
+        List<BLangExpression> sizes = new ArrayList<>(dimensionSize);
+
         for (int i = dimensionSize - 1; i >= 0; i--) {
             ArrayDimensionNode dimensionNode = dimensionNodes.get(i);
             if (dimensionNode.arrayLength().isEmpty()) {
@@ -4988,7 +4997,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private List<BLangStatement> generateBLangStatements(NodeList<StatementNode> statementNodes, Node endNode) {
-        List<BLangStatement> statements = new ArrayList<>();
+        List<BLangStatement> statements = new ArrayList<>(statementNodes.size());
         return generateAndAddBLangStatements(statementNodes, statements, 0, endNode);
     }
 

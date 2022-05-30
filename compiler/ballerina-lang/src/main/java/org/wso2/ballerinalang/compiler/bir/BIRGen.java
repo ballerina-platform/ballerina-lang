@@ -19,6 +19,8 @@
 package org.wso2.ballerinalang.compiler.bir;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -56,6 +58,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
+import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
@@ -178,6 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
+import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -193,6 +197,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -781,10 +786,14 @@ public class BIRGen extends BLangNodeVisitor {
                     this.env.nextLambdaVarId(names), VarScope.FUNCTION, VarKind.ARG, null);
             params.add(birVarDcl);
         }
+
+        PackageID pkgID = lambdaExpr.function.symbol.pkgID;
+        PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.value);
+
         setScopeAndEmit(
-                new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
-                                            getClosureMapOperands(lambdaExpr), lambdaExpr.getBType(),
-                                            lambdaExpr.function.symbol.strandName,
+                new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID, boundMethodPkgId != null ? boundMethodPkgId : pkgID,
+                                            funcName, lhsOp, params, getClosureMapOperands(lambdaExpr),
+                                            lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                                             lambdaExpr.function.symbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
@@ -883,6 +892,21 @@ public class BIRGen extends BLangNodeVisitor {
         // We maintain a mapping from variable symbol to the bir_variable declaration.
         // This is required to pull the correct bir_variable declaration for variable references.
         this.env.symbolVarMap.put(paramSymbol, birVarDcl);
+    }
+
+    private PackageID getPackageIdForBoundMethod(BLangLambdaFunction lambdaExpr, String funcName) {
+        if (!funcName.startsWith("$anon$method$delegate$")) {
+            return null;
+        }
+
+        Set<ClosureVarSymbol> closureVarSymbols = lambdaExpr.function.closureVarSymbols;
+        if (closureVarSymbols.size() == 0) {
+            return null;
+        }
+
+        Object[] symbols = closureVarSymbols.toArray();
+        ClosureVarSymbol next = (ClosureVarSymbol) symbols[symbols.length - 1];
+        return next.bSymbol.type.tsymbol.pkgID;
     }
 
     // Statements
@@ -1307,7 +1331,7 @@ public class BIRGen extends BLangNodeVisitor {
             // If not create one
             BIRBasicBlock returnBB = new BIRBasicBlock(this.env.nextBBId(names));
             addToTrapStack(returnBB);
-            returnBB.terminator = new BIRTerminator.Return(astReturnStmt.pos);
+            returnBB.terminator = new BIRTerminator.Return(getFunctionLastLinePos());
             this.env.returnBB = returnBB;
         }
         if (this.env.enclBB.terminator == null) {
@@ -1331,6 +1355,16 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB = nextBB;
             addToTrapStack(nextBB);
         }
+    }
+
+    private BLangDiagnosticLocation getFunctionLastLinePos() {
+        if (this.env.enclFunc.pos == null) {
+            return null;
+        }
+        LineRange lineRange = this.env.enclFunc.pos.lineRange();
+        LinePosition endLine = lineRange.endLine();
+        return new BLangDiagnosticLocation(lineRange.filePath(), endLine.line(), endLine.line(), endLine.offset(),
+                endLine.offset(), 0, 0);
     }
 
     @Override
@@ -2108,7 +2142,7 @@ public class BIRGen extends BLangNodeVisitor {
         keySpecifierLiteral.exprs = new ArrayList<>();
         BTableType type = (BTableType) tableConstructorExpr.getBType();
 
-        if (type.fieldNameList != null) {
+        if (!type.fieldNameList.isEmpty()) {
             type.fieldNameList.forEach(col -> {
                 BLangLiteral colLiteral = new BLangLiteral();
                 colLiteral.pos = tableConstructorExpr.pos;

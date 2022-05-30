@@ -74,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -144,7 +143,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -778,18 +776,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         analyzeNode(node, data);
     }
 
-    public void visit(BLangMatchExpression node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.expr, data);
-        visitNode(node.patternClauses, data);
-    }
-
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.expr, data);
-        visitNode(node.variable, data);
-    }
-
     public void visit(BLangMatchGuard node, T data) {
         analyzeNode(node, data);
         visitNode(node.expr, data);
@@ -1267,35 +1253,6 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangLock.BLangUnLockStmt node, T data) {
         analyzeNode(node, data);
-    }
-
-    public void visit(BLangMatch node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.expr, data);
-        visitNode(node.patternClauses, data);
-        visitNode(node.onFailClause, data);
-    }
-
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.body, data);
-        visitNode(node.matchExpr, data);
-        visitNode(node.variable, data);
-    }
-
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.body, data);
-        visitNode(node.matchExpr, data);
-        visitNode(node.literal, data);
-    }
-
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause node, T data) {
-        analyzeNode(node, data);
-        visitNode(node.body, data);
-        visitNode(node.matchExpr, data);
-        visitNode(node.bindingPatternVariable, data);
-        visitNode(node.typeGuardExpr, data);
     }
 
     public void visit(BLangMatchStatement node, T data) {

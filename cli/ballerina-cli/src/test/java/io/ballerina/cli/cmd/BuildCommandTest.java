@@ -569,7 +569,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_NAME, "john");
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        // non-existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
@@ -749,6 +749,34 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertFalse(Files.exists(customTargetDir.resolve("rerun_test.json")));
         Assert.assertFalse(Files.exists(customTargetDir.resolve("cache").resolve("tests_cache").resolve("test_suit" +
                 ".json")));
+    }
+
+    @Test(description = "Build an empty package")
+    public void testBuildEmptyPackage() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackage");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-package.txt"));
+    }
+
+    @Test(description = "Build an empty package with compiler plugin")
+    public void testBuildEmptyPackageWithCompilerPlugin() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackageWithCompilerPlugin");
+        System.setProperty("user.dir", projectPath.toString());
+
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-empty-package.txt"));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

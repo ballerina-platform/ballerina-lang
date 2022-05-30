@@ -37,6 +37,15 @@
       "sortText": "K",
       "insertText": "rec1Field2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...rec",
+      "kind": "Variable",
+      "detail": "module1:TestRecord1",
+      "sortText": "AB",
+      "filterText": "rec",
+      "insertText": "...rec",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

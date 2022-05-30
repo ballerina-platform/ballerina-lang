@@ -177,7 +177,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> record",
+      "label": "type <RecordName> record {}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -222,7 +222,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> closed record",
+      "label": "type <RecordName> record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -758,6 +758,15 @@
           "newText": "import test/local_project2;\n"
         }
       ]
+    },
+    {
+      "label": "null",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "B",
+      "filterText": "null",
+      "insertText": "null",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

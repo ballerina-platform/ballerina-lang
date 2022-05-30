@@ -92,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -147,9 +146,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -221,6 +217,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private SymbolEnv env;
+    private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
     private boolean withinLambdaFunc = false;
     private HashSet<BType> checkedErrorList;
@@ -299,6 +296,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             if (containsCheckExpr) {
                 // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
                 // so that it will propagate the error properly.
+                desugar.resetSkipFailStmtRewrite();
                 BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(pos, result, queryExpr.getBType());
                 checkedExpr.equivalentErrorTypeList.addAll(this.checkedErrorList);
                 streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, checkedExpr);
@@ -1535,7 +1533,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
-            if (!identifiers.containsKey(identifier)) {
+            if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
+                    && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
                         symTable.anyOrErrorType, currentFrameSymbol);
@@ -1703,6 +1702,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        this.acceptNode(spreadOpExpr.expr);
+    }
+
+    @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
     }
 
@@ -1805,19 +1809,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        this.acceptNode(bLangMatchExpression.expr);
-        bLangMatchExpression.patternClauses.forEach(pattern -> {
-            this.acceptNode(pattern.expr);
-            this.acceptNode(pattern.variable);
-        });
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-    }
-
-    @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         containsCheckExpr = true;
         this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
@@ -1897,17 +1888,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         this.acceptNode(bLangErrorVariableDef.errorVariable);
-    }
-
-    @Override
-    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        this.acceptNode(bLangMatchStmtStaticBindingPatternClause.literal);
-    }
-
-    @Override
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
-        this.acceptNode(bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable);
-        this.acceptNode(bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr);
     }
 
     @Override
@@ -2005,25 +1985,16 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
+        SymbolEnv prevQueryEnv = this.queryEnv;
         queryAction.getQueryClauses().forEach(clause -> this.acceptNode(clause));
-    }
-
-    @Override
-    public void visit(BLangMatch matchNode) {
-        this.acceptNode(matchNode.expr);
-        matchNode.patternClauses.forEach(pattern -> this.acceptNode(pattern));
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        this.acceptNode(patternClauseNode.body);
-        this.acceptNode(patternClauseNode.matchExpr);
-        this.acceptNode(patternClauseNode.variable);
+        this.queryEnv = prevQueryEnv;
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        queryExpr.getQueryClauses().forEach(clause ->this.acceptNode(clause));
+        SymbolEnv prevQueryEnv = this.queryEnv;
+        queryExpr.getQueryClauses().forEach(clause -> this.acceptNode(clause));
+        this.queryEnv = prevQueryEnv;
     }
 
     @Override
@@ -2033,7 +2004,9 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        this.queryEnv = fromClause.env;
         this.acceptNode(fromClause.collection);
+        //we don't have to reset the env to the prev env because from clause is the init clause for the query
     }
 
     @Override

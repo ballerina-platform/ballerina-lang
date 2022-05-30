@@ -324,13 +324,18 @@ public class JvmCreateTypeGen {
     public void addImmutableType(MethodVisitor mv, BType type) {
         BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType == null || type.tsymbol == null || immutableType.tsymbol == null ||
-                !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))) {
+                !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))
+                || isReferringToTestPkg(type, immutableType)) {
             return;
         }
 
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, immutableType);
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
+    }
+
+    private static boolean isReferringToTestPkg(BType type, BIntersectionType immutableType) {
+        return !type.tsymbol.pkgID.isTestPkg && immutableType.tsymbol.pkgID.isTestPkg;
     }
 
     public void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {

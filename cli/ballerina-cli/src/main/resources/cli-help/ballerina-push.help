@@ -8,16 +8,17 @@ SYNOPSIS
 
 DESCRIPTION
        Push the Ballerina archive (.bala) of the current package to Ballerina
-       Central or to a local repository. Once the package is pushed to Ballerina Central, 
-       it becomes public and sharable and will be permanent.
+       Central or to a local repository. Once the package is pushed to Ballerina
+       Central, it becomes public and sharable and will be permanent.
 
-       To be able to publish a package to Ballerina Central, you should sign in to
-       Ballerina Central and obtain an access token first.
+       To be able to publish a package to Ballerina Central, you should sign in
+       to Ballerina Central and obtain an access token.
 
 
 OPTIONS
        --repository
-           Push the BALA of the current package to a custom repository. Only the 'local' is allowed.
+           Push the BALA of the current package to a custom repository.
+           Only 'local' is allowed.
 
 
 EXAMPLES

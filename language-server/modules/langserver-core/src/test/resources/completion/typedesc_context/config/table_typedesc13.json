@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 10,
+    "character": 35
+  },
+  "source": "typedesc_context/source/table_typedesc13.bal",
+  "items": [
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "AG",
+      "insertText": "name",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

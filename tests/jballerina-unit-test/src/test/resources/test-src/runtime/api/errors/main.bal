@@ -58,7 +58,19 @@ public function main() {
     err = trap errors:getDistinctErrorWithNullDetailNegative("error message");
     test:assertValueEqual(err.message(), "No such error: error message");
 
+    err = trap errors:getErrorWithEmptyDetailNegative("error message");
+    test:assertValueEqual(err.message(), "error message");
+
     err = trap errors:getErrorWithNullDetailNegative("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getErrorWithEmptyDetailNegative2("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getErrorWithNullDetailNegative2("error message");
+    test:assertValueEqual(err.message(), "error message");
+
+    err = trap errors:getDistinctErrorWithEmptyDetailNegative2("error message");
     test:assertValueEqual(err.message(), "error message");
 
     err = trap errors:getDistinctErrorWithNullDetailNegative2("error message");

@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -116,8 +117,9 @@ public class LSPackageLoader {
      * @return {@link List} packages
      */
     public List<PackageInfo> getAllVisiblePackages(DocumentServiceContext ctx) {
-        List<PackageInfo> packagesList = new ArrayList<>();
-        packagesList.addAll(this.getDistributionRepoPackages());
+        Map<String, PackageInfo> packagesList = new HashMap<>();
+        this.getDistributionRepoPackages().forEach(packageInfo ->
+                packagesList.put(packageInfo.packageIdentifier(), packageInfo));
 
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
@@ -127,9 +129,13 @@ public class LSPackageLoader {
                 .from(project.get().projectEnvironmentContext().environment());
         PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
         PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        packagesList.addAll(this.getRemoteRepoPackages(remoteRepository));
-        packagesList.addAll(this.getLocalRepoPackages(localRepository));
-        return packagesList;
+        this.getRemoteRepoPackages(remoteRepository).stream()
+                .filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
+                .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+        this.getLocalRepoPackages(localRepository).stream()
+                .filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
+                .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+        return new ArrayList<>(packagesList.values());
     }
 
     private List<PackageInfo> getPackagesFromRepository(PackageRepository repository, List<String> skipList) {
@@ -171,11 +177,14 @@ public class LSPackageLoader {
         private PackageVersion packageVersion;
         private Path sourceRoot;
 
+        private String packageIdentifier;
+
         public PackageInfo(Package pkg) {
             this.packageOrg = pkg.packageOrg();
             this.packageName = pkg.packageName();
             this.packageVersion = pkg.packageVersion();
             this.sourceRoot = pkg.project().sourceRoot();
+            this.packageIdentifier = packageOrg.toString() + "/" + packageName.toString();
         }
 
         public PackageName packageName() {
@@ -192,6 +201,10 @@ public class LSPackageLoader {
 
         public Path sourceRoot() {
             return sourceRoot;
+        }
+
+        public String packageIdentifier() {
+            return packageIdentifier;
         }
     }
 }
