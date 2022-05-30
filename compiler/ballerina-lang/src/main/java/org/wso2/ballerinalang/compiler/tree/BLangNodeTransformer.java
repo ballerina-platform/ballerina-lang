@@ -85,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -680,10 +679,6 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangTableConstructorExpr node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangTableMultiKeyExpr node, T data) {
         return transformNode(node, data);
     }
 
