@@ -108,7 +108,7 @@ jobs:
         run: |
           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); do \
           echo "Building Standard Library: $module_name" && \
-          cd $module_name && ./gradlew clean build -x test --stacktrace --scan && cd ..; \
+          cd $module_name && ./gradlew clean build --stacktrace --scan && cd ..; \
           done
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
@@ -143,7 +143,7 @@ jobs:
 
       - name: Build Module
         working-directory: ./ballerina-distribution
-        run: ./gradlew clean build -x test --stacktrace --scan --console=plain --no-daemon --continue
+        run: ./gradlew clean build --stacktrace --scan --console=plain --no-daemon --continue
         env:
           packageUser: ${{ secrets.BALLERINA_BOT_USERNAME }}
           packagePAT: ${{ secrets.GITHUB_TOKEN }}
