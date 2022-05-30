@@ -77,7 +77,7 @@ public class BalShellServiceTests extends AbstractShellServiceTest {
 
     @Test(description = "Test for definition delete")
     public void testDelete() throws ExecutionException, InterruptedException, IOException {
-        String filename = "delete_vars.json";
+        String filename = "vars.to.delete.json";
         // define module Declarations and variables to test
         List<String> varsToTestDelete = new ArrayList<>();
         Path file = RES_DIR.resolve("testcases").resolve(filename);
