@@ -124,12 +124,12 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         return actions;
     }
 
-    protected String getCodeActionTitle() {
-        return CommandConstants.OPTIMIZE_IMPORTS_TITLE;
-    }
-
     protected String getCodeActionKind() {
         return CodeActionKind.SourceOrganizeImports;
+    }
+
+    protected String getCodeActionTitle() {
+        return CommandConstants.OPTIMIZE_IMPORTS_TITLE;
     }
 
     @Override

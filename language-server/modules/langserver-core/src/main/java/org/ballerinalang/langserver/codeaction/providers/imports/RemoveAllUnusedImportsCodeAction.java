@@ -48,11 +48,6 @@ public class RemoveAllUnusedImportsCodeAction extends OptimizeImportsCodeAction 
     }
 
     @Override
-    protected String getCodeActionKind() {
-        return CodeActionKind.QuickFix;
-    }
-
-    @Override
     protected List<ImportDeclarationNode> organizeFileImports(List<ImportDeclarationNode> fileImports) {
         return fileImports;
     }
@@ -60,6 +55,11 @@ public class RemoveAllUnusedImportsCodeAction extends OptimizeImportsCodeAction 
     @Override
     protected String getCodeActionTitle() {
         return CommandConstants.REMOVE_ALL_UNUSED_IMPORTS;
+    }
+
+    @Override
+    protected String getCodeActionKind() {
+        return CodeActionKind.QuickFix;
     }
 
     @Override
