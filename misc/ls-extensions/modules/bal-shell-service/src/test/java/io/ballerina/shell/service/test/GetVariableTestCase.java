@@ -18,6 +18,7 @@
 package io.ballerina.shell.service.test;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class to represent GetVariableTestCase json.
@@ -26,13 +27,13 @@ import java.util.List;
  */
 public class GetVariableTestCase {
     private String source;
-    private List<Object> result;
+    private List<Map<String, String>> result;
 
     public String getSource() {
         return source;
     }
 
-    public List<Object> getResult() {
+    public List<Map<String, String>> getResult() {
         return result;
     }
 }

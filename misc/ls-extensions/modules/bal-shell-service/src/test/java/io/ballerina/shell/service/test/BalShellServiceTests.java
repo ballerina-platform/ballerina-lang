@@ -49,12 +49,11 @@ public class BalShellServiceTests extends AbstractShellServiceTest {
 
     @Test(description = "Test for getVariables")
     public void testGetVariables() throws IOException {
-        Path file = RES_DIR.resolve("testcases").resolve("get_variables.json");
+        Path file = RES_DIR.resolve("testcases").resolve("get.variables.json");
         GetVariableTestCase[] testCases = TestUtils.loadVariableTestCases(file);
         for (GetVariableTestCase testCase: testCases) {
             BalShellGetResultRequest request = new BalShellGetResultRequest(testCase.getSource());
-            CompletableFuture<?> snippetExecute = serviceEndpoint.request(GET_RESULT, request); // execute the snippets
-            snippetExecute.thenRun(() -> {
+            CompletableFuture<?> snippetExecute = serviceEndpoint.request(GET_RESULT, request).thenRun(() -> {
                 CompletableFuture<?> result = serviceEndpoint.request(GET_VARIABLES, null);
                 List<Map<String, String>> generatedResult;
                 try {
@@ -62,8 +61,10 @@ public class BalShellServiceTests extends AbstractShellServiceTest {
                 } catch (InterruptedException | ExecutionException e) {
                     throw new RuntimeException(e);
                 }
-                TestUtils.assertJsonValues(generatedResult, testCase.getResult());
+                List<Map<String, String>> expected = testCase.getResult();
+                generatedResult.forEach(genResult -> Assert.assertTrue(expected.contains(genResult)));
             });
+            snippetExecute.join();
         }
     }
 
