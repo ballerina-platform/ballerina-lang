@@ -118,6 +118,13 @@ public class ClassTest {
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 
+    @Test(description = "A test case covering ballerina-platform/ballerina-lang#36172")
+    public void classDefTest() {
+        CompileResult result = BCompileUtil.compile("test-src/klass/class_def_test.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testFooClass");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

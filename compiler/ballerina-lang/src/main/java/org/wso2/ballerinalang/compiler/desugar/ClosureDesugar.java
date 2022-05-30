@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -138,7 +137,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -1044,11 +1042,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchStmt) {
-        result = matchStmt;
-    }
-
-    @Override
     public void visit(BLangForeach foreach) {
         result = foreach;
     }
@@ -1878,11 +1871,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        result = bLangMatchExpression;
-    }
-
-    @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         result = checkedExpr;
     }
@@ -1965,11 +1953,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        /* Ignore */
-    }
-
-    @Override
     public void visit(BLangNumericLiteral literalExpr) {
         result = literalExpr;
     }
@@ -1987,11 +1970,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         result = varRefExpr;
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-        /* Ignore */
     }
 
     @Override
@@ -2044,16 +2022,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
-        /* Ignore */
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause langMatchStaticBindingPatternClause) {
-        /* Ignore */
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause matchStructuredBindingPatternClause) {
         /* Ignore */
     }
 
