@@ -16,26 +16,14 @@
 package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
-import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextEdit;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Code Action to remove all unused imports, except when there is a re-declared import statement.
@@ -43,69 +31,35 @@ import java.util.stream.Collectors;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class RemoveAllUnusedImportsCodeAction extends AbstractCodeActionProvider {
+public class RemoveAllUnusedImportsCodeAction extends OptimizeImportsCodeAction {
 
-    public static final String NAME = "Optimize Imports";
-    public static final String DIAGNOSTIC_CODE = "BCE2002";
+    public static final String NAME = "Remove all unused imports";
 
     public RemoveAllUnusedImportsCodeAction() {
-        super(Collections.singletonList(CodeActionNodeType.IMPORTS));
+        super();
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
-        List<CodeAction> actions = new ArrayList<>();
-        String uri = context.fileUri();
-        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
-        // Copying to a separate list since there's side effects when modifying same node-list
-        List<ImportDeclarationNode> fileImports = new ArrayList<>();
-        ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context, NodeBasedPositionDetails posDetails) {
+        return super.getNodeBasedCodeActions(context, posDetails);
+    }
 
-        List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
-                .map(diag -> diag.location().lineRange())
-                .collect(Collectors.toList());
+    @Override
+    protected String getCodeActionKind() {
+        return CodeActionKind.QuickFix;
+    }
 
-        // Skip, when nothing to remove and only single import pending
-        if (fileImports.isEmpty() || (fileImports.size() <= 1 && toBeRemovedImportsLocations.size() == 0)) {
-            return Collections.emptyList();
-        }
+    @Override
+    protected List<ImportDeclarationNode> organizeFileImports(List<ImportDeclarationNode> fileImports) {
+        return fileImports;
+    }
 
-        // Find the imports range
-        int importSLine = fileImports.get(0).lineRange().startLine().line();
-        int importELine = fileImports.get(0).lineRange().endLine().line();
-        for (int i = 0; i < fileImports.size(); i++) {
-            ImportDeclarationNode importPkg = fileImports.get(i);
-            LineRange pos = importPkg.lineRange();
-
-            // Get imports starting line
-            if (importSLine > pos.startLine().line()) {
-                importSLine = pos.startLine().line();
-            }
-
-            // Get imports ending position
-            if (importELine < pos.endLine().line()) {
-                importELine = pos.endLine().line();
-            }
-
-            // Remove any matching imports on-the-go
-            i = CodeActionUtil.removeImportAndUpdateIterator(fileImports, toBeRemovedImportsLocations, i, importPkg);
-        }
-
-        // Re-create imports list text
-        StringBuilder editText = new StringBuilder();
-        fileImports.forEach(importNode -> CodeActionUtil.buildEditText(editText, importNode));
-
-        Position importStart = new Position(importSLine, 0);
-        Position importEnd = new Position(importELine + 1, 0);
-        TextEdit textEdit = new TextEdit(new Range(importStart, importEnd), editText.toString());
-        List<TextEdit> edits = Collections.singletonList(textEdit);
-        actions.add(createCodeAction(CommandConstants.REMOVE_ALL_UNUSED_IMPORTS, edits, uri, CodeActionKind.QuickFix));
-        return actions;
+    @Override
+    protected String getCodeActionTitle() {
+        return CommandConstants.REMOVE_ALL_UNUSED_IMPORTS;
     }
 
     @Override

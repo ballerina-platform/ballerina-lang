@@ -910,43 +910,4 @@ public class CodeActionUtil {
         };
         return filterFunction;
     }
-    
-    public static int removeImportAndUpdateIterator(List<ImportDeclarationNode> fileImports,
-                                                    List<LineRange> toBeRemovedImportsLocations, int i,
-                                                    ImportDeclarationNode importPkg) {
-        for (int j = 0; j < toBeRemovedImportsLocations.size(); j++) {
-            LineRange rmLineRange = toBeRemovedImportsLocations.get(j);
-            LineRange prefixLineRange = importPkg.prefix().isPresent()
-                    ? importPkg.prefix().get().prefix().lineRange()
-                    : importPkg.moduleName().get(importPkg.moduleName().size() - 1).lineRange();
-            if (prefixLineRange.equals(rmLineRange)) {
-                fileImports.remove(i);
-                toBeRemovedImportsLocations.remove(j);
-                i--;
-                break;
-            }
-        }
-        return i;
-    }
-
-    public static void buildEditText(StringBuilder editText, ImportDeclarationNode importNode) {
-
-        MinutiaeList leadingMinutiae = NodeFactory.createEmptyMinutiaeList();
-        MinutiaeList trailingMinutiae = importNode.importKeyword().trailingMinutiae();
-        Token modifiedImportKeyword = importNode.importKeyword().modify(leadingMinutiae, trailingMinutiae);
-
-        ImportDeclarationNode.ImportDeclarationNodeModifier importModifier = importNode.modify();
-        importModifier.withImportKeyword(modifiedImportKeyword);
-        if (importNode.orgName().isPresent()) {
-            importModifier.withOrgName(importNode.orgName().get());
-        }
-        importModifier.withModuleName(importNode.moduleName());
-        if (importNode.prefix().isPresent()) {
-            importModifier.withPrefix(importNode.prefix().get());
-        }
-        importNode.semicolon();
-        importModifier.withSemicolon(importNode.semicolon());
-
-        editText.append(importModifier.apply().toSourceCode());
-    }
 }
