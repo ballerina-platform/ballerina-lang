@@ -22,8 +22,6 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 
-import java.util.List;
-
 /**
  * Represents the language server event subscriber.
  *
