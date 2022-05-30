@@ -5508,7 +5508,7 @@ public class BallerinaParser extends AbstractParser {
                                               boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
                                               boolean isInConditionalExpr) {
         SyntaxKind nextTokenKind = peek().kind;
-        if (isAction(lhsExpr) || isEndOfExpression(nextTokenKind, isRhsExpr, isInMatchGuard)) {
+        if (isAction(lhsExpr) || isEndOfActionOrExpression(nextTokenKind, isRhsExpr, isInMatchGuard)) {
             // Action has to be the left most action or expression
             return lhsExpr;
         }
@@ -5551,7 +5551,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseTypeTestExpression(lhsExpr, isInConditionalExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
-                newLhsExpr = parseRemoteMethodCallOrAsyncSendAction(lhsExpr);
+                newLhsExpr = parseRemoteOrResourceMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr, isInMatchGuard);
                 break;
             case SYNC_SEND_TOKEN:
                 newLhsExpr = parseSyncSendAction(lhsExpr);
@@ -5998,13 +5998,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Check whether the given token is an end of a expression.
+     * Check whether the given token is an end of a action or expression.
      *
      * @param tokenKind Token to check
      * @param isRhsExpr Flag indicating whether this is on a rhsExpr of a statement
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
-    private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isRhsExpr, boolean isInMatchGuard) {
+    private boolean isEndOfActionOrExpression(SyntaxKind tokenKind, boolean isRhsExpr, boolean isInMatchGuard) {
         if (!isRhsExpr) {
             if (isCompoundAssignment(tokenKind)) {
                 return true;
@@ -8769,6 +8769,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
+            case RESOURCE_METHOD_CALL_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -8901,46 +8902,47 @@ public class BallerinaParser extends AbstractParser {
      * @param slashToken
      * @return
      */
-    private STNode parseResourceMethodCallAction(STNode expression, STNode rightArrow, STNode slashToken) {
+    private STNode parseResourceMethodCallAction(STNode expression, STNode rightArrow, STNode slashToken,
+                                                 boolean isRhsExpr, boolean isInMatchGuard) {
         startContext(ParserRuleContext.RESOURCE_METHOD_CALL_ACTION);
         
-        STNode resourceAccessPath = parseOptionalResourceAccessPath();
-        STNode resourceAccessMethodDot = parseOptionalResourceAccessMethodDot();
+        STNode resourceAccessPath = parseOptionalResourceAccessPath(isRhsExpr, isInMatchGuard);
+        STNode resourceAccessMethodDot = parseOptionalResourceAccessMethodDot(isRhsExpr, isInMatchGuard);
         STNode resourceAccessMethodName = STNodeFactory.createEmptyNode();
         if (resourceAccessMethodDot != null) {
             resourceAccessMethodName = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
         }
         
-        STNode resourceMethodCallArgList = parseOptionalResourceMethodCallArgList();
+        STNode resourceMethodCallArgList = parseOptionalResourceMethodCallArgList(isRhsExpr, isInMatchGuard);
         endContext();
         
         return STNodeFactory.createResourceMethodCallActionNode(expression, rightArrow, slashToken, resourceAccessPath,
                 resourceAccessMethodDot, resourceAccessMethodName, resourceMethodCallArgList);
     }
     
-    private STNode parseOptionalResourceAccessPath() {
+    private STNode parseOptionalResourceAccessPath(boolean isRhsExpr, boolean isInMatchGuard) {
         STNode resourceAccessPath = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
             case OPEN_BRACKET_TOKEN:
-                resourceAccessPath = parseResourceAccessPath();
+                resourceAccessPath = parseResourceAccessPath(isRhsExpr, isInMatchGuard);
                 break;
             case DOT_TOKEN:
             case OPEN_PAREN_TOKEN:
                 break;
             default:
-                if (isEndOfAction(nextToken.kind)) {
+                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
                 recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_PATH);
-                return parseOptionalResourceAccessPath();
+                return parseOptionalResourceAccessPath(isRhsExpr, isInMatchGuard);
         }
         return  resourceAccessPath;
     }
     
-    private STNode parseOptionalResourceAccessMethodDot() {
+    private STNode parseOptionalResourceAccessMethodDot(boolean isRhsExpr, boolean isInMatchGuard) {
         STNode dotToken = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -8950,18 +8952,18 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 break;
             default:
-                if (isEndOfAction(nextToken.kind)) {
+                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
                 recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_METHOD);
-                return parseOptionalResourceAccessMethodDot();
+                return parseOptionalResourceAccessMethodDot(isRhsExpr, isInMatchGuard);
         }
         
         return dotToken;
     }
     
-    private STNode parseOptionalResourceMethodCallArgList() {
+    private STNode parseOptionalResourceMethodCallArgList(boolean isRhsExpr, boolean isInMatchGuard) {
         STNode argList = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -8969,12 +8971,12 @@ public class BallerinaParser extends AbstractParser {
                 argList = parseParenthesizedArgList();
                 break;
             default:
-                if (isEndOfAction(nextToken.kind)) {
+                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
                 recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_METHOD_CALL_ARG_LIST);
-                return parseOptionalResourceMethodCallArgList();
+                return parseOptionalResourceMethodCallArgList(isRhsExpr, isInMatchGuard);
         }
         
         return argList;
@@ -8996,7 +8998,7 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      * @return
      */
-    private STNode parseResourceAccessPath() {
+    private STNode parseResourceAccessPath(boolean isRhsExpr, boolean isInMatchGuard) {
         List<STNode> pathSegmentList = new ArrayList<>();
         // Parse first resource access path segment, that has no leading slash
         STNode pathSegment = parseResourceAccessPathSegment();
@@ -9004,8 +9006,8 @@ public class BallerinaParser extends AbstractParser {
 
         STNode leadingSlash;
         STNode previousPathSegmentNode = pathSegment;
-        while (!isEndOfResourceAccessPathSegments(peek().kind)) {
-            leadingSlash = parseResourceAccessSegmentRhs();
+        while (!isEndOfResourceAccessPathSegments(peek().kind, isRhsExpr, isInMatchGuard)) {
+            leadingSlash = parseResourceAccessSegmentRhs(isRhsExpr, isInMatchGuard);
             if (leadingSlash == null) {
                 break;
             }
@@ -9024,7 +9026,6 @@ public class BallerinaParser extends AbstractParser {
             previousPathSegmentNode = pathSegment;
         }
 
-        endContext();
         return STNodeFactory.createNodeList(pathSegmentList);
     }
     
@@ -9079,39 +9080,29 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseResourceAccessSegmentRhs() {
+    private STNode parseResourceAccessSegmentRhs(boolean isRhsExpr, boolean isInMatchGuard) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case SLASH_TOKEN:
                 return consume();
             default:
-                if (isEndOfAction(nextToken.kind)) {
+                if (isEndOfResourceAccessPathSegments(nextToken.kind, isRhsExpr, isInMatchGuard)) {
                     return null;
                 }
                 
                 recover(nextToken, ParserRuleContext.RESOURCE_ACCESS_SEGMENT_RHS);
-                return parseResourceAccessSegmentRhs();
+                return parseResourceAccessSegmentRhs(isRhsExpr, isInMatchGuard);
         }
     }
     
-    private boolean isEndOfResourceAccessPathSegments(SyntaxKind nextTokenKind) {
+    private boolean isEndOfResourceAccessPathSegments(SyntaxKind nextTokenKind,
+                                                      boolean isRhsExpr, boolean isInMatchGuard) {
         switch (nextTokenKind) {
             case DOT_TOKEN:
             case OPEN_PAREN_TOKEN:
                 return true;
             default:
-                return isEndOfAction(nextTokenKind);
-        }
-    }
-    
-    private boolean isEndOfAction(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case SEMICOLON_TOKEN: // variable decl and stmt context
-            case EOF_TOKEN:
-            case OPEN_BRACE_TOKEN: // foreach-stmt, match-stmt context
-                return true;
-            default:
-                return false;
+                return isEndOfActionOrExpression(nextTokenKind, isRhsExpr, isInMatchGuard);
         }
     }
     
@@ -9127,12 +9118,14 @@ public class BallerinaParser extends AbstractParser {
      * @param expression LHS expression
      * @return
      */
-    private STNode parseRemoteMethodCallOrAsyncSendAction(STNode expression) {
+    private STNode parseRemoteOrResourceMethodCallOrAsyncSendAction(STNode expression, 
+                                                                    boolean isRhsExpr, boolean isInMatchGuard) {
         STNode rightArrow = parseRightArrow();
-        return parseRemoteOrResourceCallOrAsyncSendActionRhs(expression, rightArrow);
+        return parseRemoteOrResourceCallOrAsyncSendActionRhs(expression, rightArrow, isRhsExpr, isInMatchGuard);
     }
 
-    private STNode parseRemoteOrResourceCallOrAsyncSendActionRhs(STNode expression, STNode rightArrow) {
+    private STNode parseRemoteOrResourceCallOrAsyncSendActionRhs(STNode expression, STNode rightArrow,
+                                                                 boolean isRhsExpr, boolean isInMatchGuard) {
         STNode name;
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -9140,20 +9133,35 @@ public class BallerinaParser extends AbstractParser {
                 STNode functionKeyword = consume();
                 name = STNodeFactory.createSimpleNameReferenceNode(functionKeyword);
                 return parseAsyncSendAction(expression, rightArrow, name);
-            case IDENTIFIER_TOKEN:
-                name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
-                break;
             case CONTINUE_KEYWORD:
             case COMMIT_KEYWORD:
                 name = getKeywordAsSimpleNameRef();
                 break;
             case SLASH_TOKEN:
                 STNode slashToken = consume();
-                return parseResourceMethodCallAction(expression, rightArrow, slashToken);
+                return parseResourceMethodCallAction(expression, rightArrow, slashToken, isRhsExpr, isInMatchGuard);
             default:
+                if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    // This can be `expr->identifier` or `expr->identifier()` or `expr->[MISSING /]identifier`
+                    // This logic is added to improve recovery for resource method call action slash token
+                    // Next token is a Missing token means, it is a correct token recovered previously
+                    SyntaxKind nextNextNextTokenKind = getNextNextToken().kind;
+                    if (nextNextNextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN || 
+                            isEndOfActionOrExpression(nextNextNextTokenKind, isRhsExpr, isInMatchGuard) || 
+                            nextToken.isMissing()) {
+                        name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
+                        break;
+                    }
+                }
+                
                 STToken token = peek();
-                recover(token, ParserRuleContext.REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS);
-                return parseRemoteOrResourceCallOrAsyncSendActionRhs(expression, rightArrow);
+                Solution solution = recover(token, ParserRuleContext.REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS);
+                if (solution.action == Action.KEEP) {
+                    // identifier token can be valid for remote method call or async send
+                    name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
+                    break;
+                }
+                return parseRemoteOrResourceCallOrAsyncSendActionRhs(expression, rightArrow, isRhsExpr, isInMatchGuard);
         }
 
         return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
@@ -15484,7 +15492,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isDefiniteAction(SyntaxKind kind) {
         return kind.compareTo(SyntaxKind.REMOTE_METHOD_CALL_ACTION) >= 0 && 
-                kind.compareTo(SyntaxKind.COMMIT_ACTION) <= 0;
+                kind.compareTo(SyntaxKind.RESOURCE_METHOD_CALL_ACTION) <= 0;
     }
 
     /**

@@ -504,9 +504,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] REMOTE_OR_RESOURCE_CALL_OR_ASYNC_SEND_RHS =
-            { ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.METHOD_NAME,
-                    ParserRuleContext.DEFAULT_WORKER_NAME_IN_ASYNC_SEND, 
-                    ParserRuleContext.RESOURCE_METHOD_CALL_SLASH_TOKEN };
+            { ParserRuleContext.DEFAULT_WORKER_NAME_IN_ASYNC_SEND, 
+                    ParserRuleContext.RESOURCE_METHOD_CALL_SLASH_TOKEN, 
+                    ParserRuleContext.PEER_WORKER_NAME, ParserRuleContext.METHOD_NAME };
 
     private static final ParserRuleContext[] REMOTE_CALL_OR_ASYNC_SEND_END =
             { ParserRuleContext.ARG_LIST_OPEN_PAREN, ParserRuleContext.SEMICOLON };
@@ -3647,7 +3647,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TUPLE_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
             case METHOD_NAME:
-                return ParserRuleContext.ARG_LIST_OPEN_PAREN;
+                return ParserRuleContext.OPTIONAL_RESOURCE_METHOD_CALL_ARG_LIST;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                 return ParserRuleContext.SEMICOLON;
             case SYNC_SEND_TOKEN:
@@ -3810,7 +3810,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_METHOD_CALL_ACTION:
                 return ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_PATH;
             case ACTION_END:
-                endContext(); // end-action-ctx
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.RESOURCE_METHOD_CALL_ACTION) {
+                    endContext(); // end-action-ctx
+                }
                 return getNextRuleForAction();
             default:
                 return getNextRuleForKeywords(currentCtx);
