@@ -26,12 +26,14 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -87,6 +89,8 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
 
             completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else if (cursorAtTheEndOfExpression(context, node)) {
+            completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
         }
@@ -106,7 +110,7 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
         1) from var person in personList
                 let var test = 12 s<cursor>
         Here at the cursor, it is identified as the binary expression where the operator is missing
-         */ 
+         */
         if (!expression.isMissing() && expression.kind() == SyntaxKind.BINARY_EXPRESSION
                 && cursor > ((BinaryExpressionNode) expression).lhsExpr().textRange().endOffset()
                 && ((BinaryExpressionNode) expression).operator().isMissing()) {
@@ -136,9 +140,16 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
                     .setSortText(SortingUtil.genSortTextByAssignability(context, completionItem, symbol));
         }
     }
-    
+
     private boolean isMissingExpression(ExpressionNode expr) {
         return expr.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 && ((SimpleNameReferenceNode) expr).name().text().isEmpty();
+    }
+
+    private boolean cursorAtTheEndOfExpression(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
+        int cursorPosition = context.getCursorPositionInTree();
+        return node.expression().kind() != SyntaxKind.BINARY_EXPRESSION
+                && !CommonUtil.isWithInRange(node, cursorPosition)
+                && node.expression().textRange().startOffset() < cursorPosition;
     }
 }

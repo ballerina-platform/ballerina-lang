@@ -187,4 +187,15 @@ public class TableNegativeTest {
         validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
                 136, 9);
     }
+
+    @Test
+    public void testAnyTypedTableWithKeySpecifiers() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-value-any-negative.bal");
+        int index = 0;
+        validateError(compileResult, index++,
+                "key specifier not allowed when the target type is any", 18, 20);
+        validateError(compileResult, index++,
+                "key specifier not allowed when the target type is any", 25, 15);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
 }

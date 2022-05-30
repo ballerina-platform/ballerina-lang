@@ -518,6 +518,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3315", "on.conflict.only.works.with.tables.with.key.specifier"),
     CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS("BCE3316", "cannot.update.table.using.member.access.lvexpr"),
     KEY_SPECIFIER_EMPTY_FOR_PROVIDED_KEY_CONSTRAINT("BCE3317", "key.specifier.empty.with.key.constraint"),
+    KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY("BCE3318", "key.specifier.not.allowed.for.target.any"),
 
 
     // Taint checking related codes

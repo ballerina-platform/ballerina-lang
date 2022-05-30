@@ -72,6 +72,17 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'float'", 131, 24);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '[int,(int|float)][]', found '[int," +
                 "(int|float|string)][]'", 137, 34);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'function " +
+                "(ballerina/lang.table:0.0.0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', " +
+                "found 'function (other) returns (DataRow)'", 150, 31);
+        BAssertUtil.validateError(result, err++, "unknown type 'dRecord'", 150, 40);
+        BAssertUtil.validateError(result, err++, "missing identifier", 150, 47);
+        BAssertUtil.validateError(result, err++, "unknown type 'x'", 158, 35);
+        BAssertUtil.validateError(result, err++, "missing identifier", 158, 36);
+        BAssertUtil.validateError(result, err++, "undefined symbol 'x'", 159, 16);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'function " +
+                "(ballerina/lang.table:0.0.0:MapType) returns (ballerina/lang.table:0.0.0:MapType1)', " +
+                "found 'function (string) returns (DataRow)'", 164, 31);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 

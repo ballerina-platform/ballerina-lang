@@ -63,20 +63,28 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class FromJsonWithType {
 
-    public static Object fromJsonWithType(Object v, BTypedesc t) {
-        Type describingType = t.getDescribingType();
+    private FromJsonWithType() {
+    }
+
+    public static Object fromJsonWithType(Object value, BTypedesc t) {
+        return convert(value, t.getDescribingType(), t);
+    }
+
+    public static Object convert(Object value, Type targetType) {
+        return convert(value, targetType, null);
+    }
+
+    public static Object convert(Object value, Type targetType, BTypedesc t) {
         try {
-            return convert(v, describingType, new ArrayList<>(), t);
+            return convert(value, targetType, new ArrayList<>(), t);
         } catch (BError e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                               StringUtils.fromString(e.getDetail()));
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, StringUtils.fromString(e.getDetail()));
         }
     }
 
-    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
-                                  BTypedesc t) {
+    private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues, BTypedesc t) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (value == null) {
@@ -165,8 +173,7 @@ public class FromJsonWithType {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
                 if (t != null && t.getDescribingType() == targetType) {
-                    return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType,
-                                                       targetTypeField);
+                    return convertToRecordWithTypeDesc(map, unresolvedValues, t, restFieldType, targetTypeField);
                 } else {
                     return convertToRecord(map, unresolvedValues, t, recordType, restFieldType,
                                            targetTypeField);

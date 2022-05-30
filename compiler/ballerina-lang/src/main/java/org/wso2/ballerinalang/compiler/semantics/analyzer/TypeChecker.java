@@ -132,8 +132,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangListConstructorSpreadOpExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -178,7 +176,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -713,6 +710,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType, AnalyzerData data) {
+        literalExpr.isFiniteContext = false;
         Object literalValue = literalExpr.value;
         BType expectedType = Types.getReferredType(expType);
 
@@ -946,7 +944,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType = data.expType;
         if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
             List<BType> memTypes = checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), data.env,
-                                                 data);
+                    data);
             for (BType memType : memTypes) {
                 if (memType == symTable.semanticError) {
                     data.resultType = symTable.semanticError;
@@ -954,23 +952,37 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
 
-            if (tableConstructorExpr.recordLiteralList.size() == 0) {
+            // If we don't have a contextually applicable type and don't have members in the table constructor expr,
+            // we cannot derive the table type
+            if (expType.tag == TypeTags.NONE && tableConstructorExpr.recordLiteralList.size() == 0) {
                 dlog.error(tableConstructorExpr.pos, DiagnosticErrorCode.CANNOT_INFER_MEMBER_TYPE_FOR_TABLE);
                 data.resultType = symTable.semanticError;
                 return;
             }
 
-            BType inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr, data);
-            BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
-            for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
-                recordLiteral.setBType(inherentMemberType);
-            }
-
-            if (!validateTableConstructorExpr(tableConstructorExpr, tableType, data)) {
+            // if the contextually expected type is `any` and the key specifier is defined,
+            // then we cannot derive a table type
+            if (expType.tag == TypeTags.ANY && tableConstructorExpr.tableKeySpecifier != null) {
+                dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                        DiagnosticErrorCode.KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY);
                 data.resultType = symTable.semanticError;
                 return;
             }
 
+            BType inherentMemberType;
+            if (tableConstructorExpr.tableKeySpecifier == null && expType.tag != TypeTags.NONE) {
+                inherentMemberType = getMappingConstructorCompatibleNonUnionType(expType, data);
+            } else {
+                inherentMemberType = inferTableMemberType(memTypes, tableConstructorExpr, data);
+                for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
+                    recordLiteral.setBType(inherentMemberType);
+                }
+            }
+            BTableType tableType = new BTableType(TypeTags.TABLE, inherentMemberType, null);
+            if (!validateTableConstructorExpr(tableConstructorExpr, tableType, data)) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
             if (checkKeySpecifier(tableConstructorExpr, tableType, data)) {
                 return;
             }
@@ -999,6 +1011,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 memTypes.add(recordType);
             }
 
+            if (!(validateKeySpecifierInTableConstructor((BTableType) applicableExpType,
+                    tableConstructorExpr.recordLiteralList, data) &&
+                    validateTableConstructorExpr(tableConstructorExpr, (BTableType) applicableExpType, data))) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+
             BTableType expectedTableType = (BTableType) applicableExpType;
             if (expectedTableType.constraint.tag == TypeTags.MAP && expectedTableType.isTypeInlineDefined) {
                 if (validateMapConstraintTable(applicableExpType)) {
@@ -1006,13 +1025,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return;
                 }
                 data.resultType = expType;
-                return;
-            }
-
-            if (!(validateKeySpecifierInTableConstructor((BTableType) applicableExpType,
-                    tableConstructorExpr.recordLiteralList, data) &&
-                    validateTableConstructorExpr(tableConstructorExpr, (BTableType) applicableExpType, data))) {
-                data.resultType = symTable.semanticError;
                 return;
             }
 
@@ -5467,34 +5479,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression, AnalyzerData data) {
-        SymbolEnv matchExprEnv = SymbolEnv.createBlockEnv((BLangBlockStmt) TreeBuilder.createBlockNode(), data.env);
-        checkExpr(bLangMatchExpression.expr, matchExprEnv, data);
-
-        // Type check and resolve patterns and their expressions
-        bLangMatchExpression.patternClauses.forEach(pattern -> {
-            if (!pattern.variable.name.value.endsWith(Names.IGNORE.value)) {
-                symbolEnter.defineNode(pattern.variable, matchExprEnv);
-            }
-            checkExpr(pattern.expr, matchExprEnv, data.expType, data);
-            pattern.variable.setBType(symResolver.resolveTypeNode(pattern.variable.typeNode, matchExprEnv));
-        });
-
-        LinkedHashSet<BType> matchExprTypes = getMatchExpressionTypes(bLangMatchExpression);
-
-        BType actualType;
-        if (matchExprTypes.contains(symTable.semanticError)) {
-            actualType = symTable.semanticError;
-        } else if (matchExprTypes.size() == 1) {
-            actualType = matchExprTypes.toArray(new BType[0])[0];
-        } else {
-            actualType = BUnionType.create(null, matchExprTypes);
-        }
-
-        data.resultType = types.checkType(bLangMatchExpression, actualType, data.expType);
-    }
-
-    @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
         data.checkWithinQueryExpr = isWithinQuery(data);
         visitCheckAndCheckPanicExpr(checkedExpr, data);
@@ -5968,7 +5952,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 dlog.warning(checkedExpr.expr.pos,
                         DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS,
                         operatorType);
+                checkedExpr.isRedundantChecking = true;
                 data.resultType = checkedExpr.expr.getBType();
+
+                // Reset impConversionExpr as it was previously based on default error added union type
+                resetImpConversionExpr(checkedExpr.expr, data.resultType, data.expType);
             }
             checkedExpr.setBType(symTable.semanticError);
             return;
@@ -6000,6 +5988,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // No member types in this union is equivalent to the error type
             dlog.warning(checkedExpr.expr.pos,
                     DiagnosticWarningCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS, operatorType);
+            checkedExpr.isRedundantChecking = true;
+
+            // Reset impConversionExpr as it was previously based on default error added union type
+            resetImpConversionExpr(checkedExpr.expr, data.resultType, data.expType);
+
             checkedExpr.setBType(symTable.semanticError);
             return;
         }
@@ -6014,6 +6007,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(checkedExpr, actualType, data.expType);
+    }
+
+    private void resetImpConversionExpr(BLangExpression expr, BType actualType, BType targetType) {
+        expr.impConversionExpr = null;
+        types.setImplicitCastExpr(expr, actualType, targetType);
     }
 
     private void rewriteWithEnsureTypeFunc(BLangCheckedExpr checkedExpr, BType type, AnalyzerData data) {
@@ -7149,12 +7147,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             // Need to infer the type. Calculate matching bound type, with no type.
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, expType, data);
-            typeParamAnalyzer.checkForTypeParamsInArg(pos, inferredType, data.env, expectedType);
+            typeParamAnalyzer.checkForTypeParamsInArg(arg, pos, inferredType, data.env, expectedType);
             types.checkType(arg.pos, inferredType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
         }
         checkExpr(arg, expectedType, data);
-        typeParamAnalyzer.checkForTypeParamsInArg(pos, arg.getBType(), data.env, expectedType);
+        typeParamAnalyzer.checkForTypeParamsInArg(arg, pos, arg.getBType(), data.env, expectedType);
     }
 
     private boolean requireTypeInference(BLangExpression expr, boolean inferTypeForNumericLiteral) {
@@ -8703,41 +8701,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             return Lists.of(type);
         }
-    }
-
-    private LinkedHashSet<BType> getMatchExpressionTypes(BLangMatchExpression bLangMatchExpression) {
-        List<BType> exprTypes = getTypesList(bLangMatchExpression.expr.getBType());
-        LinkedHashSet<BType> matchExprTypes = new LinkedHashSet<>();
-        for (BType type : exprTypes) {
-            boolean assignable = false;
-            for (BLangMatchExprPatternClause pattern : bLangMatchExpression.patternClauses) {
-                BType patternExprType = pattern.expr.getBType();
-
-                // Type of the pattern expression, becomes one of the types of the whole but expression
-                matchExprTypes.addAll(getTypesList(patternExprType));
-
-                if (type.tag == TypeTags.SEMANTIC_ERROR || patternExprType.tag == TypeTags.SEMANTIC_ERROR) {
-                    return new LinkedHashSet<BType>() {
-                        {
-                            add(symTable.semanticError);
-                        }
-                    };
-                }
-
-                assignable = this.types.isAssignable(type, pattern.variable.getBType());
-                if (assignable) {
-                    break;
-                }
-            }
-
-            // If the matching expr type is not matching to any pattern, it becomes one of the types
-            // returned by the whole but expression
-            if (!assignable) {
-                matchExprTypes.add(type);
-            }
-        }
-
-        return matchExprTypes;
     }
 
     private boolean couldHoldTableValues(BType type, List<BType> encounteredTypes) {

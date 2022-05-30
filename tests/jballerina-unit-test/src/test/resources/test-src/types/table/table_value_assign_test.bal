@@ -45,14 +45,16 @@ function testAssignKeyedTableValueToAny() {
         {name: "John", id: 4567}
     ];
     any a1 = tbl1;
-    any a2 = table key(name) [
+    var a2 = table key(name) [
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
     ];
 
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table key(name) [{name: "Amy", id: 1234}, {name: "John", id: 4567}], a2);
+
+    var tbl2 = table key(name) [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+    assertEqual(tbl2, a2);
 }
 
 function testAssignKeyedTableValueToVar() {
@@ -65,13 +67,16 @@ function testAssignKeyedTableValueToVar() {
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
     ];
+
     var ids = from var {id} in tbl1 select {id};
     table<record {| int id; |}> a3 = ids;
+
+    var a4 = table [{"id": 1234}, {"id": 4567}];
 
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table [{"id": 1234}, {"id": 4567}], a3);
+    assertEqual(a4, a3);
 }
 
 function testAssignKeyedTableValueToTableType() {
@@ -81,9 +86,9 @@ function testAssignKeyedTableValueToTableType() {
     ];
     var a2 = checkpanic table key(id) from var {id} in tbl1 select {id};
     table<record {| readonly int id; |}> key(id) a3 = a2;
-    any a4 = table key(id) [{"id": 1234}, {"id": 4567}];
-
-    assertEqual(table key(id) [{"id": 1234}, {"id": 4567}], a3);
+    var a4 = table key(id) [{"id": 1234}, {"id": 4567}];
+    var tbl = table key(id) [{"id": 1234}, {"id": 4567}];
+    assertEqual(tbl, a3);
     assertEqual(a3, a4);
 }
 
@@ -109,14 +114,16 @@ function testAssignKeylessTableValueToAny() {
         {name: "John", id: 4567}
     ];
     any a1 = tbl1;
-    any a2 = table [
+    table<Student> a2 = table [
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
     ];
 
+    var a3 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
+
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table [{name: "Amy", id: 1234}, {name: "John", id: 4567}], a2);
+    assertEqual(a3, a2);
 }
 
 function testAssignKeylessTableValueToVar() {
@@ -130,11 +137,11 @@ function testAssignKeylessTableValueToVar() {
         {name: "John", id: 4567}
     ];
     var ids = from var {id} in tbl1 select {id};
-
+    var a3 = table [{"id": 1234}, {"id": 4567}];
     assertEqual(a1, a2);
     assertEqual(tbl1, a2);
     assertEqual(tbl1, a2);
-    assertEqual(table [{"id": 1234}, {"id": 4567}], ids);
+    assertEqual(a3, ids);
 }
 
 function testAssignKeylessTableValueToTableType() {
@@ -144,10 +151,36 @@ function testAssignKeylessTableValueToTableType() {
     ];
     var a2 = table key() from var {id} in tbl1 select {id};
     table<record {| int id; |}> a3 = a2;
-    any a4 = table [{"id": 1234}, {"id": 4567}];
-
-    assertEqual(table [{"id": 1234}, {"id": 4567}], a3);
+    var a4 = table [{"id": 1234}, {"id": 4567}];
     assertEqual(a3, a4);
+}
+
+function testTableVlueAssignmentToAny() {
+    any tbl = table[];
+    table<map<any|error>> a1 = <table<map<any|error>>> tbl;
+    a1.add({"any": "any"});
+    a1.add({"error": error("")});
+
+    any t2 = table [{a: 1}];
+    table<map<any|error>> t3 = <table<map<any|error>>> t2;
+    map<any|error> m = {a: error("")};
+    t3.add(m);
+
+    typedesc td1 = typeof a1;
+    typedesc td2 = typeof t3;
+
+    testTableConstructorPassedAsArg(table[]);
+    testTableConstructorPassedAsArg(table[{a: "4"}, {g: error("")}]);
+
+    assertEqual("typedesc table<map<(any|error)>>",  td1.toString());
+    assertEqual("typedesc table<map<(any|error)>>",  td2.toString());
+}
+
+function testTableConstructorPassedAsArg(any tbl) {
+    if tbl is table<map<any|error>> {
+        return;
+    }
+    panic error("Type is not table<map<any|error>");
 }
 
 function assertEqual(any expected, any actual) {

@@ -4316,7 +4316,7 @@ public class Types {
         return matchFound;
     }
 
-    boolean validNumericStringOrXmlTypeExists(BType type, ValidateType validateType) {
+    boolean validNumericStringOrXmlTypeExists(BType type, TypeExistenceValidationFunction validationFunction) {
         switch (type.tag) {
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) type;
@@ -4361,15 +4361,15 @@ public class Types {
                     if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
                         return false;
                     }
-                    if (!validateType.validate(expr.getBType())) {
+                    if (!validationFunction.validate(expr.getBType())) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.TYPEREFDESC:
-                return validateType.validate(getReferredType(type));
+                return validationFunction.validate(getReferredType(type));
             case TypeTags.INTERSECTION:
-                return validateType.validate(((BIntersectionType) type).effectiveType);
+                return validationFunction.validate(((BIntersectionType) type).effectiveType);
             default:
                 return false;
         }
@@ -6039,11 +6039,11 @@ public class Types {
     }
 
     /**
-     * A functional interface for validate numeric, string or xml type exists.
+     * A functional interface to validate numeric, string or xml type existence.
      *
      * @since 2201.1.0
      */
-    private interface ValidateType {
+    private interface TypeExistenceValidationFunction {
         boolean validate(BType type);
     }
 
@@ -6057,12 +6057,12 @@ public class Types {
             case TypeTags.BOOLEAN:
             case TypeTags.JSON:
             case TypeTags.XML:
+            case TypeTags.XML_TEXT:
             case TypeTags.NIL:
             case TypeTags.TABLE:
             case TypeTags.ANYDATA:
             case TypeTags.MAP:
             case TypeTags.ANY:
-            case TypeTags.NEVER:
                 return true;
             case TypeTags.ARRAY:
                 return checkFillerValue((BArrayType) type);
@@ -6083,11 +6083,8 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 return hasFillerValue(getReferredType(type));
             default:
-                // filler value is 0
-                if (TypeTags.isIntegerTypeTag(type.tag)) {
-                    return true;
-                }
-                return false;
+                // check whether the type is an integer subtype which has filler value 0
+                return TypeTags.isIntegerTypeTag(type.tag);
         }
     }
 
@@ -6161,21 +6158,19 @@ public class Types {
 
         Set<BType> memberTypes = new HashSet<>();
         boolean hasFillerValue = false;
-        boolean defaultValuePresent = false;
-        boolean finiteTypePresent = false;
+
         for (BType member : getAllTypes(type, true)) {
             if (member.tag == TypeTags.FINITE) {
                 Set<BType> uniqueValues = getValueTypes(((BFiniteType) member).getValueSpace());
                 memberTypes.addAll(uniqueValues);
-                if (!defaultValuePresent && hasImplicitDefaultValue(((BFiniteType) member).getValueSpace())) {
-                    defaultValuePresent = true;
+                if (!hasFillerValue && hasImplicitDefaultValue(((BFiniteType) member).getValueSpace())) {
+                    hasFillerValue = true;
                 }
-                finiteTypePresent = true;
             } else {
                 memberTypes.add(member);
-            }
-            if (!hasFillerValue && hasFillerValue(member)) {
-                hasFillerValue = true;
+                if (!hasFillerValue && hasFillerValue(member)) {
+                    hasFillerValue = true;
+                }
             }
         }
         if (!hasFillerValue) {
@@ -6189,10 +6184,6 @@ public class Types {
                 return false;
             }
         }
-
-        if (finiteTypePresent) {
-            return defaultValuePresent;
-        }
         return true;
     }
 
@@ -6200,10 +6191,19 @@ public class Types {
         if (isSameType(source, target)) {
             return true;
         }
-        if (TypeTags.isIntegerTypeTag(source.tag) && TypeTags.isIntegerTypeTag(target.tag)) {
+        int sourceTag = source.tag;
+        int targetTag = target.tag;
+        if (TypeTags.isStringTypeTag(sourceTag) && TypeTags.isStringTypeTag(targetTag)) {
             return true;
         }
-        return false;
+        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+            return true;
+        }
+        return isIntegerSubTypeTag(sourceTag) && isIntegerSubTypeTag(targetTag);
+    }
+
+    private boolean isIntegerSubTypeTag(int typeTag) {
+        return TypeTags.isIntegerTypeTag(typeTag) || typeTag == TypeTags.BYTE;
     }
 
     private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
@@ -6222,14 +6222,15 @@ public class Types {
             switch (literalExprType.getKind()) {
                 case INT:
                 case BYTE:
-                    return value.equals(Long.valueOf(0));
+                    return value.equals(0L);
                 case STRING:
                     return value == null || value.equals("");
                 case DECIMAL:
+                    return value.equals(String.valueOf(0)) || value.equals(0L);
                 case FLOAT:
                     return value.equals(String.valueOf(0.0));
                 case BOOLEAN:
-                    return value.equals(Boolean.valueOf(false));
+                    return value.equals(Boolean.FALSE);
                 case NIL:
                     return true;
                 default:
