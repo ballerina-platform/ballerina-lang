@@ -24,9 +24,6 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Test Subscriber to test Event Sync publish subscriber.
  *
@@ -35,12 +32,12 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber")
 public class EventSyncTestSubscriber implements EventSubscriber {
 
-    public static final String NAME = "Event Sync Test Subscriber";
+    public static final String NAME = "Event sync test subscriber";
     public static boolean gotEvent = false;
 
     @Override
-    public List<PublisherKind> publisherKinds() {
-        return Collections.singletonList(PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER);
+    public PublisherKind publisherKind() {
+        return PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER;
     }
 
     @Override

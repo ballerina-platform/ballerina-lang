@@ -26,9 +26,6 @@ import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 import org.eclipse.lsp4j.ServerCapabilities;
 
-import java.util.Collections;
-import java.util.List;
-
 import static org.ballerinalang.langserver.util.LSClientUtil.compileAndRegisterCommands;
 import static org.ballerinalang.langserver.util.LSClientUtil.isDynamicCommandRegistrationSupported;
 
@@ -39,11 +36,11 @@ import static org.ballerinalang.langserver.util.LSClientUtil.isDynamicCommandReg
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber")
 public class CommandRegisterSubscriber implements EventSubscriber {
-    public static final String NAME = "Command Register Subscriber";
+    public static final String NAME = "Command register subscriber";
 
     @Override
-    public List<PublisherKind> publisherKinds() {
-        return Collections.singletonList(PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER);
+    public PublisherKind publisherKind() {
+        return PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER;
     }
     
     @Override

@@ -32,11 +32,11 @@ import java.util.List;
 public interface EventSubscriber {
 
     /**
-     * Get the List of PublisherKinds subscribed to.
+     * PublisherKind of the publisher that subscriber has subscribed to.
      *
-     * @return {@link List<PublisherKind>} List of PublisherKinds.
+     * @return {@link PublisherKind} PublisherKind.
      */
-    List<PublisherKind> publisherKinds();
+    PublisherKind publisherKind();
 
     /**
      * Execute for the subscriber when the subscribed publisher publishes.

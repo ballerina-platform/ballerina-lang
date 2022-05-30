@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.eventsync;
 
+import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
@@ -39,17 +40,18 @@ public class EventSyncPubSubHolder {
     private static final Map<PublisherKind, EventPublisher> publisherMap = new HashMap<>();
 
     private EventSyncPubSubHolder(LanguageServerContext serverContext) {
+        LSClientLogger lsClientLogger = LSClientLogger.getInstance(serverContext);
         serverContext.put(SUBSCRIBERS_HOLDER_KEY, this);
+        initialize(lsClientLogger);
     }
 
-    static {
+    private void initialize(LSClientLogger lsClientLogger) {
         Map<PublisherKind, List<EventSubscriber>> eventSubscribersMap = new HashMap<>();
         ServiceLoader<EventSubscriber> subscribers = ServiceLoader.load(EventSubscriber.class);
         for (EventSubscriber eventSubscriber : subscribers) {
-            for (PublisherKind publisherKind : eventSubscriber.publisherKinds()) {
-                eventSubscribersMap.computeIfAbsent(publisherKind, k -> new ArrayList<>());
-                eventSubscribersMap.get(publisherKind).add(eventSubscriber);
-            }
+            PublisherKind publisherKind = eventSubscriber.publisherKind();
+            eventSubscribersMap.computeIfAbsent(publisherKind, k -> new ArrayList<>());
+            eventSubscribersMap.get(publisherKind).add(eventSubscriber);
         }
 
         ServiceLoader<EventPublisher> publishers = ServiceLoader.load(EventPublisher.class);
@@ -57,6 +59,8 @@ public class EventSyncPubSubHolder {
             for (EventSubscriber eventSubscriber: eventSubscribersMap.get(eventPublisher.getKind())) {
                 publisherMap.put(eventPublisher.getKind(), eventPublisher);
                 eventPublisher.subscribe(eventSubscriber);
+                lsClientLogger.logMessage(String.format("%s subscribed to %s", eventSubscriber.getName(),
+                        eventPublisher.getName()));
             }
         });
     }

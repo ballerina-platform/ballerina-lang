@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
  */
 @JavaSPIService("org.ballerinalang.langserver.eventsync.EventPublisher")
 public class ProjectUpdateEventPublisher extends AbstractEventPublisher {
-    public static final String NAME = "Project Update Event";
+    public static final String NAME = "Project update event publisher";
     private CompletableFuture<Boolean> latestScheduled = null;
     private static final long DIAGNOSTIC_DELAY = 1;
     

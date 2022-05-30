@@ -25,9 +25,6 @@ import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Publishes diagnostics.
  *
@@ -35,11 +32,11 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber")
 public class PublishDiagnosticSubscriber implements EventSubscriber {
-    public static final String NAME = "Publish Diagnostic Subscriber";
+    public static final String NAME = "Publish diagnostic subscriber";
 
     @Override
-    public List<PublisherKind> publisherKinds() {
-        return Collections.singletonList(PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER);
+    public PublisherKind publisherKind() {
+        return PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER;
     }
     
     @Override
