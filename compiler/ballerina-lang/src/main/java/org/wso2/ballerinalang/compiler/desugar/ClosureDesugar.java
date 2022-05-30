@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -138,7 +137,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -160,6 +158,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -1043,11 +1042,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchStmt) {
-        result = matchStmt;
-    }
-
-    @Override
     public void visit(BLangForeach foreach) {
         result = foreach;
     }
@@ -1877,11 +1871,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-        result = bLangMatchExpression;
-    }
-
-    @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         result = checkedExpr;
     }
@@ -1911,14 +1900,25 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        if (bLangStatementExpression.stmt.getKind() == NodeKind.BLOCK) {
-            BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) bLangStatementExpression.stmt;
-            for (int i = 0; i < bLangBlockStmt.stmts.size(); i++) {
-                BLangStatement stmt = bLangBlockStmt.stmts.remove(i);
-                bLangBlockStmt.stmts.add(i, rewrite(stmt, env));
+        BLangStatement exprStmt = bLangStatementExpression.stmt;
+        if (exprStmt.getKind() == NodeKind.BLOCK) {
+            BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) exprStmt;
+            if (bLangBlockStmt.isLetExpr) {
+                // In let expression's object constructor expression, the function block already has an OCE mapSymbol,
+                // which should be propagated to block statement's mapSymbol.
+                if (bLangBlockStmt.mapSymbol == null && bLangStatementExpression.getBType().tag == TypeTags.OBJECT
+                        && env.node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+                    bLangBlockStmt.mapSymbol = ((BLangBlockFunctionBody) env.node).mapSymbol;
+                }
+                bLangStatementExpression.stmt = rewrite(exprStmt, env);
+            } else {
+                for (int i = 0; i < bLangBlockStmt.stmts.size(); i++) {
+                    BLangStatement stmt = bLangBlockStmt.stmts.remove(i);
+                    bLangBlockStmt.stmts.add(i, rewrite(stmt, env));
+                }
             }
         } else {
-            bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
+            bLangStatementExpression.stmt = rewrite(exprStmt, env);
         }
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
         result = bLangStatementExpression;
@@ -1953,11 +1953,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        /* Ignore */
-    }
-
-    @Override
     public void visit(BLangNumericLiteral literalExpr) {
         result = literalExpr;
     }
@@ -1975,11 +1970,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         result = varRefExpr;
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-        /* Ignore */
     }
 
     @Override
@@ -2032,16 +2022,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMarkdownDocumentation bLangMarkdownDocumentation) {
-        /* Ignore */
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause langMatchStaticBindingPatternClause) {
-        /* Ignore */
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause matchStructuredBindingPatternClause) {
         /* Ignore */
     }
 

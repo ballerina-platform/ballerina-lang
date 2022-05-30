@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.codeaction.providers;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -46,12 +47,16 @@ public class AddAccessModifierCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Add Access Modifier";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        return DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC.diagnosticId().equals(diagnostic.diagnosticInfo().code()) 
+                && CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, 
                                                     DiagBasedPositionDetails positionDetails, 
                                                     CodeActionContext context) {
-        if (!(DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC.diagnosticId().equals(diagnostic.diagnosticInfo().code()))) {
-            return Collections.emptyList();
-        }
         
         Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
         if (funcDef.isEmpty()) {

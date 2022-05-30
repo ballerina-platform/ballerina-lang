@@ -52,6 +52,11 @@ public class BLangObjectTypeNode extends BLangStructureTypeNode implements Objec
         this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
+    // This ctor is used in node cloner. Fields being set in node cloner are not initialized here
+    public BLangObjectTypeNode(int includedFieldCount) {
+        super(includedFieldCount);
+    }
+
     @Override
     public List<BLangFunction> getFunctions() {
         return functions;

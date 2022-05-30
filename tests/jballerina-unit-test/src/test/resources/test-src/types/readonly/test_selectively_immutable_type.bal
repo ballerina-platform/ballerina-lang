@@ -1137,6 +1137,18 @@ function testTypeDefinitionForReadOnlyIntersectionWithBuiltinType() {
                    <string> checkpanic d.detail()["message"]);
 }
 
+function testIsReadonlyWithInBuiltUnionType() returns error? {
+    json j = {a: 1};
+    string s = j.toJsonString();
+    json & readonly x = check s.fromJsonStringWithType();
+    assertTrue(x is readonly);
+
+    anydata k = {b: 2};
+    string t = k.toJsonString();
+    anydata & readonly y = check t.fromJsonStringWithType();
+    assertTrue(y is readonly);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

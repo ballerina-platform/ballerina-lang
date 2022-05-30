@@ -54,7 +54,7 @@ public class CancelledFuturesWithTrxTest extends BaseTest {
         LogLeecher logLeecher = new LogLeecher("Marked initiated transaction for abortion",
                                                 LogLeecher.LeecherType.ERROR);
 
-        bMainInstance.runMain(balFile, new String[]{"--experimental"}, new String[0], new LogLeecher[]{logLeecher});
+        bMainInstance.runMain(balFile, new String[]{}, new String[0], new LogLeecher[]{logLeecher});
         logLeecher.waitForText(10000);
     }
 

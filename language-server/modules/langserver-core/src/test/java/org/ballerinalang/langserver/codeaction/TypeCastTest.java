@@ -79,6 +79,7 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"typeCastNegative2.json", "typeCast.bal"},
                 {"typeCastNegative3.json", "typeCast.bal"},
                 {"typeCastNegative4.json", "typeCast.bal"},
+                {"typeCastNegative5.json", "typeCast.bal"},
         };
     }
 }

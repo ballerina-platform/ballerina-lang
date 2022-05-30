@@ -31,6 +31,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -59,6 +60,13 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Change Parameter Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -66,9 +74,6 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
 
         // Skip, non-local var declarations
         VariableDeclarationNode localVarNode = getVariableDeclarationNode(positionDetails.matchedNode());
@@ -110,6 +115,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         if (node.isEmpty()) {
             return Collections.emptyList();
         }
+
         Optional<Range> paramTypeRange = getParameterTypeRange(node.get());
         if (paramTypeRange.isEmpty()) {
             return Collections.emptyList();
@@ -123,7 +129,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
-                                                type);
+                    type);
             actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;

@@ -466,8 +466,73 @@ function testReachabilityWithQueryAction() returns string {
 //    panic error("Return statement should brake the loop and return");
 //}
 
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+type Team readonly & record {|
+    string user;
+    int teamId;
+|};
+
+ScoreEvent[] events = [
+    {email: "jake@abc.com", problemId: "12", score: 80.0},
+    {email: "anne@abc.com", problemId: "20", score: 95.0},
+    {email: "peter@abc.com", problemId: "3", score: 72.0}
+];
+
+Team[] team = [
+    {user: "jake@abc.com", teamId: 1},
+    {user: "anne@abc.com", teamId: 2},
+    {user: "peter@abc.com", teamId: 2}
+];
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() returns error? {
+    float sum = 0.0;
+
+    check from var {email, problemId, score} in events
+        join var {user, teamId} in team
+        on email equals user
+        where teamId == 2
+        do {
+            sum += score;
+        };
+    assertEquality(167.0, sum);
+}
+
+function testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction2() returns error? {
+    float sum = 0.0;
+
+    check from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
+        join var {us, ti} in (from var {user: us, teamId: ti} in team select {us, ti})
+        on ev.email equals us
+        where ti == 2
+        do {
+            sum += ev.score;
+        };
+    assertEquality(95.0, sum);
+}
+
 function assertTrue (any|error actual) {
     return assertEquality(true, actual);
+}
+
+function testQueryExpWithinQueryAction() returns error? {
+    int[][] data = [[1, 2], [2, 3, 4]];
+    int sumOfEven = 0;
+    check from int[] arr in data
+        do {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            check from int i in evenNumbers
+                do {
+                    sumOfEven += i;
+                };
+        };
+    assertEquality(8, sumOfEven);
 }
 
 function assertEquality(any|error expected, any|error actual) {
