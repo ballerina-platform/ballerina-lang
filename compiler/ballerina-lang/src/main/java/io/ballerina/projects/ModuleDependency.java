@@ -27,10 +27,13 @@ import java.util.Objects;
 public class ModuleDependency {
     private final PackageDependency packageDependency;
     private final ModuleId moduleId;
+    private final ModuleDescriptor moduleDescriptor;
 
-    public ModuleDependency(PackageDependency packageDependency, ModuleId moduleId) {
+    public ModuleDependency(PackageDependency packageDependency,
+                               ModuleId moduleId, ModuleDescriptor moduleDescriptor) {
         this.packageDependency = packageDependency;
         this.moduleId = moduleId;
+        this.moduleDescriptor = moduleDescriptor;
     }
 
     public PackageDependency packageDependency() {
@@ -39,6 +42,10 @@ public class ModuleDependency {
 
     public ModuleId moduleId() {
         return moduleId;
+    }
+
+    public ModuleDescriptor descriptor() {
+        return moduleDescriptor;
     }
 
     @Override
