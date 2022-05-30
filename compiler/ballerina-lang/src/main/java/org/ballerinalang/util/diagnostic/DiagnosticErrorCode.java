@@ -211,6 +211,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MAX_ONE_COMMIT_ROLLBACK_ALLOWED_WITHIN_A_BRANCH("BCE2323", "max.one.commit.rollback.allowed.within.branch"),
     COMMIT_NOT_ALLOWED("BCE2324", "commit.not.allowed"),
     ROLLBACK_NOT_ALLOWED("BCE2325", "rollback.not.allowed"),
+    INCOMPATIBLE_TYPE_IN_SELECT_CLAUSE("BCE2326", "incompatible.type.in.select.clause"),
 
     // Service, endpoint related errors codes
     SERVICE_INVALID_OBJECT_TYPE("BCE2400", "service.invalid.object.type"),
