@@ -5580,11 +5580,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     selectType = checkExpr(selectExp, env, type, data);
                     resolvedType = selectType;
                     break;
+                case TypeTags.MAP:
+                    List<BType> memberTypes = new ArrayList<>();
+                    memberTypes.add(symTable.stringType);
+                    memberTypes.add(((BMapType) type).getConstraint());
+                    BTupleType newExpType = new BTupleType(null, memberTypes);
+                    selectType = checkExpr(selectExp, env, newExpType, data);
+                    resolvedType = selectType;
+                    break;
                 case TypeTags.NONE:
                 default:
                     // contextually expected type not given (i.e var).
                     selectType = checkExpr(selectExp, env, type, data);
-                    resolvedType = getNonContextualQueryType(selectType, collectionType);
+                    if (queryExpr.isMap) {
+                        resolvedType = symTable.mapType;
+                    } else {
+                        resolvedType = getNonContextualQueryType(selectType, collectionType);
+                    }
                     break;
             }
             if (selectType != symTable.semanticError) {
@@ -5606,6 +5618,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
             } else if (queryExpr.isTable) {
                 actualType = getQueryTableType(queryExpr, selectType);
+            } else if (queryExpr.isMap) {
+                BType mapConstraintType = getMapType(selectType, queryExpr.getSelectClause().expression.pos);
+                if (mapConstraintType == symTable.noType) {
+                    actualType = symTable.semanticError;
+                } else {
+                    actualType = BUnionType.create(null, new BMapType(TypeTags.MAP, mapConstraintType, null),
+                            symTable.errorType);
+                }
             } else {
                 actualType = resolvedTypes.get(0);
             }
@@ -5621,6 +5641,61 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             return actualType;
         }
+    }
+
+    private BType getMapType(BType selectType, Location pos) {
+        BType referredType = Types.getReferredType(selectType);
+        if (referredType.tag == TypeTags.INTERSECTION) {
+            referredType = ((BIntersectionType) referredType).effectiveType;
+        }
+
+        if (referredType.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) referredType;
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            for (BType type : unionType.getMemberTypes()) {
+                BType mapType = getTypeForMap(type, pos);
+                if (mapType == null) {
+                    return symTable.noType;
+                }
+                memberTypes.add(mapType);
+            }
+            return new BUnionType(null, memberTypes, false, false);
+        } else {
+            BType mapType = getTypeForMap(referredType, pos);
+            if (mapType != null) {
+                return mapType;
+            }
+        }
+        return symTable.noType;
+    }
+
+    private BType getTypeForMap(BType type, Location pos) {
+        type = Types.getReferredType(type);
+        if (type.tag == TypeTags.ARRAY) {
+            BArrayType arrayType = (BArrayType) type;
+            if (arrayType.state == BArrayState.OPEN || arrayType.size != 2 || !isString(arrayType.eType)) {
+                dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_IN_SELECT_CLAUSE, arrayType);
+                return null;
+            }
+            return arrayType.eType;
+        } else if (type.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) type;
+            if (tupleType.tupleTypes.size() != 2 || !isString(tupleType.tupleTypes.get(0))) {
+                dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_IN_SELECT_CLAUSE, tupleType);
+                return null;
+            }
+            return tupleType.tupleTypes.get(1);
+        }
+        dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_IN_SELECT_CLAUSE, type);
+        return null;
+    }
+
+    private boolean isString(BType type) {
+        int typeTag = Types.getReferredType(type).tag;
+        if (typeTag == TypeTags.STRING || typeTag == TypeTags.CHAR_STRING) {
+            return true;
+        }
+        return false;
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType) {
