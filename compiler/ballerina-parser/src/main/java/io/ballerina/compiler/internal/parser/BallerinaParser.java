@@ -10503,21 +10503,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse map-keyword.
-     *
-     * @return map-keyword node
-     */
-    private STNode parseMapKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.MAP_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.MAP_KEYWORD);
-            return parseMapKeyword();
-        }
-    }
-
-    /**
      * Parse error-keyword.
      *
      * @return Parsed error-keyword node
@@ -10589,21 +10574,6 @@ public class BallerinaParser extends AbstractParser {
         gtToken = parseGTToken();
         return STNodeFactory.createStreamTypeParamsNode(ltToken, leftTypeDescNode, commaToken, rightTypeDescNode,
                 gtToken);
-    }
-
-    /**
-     * Parse stream-keyword.
-     *
-     * @return Parsed stream-keyword node
-     */
-    private STNode parseStreamKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.STREAM_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.STREAM_KEYWORD);
-            return parseStreamKeyword();
-        }
     }
 
     /**
@@ -11500,14 +11470,14 @@ public class BallerinaParser extends AbstractParser {
             case FROM_KEYWORD:
                 queryConstructType = STNodeFactory.createEmptyNode();
                 return parseQueryExprRhs(queryConstructType, isRhsExpr);
-            case STREAM_KEYWORD:
-                queryConstructType = parseQueryConstructType(parseStreamKeyword(), null);
-                return parseQueryExprRhs(queryConstructType, isRhsExpr);
             case TABLE_KEYWORD:
                 STNode tableKeyword = parseTableKeyword();
                 return parseTableConstructorOrQuery(tableKeyword, isRhsExpr);
+            case STREAM_KEYWORD:
             case MAP_KEYWORD:
-                queryConstructType = parseQueryConstructType(parseMapKeyword(), null);
+                STNode streamOrMapKeyword = consume();
+                STNode keySpecifier = STNodeFactory.createEmptyNode();
+                queryConstructType = parseQueryConstructType(streamOrMapKeyword, keySpecifier);
                 return parseQueryExprRhs(queryConstructType, isRhsExpr);
             default:
                 recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START);
