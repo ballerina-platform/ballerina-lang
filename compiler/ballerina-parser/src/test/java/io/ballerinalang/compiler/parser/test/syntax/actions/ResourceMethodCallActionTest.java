@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test parsing resource method call action.
  * 
- * @since 2.2.0
+ * @since 2201.2.0
  */
 public class ResourceMethodCallActionTest extends AbstractActionTest {
 

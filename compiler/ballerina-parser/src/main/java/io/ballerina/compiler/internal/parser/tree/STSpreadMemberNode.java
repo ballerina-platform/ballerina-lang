@@ -28,7 +28,7 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2022.1.0
+ * @since 2201.1.0
  */
 public class STSpreadMemberNode extends STNode {
     public final STNode ellipsis;

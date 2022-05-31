@@ -94,7 +94,7 @@ public class ResourceAccessRestSegmentNode extends NonTerminalNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2.0.0
+     * @since 2201.2.0
      */
     public static class ResourceAccessRestSegmentNodeModifier {
         private final ResourceAccessRestSegmentNode oldNode;
