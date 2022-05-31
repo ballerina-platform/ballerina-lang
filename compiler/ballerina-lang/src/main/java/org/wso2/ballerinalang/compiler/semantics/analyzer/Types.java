@@ -6608,7 +6608,7 @@ public class Types {
         return Optional.empty();
     }
 
-    private static String getPackageIdString(PackageID packageID) {
+    public static String getPackageIdString(PackageID packageID) {
         return packageID.isTestPkg ? packageID.toString() + "_testable" : packageID.toString();
     }
 

@@ -336,6 +336,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
+        this.symTable.immutableTypeMaps.remove(Types.getPackageIdString(pkgSymbol.pkgID));
 
         // Add the current package node's ID to the imported package list. This is used to identify cyclic module
         // imports.
