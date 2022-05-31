@@ -1,5 +1,5 @@
 NAME
-       ballerina-graphql - Generate Ballerina sources from a GraphQL config file 
+       ballerina-graphql - Generate Ballerina client sources from a GraphQL config file 
                         configured with GraphQL schemas(SDL) and GraphQL queries.
 
 
@@ -12,9 +12,6 @@ DESCRIPTION
        configured with GraphQL schemas(SDL) and GraphQL queries.
     
        The generated Ballerina sources will be written into the provided output location.
-
-       Note: This is an experimental feature, which supports only a limited
-       set of functionalities.
 
 
 OPTIONS
