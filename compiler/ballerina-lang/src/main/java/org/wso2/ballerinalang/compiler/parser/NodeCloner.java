@@ -110,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
@@ -131,7 +130,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -185,10 +183,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -348,7 +342,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         clone.value = source.value;
         clone.originalValue = source.originalValue;
-        clone.isFiniteContext = source.isFiniteContext;
         clone.isConstant = source.isConstant;
         clone.setBType(source.getBType());
     }
@@ -376,14 +369,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.isAnonymous = source.isAnonymous;
         clone.isLocal = source.isLocal;
         clone.typeRefs = cloneList(source.typeRefs);
-    }
-
-    private void cloneBLangMatchBindingPatternClause(BLangMatch.BLangMatchBindingPatternClause source,
-                                                     BLangMatch.BLangMatchBindingPatternClause clone) {
-
-        clone.body = clone(source.body);
-        clone.matchExpr = clone(source.matchExpr);
-        clone.isLastPattern = source.isLastPattern;
     }
 
     private void cloneBLangType(BLangType source, BLangType clone) {
@@ -689,16 +674,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch source) {
-
-        BLangMatch clone = new BLangMatch();
-        source.cloneRef = clone;
-        clone.expr = clone(source.expr);
-        clone.patternClauses = cloneList(source.patternClauses);
-        clone.onFailClause = clone(source.onFailClause);
-    }
-
-    @Override
     public void visit(BLangMatchStatement source) {
         BLangMatchStatement clone = new BLangMatchStatement();
         source.cloneRef = clone;
@@ -930,34 +905,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchTypedBindingPatternClause source) {
-
-        BLangMatchTypedBindingPatternClause clone = new BLangMatchTypedBindingPatternClause();
-        source.cloneRef = clone;
-        clone.variable = clone(source.variable);
-        cloneBLangMatchBindingPatternClause(source, clone);
-    }
-
-    @Override
-    public void visit(BLangMatchStaticBindingPatternClause source) {
-
-        BLangMatchStaticBindingPatternClause clone = new BLangMatchStaticBindingPatternClause();
-        source.cloneRef = clone;
-        clone.literal = clone(source.literal);
-        cloneBLangMatchBindingPatternClause(source, clone);
-    }
-
-    @Override
-    public void visit(BLangMatchStructuredBindingPatternClause source) {
-
-        BLangMatchStructuredBindingPatternClause clone = new BLangMatchStructuredBindingPatternClause();
-        source.cloneRef = clone;
-        clone.bindingPatternVariable = clone(source.bindingPatternVariable);
-        clone.typeGuardExpr = clone(source.typeGuardExpr);
-        cloneBLangMatchBindingPatternClause(source, clone);
-    }
-
-    @Override
     public void visit(BLangForeach source) {
 
         BLangForeach clone = new BLangForeach();
@@ -1186,14 +1133,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangIndexBasedAccess clone = new BLangIndexBasedAccess();
         source.cloneRef = clone;
         cloneBLangIndexBasedAccess(source, clone);
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr source) {
-
-        BLangTableMultiKeyExpr clone = new BLangTableMultiKeyExpr();
-        source.cloneRef = clone;
-        clone.multiKeyIndexExprs = cloneList(source.multiKeyIndexExprs);
     }
 
     @Override
@@ -1511,23 +1450,12 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatchExpression bLangMatchExpression) {
-
-        // Ignore
-    }
-
-    @Override
-    public void visit(BLangMatchExpression.BLangMatchExprPatternClause bLangMatchExprPatternClause) {
-
-        // Ignore
-    }
-
-    @Override
     public void visit(BLangCheckedExpr source) {
 
         BLangCheckedExpr clone = new BLangCheckedExpr();
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
+        clone.isRedundantChecking = source.isRedundantChecking;
     }
 
     @Override
@@ -1536,6 +1464,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangCheckPanickedExpr clone = new BLangCheckPanickedExpr();
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
+        clone.isRedundantChecking = source.isRedundantChecking;
     }
 
     @Override
