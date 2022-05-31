@@ -348,7 +348,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         clone.value = source.value;
         clone.originalValue = source.originalValue;
-        clone.isFiniteContext = source.isFiniteContext;
         clone.isConstant = source.isConstant;
         clone.setBType(source.getBType());
     }
@@ -1528,6 +1527,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangCheckedExpr clone = new BLangCheckedExpr();
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
+        clone.isRedundantChecking = source.isRedundantChecking;
     }
 
     @Override
@@ -1536,6 +1536,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangCheckPanickedExpr clone = new BLangCheckPanickedExpr();
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
+        clone.isRedundantChecking = source.isRedundantChecking;
     }
 
     @Override

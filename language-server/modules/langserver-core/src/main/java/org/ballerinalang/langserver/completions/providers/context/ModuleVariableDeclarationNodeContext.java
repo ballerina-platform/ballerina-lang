@@ -94,9 +94,9 @@ public class ModuleVariableDeclarationNodeContext extends
             /*
                 Covers the following.
                 (1) <qualifier> <cursor>
-                currently the qualifier can be isolated/transactional/client.
+                currently the qualifier can be isolated/transactional/client/configurable.
                 (2) <qualifier> x<cursor>
-                currently the qualifier can be isolated/transactional/client.
+                currently the qualifier can be isolated/transactional/client/configurable.
             */
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, ctx));
             resolvedContext = ResolvedContext.ON_QUALIFIER;
@@ -185,6 +185,9 @@ public class ModuleVariableDeclarationNodeContext extends
                 break;
             case TRANSACTIONAL_KEYWORD:
                 completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
+                break;
+            case CONFIGURABLE_KEYWORD:
+                completionItems.addAll(this.getTypeDescContextItems(context));
                 break;
             default:
         }

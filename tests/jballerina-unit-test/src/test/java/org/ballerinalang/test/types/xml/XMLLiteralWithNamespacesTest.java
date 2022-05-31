@@ -209,4 +209,9 @@ public class XMLLiteralWithNamespacesTest {
                 "<!DOCTYPE foo [<!ELEMENT foo ANY ><!ENTITY data \"Example\" >]><foo>&data;</foo>");
         Assert.assertEquals(xml.toString(), "<foo>Example</foo>");
     }
+
+    @Test
+    public void testXmlInterpolationWithQuery() {
+        BRunUtil.invoke(literalWithNamespacesResult, "testXmlInterpolationWithQuery");
+    }
 }
