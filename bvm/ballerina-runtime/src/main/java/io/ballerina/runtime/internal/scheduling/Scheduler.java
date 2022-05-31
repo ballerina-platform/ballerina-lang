@@ -584,6 +584,9 @@ public class Scheduler {
         }
     }
 
+    /**
+     * The registry for stop handler objects.
+     */
     public class StopHandlerRegistry {
         private final Stack<BObject> stopHandlerStack = new Stack<>();
 

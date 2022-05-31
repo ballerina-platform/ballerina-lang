@@ -23,6 +23,7 @@ public type DynamicListener object {
     public function immediateStop() returns error?;
 };
 
+# A module stop handler which handles a graceful shutdown of a module.
 public type StopHandler object {
     public function gracefulStop() returns error?;
 };
@@ -59,8 +60,10 @@ public isolated function deregisterListener(DynamicListener 'listener) = @java:M
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
-# Registers a StopHandler object with a module.
+# Registers a StopHandler object with a module for graceful shutdown of it.
 #
+# The `stopHandler` can be used to perform a graceful shutdown of the module
+# where it has been called.
 # + stopHandler - the stopHandler object to be registered
 public isolated function onGracefulStop(StopHandler stopHandler) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
