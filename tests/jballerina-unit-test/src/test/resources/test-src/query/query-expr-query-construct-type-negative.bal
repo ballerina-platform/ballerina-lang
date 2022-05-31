@@ -110,3 +110,85 @@ function testOnConflictClauseWithFunction() {
 function condition(string name) returns boolean{
     return name == "Anne";
 }
+
+type User record {
+    readonly int id;
+    readonly string firstName;
+    string lastName;
+    int age;
+};
+
+function testInvalidTypeInSelectWithQueryConstructingMap1() {
+    table<User> key(id) users = table [];
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 select user;
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 select [user.id, user];
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 let int[2] arr = [user.id, user.age]
+                 select arr;
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 let string[] arr = [user.firstName, user.lastName]
+                 select arr;
+}
+
+function testInvalidTypeInSelectWithQueryConstructingMap2() {
+    User[] users = [];
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 select user;
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 select [user.id, user];
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 let int[2] arr = [user.id, user.age]
+                 select arr;
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 let string[] arr = [user.firstName, user.lastName]
+                 select arr;
+}
+
+function testInvalidStaticTypeWithQueryConstructingMap() {
+    table<User> key(id) users1 = table [];
+    User[] users2 = [];
+
+    map<int>|error a1 = map from var user in users1
+                         where user.age > 21 && user.age < 60
+                         select [user.firstName, user.lastName];
+
+    map<User> a2 = map from var user in users1
+                     where user.age > 21 && user.age < 60
+                     select [user.firstName, user];
+
+    map<string> a3 = map from var user in users1
+                     where user.age > 21 && user.age < 60
+                     let string[2] arr = [user.firstName, user.lastName]
+                     select arr;
+
+    map<int>|error a4 = map from var user in users2
+                         where user.age > 21 && user.age < 60
+                         select [user.firstName, user.lastName];
+
+    map<User> a5 = map from var user in users2
+                     where user.age > 21 && user.age < 60
+                     select [user.firstName, user];
+
+    map<string> a6 = map from var user in users2
+                     where user.age > 21 && user.age < 60
+                     let string[2] arr = [user.firstName, user.lastName]
+                     select arr;
+}

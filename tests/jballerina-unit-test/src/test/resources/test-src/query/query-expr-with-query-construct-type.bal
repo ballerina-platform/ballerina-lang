@@ -275,7 +275,7 @@ function testSimpleQueryExprReturnTable() returns boolean {
     return testPassed;
 }
 
-function testTableWithDuplicateKeys() returns CustomerTable|error {
+function testTableWithDuplicateKeys() {
     boolean testPassed = false;
 
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
@@ -290,7 +290,7 @@ function testTableWithDuplicateKeys() returns CustomerTable|error {
             noOfItems: customer.noOfItems
         };
 
-    return customerTable;
+    assertEqual(customerTable, table key(id,name) [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5}]);
 }
 
 function testTableNoDuplicatesAndOnConflictReturnTable() returns boolean {
@@ -521,4 +521,105 @@ function testQueryConstructingTableUpdateKeyPanic2() returns error? {
     }> result[1, "John"];
 
     r2.id = 2;
+}
+
+type CustomErrorDetail record {|
+    string message;
+    int code;
+|};
+
+type CustomError error<CustomErrorDetail>;
+
+function testTableOnConflict() {
+    boolean testPassed = true;
+    error? onConflictError1 = error("Key Conflict", message = "cannot insert.");
+    error|null onConflictError2 = ();
+    error|null onConflictError3 = null;
+    CustomError? onConflictError4 = error ("error msg 1", message = "error 1", code = 500);
+    CustomError? onConflictError5 = error ("error msg 2", message = "error 2", code = 500);
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 1, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    var customerTable1 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict onConflictError1;
+
+    assertEqual(customerTable1, onConflictError1);
+
+    var customerTable2 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict onConflictError2;
+
+    assertEqual(customerTable2, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
+
+    var customerTable3 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict onConflictError3;
+
+    assertEqual(customerTable3, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
+
+    var customerTable4 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict onConflictError4;
+
+    assertEqual(customerTable4, onConflictError4);
+
+    var customerTable5 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict onConflictError5;
+
+    assertEqual(customerTable5, onConflictError5);
+
+    var customerTable6 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict null;
+
+    assertEqual(customerTable6, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
+
+    var customerTable7 = table key(id) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }
+        on conflict ();
+
+    assertEqual(customerTable7, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
+}
+
+function assertEqual(anydata|error actual, anydata|error expected) {
+    anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
+    anydata actualValue = (actual is error)? (<error> actual).message() : actual;
+    if expectedValue == actualValue {
+        return;
+    }
+    panic error(string `expected '${expectedValue.toBalString()}', found '${actualValue.toBalString()}'`);
 }

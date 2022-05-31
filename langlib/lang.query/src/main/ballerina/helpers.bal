@@ -136,7 +136,7 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, err
             if (err is error) {
                 return err;
             }
-            return e;
+            tbl.put(<map<Type>> checkpanic v.value);
         }
         v = strm.next();
     }

@@ -109,6 +109,7 @@
             <package name="org.ballerinalang.test.statements.vardeclr.*"/>
             <package name="org.ballerinalang.test.statements.variabledef.*"/>
             <package name="org.ballerinalang.test.statements.whilestatement.*"/>
+            <package name="org.ballerinalang.test.statements.checkingstatement.*"/>
 
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.structs.*"/>
@@ -150,6 +151,7 @@
             <package name="org.ballerinalang.test.variable.shadowing.*"/>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
+            <package name="org.ballerinalang.test.visibility"/>
         </packages>
 
         <classes>
