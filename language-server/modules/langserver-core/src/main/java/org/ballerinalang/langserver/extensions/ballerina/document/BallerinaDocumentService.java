@@ -42,6 +42,7 @@ import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
+import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -297,6 +298,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             var result = new Object() {
                 String sourceCode = null;
                 JsonElement jsonSyntaxTree = null;
+                String defFilePath = null;
             };
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
@@ -330,35 +332,44 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 // Loop through project modules to find the document of the function declaration
                 project.get().currentPackage().modules().forEach(module -> {
                     module.documentIds().forEach(id -> {
-                            Document document = module.document(id);
-                            if(functionPath.equals(document.name())) {
-                                // Get the nodes from the found document
-                                SyntaxTree st = document.syntaxTree();
-                                FindNodes findNodes = new FindNodes();
-                                findNodes.visit((ModulePartNode) st.rootNode());
+                        Document document = module.document(id);
+                        if(functionPath.equals(document.name())) {
+                            // Get the nodes from the found document
+                            SyntaxTree st = document.syntaxTree();
+                            FindNodes findNodes = new FindNodes();
+                            findNodes.visit((ModulePartNode) st.rootNode());
 
-                                // Get only the function nodes
-                                List<FunctionDefinitionNode> functionNodes = findNodes.getFunctionDefinitionNodes();
+                            // Get only the function nodes
+                            List<FunctionDefinitionNode> functionNodes = findNodes.getFunctionDefinitionNodes();
 
-                                // Find the function node equals to the function name
-                                functionNodes.forEach(node -> {
-                                    if(functionSymbol.get().nameEquals(node.functionName().text())) {
+                            // Find the function node equals to the function name and within line range
+                            functionNodes.forEach(node -> {
+                                int nodeStartLine = node.lineRange().startLine().line();
+                                int nodeEndLine = node.lineRange().endLine().line();
+                                int symbolLine = functionSymbol.get().getLocation().get().lineRange().startLine().line();
+                                boolean withinRange = nodeStartLine <= symbolLine && nodeEndLine >= symbolLine;
 
-                                        // Get the new semantic model for found document
-                                        PackageCompilation packageCompilation = document.module().packageInstance().getCompilation();
-                                        SemanticModel semanticModelNew = packageCompilation.getSemanticModel(document.module().moduleId());
+                                if(functionSymbol.get().nameEquals(node.functionName().text()) && withinRange) {
 
-                                        // Set the node syntax tree JSON with type info and source code.
-                                        result.jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew);
-                                        result.sourceCode = node.toSourceCode();
-                                    }
-                                });
-                            }
-                        });
+                                    // Get the new semantic model for found document
+                                    PackageCompilation packageCompilation = document.module().packageInstance().getCompilation();
+                                    SemanticModel semanticModelNew = packageCompilation.getSemanticModel(document.module().moduleId());
+
+                                    // Get the file path of the found node definition
+                                    Path defFilePath = ReferencesUtil.getPathFromLocation(module, node.location());
+                                    // Set the node syntax tree JSON with type info and source code.
+                                    result.jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew);
+                                    result.sourceCode = node.toSourceCode();
+                                    result.defFilePath = defFilePath.toUri().toString();
+                                }
+                            });
+                        }
+                    });
                 });
                 reply.setSource(result.sourceCode);
                 reply.setSyntaxTree(result.jsonSyntaxTree);
                 reply.setParseSuccess(reply.getSyntaxTree() != null);
+                reply.setDefFilePath(result.defFilePath);
                 return reply;
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
