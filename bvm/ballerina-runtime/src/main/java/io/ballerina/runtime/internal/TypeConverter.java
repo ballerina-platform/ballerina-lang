@@ -268,9 +268,9 @@ public class TypeConverter {
         int targetTypeTag = targetType.getTag();
         int initialErrorCount = errors.size();
 
-        String errorMessage =
-                "value '" + getShortSourceValue(inputValue) + "' cannot be converted to '" + targetType + "': " +
-                        "ambiguous target type";
+        String ambiguousTargetErrMsg = "value '" + getShortSourceValue(inputValue) + "' cannot be converted to '" +
+                targetType + "': ambiguous target type";
+
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 inputValueType = TypeChecker.getType(inputValue);
@@ -280,8 +280,8 @@ public class TypeConverter {
                 if (directlyConvertibleTypesInUnion.size() == 1) {
                     return directlyConvertibleTypesInUnion;
                 }
-                if (!directlyConvertibleTypesInUnion.isEmpty()) {
-                    addErrorMessage(0, errors, errorMessage);
+                if (!directlyConvertibleTypesInUnion.isEmpty() && !allowAmbiguity) {
+                    addErrorMessage(0, errors, ambiguousTargetErrMsg);
                     return new LinkedHashSet<>();
                 }
 
@@ -292,7 +292,7 @@ public class TypeConverter {
                 if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
-                    addErrorMessage(0, errors, errorMessage);
+                    addErrorMessage(0, errors, ambiguousTargetErrMsg);
                     return new LinkedHashSet<>();
                 }
                 break;
@@ -362,7 +362,7 @@ public class TypeConverter {
                 if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
-                    addErrorMessage(0, errors, errorMessage);
+                    addErrorMessage(0, errors, ambiguousTargetErrMsg);
                     return new LinkedHashSet<>();
                 }
                 break;
@@ -379,14 +379,12 @@ public class TypeConverter {
         boolean isInputValueSimpleBasicType = isSimpleBasicType(inputValueType);
         Set<Type> directlyConvertibleTypes = new LinkedHashSet<>();
         for (Type memType : targetType.getMemberTypes()) {
-            if (isInputValueSimpleBasicType) {
-                if ((inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType)) {
-                    return Set.of(memType);
-                }
-            } else {
-                if (TypeChecker.checkIsLikeType(inputValue, memType, false)) {
-                    directlyConvertibleTypes.add(memType);
-                }
+            if (!isInputValueSimpleBasicType && TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+                directlyConvertibleTypes.add(memType);
+                continue;
+            }
+            if (inputValueType == memType || isIntegerSubtypeAndConvertible(inputValue, memType)) {
+                return Set.of(memType);
             }
         }
         return directlyConvertibleTypes;
