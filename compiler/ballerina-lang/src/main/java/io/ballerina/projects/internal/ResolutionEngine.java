@@ -567,8 +567,8 @@ public class ResolutionEngine {
         }
 
         @Override
-        public int compareTo(ResolutionEngine.DependencyNode dependencyNode) {
-            return this.pkgDesc.name().toString().compareTo(pkgDesc.name().toString());
+        public int compareTo(ResolutionEngine.DependencyNode other) {
+                return this.pkgDesc.toString().compareTo(other.pkgDesc.toString());
         }
     }
 }

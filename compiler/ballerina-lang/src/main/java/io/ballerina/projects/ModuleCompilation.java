@@ -75,7 +75,9 @@ public class ModuleCompilation {
         Optional<Package> pkg = packageCache.getPackage(moduleDescriptor.org(),
                 moduleDescriptor.packageName(), moduleDescriptor.version());
         if (pkg.isEmpty()) {
-            throw new IllegalStateException("Cannot find a Package for the given details");
+            throw new IllegalStateException("Cannot find a package for the given details, org: "
+                    + moduleDescriptor.org() + ", name: " + moduleDescriptor.packageName()
+                    + ", version: " + moduleDescriptor.version());
         }
         Collection<ModuleDescriptor> directDependencies = new HashSet<>(pkg.get().moduleDependencyGraph().
                 getDirectDependencies(moduleDescriptor));
@@ -105,7 +107,9 @@ public class ModuleCompilation {
             Optional<Package> pkg = packageCache.getPackage(sortedModuleDescriptor.org(),
                     sortedModuleDescriptor.packageName(), sortedModuleDescriptor.version());
             if (pkg.isEmpty()) {
-                throw new IllegalStateException("Cannot find a Package for the given details");
+                throw new IllegalStateException("Cannot find a package for the given details, org: "
+                        + sortedModuleDescriptor.org() + ", name: " + sortedModuleDescriptor.packageName()
+                        + ", version: " + sortedModuleDescriptor.version());
             }
             ModuleContext moduleContext = pkg.get().module(sortedModuleDescriptor.name()).moduleContext();
             moduleContext.compile(compilerContext);

@@ -100,7 +100,7 @@ public class ModuleDescriptor implements Comparable<ModuleDescriptor> {
     }
 
     @Override
-    public int compareTo(ModuleDescriptor o) {
-        return this.moduleName.toString().compareTo(o.moduleName.toString());
+    public int compareTo(ModuleDescriptor other) {
+        return this.moduleName.toString().compareTo(other.moduleName.toString());
     }
 }

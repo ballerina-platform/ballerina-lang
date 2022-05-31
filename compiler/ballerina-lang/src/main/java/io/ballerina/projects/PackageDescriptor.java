@@ -114,7 +114,7 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
     }
 
     @Override
-    public int compareTo(PackageDescriptor packageDescriptor) {
-        return this.packageName.toString().compareTo(packageDescriptor.toString());
+    public int compareTo(PackageDescriptor other) {
+        return this.toString().compareTo(other.toString());
     }
 }

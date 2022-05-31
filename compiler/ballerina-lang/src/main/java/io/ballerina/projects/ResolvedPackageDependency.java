@@ -63,7 +63,8 @@ public class ResolvedPackageDependency extends PackageDependency implements Comp
     }
 
     @Override
-    public int compareTo(ResolvedPackageDependency resolvedPackageDependency) {
-        return this.packageId().toString().compareTo(resolvedPackageDependency.packageId().toString());
+    public int compareTo(ResolvedPackageDependency other) {
+        return this.resolvedPackage.descriptor().toString().compareTo(
+                other.resolvedPackage.descriptor().toString());
     }
 }
