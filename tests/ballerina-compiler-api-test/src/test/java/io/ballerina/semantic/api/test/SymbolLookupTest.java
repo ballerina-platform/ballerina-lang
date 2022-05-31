@@ -358,6 +358,41 @@ public class SymbolLookupTest {
         };
     }
 
+    @Test(dataProvider = "OnFailSymbolPosProvider")
+    public void testOnFailClauseSymbolLookup(int line, int column, int expSymbols, List<String> expSymbolNames) {
+        Project project = BCompileUtil.loadProject("test-src/on_fail_symbol_lookup_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
+        assertEquals(symbolsInFile.size(), expSymbols);
+
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @DataProvider(name = "OnFailSymbolPosProvider")
+    public Object[][] getOnFailSymbolPositions() {
+        List<String> expSymbolNames = List.of("testMatchOnFail", "testWhileOnFail", "testForEachOnFail",
+                "testLockOnFail", "testRetryOnFail", "testTransactionOnFail", "testDoOnFail");
+        return new Object[][]{
+                {25, 23, 10, concatSymbols(expSymbolNames, "err", "val", "errRef")},
+                {34, 20, 10, concatSymbols(expSymbolNames, "iter", "err", "ref")},
+                {43, 20, 10, concatSymbols(expSymbolNames, "arr", "err", "ref")},
+                {51, 20, 9, concatSymbols(expSymbolNames, "ref", "err")},
+                {67, 20, 12, concatSymbols(expSymbolNames, "str", "count", "err", "e", "ref")},
+                {79, 33, 9, concatSymbols(expSymbolNames, "e", "s")},
+                {88, 33, 10, concatSymbols(expSymbolNames, "x", "e", "s")}
+        };
+    }
+
     private String createSymbolString(Symbol symbol) {
         return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
     }

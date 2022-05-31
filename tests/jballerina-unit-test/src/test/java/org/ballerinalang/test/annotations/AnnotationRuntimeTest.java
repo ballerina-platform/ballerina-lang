@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 public class AnnotationRuntimeTest {
 
     private CompileResult resultAccessNegative;
+    private final CompileResult resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
 
     @BeforeClass
     public void setup() {
@@ -53,7 +54,6 @@ public class AnnotationRuntimeTest {
 
     @Test(dataProvider = "annotAccessTests")
     public void testAnnotAccess(String testFunction) {
-        CompileResult resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         Assert.assertEquals(resultOne.getErrorCount(), 0);
         Object returns = BRunUtil.invoke(resultOne, testFunction);
         Assert.assertSame(returns.getClass(), Boolean.class);
@@ -193,5 +193,9 @@ public class AnnotationRuntimeTest {
     public void testReadonlyTypeAnnotationAttachment() {
         CompileResult readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
         BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
+    }
+
+    public void testAnnotOnBoundMethod() {
+        BRunUtil.invoke(resultOne, "testAnnotOnBoundMethod");
     }
 }

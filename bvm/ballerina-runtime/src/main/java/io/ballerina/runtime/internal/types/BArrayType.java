@@ -85,11 +85,6 @@ public class BArrayType extends BType implements ArrayType {
             this.dimensions = ((BArrayType) elementType).getDimensions() + 1;
         }
         setFlagsBasedOnElementType();
-        int elementTypeTag = elementType.getTag();
-        if (elementTypeTag == TypeTags.UNION_TAG || elementTypeTag == TypeTags.FINITE_TYPE_TAG ||
-                TypeTags.isXMLTypeTag(elementTypeTag)) {
-            this.hasFillerValue = TypeChecker.hasFillerValue(elementType);
-        }
     }
 
     private void setFlagsBasedOnElementType() {
@@ -110,39 +105,12 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        if (size == -1) {
-            return getEmptyValue();
-        }
-
-        int tag = elementType.getTag();
-        switch (tag) {
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.BYTE_TAG:
-            case TypeTags.DECIMAL_TAG:
-                return (V) new ArrayValueImpl(new BArrayType(elementType), size);
-            case TypeTags.ARRAY_TAG: // fall through
-            default:
-                return (V) new ArrayValueImpl(this);
-        }
+        return getEmptyValue();
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        int tag = elementType.getTag();
-        switch (tag) {
-            case TypeTags.INT_TAG:
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-            case TypeTags.BOOLEAN_TAG:
-            case TypeTags.STRING_TAG:
-            case TypeTags.BYTE_TAG:
-                return (V) new ArrayValueImpl(new BArrayType(elementType));
-            default:
-                return (V) new ArrayValueImpl(this);
-        }
+        return (V) new ArrayValueImpl(this);
     }
 
     @Override

@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -97,6 +98,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -253,6 +255,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         checkStatementExecutionValidity(returnStmt, data);
         analyzeReachabilityInExpressionIfApplicable(returnStmt.expr, data);
         data.statementReturnsPanicsOrFails = true;
+        data.returnedWithinQuery = true;
     }
 
     @Override
@@ -363,6 +366,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         if (!data.failureHandled) {
             data.statementReturnsPanicsOrFails = true;
         }
+        data.returnedWithinQuery = true;
     }
 
     @Override
@@ -671,6 +675,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
+        boolean prevReturnedWithinQuery = data.returnedWithinQuery;
+        data.returnedWithinQuery = false;
         for (BLangNode queryClause : queryAction.queryClauseList) {
             if (queryClause.getKind() == NodeKind.WHERE) {
                 BLangWhereClause whereClause = (BLangWhereClause) queryClause;
@@ -682,6 +688,8 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
             }
         }
         analyzeReachability(queryAction.getDoClause(), data);
+        queryAction.returnsWithinDoClause = data.returnedWithinQuery;
+        data.returnedWithinQuery = prevReturnedWithinQuery;
     }
 
     @Override
@@ -834,6 +842,10 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     }
 
     private void validateAssignmentToNarrowedVariable(BLangSimpleVarRef varRef, Location location, AnalyzerData data) {
+        if (Symbols.isFlagOn(varRef.symbol.flags, Flags.FINAL)) {
+            return;
+        }
+
         Name name = names.fromIdNode(varRef.variableName);
         SymbolEnv loopEnv = data.loopAndDoClauseEnvs.peek();
         SymbolEnv currentEnv = data.env;
@@ -972,6 +984,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         boolean breakStmtFound;
         boolean hasLastPatternInStatement;
         boolean failureHandled;
+        boolean returnedWithinQuery;
         boolean skipFurtherAnalysisInUnreachableBlock;
         int loopCount;
         int loopAndDoClauseCount;

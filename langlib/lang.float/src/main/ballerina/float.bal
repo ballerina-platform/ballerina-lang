@@ -106,19 +106,23 @@ public isolated function abs(float x) returns float = @java:Method {
     name: "abs"
 } external;
 
-# Rounds a float value to the closest integral value.
+# Rounds a float value to a specified number of digits.
 #
-# Returns the float value that is a mathematical integer and closest to parameter `x`.
-# If there are two such values, choose the one that is even
+# Returns the float value that is an integral multiple of 10 raised to the power of `-fractionDigits` and closest to `x`.
+# If there are two such values, choose the one whose final digit is even
 # (this is the round-to-nearest rounding mode, which is the default for IEEE and for Ballerina).
-# Same as Java Math.rint method
-# Same as .NET Math.Round method
+# A value of `fractionDigits` greater than 0 thus corresponds to the number of digits after the decimal
+# point being `fractionDigits`; a value of 0 for `fractionDigits` rounds to an integer.
+# If `x` is NaN, +0, -0, +∞ or -∞, then the result is `x``.
+# When `fractionDigits` is 0, this is
+# the same as Java Math.rint method, .NET Math.Round method and
 # IEEE roundToIntegralTiesToEven operation
-# Note that `<int>x` is the same as `<int>x.round()`
+# Note that `<int>x` is the same as `<int>x.round(0)`.
 #
 # + x - float value to operate on
-# + return - closest float value to parameter `x` that is a mathematical integer
-public isolated function round(float x) returns float = @java:Method {
+# + fractionDigits - the number of digits after the decimal point
+# + return - float value closest to `x` that is an integral multiple of 10 raised to the power of `-fractionDigits`
+public isolated function round(float x, int fractionDigits = 0) returns float = @java:Method {
     'class: "org.ballerinalang.langlib.floatingpoint.Round",
     name: "round"
 } external;
@@ -387,4 +391,45 @@ public isolated function toBitsInt(float x) returns int = @java:Method {
 public isolated function fromBitsInt(int x) returns float = @java:Method {
     'class: "org.ballerinalang.langlib.floatingpoint.FromBitsInt",
     name: "fromBitsInt"
+} external;
+
+# Returns a string that represents `x` using fixed-point notation.
+# The returned string will be in the same format used by `value:toString`,
+# except that it will not include an exponent.
+# If `x` is NaN or infinite, the result will be the same as `value:toString`.
+# This will panic if `fractionDigits` is less than 0.
+# If `fractionDigits` is zero, there will be no decimal point.
+# Any necessary rounding will use the roundTiesToEven rounding direction.
+#
+# + x - float value
+# + fractionDigits - number of digits following the decimal point; `()` means to use
+#    the minimum number of digits required to accurately represent the value
+# + return - string representation of `x` in fixed-point notation
+public isolated function toFixedString(float x, int? fractionDigits) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.ToFixedString",
+    name: "toFixedString"
+} external;
+
+# Returns a string that represents `x` using scientific notation.
+# The returned string will be in the same format used by `value:toString`,
+# except that it will always include an exponent and there will be exactly
+# one digit before the decimal point.
+# But if `x` is NaN or infinite, the result will be the same as `value:toString`.
+# The digit before the decimal point will be zero only if all other digits
+# are zero.
+# This will panic if fractionDigits is less than 0.
+# If `fractionDigits` is zero, there will be no decimal point.
+# Any necessary rounding will use the roundTiesToEven rounding direction.
+# The exponent in the result uses lower-case `e`, followed by a `+` or `-` sign,
+# followed by at least two digits, and only as many more digits as are needed
+# to represent the result. If `x` is zero, the exponent is zero. A zero exponent
+# is represented with a `+` sign.
+#
+# + x - float value
+# + fractionDigits - number of digits following the decimal point; `()` means to use
+#    the minimum number of digits required to accurately represent the value
+# + return - string representation of `x` in scientific notation
+public isolated function toExpString(float x, int? fractionDigits) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.floatingpoint.ToExpString",
+    name: "toExpString"
 } external;

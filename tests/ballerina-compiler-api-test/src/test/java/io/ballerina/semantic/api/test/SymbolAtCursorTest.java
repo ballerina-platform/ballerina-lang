@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
@@ -125,6 +126,12 @@ public class SymbolAtCursorTest {
                 {163, 9, "foo"},
                 {168, 27, "v5"},
                 {192, 28, "WorkerAnnot"},
+                {200, 7, "y1"},
+                {200, 16, "x1"},
+                {204, 11, "y2"},
+                {204, 20, "x2"},
+                {205, 10, "y3"},
+                {205, 19, "y1"}
         };
     }
 
@@ -287,6 +294,7 @@ public class SymbolAtCursorTest {
         }
 
         assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
     }
 
     @DataProvider(name = "VarPosProvider")

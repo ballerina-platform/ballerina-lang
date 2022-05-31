@@ -217,6 +217,78 @@ function testTypeRef() {
     assertEqual(obj.a, 1);
     assertEqual(obj.b, 2);
     assertEqual(obj.c, 3);
+
+    testFieldAccessExp();
+}
+
+int i = 12;
+type Json json;
+type JsonMap map<json>;
+
+function testFieldAccessExp() {
+    JsonMap jsonMap = {"a": 149, "b": {"a": 1}, "c": null};
+    Json|error res1 = jsonMap?.b?.a;
+    assertTrue(res1 is Json && res1 == 1);
+
+    Json j1 = { a: { b: i } };
+    JsonMap j2 = { a: { b: i } };
+    assertTrue(testJsonFieldAccessPositive1(j1));
+    assertTrue(testJsonFieldAccessPositive2(j2));
+
+    assertTrue(testNonMappingJsonFieldAccessNegative1(j1));
+    assertTrue(testNonMappingJsonFieldAccessNegative2(j1));
+    assertTrue(testJsonFieldAccessNegativeMissingKey2(j1));
+    assertTrue(testJsonFieldAccessNegativeMissingKey3(j1));
+}
+
+function testJsonFieldAccessPositive1(Json j) returns boolean {
+    Json be = { b: i };
+    Json|error a = j.a;
+    return a is Json && a == be;
+}
+
+function testJsonFieldAccessPositive2(Json j) returns boolean {
+    Json|error b = j.a.b;
+    return b is Json && b == i;
+}
+
+function testNonMappingJsonFieldAccessNegative1(Json j) returns boolean {
+    Json|error a = j.a.b.c;
+    return assertNonMappingJsonError(a);
+}
+
+function testNonMappingJsonFieldAccessNegative2(Json j) returns boolean {
+    Json|error a = j.a.b.c.d;
+    return assertNonMappingJsonError(a);
+}
+
+function testJsonFieldAccessNegativeMissingKey2(Json j) returns boolean {
+    Json|error a = j.e;
+    return assertKeyNotFoundError(a, "e");
+}
+
+function testJsonFieldAccessNegativeMissingKey3(Json j) returns boolean {
+    Json|error a = j.e.f;
+    return assertKeyNotFoundError(a, "e");
+}
+
+function assertNonMappingJsonError(json|error je) returns boolean {
+    if (je is error) {
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
+    }
+    return false;
+}
+
+function assertKeyNotFoundError(json|error je, string key) returns boolean {
+    if (je is error) {
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        return je.message() == "{ballerina/lang.map}KeyNotFound" &&
+                                detailMessageString == "key '" + key + "' not found in JSON mapping";
+    }
+    return false;
 }
 
 function getImmutable(ImmutableIntArrayOrStringArray x) returns ImmutableIntArray {
@@ -226,9 +298,34 @@ function getImmutable(ImmutableIntArrayOrStringArray x) returns ImmutableIntArra
     return [];
 }
 
+type AnyDataType anydata;
+
+type JsonType json;
+
+type AnyType any;
+
+function testUnionTypeRefWithMap() {
+    AnyDataType map1 = {"a": 1};
+    JsonType map2 = {"b": 2};
+    AnyType map3 = {"c": 3};
+
+    assertTrue(map1 is anydata);
+    assertEqual(map1.toString(), "{\"a\":1}");
+
+    assertTrue(map2 is json);
+    assertEqual(map2.toString(), "{\"b\":2}");
+
+    assertTrue(map3 is any);
+    assertEqual(map3.toString(), "{\"c\":3}");
+}
+
+function assertTrue(anydata actual) {
+    return assertEqual(actual, true);
+}
+
 function assertEqual(anydata actual, anydata expected) {
     if expected == actual {
         return;
     }
-    panic error(string `expected '${expected.toBalString()}', found '${actual.toBalString()}'`);
+    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }

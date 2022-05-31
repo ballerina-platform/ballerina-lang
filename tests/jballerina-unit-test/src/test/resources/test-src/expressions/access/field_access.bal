@@ -333,8 +333,7 @@ function getBaz() returns Baz {
 
 function testFieldAccessOnInvocation() returns boolean {
     int ri = getFoo().bar.i;
-    function() returns Baz fp = getFoo().bazFunc;
-    float rf = fp().f;
+    float rf = getFoo().bazFunc().f;
 
     return ri == 10 && rf == 100.0;
 }

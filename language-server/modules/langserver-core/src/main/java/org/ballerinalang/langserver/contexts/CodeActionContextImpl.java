@@ -17,10 +17,17 @@
  */
 package org.ballerinalang.langserver.contexts;
 
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -28,10 +35,12 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -42,8 +51,10 @@ import java.util.stream.Collectors;
 public class CodeActionContextImpl extends AbstractDocumentServiceContext implements CodeActionContext {
 
     private Position cursorPosition;
+    private int cursorPositionInTree = -1;
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
+    private Node nodeAtCursor;
 
     @Deprecated(forRemoval = true)
     public CodeActionContextImpl(LSOperation operation,
@@ -104,6 +115,21 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
         return params.getContext().getDiagnostics();
     }
 
+    @Override
+    public int cursorPositionInTree() {
+        if (this.cursorPositionInTree == -1) {
+            Optional<Document> document = this.currentDocument();
+            if (document.isEmpty()) {
+                return this.cursorPositionInTree;
+            }
+            TextDocument textDocument = document.get().textDocument();
+            Position position = this.cursorPosition();
+            this.cursorPositionInTree =
+                    textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        }
+        return this.cursorPositionInTree;
+    }
+
     /**
      * Represents Language server code action context Builder.
      *
@@ -133,5 +159,16 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
         public CodeActionContextBuilder self() {
             return this;
         }
+    }
+
+    @Override
+    public Node nodeAtCursor() {
+        if (this.nodeAtCursor == null) {
+            SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
+            NonTerminalNode matchedNode = CommonUtil.findNode(new Range(this.cursorPosition(),
+                    this.cursorPosition()), syntaxTree);
+            this.nodeAtCursor = matchedNode;
+        }
+        return this.nodeAtCursor;
     }
 }

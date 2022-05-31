@@ -34,10 +34,11 @@ public class FunctionPointersNegativeTest {
     public void testFunctionPointerAsVariable() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-type-mismatch1-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
+        Assert.assertEquals(result.getErrorCount(), 3);
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'function (string,int) returns " +
                 "(boolean)', found 'function (string,float) returns (boolean)'", 2, 53);
         BAssertUtil.validateError(result, 1, "unknown type 'Context'", 10, 29);
+        BAssertUtil.validateError(result, 2, "unknown type 'FunctionEntry'", 12, 5);
     }
 
     @Test()
@@ -52,11 +53,8 @@ public class FunctionPointersNegativeTest {
     @Test()
     public void testFPInStruct() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "invalid field access: 'getFullName' is not a required field in record" +
-                " 'Person', use member access to access a field that may have been specified as a rest field", 17, 53);
-        BAssertUtil.validateError(result, 1, "function invocation on type 'Person' is not supported", 19, 20);
-
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "undefined field 'getFullName' in record 'Person'", 17, 20);
     }
 
     @Test()
@@ -64,7 +62,7 @@ public class FunctionPointersNegativeTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-struct-incorrect-arg-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 30);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 39);
     }
 
     @Test(groups = { "disableOnOldParser" })
@@ -85,11 +83,9 @@ public class FunctionPointersNegativeTest {
     public void testFPInvalidInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/expressions/lambda/negative" +
                 "/fp_invalid_invocation_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 1);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "function invocation on type 'Person' is not supported", 35, 20);
-        BAssertUtil.validateError(result, i++, "function invocation on type 'Person' is not supported", 36, 20);
-        BAssertUtil.validateError(result, i++, "function invocation on type 'Person' is not supported", 68, 20);
+        BAssertUtil.validateError(result, i++, "undefined field 'getFullName' in record 'Person'", 35, 20);
     }
 
     @Test

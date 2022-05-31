@@ -23,10 +23,12 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -43,10 +45,17 @@ import static org.testng.Assert.assertTrue;
 public class LangLibStringTest {
 
     private CompileResult compileResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/stringlib_test.bal");
+        negativeResult = BCompileUtil.compile("test-src/stringlib_negative_test.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 
     @Test
@@ -81,6 +90,11 @@ public class LangLibStringTest {
     public void testFromBytes() {
         Object returns = BRunUtil.invoke(compileResult, "testFromBytes");
         assertEquals(returns.toString(), "Hello Ballerina!");
+    }
+
+    @Test
+    public void testFromBytesInvalidValues() {
+        BRunUtil.invoke(compileResult, "testFromBytesInvalidValues");
     }
 
     @Test
@@ -318,5 +332,147 @@ public class LangLibStringTest {
     @DataProvider(name = "StringPrefixProvider")
     public Object[] testBMPStringProvider() {
         return new String[]{"ascii~?", "£ßóµ¥", "ęЯλĢŃ", "☃✈௸ऴᛤ", "😀🄰🍺" };
+    }
+
+    @Test
+    public void testPadStart() {
+        BRunUtil.invoke(compileResult, "testPadStart");
+    }
+
+    @Test
+    public void testPadEnd() {
+        BRunUtil.invoke(compileResult, "testPadEnd");
+    }
+
+    @Test
+    public void testPadZero() {
+        BRunUtil.invoke(compileResult, "testPadZero");
+    }
+
+    @Test
+    public void stringlibNegativeTest() {
+        int err = 0;
+        BAssertUtil.validateError(negativeResult, err++, "missing required parameter 'len' in call to 'padStart()'",
+                33, 16);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                34, 36);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                35, 36);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
+                36, 13);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                38, 36);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'byte', found 'string'",
+                39, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                40, 21);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                41, 21);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                41, 45);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
+                43, 31);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'decimal'",
+                44, 31);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
+                45, 35);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
+                46, 31);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                48, 35);
+        BAssertUtil.validateError(negativeResult, err++, "missing required parameter 'len' in call to 'padEnd()'",
+                52, 16);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                53, 34);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                54, 34);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
+                55, 13);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                57, 34);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'byte', found 'string'",
+                58, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                59, 21);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                60, 21);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                60, 43);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
+                62, 29);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'decimal'",
+                63, 29);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
+                64, 33);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
+                65, 29);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                67, 33);
+        BAssertUtil.validateError(negativeResult, err++, "missing required parameter 'len' in call to 'padZero()'",
+                71, 16);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                72, 37);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                73, 38);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
+                74, 13);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                76, 35);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'byte', found 'string'",
+                77, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                78, 21);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                79, 21);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                79, 44);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
+                81, 30);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'decimal'",
+                82, 30);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'float'",
+                83, 34);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'int', found 'string'",
+                84, 30);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'string:Char', found 'string'",
+                86, 34);
+        Assert.assertEquals(negativeResult.getErrorCount(), err);
+    }
+
+    @Test
+    public void testStringlibPanicTest() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/stringlib_panic_test.bal");
+
+        Assert.assertEquals(resultNegative.getErrorCount(), 0);
+
+        Object[] args = {1};
+        Object returns = BRunUtil.invoke(resultNegative, "testInvalidLengthForStringPadding", args);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina/lang.string}length greater that '2147483647' not" +
+                " yet supported\")");
+
+        args = new Object[] {2};
+        returns = BRunUtil.invoke(resultNegative, "testInvalidLengthForStringPadding", args);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina/lang.string}length greater that '2147483647' not" +
+                " yet supported\")");
+
+        args = new Object[] {3};
+        returns = BRunUtil.invoke(resultNegative, "testInvalidLengthForStringPadding", args);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina/lang.string}length greater that '2147483647' not" +
+                " yet supported\")");
+
+        args = new Object[] {4};
+        returns = BRunUtil.invoke(resultNegative, "testInvalidLengthForStringPadding", args);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina/lang.string}length greater that '2147483647' not" +
+                " yet supported\")");
+
+        args = new Object[] {5};
+        returns = BRunUtil.invoke(resultNegative, "testInvalidLengthForStringPadding", args);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina/lang.string}length greater that '2147483647' not" +
+                " yet supported\")");
+
+        args = new Object[] {6};
+        returns = BRunUtil.invoke(resultNegative, "testInvalidLengthForStringPadding", args);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina/lang.string}length greater that '2147483647' not" +
+                " yet supported\")");
     }
 }

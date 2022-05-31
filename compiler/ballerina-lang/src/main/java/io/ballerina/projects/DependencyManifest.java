@@ -20,6 +20,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageContainer;
+import io.ballerina.tools.diagnostics.Location;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -95,15 +96,40 @@ public class DependencyManifest {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
         private final PackageVersion version;
+        private final Location location;
         private final String scope;
         private final boolean transitive;
         private final List<Dependency> dependencies;
         private final List<Module> modules;
 
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, Location location) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.location = location;
+            this.scope = null;
+            this.transitive = false;
+            this.dependencies = Collections.emptyList();
+            this.modules = Collections.emptyList();
+        }
+
+        public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version, String scope,
+                       boolean transitive, List<Dependency> dependencies, List<Module> modules, Location location) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.version = version;
+            this.scope = scope;
+            this.transitive = transitive;
+            this.dependencies = dependencies;
+            this.modules = modules;
+            this.location = location;
+        }
+
         public Package(PackageName packageName, PackageOrg packageOrg, PackageVersion version) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.version = version;
+            this.location = null;
             this.scope = null;
             this.transitive = false;
             this.dependencies = Collections.emptyList();
@@ -119,6 +145,7 @@ public class DependencyManifest {
             this.transitive = transitive;
             this.dependencies = dependencies;
             this.modules = modules;
+            this.location = null;
         }
 
         public PackageName name() {
@@ -147,6 +174,10 @@ public class DependencyManifest {
 
         public List<Module> modules() {
             return modules;
+        }
+
+        public Optional<Location> location() {
+            return Optional.ofNullable(location);
         }
     }
 

@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JavaMethodCall;
+import org.wso2.ballerinalang.compiler.bir.model.BIRArgument;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -52,6 +53,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
@@ -71,6 +73,7 @@ import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFGT;
 import static org.objectweb.asm.Opcodes.IFNE;
@@ -744,20 +747,20 @@ public class JvmTerminatorGen {
         // load strand
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         String encodedMethodName = Utils.encodeFunctionIdentifier(methodLookupName);
-        String packageName = JvmCodeGenUtil.getPackageName(packageID);
+        String packageName = JvmCodeGenUtil.getPackageName(callIns.calleePkg);
 
 
         int argsCount = callIns.args.size();
         int i = 0;
         while (i < argsCount) {
-            BIROperand arg = callIns.args.get(i);
-            this.loadVar(arg.variableDcl);
+            BIRArgument arg = callIns.args.get(i);
+            this.loadArgument(arg);
+            this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(packageID.orgName.getValue(),
+                                     packageID.name.getValue()));
             i += 1;
         }
-        BIRFunctionWrapper functionWrapper;
-        if (packageName.equals(currentPackageName)) {
-            functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
-        } else {
+        BIRFunctionWrapper functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + encodedMethodName);
+        if (functionWrapper == null) {
             // If the callee function from different module, we need to use decoded function name as lookup key.
             functionWrapper = jvmPackageGen.lookupBIRFunctionWrapper(packageName + Utils
                     .decodeIdentifier(methodLookupName));
@@ -776,6 +779,9 @@ public class JvmTerminatorGen {
             ArrayList<BType> params = new ArrayList<>(type.paramTypes);
             if (type.restType != null) {
                 params.add(type.restType);
+            }
+            for (int j = params.size() - 1; j >= 0; j--) {
+                params.add(j + 1, symbolTable.booleanType);
             }
             String balFileName = funcSymbol.source;
 
@@ -807,7 +813,8 @@ public class JvmTerminatorGen {
 
         // create an Object[] for the rest params
         int argsCount = callIns.args.size() - 1;
-        this.mv.visitLdcInsn((long) (argsCount));
+        // arg count doubled and 'isExist' boolean variables added for each arg.
+        this.mv.visitLdcInsn((long) (argsCount * 2));
         this.mv.visitInsn(L2I);
         this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
@@ -819,12 +826,22 @@ public class JvmTerminatorGen {
             this.mv.visitInsn(L2I);
             j += 1;
             // i + 1 is used since we skip the first argument (self)
-            BIROperand arg = callIns.args.get(i + 1);
-            this.loadVar(arg.variableDcl);
+            BIRArgument arg = callIns.args.get(i + 1);
+            this.loadArgument(arg);
 
             // Add the to the rest params array
             jvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
             this.mv.visitInsn(AASTORE);
+
+            this.mv.visitInsn(DUP);
+            this.mv.visitLdcInsn((long) j);
+            this.mv.visitInsn(L2I);
+            j += 1;
+
+            this.loadStateOfArgument(arg, isBuiltInModule);
+            jvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
+            this.mv.visitInsn(AASTORE);
+
             i += 1;
         }
 
@@ -834,6 +851,38 @@ public class JvmTerminatorGen {
 
         BType returnType = callIns.lhsOp.variableDcl.type;
         jvmCastGen.addUnboxInsn(this.mv, returnType);
+    }
+
+    private void loadStateOfArgument(BIRArgument arg, boolean isBuiltInModule) {
+        if (isBuiltInModule) {
+            return;
+        }
+        // Extra boolean is not gen for extern functions for now until the wrapper function is implemented.
+        // We need to refactor this method. I am not sure whether userProvided flag make sense
+        switch (arg.argState) {
+            case PROVIDED:
+                this.mv.visitInsn(ICONST_1);
+                break;
+            case NOT_PROVIDED:
+                this.mv.visitInsn(ICONST_0);
+                break;
+            case CONDITIONALLY_PROVIDED:
+                this.loadVar(arg.condition.variableDcl);
+                break;
+        }
+    }
+
+    private void loadArgument(BIRArgument arg) {
+        BIRNode.BIRVariableDcl varDcl = arg.variableDcl;
+        switch (arg.argState) {
+            case PROVIDED:
+            case CONDITIONALLY_PROVIDED:
+                this.loadVar(varDcl);
+                break;
+            case NOT_PROVIDED:
+                loadDefaultValue(this.mv, varDcl.type);
+                break;
+        }
     }
 
     private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset, String moduleClassName,
@@ -859,19 +908,28 @@ public class JvmTerminatorGen {
         // create an Object[] for the rest params
         int argsCount = callIns.args.size();
         //create an object array of args
-        this.mv.visitLdcInsn((long) (argsCount + 1));
+        this.mv.visitLdcInsn((long) (argsCount * 2 + 1));
         this.mv.visitInsn(L2I);
         this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         int paramIndex = 1;
-        for (BIROperand arg : callIns.args) {
+        for (BIRArgument arg : callIns.args) {
             this.mv.visitInsn(DUP);
             this.mv.visitLdcInsn((long) paramIndex);
             this.mv.visitInsn(L2I);
 
-            this.loadVar(arg.variableDcl);
+            this.loadArgument(arg);
             // Add the to the rest params array
             jvmCastGen.addBoxInsn(this.mv, arg.variableDcl.type);
+            this.mv.visitInsn(AASTORE);
+            paramIndex += 1;
+
+            this.mv.visitInsn(DUP);
+            this.mv.visitLdcInsn((long) paramIndex);
+            this.mv.visitInsn(L2I);
+
+            this.loadStateOfArgument(arg, JvmCodeGenUtil.isBallerinaBuiltinModule(orgName, moduleName));
+            jvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
             this.mv.visitInsn(AASTORE);
             paramIndex += 1;
         }
@@ -889,35 +947,26 @@ public class JvmTerminatorGen {
             for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
                 if (annotationAttachment == null ||
                         !STRAND.equals(annotationAttachment.annotTagRef.value) ||
-                        !JvmCodeGenUtil.isBuiltInPackage(annotationAttachment.packageID)) {
+                        !JvmCodeGenUtil.isBuiltInPackage(annotationAttachment.annotPkgId)) {
                     continue;
                 }
 
-                if (annotationAttachment.annotValues.size() == 0) {
-                    break;
-                }
-
-                BIRNode.BIRAnnotationValue strandAnnot = annotationAttachment.annotValues.get(0);
-                if (strandAnnot instanceof BIRNode.BIRAnnotationRecordValue) {
-                    BIRNode.BIRAnnotationRecordValue recordValue = (BIRNode.BIRAnnotationRecordValue) strandAnnot;
-                    if (recordValue.annotValueEntryMap.containsKey(STRAND_THREAD)) {
-                        BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_THREAD);
-                        if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
-                                STRAND_VALUE_ANY.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
+                Object strandAnnot = ((BIRNode.BIRConstAnnotationAttachment) annotationAttachment).annotValue.value;
+                if (strandAnnot instanceof Map) {
+                    Map<String, BIRNode.ConstValue> recordValue = (Map<String, BIRNode.ConstValue>) strandAnnot;
+                    if (recordValue.containsKey(STRAND_THREAD)) {
+                        if (STRAND_VALUE_ANY.equals(recordValue.get(STRAND_THREAD).value)) {
                             concurrent = true;
                         }
                     }
 
-                    if (recordValue.annotValueEntryMap.containsKey(STRAND_NAME)) {
-                        strandName = ((BIRNode.BIRAnnotationLiteralValue) recordValue.
-                                annotValueEntryMap.get(STRAND_NAME)).value.toString();
+                    if (recordValue.containsKey(STRAND_NAME)) {
+                        strandName = recordValue.get(STRAND_NAME).value.toString();
 
                     }
 
-                    if (recordValue.annotValueEntryMap.containsKey(STRAND_POLICY_NAME)) {
-                        BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_POLICY_NAME);
-                        if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
-                                !DEFAULT_STRAND_DISPATCHER.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
+                    if (recordValue.containsKey(STRAND_POLICY_NAME)) {
+                        if (!DEFAULT_STRAND_DISPATCHER.equals(recordValue.get(STRAND_POLICY_NAME).value)) {
                             throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is " +
                                     "supported by jBallerina runtime.");
                         }
@@ -1029,7 +1078,7 @@ public class JvmTerminatorGen {
         }
 
         // create an object array of args
-        this.mv.visitIntInsn(BIPUSH, fpCall.args.size() + 1);
+        this.mv.visitIntInsn(BIPUSH, fpCall.args.size() * 2 + 1);
         this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
 
         // load strand
@@ -1043,13 +1092,16 @@ public class JvmTerminatorGen {
 
         // load args
         int paramIndex = 1;
-        for (BIROperand arg : fpCall.args) {
+        for (BIRArgument arg : fpCall.args) {
             this.mv.visitInsn(DUP);
             this.mv.visitIntInsn(BIPUSH, paramIndex);
             this.loadVar(arg.variableDcl);
             BType bType = arg.variableDcl.type;
             jvmCastGen.addBoxInsn(this.mv, bType);
             this.mv.visitInsn(AASTORE);
+            paramIndex += 1;
+
+            this.loadTrueValueAsArg(paramIndex);
             paramIndex += 1;
         }
 
@@ -1109,6 +1161,15 @@ public class JvmTerminatorGen {
                 this.mv.visitInsn(POP);
             }
         }
+    }
+
+    private void loadTrueValueAsArg(int paramIndex) {
+
+        this.mv.visitInsn(DUP);
+        this.mv.visitIntInsn(BIPUSH, paramIndex);
+        this.mv.visitInsn(ICONST_1);
+        jvmCastGen.addBoxInsn(this.mv, symbolTable.booleanType);
+        this.mv.visitInsn(AASTORE);
     }
 
     private void genWorkerSendIns(BIRTerminator.WorkerSend ins, int localVarOffset) {

@@ -25,12 +25,12 @@ import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -111,12 +111,14 @@ public class TypesFactory {
 
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
 
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -310,11 +312,8 @@ public class TypesFactory {
             return false;
         }
 
-        if ((tSymbol.tag & SymTag.FUNCTION_TYPE) == SymTag.FUNCTION_TYPE) {
-            return false;
-        }
-
-        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
+        if (!isBuiltinNamedType(bType.tag) && !(tSymbol.name.value.isEmpty()
+                || anonymousModelHelper.isAnonymousType(tSymbol))) {
             return true;
         }
 

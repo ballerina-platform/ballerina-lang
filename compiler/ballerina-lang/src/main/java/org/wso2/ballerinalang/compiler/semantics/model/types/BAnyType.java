@@ -91,6 +91,11 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     }
 
     @Override
+    public void unsetImmutableType() {
+        this.immutableType = null;
+    }
+
+    @Override
     public Optional<BIntersectionType> getIntersectionType() {
         return Optional.ofNullable(this.intersectionType);
     }
