@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,6 +37,11 @@ public class ForeachRecordTypedBindingPatternsTests {
     @BeforeClass
     public void setup() {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach-record-typed-binding-patterns.bal");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        program = null;
     }
 
     @Test
@@ -83,5 +89,10 @@ public class ForeachRecordTypedBindingPatternsTests {
     @Test
     public void testForeachWithClosedRecordWithNoFields() {
         BRunUtil.invoke(program, "testForeachWithClosedRecordWithNoFields");
+    }
+
+    @Test
+    public void testDestructuringRecordBindingPatternWithForeach() {
+        BRunUtil.invoke(program, "testDestructuringRecordingBindingPatternWithAnIntersectionTypeInForeach");
     }
 }

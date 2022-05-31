@@ -270,7 +270,7 @@ public class MainMethodGen {
     private void generateUserMainFunctionCall(BIRNode.BIRFunction userMainFunc, String initClass, MethodVisitor mv) {
         int schedulerVarIndex = indexMap.get(SCHEDULER_VAR);
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
+        loadCLIArgsForMain(mv, new ArrayList<>(userMainFunc.parameters.keySet()), userMainFunc.annotAttachments);
 
         // invoke the user's main method
         genSubmitToScheduler(initClass, mv, "$lambda$main$", "main", MAIN_FUTURE_VAR);
@@ -360,14 +360,14 @@ public class MainMethodGen {
         int defaultableIndex = 0;
         for (BIRNode.BIRAnnotationAttachment attachment : annotAttachments) {
             if (attachment != null && attachment.annotTagRef.value.equals(JvmConstants.DEFAULTABLE_ARGS_ANOT_NAME)) {
-                BIRNode.BIRAnnotationRecordValue
-                        annotRecValue = (BIRNode.BIRAnnotationRecordValue) attachment.annotValues.get(0);
-                Map<String, BIRNode.BIRAnnotationValue> annotFieldMap = annotRecValue.annotValueEntryMap;
-                BIRNode.BIRAnnotationArrayValue annotArrayValue =
-                        (BIRNode.BIRAnnotationArrayValue) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD);
-                for (BIRNode.BIRAnnotationValue entryOptional : annotArrayValue.annotArrayValue) {
-                    BIRNode.BIRAnnotationLiteralValue argValue = (BIRNode.BIRAnnotationLiteralValue) entryOptional;
-                    defaultableNames.add(defaultableIndex, (String) argValue.value);
+                Map<String, BIRNode.ConstValue> annotFieldMap =
+                        (Map<String, BIRNode.ConstValue>)
+                                ((BIRNode.BIRConstAnnotationAttachment) attachment).annotValue.value;
+
+                BIRNode.ConstValue[] annotArrayValue =
+                        (BIRNode.ConstValue[]) annotFieldMap.get(JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD).value;
+                for (BIRNode.ConstValue entryOptional : annotArrayValue) {
+                    defaultableNames.add(defaultableIndex, (String) entryOptional.value);
                     defaultableIndex += 1;
                 }
                 break;

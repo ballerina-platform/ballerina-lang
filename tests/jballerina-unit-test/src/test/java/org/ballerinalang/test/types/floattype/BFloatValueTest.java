@@ -173,8 +173,8 @@ public class BFloatValueTest {
         BAssertUtil.validateError(negativeResult, 5, "float '99.9E-99999999' too small", 12, 27);
         BAssertUtil.validateError(negativeResult, 6, "float '0x9999999p999999999999999999999999' too large", 15, 10);
         BAssertUtil.validateError(negativeResult, 7, "float '0x9999999p-999999999999999999999999' too small", 17, 11);
-        BAssertUtil.validateError(negativeResult, 8, "float '9999999999e9999999999999999999f' too large", 19, 10);
-        BAssertUtil.validateError(negativeResult, 9, "float '9999999999e-9999999999999999999f' too small", 21, 11);
+        BAssertUtil.validateError(negativeResult, 8, "float '9999999999e9999999999999999999' too large", 19, 10);
+        BAssertUtil.validateError(negativeResult, 9, "float '9999999999e-9999999999999999999' too small", 21, 11);
         BAssertUtil.validateError(negativeResult, 10, "float '0x999.9p999999999999999' too large", 23, 1);
         BAssertUtil.validateError(negativeResult, 11, "float '0x999.9p999999999999999' too large", 23, 29);
     }
@@ -189,6 +189,46 @@ public class BFloatValueTest {
     @Test(description = "Test hexa decimal literal with float type")
     public void testHexaDecimalLiteralsWithFloat() {
         BRunUtil.invoke(result, "testHexaDecimalLiteralsWithFloat");
+    }
+
+    @Test
+    public void testInvalidValuesWithFloatType() {
+        CompileResult result = BCompileUtil.compile("test-src/types/float/float_type_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 2, 15);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 4, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 6, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 8, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 10, 23);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 12, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 14, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 16, 9);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 19, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 21, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 23, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 25, 12);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 27, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xabc435de769FEAB0' too large", 29, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xaaaaaaaaaaaaaaa0' too large", 31, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xAAAAAAAAAAAAAAA0' too large", 33, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 37, 16);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 41, 17);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0xFFFFFFFFFFFFFFFF' too large", 44, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0Xffffffffffffffff' too large", 45, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0XFFFFFFFFFFFFFFFF' too large", 46, 21);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 48, 16);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 48, 16);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0X' too large", 49, 10);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 49, 10);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 51, 20);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 51, 20);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 53, 24);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 53, 24);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0X' too large", 54, 10);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 54, 10);
+        BAssertUtil.validateError(result, i++, "Hexadecimal '0x' too large", 56, 21);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 56, 21);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @AfterClass

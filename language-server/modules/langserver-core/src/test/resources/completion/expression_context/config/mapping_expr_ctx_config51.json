@@ -59,6 +59,15 @@
       "sortText": "AB",
       "insertText": "b",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...b",
+      "kind": "Variable",
+      "detail": "map<any>",
+      "sortText": "AB",
+      "filterText": "b",
+      "insertText": "...b",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

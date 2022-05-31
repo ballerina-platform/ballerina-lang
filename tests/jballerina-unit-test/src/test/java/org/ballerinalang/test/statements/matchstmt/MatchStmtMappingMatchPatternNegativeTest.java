@@ -114,6 +114,10 @@ public class MatchStmtMappingMatchPatternNegativeTest {
                 64, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
                 "found 'record {| int i?; never...; |}'", 67, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '()', found 'string'", 94, 20);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 95, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'decimal'", 96,
+                24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

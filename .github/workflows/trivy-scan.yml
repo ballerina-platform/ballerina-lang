@@ -34,7 +34,8 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
+          scan-type: 'rootfs'
+          scan-ref: '/github/workspace/distribution/zip/jballerina-tools'
           format: 'table'
           timeout: '10m0s'
           exit-code: '1'

@@ -24,7 +24,6 @@ package io.ballerina.projects;
  */
 public class CompilationOptions {
     Boolean offlineBuild;
-    Boolean experimental;
     Boolean observabilityIncluded;
     Boolean dumpBir;
     Boolean dumpBirFile;
@@ -39,14 +38,12 @@ public class CompilationOptions {
     Boolean exportOpenAPI;
     private Boolean semtype;
 
-    CompilationOptions(Boolean offlineBuild, Boolean experimental,
-                       Boolean observabilityIncluded, Boolean dumpBir, Boolean dumpBirFile,
-                       String cloud, Boolean listConflictedClasses, Boolean sticky,
+    CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
+                       Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
                        Boolean semtype) {
         this.offlineBuild = offlineBuild;
-        this.experimental = experimental;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
         this.dumpBirFile = dumpBirFile;
@@ -68,10 +65,6 @@ public class CompilationOptions {
 
     boolean sticky() {
         return toBooleanTrueIfNull(this.sticky);
-    }
-
-    boolean experimental() {
-        return toBooleanDefaultIfNull(this.experimental);
     }
 
     boolean observabilityIncluded() {
@@ -130,11 +123,6 @@ public class CompilationOptions {
             compilationOptionsBuilder.setOffline(theirOptions.offlineBuild);
         } else {
             compilationOptionsBuilder.setOffline(this.offlineBuild);
-        }
-        if (theirOptions.experimental != null) {
-            compilationOptionsBuilder.setExperimental(theirOptions.experimental);
-        } else {
-            compilationOptionsBuilder.setExperimental(this.experimental);
         }
         if (theirOptions.observabilityIncluded != null) {
             compilationOptionsBuilder.setObservabilityIncluded(theirOptions.observabilityIncluded);
@@ -240,7 +228,6 @@ public class CompilationOptions {
      */
     public static class CompilationOptionsBuilder {
         private Boolean offline;
-        private Boolean experimental;
         private Boolean observabilityIncluded;
         private Boolean dumpBir;
         private Boolean dumpBirFile;
@@ -262,11 +249,6 @@ public class CompilationOptions {
 
         public CompilationOptionsBuilder setSticky(Boolean value) {
             sticky = value;
-            return this;
-        }
-
-        CompilationOptionsBuilder setExperimental(Boolean value) {
-            experimental = value;
             return this;
         }
 
@@ -331,7 +313,7 @@ public class CompilationOptions {
         }
 
         public CompilationOptions build() {
-            return new CompilationOptions(offline, experimental, observabilityIncluded, dumpBir,
+            return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
                     withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
                     semtype);

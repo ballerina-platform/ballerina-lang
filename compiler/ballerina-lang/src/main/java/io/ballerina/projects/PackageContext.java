@@ -211,7 +211,7 @@ class PackageContext {
 
     PackageCompilation getPackageCompilation() {
         if (packageCompilation == null) {
-            packageCompilation = PackageCompilation.from(this);
+            packageCompilation = PackageCompilation.from(this, this.compilationOptions());
         }
         return packageCompilation;
     }
@@ -219,7 +219,6 @@ class PackageContext {
     PackageCompilation getPackageCompilation(CompilationOptions compilationOptions) {
         CompilationOptions options = CompilationOptions.builder()
                 .setOffline(this.compilationOptions.offlineBuild())
-                .setExperimental(this.compilationOptions.experimental())
                 .setObservabilityIncluded(this.compilationOptions.observabilityIncluded())
                 .setDumpBir(this.compilationOptions.dumpBir())
                 .setCloud(this.compilationOptions.getCloud())

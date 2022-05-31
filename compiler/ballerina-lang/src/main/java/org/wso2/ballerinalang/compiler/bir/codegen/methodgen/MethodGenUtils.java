@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -84,7 +85,12 @@ public class MethodGenUtils {
 
     static String calculateLambdaStopFuncName(PackageID id) {
         String orgName = id.orgName.value;
-        String moduleName = id.name.value;
+        String moduleName;
+        if (id.isTestPkg) {
+            moduleName = id.name.value + Names.TEST_PACKAGE;
+        } else {
+            moduleName = id.name.value;
+        }
         String version = getMajorVersion(id.version.value);
         String funcSuffix = MethodGenUtils.STOP_FUNCTION_SUFFIX;
 

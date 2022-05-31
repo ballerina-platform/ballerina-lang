@@ -67,7 +67,7 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
     return new _SelectFunction(selectFunc);
 }
 
-function createDoFunction(function(_Frame _frame) doFunc) returns _StreamFunction {
+function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
 }
 
@@ -136,7 +136,7 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, err
             if (err is error) {
                 return err;
             }
-            return e;
+            tbl.put(<map<Type>> checkpanic v.value);
         }
         v = strm.next();
     }
@@ -146,9 +146,12 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, err
     return tbl;
 }
 
-function consumeStream(stream<Type, CompletionType> strm) returns error? {
+function consumeStream(stream<Type, CompletionType> strm) returns any|error {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
+        if (v is _Frame && v.hasKey("value") && v.get("value") != ()) {
+            return v.get("value");
+        }
         v = strm.next();
     }
     if (v is error) {

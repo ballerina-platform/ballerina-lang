@@ -1458,3 +1458,269 @@ function testUnshiftLargeValues() {
     assertValueEquality(199, list[200]);
     assertValueEquality(0, list[399]);
 }
+
+function func1(int i) returns boolean {
+    return i > 2;
+}
+
+function testSome1() {
+    assertValueEquality([1, 2].some(func1), false);
+    assertValueEquality([1, 3].some(func1), true);
+    assertValueEquality([].some(func1), false);
+
+    int[] arr1 = [1, 3, 4, 5];
+    assertValueEquality(arr1.some(func1), true);
+    int[4] arr2 = [1, 3, 4, 5];
+    assertValueEquality(arr2.some(func1), true);
+    int[*] arr3 = [1, 3, 4, 5];
+    assertValueEquality(arr3.some(func1), true);
+}
+
+function func2(int|string i) returns boolean {
+    return i is string;
+}
+
+function testSome2() {
+    assertValueEquality([1, 2].some(func2), false);
+    assertValueEquality([].some(func2), false);
+    assertValueEquality([1, 2, 3, "4"].some(func2), true);
+    assertValueEquality([1, 2, 3, "4", 5].some(func2), true);
+
+    (int|string)[] arr1 = [1, "str", "str"];
+    assertValueEquality(arr1.some(func2), true);
+}
+
+function testSome3() {
+    assertValueEquality([1, "2", 3].some(val => val is string), true);
+    assertValueEquality([1, error("MSG"), 3].some(val => val is error), true);
+}
+
+function testSome4() {
+    assertValueEquality([1, 2, 3, 4].filter(val => val >= 2).some(func1), true);
+    assertValueEquality([1, 2, 3, 4].filter(val => val > 4).some(func1), false);
+}
+
+function testSome5() {
+    [int, string] arr1 = [2, "34"];
+    assertValueEquality(arr1.some(val => val is string), true);
+    [int, string, int...] arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.some(val => val is int && val > 6), false);
+}
+
+function testSome6() {
+    [int, string] & readonly arr1 = [2, "34"];
+    assertValueEquality(arr1.some(val => val is string), true);
+    [int, string, int...] & readonly arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.some(val => val is int && val > 6), false);
+}
+
+function testSome7() {
+    [int, string...] arr = [2];
+    assertValueEquality(arr.some(val => val is string), false);
+    arr.push("str1");
+    assertValueEquality(arr.some(val => val is string), true);
+}
+
+int[] globalArr = [1, 2, 3, 4];
+
+function fun3(int val) returns boolean {
+    _ = globalArr.pop();
+    return val > 3;
+}
+
+function testModificationWithinSome() {
+    boolean|error res = trap globalArr.some(fun3);
+    assertTrue(res is error);
+
+    error err = <error>res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error ? message.toString() : message.toString();
+    assertValueEquality("{ballerina/lang.array}IndexOutOfRange", err.message());
+    assertValueEquality("array index out of range: index: 2, size: 2", detailMessage);
+}
+
+function func4(map<int> val) returns boolean {
+    int? ii = val["i"];
+    return ii !is () && ii > 10;
+}
+
+function testSome8() {
+    map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
+    assertValueEquality(arr.some(func4), true);
+}
+
+function func5(map<int> val) returns boolean {
+    int? ii = val["k"];
+    return ii !is () && ii > 10;
+}
+
+function testSome9() {
+    map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
+    assertValueEquality(arr.some(func5), false);
+}
+
+function testEvery1() {
+    assertValueEquality([-1, 1].every(func1), false);
+    assertValueEquality([1, 3].every(func1), false);
+    assertValueEquality([5, 3].every(func1), true);
+    assertValueEquality([].every(func1), true);
+
+    int[] arr1 = [10, 3, 4, 5];
+    assertValueEquality(arr1.every(func1), true);
+    int[4] arr2 = [3, 2, 4, 5];
+    assertValueEquality(arr2.every(func1), false);
+    int[*] arr3 = [3, 2, 4, 5];
+    assertValueEquality(arr3.every(func1), false);
+}
+
+function testEvery2() {
+    assertValueEquality([1, 2].every(func2), false);
+    assertValueEquality([].every(func2), true);
+    assertValueEquality([1, 2, 3, "4"].every(func2), false);
+    assertValueEquality(["1", "2", "3", "4", "5"].every(func2), true);
+
+    (int|string)[] arr1 = ["1", 1, "str"];
+    assertValueEquality(arr1.every(func2), false);
+}
+
+function testEvery3() {
+    assertValueEquality(["1", "2", "3"].every(val => val is string), true);
+    assertValueEquality([error("MSG1"), error("MSG2")].every(val => val is error), true);
+    assertValueEquality([error("MSG1"), 23].every(val => val is error), false);
+}
+
+function testEvery4() {
+    assertValueEquality([1, 2, 3, 4].filter(val => val > 2).every(func1), true);
+    assertValueEquality([1, 2, 3, 4].filter(val => val > 1).every(func1), false);
+}
+
+function testEvery5() {
+    [int, string] arr1 = [2, "34"];
+    assertValueEquality(arr1.every(val => val is string), false);
+    [int, string, int...] arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.every(val => val is int || val is string), true);
+}
+
+function testEvery6() {
+    [int, string] & readonly arr1 = [2, "34"];
+    assertValueEquality(arr1.every(val => val is string), false);
+    [int, string, int...] & readonly arr2 = [2, "23", 1, 2, 3, 4];
+    assertValueEquality(arr2.every(val => val is int || val is string), true);
+}
+
+function testEvery7() {
+    [int, string...] arr = [2];
+    assertValueEquality(arr.every(val => val is string), false);
+    arr.push("str1");
+    assertValueEquality(arr.every(val => val is string), false);
+}
+
+int[] globalArr1 = [1, 2, 3, 4];
+
+function fun6(int val) returns boolean {
+    _ = globalArr1.pop();
+    return val > 0;
+}
+
+function testModificationWithinEvery() {
+    boolean|error res = trap globalArr1.every(fun6); // runtime error
+    assertTrue(res is error);
+
+    error err = <error>res;
+    var message = err.detail()["message"];
+    string detailMessage = message is error ? message.toString() : message.toString();
+    assertValueEquality("{ballerina/lang.array}IndexOutOfRange", err.message());
+    assertValueEquality("array index out of range: index: 2, size: 2", detailMessage);
+}
+
+function testEvery8() {
+    map<int>[] arr = [{i: 200, j: 300}, {i: 20, j: 30}];
+    assertValueEquality(arr.every(func4), true);
+}
+
+function testEvery9() {
+    map<int>[] arr = [{i: 2, j: 3}, {i: 20, j: 30}];
+    assertValueEquality(arr.every(func5), false);
+}
+
+type T string|int;
+
+function testArrSortWithNamedArgs1() {
+    [string, T][] arr = [["a", "100"], ["b", "100"], ["d", "10"], ["c", "100"], ["e", "100"]];
+    [string, T][] sortedArr = arr.sort(direction = array:DESCENDING, key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["e","100"], ["d","10"], ["c","100"], ["b","100"], ["a","100"]], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["e","100"], ["d","10"], ["c","100"], ["b","100"], ["a","100"]], sortedArr);
+
+    sortedArr = arr.sort(key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["a","100"], ["b","100"], ["c","100"], ["d","10"], ["e","100"]], sortedArr);
+
+    sortedArr = array:sort(arr, key = isolated function([string, T] e) returns string {
+        return e[0];
+    });
+    assertValueEquality([["a","100"], ["b","100"], ["c","100"], ["d","10"], ["e","100"]], sortedArr);
+}
+
+function testArrSortWithNamedArgs2() {
+    int[] arr = [1, 10, 3, 100, 0, -1, 10];
+    int[] sortedArr = arr.sort(direction = array:DESCENDING);
+    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING);
+    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
+
+    sortedArr = arr.sort(key = isolated function(int e) returns int {
+        return e;
+    });
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+
+    sortedArr = array:sort(arr, key = isolated function(int e) returns int {
+        return e;
+    });
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:ASCENDING, key = isolated function(int e) returns int {
+        return e;
+    });
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:DESCENDING, key = ());
+    assertValueEquality([100, 10, 10, 3, 1, 0, -1], sortedArr);
+
+    sortedArr = arr.sort(key = ());
+    assertValueEquality([-1, 0, 1, 3, 10, 10, 100], sortedArr);
+}
+
+function testArrSortWithNamedArgs3() {
+    (int|string)[] arr = [1, "ABC", 10, "ADS", 0, "DES", "AAD"];
+    (int|string)[] sortedArr = arr.sort(direction = array:ASCENDING, key = isolated function(int|string e) returns string {
+        if e is int {
+            return "XYZ";
+        }
+        return e;
+    });
+    assertValueEquality(["AAD", "ABC", "ADS", "DES", 1, 10, 0], sortedArr);
+
+    sortedArr = array:sort(arr, direction = array:ASCENDING, key = isolated function(int|string e) returns string {
+        if e is int {
+            return "XYZ";
+        }
+        return e;
+    });
+    assertValueEquality(["AAD", "ABC", "ADS", "DES", 1, 10, 0], sortedArr);
+
+    sortedArr = arr.sort(key = isolated function(int|string e) returns string {
+        if e is int {
+            return "AAA";
+        }
+        return e;
+    });
+    assertValueEquality([1, 10, 0, "AAD", "ABC", "ADS", "DES"], sortedArr);
+}

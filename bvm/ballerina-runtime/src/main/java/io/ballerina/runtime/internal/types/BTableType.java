@@ -37,7 +37,7 @@ public class BTableType extends BType implements TableType {
 
     private final Type constraint;
     private Type keyType;
-    private String[] fieldNames;
+    private String[] fieldNames = new String[]{};
 
     private final boolean readonly;
     private IntersectionType immutableType;
@@ -94,7 +94,7 @@ public class BTableType extends BType implements TableType {
 
         StringBuilder keyStringBuilder = new StringBuilder();
         String stringRep;
-        if (fieldNames != null) {
+        if (fieldNames.length > 0) {
             for (String fieldName : fieldNames) {
                 if (!keyStringBuilder.toString().equals("")) {
                     keyStringBuilder.append(", ");

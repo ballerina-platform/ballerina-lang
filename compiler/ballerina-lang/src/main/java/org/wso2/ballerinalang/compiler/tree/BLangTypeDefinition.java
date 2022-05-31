@@ -52,6 +52,7 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     public int precedence;
     public boolean isBuiltinTypeDef;
     public boolean hasCyclicReference = false;
+    public boolean referencedFieldsDefined;
 
     public BSymbol symbol;
 
