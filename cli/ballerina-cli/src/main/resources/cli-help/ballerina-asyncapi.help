@@ -20,9 +20,6 @@ DESCRIPTION
        The generated Ballerina sources will be written into the provided output
        location.
 
-       Note: This is an experimental feature, which supports only a limited
-       set of functionalities.
-
 
 OPTIONS
         -i, --input <asyncapi-contract-file-path>

@@ -564,10 +564,11 @@ public class ImmutableTypeCloner {
                                                                BLangAnonymousModelHelper anonymousModelHelper,
                                                                Names names, Types types, Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
+        BTypeSymbol recordTypeSymbol = origRecordType.tsymbol;
         BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
-                        getImmutableTypeName(names,  getSymbolFQN(origRecordType.tsymbol)),
-                        pkgID, null, env.scope.owner, pos, SOURCE);
+                Symbols.createRecordSymbol(recordTypeSymbol.flags | Flags.READONLY,
+                        getImmutableTypeName(names,  getSymbolFQN(recordTypeSymbol)),
+                        pkgID, null, env.scope.owner, pos, recordTypeSymbol.origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
         BInvokableSymbol initFuncSymbol = Symbols.createFunctionSymbol(

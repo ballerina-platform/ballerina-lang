@@ -151,7 +151,11 @@ public class TableNegativeTest {
                         "found 'CustomerEmptyKeyedTbl'", 424, 23);
         validateError(compileResult, index++, "member access is not supported for keyless table 'tbl2'", 433, 9);
         validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 434, 5);
-        Assert.assertEquals(compileResult.getErrorCount(), index);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 448, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,string,string]'",
+                462, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int,int]'", 469, 21);
+        validateError(compileResult, index, "incompatible types: expected 'int', found '[int,int,int]'", 478, 21);
     }
 
     @Test
@@ -186,5 +190,16 @@ public class TableNegativeTest {
                 128, 9);
         validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
                 136, 9);
+    }
+
+    @Test
+    public void testAnyTypedTableWithKeySpecifiers() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-value-any-negative.bal");
+        int index = 0;
+        validateError(compileResult, index++,
+                "key specifier not allowed when the target type is any", 18, 20);
+        validateError(compileResult, index++,
+                "key specifier not allowed when the target type is any", 25, 15);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
