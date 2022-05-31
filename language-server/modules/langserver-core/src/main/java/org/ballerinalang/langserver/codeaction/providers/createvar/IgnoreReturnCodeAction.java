@@ -21,8 +21,10 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -43,7 +45,7 @@ import java.util.Optional;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
+public class IgnoreReturnCodeAction extends CreateVariableCodeAction {
 
     public static final String NAME = "Ignore Return Type";
 
@@ -61,8 +63,7 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        Optional<TypeSymbol> typeDescriptor = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+        Optional<TypeSymbol> typeDescriptor = getExpectedTypeSymbol(positionDetails);
         if (typeDescriptor.isEmpty()) {
             return Collections.emptyList();
         }
@@ -88,7 +89,7 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
             return true;
         } else if (typeSymbol.typeKind() == TypeDescKind.UNION) {
             UnionTypeSymbol unionType = (UnionTypeSymbol) typeSymbol;
-            return unionType.memberTypeDescriptors().stream().anyMatch(s -> s.typeKind() == TypeDescKind.ERROR);
+            return CodeActionUtil.hasErrorMemberType(unionType);
         }
         return false;
     }
