@@ -39,6 +39,8 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
+import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
@@ -77,6 +79,7 @@ import static io.ballerina.runtime.internal.TypeChecker.isSimpleBasicType;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned16LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned32LiteralValue;
 import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.getReferredType;
 import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
@@ -119,9 +122,11 @@ public class TypeConverter {
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return convertValues(((BTypeReferenceType) targetType).getReferredType(), inputValue);
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                               BLangExceptionHelper.getErrorDetails(
+                        BLangExceptionHelper.getErrorDetails(
                                                           RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));
         }
@@ -357,6 +362,12 @@ public class TypeConverter {
                     return new LinkedHashSet<>();
                 }
                 break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getConvertibleTypes(inputValue, ((BTypeReferenceType) targetType).getReferredType(), varName,
+                        isFromJson, unresolvedValues, errors, allowAmbiguity);
+            case TypeTags.TYPEDESC_TAG:
+                return getConvertibleTypes(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
+                        isFromJson, unresolvedValues, errors, allowAmbiguity);
             default:
                 if (TypeChecker.checkIsLikeType(inputValue, targetType, true)) {
                     convertibleTypes.add(targetType);
@@ -368,7 +379,7 @@ public class TypeConverter {
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors) {
 
-        int targetTypeTag = targetType.getTag();
+        int targetTypeTag = getReferredType(targetType).getTag();
 
         List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
                 varName, true, unresolvedValues, errors, false));

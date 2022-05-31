@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmObjectTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRecordTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTypeRefTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
@@ -127,6 +128,7 @@ public class JvmCreateTypeGen {
     private final JvmUnionTypeGen jvmUnionTypeGen;
     private final JvmTupleTypeGen jvmTupleTypeGen;
     private final JvmArrayTypeGen jvmArrayTypeGen;
+    private final JvmTypeRefTypeGen jvmTypeRefTypeGen;
     private final TypeHashVisitor typeHashVisitor;
     public final TypeDefHashComparator typeDefHashComparator;
     private final String typesClass;
@@ -145,6 +147,7 @@ public class JvmCreateTypeGen {
         this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
+        this.jvmTypeRefTypeGen = new JvmTypeRefTypeGen(jvmTypeGen, jvmConstantsGen, packageID);
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
@@ -662,6 +665,10 @@ public class JvmCreateTypeGen {
 
     public JvmArrayTypeGen getJvmArrayTypeGen() {
         return jvmArrayTypeGen;
+    }
+
+    public JvmTypeRefTypeGen getJvmTypeRefTypeGen() {
+        return jvmTypeRefTypeGen;
     }
 
 }

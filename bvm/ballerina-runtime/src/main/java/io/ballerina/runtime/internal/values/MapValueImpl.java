@@ -66,6 +66,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.getReferredType;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -105,13 +106,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl(Type type) {
         super();
-        this.type = type;
+        this.type = getReferredType(type);
         this.typedesc = getTypedescValue(type, this);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
-        this.type = type;
+        this.type = getReferredType(type);
         populateInitialValues(initialValues);
         if (!type.isReadOnly()) {
             this.typedesc = new TypedescValueImpl(type);
