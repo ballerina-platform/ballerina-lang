@@ -3688,7 +3688,7 @@ public class Types {
                         continue;
                     }
                 }
-                //  readonly can match to a union similar to any|error
+                // readonly can match to a union similar to any|error
                 if (sMember.tag == TypeTags.READONLY && isAssignable(symTable.anyOrErrorType, targetUnion)) {
                     unresolvedTypes.add(new TypePair(sMember, targetUnion));
                     if (isAssignable(sMember, targetUnion, unresolvedTypes)) {
