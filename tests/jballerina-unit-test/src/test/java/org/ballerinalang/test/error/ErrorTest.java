@@ -482,6 +482,21 @@ public class ErrorTest {
         Assert.assertEquals(moduleResult.getErrorCount(), i);
     }
 
+    @Test
+    public void testDistinctErrorNegativeCheck() {
+        CompileResult result = BCompileUtil.compile("test-src/error/distinct_error_check_negative.bal");
+        int i = 0;
+        BAssertUtil.validateHint(result, i++, "unnecessary condition: expression will always evaluate to 'true'",
+                29, 9);
+        BAssertUtil.validateHint(result, i++, "unnecessary condition: expression will always evaluate to 'true'",
+                33, 9);
+        BAssertUtil.validateHint(result, i++, "unnecessary condition: expression will always evaluate to 'true'",
+                36, 9);
+        BAssertUtil.validateHint(result, i++, "unnecessary condition: expression will always evaluate to 'true'",
+                39, 9);
+        Assert.assertEquals(result.getHintCount(), i);
+    }
+
     @AfterClass
     public void cleanup() {
         errorTestResult = null;
