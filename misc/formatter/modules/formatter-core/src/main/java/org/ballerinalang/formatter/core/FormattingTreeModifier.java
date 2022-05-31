@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
@@ -165,6 +166,8 @@ import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredExpressionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourceAccessRestSegmentNode;
+import io.ballerina.compiler.syntax.tree.ResourceMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
@@ -3475,6 +3478,82 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public ResourceMethodCallActionNode transform(ResourceMethodCallActionNode resourceMethodCall) {
+        ExpressionNode expressionNode = formatNode(resourceMethodCall.expression(), 0, 0);
+        Token rightArrowToken  = formatNode(resourceMethodCall.rightArrowToken(), 0, 0);
+        Token slashToken;
+        if (resourceMethodCall.resourceAccessPath().isEmpty() && !resourceMethodCall.methodName().isPresent() && 
+                !resourceMethodCall.arguments().isPresent()) {
+            slashToken = formatNode(resourceMethodCall.slashToken(), env.trailingWS, env.trailingNL);
+        } else {
+            slashToken = formatNode(resourceMethodCall.slashToken(), 0, 0);
+        }
+
+        NodeList<Node> resourceAccessPath;
+        if (!resourceMethodCall.methodName().isPresent() && !resourceMethodCall.arguments().isPresent()) {
+            resourceAccessPath = 
+                    formatNodeList(resourceMethodCall.resourceAccessPath(), 0, 0, env.trailingWS, env.trailingNL);
+        } else {
+            resourceAccessPath = formatNodeList(resourceMethodCall.resourceAccessPath(), 0, 0, 0, 0);
+        }
+
+        SimpleNameReferenceNode methodName;
+        if (!resourceMethodCall.arguments().isPresent()) {
+            methodName = formatNode(resourceMethodCall.methodName().orElse(null), env.trailingWS, env.trailingNL);
+        } else {
+            methodName = formatNode(resourceMethodCall.methodName().orElse(null), 0, 0);
+        }
+
+        Token dotToken = formatToken(resourceMethodCall.dotToken().orElse(null), 0, 0);
+        ParenthesizedArgList argumentNode = 
+                formatNode(resourceMethodCall.arguments().orElse(null), env.trailingWS, env.trailingNL);
+        
+        return resourceMethodCall.modify()
+                .withExpression(expressionNode)
+                .withRightArrowToken(rightArrowToken)
+                .withSlashToken(slashToken)
+                .withResourceAccessPath(resourceAccessPath)
+                .withDotToken(dotToken)
+                .withMethodName(methodName)
+                .withArguments(argumentNode)
+                .apply();
+    }
+    
+    @Override
+    public ComputedResourceAccessSegmentNode transform(
+            ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        Token openBracket = formatToken(computedResourceAccessSegmentNode.openBracketToken(), 0, 0);
+        ExpressionNode expressionNode = 
+                formatNode(computedResourceAccessSegmentNode.expression(), 0, 0);
+        Token closeBracket = formatToken(computedResourceAccessSegmentNode.closeBracketToken(), env.trailingWS,
+                env.trailingNL);
+        
+        return computedResourceAccessSegmentNode.modify()
+                .withOpenBracketToken(openBracket)
+                .withExpression(expressionNode)
+                .withCloseBracketToken(closeBracket)
+                .apply();
+    }
+
+    @Override
+    public ResourceAccessRestSegmentNode transform(
+            ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        Token openBracket = formatToken(resourceAccessRestSegmentNode.openBracketToken(), 0, 0);
+        Token ellipsis = formatToken(resourceAccessRestSegmentNode.ellipsisToken(), 0, 0);
+        ExpressionNode expressionNode =
+                formatNode(resourceAccessRestSegmentNode.expression(), 0, 0);
+        Token closeBracket = formatToken(resourceAccessRestSegmentNode.closeBracketToken(), env.trailingWS,
+                env.trailingNL);
+
+        return resourceAccessRestSegmentNode.modify()
+                .withOpenBracketToken(openBracket)
+                .withEllipsisToken(ellipsis)
+                .withExpression(expressionNode)
+                .withCloseBracketToken(closeBracket)
+                .apply();
+    }
+    
     @Override
     public IdentifierToken transform(IdentifierToken identifier) {
         return formatToken(identifier, env.trailingWS, env.trailingNL);
