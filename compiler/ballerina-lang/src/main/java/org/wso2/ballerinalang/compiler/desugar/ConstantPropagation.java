@@ -95,7 +95,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -631,12 +630,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
         indexAccessExpr.expr = rewrite(indexAccessExpr.expr);
         indexAccessExpr.indexExpr = rewrite(indexAccessExpr.indexExpr);
         result = indexAccessExpr;
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        rewrite(tableMultiKeyExpr.multiKeyIndexExprs);
-        result = tableMultiKeyExpr;
     }
 
     @Override

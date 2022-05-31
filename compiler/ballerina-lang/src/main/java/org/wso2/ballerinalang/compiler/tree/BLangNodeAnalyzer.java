@@ -85,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -435,8 +434,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangStringTemplateLiteral node, T data);
 
     public abstract void visit(BLangTableConstructorExpr node, T data);
-
-    public abstract void visit(BLangTableMultiKeyExpr node, T data);
 
     public abstract void visit(BLangTernaryExpr node, T data);
 
