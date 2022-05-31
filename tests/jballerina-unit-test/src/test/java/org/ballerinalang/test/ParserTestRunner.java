@@ -55,6 +55,13 @@ public class ParserTestRunner {
         hashSet.add("method_call_expr_source_05.bal"); // issue #34620
         hashSet.add("float_literal_source_08.bal"); // issue #34620
         hashSet.add("float_literal_source_07.bal"); // issue #34620
+        hashSet.add("resource_method_call_action_source_01.bal"); // issue #36024
+        hashSet.add("resource_method_call_action_source_02.bal"); // issue #36024
+        hashSet.add("resource_method_call_action_source_03.bal"); // issue #36024
+        hashSet.add("resource_method_call_action_source_04.bal"); // issue #36024
+        hashSet.add("resource_method_call_action_source_05.bal"); // issue #36024
+        hashSet.add("resource_method_call_action_source_06.bal"); // issue #36024
+        hashSet.add("resource_method_call_action_source_07.bal"); // issue #36024
         return hashSet;
     }
 

@@ -6,22 +6,25 @@ function foo() {
     b = a->/games[game]/details;
     _ = a->/[...restSegment;
     b += a->games/[...restSegment];
-    
+
     var c = a->/.get j;
     _ = a->/&&();
     b = a->(arg1, arg2);
     c = a->.post(arg1, arg2);
     
-    match a->/games path2 {
-        _ => {}
+    match a->/gamespath2 {
+        _ => {
+        }
     }
 
     match a->/[pathSegment {
-        _ => {}
+        _ => {
+        }
     }
 
     match a->/.post(arg1, arg2 {
-        _ => {}
+        _ => {
+        }
     }
 
     foreach var item in a->55/games {

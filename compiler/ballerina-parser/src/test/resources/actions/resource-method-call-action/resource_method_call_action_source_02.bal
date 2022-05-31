@@ -10,7 +10,7 @@ function foo() {
     a->/games/[game]/[...restSegment].post(paramName1 = arg1, paramName2 = arg2);
     a->/games/[game]/[...restSegment].post(paramName1 = arg1, paramName2 = arg2, ...restArg);
     a->/games/[game]/[...restSegment](paramName1 = arg1, paramName2 = arg2, ...restArg);
-    
+
     a()->/games.name;
     a[2]->/games.name;
     a:b->/games.name;

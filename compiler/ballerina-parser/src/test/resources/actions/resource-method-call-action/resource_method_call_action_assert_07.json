@@ -644,13 +644,7 @@
                       ]
                     },
                     {
-                      "kind": "GT_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "GT_TOKEN"
                     },
                     {
                       "kind": "RESOURCE_METHOD_CALL_ACTION",
@@ -900,13 +894,7 @@
                       "kind": "RIGHT_ARROW_TOKEN"
                     },
                     {
-                      "kind": "SLASH_TOKEN",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "SLASH_TOKEN"
                     },
                     {
                       "kind": "LIST",
@@ -948,10 +936,6 @@
                                           }
                                         ]
                                       }
-                                    },
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
                                     },
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
@@ -1278,8 +1262,8 @@
                                   "kind": "CLOSE_PAREN_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
                                     }
                                   ]
                                 }
@@ -1298,6 +1282,12 @@
                       "children": [
                         {
                           "kind": "SELECT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "        "
+                            }
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
