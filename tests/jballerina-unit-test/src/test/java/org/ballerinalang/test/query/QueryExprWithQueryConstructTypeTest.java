@@ -204,6 +204,36 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testTableOnConflict");
     }
 
+    @Test
+    public void testMapConstructingQueryExpr() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExpr");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithDuplicateKeys() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithDuplicateKeys");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOnConflict() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOnConflict");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOtherClauses() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOtherClauses");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithJoinClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithJoinClause");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithLimitClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithLimitClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

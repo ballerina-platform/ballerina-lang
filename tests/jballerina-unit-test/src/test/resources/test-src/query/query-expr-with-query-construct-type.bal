@@ -615,6 +615,267 @@ function testTableOnConflict() {
     assertEqual(customerTable7, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
 }
 
+function testMapConstructingQueryExpr() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] list1 = [c1, c2, c3];
+
+    map<Customer>|error map1 = map from var customer in list1
+        select [customer.id.toString(), customer];
+    assertEqual(map1, {"1": {id: 1, name: "Melina", noOfItems: 12}, "2": {id: 2, name: "James", noOfItems: 5}, "3": {id: 3, name: "Anne", noOfItems: 20}});
+
+    [string:Char, decimal] t1 = ["a", 1.234d];
+    [string:Char, int] t2 = ["b", 123];
+    string:Char[2] t3 = ["c", "a"];
+
+    [string:Char, string|int|decimal][] list2 = [t1, t2, t3];
+
+    map<string|int|decimal>|error map2 = map from var item in list2
+        select [item[0], item[1]];
+    assertEqual(map2, {"a": 1.234d, "b": 123, "c": "a"});
+
+    [string:Char, byte|int:Signed8] t4 = ["a", 123];
+    [string:Char, int:Signed16] t5 = ["b", 123];
+    [string, int] t6 = ["c", -123];
+    [string, int:Unsigned32] t7 = ["zero", 0];
+
+    [string, int][] list3 = [t4, t5, t6, t7];
+
+    map<string|int>|error map3 = map from var item in list3
+        select [item[0], item[1]];
+    assertEqual(map3, {"a": 123, "b": 123, "c": -123, "zero": 0});
+
+    [string:Char, byte|int:Signed8] t8 = ["a", 123];
+    [string:Char, int:Signed16] t9 = ["b", 123];
+    [string, int|error] t10 = ["c", error("Error")];
+    [string, int:Unsigned32] t11 = ["zero", 0];
+
+    [string, int|error][] list4 = [t8, t9, t10, t11];
+
+    map<string|int|error>|error map4 = map from var item in list4
+        select [item[0], item[1]];
+
+    map<string|int|error> expectedMap = {"a":123,"b":123,"c":error("Error"),"zero":0};
+
+    assertEqual(expectedMap.length(), (<map<string|int|error>> checkpanic map4).length());
+    foreach var key in expectedMap.keys() {
+        assertEqual(expectedMap[key], (<map<string|int|error>> checkpanic map4)[key]);
+    }
+}
+
+function testMapConstructingQueryExprWithDuplicateKeys() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] list1 = [c1, c2, c3, c1, c2, c3];
+
+    var map1 = map from var customer in list1
+        select [customer.id.toString(), customer];
+    assertEqual(map1, {"1": {id: 1, name: "Melina", noOfItems: 12}, "2": {id: 2, name: "James", noOfItems: 5}, "3": {id: 3, name: "Anne", noOfItems: 20}});
+
+    string[*] t1 = ["a", "ABC"];
+    [string:Char, int] t2 = ["b", 123];
+    string:Char[2] t3 = ["c", "a"];
+
+    [string, string|int][] list2 = [t1, t2, t3, t1, t2, t3];
+
+    map<string|int>|error map2 = map from var item in list2
+        select [item[0], item[1]];
+    assertEqual(map2, {"a": "ABC", "b": 123, "c": "a"});
+
+    [string:Char, byte|int:Signed8] t4 = ["a", 123];
+    [string:Char, int:Signed16] t5 = ["b", 123];
+    [string, int] t6 = ["c", -123];
+    [string, int:Unsigned32] t7 = ["zero", 0];
+
+    [string, int][] list3 = [t4, t5, t4, t6, t6, t7, t7, t4];
+
+    map<string|int>|error map3 = map from var item in list3
+        select [item[0], item[1]];
+    assertEqual(map3, {"a": 123, "b": 123, "c": -123, "zero": 0});
+}
+
+function testMapConstructingQueryExprWithOnConflict() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+    ()|error conflictMsg1 = ();
+
+    Customer[] list1 = [c1, c2, c3, c1, c2, c3];
+
+    var mapWithOnConflict1 = map from var customer in list1
+        select [customer.id.toString(), customer]
+        on conflict conflictMsg1;
+
+    var mapWithOutOnConflict1 = map from var customer in list1
+        select [customer.id.toString(), customer];
+    assertEqual(mapWithOnConflict1, {"1": {id: 1, name: "Melina", noOfItems: 12}, "2": {id: 2, name: "James", noOfItems: 5}, "3": {id: 3, name: "Anne", noOfItems: 20}});
+    assertEqual(mapWithOnConflict1, mapWithOutOnConflict1);
+
+    string[*] t1 = ["a", "ABC"];
+    [string:Char, int] t2 = ["b", 123];
+    string:Char[2] t3 = ["c", "a"];
+    ()|error conflictMsg2 = error("Error 1");
+
+    [string, string|int][] list2 = [t1, t2, t3, t1, t2, t3];
+
+    map<string|int>|error map2 = map from var item in list2
+        select [item[0], item[1]]
+        on conflict conflictMsg2;
+    assertEqual(map2, error("Error 1"));
+
+    [string:Char, byte|int:Signed8] t4 = ["a", 123];
+    [string:Char, int:Signed16] t5 = ["b", 123];
+    [string, int] t6 = ["c", -123];
+    [string, int:Unsigned32] t7 = ["zero", 0];
+    CustomError? onConflictError4 = error("error msg 1", message = "Error 2", code = 500);
+    [string, int][] list3 = [t4, t5, t4, t6, t6, t7, t7, t4];
+
+    map<string|int>|error map3 = map from var item in list3
+        select [item[0], item[1]]
+        on conflict onConflictError4;
+    assertEqual(map3, onConflictError4);
+
+    [string, int][] list4 = [t4, t5, t6, t7];
+
+    map<string|int>|error map4 = map from var item in list4
+        select [item[0], item[1]]
+        on conflict onConflictError4;
+    assertEqual(map4, {"a": 123, "b": 123, "c": -123, "zero": 0});
+}
+
+function testMapConstructingQueryExprWithOtherClauses() {
+    error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+
+    Customer[] customerList1 = [c1, c2, c2];
+    Person[] personList = [p1, p2];
+
+    var selectedCustomers1 = map from var customer in customerList1
+        from var person in personList
+        let string fullName = person.firstName + " " + person.lastName
+        where customer.name == person.lastName
+        where customer.noOfItems >= 5
+        where person.age <= 25
+        select [
+            fullName,
+            {
+                id: customer.id,
+                name: fullName
+            }
+        ]
+        on conflict onConflictError;
+    assertEqual(selectedCustomers1, {"Amy Melina": {"id": 1, "name": "Amy Melina"}});
+
+    Customer c3 = {id: 1, name: "Melina", noOfItems: 22};
+    Customer c4 = {id: 2, name: "James", noOfItems: 15};
+    Customer c5 = {id: 1, name: "Melina", noOfItems: 10};
+    Customer c6 = {id: 2, name: "James", noOfItems: 11};
+
+    Customer[] customerList2 = [c1, c2, c3, c4, c5, c6];
+
+    map<Customer>|error selectedCustomers2 = map from var customer in customerList2
+        from var person in personList
+        let string fullName = person.firstName + " " + person.lastName
+        where customer.name == person.lastName
+        where customer.noOfItems >= 10
+        where person.age <= 25
+        select [
+            fullName,
+            {
+                id: customer.id,
+                name: fullName,
+                noOfItems: customer.noOfItems
+            }
+        ]
+        on conflict onConflictError;
+    assertEqual(selectedCustomers2, onConflictError);
+
+    var selectedCustomers3 = map from var customer in customerList2
+        from var person in personList
+        let string fullName = person.firstName + " " + person.lastName
+        where customer.name == person.lastName
+        where customer.noOfItems >= 10
+        where person.age <= 25
+        select [
+            fullName,
+            {
+                id: customer.id,
+                name: fullName
+            }
+        ]
+        on conflict null;
+    assertEqual(selectedCustomers3, {"Amy Melina": {"id": 1, "name": "Amy Melina"}});
+}
+
+function testMapConstructingQueryExprWithJoinClause() {
+    error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+
+    Customer[] customerList1 = [c1, c2, c1];
+    Person[] personList = [p1, p2];
+
+    var customerMap1 = map from var customer in customerList1
+        join var person in personList
+        on customer.name equals person.lastName
+        select [customer.id.toString(), {
+            id: customer.id,
+            name: person.firstName,
+            age: person.age,
+            noOfItems: customer.noOfItems
+        }]
+        on conflict onConflictError;
+    assertEqual(customerMap1, onConflictError);
+
+    Customer[] customerList2 = [c1, c2];
+
+    var customerMap2 = map from var customer in customerList2
+        join var person in personList
+        on customer.name equals person.lastName
+        select [customer.id.toString(), {
+            id: customer.id,
+            name: person.firstName,
+            age: person.age,
+            noOfItems: customer.noOfItems
+        }]
+        on conflict onConflictError;
+    assertEqual(customerMap2, {"1":{"id":1,"name":"Amy","age":23,"noOfItems":12},"2":{"id":2,"name":"Frank","age":30,"noOfItems":5}});
+}
+
+function testMapConstructingQueryExprWithLimitClause() {
+    error onConflictError = error("Key Conflict", message = "cannot insert.");
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Melina", noOfItems: 25};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    map<Customer>|error customerMap1 = map from var customer in customerList.toStream()
+        where customer.name == "Melina"
+        limit 1
+        select [customer.name, {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        }]
+        on conflict onConflictError;
+    assertEqual(customerMap1, {"Melina":{"id":1,"name":"Melina","noOfItems":12}});
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;
