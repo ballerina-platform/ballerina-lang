@@ -23,6 +23,10 @@ public type DynamicListener object {
     public function immediateStop() returns error?;
 };
 
+public type StopHandler object {
+    public function gracefulStop() returns error?;
+};
+
 # Represents a data holder of the current call stack element.
 #
 # + callableName - Callable name
@@ -52,6 +56,13 @@ public isolated function registerListener(DynamicListener 'listener) = @java:Met
 # which this function is called.
 # + listener - the listener object to be unregistered
 public isolated function deregisterListener(DynamicListener 'listener) = @java:Method {
+    'class: "org.ballerinalang.langlib.runtime.Registry"
+} external;
+
+# Registers a StopHandler object with a module.
+#
+# + stopHandler - the stopHandler object to be registered
+public isolated function onGracefulStop(StopHandler stopHandler) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 

@@ -220,4 +220,8 @@ public class Runtime {
     public void deregisterListener(BObject listener) {
         scheduler.getListenerRegistry().deregisterListener(listener);
     }
+
+    public void registerStopHandler(BObject stopHandler) {
+        scheduler.getStopHandlerRegistry().registerStopHandler(stopHandler);
+    }
 }

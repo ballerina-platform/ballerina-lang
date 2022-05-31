@@ -89,6 +89,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_HANDLER_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
@@ -213,7 +214,9 @@ public class JvmSignatures {
     public static final String GET_HANDLE_VALUE = "L" + HANDLE_VALUE + ";";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
     public static final String GET_LISTENER_REGISTRY = "L" + JvmConstants.LISTENER_REGISTRY_CLASS + ";";
+    public static final String GET_STOP_HANDLER_REGISTRY = "L" + STOP_HANDLER_REGISTRY_CLASS + ";";
     public static final String GET_LISTENER_REGISTRY_CLASS = "()L" + LISTENER_REGISTRY_CLASS + ";";
+    public static final String GET_STOP_HANDLER_REGISTRY_CLASS = "()L" + STOP_HANDLER_REGISTRY_CLASS + ";";
     public static final String GET_LOCK_FROM_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
     public static final String GET_LOCK_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
     public static final String GET_MAIN_ARGS = "()[L" + OBJECT + ";";
@@ -279,6 +282,8 @@ public class JvmSignatures {
     public static final String INIT_LIST_INITIAL_EXPRESSION_ENTRY = "(L" + OBJECT + ";)V";
     public static final String INIT_LIST_INITIAL_SPREAD_ENTRY = "(L" + B_ARRAY + ";)V";
     public static final String INIT_LISTENER_REGISTRY = "(L" + JvmConstants.LISTENER_REGISTRY_CLASS + ";)V";
+    public static final String INIT_LISTENER_STOP_HANDLER_REGISTRY =
+            "(L" + LISTENER_REGISTRY_CLASS + ";L" + STOP_HANDLER_REGISTRY_CLASS + ";)V";
     public static final String INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY = "(L" + B_MAP + ";)V";
     public static final String INIT_MODULE = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_NON_BMP_STRING_VALUE = "(L" + STRING_VALUE + ";[I)V";

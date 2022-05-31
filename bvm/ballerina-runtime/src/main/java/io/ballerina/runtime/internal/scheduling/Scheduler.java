@@ -84,6 +84,7 @@ public class Scheduler {
 
     private Semaphore mainBlockSem;
     private ListenerRegistry listenerRegistry;
+    private StopHandlerRegistry stopHandlerRegistry;
     private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
 
     public Scheduler(boolean immortal) {
@@ -94,6 +95,7 @@ public class Scheduler {
         this.numThreads = numThreads;
         this.immortal = immortal;
         this.listenerRegistry = new ListenerRegistry();
+        this.stopHandlerRegistry = new StopHandlerRegistry();
         this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
         ItemGroup group = new ItemGroup();
         objectGroup.set(group);
@@ -540,6 +542,10 @@ public class Scheduler {
         return listenerRegistry;
     }
 
+    public StopHandlerRegistry getStopHandlerRegistry() {
+        return stopHandlerRegistry;
+    }
+
     private static int getPoolSize() {
         try {
             if (poolSizeConf != null) {
@@ -574,6 +580,20 @@ public class Scheduler {
         public synchronized void stopListeners(Strand strand) {
             for (BObject listener : listenerSet) {
                 listener.call(strand, "gracefulStop");
+            }
+        }
+    }
+
+    public class StopHandlerRegistry {
+        private final Stack<BObject> stopHandlerStack = new Stack<>();
+
+        public synchronized void registerStopHandler(BObject stopHandler) {
+            stopHandlerStack.push(stopHandler);
+        }
+
+        public synchronized void moduleGracefulStop(Strand strand) {
+            while (!stopHandlerStack.isEmpty()) {
+                stopHandlerStack.pop().call(strand, "gracefulStop");
             }
         }
     }
