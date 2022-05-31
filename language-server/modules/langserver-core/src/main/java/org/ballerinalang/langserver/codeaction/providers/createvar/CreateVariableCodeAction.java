@@ -76,7 +76,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE){
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE) {
             return Collections.emptyList();
         }
 
