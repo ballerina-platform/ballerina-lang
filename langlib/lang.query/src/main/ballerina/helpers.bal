@@ -146,6 +146,28 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, err
     return tbl;
 }
 
+function addToMap(stream<Type, CompletionType> strm, map<Type|error> mp, error? err) returns map<Type|error>|error {
+    record {| Type value; |}|CompletionType v = strm.next();
+    while (v is record {| Type value; |}) {
+        [string, Type|error]|error value = trap (<[string, Type|error]> checkpanic v.value);
+        if value !is error {
+            string key = value[0];
+            if mp.hasKey(key) && err is error {
+                return err;
+            }
+            mp[key] = value[1];
+        } else {
+            return value;
+        }
+
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+    return mp;
+}
+
 function consumeStream(stream<Type, CompletionType> strm) returns any|error {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
