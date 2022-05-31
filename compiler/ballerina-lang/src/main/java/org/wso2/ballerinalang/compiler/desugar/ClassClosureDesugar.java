@@ -1325,12 +1325,22 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             }
             return;
         }
-        this.env = classDef.oceEnvData.capturedClosureEnv;
+        env = classDef.oceEnvData.capturedClosureEnv;
         createMapSymbolsIfAbsent(classDef);
         addFunctionLevelClosureMapToClassDefinition(classDef);
         updateFields(classDef);
         addBlockLevelClosureMapToClassDefinition(classDef);
-//        updateFunctions(classDef);
+
+        reset();
+    }
+
+    public void desugarFunctions(BLangClassDefinition classDef) {
+        this.classDef = classDef;
+        env = classDef.oceEnvData.capturedClosureEnv;
+        if (!classDef.hasClosureVars) {
+            return;
+        }
+        updateFunctions(classDef);
 
         reset();
     }
@@ -1340,7 +1350,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             if (fn.funcEnv == null) {
                 fn.funcEnv = SymbolEnv.createFunctionEnv(fn, fn.symbol.scope, env);
             }
-            rewrite(fn, this.env);
+            rewrite(fn, env);
         }
     }
 
