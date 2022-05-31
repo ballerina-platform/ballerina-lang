@@ -28,6 +28,8 @@ public class BallerinaSyntaxTreeResponse {
 
     private String source;
 
+    private String defFilePath;
+
     private boolean parseSuccess;
 
     public JsonElement getSyntaxTree() {
@@ -53,4 +55,6 @@ public class BallerinaSyntaxTreeResponse {
     public void setParseSuccess(boolean parseSuccess) {
         this.parseSuccess = parseSuccess;
     }
+
+    public void setDefFilePath(String defFilePath) { this.defFilePath = defFilePath; }
 }
