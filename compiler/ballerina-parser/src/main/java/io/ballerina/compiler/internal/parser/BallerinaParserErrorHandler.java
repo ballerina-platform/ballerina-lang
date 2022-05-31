@@ -3812,7 +3812,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ACTION_END:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.RESOURCE_METHOD_CALL_ACTION) {
-                    endContext(); // end-action-ctx
+                    endContext();
                 }
                 return getNextRuleForAction();
             default:
