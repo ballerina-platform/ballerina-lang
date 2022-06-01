@@ -321,14 +321,18 @@ public class TypeBuildersTest {
         TypeBuilder builder = types.builder();
         SingletonTypeSymbol singletonTypeSymbol = builder.SINGLETON_TYPE.withValueSpace(value, valueTypeSymbol).build();
         assertEquals(singletonTypeSymbol.typeKind(), SINGLETON);
-        assertEquals(singletonTypeSymbol.signature(), value.toString());
+        if (valueTypeSymbol.subtypeOf(types.STRING)) {
+            assertEquals(singletonTypeSymbol.signature(), "\""+value.toString()+"\"");
+        } else {
+            assertEquals(singletonTypeSymbol.signature(), value.toString());
+        }
     }
 
     @DataProvider(name = "singletonTypeBuilderProvider")
     private Object[][] getSingletonTypeBuilders() {
         return new Object[][] {
                 {5, types.INT},
-//                {"abc", types.STRING},
+                {"abc", types.STRING},
                 {1.5, types.FLOAT},
                 {true, types.BOOLEAN},
         };
