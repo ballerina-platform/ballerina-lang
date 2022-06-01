@@ -1313,7 +1313,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void populateUndefinedErrorIntersection(BLangTypeDefinition typeDef, SymbolEnv env) {
-        BErrorType intersectionErrorType = types.createErrorType(null, Flags.PUBLIC, env);
+        long flags = 0;
+        if (typeDef.flagSet.contains(Flag.PUBLIC)) {
+            flags = Flags.PUBLIC;
+        }
+
+        BErrorType intersectionErrorType = types.createErrorType(null, flags, env);
         intersectionErrorType.tsymbol.name = names.fromString(typeDef.name.value);
         defineErrorType(typeDef.pos, intersectionErrorType, env);
 

@@ -2421,8 +2421,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                                                           BSymbol owner, Location pos) {
 
         BTypeSymbol intersectionTypeSymbol =
-                Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY,
-                        pkgId, null, owner, pos, VIRTUAL);
+                Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE, 0, Names.EMPTY, pkgId, null, owner, pos,
+                        VIRTUAL);
 
         BIntersectionType intersectionType =
                 new BIntersectionType(intersectionTypeSymbol, constituentBTypes, effectiveType);
