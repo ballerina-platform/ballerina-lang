@@ -146,6 +146,7 @@ public class DefinitionTest {
                 {"defProject10.json", "project"},
                 {"defProject11.json", "project"},
                 {"defProject12.json", "project"},
+                {"defProject13.json", "project"},
                 {"def_record_config1.json", "project"},
                 // TODO Blocked by #30688 causing module of user defined errors to become lang.annotations
                 // {"def_error_config1.json", "project"},
