@@ -83,7 +83,7 @@ public abstract class AbstractLSTest {
     public void init() throws Exception {
         this.languageServer = new BallerinaLanguageServer();
         this.serviceEndpoint = TestUtil.initializeLanguageSever(this.languageServer);
-        if(this.loadMockedPackages()) {
+        if (this.loadMockedPackages()) {
             setUp();
         }
     }
