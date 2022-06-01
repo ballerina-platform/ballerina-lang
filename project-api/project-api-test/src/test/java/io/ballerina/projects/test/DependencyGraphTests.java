@@ -22,6 +22,7 @@ import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
@@ -504,6 +505,80 @@ public class DependencyGraphTests extends BaseTest {
         Assert.assertEquals(packageMetadataResponse.resolvedDescriptor().version().toString(), "1.5.0");
         Assert.assertEquals(packageMetadataResponse.resolutionStatus(),
                 ResolutionResponse.ResolutionStatus.RESOLVED);
+    }
+
+    @Test
+    public void testTopologicalSortOfModuleDescriptor() {
+        PackageName packageName = PackageName.from("package");
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, packageName, PackageVersion.from("0.0.1"));
+
+        ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(ModuleName.from(packageName), packageDescriptor);
+        ModuleDescriptor moduleADescriptor = ModuleDescriptor.from(
+                ModuleName.from(packageName, "module_a"), packageDescriptor);
+        ModuleDescriptor moduleBDescriptor = ModuleDescriptor.from(
+                ModuleName.from(packageName, "module_b"), packageDescriptor);
+        ModuleDescriptor moduleCDescriptor = ModuleDescriptor.from(
+                ModuleName.from(packageName, "module_c"), packageDescriptor);
+
+        DependencyGraph<ModuleDescriptor> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put(moduleADescriptor, new LinkedHashSet<>() {{
+                add(moduleBDescriptor);
+            }});
+            put(moduleDescriptor, new LinkedHashSet<>() {{
+                add(moduleBDescriptor);
+                add(moduleADescriptor);
+                add(moduleCDescriptor);
+            }});
+            put(moduleBDescriptor, new LinkedHashSet<>());
+            put(moduleCDescriptor, new LinkedHashSet<>());
+        }});
+
+        Assert.assertEquals(dependencyGraph.toTopologicallySortedList(), new LinkedList<>() {{
+            add(moduleBDescriptor);
+            add(moduleADescriptor);
+            add(moduleCDescriptor);
+            add(moduleDescriptor);
+        }});
+    }
+
+    @Test
+    public void testTopologicalSortOfPackageDescriptor() {
+        PackageVersion packageVersion = PackageVersion.from("0.0.1");
+        PackageName packageName = PackageName.from("package_c");
+
+        PackageDescriptor firstPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, PackageName.from("package_a"), packageVersion);
+        PackageDescriptor secondPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, PackageName.from("package_b"), packageVersion);
+        PackageDescriptor thirdPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, packageName, packageVersion);
+        PackageDescriptor forthPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_X_ORG, packageName, packageVersion);
+        PackageDescriptor fifthPackageDescriptor = PackageDescriptor.from(
+                PackageOrg.BALLERINA_ORG, packageName, PackageVersion.from("0.0.2"));
+
+        DependencyGraph<PackageDescriptor> dependencyGraph = DependencyGraph.from(new LinkedHashMap<>() {{
+            put(secondPackageDescriptor, new LinkedHashSet<>() {{
+                add(fifthPackageDescriptor);
+            }});
+            put(firstPackageDescriptor, new LinkedHashSet<>() {{
+                add(forthPackageDescriptor);
+                add(secondPackageDescriptor);
+                add(thirdPackageDescriptor);
+            }});
+            put(fifthPackageDescriptor, new LinkedHashSet<>());
+            put(thirdPackageDescriptor, new LinkedHashSet<>());
+            put(forthPackageDescriptor, new LinkedHashSet<>());
+        }});
+
+        Assert.assertEquals(dependencyGraph.toTopologicallySortedList(), new LinkedList<>() {{
+            add(fifthPackageDescriptor);
+            add(secondPackageDescriptor);
+            add(thirdPackageDescriptor);
+            add(forthPackageDescriptor);
+            add(firstPackageDescriptor);
+        }});
     }
 
     @Test(dataProvider = "provideDependenciesInDifferentOrder")
