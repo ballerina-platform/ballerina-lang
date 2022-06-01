@@ -5539,45 +5539,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType actualType = symTable.semanticError;
         List<BType> selectTypes = new ArrayList<>();
         List<BType> resolvedTypes = new ArrayList<>();
-        BType selectType, resolvedType;
+        BType selectType;
         for (BType type : resultTypes) {
-            switch (type.tag) {
-                case TypeTags.ARRAY:
-                    selectType = checkExpr(selectExp, env, ((BArrayType) type).eType, data);
-                    resolvedType = new BArrayType(selectType);
-                    break;
-                case TypeTags.TABLE:
-                    selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
-                            true, true), data);
-                    resolvedType = symTable.tableType;
-                    break;
-                case TypeTags.STREAM:
-                    selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
-                            true, true), data);
-                    resolvedType = symTable.streamType;
-                    break;
-                case TypeTags.STRING:
-                case TypeTags.XML:
-                    selectType = checkExpr(selectExp, env, type, data);
-                    resolvedType = selectType;
-                    break;
-                case TypeTags.NONE:
-                default:
-                    // contextually expected type not given (i.e var).
-                    selectType = checkExpr(selectExp, env, type, data);
-                    resolvedType = getNonContextualQueryType(selectType, collectionType);
-                    break;
-            }
-            if (selectType != symTable.semanticError) {
-                if (resolvedType.tag == TypeTags.STREAM) {
-                    queryExpr.isStream = true;
-                }
-                if (resolvedType.tag == TypeTags.TABLE) {
-                    queryExpr.isTable = true;
-                }
-                selectTypes.add(selectType);
-                resolvedTypes.add(resolvedType);
-            }
+            solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes, resolvedTypes, env,
+                    data, false);
         }
 
         if (selectTypes.size() == 1) {
@@ -5601,6 +5566,71 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return actualType;
         } else {
             return actualType;
+        }
+    }
+
+    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType type,
+                                       BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
+                                       SymbolEnv env, AnalyzerData data, boolean isReadonly) {
+        BType selectType, resolvedType;
+        type = Types.getReferredType(type);
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+                selectType = checkExpr(selectExp, env, ((BArrayType) type).eType, data);
+                resolvedType = new BArrayType(selectType);
+                if (isReadonly || ((BArrayType) type).getIntersectionType() != null) {
+                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
+                            symTable, anonymousModelHelper, names, null);
+                }
+                break;
+            case TypeTags.TABLE:
+                selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
+                        true, true), data);
+                resolvedType = symTable.tableType;
+                if (isReadonly) {
+                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
+                            symTable, anonymousModelHelper, names, null);
+                }
+                break;
+            case TypeTags.STREAM:
+                selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
+                        true, true), data);
+                resolvedType = symTable.streamType;
+                if (isReadonly) {
+                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
+                            symTable, anonymousModelHelper, names, null);
+                }
+                break;
+            case TypeTags.STRING:
+            case TypeTags.XML:
+                selectType = checkExpr(selectExp, env, type, data);
+                resolvedType = selectType;
+                if (isReadonly) {
+                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
+                            symTable, anonymousModelHelper, names, null);
+                }
+                break;
+            case TypeTags.INTERSECTION:
+                type = ((BIntersectionType) type).effectiveType;
+                solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes, resolvedTypes,
+                        env, data, true);
+                return;
+            case TypeTags.NONE:
+            default:
+                // contextually expected type not given (i.e var).
+                selectType = checkExpr(selectExp, env, type, data);
+                resolvedType = getNonContextualQueryType(selectType, collectionType);
+                break;
+        }
+        if (selectType != symTable.semanticError) {
+            if (resolvedType.tag == TypeTags.STREAM) {
+                queryExpr.isStream = true;
+            }
+            if (resolvedType.tag == TypeTags.TABLE) {
+                queryExpr.isTable = true;
+            }
+            selectTypes.add(selectType);
+            resolvedTypes.add(resolvedType);
         }
     }
 
