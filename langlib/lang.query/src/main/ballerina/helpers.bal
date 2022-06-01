@@ -52,12 +52,12 @@ function createOuterJoinFunction(
     return new _OuterJoinFunction(joinedPipeline, lhsKeyFunction, rhsKeyFunction, nilFrame);
 }
 
-function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)
+function createFilterFunction(function(_Frame _frame) returns boolean|error filterFunc)
         returns _StreamFunction {
     return new _FilterFunction(filterFunc);
 }
 
-function createOrderByFunction(function(_Frame _frame) orderFunc)
+function createOrderByFunction(function(_Frame _frame) returns error? orderFunc)
         returns _StreamFunction {
     return new _OrderByFunction(orderFunc);
 }
@@ -136,7 +136,7 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, err
             if (err is error) {
                 return err;
             }
-            return e;
+            tbl.put(<map<Type>> checkpanic v.value);
         }
         v = strm.next();
     }

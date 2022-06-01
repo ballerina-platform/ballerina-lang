@@ -18,6 +18,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageName;
@@ -158,6 +159,12 @@ public class PushCommand implements BLauncherCmd {
                 if (balaPath == null) {
                     pushPackage(project);
                 } else {
+                    if (!balaPath.toFile().exists()) {
+                        throw new ProjectException("provided path does not exist.");
+                    }
+                    if (!FileUtils.getExtension(balaPath).equals("bala")) {
+                        throw new ProjectException("file provided is not a bala file.");
+                    }
                     try {
                         validatePackageMdAndBalToml(balaPath);
                     } catch (IOException e) {
@@ -179,6 +186,12 @@ public class PushCommand implements BLauncherCmd {
                         pushPackage(project, client);
                     } else {
                         try {
+                            if (!balaPath.toFile().exists()) {
+                                throw new ProjectException("provided path does not exist.");
+                            }
+                            if (!FileUtils.getExtension(balaPath).equals("bala")) {
+                                throw new ProjectException("file provided is not a bala file.");
+                            }
                             validatePackageMdAndBalToml(balaPath);
                         } catch (IOException e) {
                             throw new ProjectException("error while validating the bala file.", e);

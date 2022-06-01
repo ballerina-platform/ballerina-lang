@@ -1748,6 +1748,33 @@ function yoo(SomeRecord|int|() aa) {
 
 }
 
+type R1 readonly & record {|int i;|}?;
+type R2 (readonly & record {|int i;|})?;
+type R record {|int i;|};
+
+function testR1(R1 r) {
+    if r is R {
+        R x = r; // no error
+        assertEquality(x.i, 2);
+    } else {
+        panic error("Type of 'r' should be 'R'");
+    }
+}
+
+function testR2(R2 r) {
+    if r is R {
+        R x = r; // no error
+        assertEquality(x.i, 3);
+    } else {
+        panic error("Type of 'r' should be 'R'");
+    }
+}
+
+function testTypeTestingInReadonlyRecord() {
+    testR1({i: 2});
+    testR2({i: 3});
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

@@ -46,7 +46,7 @@ public class FiniteTypeNegativeTest {
     public void testInvalidLiteralAssignment() {
 
         CompileResult result = BCompileUtil.compile("test-src/types/finite/finite_type_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 71, "Error count mismatch");
+        Assert.assertEquals(result.getErrorCount(), 83, "Error count mismatch");
         int i = 0;
         validateError(result, i++, "incompatible types: expected 'Finite', found 'string'", 33, 16);
         validateError(result, i++, "incompatible types: expected 'ByteType', found '5'", 40, 18);
@@ -118,6 +118,18 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found '(int|null)'", 226, 22);
         validateError(result, i++, "incompatible types: expected 'IntOrNullStr', found 'null'", 228, 22);
         validateError(result, i++, "incompatible types: expected 'null', found 'string'", 231, 14);
-        validateError(result, i, "incompatible types: expected '\"null\"', found '()'", 232, 16);
+        validateError(result, i++, "incompatible types: expected '\"null\"', found '()'", 232, 16);
+        validateError(result, i++, "incompatible types: expected 'FloatOne', found 'IntOne'", 242, 18);
+        validateError(result, i++, "incompatible types: expected '1.0f', found 'IntOne'", 243, 13);
+        validateError(result, i++, "incompatible types: expected 'float', found 'IntOne'", 244, 15);
+        validateError(result, i++, "incompatible types: expected 'DecimalOne', found 'IntOne'", 245, 20);
+        validateError(result, i++, "incompatible types: expected 'IntOne', found 'FloatOne'", 248, 16);
+        validateError(result, i++, "incompatible types: expected '1', found 'FloatOne'", 249, 11);
+        validateError(result, i++, "incompatible types: expected 'DecimalOne', found 'FloatOne'", 250, 20);
+        validateError(result, i++, "incompatible types: expected 'DecimalOne', found 'float'", 251, 20);
+        validateError(result, i++, "incompatible types: expected '(FloatOne|StringA)', found 'IntOne'", 252, 26);
+        validateError(result, i++, "incompatible types: expected 'IntOne', found 'DecimalOne'", 256, 16);
+        validateError(result, i++, "incompatible types: expected 'FloatOne', found 'DecimalOne'", 257, 18);
+        validateError(result, i, "incompatible types: expected '(FloatOne|IntOne)', found 'DecimalOne'", 258, 25);
     }
 }

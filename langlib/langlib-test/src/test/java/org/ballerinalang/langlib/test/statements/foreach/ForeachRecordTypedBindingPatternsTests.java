@@ -90,4 +90,9 @@ public class ForeachRecordTypedBindingPatternsTests {
     public void testForeachWithClosedRecordWithNoFields() {
         BRunUtil.invoke(program, "testForeachWithClosedRecordWithNoFields");
     }
+
+    @Test
+    public void testDestructuringRecordBindingPatternWithForeach() {
+        BRunUtil.invoke(program, "testDestructuringRecordingBindingPatternWithAnIntersectionTypeInForeach");
+    }
 }

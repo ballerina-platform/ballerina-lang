@@ -41,8 +41,7 @@ public class ProjectRenameTest extends AbstractRenameTest {
                 {"rename_function_result.json", "getStudents"},
                 {"rename_global_var_result.json", "path"},
                 {"rename_error_config1.json", "Mod2Error"},
-                // TODO type Err error; type symbols cannot be renamed due to #30688
-                // {"rename_error_config2.json", "Mod2Error"},
+                {"rename_error_config2.json", "Mod2Error"},
                 {"rename_package_alias_result1.json", "mod1"},
                 {"rename_package_alias_result2.json", "mod"},
                 {"rename_package_alias_result3.json", "mod"},

@@ -80,9 +80,6 @@ public abstract class AbstractCommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
-    // TODO: #23371
-    // TODO: #23371
-
     @DataProvider(name = "testgen-fail-data-provider")
     public Object[][] testGenerationNegativeDataProvider() {
         log.info("Test, test generation command failed cases");

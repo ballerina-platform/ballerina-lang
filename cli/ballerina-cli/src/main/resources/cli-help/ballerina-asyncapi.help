@@ -1,36 +1,43 @@
 NAME
-      Generate a Ballerina listener from an AsyncAPI contract.
+       ballerina-ayncapi - Generate a Ballerina listener from an AsyncAPI
+       contract.
 
 SYNOPSIS
-       bal asyncapi [-i | --input] <asyncapi-contract-file-path> [-o | --output] <output-location>
+       bal asyncapi [-i | --input] <asyncapi-contract-file-path> [-o | --output]
+       <output-location>
 
 
 DESCRIPTION
-       Generate a Ballerina source from the given AsyncAPI definition file. This will generate the four Ballerina files below.
+       Generate a Ballerina source from the given AsyncAPI definition file.
+       This will generate the four Ballerina files below.
         1. `data_types.bal` - Contains all the data types of the listener
-        2. `service_types.bal` - Contains all the service types relevant to the generated listener
-        3. `listener.bal` - Contains the HTTP listener, which listens to the relevant third-party service
+        2. `service_types.bal` - Contains all the service types relevant to the
+            generated listener
+        3. `listener.bal` - Contains the HTTP listener, which listens to the
+            relevant third-party service
         4. `dispacther_service.bal` - Contains the event dispatching logic
     
-       The generated Ballerina sources will be written into the provided output location.
-
-       Note: This is an experimental feature, which supports only a limited
-       set of functionalities.
+       The generated Ballerina sources will be written into the provided output
+       location.
 
 
 OPTIONS
         -i, --input <asyncapi-contract-file-path>
-            This is a mandatory input. The listener will be generated according to the given AsyncAPI contract. 
-            This generated listener can be used as a code template to start the listener implementation.
+            This is a mandatory input. The listener will be generated according
+            to the given AsyncAPI contract.
+            This generated listener can be used as a code template to start the
+            listener implementation.
 
         -o, --output <output>
-            Location of the generated Ballerina source code. If this path is not specified,
-            the output will be written to the same directory from which the command is run.
+            Location of the generated Ballerina source code. If this path is not
+            specified, the output will be written to the same directory from
+            which the command is run.
 
 
 EXAMPLES
        Generate a Ballerina listener using a `hello.yaml` AsyncAPI contract.
            $ bal asyncapi -i hello.yaml
 
-       Generate a Ballerina listener using a `hello.yaml` AsyncAPI contract with an output path.
+       Generate a Ballerina listener using a `hello.yaml` AsyncAPI contract with
+       an output path.
            $ bal asyncapi -i hello.yaml -o ./output_path

@@ -36,4 +36,3 @@ final int testModuleVar2 = 10;
 final int testModuleVar1 = 10;
 
 annotation varAnnotation;
-

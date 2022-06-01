@@ -79,7 +79,6 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
@@ -228,6 +227,21 @@ public class CommonUtil {
      */
     public static Position toPosition(LinePosition linePosition) {
         return new Position(linePosition.line(), linePosition.offset());
+    }
+
+    /**
+     * Convert a given pair of start and end offsets to LSP Range.
+     *
+     * @param startOffset starting offset
+     * @param endOffset end offset
+     * @param document text document where the position resides
+     * @return {@link Range} calculated range
+     */
+    public static Range toRange(int startOffset, int endOffset, TextDocument document) {
+        LinePosition startPos = document.linePositionFrom(startOffset);
+        LinePosition endPos = document.linePositionFrom(endOffset);
+
+        return new Range(CommonUtil.toPosition(startPos), CommonUtil.toPosition(endPos));
     }
 
     /**
@@ -546,24 +560,24 @@ public class CommonUtil {
      *
      * @param context Language server operation context
      * @param fields  Map of field descriptors
-     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
+     * @param wrapper  Pair of Raw TypeSymbol and broader TypeSymbol
      * @return {@link List} List of completion items for the struct fields
      */
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
                                                                        Map<String, RecordFieldSymbol> fields,
-                                                                       Pair<TypeSymbol, TypeSymbol> symbol) {
+                                                                       RawTypeSymbolWrapper wrapper) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach((name, field) -> {
             String insertText =
                     getRecordFieldCompletionInsertText(field, 1);
 
             String detail;
-            if (symbol.getLeft().getName().isPresent()) {
-                detail = getModifiedTypeName(context, symbol.getLeft()) + "." + name;
-            } else if (symbol.getRight().getName().isPresent()) {
-                detail = getModifiedTypeName(context, symbol.getRight()) + "." + name;
+            if (wrapper.getRawType().getName().isPresent()) {
+                detail = getModifiedTypeName(context, wrapper.getRawType()) + "." + name;
+            } else if (wrapper.getBroaderType().getName().isPresent()) {
+                detail = getModifiedTypeName(context, wrapper.getBroaderType()) + "." + name;
             } else {
-                detail = "(" + symbol.getLeft().signature() + ")." + name;
+                detail = "(" + wrapper.getRawType().signature() + ")." + name;
             }
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
@@ -578,16 +592,17 @@ public class CommonUtil {
     }
 
     /**
-     * Get the completion item to fill all the struct fields.
+     * Get the completion items to fill all record fields fields.
      *
      * @param context Language Server Operation Context
      * @param fields  A non empty map of fields
-     * @param symbol  Pair of Raw TypeSymbol and broader TypeSymbol
+     * @param wrapper  A wrapper containing record type symbol and broader type symbol
      * @return {@link Optional}   Completion Item to fill all the options
      */
-    public static Optional<LSCompletionItem> getFillAllStructFieldsItem(BallerinaCompletionContext context,
-                                                                        Map<String, RecordFieldSymbol> fields,
-                                                                        Pair<TypeSymbol, TypeSymbol> symbol) {
+    public static Optional<LSCompletionItem> getFillAllRecordFieldCompletionItems(
+            BallerinaCompletionContext context,
+            Map<String, RecordFieldSymbol> fields,
+            RawTypeSymbolWrapper<RecordTypeSymbol> wrapper) {
         List<String> fieldEntries = new ArrayList<>();
 
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
@@ -599,12 +614,12 @@ public class CommonUtil {
 
         String label;
         String detail;
-        if (symbol.getLeft().getName().isPresent()) {
-            detail = getModifiedTypeName(context, symbol.getLeft());
-        } else if (symbol.getRight().getName().isPresent()) {
-            detail = getModifiedTypeName(context, symbol.getRight());
+        if (wrapper.getRawType().getName().isPresent()) {
+            detail = getModifiedTypeName(context, wrapper.getRawType());
+        } else if (wrapper.getBroaderType().getName().isPresent()) {
+            detail = getModifiedTypeName(context, wrapper.getBroaderType());
         } else {
-            detail = symbol.getLeft().signature();
+            detail = wrapper.getRawType().signature();
         }
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
@@ -1401,6 +1416,46 @@ public class CommonUtil {
             return typeRef.typeDescriptor();
         }
         return typeDescriptor;
+    }
+
+    /**
+     * Check if the provided union type is a union of members of provided type desc kind.
+     *
+     * @param typeSymbol Union type symbol
+     * @param typeDescKind    Type desc kind
+     * @return true if provided union contains members of provided type desc kind
+     */
+    public static boolean isUnionOfType(TypeSymbol typeSymbol, TypeDescKind typeDescKind) {
+        return typeSymbol.typeKind() == TypeDescKind.UNION &&
+                ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                        .map(CommonUtil::getRawType)
+                        .map(TypeSymbol::typeKind)
+                        .allMatch(kind -> kind == typeDescKind);
+    }
+
+    /**
+     * Given a type symbol, this method will get the record type symbols in the provided type. i.e. the provided type
+     * can be a record or a union of records for this to work.
+     *
+     * @param typeSymbol Type symbol from which record types need to be extracted.
+     * @return List of record type symbols, wrapped with a raw type and broader type container.
+     */
+    public static List<RawTypeSymbolWrapper<RecordTypeSymbol>> getRecordTypeSymbols(TypeSymbol typeSymbol) {
+        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        if (rawType.typeKind() == TypeDescKind.RECORD) {
+            return Collections.singletonList(RawTypeSymbolWrapper.from(typeSymbol, (RecordTypeSymbol) rawType));
+        }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            // This will only consider the record type members and disregard other types
+            return ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                    .filter(tSymbol -> CommonUtil.getRawType(tSymbol).typeKind() == TypeDescKind.RECORD)
+                    .map(tSymbol -> {
+                        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) CommonUtil.getRawType(tSymbol);
+                        return RawTypeSymbolWrapper.from(tSymbol, recordTypeSymbol);
+                    }).collect(Collectors.toList());
+        }
+
+        return Collections.emptyList();
     }
 
     /**

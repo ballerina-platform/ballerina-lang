@@ -15,11 +15,28 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "t1",
-      "kind": "Variable",
-      "detail": "PersonTable",
-      "sortText": "AB",
-      "insertText": "t1",
+      "label": "name",
+      "kind": "Field",
+      "detail": "Person.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age",
+      "kind": "Field",
+      "detail": "Person.age",
+      "sortText": "K",
+      "insertText": "age: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Person Required Fields",
+      "kind": "Property",
+      "detail": "Person",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "name: ${1:\"\"},\nage: ${2:0}",
       "insertTextFormat": "Snippet"
     }
   ]

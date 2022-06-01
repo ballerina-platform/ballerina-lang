@@ -62,10 +62,10 @@ public abstract class AbstractLSTest {
         BallerinaLanguageServer languageServer = new BallerinaLanguageServer();
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
-            REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS, 
+            REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
                     .collect(Collectors.toList()));
-            LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS, 
+            LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS,
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
                     .collect(Collectors.toList()));
         } catch (Exception e) {

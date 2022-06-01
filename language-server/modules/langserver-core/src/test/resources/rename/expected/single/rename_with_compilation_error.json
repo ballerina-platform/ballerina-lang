@@ -1,0 +1,15 @@
+{
+  "source": {
+    "file": "rename_with_compilation_error.bal"
+  },
+  "position": {
+    "line": 3,
+    "character": 8
+  },
+  "prepareRename": {
+    "valid": false
+  },
+  "result": {
+    "changes": {}
+  } 
+}
