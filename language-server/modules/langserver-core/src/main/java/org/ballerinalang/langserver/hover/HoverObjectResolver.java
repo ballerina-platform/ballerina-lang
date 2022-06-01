@@ -169,7 +169,8 @@ public class HoverObjectResolver {
                 String desc = paramsMap.get(paramName);
                 String defaultValueEdit = "";
                 if (param.paramKind() == ParameterKind.DEFAULTABLE) {
-                    Optional<String> defaultValueForParam = DefaultValueGenerationUtil.getDefaultValueForType(param.typeDescriptor());
+                    Optional<String> defaultValueForParam = DefaultValueGenerationUtil
+                            .getDefaultValueForType(param.typeDescriptor());
                     if (defaultValueForParam.isPresent()) {
                         defaultValueEdit = MarkupUtils
                                 .quotedString(String.format("(default: %s)", defaultValueForParam.get()));
