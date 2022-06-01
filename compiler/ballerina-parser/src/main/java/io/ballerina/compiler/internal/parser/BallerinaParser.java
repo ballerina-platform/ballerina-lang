@@ -4564,6 +4564,9 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typeBindingPattern = parseTypedBindingPattern(typeDescQualifiers,
                 ParserRuleContext.VAR_DECL_STMT);
+        if (typeBindingPattern.kind == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
+            return typeBindingPattern;
+        }
         return parseVarDeclRhs(annots, publicQualifier, varDeclQuals, typeBindingPattern, isModuleVar);
     }
 
@@ -8952,6 +8955,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseMapTypeDescriptor(STNode mapKeyword) {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.FROM_KEYWORD) {
+            STNode queryConstructType = parseQueryConstructType(mapKeyword, STNodeFactory.createEmptyNode());
+            return getExpressionAsStatement(parseQueryExprRhs(queryConstructType, false));
+        }
         STNode typeParameter = parseTypeParameter();
         return STNodeFactory.createMapTypeDescriptorNode(mapKeyword, typeParameter);
     }
@@ -11525,7 +11533,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse query construct type.
      * <p>
-     * <code>query-construct-type := table key-specifier | stream</code>
+     * <code>query-construct-type := table key-specifier | stream | map</code>
      *
      * @return Parsed node
      */
@@ -15831,6 +15839,9 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPattern(List<STNode> qualifiers, ParserRuleContext context) {
         STNode typeDesc = parseTypeDescriptor(qualifiers,
                 ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false, TypePrecedence.DEFAULT);
+        if (typeDesc.kind == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
+            return typeDesc;
+        }
         STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, context);
         return typeBindingPattern;
     }
