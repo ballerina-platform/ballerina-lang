@@ -38,7 +38,7 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
-import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
@@ -529,7 +529,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened");
             EventSyncPubSubHolder.getInstance(this.serverContext)
-                    .getPublisher(PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
                     .publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
@@ -552,7 +552,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
             EventSyncPubSubHolder.getInstance(this.serverContext)
-                    .getPublisher(PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
                     .publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";

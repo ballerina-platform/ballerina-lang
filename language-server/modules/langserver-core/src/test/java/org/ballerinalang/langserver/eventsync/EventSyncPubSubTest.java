@@ -30,6 +30,9 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Tests event sync publisher subscriber in Language Server.
@@ -47,19 +50,14 @@ public class EventSyncPubSubTest {
     }
 
     @Test(dataProvider = "eventsync-data-provider")
-    public void testCompletion(String config) throws IOException, InterruptedException {
+    public void testCompletion(String config) throws IOException {
         String configJsonPath = getConfigJsonPath(config);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ex) {
-            throw new InterruptedException("Error occurred while waiting for the diagnostic delay to finish");
-        }
-        Assert.assertTrue(EventSyncTestSubscriber.gotEvent,
-                "EventSyncPubSub Test Failed. Subscriber did not get notified");
+        await().atLeast(1, TimeUnit.SECONDS).atMost(2, TimeUnit.SECONDS).until(this::gotEvent);
+        Assert.assertTrue(gotEvent(), "EventSyncPubSub Test Failed. Subscriber did not get notified");
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
     }
 
@@ -77,5 +75,9 @@ public class EventSyncPubSubTest {
 
     public String getConfigJsonPath(String configFilePath) {
         return "eventsync" + File.separator + "config" + File.separator + configFilePath;
+    }
+
+    private boolean gotEvent() {
+        return EventSyncTestSubscriber.gotEvent;
     }
 }

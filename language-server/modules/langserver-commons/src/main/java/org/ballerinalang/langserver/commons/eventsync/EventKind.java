@@ -22,6 +22,6 @@ package org.ballerinalang.langserver.commons.eventsync;
  *
  * @since 2201.1.1
  */
-public enum PublisherKind {
-    PROJECT_UPDATE_EVENT_PUBLISHER
+public enum EventKind {
+    PROJECT_UPDATE
 }

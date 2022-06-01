@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.eventsync;
 
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
 
@@ -37,7 +37,7 @@ import java.util.ServiceLoader;
 public class EventSyncPubSubHolder {
     private static final LanguageServerContext.Key<EventSyncPubSubHolder> SUBSCRIBERS_HOLDER_KEY =
             new LanguageServerContext.Key<>();
-    private static final Map<PublisherKind, EventPublisher> publisherMap = new HashMap<>();
+    private static final Map<EventKind, EventPublisher> publisherMap = new HashMap<>();
 
     private EventSyncPubSubHolder(LanguageServerContext serverContext) {
         LSClientLogger lsClientLogger = LSClientLogger.getInstance(serverContext);
@@ -46,12 +46,12 @@ public class EventSyncPubSubHolder {
     }
 
     private void initialize(LSClientLogger lsClientLogger) {
-        Map<PublisherKind, List<EventSubscriber>> eventSubscribersMap = new HashMap<>();
+        Map<EventKind, List<EventSubscriber>> eventSubscribersMap = new HashMap<>();
         ServiceLoader<EventSubscriber> subscribers = ServiceLoader.load(EventSubscriber.class);
         for (EventSubscriber eventSubscriber : subscribers) {
-            PublisherKind publisherKind = eventSubscriber.publisherKind();
-            eventSubscribersMap.computeIfAbsent(publisherKind, k -> new ArrayList<>());
-            eventSubscribersMap.get(publisherKind).add(eventSubscriber);
+            EventKind eventKind = eventSubscriber.publisherKind();
+            eventSubscribersMap.computeIfAbsent(eventKind, k -> new ArrayList<>());
+            eventSubscribersMap.get(eventKind).add(eventSubscriber);
         }
 
         ServiceLoader<EventPublisher> publishers = ServiceLoader.load(EventPublisher.class);
@@ -79,20 +79,20 @@ public class EventSyncPubSubHolder {
         return subscribersHolder;
     }
     
-    public EventPublisher getPublisher(PublisherKind publisherKind) throws EventSyncException {
-        if (!publisherMap.containsKey(publisherKind)) {
+    public EventPublisher getPublisher(EventKind eventKind) throws EventSyncException {
+        if (!publisherMap.containsKey(eventKind)) {
             throw new EventSyncException("No publishers for the publisher kind");
         }
-        return publisherMap.get(publisherKind);
+        return publisherMap.get(eventKind);
     }
     
-    public List<EventPublisher> getPublishers(List<PublisherKind> publisherKinds) throws EventSyncException {
+    public List<EventPublisher> getPublishers(List<EventKind> eventKinds) throws EventSyncException {
         List<EventPublisher> eventPublishers = new ArrayList<>();
-        for (PublisherKind publisherKind : publisherKinds) {
-            if (!publisherMap.containsKey(publisherKind)) {
+        for (EventKind eventKind : eventKinds) {
+            if (!publisherMap.containsKey(eventKind)) {
                 throw new EventSyncException("No publishers for the publisher kind");
             }
-            eventPublishers.add(publisherMap.get(publisherKind));
+            eventPublishers.add(publisherMap.get(eventKind));
         }
         return eventPublishers;
     }

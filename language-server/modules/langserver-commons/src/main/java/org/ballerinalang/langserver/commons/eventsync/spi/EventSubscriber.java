@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.commons.eventsync.spi;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
 
 /**
  * Represents the language server event subscriber.
@@ -32,9 +32,9 @@ public interface EventSubscriber {
     /**
      * PublisherKind of the publisher that subscriber has subscribed to.
      *
-     * @return {@link PublisherKind} PublisherKind.
+     * @return {@link EventKind} PublisherKind.
      */
-    PublisherKind publisherKind();
+    EventKind publisherKind();
 
     /**
      * Execute for the subscriber when the subscribed publisher publishes.

@@ -21,7 +21,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.commons.eventsync.PublisherKind;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.eventsync.AbstractEventPublisher;
 
 import java.util.concurrent.CompletableFuture;
@@ -40,8 +40,8 @@ public class ProjectUpdateEventPublisher extends AbstractEventPublisher {
     private static final long DIAGNOSTIC_DELAY = 1;
     
     @Override
-    public PublisherKind getKind() {
-        return PublisherKind.PROJECT_UPDATE_EVENT_PUBLISHER;
+    public EventKind getKind() {
+        return EventKind.PROJECT_UPDATE;
     }
 
     @Override
