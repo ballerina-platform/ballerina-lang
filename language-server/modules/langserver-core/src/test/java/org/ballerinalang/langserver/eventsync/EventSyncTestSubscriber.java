@@ -36,7 +36,7 @@ public class EventSyncTestSubscriber implements EventSubscriber {
     public static boolean gotEvent = false;
 
     @Override
-    public EventKind publisherKind() {
+    public EventKind eventKind() {
         return EventKind.PROJECT_UPDATE;
     }
 

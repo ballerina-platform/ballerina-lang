@@ -30,11 +30,11 @@ import org.ballerinalang.langserver.commons.eventsync.EventKind;
 public interface EventSubscriber {
 
     /**
-     * PublisherKind of the publisher that subscriber has subscribed to.
+     * EventKind of the publisher that subscriber has subscribed to.
      *
-     * @return {@link EventKind} PublisherKind.
+     * @return {@link EventKind} EventKind.
      */
-    EventKind publisherKind();
+    EventKind eventKind();
 
     /**
      * Execute for the subscriber when the subscribed publisher publishes.

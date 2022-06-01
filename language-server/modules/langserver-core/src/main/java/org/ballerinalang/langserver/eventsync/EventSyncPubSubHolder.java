@@ -49,7 +49,7 @@ public class EventSyncPubSubHolder {
         Map<EventKind, List<EventSubscriber>> eventSubscribersMap = new HashMap<>();
         ServiceLoader<EventSubscriber> subscribers = ServiceLoader.load(EventSubscriber.class);
         for (EventSubscriber eventSubscriber : subscribers) {
-            EventKind eventKind = eventSubscriber.publisherKind();
+            EventKind eventKind = eventSubscriber.eventKind();
             eventSubscribersMap.computeIfAbsent(eventKind, k -> new ArrayList<>());
             eventSubscribersMap.get(eventKind).add(eventSubscriber);
         }
@@ -81,7 +81,7 @@ public class EventSyncPubSubHolder {
     
     public EventPublisher getPublisher(EventKind eventKind) throws EventSyncException {
         if (!publisherMap.containsKey(eventKind)) {
-            throw new EventSyncException("No publishers for the publisher kind");
+            throw new EventSyncException("No publishers for the event kind");
         }
         return publisherMap.get(eventKind);
     }
@@ -90,7 +90,7 @@ public class EventSyncPubSubHolder {
         List<EventPublisher> eventPublishers = new ArrayList<>();
         for (EventKind eventKind : eventKinds) {
             if (!publisherMap.containsKey(eventKind)) {
-                throw new EventSyncException("No publishers for the publisher kind");
+                throw new EventSyncException("No publishers for the event kind");
             }
             eventPublishers.add(publisherMap.get(eventKind));
         }

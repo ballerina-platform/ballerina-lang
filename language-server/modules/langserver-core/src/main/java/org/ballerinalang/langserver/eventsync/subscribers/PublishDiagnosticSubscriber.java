@@ -35,7 +35,7 @@ public class PublishDiagnosticSubscriber implements EventSubscriber {
     public static final String NAME = "Publish diagnostic subscriber";
 
     @Override
-    public EventKind publisherKind() {
+    public EventKind eventKind() {
         return EventKind.PROJECT_UPDATE;
     }
     

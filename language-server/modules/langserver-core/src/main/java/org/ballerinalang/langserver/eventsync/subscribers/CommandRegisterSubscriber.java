@@ -39,7 +39,7 @@ public class CommandRegisterSubscriber implements EventSubscriber {
     public static final String NAME = "Command register subscriber";
 
     @Override
-    public EventKind publisherKind() {
+    public EventKind eventKind() {
         return EventKind.PROJECT_UPDATE;
     }
     
