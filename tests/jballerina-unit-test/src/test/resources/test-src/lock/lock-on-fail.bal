@@ -62,6 +62,26 @@ function checkLockWithinLock() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function failLockWithinLockWithoutVariable() returns [int, string] {
+    lock {
+        lockWithinLockInt1 = 50;
+        lockWithinLockString1 = "sample value";
+        lock {
+            lockWithinLockString1 = "second sample value";
+            lockWithinLockInt1 = 99;
+            lock {
+                lockWithinLockInt1 = 90;
+            }
+            error err = error("custom error", message = "error value");
+            fail err;
+        }
+    } on fail {
+        lockWithinLockInt1 = 100;
+        lockWithinLockString1 = "Error caught";
+    }
+    return [lockWithinLockInt1, lockWithinLockString1];
+}
+
 function getError()  returns int|error {
     error err = error("Custom Error");
     return err;

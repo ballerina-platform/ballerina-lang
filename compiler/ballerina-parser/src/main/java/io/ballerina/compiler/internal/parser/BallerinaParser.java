@@ -13548,8 +13548,8 @@ public class BallerinaParser extends AbstractParser {
         STNode failKeyword = parseFailKeyword();
         // Variable declaration is optional in `on fail`
         STToken token = peek();
-        STNode typeDescriptor = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-        STNode identifier = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        STNode typeDescriptor = STNodeFactory.createEmptyNode();
+        STNode identifier = STNodeFactory.createEmptyNode();
         if (token.kind != SyntaxKind.OPEN_BRACE_TOKEN) {
             typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false,
                     TypePrecedence.DEFAULT);

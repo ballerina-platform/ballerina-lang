@@ -1588,7 +1588,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
-        analyzeNode((BLangVariable) onFailClause.variableDefinitionNode.getVariable(), env);
+        if (onFailClause.variableDefinitionNode != null) {
+            analyzeNode((BLangVariable) onFailClause.variableDefinitionNode.getVariable(), env);
+        }
         analyzeNode(onFailClause.body, env);
     }
 

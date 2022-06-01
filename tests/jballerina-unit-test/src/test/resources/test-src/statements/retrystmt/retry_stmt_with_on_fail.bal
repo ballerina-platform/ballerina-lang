@@ -23,6 +23,14 @@ function testRetryStatement() {
          panic error("Expected a  string");
     }
 
+    string|error retryErrorWithFailWithoutVariableRes = retryErrorWithFailWithoutVariable();
+    if(retryErrorWithFailWithoutVariableRes is string) {
+        assertEquality("start attempt 1:error, attempt 2:error, attempt 3:result returned end.",
+        retryErrorWithFailWithoutVariableRes);
+    } else {
+         panic error("Expected a  string");
+    }
+
     string|error retryErrorWithCheckRes = retryErrorWithCheck();
     if(retryErrorWithCheckRes is string) {
         assertEquality("start attempt 1:error, attempt 2:error, attempt 3:error, attempt 4:error,-> error handled",
@@ -91,6 +99,22 @@ function retryErrorWithFail() returns string|error {
         str += (" attempt "+ count.toString() + ":result returned end.");
         return str;
     } on fail error e {
+        str += "-> error handled";
+    }
+}
+
+function retryErrorWithFailWithoutVariable() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry<MyRetryManager> (3) {
+        count = count+1;
+        if (count < 3) {
+            str += (" attempt " + count.toString() + ":error,");
+            fail trxError();
+        }
+        str += (" attempt "+ count.toString() + ":result returned end.");
+        return str;
+    } on fail {
         str += "-> error handled";
     }
 }

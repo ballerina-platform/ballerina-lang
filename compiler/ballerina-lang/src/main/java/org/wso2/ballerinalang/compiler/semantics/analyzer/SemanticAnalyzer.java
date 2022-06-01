@@ -3748,22 +3748,20 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
-        if (onFailClause.variableDefinitionNode == null) {
-            //not-possible
-            return;
-        }
         // Create a new block environment for the onfail node.
         SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, data.env);
-        // Check onfail node's variables and set types.
-        handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
-                                         onFailClause.isDeclaredWithVar, true, onFailEnv);
+        if (onFailClause.variableDefinitionNode != null) {
+            // Check onfail node's variables and set types.
+            handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
+                    onFailClause.isDeclaredWithVar, true, onFailEnv);
+            BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
+            if (!types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
+                dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
+                        onFailVarNode.getBType());
+            }
+        }
         data.env = onFailEnv;
         analyzeStmt(onFailClause.body, data);
-        BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
-        if (!types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
-            dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
-                       onFailVarNode.getBType());
-        }
     }
 
     @Override

@@ -16,7 +16,11 @@
 
 function testOnFailEdgeTestcases() {
     testUnreachableCodeWithIf();
+    testSimpleOnFailWithoutVariable();
     testMultiLevelOnFail();
+    testMultiLevelOnFailWithoutVariableVariationOne();
+    testMultiLevelOnFailWithoutVariableVariationTwo();
+    testMultiLevelOnFailWithoutVariableVariationThree();
     testRetryOnFailWithinWhile();
     testOnFailWithinAnonFunc();
     testRetryOnFailWithinObjectFunc();
@@ -65,6 +69,66 @@ function testMultiLevelOnFail() {
 
         i = i + 1;
     } on fail error e {
+        str += " -> Error caught at levet #2";
+    }
+
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function testMultiLevelOnFailWithoutVariableVariationOne() {
+    int i = 0;
+    string str = "";
+
+    while (i < 2) {
+        do {
+            str += " -> Before error thrown, ";
+            fail getError();
+        } on fail {
+            str += " -> Error caught at level #1";
+        }
+
+        i = i + 1;
+    } on fail error e {
+        str += " -> Error caught at levet #2";
+    }
+
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function testMultiLevelOnFailWithoutVariableVariationTwo() {
+    int i = 0;
+    string str = "";
+
+    while (i < 2) {
+        do {
+            str += " -> Before error thrown, ";
+            fail getError();
+        } on fail error e {
+            str += " -> Error caught at level #1";
+        }
+
+        i = i + 1;
+    } on fail {
+        str += " -> Error caught at levet #2";
+    }
+
+    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function testMultiLevelOnFailWithoutVariableVariationThree() {
+    int i = 0;
+    string str = "";
+
+    while (i < 2) {
+        do {
+            str += " -> Before error thrown, ";
+            fail getError();
+        } on fail {
+            str += " -> Error caught at level #1";
+        }
+
+        i = i + 1;
+    } on fail {
         str += " -> Error caught at levet #2";
     }
 
@@ -337,6 +401,17 @@ function testLambdaFunctionWithOnFail() returns int {
           return a;
     };
     return lambdaFunc();
+}
+
+function testSimpleOnFailWithoutVariable() {
+    string str = "";
+    do{
+        error err = error("Custom error thrown explicitly.");
+        fail err;
+    } on fail {
+            str += "Error caught";
+    }
+     assertEquality("Error caught", str);
 }
 
 function getCheckError()  returns int|error {

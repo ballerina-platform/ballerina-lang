@@ -3894,11 +3894,13 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
         boolean currentFailVisited = data.failVisited;
         data.failVisited = false;
-        BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
-        for (BType errorType : data.errorTypes.peek()) {
-            if (!types.isAssignable(errorType, onFailVarNode.getBType())) {
-                dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
-                           onFailVarNode.getBType());
+        if (onFailClause.variableDefinitionNode != null) {
+            BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
+            for (BType errorType : data.errorTypes.peek()) {
+                if (!types.isAssignable(errorType, onFailVarNode.getBType())) {
+                    dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION, errorType,
+                            onFailVarNode.getBType());
+                }
             }
         }
         analyzeNode(onFailClause.body, data);
