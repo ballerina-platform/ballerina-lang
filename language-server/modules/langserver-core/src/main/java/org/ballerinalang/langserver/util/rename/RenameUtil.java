@@ -101,6 +101,13 @@ public class RenameUtil {
                 || isSelfClassSymbol(context)) {
             return Optional.empty();
         }
+        
+        // Check if symbol at cursor is empty
+        Optional<Symbol> symbolAtCursor = ReferencesUtil.getSymbolAtCursor(context);
+        if (symbolAtCursor.isEmpty()) {
+            return Optional.empty();
+        }
+        
         Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             return Optional.empty();

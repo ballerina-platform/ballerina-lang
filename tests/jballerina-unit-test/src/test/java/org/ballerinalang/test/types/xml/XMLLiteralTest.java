@@ -200,6 +200,8 @@ public class XMLLiteralTest {
                 "invalid literal for type 'xml': raw templates can only be assigned to " +
                         "abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 135, 52);
 
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 133, 45);
+
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 

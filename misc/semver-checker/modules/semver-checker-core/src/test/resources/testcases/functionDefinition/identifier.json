@@ -1,0 +1,69 @@
+[
+  {
+    "description": "Change a function name",
+    "oldCode": "public function hello(){}",
+    "newCode": "public function hi(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+        "kind": "module",
+        "type": "modified",
+        "versionImpact": "major",
+        "childDiffs": [
+          {
+          "kind": "function",
+          "type": "new",
+          "versionImpact": "minor"
+          },
+          {
+              "kind": "function",
+              "type": "removed",
+              "versionImpact": "major"
+          }]
+      }]
+    }
+  },
+  {
+    "description": "Remove a function",
+    "oldCode": "public function hello(){}",
+    "newCode": "",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [{
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [{
+              "kind": "function",
+              "type": "removed",
+              "versionImpact": "major"
+            }]
+        }]
+    }
+  },
+  {
+    "description": "Add a new function",
+    "oldCode": "",
+    "newCode": "public function foo(){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [{
+        "kind": "module",
+        "type": "modified",
+        "versionImpact": "minor",
+        "childDiffs": [{
+          "kind": "function",
+          "type": "new",
+          "versionImpact": "minor"
+        }]
+      }]
+    }
+  }
+]

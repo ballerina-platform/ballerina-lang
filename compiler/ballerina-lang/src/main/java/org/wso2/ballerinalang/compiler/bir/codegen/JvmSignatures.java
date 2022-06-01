@@ -432,6 +432,8 @@ public class JvmSignatures {
     public static final String XML_GET_ATTRIBUTE = "(L" + B_XML_QNAME + ";)L" + STRING_VALUE + ";";
     public static final String XML_GET_ITEM = "(I)L" + XML_VALUE + ";";
     public static final String XML_SET_ATTRIBUTE = "(L" + B_XML_QNAME + ";L" + B_STRING_VALUE + ";)V";
+    public static final String TO_STRING_RETURN = "()L" + STRING_VALUE + ";";
+
 
     private JvmSignatures() {
     }
