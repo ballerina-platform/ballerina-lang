@@ -103,15 +103,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "...config",
-      "kind": "Variable",
-      "detail": "MyConfig",
-      "sortText": "AB",
-      "filterText": "config",
-      "insertText": "...config",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "randomNum",
       "kind": "Field",
       "detail": "MyConfig.randomNum",
@@ -126,6 +117,15 @@
       "sortText": "R",
       "filterText": "fill",
       "insertText": "node: new (${1:{}}, ${2:0}, ${3:\"\"}),\nisAlive: ${2:false},\nerr1: error (\"\", message = ${3:\"\"}),\nmyXML: ${4:xml ``},\nkeywords: [${5:[]}],\ncredentials: {ip: ${6:\"\"}, port: ${7:0}, username: ${8:\"\"}, files: ${9:new ()}},\nrecord2: {f1: ${7:0}},\nrecord1: {},\nmyMap: ${9:{}},\nmyTable: table [${10:}],\nmyError: error (\"\"),\nrandomNum: ${12:error(\"\")}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...config",
+      "kind": "Variable",
+      "detail": "MyConfig",
+      "sortText": "AB",
+      "filterText": "config",
+      "insertText": "...config",
       "insertTextFormat": "Snippet"
     }
   ]

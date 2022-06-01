@@ -28,7 +28,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction getErr() returns error {\n    return error(\"\");\n}"
+                "newText": "\n\nfunction getErr() returns error {\n    return error(\"\");\n}\n"
               }
             ]
           }

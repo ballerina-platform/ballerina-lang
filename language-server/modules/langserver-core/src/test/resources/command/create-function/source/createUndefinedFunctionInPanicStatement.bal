@@ -1,4 +1,3 @@
 function test() {
     panic getErr();
 }
-
