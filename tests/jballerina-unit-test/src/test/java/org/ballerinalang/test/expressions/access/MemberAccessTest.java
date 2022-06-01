@@ -123,6 +123,9 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "invalid operation: type '((Grault|int[]) & readonly)?' does " +
                 "not support member access", 222, 14);
         validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int?'", 225, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 231, 14);
+        validateError(negativeResult, i++, "incompatible types: expected 'int:Signed32', found 'int'", 234, 22);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 244, 13);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -146,7 +149,22 @@ public class MemberAccessTest {
             { "testTupleMemberAccessByLiteralPositive" },
             { "testTupleMemberAccessByConstPositive" },
             { "testTupleMemberAccessByVariablePositive" },
-            { "testTupleMemberAccessByFiniteTypeVariablePositive" },
+            { "testTupleMemberAccessByFiniteTypeVariablePositive" }
+        };
+    }
+
+    @Test(dataProvider = "listMemberAccessTestFunctions")
+    public void testListMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public Object[][] listMemberAccessTestFunctions() {
+        return new Object[][] {
+                { "testValidArrayMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testOutOfRangeArrayMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testValidTupleMemberAccessWithBuiltInIntSubTypeKeyExpr" },
+                { "testOutOfRangeTupleMemberAccessWithBuiltInIntSubTypeKeyExpr" }
         };
     }
 
@@ -223,6 +241,19 @@ public class MemberAccessTest {
             { "testAccessOnNilableMapUnion" },
             { "testAccessOnNilableRecordMapUnion" },
             { "testNestedAccessOnNilableUnion" }
+        };
+    }
+
+    @Test(dataProvider = "recordMemberAccessTestFunctions")
+    public void testRecordMemberAccess2(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider
+    public Object[][] recordMemberAccessTestFunctions() {
+        return new Object[][] {
+                { "testValidRecordMemberAccessWithStringCharKeyExpr" },
+                { "testUnspecifiedFieldRecordMemberAccessWithStringCharKeyExpr" }
         };
     }
 

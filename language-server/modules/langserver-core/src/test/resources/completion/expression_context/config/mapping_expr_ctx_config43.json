@@ -19,7 +19,7 @@
       "kind": "Field",
       "detail": "Range.endLine",
       "sortText": "K",
-      "insertText": "endLine: {\n\tline: ${1:0},\n\toffset: ${2:0}\n}",
+      "insertText": "endLine: {line: ${1:0}, offset: ${2:0}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "Range.startLine",
       "sortText": "K",
-      "insertText": "startLine: {\n\tline: ${1:0},\n\toffset: ${2:0}\n}",
+      "insertText": "startLine: {line: ${1:0}, offset: ${2:0}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,16 @@
       "detail": "Range",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "endLine: {line: 0, offset: 0},\nstartLine: {line: 0, offset: 0}",
+      "insertText": "endLine: {line: ${1:0}, offset: ${2:0}},\nstartLine: {line: ${2:0}, offset: ${3:0}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...range",
+      "kind": "Variable",
+      "detail": "Range",
+      "sortText": "AB",
+      "filterText": "range",
+      "insertText": "...range",
       "insertTextFormat": "Snippet"
     }
   ]

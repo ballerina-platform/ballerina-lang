@@ -58,6 +58,12 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
     }
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        return super.validate(diagnostic, positionDetails, context);
+    }
+
+    @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
 
