@@ -293,7 +293,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             // Note: Although it's illegal to use a closure variable without initializing it in it's declared scope,
             // when we access (initialize) a variable from outer scope, since we desugar transaction block into a
             // lambda invocation, we need to create the `mapSymbol` in the outer node.
-//            createMapSymbolIfAbsent(env.node, blockClosureMapCount);
             result = varDefNode;
         }
     }
