@@ -521,6 +521,9 @@ public class CommonUtil {
             case SINGLETON:
                 defaultValue = "\"\"";
                 break;
+            case ERROR:
+                defaultValue = "error(\"\")";
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     defaultValue = Integer.toString(0);
