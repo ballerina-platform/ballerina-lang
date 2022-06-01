@@ -185,13 +185,13 @@ public class PushCommand implements BLauncherCmd {
                     if (balaPath == null) {
                         pushPackage(project, client);
                     } else {
+                        if (!balaPath.toFile().exists()) {
+                            throw new ProjectException("provided path does not exist.");
+                        }
+                        if (!FileUtils.getExtension(balaPath).equals("bala")) {
+                            throw new ProjectException("file provided is not a bala file.");
+                        }
                         try {
-                            if (!balaPath.toFile().exists()) {
-                                throw new ProjectException("provided path does not exist.");
-                            }
-                            if (!FileUtils.getExtension(balaPath).equals("bala")) {
-                                throw new ProjectException("file provided is not a bala file.");
-                            }
                             validatePackageMdAndBalToml(balaPath);
                         } catch (IOException e) {
                             throw new ProjectException("error while validating the bala file.", e);
