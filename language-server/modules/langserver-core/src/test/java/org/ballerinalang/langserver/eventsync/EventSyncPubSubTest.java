@@ -56,7 +56,7 @@ public class EventSyncPubSubTest {
 
         Path sourcePath = testRoot.resolve(configJsonObject.get("source").getAsString());
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        await().atLeast(1, TimeUnit.SECONDS).atMost(2, TimeUnit.SECONDS).until(this::gotEvent);
+        await().atMost(2, TimeUnit.SECONDS).until(this::gotEvent);
         Assert.assertTrue(gotEvent(), "EventSyncPubSub Test Failed. Subscriber did not get notified");
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
     }
