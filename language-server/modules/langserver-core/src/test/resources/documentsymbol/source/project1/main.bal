@@ -1,5 +1,5 @@
-import ballerina/http;
-import ballerina/udp;
+import ballerina/httpx;
+import ballerina/udpx;
 import project1.types;
 
 # Description  
@@ -75,31 +75,31 @@ public function main() {
     });
 }
 
-service /abc/users on new http:Listener(8080) {
+service /abc/users on new httpx:Listener(8080) {
 
-    resource function post .(@http:Payload json payload) returns http:Response {
+    resource function post .(@httpx:Payload json payload) returns httpx:Response {
         return payload;
     }
     
-    resource function post [string id](@http:Payload json payload) returns http:Response {
+    resource function post [string id](@httpx:Payload json payload) returns httpx:Response {
         return payload;
     }
     
-    resource function post register/[string id](@http:Payload json payload) returns http:Response {
+    resource function post register/[string id](@httpx:Payload json payload) returns httpx:Response {
         return payload;
     }
 
-    resource function get user/[string id]() returns http:Response {
+    resource function get user/[string id]() returns httpx:Response {
         return users[id]
     }
 }
 
-service /abc/items on new http:Listener(8090) {
-    resource function post add(@http:Payload json payload) returns http:Response {
+service /abc/items on new httpx:Listener(8090) {
+    resource function post add(@httpx:Payload json payload) returns httpx:Response {
         return payload;
     }
 
-    resource function get item[string... props](@http:Payload json payload) returns http:Response {
+    resource function get item[string... props](@httpx:Payload json payload) returns httpx:Response {
         return payload;
     }
 
@@ -109,8 +109,8 @@ service /abc/items on new http:Listener(8090) {
 }
 
 
-service on new udp:Listener(8080) {
-    remote function onDatagram(readonly & udp:Datagram datagram) {       
+service on new udpx:Listener(8080) {
+    remote function onDatagram(readonly & udpx:Datagram datagram) {       
         string|error data = string:fromBytes(datagram.data);
         return datagram;
     }

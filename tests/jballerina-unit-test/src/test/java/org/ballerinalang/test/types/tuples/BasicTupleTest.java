@@ -182,7 +182,7 @@ public class BasicTupleTest {
 
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 40);
+        Assert.assertEquals(resultNegative.getErrorCount(), 44);
         int i = 0;
         BAssertUtil.validateError(
                 resultNegative, i++,
@@ -309,6 +309,15 @@ public class BasicTupleTest {
     public void testAmbiguousTupleTupeNegative() {
         int i = 39;
         BAssertUtil.validateError(resultNegative, i, "ambiguous type '([1,\"hello\"]|[1])'", 208, 10);
+    }
+
+    @Test(description = "Test the tuple argument when the variable is already declared")
+    public void testTupleParamWithExistingArg() {
+        int i = 40;
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 215, 34);
+        BAssertUtil.validateError(resultNegative, i++, "redeclared symbol 'i'", 222, 41);
+        BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for 'int' and 'string'", 230, 21);
+        BAssertUtil.validateError(resultNegative, i, "redeclared symbol 'i'", 233, 37);
     }
 
     @Test

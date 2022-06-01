@@ -76,8 +76,7 @@ public class PushCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        String expected = "ballerina: 'tests' does not match with the package version '0.1.0' in Ballerina.toml file." +
-                " Run 'bal pack' to recompile and generate the bala.";
+        String expected = "file provided is not a bala file.";
         Assert.assertTrue(actual.contains(expected));
     }
 

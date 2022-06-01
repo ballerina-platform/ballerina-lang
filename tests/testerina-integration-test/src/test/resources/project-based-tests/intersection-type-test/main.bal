@@ -25,7 +25,28 @@ public type Uuid readonly & record {
     int node;
 };
 
-public function testIntersection() returns Uuid {
+public type RecordType record {
+    int id;
+};
+
+public type ImmutableRecordType readonly & RecordType;
+
+public type ObjectType object {
+    RecordType rec;
+    Uuid uuid;
+};
+
+public type ObjectOrRecordType RecordType|ObjectType;
+
+public type TupleType [int, string];
+
+public type ArrayType RecordType[];
+
+public function getUuid() returns Uuid {
     Uuid uuid = {timeLow: 1, timeMid: 2, timeHiAndVersion: 3, clockSeqHiAndReserved: 4, clockSeqLo: 5, node: 6};
     return uuid;
+}
+
+public function getRecordValue() returns ImmutableRecordType {
+    return {id: 1};
 }

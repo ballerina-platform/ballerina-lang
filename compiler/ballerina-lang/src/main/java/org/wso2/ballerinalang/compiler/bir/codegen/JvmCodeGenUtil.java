@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
@@ -309,10 +310,23 @@ public class JvmCodeGenUtil {
         return getPackageNameWithSeparator(packageID, "/");
     }
 
+    public static String getSourcePackageName(PackageID packageID) {
+        return getPackageNameWithSeparator(packageID, "/", true);
+    }
+
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
+        return getPackageNameWithSeparator(packageID, separator, false);
+    }
+
+    private static String getPackageNameWithSeparator(PackageID packageID, String separator, boolean isSource) {
         String packageName = "";
         String orgName = Utils.encodeNonFunctionIdentifier(packageID.orgName.value);
-        String moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
+        String moduleName;
+        if (!packageID.isTestPkg || isSource) {
+            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value);
+        } else {
+            moduleName = Utils.encodeNonFunctionIdentifier(packageID.name.value) + Names.TEST_PACKAGE.value;
+        }
         if (!moduleName.equals(ENCODED_DOT_CHARACTER)) {
             if (!packageID.version.value.equals("")) {
                 packageName = getMajorVersion(packageID.version.value) + separator;

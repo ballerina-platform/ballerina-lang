@@ -454,7 +454,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         // reference types
         debugTestRunner.assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "f", "typedesc");
-        debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc",
+        debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc<true>",
                 "typedesc");
     }
 

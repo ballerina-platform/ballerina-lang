@@ -33,6 +33,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FailStatementNode;
@@ -49,8 +50,10 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
@@ -86,6 +89,20 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
         functionCallExpressionNode.accept(this);
+    }
+
+    @Override
+    public void visit(ObjectFieldNode objectFieldNode) {
+        Symbol symbol = semanticModel.symbol(objectFieldNode).orElse(null);
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
+    }
+
+    @Override
+    public void visit(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
+        Symbol symbol = semanticModel.symbol(recordFieldWithDefaultValueNode).orElse(null);
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
     }
 
     @Override
@@ -226,7 +243,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             checkAndSetTypeDescResult(TypeDescKind.STRING);
             return;
         }
-        
+
         Optional<List<ParameterSymbol>> params = getParameterSymbols();
         if (params.isEmpty() || params.get().isEmpty()) {
             return;
@@ -299,7 +316,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             checkAndSetTypeResult(fieldSymbol.typeDescriptor());
             return;
         }
-        
+
         Optional<List<ParameterSymbol>> params = getParameterSymbols();
         if (params.isEmpty()) {
             return;
@@ -403,6 +420,20 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     }
 
     @Override
+    public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+        Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(conditionalExpressionNode.middleExpression())
+                .filter(type -> type.typeKind() != TypeDescKind.COMPILATION_ERROR)
+                .or(() -> semanticModel.typeOf(conditionalExpressionNode.endExpression())
+                        .filter(type -> type.typeKind() != TypeDescKind.COMPILATION_ERROR));
+
+        if (typeSymbol.isPresent()) {
+            checkAndSetTypeResult(typeSymbol.get());
+        } else {
+            conditionalExpressionNode.parent().accept(this);
+        }
+    }
+
+    @Override
     protected void visitSyntaxNode(Node node) {
         // Do nothing
     }
@@ -417,7 +448,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
             resultFound = true;
         }
     }
-    
+
     private void checkAndSetTypeDescResult(TypeDescKind typeDescKind) {
         if (typeDescKind == null) {
             return;
@@ -427,7 +458,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         this.returnTypeDescKind = typeDescKind;
         this.resultFound = true;
     }
-    
+
     private void resetResult() {
         this.returnTypeDescKind = null;
         this.returnTypeSymbol = null;

@@ -93,6 +93,11 @@ public class LangLibStringTest {
     }
 
     @Test
+    public void testFromBytesInvalidValues() {
+        BRunUtil.invoke(compileResult, "testFromBytesInvalidValues");
+    }
+
+    @Test
     public void testJoin() {
         Object returns = BRunUtil.invoke(compileResult, "testJoin");
         assertEquals(returns.toString(), "Sunday, Monday, Tuesday");

@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
@@ -37,6 +38,7 @@ import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.util.MarkupUtils;
 import org.eclipse.lsp4j.Hover;
 
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ import java.util.stream.Collectors;
  */
 public class HoverObjectResolver {
 
-    private HoverContext context;
+    private final HoverContext context;
 
     public HoverObjectResolver(HoverContext context) {
         this.context = context;
@@ -99,11 +101,12 @@ public class HoverObjectResolver {
         if (varTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
             String type = varTypeSymbol.signature();
             String varName = variableSymbol.getName().isPresent() ? " " + variableSymbol.getName().get() : "";
-            String modifiedVariable = HoverUtil.quotedString(type) + CommonUtil.escapeEscapeCharsInIdentifier(varName);
+            String modifiedVariable = MarkupUtils.quotedString(type)
+                    + CommonUtil.escapeEscapeCharsInIdentifier(varName);
             hoverContent.add(modifiedVariable);
         }
         return HoverUtil.getHoverObject(hoverContent.stream()
-                .collect(Collectors.joining(HoverUtil.getHorizontalSeparator())));
+                .collect(Collectors.joining(MarkupUtils.getHorizontalSeparator())));
     }
 
     private Hover getHoverObjectForSymbol(ParameterSymbol symbol) {
@@ -114,7 +117,7 @@ public class HoverObjectResolver {
         }
         String type = typeSymbol.signature();
         String parameterName = symbol.getName().isPresent() ? " " + symbol.getName().get() : "";
-        hoverContent = HoverUtil.quotedString(type) + CommonUtil.escapeEscapeCharsInIdentifier(parameterName);
+        hoverContent = MarkupUtils.quotedString(type) + CommonUtil.escapeEscapeCharsInIdentifier(parameterName);
         return HoverUtil.getHoverObject(hoverContent);
     }
 
@@ -149,31 +152,39 @@ public class HoverObjectResolver {
             return HoverUtil.getHoverObject();
         }
         List<String> hoverContent = new ArrayList<>();
-        documentation.get().description().ifPresent(desc -> hoverContent.add(desc));
+        documentation.get().description().ifPresent(hoverContent::add);
 
         Map<String, String> paramsMap = documentation.get().parameterMap();
         if (!paramsMap.isEmpty()) {
             List<String> params = new ArrayList<>();
-            params.add(HoverUtil.header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+            params.add(MarkupUtils.header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
             params.addAll(functionSymbol.typeDescriptor().params().get().stream().map(param -> {
                 if (param.getName().isEmpty()) {
-                    return HoverUtil.quotedString(CommonUtil
+                    return MarkupUtils.quotedString(CommonUtil
                             .getModifiedTypeName(context, param.typeDescriptor()));
                 }
                 String paramName = param.getName().get();
                 String desc = paramsMap.get(paramName);
-                return HoverUtil.quotedString(CommonUtil.getModifiedTypeName(context,
+                String defaultValueEdit = "";
+                if (param.paramKind() == ParameterKind.DEFAULTABLE) {
+                    Optional<String> defaultValueForParam = CommonUtil.getDefaultValueForType(param.typeDescriptor());
+                    if (defaultValueForParam.isPresent()) {
+                        defaultValueEdit = MarkupUtils
+                                .quotedString(String.format("(default: %s)", defaultValueForParam.get()));
+                    }
+                }
+                return MarkupUtils.quotedString(CommonUtil.getModifiedTypeName(context,
                         param.typeDescriptor())) + " "
-                        + HoverUtil.italicString(HoverUtil.boldString(paramName)) + " : " + desc;
+                        + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc + defaultValueEdit;
             }).collect(Collectors.toList()));
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
             if (restParam.isPresent()) {
                 String modifiedTypeName = CommonUtil.getModifiedTypeName(context, restParam.get().typeDescriptor());
-                StringBuilder restParamBuilder = new StringBuilder(HoverUtil.quotedString(modifiedTypeName + "..."));
+                StringBuilder restParamBuilder = new StringBuilder(MarkupUtils.quotedString(modifiedTypeName + "..."));
                 if (restParam.get().getName().isPresent()) {
                     restParamBuilder.append(" ")
-                            .append(HoverUtil.italicString(HoverUtil.boldString(restParam.get().getName().get())))
+                            .append(MarkupUtils.italicString(MarkupUtils.boldString(restParam.get().getName().get())))
                             .append(" : ").append(paramsMap.get(restParam.get().getName().get()));
                 }
                 params.add(restParamBuilder.toString());
@@ -183,14 +194,14 @@ public class HoverObjectResolver {
         }
         if (documentation.get().returnDescription().isPresent()) {
             TypeSymbol returnTypeDesc = functionSymbol.typeDescriptor().returnTypeDescriptor().orElseThrow();
-            String returnTypeName = HoverUtil.quotedString(CommonUtil.getModifiedTypeName(context, returnTypeDesc));
-            String returnDoc = HoverUtil.header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR +
+            String returnTypeName = MarkupUtils.quotedString(CommonUtil.getModifiedTypeName(context, returnTypeDesc));
+            String returnDoc = MarkupUtils.header(3, ContextConstants.RETURN_TITLE) + CommonUtil.MD_LINE_SEPARATOR +
                     returnTypeName + " : " + documentation.get().returnDescription().get();
             hoverContent.add(returnDoc);
         }
 
         return HoverUtil.getHoverObject(hoverContent.stream()
-                .collect(Collectors.joining(HoverUtil.getHorizontalSeparator())));
+                .collect(Collectors.joining(MarkupUtils.getHorizontalSeparator())));
     }
 
     private Hover getHoverObjectForSymbol(RecordTypeSymbol recordType, Documentation documentation) {
@@ -202,24 +213,24 @@ public class HoverObjectResolver {
         Map<String, String> paramsMap = documentation.parameterMap();
         if (!paramsMap.isEmpty()) {
             List<String> params = new ArrayList<>();
-            params.add(HoverUtil.header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+            params.add(MarkupUtils.header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
             params.addAll(recordType.fieldDescriptors().entrySet().stream()
                     .map(fieldEntry -> {
                         String desc = paramsMap.get(fieldEntry.getKey());
                         String typeName = CommonUtil
                                 .getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
-                        return HoverUtil.quotedString(typeName) + " "
-                                + HoverUtil.italicString(HoverUtil.boldString(fieldEntry.getKey())) + " : " + desc;
+                        return MarkupUtils.quotedString(typeName) + " "
+                                + MarkupUtils.italicString(MarkupUtils.boldString(fieldEntry.getKey())) + " : " + desc;
                     }).collect(Collectors.toList()));
             Optional<TypeSymbol> restTypeDesc = recordType.restTypeDescriptor();
             restTypeDesc.ifPresent(typeSymbol ->
-                    params.add(HoverUtil.quotedString(CommonUtil.getModifiedTypeName(context, typeSymbol) + "...")));
+                    params.add(MarkupUtils.quotedString(CommonUtil.getModifiedTypeName(context, typeSymbol) + "...")));
             hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, params));
         }
 
         return HoverUtil.getHoverObject(hoverContent.stream()
-                .collect(Collectors.joining(HoverUtil.getHorizontalSeparator())));
+                .collect(Collectors.joining(MarkupUtils.getHorizontalSeparator())));
     }
 
     private Hover getHoverObjectForSymbol(ObjectTypeSymbol classSymbol, Documentation documentation) {
@@ -236,7 +247,7 @@ public class HoverObjectResolver {
             Map<String, String> paramsMap = documentation.parameterMap();
             if (!paramsMap.isEmpty()) {
                 List<String> params = new ArrayList<>();
-                params.add(HoverUtil.header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+                params.add(MarkupUtils.header(3, ContextConstants.FIELD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
                 params.addAll(classSymbol.fieldDescriptors().entrySet().stream()
                         .filter(fieldEntry -> HoverUtil.withValidAccessModifiers(
@@ -245,8 +256,8 @@ public class HoverObjectResolver {
                             String desc = paramsMap.get(fieldEntry.getKey());
                             String modifiedTypeName =
                                     CommonUtil.getModifiedTypeName(context, fieldEntry.getValue().typeDescriptor());
-                            return HoverUtil.quotedString(modifiedTypeName) + " " +
-                                    HoverUtil.italicString(HoverUtil.boldString(fieldEntry.getKey()))
+                            return MarkupUtils.quotedString(modifiedTypeName) + " " +
+                                    MarkupUtils.italicString(MarkupUtils.boldString(fieldEntry.getKey()))
                                     + " : " + desc;
                         }).collect(Collectors.toList()));
                 if (params.size() > 1) {
@@ -263,21 +274,21 @@ public class HoverObjectResolver {
                         StringBuilder methodInfo = new StringBuilder();
                         Optional<Documentation> methodDoc = methodSymbol.documentation();
                         String signature = CommonUtil.getModifiedSignature(context, methodSymbol.signature());
-                        methodInfo.append(HoverUtil.quotedString(signature));
+                        methodInfo.append(MarkupUtils.quotedString(signature));
                         if (methodDoc.isPresent() && methodDoc.get().description().isPresent()) {
                             methodInfo.append(CommonUtil.MD_LINE_SEPARATOR).append(methodDoc.get().description().get());
                         }
-                        methods.add(HoverUtil.bulletItem(methodInfo.toString()));
+                        methods.add(MarkupUtils.bulletItem(methodInfo.toString()));
                     });
 
             if (!methods.isEmpty()) {
-                methods.add(0, HoverUtil.header(3, ContextConstants.METHOD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
+                methods.add(0, MarkupUtils.header(3, ContextConstants.METHOD_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
                 hoverContent.add(String.join(CommonUtil.MD_LINE_SEPARATOR, methods));
             }
         }
 
         return HoverUtil.getHoverObject(hoverContent.stream()
-                .collect(Collectors.joining(HoverUtil.getHorizontalSeparator())));
+                .collect(Collectors.joining(MarkupUtils.getHorizontalSeparator())));
     }
 
     /**

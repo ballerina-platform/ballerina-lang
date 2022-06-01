@@ -981,6 +981,23 @@ function testToExpStringWhenFractionDigitsIsNil() {
     float f = 0.000;
     assertEquality("0.0e+0", f.toExpString(()));
     assertEquality("0.0e+0", 0.00000.toExpString(()));
+
+    assertEquality("1.2345632124545648e+11", float:toExpString(123456321245.45648, ()));
+    assertEquality("2.344321e+0", float:toExpString(2.344321, ()));
+    assertEquality("2.344321e+2", float:toExpString(234.4321, ()));
+    assertEquality("2.342314321e+5", float:toExpString(234231.4321, ()));
+    assertEquality("2.342311234321e+5", float:toExpString(234231.1234321, ()));
+    assertEquality("2.34231e-3", float:toExpString(0.00234231, ()));
+    assertEquality("2.34231112467e-5", float:toExpString(0.0000234231112467, ()));
+    assertEquality("2.34231112467e-1", float:toExpString(0.234231112467, ()));
+
+    assertEquality("-1.2345632124545648e+11", float:toExpString(-123456321245.45648, ()));
+    assertEquality("-2.344321e+0", float:toExpString(-2.344321, ()));
+    assertEquality("-2.344321e+2", float:toExpString(-234.4321, ()));
+    assertEquality("-2.342314321e+5", float:toExpString(-234231.4321, ()));
+    assertEquality("-2.342311234321e+5", float:toExpString(-234231.1234321, ()));
+    assertEquality("-2.34231112467e-5", float:toExpString(-0.0000234231112467, ()));
+    assertEquality("-2.34231112467e-1", float:toExpString(-0.234231112467, ()));
 }
 
 function testToExpStringWhenFractionDigitsIsVeryLargeInt() {
@@ -1044,6 +1061,15 @@ function testToExpStringWithMorePositiveFloats() {
     assertEquality("5.6400000e-8", float:toExpString(0.0000000564F, 7));
     assertEquality("0.00000e+0", float:toExpString(0f, 5));
     assertEquality("0.000000000000000e+0", float:toExpString(0F, 15));
+
+    assertEquality("1.234563212454565e+11", float:toExpString(123456321245.45648, 15));
+    assertEquality("2.34432e+0", float:toExpString(2.344321, 5));
+    assertEquality("2.3443210000e+2", float:toExpString(234.4321, 10));
+    assertEquality("2.342314321e+5", float:toExpString(234231.4321, 9));
+    assertEquality("2.34231123e+5", float:toExpString(234231.1234321, 8));
+    assertEquality("2.34231e-3", float:toExpString(0.00234231, 5));
+    assertEquality("2.3423e-5", float:toExpString(0.0000234231112467, 4));
+    assertEquality("2.34e-1", float:toExpString(0.234231112467, 2));
 }
 
 function testToExpStringWithVerySmallAndLargePositiveFloats() {
@@ -1090,6 +1116,15 @@ function testToExpStringWithMoreNegativeFloats() {
     assertEquality("-5.6400000e-8", float:toExpString(-0.0000000564F, 7));
     assertEquality("0.00000e+0", float:toExpString(-0f, 5));
     assertEquality("0.000000000000000e+0", float:toExpString(-0F, 15));
+
+    assertEquality("-1.234563212454565e+11", float:toExpString(-123456321245.45648, 15));
+    assertEquality("-2.34432e+0", float:toExpString(-2.344321, 5));
+    assertEquality("-2.3443210000e+2", float:toExpString(-234.4321, 10));
+    assertEquality("-2.342314321e+5", float:toExpString(-234231.4321, 9));
+    assertEquality("-2.34231123e+5", float:toExpString(-234231.1234321, 8));
+    assertEquality("-2.34231e-3", float:toExpString(-0.00234231, 5));
+    assertEquality("-2.3423e-5", float:toExpString(-0.0000234231112467, 4));
+    assertEquality("-2.34e-1", float:toExpString(-0.234231112467, 2));
 }
 
 function testToExpStringWithVerySmallAndLargeNegativeFloats() {

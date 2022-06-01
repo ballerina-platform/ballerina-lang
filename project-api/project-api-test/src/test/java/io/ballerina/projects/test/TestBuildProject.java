@@ -55,11 +55,13 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -74,6 +76,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.JarFile;
@@ -83,12 +86,15 @@ import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.loadProject;
 import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
+import static io.ballerina.projects.test.TestUtils.writeContent;
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
@@ -155,12 +161,12 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(defaultModule.documentIds().size(), 1);
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 1);
-        Assert.assertEquals(packageCompilation.diagnosticResult().diagnostics().stream().findFirst().get().toString(),
+        Assert.assertEquals(packageCompilation.diagnosticResult().errorCount(), 1);
+        Assert.assertEquals(packageCompilation.diagnosticResult().errors().stream().findFirst().get().toString(),
                 "ERROR [Ballerina.toml:(4:1,4:44)] " +
                         "could not locate dependency path './libs/ballerina-io-1.0.0-java.txt'");
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
-        Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
+        Assert.assertEquals(jBallerinaBackend.diagnosticResult().errorCount(), 1);
 
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
         Assert.assertFalse(emitResult.successful());
@@ -420,7 +426,6 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
-        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -441,7 +446,6 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(project.buildOptions().observabilityIncluded());
         Assert.assertFalse(project.buildOptions().codeCoverage());
         Assert.assertFalse(project.buildOptions().offlineBuild());
-        Assert.assertTrue(project.buildOptions().experimental());
         Assert.assertFalse(project.buildOptions().testReport());
     }
 
@@ -463,7 +467,6 @@ public class TestBuildProject extends BaseTest {
                 "version = \"0.1.0\"\n" +
                 "\n" +
                 "[build-options]\n" +
-                "experimental=true\n" +
                 "observabilityIncluded = true\n" +
                 "skipTests=true\n" +
                 "offline=false\n" +
@@ -474,7 +477,6 @@ public class TestBuildProject extends BaseTest {
         // Test when build option provided only in Ballerina TOML
         Assert.assertTrue(newPackage.project().buildOptions().codeCoverage());
         Assert.assertTrue(newPackage.project().buildOptions().observabilityIncluded());
-        Assert.assertTrue(newPackage.project().buildOptions().experimental());
         Assert.assertTrue(newPackage.project().buildOptions().skipTests());
     }
 
@@ -1761,24 +1763,6 @@ public class TestBuildProject extends BaseTest {
         return resources;
     }
 
-    private static BuildProject loadBuildProject(Path projectPath) {
-        return loadBuildProject(projectPath, null);
-    }
-
-    private static BuildProject loadBuildProject(Path projectPath, BuildOptions buildOptions) {
-        BuildProject buildProject = null;
-        try {
-            if (buildOptions == null) {
-                buildProject = TestUtils.loadBuildProject(projectPath);
-            } else {
-                buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
-            }
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        return buildProject;
-    }
-
     @Test
     public void testProjectClearCaches() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
@@ -1799,8 +1783,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testProjectDuplicate() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder()
-                .setCodeCoverage(true).setExperimental(true);
+        BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder().setCodeCoverage(true);
         Project project = loadProject(projectPath, optionsBuilder.build());
 
         Project duplicate = project.duplicate();
@@ -1818,7 +1801,6 @@ public class TestBuildProject extends BaseTest {
 
         Assert.assertEquals(project.sourceRoot().toString(), duplicate.sourceRoot().toString());
         Assert.assertTrue(duplicate.buildOptions().codeCoverage());
-        Assert.assertTrue(duplicate.buildOptions().experimental());
         Assert.assertFalse(duplicate.buildOptions().testReport());
 
         Assert.assertNotSame(project.currentPackage(), duplicate.currentPackage());
@@ -1897,9 +1879,214 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(targetDirPath, expectedPath);
     }
 
+    @DataProvider(name = "provideBallerinaTomlContentForUpdates")
+    public Object[][] provideBallerinaTomlContentForUpdates() {
+        String myPkgDir = "my-package";
+        String numericPkgDir = "1994";
+        System.setProperty(USER_NAME, "testuserorg");
+
+        String content1 =
+                "";
+        List<String> warnings1 =
+                List.of("WARNING [Ballerina.toml:(2:1,2:1)] missing table '[package]' in 'Ballerina.toml'. " +
+                        "Defaulting to:\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"my_package\"\n" +
+                        "version = \"0.1.0\"");
+
+        String content2 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]";
+        List<String> warnings2 =
+                List.of("WARNING [Ballerina.toml:(3:1,3:10)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"my_package\"'",
+                        "WARNING [Ballerina.toml:(3:1,3:10)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'",
+                        "WARNING [Ballerina.toml:(3:1,3:10)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
+
+        String content3 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "org = \"winery\"\n" +
+                        "version = \"2.0.0\"";
+        List<String> warnings3 =
+                List.of("WARNING [Ballerina.toml:(3:1,5:18)] missing key 'name' in table '[package]' " +
+                        "in 'Ballerina.toml'. Defaulting to 'name = \"my_package\"'");
+
+        String content4 =
+                "";
+        List<String> warnings4 =
+                List.of("WARNING [Ballerina.toml:(2:1,2:1)] missing table '[package]' in 'Ballerina.toml'. " +
+                        "Defaulting to:\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"");
+
+        String content5 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+        List<String> warnings5 =
+                List.of("WARNING [Ballerina.toml:(1:1,7:23)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"app1994\"'",
+                        "WARNING [Ballerina.toml:(1:1,7:23)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
+
+        String content6 =
+                "[package]\n" +
+                        "org = \"foo\"\n" +
+                        "name = \"winery\"\n" +
+                        "license = [\"MIT\", \"Apache-2.0\"]\n" +
+                        "authors = [\"jo@wso2.com\", \"pramodya@wso2.com\"]\n" +
+                        "repository = \"https://github.com/ballerinalang/ballerina\"\n" +
+                        "keywords = [\"ballerina\", \"security\", \"crypto\"]\n" +
+                        "visibility = \"private\"";
+        List<String> warnings6 =
+                List.of("WARNING [Ballerina.toml:(1:1,8:23)] missing key 'version' in table '[package]' in " +
+                        "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
+
+        String content7 =
+                "# this is a comment\n" +
+                        "\n" +
+                        "[package]\n" +
+                        "name = \"winery\"";
+        List<String> warnings7 =
+                List.of("WARNING [Ballerina.toml:(3:1,4:16)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'",
+                        "WARNING [Ballerina.toml:(3:1,4:16)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
+
+        String content8 =
+                "[package]\n" +
+                        "version = \"1.1.0\"\n" +
+                        "distribution = \"2201.0.3-SNAPSHOT\"\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        List<String> warnings8 =
+                List.of("WARNING [Ballerina.toml:(1:1,3:35)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"app1994\"'",
+                        "WARNING [Ballerina.toml:(1:1,3:35)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'");
+
+        String content9 =
+                "[package]\n" +
+                        "\n" +
+                        "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        List<String> warnings9 =
+                List.of("WARNING [Ballerina.toml:(1:1,1:10)] missing key 'name' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'name = \"app1994\"'",
+                        "WARNING [Ballerina.toml:(1:1,1:10)] missing key 'org' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'org = \"testuserorg\"'",
+                        "WARNING [Ballerina.toml:(1:1,1:10)] missing key 'version' in table '[package]' in " +
+                                "'Ballerina.toml'. Defaulting to 'version = \"0.1.0\"'");
+
+        String content10 =
+                "[build-options]\n" +
+                        "#observabilityIncluded = true\n" +
+                        "\n" +
+                        "[[app]]\n" +
+                        "org = \"yo\"\n" +
+                        "name = \"ro\"\n" +
+                        "version = \"1.2.3\"";
+        List<String> warnings10 =
+                List.of("WARNING [Ballerina.toml:(1:1,7:18)] missing table '[package]' in 'Ballerina.toml'. " +
+                        "Defaulting to:\n" +
+                        "[package]\n" +
+                        "org = \"testuserorg\"\n" +
+                        "name = \"app1994\"\n" +
+                        "version = \"0.1.0\"");
+
+        return new Object[][]{
+                {myPkgDir, content1, warnings1},
+                {myPkgDir, content2, warnings2},
+                {myPkgDir, content3, warnings3},
+                {numericPkgDir, content4, warnings4},
+                {numericPkgDir, content5, warnings5},
+                {numericPkgDir, content6, warnings6},
+                {myPkgDir, content7, warnings7},
+                {numericPkgDir, content8, warnings8},
+                {numericPkgDir, content9, warnings9},
+                {numericPkgDir, content10, warnings10},
+        };
+    }
+
+    @Test(description = "tests build project with uncompleted package information in Ballerina.toml",
+            dataProvider = "provideBallerinaTomlContentForUpdates")
+    public void testBuildProjectWithUncompletedPackageInformation(String projectDir, String balTomlContent,
+                                                                  List<String> warnings)
+            throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_config_file_updates").resolve(projectDir);
+
+        // Clean project directory
+        writeContent(projectPath.resolve(BALLERINA_TOML), "");
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+
+        // write content to the Ballerina.toml
+        writeContent(projectPath.resolve(BALLERINA_TOML), balTomlContent);
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        project.save();
+
+        // 2) Check compilation diagnostics
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+        Assert.assertTrue(compilation.diagnosticResult().hasWarnings());
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), warnings.size());
+
+        Iterator<Diagnostic> compilationWarnings = compilation.diagnosticResult().diagnostics().iterator();
+        Iterator<String> expectedWarnings = warnings.iterator();
+        while (compilationWarnings.hasNext() && expectedWarnings.hasNext()) {
+            Assert.assertEquals(compilationWarnings.next().toString(), expectedWarnings.next());
+        }
+
+        // Clean project directory
+        writeContent(projectPath.resolve(BALLERINA_TOML), "");
+        Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+    }
+
     @AfterClass (alwaysRun = true)
     public void reset() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
         TestUtils.resetPermissions(projectPath);
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath) {
+        return loadBuildProject(projectPath, null);
+    }
+
+    private static BuildProject loadBuildProject(Path projectPath, BuildOptions buildOptions) {
+        BuildProject buildProject = null;
+        try {
+            if (buildOptions == null) {
+                buildProject = TestUtils.loadBuildProject(projectPath);
+            } else {
+                buildProject = TestUtils.loadBuildProject(projectPath, buildOptions);
+            }
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        return buildProject;
     }
 }

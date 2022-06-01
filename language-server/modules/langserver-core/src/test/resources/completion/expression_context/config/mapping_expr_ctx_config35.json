@@ -27,7 +27,7 @@
       "kind": "Field",
       "detail": "Foo.f2",
       "sortText": "K",
-      "insertText": "f2: \"${2}\"",
+      "insertText": "f2: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,7 +36,16 @@
       "detail": "Foo",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "f1: 0",
+      "insertText": "f1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...f",
+      "kind": "Variable",
+      "detail": "Foo",
+      "sortText": "AB",
+      "filterText": "f",
+      "insertText": "...f",
       "insertTextFormat": "Snippet"
     }
   ]

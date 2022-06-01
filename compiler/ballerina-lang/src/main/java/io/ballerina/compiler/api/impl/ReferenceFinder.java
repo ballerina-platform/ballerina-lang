@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -819,9 +818,8 @@ public class ReferenceFinder extends BaseVisitor {
             find(invocationExpr.expr);
         }
 
-        find(invocationExpr.requiredArgs);
         find(invocationExpr.annAttachments);
-        find(invocationExpr.restArgs);
+        find(invocationExpr.argExprs);
 
         if (!invocationExpr.pkgAlias.value.isEmpty() && invocationExpr.symbol != null) {
             addIfSameSymbol(invocationExpr.symbol.owner, invocationExpr.pkgAlias.pos);
@@ -894,6 +892,11 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         find(listConstructorExpr.exprs);
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        find(spreadOpExpr.expr);
     }
 
     @Override
@@ -1039,11 +1042,6 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         find(queryExpr.queryClauseList);
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        find(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
     @Override

@@ -78,7 +78,6 @@ dependencies {
     dist "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
     dist "me.tongfei:progressbar:${project.tongfeiProgressbarVersion}"
     dist "org.jline:jline:${project.jlineVersion}"
-    dist "org.wso2.orbit.org.antlr:antlr4-runtime:${project.wso2OrbitAntlr4Version}"
     dist "org.apache.commons:commons-text:${project.apacheCommonsTextVersion}"
     dist "com.github.spullara.mustache.java:compiler:${project.spullaraMustacheCompilerVersion}"
 
@@ -108,6 +107,8 @@ dependencies {
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
     dist project(':formatter:formatter-cli')
+    dist project(':semver-checker:semver-checker-core')
+    dist project(':semver-checker:semver-checker-cli')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')
