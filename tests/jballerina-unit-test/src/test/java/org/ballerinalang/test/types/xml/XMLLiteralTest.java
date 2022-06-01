@@ -190,6 +190,15 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'xml:Text', found 'xml<xml>'", 124, 19);
         BAssertUtil.validateError(negativeResult, index++, "missing xml CDATA end token", 128, 49);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'xml', found 'string'", 132, 60);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'xml', found 'string'", 133, 60);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected 'xml', found 'int'", 134, 69);
+        BAssertUtil.validateError(negativeResult, index++,
+                "invalid literal for type 'xml': raw templates can only be assigned to " +
+                        "abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 135, 52);
 
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }

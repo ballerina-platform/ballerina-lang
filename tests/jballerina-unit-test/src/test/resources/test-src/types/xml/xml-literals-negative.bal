@@ -127,3 +127,10 @@ function testXMLIncompatibleValueAssignment() {
 function testSyntaxErrorsInXMLCDATASections() {
     xml x1 = xml `<![CDATA[ some text -->< { } &`;
 }
+
+function testQueryInXMLTemplateExprNegative() {
+    var _ = xml `<doc>${from string i in ["A", "B"] select i + "C"}</doc>`;
+    xml _ = xml `<doc>${from string i in ["A", "B"] select i + "C"}</doc>`;
+    xml<xml:Element> _ = xml `<doc>${from var i in [1, 2, 3] select i * 2}</doc>`;
+    var _ = xml `<doc>${from int i in 0..<2 select `<foo></foo>`}</doc>`;
+}
