@@ -232,17 +232,10 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangBlockFunctionBody body) {
         SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
-        boolean updated = false;
-        if (body.parent != null && body.parent.getKind() == NodeKind.FUNCTION) {
-            BLangFunction function = (BLangFunction) body.parent;
-            if (!function.mapSymbolUpdated && function.attachedFunction) {
-                body.mapSymbol = createMapSymbolIfAbsent(env.node, blockClosureMapCount);
-                updated = true;
-            }
-        }
         rewriteStmts(body.stmts, blockEnv);
 
-        if (!updated && (body.mapSymbol != null)) {
+
+        if (body.mapSymbol != null) {
             body.stmts.add(0, getClosureMap(body.mapSymbol, blockEnv));
         }
 
@@ -744,9 +737,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        if (!bLangArrowFunction.closureVarSymbols.isEmpty()) {
-//            bLangArrowFunction.body.expr = rewriteExpr(bLangArrowFunction.body.expr);
-        }
         result = bLangArrowFunction;
     }
 
@@ -1332,26 +1322,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         addBlockLevelClosureMapToClassDefinition(classDef);
 
         reset();
-    }
-
-    public void desugarFunctions(BLangClassDefinition classDef) {
-        this.classDef = classDef;
-        env = classDef.oceEnvData.capturedClosureEnv;
-        if (!classDef.hasClosureVars) {
-            return;
-        }
-        updateFunctions(classDef);
-
-        reset();
-    }
-
-    private void updateFunctions(BLangClassDefinition classDef) {
-        for (BLangFunction fn : classDef.functions) {
-            if (fn.funcEnv == null) {
-                fn.funcEnv = SymbolEnv.createFunctionEnv(fn, fn.symbol.scope, env);
-            }
-            rewrite(fn, env);
-        }
     }
 
     private void updateFields(BLangClassDefinition bLangClassDefinition) {

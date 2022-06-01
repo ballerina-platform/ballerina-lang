@@ -11,7 +11,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvData;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -59,14 +58,6 @@ public class ClassClosureDesugarUtils {
             }
             resolvedSymbol.flags |= Flags.ATTACHED;
             resolvedSymbol.flags |= Flags.OBJECT_CTOR;
-        }
-        if (originalNode.getKind() == NodeKind.ARROW_EXPR) {
-            BLangArrowFunction arrowFunction = (BLangArrowFunction) originalNode;
-            arrowFunction.isInsideOCE = true;
-            if (arrowFunction.parent == null) {
-                arrowFunction.parent = classDef;
-            }
-            resolvedSymbol.flags |= Flags.ATTACHED;
         }
 
         resolvedSymbol.closure = true;

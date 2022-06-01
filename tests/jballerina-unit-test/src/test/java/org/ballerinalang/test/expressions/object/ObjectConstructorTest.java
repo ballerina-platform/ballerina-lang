@@ -34,7 +34,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 @Test
 public class ObjectConstructorTest {
 
-    private CompileResult compiledConstructedObjects, closures, annotations, multiLevelClosures, edgeCases;
+    private CompileResult compiledConstructedObjects, closures, annotations, multiLevelClosures;
 
     @BeforeClass
     public void setup() {
@@ -42,9 +42,7 @@ public class ObjectConstructorTest {
                 BCompileUtil.compile("test-src/expressions/object/object_constructor_expression.bal");
         closures = BCompileUtil.compile("test-src/expressions/object/object_closures.bal");
         multiLevelClosures = BCompileUtil.compile("test-src/expressions/object/object_multilevel_closures.bal");
-//        annotations = BCompileUtil.compile("test-src/expressions/object/object_closures_annotations.bal");
-//        edgeCases = BCompileUtil.compile("test-src/expressions/object/edge_cases.bal");
-
+        annotations = BCompileUtil.compile("test-src/expressions/object/object_closures_annotations.bal");
     }
 
     @DataProvider(name = "ObjectCtorTestFunctionList")
@@ -95,20 +93,15 @@ public class ObjectConstructorTest {
         BRunUtil.invoke(compiledConstructedObjects, funcName);
     }
 
-//    @Test(testName = "Variable access inside attached function")
-//    public void closureInFunction() {
-//        BCompileUtil.compile("test-src/expressions/object/tc1.bal");
-//    }
-
     @Test(dataProvider = "ClosureTestFunctionList")
     public void testClosureSupportForObjectCtor(String funcName) {
         BRunUtil.invoke(closures, funcName);
     }
 
-//    @Test(dataProvider = "dataToTestClosuresWithObjectConstrExprWithAnnotations")
-//    public void testClosureSupportForObjectCtorAnnotations(String funcName) {
-//        BRunUtil.invoke(annotations, funcName);
-//    }
+    @Test(dataProvider = "dataToTestClosuresWithObjectConstrExprWithAnnotations")
+    public void testClosureSupportForObjectCtorAnnotations(String funcName) {
+        BRunUtil.invoke(annotations, funcName);
+    }
 
     @DataProvider
     public Object[] dataToTestClosuresWithObjectConstrExprWithAnnotations() {
@@ -134,7 +127,7 @@ public class ObjectConstructorTest {
     public void testUnusedVariableWarnings() {
         Assert.assertEquals(compiledConstructedObjects.getWarnCount(), 0);
         Assert.assertEquals(closures.getWarnCount(), 0);
-//        Assert.assertEquals(annotations.getWarnCount(), 0);
+        Assert.assertEquals(annotations.getWarnCount(), 0);
         Assert.assertEquals(multiLevelClosures.getWarnCount(), 0);
     }
 
@@ -242,6 +235,5 @@ public class ObjectConstructorTest {
         closures = null;
         annotations = null;
         multiLevelClosures = null;
-        edgeCases = null;
     }
 }

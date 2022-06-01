@@ -32,9 +32,6 @@ function createService(string hosty, decimal maxAgeMy, boolean allowCredentials)
     }
     isolated service object {
 
-        @HSCfa {
-            // hostRecField : hosty
-        }
         final string xField = hosty;
     };
 
