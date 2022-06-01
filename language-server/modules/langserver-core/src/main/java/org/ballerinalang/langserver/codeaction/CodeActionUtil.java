@@ -30,6 +30,7 @@ import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
@@ -53,7 +54,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -133,6 +133,8 @@ public class CodeActionUtil {
                 return CodeActionNodeType.ASSIGNMENT;
             case RECORD_TYPE_DESC:
                 return CodeActionNodeType.RECORD;
+            case ANNOTATION_DECLARATION:
+                return CodeActionNodeType.ANNOTATION;
             default:
                 return CodeActionNodeType.NONE;
         }
@@ -597,7 +599,7 @@ public class CodeActionUtil {
                     // A record type descriptor can be inside a type definition node
                     NonTerminalNode parent = member.parent();
                     if (parent != null && parent.kind() == SyntaxKind.TYPE_DEFINITION &&
-                            (isWithinStartCodeSegment(parent, cursorPosOffset) || 
+                            (isWithinStartCodeSegment(parent, cursorPosOffset) ||
                                     isWithinBody(parent, cursorPosOffset))) {
                         return Optional.of(parent);
                     }
@@ -624,6 +626,8 @@ public class CodeActionUtil {
                     return Optional.of(member);
                 }
             } else if (member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION && isWithinStartSegment) {
+                return Optional.of(member);
+            } else if (member.kind() == SyntaxKind.ANNOTATION_DECLARATION && isWithinStartSegment) {
                 return Optional.of(member);
             } else if (isWithinBody && member.kind() == SyntaxKind.IMPORT_DECLARATION) {
                 return Optional.of(member);
@@ -699,6 +703,11 @@ public class CodeActionUtil {
                 return isWithinRange(positionOffset,
                         markdownDocumentationNode.textRange().startOffset(),
                         markdownDocumentationNode.textRange().endOffset());
+            case ANNOTATION_DECLARATION:
+                AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node;
+                return isWithinRange(positionOffset,
+                        annotationDeclarationNode.textRange().startOffset(),
+                        annotationDeclarationNode.semicolonToken().textRange().startOffset());
             default:
                 return false;
         }
@@ -762,6 +771,13 @@ public class CodeActionUtil {
                 RecordTypeDescriptorNode recordTypeDescriptorNode = (RecordTypeDescriptorNode) node;
                 int startOffset = recordTypeDescriptorNode.bodyStartDelimiter().textRange().startOffset();
                 return isWithinRange(positionOffset, recordTypeDescriptorNode.textRange().startOffset(), startOffset);
+            case ANNOTATION_DECLARATION:
+                AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node;
+                Optional<MetadataNode> annotationMetadata = annotationDeclarationNode.metadata();
+                int annotationStartOffset = annotationMetadata.map(metadataNode -> metadataNode.textRange().endOffset())
+                        .orElseGet(() -> annotationDeclarationNode.textRange().startOffset() - 1);
+                return isWithinRange(positionOffset, annotationStartOffset,
+                        annotationDeclarationNode.annotationTag().textRange().endOffset());
             case IMPORT_DECLARATION:
             case LOCAL_VAR_DECL:
             case MODULE_VAR_DECL:
@@ -882,14 +898,10 @@ public class CodeActionUtil {
     public static <T> Function<List<DiagnosticProperty<?>>,
             Optional<T>> getDiagPropertyFilterFunction(int propertyIndex) {
         Function<List<DiagnosticProperty<?>>, Optional<T>> filterFunction = diagnosticProperties -> {
-
-            List<DiagnosticProperty<?>> props = diagnosticProperties.stream()
-                    .filter(diagnosticProperty -> diagnosticProperty.kind() == DiagnosticPropertyKind.SYMBOLIC)
-                    .collect(Collectors.toList());
-            if (props.size() < (propertyIndex + 1)) {
+            if (diagnosticProperties.size() < (propertyIndex + 1)) {
                 return Optional.empty();
             }
-            DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
+            DiagnosticProperty<?> diagnosticProperty = diagnosticProperties.get(propertyIndex);
             // Nullable static API used for safety
             return Optional.ofNullable((T) diagnosticProperty.value());
         };

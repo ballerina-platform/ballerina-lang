@@ -251,11 +251,6 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), tupleTypes);
-    }
-
-    @Override
     public boolean isAnydata() {
         return TypeFlags.isFlagOn(this.typeFlags, TypeFlags.ANYDATA);
     }

@@ -25,10 +25,10 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
@@ -60,6 +60,13 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     public static final String NAME = "Type Cast";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -67,10 +74,6 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
-            return Collections.emptyList();
-        }
-
         //Check if there is a type cast expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
@@ -120,7 +123,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             expectedTypeSymbol = optionalExpectedTypeSymbol.get();
         }
 
-        //Numeric types can be casted between each other.
+        //Numeric types can be cast between each other.
         if (!expectedTypeSymbol.subtypeOf(actualTypeSymbol) && (!isNumeric(expectedTypeSymbol)
                 || !isNumeric(actualTypeSymbol))) {
             return Collections.emptyList();
@@ -162,7 +165,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      * @param expectedTypeName Expected type name as a string
      * @return Text edits to perform the cast
      */
-    private List<TextEdit> getTextEdits(NonTerminalNode expressionNode, String expectedTypeName) {
+    protected List<TextEdit> getTextEdits(Node expressionNode, String expectedTypeName) {
 
         Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
         Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());

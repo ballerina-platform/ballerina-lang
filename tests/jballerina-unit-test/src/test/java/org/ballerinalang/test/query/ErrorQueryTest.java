@@ -89,6 +89,41 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testDistinctErrorReturn");
     }
 
+    @Test
+    public void testCatchingErrorAtOnFail() {
+        BRunUtil.invoke(result, "testCatchingErrorAtOnFail");
+    }
+
+    @Test
+    public void testErrorReturnedFromSelectClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromSelect");
+    }
+
+    @Test
+    public void testErrorReturnedFromWhereClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromWhereClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromLetClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLetClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromLimitClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLimitClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromJoinClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromJoinClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromOrderByClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromOrderByClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

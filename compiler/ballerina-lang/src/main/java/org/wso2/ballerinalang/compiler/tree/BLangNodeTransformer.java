@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -86,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -139,7 +137,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -581,14 +578,6 @@ public abstract class BLangNodeTransformer<T, R> {
         return transformNode(node, data);
     }
 
-    public R transform(BLangMatchExpression node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatchExpression.BLangMatchExprPatternClause node, T data) {
-        return transformNode(node, data);
-    }
-
     public R transform(BLangMatchGuard node, T data) {
         return transformNode(node, data);
     }
@@ -690,10 +679,6 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangTableConstructorExpr node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangTableMultiKeyExpr node, T data) {
         return transformNode(node, data);
     }
 
@@ -918,22 +903,6 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangLock.BLangUnLockStmt node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch.BLangMatchTypedBindingPatternClause node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch.BLangMatchStaticBindingPatternClause node, T data) {
-        return transformNode(node, data);
-    }
-
-    public R transform(BLangMatch.BLangMatchStructuredBindingPatternClause node, T data) {
         return transformNode(node, data);
     }
 
