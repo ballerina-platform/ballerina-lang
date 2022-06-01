@@ -150,6 +150,14 @@ public class ModuleUtil {
         return pkgPrefix;
     }
 
+    /**
+     * Returns module prefix.
+     *
+     * @param context         {@link DocumentServiceContext}
+     * @param orgName organization name component
+     * @param modName module name component
+     * @return module prefix
+     */
     public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
         Project project = context.workspace().project(context.filePath()).orElseThrow();
         String currentProjectOrg = project.currentPackage().packageOrg().value();
