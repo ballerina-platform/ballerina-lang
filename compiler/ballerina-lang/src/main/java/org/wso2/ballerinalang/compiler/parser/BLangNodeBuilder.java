@@ -351,7 +351,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -2242,15 +2241,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         } else if (keys.size() == 1) {
             indexBasedAccess.indexExpr = createExpression(indexedExpressionNode.keyExpression().get(0));
         } else {
-            BLangTableMultiKeyExpr multiKeyExpr =
-                    (BLangTableMultiKeyExpr) TreeBuilder.createTableMultiKeyExpressionNode();
-            multiKeyExpr.pos = getPosition(keys.get(0), keys.get(keys.size() - 1));
-            List<BLangExpression> multiKeyIndexExprs = new ArrayList<>();
+            BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                    TreeBuilder.createListConstructorExpressionNode();
+            listConstructorExpr.pos = getPosition(keys.get(0), keys.get(keys.size() - 1));
+            List<BLangExpression> exprs = new ArrayList<>();
             for (io.ballerina.compiler.syntax.tree.ExpressionNode keyExpr : keys) {
-                multiKeyIndexExprs.add(createExpression(keyExpr));
+                exprs.add(createExpression(keyExpr));
             }
-            multiKeyExpr.multiKeyIndexExprs = multiKeyIndexExprs;
-            indexBasedAccess.indexExpr = multiKeyExpr;
+            listConstructorExpr.exprs = exprs;
+            indexBasedAccess.indexExpr = listConstructorExpr;
         }
 
         Node containerExpr = indexedExpressionNode.containerExpression();

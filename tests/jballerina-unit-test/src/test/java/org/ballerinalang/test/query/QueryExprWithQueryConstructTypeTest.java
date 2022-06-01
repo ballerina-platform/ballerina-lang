@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.query;
 
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -88,13 +87,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test query expr with table having duplicate keys")
     public void testTableWithDuplicateKeys() {
-
-        Object returnValues = BRunUtil.invoke(result, "testTableWithDuplicateKeys");
-        Assert.assertNotNull(returnValues);
-
-        BError expectedError = (BError) returnValues;
-        Assert.assertEquals(expectedError.toString(), "error(\"{ballerina/lang.table}KeyConstraintViolation\"," +
-                "message=\"a value found for key '[1,\"Melina\"]'\")");
+        BRunUtil.invoke(result, "testTableWithDuplicateKeys");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")
@@ -139,7 +132,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
@@ -150,10 +143,8 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++, "incompatible types: expected " +
                         "'CustomerTable', found '(table<Customer> key(id, name)|error)'",
                 86, 35);
-        validateError(negativeResult, index++, "incompatible types: expected 'error', found 'boolean'",
+        validateError(negativeResult, index++, "incompatible types: expected 'error?', found 'boolean'",
                 107, 21);
-        validateError(negativeResult, index, "type 'error' not allowed here; expected " +
-                "an 'error' or a subtype of 'error'.", 107, 21);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
@@ -178,6 +169,11 @@ public class QueryExprWithQueryConstructTypeTest {
                     "\\{\\| readonly int id; readonly string name; User user; \\|\\}'\".*")
     public void testQueryConstructingTableUpdateKeyPanic2() {
         BRunUtil.invoke(result, "testQueryConstructingTableUpdateKeyPanic2");
+    }
+
+    @Test
+    public void testTableOnConflict() {
+        BRunUtil.invoke(result, "testTableOnConflict");
     }
 
     @AfterClass

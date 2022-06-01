@@ -96,7 +96,7 @@ public function queryWithAnError() {
     // in which case this error value is the result of the query (i.e int[]|error).
     IterableWithError p = new IterableWithError();
     var intArr = from var item in p
-                     select item;
+        select item;
     assertEquality(true, intArr is int[]|error);
     assertEquality(error("Custom error thrown."), intArr);
 }
@@ -133,10 +133,10 @@ public function queryWithAPanic() {
 
 public function streamFromQueryWithoutErrors() {
     stream<int> intStream = stream from var item in [1, 2, 3]
-                            select item;
-    assertEquality({value:1}, intStream.next());
-    assertEquality({value:2}, intStream.next());
-    assertEquality({value:3}, intStream.next());
+        select item;
+    assertEquality({value: 1}, intStream.next());
+    assertEquality({value: 2}, intStream.next());
+    assertEquality({value: 3}, intStream.next());
     assertEquality((), intStream.next());
 }
 
@@ -145,9 +145,9 @@ public function streamFromQueryWithAnError() {
     // then the error value is returned by the next operation.
     IterableWithError p = new IterableWithError();
     var intStream = stream from var item in p
-                    select item;
-    assertEquality({value:12}, intStream.next());
-    assertEquality({value:34}, intStream.next());
+        select item;
+    assertEquality({value: 12}, intStream.next());
+    assertEquality({value: 34}, intStream.next());
     assertEquality(error("Custom error thrown."), intStream.next());
 }
 
@@ -156,7 +156,7 @@ public function streamFromQueryWithACheckFail() returns error? {
     // completing abruptly with a check-fail, the associated error value will be returned as
     // the result of the next operation.
     var intStream = stream from var item in [1, 2, 3]
-                    select check verifyCheck(item);
+        select check verifyCheck(item);
     assertEquality(error("Verify Check."), intStream.next());
 }
 
@@ -170,7 +170,7 @@ public function streamFromQueryWithAPanic() {
     // If the next operation results in the evaluation of an expression within the query-expr
     // completely abruptly with panic, then the next operation will complete abruptly with a panic.
     var intStream = stream from var item in [1, 2, 3]
-                    select verifyPanic(item);
+        select verifyPanic(item);
     var val = intStream.next(); // this should panic.
 }
 
@@ -203,11 +203,11 @@ function getIntArrayOrUnreachableError() returns int[]|UnreachableError {
 }
 
 function throwSemanticError() returns int|SemanticError {
-    return error SemanticError("intersection must not be empty", message="GFGF");
+    return error SemanticError("intersection must not be empty", message = "GFGF");
 }
 
 function throwUnreachableError() returns int|UnreachableError {
-    return error UnreachableError("intersection must not be empty", message="GFGF");
+    return error UnreachableError("intersection must not be empty", message = "GFGF");
 }
 
 function testCatchingErrorAtOnFail() {
@@ -278,13 +278,90 @@ function testCatchingErrorAtOnFail() {
     error? res7 = ();
     do {
         _ = from int a in from int v in (from int i in 1 ... 3
-                                          select check verifyCheck(i))
-                           select v
+                    select check verifyCheck(i))
+                select v
             select a;
     } on fail error err {
         res7 = err;
     }
     assertTrue(res7 is error);
+
+    error? res8 = ();
+    do {
+        _ = from int v in 1 ... 3
+            where check verifyCheck(v) == 1
+            select v;
+    } on fail error err {
+        res8 = err;
+    }
+    assertTrue(res8 is error);
+
+    error? res9 = ();
+    do {
+        _ = from int v in (from int i in 1 ... 3
+                where check verifyCheck(i) == 1
+                select i)
+            select v;
+    } on fail error err {
+        res9 = err;
+    }
+    assertTrue(res9 is error);
+
+    error? res10 = ();
+    do {
+        _ = from int i in 1 ... 3
+            join int j in (from int jj in 1 ... 3
+                select check verifyCheck(jj))
+            on i equals j
+            select i;
+    } on fail error err {
+        res10 = err;
+    }
+    assertTrue(res10 is error);
+
+    error? res11 = ();
+    do {
+        _ = from int i in 1 ... 3
+            join int j in 1 ... 3
+            on check verifyCheck(i) equals j
+            select i;
+    } on fail error err {
+        res11 = err;
+    }
+    assertTrue(res11 is error);
+
+    error? res12 = ();
+    do {
+        _ = from int i in 1 ... 3
+            join int j in 1 ... 3
+            on i equals check verifyCheck(j)
+            select i;
+    } on fail error err {
+        res12 = err;
+    }
+    assertTrue(res12 is error);
+
+    error? res13 = ();
+    do {
+        _ = from int i in 1 ... 3
+           order by check verifyCheck(i)
+           select i;
+    } on fail error err {
+        res13 = err;
+    }
+    assertTrue(res13 is error);
+
+    error? res14 = ();
+    do {
+        _ = from int i in 1 ... 3
+            outer join int j in (from int jj in 1 ... 3
+                select check verifyCheck(jj))
+            on i equals j
+            select i;
+    } on fail error err {
+        res14 = err;
+    }
+    assertTrue(res14 is error);
 }
 
 function testErrorReturnedFromSelect() {
@@ -294,6 +371,123 @@ function testErrorReturnedFromSelect() {
 function checkErrorAtSelect() returns error? {
     _ = from int v in 1 ... 3
         select check verifyCheck(v);
+}
+
+function testErrorReturnedFromWhereClause() {
+    assertTrue(checkErrorAtWhere1() is error);
+    assertTrue(checkErrorAtWhere2() is error);
+}
+
+function checkErrorAtWhere1() returns error? {
+    _ = from int v in 1 ... 3
+        where check verifyCheck(v) == 1
+        select v;
+}
+
+function checkErrorAtWhere2() returns error? {
+    _ = from int v in (from int i in 1 ... 3
+            where check verifyCheck(i) == 1
+            select i)
+        select v;
+}
+
+function testErrorReturnedFromLetClause() {
+    assertTrue(checkErrorAtLet1() is error);
+    assertTrue(checkErrorAtLet2() is error);
+}
+
+function checkErrorAtLet1() returns error? {
+    _ = from int v in 1 ... 3
+        let int newVar = check verifyCheck(v)
+        select v;
+}
+
+function checkErrorAtLet2() returns error? {
+    _ = from int v in (from int i in 1 ... 3
+            let int newVar = check verifyCheck(i)
+            select i)
+        select v;
+}
+
+function testErrorReturnedFromLimitClause() {
+    assertTrue(checkErrorAtLimitClause1() is error);
+    assertTrue(checkErrorAtLimitClause2() is error);
+}
+
+function checkErrorAtLimitClause1() returns error? {
+    _ = from int i in 1 ... 3
+        limit check verifyCheck(i)
+        select i;
+}
+
+function checkErrorAtLimitClause2() returns error? {
+    _ = from int v in (from int i in 1 ... 3
+            limit check verifyCheck(i)
+            select i)
+        select v;
+}
+
+function testErrorReturnedFromJoinClause() {
+    assertTrue(checkErrorAtJoinClause() is error);
+    assertTrue(checkErrorAtOnEqualLHS() is error);
+    assertTrue(checkErrorAtOnEqualRHS() is error);
+    assertTrue(checkErrorAtOuterJoin() is error);
+    assertTrue(checkErrorAtOuterJoinOnEqualLHS() is error);
+    assertTrue(checkErrorAtOuterJoinOnEqualRHS() is error);
+}
+
+function checkErrorAtJoinClause() returns error? {
+    _ = from int i in 1 ... 3
+        join int j in (from int jj in 1 ... 3
+            select check verifyCheck(jj))
+        on i equals j
+        select i;
+}
+
+function checkErrorAtOnEqualLHS() returns error? {
+    _ = from int i in 1 ... 3
+        join int j in 1 ... 3
+        on check verifyCheck(i) equals j
+        select i;
+}
+
+function checkErrorAtOnEqualRHS() returns error? {
+    _ = from int i in 1 ... 3
+        join int j in 1 ... 3
+        on i equals check verifyCheck(j)
+        select i;
+}
+
+function checkErrorAtOuterJoin() returns error? {
+    _ = from int i in 1 ... 3
+        outer join int j in (from int jj in 1 ... 3
+            select check verifyCheck(jj))
+        on i equals j
+        select i;
+}
+
+function checkErrorAtOuterJoinOnEqualLHS() returns error? {
+    _ = from int i in 1 ... 3
+        outer join int j in 1 ... 3
+        on check verifyCheck(i) equals j
+        select i;
+}
+
+function checkErrorAtOuterJoinOnEqualRHS() returns error? {
+    _ = from int i in 1 ... 3
+        outer join int j in 1 ... 3
+        on i equals check verifyCheck(j)
+        select i;
+}
+
+function testErrorReturnedFromOrderByClause() {
+    assertTrue(checkErrorAtOrderBy() is error);
+}
+
+function checkErrorAtOrderBy() returns error? {
+    _ = from int i in 1...3
+       order by check verifyCheck(i)
+       select i;
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------

@@ -190,6 +190,8 @@ public class XMLLiteralTest {
                 "'xml:Text', found 'xml<xml>'", 124, 19);
         BAssertUtil.validateError(negativeResult, index++, "missing xml CDATA end token", 128, 49);
 
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 133, 45);
+
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 

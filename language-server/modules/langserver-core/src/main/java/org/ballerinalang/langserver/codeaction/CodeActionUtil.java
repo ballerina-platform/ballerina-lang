@@ -54,7 +54,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -600,7 +599,7 @@ public class CodeActionUtil {
                     // A record type descriptor can be inside a type definition node
                     NonTerminalNode parent = member.parent();
                     if (parent != null && parent.kind() == SyntaxKind.TYPE_DEFINITION &&
-                            (isWithinStartCodeSegment(parent, cursorPosOffset) || 
+                            (isWithinStartCodeSegment(parent, cursorPosOffset) ||
                                     isWithinBody(parent, cursorPosOffset))) {
                         return Optional.of(parent);
                     }
@@ -899,14 +898,10 @@ public class CodeActionUtil {
     public static <T> Function<List<DiagnosticProperty<?>>,
             Optional<T>> getDiagPropertyFilterFunction(int propertyIndex) {
         Function<List<DiagnosticProperty<?>>, Optional<T>> filterFunction = diagnosticProperties -> {
-
-            List<DiagnosticProperty<?>> props = diagnosticProperties.stream()
-                    .filter(diagnosticProperty -> diagnosticProperty.kind() == DiagnosticPropertyKind.SYMBOLIC)
-                    .collect(Collectors.toList());
-            if (props.size() < (propertyIndex + 1)) {
+            if (diagnosticProperties.size() < (propertyIndex + 1)) {
                 return Optional.empty();
             }
-            DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
+            DiagnosticProperty<?> diagnosticProperty = diagnosticProperties.get(propertyIndex);
             // Nullable static API used for safety
             return Optional.ofNullable((T) diagnosticProperty.value());
         };

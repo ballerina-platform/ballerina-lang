@@ -11,4 +11,13 @@ function testBlockStmt() {
         foo:foobar("e");
     }
     foo:foobar("f");
+
+    {
+        qux:BadRequest badRequest = {
+            body: {
+                code: "ERROR_CODE",
+                details: "ERROR_DETAILS"
+            }
+        };
+    }
 }
