@@ -3729,7 +3729,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             var.setName(this.createIdentifier(onFailClauseNode.failErrorName()));
             var.name.pos = getPosition(onFailClauseNode.failErrorName());
             variableDefinitionNode.setVariable(var);
-            variableDefinitionNode.pos = getPosition(onFailClauseNode.typeDescriptor(), onFailClauseNode.failErrorName());
+            variableDefinitionNode.pos = getPosition(onFailClauseNode.typeDescriptor(),
+                    onFailClauseNode.failErrorName());
             onFailClause.isDeclaredWithVar = isDeclaredWithVar;
             markVariableWithFlag(variableDefinitionNode.getVariable(), Flag.FINAL);
             onFailClause.variableDefinitionNode = variableDefinitionNode;
