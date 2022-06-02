@@ -21,7 +21,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.methodgen;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
@@ -77,7 +76,8 @@ public class FrameClassGen {
         if (func.pos != null && func.pos.lineRange().filePath() != null) {
             cw.visitSource(func.pos.lineRange().filePath(), null);
         }
-        cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT, null);
+        cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT,
+                new String[]{"io/ballerina/runtime/api/FunctionFrame"});
         JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
 
         int k = 0;
@@ -100,87 +100,13 @@ public class FrameClassGen {
         fv = cw.visitField(Opcodes.ACC_PUBLIC, "yieldLocation", "Ljava/lang/String;", null, null);
         fv.visitEnd();
 
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "getYieldLocation", "()Ljava/lang/String;", null, null);
         mv.visitCode();
-        
-        mv.visitTypeInsn(Opcodes.NEW, "java/lang/StringBuilder");
-        mv.visitInsn(Opcodes.DUP);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V", false);
-        mv.visitVarInsn(Opcodes.ASTORE, 1);
-
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitLdcInsn(frameClassName);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-        mv.visitInsn(Opcodes.POP);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitLdcInsn("{\n\u0009");
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-        mv.visitInsn(Opcodes.POP);
-
-        k = 0;
-        while (k < localVars.size()) {
-            BIRNode.BIRVariableDcl localVar = localVars.get(k);
-            if (localVar.onlyUsedInSingleBB) {
-                k = k + 1;
-                continue;
-            }
-
-            BType bType = localVar.type;
-            String fieldName = localVar.jvmVarName;
-            String typeSig = JvmCodeGenUtil.getFieldTypeSignature(bType);
-
-            boolean notPrimitive = !("J".equals(typeSig) || "I".equals(typeSig) || "D".equals(typeSig) || "Z".equals(typeSig) || "B".equals(typeSig) || "C".equals(typeSig) || "S".equals(typeSig) || "F".equals(typeSig));
-
-            Label ifNotLabel = null;
-            if (notPrimitive) {
-                mv.visitVarInsn(Opcodes.ALOAD, 0);
-                mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, fieldName, typeSig);
-                ifNotLabel = new Label();
-                mv.visitJumpInsn(Opcodes.IFNULL, ifNotLabel);
-            }
-
-
-            
-            mv.visitVarInsn(Opcodes.ALOAD, 1);
-            mv.visitLdcInsn(fieldName);
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-            mv.visitInsn(Opcodes.POP);
-            mv.visitVarInsn(Opcodes.ALOAD, 1);
-            mv.visitLdcInsn(" = ");
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-            mv.visitInsn(Opcodes.POP);
-            mv.visitVarInsn(Opcodes.ALOAD, 1);
-            mv.visitVarInsn(Opcodes.ALOAD, 0);
-            mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, fieldName, typeSig);
-            if (!notPrimitive) {
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(" + typeSig + ")Ljava/lang/StringBuilder;", false);
-            } else {
-                mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
-            }
-
-            mv.visitInsn(Opcodes.POP);
-            mv.visitVarInsn(Opcodes.ALOAD, 1);
-            mv.visitLdcInsn("\n\u0009");
-            mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-            mv.visitInsn(Opcodes.POP);
-
-            if (notPrimitive) {
-                mv.visitLabel(ifNotLabel);
-            }
-
-            k = k + 1;
-        }
-
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitLdcInsn("}");
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
-        mv.visitInsn(Opcodes.POP);
-        mv.visitVarInsn(Opcodes.ALOAD, 1);
-        mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, "yieldLocation", "Ljava/lang/String;");
         mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(0, 0);
+        mv.visitMaxs(1, 1);
         mv.visitEnd();
-        
 
         cw.visitEnd();
 

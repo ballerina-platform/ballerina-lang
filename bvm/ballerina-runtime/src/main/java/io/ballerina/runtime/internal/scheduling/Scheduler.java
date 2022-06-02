@@ -16,8 +16,8 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.Diagnostics;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.Status;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -265,7 +265,7 @@ public class Scheduler {
     }
 
     public void start() {
-        Diagnostics.addToSchedulers(this);
+        Status.addToSchedulers(this);
         this.mainBlockSem = new Semaphore(-(numThreads - 1));
         for (int i = 0; i < numThreads - 1; i++) {
             new Thread(this::runSafely, "jbal-strand-exec-" + i).start();
@@ -408,7 +408,7 @@ public class Scheduler {
                 }
 
                 cleanUp(justCompleted);
-                Diagnostics.removeFromStrands(justCompleted.getId());
+                Status.removeFromStrands(justCompleted.getId());
 
                 int strandsLeft = totalStrands.decrementAndGet();
                 if (strandsLeft == 0) {
@@ -507,7 +507,7 @@ public class Scheduler {
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties);
-        Diagnostics.addToStrands(newStrand.getId(), newStrand);
+        Status.addToStrands(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -515,7 +515,7 @@ public class Scheduler {
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
-        Diagnostics.addToStrands(newStrand.getId(), newStrand);
+        Status.addToStrands(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
