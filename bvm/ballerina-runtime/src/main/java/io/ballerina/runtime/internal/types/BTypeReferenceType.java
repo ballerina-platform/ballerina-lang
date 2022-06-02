@@ -83,4 +83,9 @@ public class BTypeReferenceType extends BAnnotatableType implements ReferenceTyp
         return this.referredType.isNilable();
     }
 
+    @Override
+    public boolean isReadOnly() {
+        return this.referredType.isReadOnly();
+    }
+
 }
