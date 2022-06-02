@@ -105,7 +105,8 @@ public class QNameReferenceUtil {
     public static List<Symbol> getModuleContent(PositionedOperationContext context,
                                                 QualifiedNameReferenceNode qNameRef,
                                                 Predicate<Symbol> predicate) {
-        Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, 
+                QNameReferenceUtil.getAlias(qNameRef));
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
                 .collect(Collectors.toList()))
@@ -121,7 +122,8 @@ public class QNameReferenceUtil {
      */
     public static List<Symbol> getTypesInModule(BallerinaCompletionContext context,
                                                 QualifiedNameReferenceNode qNameRef) {
-        Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        Optional<ModuleSymbol> module = ModuleOperationUtil.searchModuleForAlias(context, 
+                QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
                 .filter(CommonUtil.typesFilter())
                 .collect(Collectors.toList()))

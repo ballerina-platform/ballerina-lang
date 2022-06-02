@@ -38,10 +38,11 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+
+import javax.annotation.Nonnull;
 
 /**
  * Carries a set of utilities to check the types of the symbols.

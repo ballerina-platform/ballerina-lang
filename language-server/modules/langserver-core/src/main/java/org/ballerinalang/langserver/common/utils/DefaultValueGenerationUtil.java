@@ -36,13 +36,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Carries a set of utilities used in default value for type generation.
+ * Carries a set of utilities used in default value generation.
  *
  * @since 2201.1.0
  */
 public class DefaultValueGenerationUtil {
-    private DefaultValueGenerationUtil() {
-    }
 
     /**
      * Get the default value for the given BType.
@@ -68,6 +66,83 @@ public class DefaultValueGenerationUtil {
      */
     public static Optional<String> getDefaultValueForType(TypeSymbol bType) {
         return getDefaultValueForType(bType, false, -1);
+    }
+    
+    /**
+     * Used to get the default values for a {@link TypeDescKind}. {@link #getDefaultValueForType(TypeSymbol)}
+     * is preferred over this function. This function should be used as a compliment to .
+     *
+     * @param typeKind Type desc kind
+     * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
+     */
+    public static Optional<String> getDefaultValueForTypeDescKind(TypeDescKind typeKind) {
+        String defaultValue = null;
+        switch (typeKind) {
+            case FLOAT:
+                defaultValue = Float.toString(0);
+                break;
+            case BOOLEAN:
+                defaultValue = Boolean.toString(false);
+                break;
+            case RECORD:
+            case MAP:
+                defaultValue = "{}";
+                break;
+            case STREAM:
+                defaultValue = "new ()";
+                break;
+            case XML:
+                defaultValue = "xml ``";
+                break;
+            case DECIMAL:
+                defaultValue = Integer.toString(0);
+                break;
+            case ARRAY:
+                defaultValue = "[]";
+                break;
+            case SINGLETON:
+                defaultValue = "\"\"";
+                break;
+            case ERROR:
+                defaultValue = "error(\"\")";
+                break;
+            default:
+                if (typeKind.isIntegerType()) {
+                    defaultValue = Integer.toString(0);
+                    break;
+                } else if (typeKind.isStringType()) {
+                    defaultValue = "\"\"";
+                    break;
+                }
+        }
+        return Optional.ofNullable(defaultValue);
+    }
+
+    /**
+     * Used to get the default values for {@link TypeDescKind} of a {@link TypeSymbol}.
+     * {@link #getDefaultValueForType(TypeSymbol)} is preferred over this function.
+     * This function should be used as a compliment to .
+     *
+     * @param typeSymbol Type symbol
+     * @return Optional default value
+     * @see #getDefaultValueForType(TypeSymbol)
+     */
+    public static Optional<String> getDefaultValueForTypeDescKind(TypeSymbol typeSymbol) {
+        String defaultValue;
+        TypeDescKind typeKind = typeSymbol.typeKind();
+        switch (typeKind) {
+            case SINGLETON:
+                defaultValue = typeSymbol.signature();
+                break;
+            default:
+                defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
+        }
+        return Optional.ofNullable(defaultValue);
+    }
+
+    private static String generateSnippetEntry(String value, int offset) {
+        return "${" + offset + ":" + value + "}";
     }
 
     private static Optional<String> getDefaultValueForType(TypeSymbol bType, boolean isSnippet, int offset) {
@@ -114,7 +189,8 @@ public class DefaultValueGenerationUtil {
                 List<String> fieldInsertText = new ArrayList<>();
                 int count = offset;
                 valueString = "{";
-                List<RecordFieldSymbol> mandatoryFieldSymbols = RecordFieldCompletionUtil.getMandatoryRecordFields(recordTypeSymbol).stream()
+                List<RecordFieldSymbol> mandatoryFieldSymbols = RecordFieldCompletionUtil
+                        .getMandatoryRecordFields(recordTypeSymbol).stream()
                         .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
                         .collect(Collectors.toList());
                 for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
@@ -194,7 +270,8 @@ public class DefaultValueGenerationUtil {
                 TypeSymbol errorType = CommonUtil.getRawType(((ErrorTypeSymbol) rawType).detailTypeDescriptor());
                 StringBuilder errorString = new StringBuilder("error (\"\"");
                 if (errorType.typeKind() == TypeDescKind.RECORD) {
-                    List<RecordFieldSymbol> mandatoryFields = RecordFieldCompletionUtil.getMandatoryRecordFields((RecordTypeSymbol) errorType);
+                    List<RecordFieldSymbol> mandatoryFields = RecordFieldCompletionUtil
+                            .getMandatoryRecordFields((RecordTypeSymbol) errorType);
                     if (!mandatoryFields.isEmpty()) {
                         errorString.append(", ");
                         List<String> detailFieldSnippets = new ArrayList<>();
@@ -226,82 +303,5 @@ public class DefaultValueGenerationUtil {
         }
 
         return Optional.of(valueString);
-    }
-
-    private static String generateSnippetEntry(String value, int offset) {
-        return "${" + offset + ":" + value + "}";
-    }
-
-    /**
-     * Used to get the default values for a {@link TypeDescKind}. {@link #getDefaultValueForType(TypeSymbol)}
-     * is preferred over this function. This function should be used as a compliment to .
-     *
-     * @param typeKind Type desc kind
-     * @return Optional default value
-     * @see #getDefaultValueForType(TypeSymbol)
-     */
-    public static Optional<String> getDefaultValueForTypeDescKind(TypeDescKind typeKind) {
-        String defaultValue = null;
-        switch (typeKind) {
-            case FLOAT:
-                defaultValue = Float.toString(0);
-                break;
-            case BOOLEAN:
-                defaultValue = Boolean.toString(false);
-                break;
-            case RECORD:
-            case MAP:
-                defaultValue = "{}";
-                break;
-            case STREAM:
-                defaultValue = "new ()";
-                break;
-            case XML:
-                defaultValue = "xml ``";
-                break;
-            case DECIMAL:
-                defaultValue = Integer.toString(0);
-                break;
-            case ARRAY:
-                defaultValue = "[]";
-                break;
-            case SINGLETON:
-                defaultValue = "\"\"";
-                break;
-            case ERROR:
-                defaultValue = "error(\"\")";
-                break;
-            default:
-                if (typeKind.isIntegerType()) {
-                    defaultValue = Integer.toString(0);
-                    break;
-                } else if (typeKind.isStringType()) {
-                    defaultValue = "\"\"";
-                    break;
-                }
-        }
-        return Optional.ofNullable(defaultValue);
-    }
-
-    /**
-     * Used to get the default values for {@link TypeDescKind} of a {@link TypeSymbol}.
-     * {@link #getDefaultValueForType(TypeSymbol)} is preferred over this function.
-     * This function should be used as a compliment to .
-     *
-     * @param typeSymbol Type symbol
-     * @return Optional default value
-     * @see #getDefaultValueForType(TypeSymbol)
-     */
-    public static Optional<String> getDefaultValueForTypeDescKind(TypeSymbol typeSymbol) {
-        String defaultValue;
-        TypeDescKind typeKind = typeSymbol.typeKind();
-        switch (typeKind) {
-            case SINGLETON:
-                defaultValue = typeSymbol.signature();
-                break;
-            default:
-                defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
-        }
-        return Optional.ofNullable(defaultValue);
     }
 }

@@ -16,8 +16,15 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.symbols.*;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.LSPackageLoader;
@@ -29,7 +36,11 @@ import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
@@ -41,17 +52,6 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
  */
 public class ModuleOperationUtil {
     
-    public static final String BALLERINA_ORG_NAME = "ballerina";
-
-    public static final List<String> BALLERINA_KEYWORDS = SyntaxInfo.keywords();
-
-    public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
-            "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
-            "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
-
-    private ModuleOperationUtil() {
-    }
-
     /**
      * Filter a type in the module by the name.
      *
@@ -114,15 +114,16 @@ public class ModuleOperationUtil {
                                          ModuleID moduleID, DocumentServiceContext context) {
         String pkgPrefix = "";
         if (!moduleID.equals(currentModuleId)) {
-            boolean preDeclaredLangLib = moduleID.orgName().equals(BALLERINA_ORG_NAME) &&
-                    PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
+            boolean preDeclaredLangLib = moduleID.orgName().equals(CommonUtil.BALLERINA_ORG_NAME) &&
+                    CommonUtil.PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
             String escapeModuleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
             String[] moduleParts = escapeModuleName.split("/");
             String orgName = moduleParts[0];
             String moduleName = moduleParts[1];
 
             pkgPrefix = moduleName.replaceAll(".*\\.", "");
-            pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
+            pkgPrefix = (!preDeclaredLangLib && CommonUtil.BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" 
+                    + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImportsMap().keySet().stream()
@@ -179,13 +180,15 @@ public class ModuleOperationUtil {
             String orgName = moduleNameParts[0];
             String alias = moduleNameParts[1];
             String[] aliasParts = moduleNameParts[1].split("\\.");
-            boolean preDeclaredLangLib = BALLERINA_ORG_NAME.equals(orgName) && PRE_DECLARED_LANG_LIBS.contains(alias);
+            boolean preDeclaredLangLib = CommonUtil.BALLERINA_ORG_NAME.equals(orgName) 
+                    && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(alias);
             if (aliasParts.length > 1) {
                 String aliasLastPart = aliasParts[aliasParts.length - 1];
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(aliasLastPart) && !preDeclaredLangLib) {
                     aliasLastPart = "'" + aliasLastPart;
                 }
-                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining("."));
+                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1)
+                        .collect(Collectors.joining("."));
                 alias = aliasPart + "." + aliasLastPart;
             } else {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(alias) && !preDeclaredLangLib) {

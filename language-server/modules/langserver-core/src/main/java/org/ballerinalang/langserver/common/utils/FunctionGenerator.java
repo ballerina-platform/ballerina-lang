@@ -145,7 +145,8 @@ public class FunctionGenerator {
             // returns clause
             returnsClause = "returns " + returnType;
             // return statement
-            Optional<String> defaultReturnValue = DefaultValueGenerationUtil.getDefaultValueForTypeDescKind(returnTypeDescKind);
+            Optional<String> defaultReturnValue = DefaultValueGenerationUtil
+                    .getDefaultValueForTypeDescKind(returnTypeDescKind);
             if (defaultReturnValue.isPresent()) {
                 returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
             }

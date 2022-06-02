@@ -181,7 +181,8 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
         if (unimplMethod.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = unimplMethod.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil.getDefaultValueForType(returnTypeSymbol);
+                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil
+                        .getDefaultValueForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (defaultReturnValue.equals(CommonKeys.PARANTHESES_KEY)) {

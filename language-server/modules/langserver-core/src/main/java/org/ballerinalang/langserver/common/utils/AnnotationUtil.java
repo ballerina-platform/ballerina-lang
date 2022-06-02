@@ -201,7 +201,8 @@ public class AnnotationUtil {
                     || resultType.get().typeKind() == TypeDescKind.MAP)) {
                 List<RecordFieldSymbol> requiredFields = new ArrayList<>();
                 if (resultType.get().typeKind() == TypeDescKind.RECORD) {
-                    requiredFields.addAll(RecordFieldCompletionUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
+                    requiredFields.addAll(RecordFieldCompletionUtil.getMandatoryRecordFields((RecordTypeSymbol) 
+                            resultType.get()));
                 }
                 if (!requiredFields.isEmpty()) {
                     annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);

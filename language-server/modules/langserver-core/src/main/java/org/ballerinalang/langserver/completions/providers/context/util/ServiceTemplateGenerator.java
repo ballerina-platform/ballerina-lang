@@ -44,7 +44,12 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
-import org.ballerinalang.langserver.common.utils.*;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -393,7 +398,8 @@ public class ServiceTemplateGenerator {
                             parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
-                        DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor()).orElse("") + "}");
+                        DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor())
+                                .orElse("") + "}");
                 snippetIndex += 1;
             }
             listenerInitArgs = String.join(",", args);
@@ -468,7 +474,8 @@ public class ServiceTemplateGenerator {
         if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = methodSymbol.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil.getDefaultPlaceholderForType(returnTypeSymbol);
+                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil
+                        .getDefaultPlaceholderForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (CommonKeys.PARANTHESES_KEY.equals(defaultReturnValue)) {

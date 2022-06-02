@@ -22,16 +22,13 @@ import io.ballerina.tools.text.TextDocument;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-
 /**
- * Carries a set of utilities to calculate the position of the symbols.
+ * Carries a set of utilities for position calculations.
  *
  * @since 2201.1.0
  */
 public class PositionUtil {
-    private PositionUtil() {
-    }
-
+    
     /**
      * Convert the syntax-node line range into a lsp4j range.
      *
@@ -100,7 +97,8 @@ public class PositionUtil {
     public static boolean isWithinLineRange(LineRange lineRange, LineRange enclosingRange) {
         Position start = PositionUtil.toPosition(lineRange.startLine());
         Position end = PositionUtil.toPosition(lineRange.endLine());
-        return PositionUtil.isWithinLineRange(start, enclosingRange) && PositionUtil.isWithinLineRange(end, enclosingRange);
+        return PositionUtil.isWithinLineRange(start, enclosingRange) && PositionUtil.isWithinLineRange(end, 
+                enclosingRange);
     }
 
     /**

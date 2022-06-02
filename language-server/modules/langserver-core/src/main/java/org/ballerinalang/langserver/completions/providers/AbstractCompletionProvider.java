@@ -47,7 +47,12 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
-import org.ballerinalang.langserver.common.utils.*;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.ModuleOperationUtil;
+import org.ballerinalang.langserver.common.utils.NameGenerationUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
@@ -309,7 +314,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     .map(Token::text)
                     .collect(Collectors.joining("."));
 
-            if (ModuleOperationUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName.replace("'", ""))) {
+            if (CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkgName.replace("'", ""))) {
                 // skip the predeclared langlib imports
                 return;
             }
@@ -335,7 +340,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             String orgName = ModuleOperationUtil.escapeModuleName(pkg.packageOrg().value());
             if (ModuleOperationUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
-                    && !ModuleOperationUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
+                    && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 List<String> pkgNameComps = Arrays.stream(name.split("\\."))
                         .map(ModuleOperationUtil::escapeModuleName)
                         .collect(Collectors.toList());
@@ -569,7 +574,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      */
     protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ModuleOperationUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
+        CommonUtil.PRE_DECLARED_LANG_LIBS.forEach(langlib -> {
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, langlib.replace("lang.", ""));
             completionItems.add(new SymbolCompletionItem(context, null, cItem));
         });

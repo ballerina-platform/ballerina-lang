@@ -367,8 +367,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
-        return ContextTypeResolverUtil.resolveParameterTypeSymbol(((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context,
-                node.arguments());
+        return ContextTypeResolverUtil.resolveParameterTypeSymbol(((FunctionSymbol) funcSymbol.get()).typeDescriptor(), 
+                context, node.arguments());
     }
 
     @Override
@@ -818,6 +818,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (methodSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return ContextTypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), context, argumentNodes);
+        return ContextTypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), context, 
+                argumentNodes);
     }
 }

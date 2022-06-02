@@ -77,8 +77,8 @@ public class SnippetBlock extends CompletionItemBuilder {
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {
-                Optional<ImportDeclarationNode> matchedImport = ModuleOperationUtil.matchingImportedModule(ctx, pair.getLeft(),
-                        pair.getRight());
+                Optional<ImportDeclarationNode> matchedImport = ModuleOperationUtil.matchingImportedModule(ctx, 
+                        pair.getLeft(), pair.getRight());
                 if (matchedImport.isEmpty()) {
                     importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
                 } else if (matchedImport.get().prefix().isPresent()) {

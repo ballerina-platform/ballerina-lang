@@ -17,9 +17,12 @@ package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.projects.*;
+import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ResolvedPackageDependency;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
@@ -41,15 +44,7 @@ import java.util.Optional;
  * @since 2201.1.0
  */
 public class PathUtil {
-
-    public static final String URI_SCHEME_BALA = "bala";
-    public static final String URI_SCHEME_FILE = "file";
-    public static final String EXPR_SCHEME = "expr";
     
-    private PathUtil() {
-    }
-
-
     /**
      * Get the path from given string URI. Even if the given URI's scheme is expr or bala,
      * we convert it to file scheme and provide a valid Path.
@@ -61,8 +56,8 @@ public class PathUtil {
         URI uri = URI.create(fileUri);
         String scheme = uri.getScheme();
         try {
-            if (EXPR_SCHEME.equals(uri.getScheme()) || URI_SCHEME_BALA.equals(uri.getScheme())) {
-                scheme = URI_SCHEME_FILE;
+            if (CommonUtil.EXPR_SCHEME.equals(uri.getScheme()) || CommonUtil.URI_SCHEME_BALA.equals(uri.getScheme())) {
+                scheme = CommonUtil.URI_SCHEME_FILE;
             }
             URI converted = new URI(scheme, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                     uri.getPath(), uri.getQuery(), uri.getFragment());
@@ -95,8 +90,8 @@ public class PathUtil {
      */
     public static String convertUriSchemeFromBala(String fileUri) throws URISyntaxException {
         URI uri = URI.create(fileUri);
-        if (URI_SCHEME_BALA.equals(uri.getScheme())) {
-            URI converted = new URI(URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
+        if (CommonUtil.URI_SCHEME_BALA.equals(uri.getScheme())) {
+            URI converted = new URI(CommonUtil.URI_SCHEME_FILE, uri.getUserInfo(), uri.getHost(), uri.getPort(),
                     uri.getPath(), uri.getQuery(), uri.getFragment());
             return converted.toString();
         }
@@ -115,7 +110,7 @@ public class PathUtil {
                                            Path filePath) throws URISyntaxException {
         LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
         if (clientCapabilities.getInitializationOptions().isBalaSchemeSupported()) {
-            return getUriForPath(filePath, URI_SCHEME_BALA);
+            return getUriForPath(filePath, CommonUtil.URI_SCHEME_BALA);
         }
         return filePath.toUri().toString();
     }
@@ -206,5 +201,4 @@ public class PathUtil {
             return uri;
         }
     }
-
 }

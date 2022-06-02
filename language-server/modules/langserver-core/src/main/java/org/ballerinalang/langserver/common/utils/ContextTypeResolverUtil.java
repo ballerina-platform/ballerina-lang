@@ -45,59 +45,7 @@ import java.util.Optional;
  * @since 2201.1.0
  */
 public class ContextTypeResolverUtil {
-    private ContextTypeResolverUtil() {
-    }
-
-    /**
-     * Given the function type symbol and existing arguments
-     * returns the parameter symbol of the function type corresponding to the given context.
-     *
-     * @param functionTypeSymbol Referenced FunctionTypeSymbol
-     * @param ctx                Positioned operation context information.
-     * @param arguments          List of function argument nodes.
-     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
-     */
-    public static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                   PositionedOperationContext ctx,
-                                                                   NodeList<FunctionArgumentNode> arguments) {
-        return resolveParameterSymbol(functionTypeSymbol, ctx, arguments, false);
-    }
-
-
-    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
-                                                                    PositionedOperationContext ctx,
-                                                                    NodeList<FunctionArgumentNode> arguments,
-                                                                    boolean isLangLibFunction) {
-        int cursorPosition = ctx.getCursorPositionInTree();
-        int argIndex = 0;
-        for (Node child : arguments) {
-            if (child.textRange().endOffset() < cursorPosition) {
-                argIndex += 1;
-            }
-        }
-
-        Optional<List<ParameterSymbol>> parameterSymbols = functionTypeSymbol.params();
-        Optional<ParameterSymbol> restParam = functionTypeSymbol.restParam();
-
-        // Check if we are not in an erroneous state. If rest params is empty and params are empty or params size is
-        // lower than the arg index, we are in an invalid state
-        if (restParam.isEmpty() && (parameterSymbols.isEmpty() || parameterSymbols.get().size() < argIndex + 1)) {
-            return Optional.empty();
-        }
-
-        // If the function is a lang lib method, need to add 1 to skip the 1st parameter which is the same type.
-        if (isLangLibFunction) {
-            argIndex = argIndex + 1;
-        }
-
-        // We can be in required params or rest params
-        if (parameterSymbols.isPresent() && parameterSymbols.get().size() > argIndex) {
-            return Optional.of(parameterSymbols.get().get(argIndex));
-        }
-
-        return restParam;
-    }
-
+    
     /**
      * Given the function type symbol and existing arguments
      * returns the type of the parameter symbol corresponding to the given context.
@@ -138,8 +86,7 @@ public class ContextTypeResolverUtil {
         }
         return Optional.of(typeSymbol);
     }
-
-
+    
     /**
      * Finds the corresponding function type symbol from lang libs method given a method call expression node. 
      *
@@ -225,6 +172,50 @@ public class ContextTypeResolverUtil {
                                                             ExplicitNewExpressionNode node) {
         ParenthesizedArgList argList = node.parenthesizedArgList();
         return isWithinParenthesis(ctx, argList.openParenToken(), argList.closeParenToken());
+    }
+
+    /**
+     * Given the function type symbol and existing arguments
+     * returns the parameter symbol of the function type corresponding to the given context.
+     *
+     * @param functionTypeSymbol Referenced FunctionTypeSymbol
+     * @param ctx                Positioned operation context information.
+     * @param arguments          List of function argument nodes.
+     * @param isLangLibFunction  Whether the function is a langlib function.                         
+     * @return {@link Optional<ParameterSymbol>} Parameter's type symbol.
+     */
+    private static Optional<ParameterSymbol> resolveParameterSymbol(FunctionTypeSymbol functionTypeSymbol,
+                                                                    PositionedOperationContext ctx,
+                                                                    NodeList<FunctionArgumentNode> arguments,
+                                                                    boolean isLangLibFunction) {
+        int cursorPosition = ctx.getCursorPositionInTree();
+        int argIndex = 0;
+        for (Node child : arguments) {
+            if (child.textRange().endOffset() < cursorPosition) {
+                argIndex += 1;
+            }
+        }
+
+        Optional<List<ParameterSymbol>> parameterSymbols = functionTypeSymbol.params();
+        Optional<ParameterSymbol> restParam = functionTypeSymbol.restParam();
+
+        // Check if we are not in an erroneous state. If rest params is empty and params are empty or params size is
+        // lower than the arg index, we are in an invalid state
+        if (restParam.isEmpty() && (parameterSymbols.isEmpty() || parameterSymbols.get().size() < argIndex + 1)) {
+            return Optional.empty();
+        }
+
+        // If the function is a lang lib method, need to add 1 to skip the 1st parameter which is the same type.
+        if (isLangLibFunction) {
+            argIndex = argIndex + 1;
+        }
+
+        // We can be in required params or rest params
+        if (parameterSymbols.isPresent() && parameterSymbols.get().size() > argIndex) {
+            return Optional.of(parameterSymbols.get().get(argIndex));
+        }
+
+        return restParam;
     }
 
     private static boolean isWithinParenthesis(PositionedOperationContext ctx, Token openParen, Token closedParen) {

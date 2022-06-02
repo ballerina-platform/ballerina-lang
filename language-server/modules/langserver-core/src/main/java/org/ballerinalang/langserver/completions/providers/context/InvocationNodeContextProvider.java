@@ -72,9 +72,10 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
-                !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) ||
-                (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node))) {
+                !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) 
+                || (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                        !ContextTypeResolverUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) 
+                                node))) {
             super.sort(context, node, completionItems);
             return;
         }
@@ -129,7 +130,8 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     continue;
                 }
                 RecordTypeSymbol includedRecordType = (RecordTypeSymbol) typeSymbol;
-                List<RecordFieldSymbol> recordFields = RecordFieldCompletionUtil.getMandatoryRecordFields(includedRecordType);
+                List<RecordFieldSymbol> recordFields = RecordFieldCompletionUtil
+                        .getMandatoryRecordFields(includedRecordType);
                 recordFields.forEach(recordFieldSymbol -> {
                     Optional<String> fieldName = recordFieldSymbol.getName();
                     if (fieldName.isEmpty() || fieldName.get().isEmpty() || 

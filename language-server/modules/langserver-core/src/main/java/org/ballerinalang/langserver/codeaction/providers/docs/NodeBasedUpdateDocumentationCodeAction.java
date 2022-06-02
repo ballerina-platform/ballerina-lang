@@ -81,8 +81,8 @@ public class NodeBasedUpdateDocumentationCodeAction extends AbstractCodeActionPr
         }
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
-        CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         PositionUtil.toRange(matchedDocumentableNode.get().lineRange()));
+        CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, PositionUtil
+                .toRange(matchedDocumentableNode.get().lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
         CodeAction action = new CodeAction(CommandConstants.UPDATE_DOCUMENTATION_TITLE);        

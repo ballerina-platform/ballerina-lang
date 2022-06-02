@@ -26,7 +26,11 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER_KEYWORD;
@@ -37,8 +41,6 @@ import static org.ballerinalang.langserver.common.utils.CommonKeys.PKG_DELIMITER
  * @since 2201.1.0
  */
 public class RecordFieldCompletionUtil {
-    private RecordFieldCompletionUtil() {
-    }
 
     /**
      * Get completion items list for struct fields.
@@ -112,7 +114,8 @@ public class RecordFieldCompletionUtil {
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + DefaultValueGenerationUtil.getDefaultValueForType(entry.getValue().typeDescriptor(), count).orElse(" ");
+                        + DefaultValueGenerationUtil.getDefaultValueForType(entry.getValue().typeDescriptor(), count)
+                        .orElse(" ");
                 fieldEntries.add(fieldEntry);
                 count++;
             }
@@ -153,7 +156,8 @@ public class RecordFieldCompletionUtil {
     public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
 
         StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
-        insertText.append(DefaultValueGenerationUtil.getDefaultValueForType(bField.typeDescriptor(), tabOffset).orElse(" "));
+        insertText.append(DefaultValueGenerationUtil.getDefaultValueForType(bField.typeDescriptor(), tabOffset)
+                .orElse(" "));
         return insertText.toString();
     }
 }
