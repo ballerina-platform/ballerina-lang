@@ -309,7 +309,7 @@ public class InteropMethodGen {
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1, -1, terminator.pos);
             }
         }
     }

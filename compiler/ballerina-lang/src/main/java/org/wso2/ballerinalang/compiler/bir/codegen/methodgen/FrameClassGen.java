@@ -97,6 +97,8 @@ public class FrameClassGen {
 
         FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC, "state", "I", null, null);
         fv.visitEnd();
+        fv = cw.visitField(Opcodes.ACC_PUBLIC, "yieldLocation", "Ljava/lang/String;", null, null);
+        fv.visitEnd();
 
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
         mv.visitCode();
