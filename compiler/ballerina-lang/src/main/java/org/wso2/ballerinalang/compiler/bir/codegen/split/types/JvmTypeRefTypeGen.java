@@ -18,10 +18,8 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.types;
 
-import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
 import static org.objectweb.asm.Opcodes.DUP;
@@ -40,8 +38,7 @@ public class JvmTypeRefTypeGen {
 
     private final JvmTypeGen jvmTypeGen;
 
-    public JvmTypeRefTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen,
-                             PackageID packageID) {
+    public JvmTypeRefTypeGen(JvmTypeGen jvmTypeGen) {
         this.jvmTypeGen = jvmTypeGen;
     }
 
