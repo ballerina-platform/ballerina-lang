@@ -81,6 +81,7 @@ public class TestRunner {
     private static Set<String> getSkippedTestLabels() {
         Set<String> skippedTestLabels = new HashSet<>();
         skippedTestLabels.add("transactional-expr"); // issue #35939
+        skippedTestLabels.add("transaction-stmt"); // issue #35939
         // New entries go here.
         return skippedTestLabels;
     }
