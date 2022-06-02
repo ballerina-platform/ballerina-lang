@@ -30,21 +30,21 @@ import java.util.Set;
  *
  * @since 2201.2.0
  */
-public class Diagnostics {
+public class Status {
 
     private static final Set<Scheduler> allSchedulers = new HashSet<>();
-    private static final Map<Integer, Strand> allStrands = new HashMap<>();
+    private static final Map<Integer, Strand> currentStrands = new HashMap<>();
 
     public static void addToSchedulers(Scheduler scheduler) {
         allSchedulers.add(scheduler);
     }
 
     public static void addToStrands(Integer strandId, Strand strand) {
-        allStrands.put(strandId, strand);
+        currentStrands.put(strandId, strand);
     }
 
     public static void removeFromStrands(Integer strandId) {
-        allStrands.remove(strandId);
+        currentStrands.remove(strandId);
     }
 
     public static String getAllSchedulerInfo() {
@@ -58,13 +58,13 @@ public class Diagnostics {
 
     public static String getAllStrandInfo() {
         StringBuilder infoStr = new StringBuilder();
-        infoStr.append("No. of currently available Strands: " + allStrands.size() + "\n\n");
-        for (Strand strand : allStrands.values()) {
+        infoStr.append("No. of currently available Strands: " + currentStrands.size() + "\n\n");
+        for (Strand strand : currentStrands.values()) {
             infoStr.append(strand.dumpState());
             infoStr.append("\n");
         }
         return infoStr.toString();
     }
 
-    private Diagnostics() {}
+    private Status() {}
  }

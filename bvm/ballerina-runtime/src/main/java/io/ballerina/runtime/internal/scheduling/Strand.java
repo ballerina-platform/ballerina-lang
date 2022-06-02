@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.FunctionFrame;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -432,13 +433,14 @@ public class Strand {
             infoStr.append("\tparent function where strand was initiated: " + this.metadata.getParentFunctionName() +
                     "\n");
 
+            int count = 1;
             if (this.frames != null) {
                 infoStr.append("frame count :" + this.frames.size() + "\n");
                 for (Object frame : frames) {
                     if (frame != null) {
-                        infoStr.append("\tframe data:\n\t\t");
-                        infoStr.append(frame);
-                        infoStr.append("\n");
+                        infoStr.append("\tframe " + count++ + " stacktrace:\n");
+                        infoStr.append(((FunctionFrame) frame).getYieldLocation());
+                        infoStr.append("\n\n");
                     }
                 }
             }
