@@ -147,7 +147,7 @@ public class FunctionGenerator {
             // returns clause
             returnsClause = "returns " + returnType;
             // return statement
-            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForTypeDescKind(returnTypeDescKind);
+            Optional<String> defaultReturnValue = DefaultValueGenerationUtil.getDefaultValueForTypeDescKind(returnTypeDescKind);
             if (defaultReturnValue.isPresent()) {
                 returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
             }
@@ -180,7 +180,7 @@ public class FunctionGenerator {
             // returns clause
             returnsClause = "returns " + returnType;
             // return statement
-            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+            Optional<String> defaultReturnValue = DefaultValueGenerationUtil.getDefaultValueForType(returnTypeSymbol);
             if (defaultReturnValue.isPresent()) {
                 returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
             }
