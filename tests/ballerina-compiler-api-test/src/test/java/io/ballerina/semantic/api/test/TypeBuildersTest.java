@@ -322,7 +322,7 @@ public class TypeBuildersTest {
         SingletonTypeSymbol singletonTypeSymbol = builder.SINGLETON_TYPE.withValueSpace(value, valueTypeSymbol).build();
         assertEquals(singletonTypeSymbol.typeKind(), SINGLETON);
         if (valueTypeSymbol.subtypeOf(types.STRING)) {
-            assertEquals(singletonTypeSymbol.signature(), "\""+value.toString()+"\"");
+            assertEquals(singletonTypeSymbol.signature(), "\"" + value.toString() + "\"");
         } else {
             assertEquals(singletonTypeSymbol.signature(), value.toString());
         }
