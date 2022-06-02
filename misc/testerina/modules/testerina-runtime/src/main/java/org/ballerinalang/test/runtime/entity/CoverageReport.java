@@ -331,22 +331,22 @@ public class CoverageReport {
                         moduleCoverage = new ModuleCoverage();
                     }
 
+                    Document document = getDocument(sourceFileModule, sourceFileCoverage.getName());
+
                     // Get the module and source from before compilation
-                    Module module1 = duplicateModules.get(sourceFileModule);
+                    Module duplicateModule = duplicateModules.get(sourceFileModule);
 
-                    // Get the compiled document
-                    Document documentNew = getDocument(sourceFileCoverage.getName());
-
-                    // Get the old compiled document
-                    Document documentOld = module1.document(documentNew.documentId());
+                    // Get the old compiled document directly from the duplicate module
+                    Document documentOld = getDocumentFromModule(duplicateModule, sourceFileCoverage.getName());
 
                     try {
                         // Use diff utils to analyze the text lines in the doc
                         Patch<String> stringPatch = DiffUtils.diff(documentOld.textDocument().textLines(),
-                                documentNew.textDocument().textLines());
+                                document.textDocument().textLines());
 
                         // If a change exists, we ignore the changed lines and its coverage
-                        if (!stringPatch.getDeltas().isEmpty()) {
+                        if (!stringPatch.getDeltas().isEmpty() &&
+                                !moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
                             List<AbstractDelta<String>> patchDeltas = stringPatch.getDeltas();
                             List<Integer> modifiedLines = new ArrayList();
 
@@ -386,14 +386,14 @@ public class CoverageReport {
                             }
 
                             // Pass the old document
-                            moduleCoverage.addSourceFileCoverage(documentNew, coveredLines, missedLines);
+                            moduleCoverage.addSourceFileCoverage(documentOld, coveredLines, missedLines);
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
                             continue;
                         }
 
                     } catch (DiffException | NullPointerException e) {
                         // Diff exception caught when diff cannot be calculated properly
-                        // NullPointer caught when a Generated Source File is passed
+                        // NullPointer caught when a Generated Source File is passed or if its an empty file
                         // continue to consider other files in the coverage
                         continue;
                     }
@@ -427,9 +427,7 @@ public class CoverageReport {
                                     }
                                 }
                                 if (isCoverageUpdated) {
-                                    // Retrieve relevant document and update the coverage only if there is
-                                    // a coverage change
-                                    Document document = getDocument(sourceFileCoverage.getName());
+                                    // Update the coverage only if there is a coverage change
                                     if (document != null) {
                                         moduleCoverage.updateCoverage(document, coveredLines, missedLines,
                                                 updateMissedLineCount);
@@ -451,7 +449,7 @@ public class CoverageReport {
                                     coveredLines.add(i);
                                 }
                             }
-                            Document document = getDocument(sourceFileCoverage.getName());
+
                             if (document != null) {
                                 moduleCoverage.addSourceFileCoverage(document, coveredLines,
                                         missedLines);
@@ -485,12 +483,14 @@ public class CoverageReport {
      * @param sourceFileName String
      * @return Document
      */
-    private Document getDocument(String sourceFileName) {
+    private Document getDocument(String moduleName, String sourceFileName) {
         Document document = null;
         for (Module moduleInstance : module.packageInstance().modules()) {
-            document = getDocumentFromModule(moduleInstance, sourceFileName);
-            if (document != null) {
-                break;
+            if (moduleInstance.moduleName().toString().equals(moduleName)) {
+                document = getDocumentFromModule(moduleInstance, sourceFileName);
+                if (document != null) {
+                    break;
+                }
             }
         }
         return document;
