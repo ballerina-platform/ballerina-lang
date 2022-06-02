@@ -17,6 +17,8 @@
  */
 package io.ballerina.tools.text;
 
+import java.util.ArrayList;
+
 /**
  * The {@code LineMap} represents a collection text lines in the {@code TextDocument}.
  *
@@ -51,6 +53,16 @@ class LineMap {
         }
 
         return textLine.startOffset() + linePosition.offset();
+    }
+
+    ArrayList<String> textLines() {
+        ArrayList<String> lines = new ArrayList();
+
+        for (TextLine textLine : textLines) {
+            lines.add(textLine.text());
+        }
+
+        return lines;
     }
 
     private void positionRangeCheck(int position) {

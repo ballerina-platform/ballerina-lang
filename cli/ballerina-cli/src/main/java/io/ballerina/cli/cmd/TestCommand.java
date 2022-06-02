@@ -28,6 +28,7 @@ import io.ballerina.cli.task.RunTestsTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -38,7 +39,9 @@ import picocli.CommandLine;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -257,6 +260,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
+        Iterable<Module> duplicateModules = project.currentPackage().modules();
+        Map<String, Module> moduleMap = new HashMap<>();
+
+        for (Module duplicateModule : duplicateModules) {
+            moduleMap.put(duplicateModule.moduleName().toString(), duplicateModule);
+        }
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetCacheDirTask(), isSingleFile) // clean the target cache dir(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
@@ -264,7 +274,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes, coverageFormat), listGroups)
+                        testList, includes, coverageFormat, moduleMap), listGroups)
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
 

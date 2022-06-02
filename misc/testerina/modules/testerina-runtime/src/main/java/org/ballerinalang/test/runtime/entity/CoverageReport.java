@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import com.github.difflib.DiffUtils;
+import com.github.difflib.algorithm.DiffException;
+import com.github.difflib.patch.AbstractDelta;
+import com.github.difflib.patch.DeltaType;
+import com.github.difflib.patch.Patch;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
@@ -103,12 +108,12 @@ public class CoverageReport {
     /**
      * Generates the testerina coverage report.
      *
-     * @param jBallerinaBackend JBallerinaBackend
+     * @param jBallerinaBackend  JBallerinaBackend
      * @param includesInCoverage boolean
      * @throws IOException
      */
     public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage,
-                               String reportFormat)
+                               String reportFormat, Map<String, Module> duplicateModules)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
@@ -124,7 +129,8 @@ public class CoverageReport {
                     jBallerinaBackend, module.packageInstance());
         }
         if (!filteredPathList.isEmpty()) {
-            CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, filteredPathList);
+            CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, filteredPathList,
+                    duplicateModules);
             if (CodeCoverageUtils.isRequestedReportFormat(reportFormat, TesterinaConstants.JACOCO_XML_FORMAT)) {
                 // Add additional dependency jars for Jacoco Coverage XML if included
                 if (includesInCoverage != null) {
@@ -164,20 +170,21 @@ public class CoverageReport {
     /**
      * Generate the json coverage report for Testerina.
      *
-     * @param orgName package org name
-     * @param packageName package name
+     * @param orgName          package org name
+     * @param packageName      package name
      * @param filteredPathList List of the extracted source path
      * @return CoverageBuilder
      * @throws IOException
      */
     private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
-                                                            List<Path> filteredPathList) throws IOException {
+                                                            List<Path> filteredPathList,
+                                                            Map<String, Module> duplicateModules) throws IOException {
         // For the Testerina report only the ballerina specific sources need to be extracted
         addCompiledSources(filteredPathList, orgName, packageName);
         execFileLoader.load(executionDataFile.toFile());
         final CoverageBuilder coverageBuilder = analyzeStructure();
         // Create Testerina coverage report
-        createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
+        createReport(coverageBuilder.getBundle(title), moduleCoverageMap, duplicateModules);
         return coverageBuilder;
     }
 
@@ -236,7 +243,7 @@ public class CoverageReport {
     /**
      * Remove IClassCoverage from package Class coverage list if it exists already.
      *
-     * @param classCoverage            IClassCoverage to check if already exixts
+     * @param classCoverage IClassCoverage to check if already exixts
      */
     private void removeFromCoverageList(IClassCoverage classCoverage) {
         boolean isExists = false;
@@ -298,7 +305,8 @@ public class CoverageReport {
         return coverageBuilder;
     }
 
-    private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap) {
+    private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap,
+                              Map<String, Module> duplicateModules) {
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
@@ -307,6 +315,7 @@ public class CoverageReport {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
             if (containsSourceFiles) {
+
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
                     // Extract the Module name individually for each source file
                     // This is done since some source files come from other modules
@@ -321,6 +330,74 @@ public class CoverageReport {
                     } else {
                         moduleCoverage = new ModuleCoverage();
                     }
+
+                    // Get the module and source from before compilation
+                    Module module1 = duplicateModules.get(sourceFileModule);
+
+                    // Get the compiled document
+                    Document documentNew = getDocument(sourceFileCoverage.getName());
+
+                    // Get the old compiled document
+                    Document documentOld = module1.document(documentNew.documentId());
+
+                    try {
+                        // Use diff utils to analyze the text lines in the doc
+                        Patch<String> stringPatch = DiffUtils.diff(documentOld.textDocument().textLines(),
+                                documentNew.textDocument().textLines());
+
+                        // If a change exists, we ignore the changed lines and its coverage
+                        if (!stringPatch.getDeltas().isEmpty()) {
+                            List<AbstractDelta<String>> patchDeltas = stringPatch.getDeltas();
+                            List<Integer> modifiedLines = new ArrayList();
+
+                            for (AbstractDelta<String> delta : patchDeltas) {
+
+                                // Code has been inserted
+                                if (delta.getType().equals(DeltaType.INSERT)) {
+
+                                    // This means that we have to consider the block added
+                                    int lineNumber = delta.getTarget().getPosition();
+                                    int size = delta.getTarget().size();
+
+                                    for (int i = lineNumber; i < lineNumber + size; i++) {
+                                        modifiedLines.add(i);
+                                    }
+                                }
+                            }
+
+                            // Keeps track of the coverage for the unmodified doc
+                            List<Integer> coveredLines = new ArrayList<>();
+                            List<Integer> missedLines = new ArrayList<>();
+
+                            // We have the modified lines
+                            // We can ignore these when we come across them
+                            for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
+                                 i++) {
+                                // If its not a modified line we add the coverage
+                                if (!modifiedLines.contains(i - 1)) {
+                                    ILine line = sourceFileCoverage.getLine(i);
+                                    if (line.getStatus() == NOT_COVERED) {
+                                        missedLines.add(i);
+                                    } else if (line.getStatus() == PARTLY_COVERED ||
+                                            line.getStatus() == FULLY_COVERED) {
+                                        coveredLines.add(i);
+                                    }
+                                }
+                            }
+
+                            // Pass the old document
+                            moduleCoverage.addSourceFileCoverage(documentNew, coveredLines, missedLines);
+                            moduleCoverageMap.put(sourceFileModule, moduleCoverage);
+                            continue;
+                        }
+
+                    } catch (DiffException | NullPointerException e) {
+                        // Diff exception caught when diff cannot be calculated properly
+                        // NullPointer caught when a Generated Source File is passed
+                        // continue to consider other files in the coverage
+                        continue;
+                    }
+
                     // If file is a source bal file
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX) &&
                             !sourceFileCoverage.getName().contains("tests/")) {
@@ -363,6 +440,7 @@ public class CoverageReport {
                             // Calculate coverage for new source file only if belongs to current module
                             List<Integer> coveredLines = new ArrayList<>();
                             List<Integer> missedLines = new ArrayList<>();
+
                             for (int i = sourceFileCoverage.getFirstLine(); i <= sourceFileCoverage.getLastLine();
                                  i++) {
                                 ILine line = sourceFileCoverage.getLine(i);
@@ -455,7 +533,8 @@ public class CoverageReport {
             if (!platformLibsList.contains(otherJarDependency.path())) {
                 platformLibsList.add(otherJarDependency.path());
             }
-        };
+        }
+        ;
         return platformLibsList;
     }
 
