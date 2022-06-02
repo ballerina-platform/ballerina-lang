@@ -22,7 +22,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.AbstractLSTest;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -78,7 +79,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
         diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
@@ -134,7 +135,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     for (JsonElement actualArg : actualArgs) {
                         JsonObject arg = actualArg.getAsJsonObject();
                         if ("doc.uri".equals(arg.get("key").getAsString())) {
-                            Optional<Path> docPath = CommonUtil.getPathFromURI(arg.get("value").getAsString());
+                            Optional<Path> docPath = PathUtil.getPathFromURI(arg.get("value").getAsString());
                             if (docPath.isPresent()) {
                                 // We just check file names, since one refers to file in build/ while
                                 // the other refers to the file in test resources
@@ -183,7 +184,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
         diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 

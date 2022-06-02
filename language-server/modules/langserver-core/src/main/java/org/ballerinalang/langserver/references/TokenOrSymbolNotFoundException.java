@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.util.references;
+package org.ballerinalang.langserver.references;
 
 /**
  * Exception when token or symbol is not found.
