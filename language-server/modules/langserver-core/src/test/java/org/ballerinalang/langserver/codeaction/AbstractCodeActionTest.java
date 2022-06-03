@@ -37,6 +37,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -60,10 +62,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
-    private static final WorkspaceManager workspaceManager
-            = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
+    private  WorkspaceManager workspaceManager;
 
-    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
+    private LanguageServerContext serverContext;
 
     @Test(dataProvider = "codeaction-data-provider")
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
@@ -218,9 +219,21 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         responseJson.remove("id");
         return responseJson;
     }
+    
+    @BeforeClass
+    public void setup() {
+        workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
+        serverContext = new LanguageServerContextImpl();
+    }
 
     @DataProvider(name = "codeaction-data-provider")
     public abstract Object[][] dataProvider();
 
     public abstract String getResourceDir();
+    
+    @AfterClass
+    public void cleanUp() {
+        this.serverContext = null;
+        this.workspaceManager = null;
+    }
 }
