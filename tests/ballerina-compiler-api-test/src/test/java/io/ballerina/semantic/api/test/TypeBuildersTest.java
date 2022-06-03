@@ -23,12 +23,17 @@ import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.types.TypeBuilder;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -41,8 +46,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -61,6 +64,8 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_COMMENT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
@@ -79,16 +84,13 @@ import static org.testng.Assert.assertTrue;
 public class TypeBuildersTest {
     private Types types;
     private final List<XMLTypeSymbol> xmlSubTypes = new ArrayList<>();
+    private static final String ORG = "$anon";
+    private static final String MODULE = ".";
+    private static final String VERSION = "0.0.0";
 
     @BeforeClass
     public void setup() {
-        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/typesbir");
-        if (compileResult.getErrorCount() != 0) {
-            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
-            Assert.fail("Compilation contains error");
-        }
-
-        Project project = BCompileUtil.loadProject("test-src/types-project");
+        Project project = BCompileUtil.loadProject("test-src/typedefs_for_type_builders.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         types = model.types();
 
@@ -130,7 +132,7 @@ public class TypeBuildersTest {
     @Test(dataProvider = "xmlTypeParamsFromSourceProvider")
     public void testXmlTypeParamsFromSource(String typeDef, TypeDescKind typeDescKind, String signature) {
         TypeBuilder builder = types.builder();
-        Optional<Symbol> typeSymbol = types.getTypeByName("testorg", "typesapi.builder", "1.0.0", typeDef);
+        Optional<Symbol> typeSymbol = types.getTypeByName(ORG, MODULE, VERSION, typeDef);
         assertTrue(typeSymbol.isPresent());
         assertEquals(typeSymbol.get().kind(), SymbolKind.TYPE_DEFINITION);
         TypeSymbol typeParam = ((TypeDefinitionSymbol) typeSymbol.get()).typeDescriptor();
@@ -140,27 +142,20 @@ public class TypeBuildersTest {
         assertEquals(xmlTypeSymbol.signature(), signature);
     }
 
-    // TODO: Check and enable after validating #35882
     @DataProvider(name = "xmlTypeParamsFromSourceProvider")
     private Object[][] getXmlTypeParamsFromSource() {
         return new Object[][] {
-//                {"XmlEle", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Element>"},
-//                {"XmlPi", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:ProcessingInstruction>"},
-//                {"XmlCmnt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Comment>"},
-//                {"XmlTxt", TYPE_REFERENCE, "xml<ballerina/lang.xml:0.0.0:Text>"},
-//                {"XmlUnionA", UNION, "xml<ballerina/lang.xml:0.0.0:Element" +
-//                        "|ballerina/lang.xml:0.0.0:ProcessingInstruction|ballerina/lang.xml:0.0.0:Text>"},
-//                {"XmlUnionB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlEle" +
-//                        "|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:XmlCmnt>"},
-//                {"MixXmlA", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA" +
-//                        "|testorg/typesapi.builder:1.0.0:XmlUnionB>"},
-//                {"MixXmlB", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlPi" +
-//                        "|testorg/typesapi.builder:1.0.0:MixXmlC>"},
-//                {"MixXmlC", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlUnionA" +
-//                        "|testorg/typesapi.builder:1.0.0:XmlTxt|testorg/typesapi.builder:1.0.0:MixXmlA>"},
-//                {"NewEle", TYPE_REFERENCE, "xml<testorg/typesapi.builder:1.0.0:XmlEle>"},
-//                {"EleTxtCmnt", UNION, "xml<testorg/typesapi.builder:1.0.0:XmlCmnt" +
-//                        "|ballerina/lang.xml:0.0.0:Text|testorg/typesapi.builder:1.0.0:NewEle>"},
+                {"XmlEle", TYPE_REFERENCE, "xml<Element>"},
+                {"XmlPi", TYPE_REFERENCE, "xml<ProcessingInstruction>"},
+                {"XmlCmnt", TYPE_REFERENCE, "xml<Comment>"},
+                {"XmlTxt", TYPE_REFERENCE, "xml<Text>"},
+                {"XmlUnionA", UNION, "xml<Element|ProcessingInstruction|Text>"},
+                {"XmlUnionB", UNION, "xml<XmlEle|XmlTxt|XmlCmnt>"},
+                {"MixXmlA", UNION, "xml<XmlUnionA|XmlUnionB>"},
+                {"MixXmlB", UNION, "xml<XmlPi|MixXmlC>"},
+                {"MixXmlC", UNION, "xml<XmlUnionA|XmlTxt|MixXmlA>"},
+                {"NewEle", TYPE_REFERENCE, "xml<XmlEle>"},
+                {"EleTxtCmnt", UNION, "xml<XmlCmnt|Text|NewEle>"},
         };
     }
 
@@ -336,6 +331,100 @@ public class TypeBuildersTest {
                 {1.5, types.FLOAT},
                 {true, types.BOOLEAN},
         };
+    }
+
+    @Test
+    public void testTableTypeBuilder() {
+        TypeBuilder builder = types.builder();
+        TypeBuilder.TABLE tableTypeBuilder = builder.TABLE_TYPE;
+        Optional<Symbol> employeeRecord = types.getTypeByName(ORG, MODULE, VERSION, "Employee");
+        assertTrue(employeeRecord.isPresent());
+        assertEquals(employeeRecord.get().kind(), SymbolKind.TYPE_DEFINITION);
+        TypeSymbol empRecordType = ((TypeDefinitionSymbol) employeeRecord.get()).typeDescriptor();
+
+        TableTypeSymbol empTableWithKeyFields =
+                tableTypeBuilder.withRowType(empRecordType).withKeyConstraint("name").build();
+
+        TableTypeSymbol empTableWithKeyType =
+                tableTypeBuilder.withRowType(empRecordType).withKeyConstraint(types.STRING).build();
+
+        assertEquals(empTableWithKeyFields.signature(), "table<Employee> key(name)");
+        assertEquals(empTableWithKeyType.signature(), "table<Employee> key<string>");
+
+        Optional<Symbol> customerRecord = types.getTypeByName(ORG, MODULE, VERSION, "Customer");
+        assertTrue(customerRecord.isPresent());
+        assertEquals(customerRecord.get().kind(), SymbolKind.TYPE_DEFINITION);
+        TypeSymbol cusRecordType = ((TypeDefinitionSymbol) customerRecord.get()).typeDescriptor();
+
+        TableTypeSymbol cusTableWithKeyFields =
+                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraint("id", "name").build();
+
+        TableTypeSymbol cusTableWithKeyType =
+                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraint(types.INT).build();
+
+        assertEquals(cusTableWithKeyFields.signature(), "table<Customer> key(id,name)");
+        assertEquals(cusTableWithKeyType.signature(), "table<Customer> key<int>");
+
+    }
+
+    @Test
+    public void testFunctionTypeBuilder() {
+        TypeBuilder builder = types.builder();
+        TypeBuilder.FUNCTION functionTypeBuilder = builder.FUNCTION_TYPE;
+        ParameterSymbol abc = functionTypeBuilder.params().withType(types.STRING).withName("abc").build();
+        ParameterSymbol myInt = functionTypeBuilder.params().withType(types.INT).withName("myInt").build();
+
+        FunctionTypeSymbol fnTypeWithSingleArg = functionTypeBuilder.withParams(abc).build();
+        assertEquals(fnTypeWithSingleArg.signature(), "function (string abc)");
+
+        FunctionTypeSymbol fnTypeWithMultiArg = functionTypeBuilder.withParams(abc, myInt).build();
+        assertEquals(fnTypeWithMultiArg.signature(), "function (string abc, int myInt)");
+
+        FunctionTypeSymbol fnTypeWithReturn =
+                functionTypeBuilder.withParams(abc, myInt).withReturnType(types.FLOAT).build();
+        assertEquals(fnTypeWithReturn.signature(), "function (string abc, int myInt) returns float");
+    }
+
+    @Test
+    public void testObjectTypeBuilder() {
+        TypeBuilder builder = types.builder();
+        TypeBuilder.OBJECT objTypeBuilder = builder.OBJECT_TYPE;
+        TypeBuilder.OBJECT.OBJECT_FIELD anInt = objTypeBuilder.fields().withType(types.INT).withName("anInt").build();
+        TypeBuilder.OBJECT.OBJECT_FIELD aStr = objTypeBuilder.fields().withType(types.STRING).withName("aStr").build();
+
+        TypeBuilder.FUNCTION functionType = builder.FUNCTION_TYPE;
+        ParameterSymbol floatArg = functionType.params().withType(types.FLOAT).withName("floatArg").build();
+        FunctionTypeSymbol functionTypeSymbol = functionType.withParams(floatArg).withReturnType(types.JSON).build();
+        TypeBuilder.OBJECT.OBJECT_METHOD floatFn =
+                objTypeBuilder.methods().withType(functionTypeSymbol).withName("floatFn").build();
+
+        ObjectTypeSymbol objTypeWithFields = objTypeBuilder.withFields(anInt, aStr).build();
+        ObjectTypeSymbol objTypeWithMethod = objTypeBuilder.withMethods(floatFn).build();
+        ObjectTypeSymbol objTypeWithFieldsAndMethods =
+                objTypeBuilder.withFields(aStr, anInt).withMethods(floatFn).build();
+
+        assertEquals(objTypeWithFields.signature(), "object {int anInt; string aStr;}");
+        assertEquals(objTypeWithMethod.signature(), "object {function floatFn(float floatArg) returns json;}");
+        assertEquals(objTypeWithFieldsAndMethods.signature(),
+                "object {string aStr; int anInt; function floatFn(float floatArg) returns json;}");
+
+
+
+    }
+
+    @Test
+    public void testRecordTypeBuilder() {
+
+        TypeBuilder builder = types.builder();
+        TypeBuilder.RECORD recordType = builder.RECORD_TYPE;
+        TypeBuilder.RECORD.RECORD_FIELD abc = recordType.fields().withType(types.INT).withName("abc").build();
+        TypeBuilder.RECORD.RECORD_FIELD myStr = recordType.fields().withName("myStr").withType(types.STRING).build();
+
+        RecordTypeSymbol recordWithFields = recordType.withFields(abc, myStr).build();
+        RecordTypeSymbol recordWithRestField = recordType.withFields(myStr).withRestField(types.STRING).build();
+
+        assertEquals(recordWithFields.signature(), "record {|int abc; string myStr;|}");
+        assertEquals(recordWithRestField.signature(), "record {|string myStr; string...;|}");
     }
 
     // utils

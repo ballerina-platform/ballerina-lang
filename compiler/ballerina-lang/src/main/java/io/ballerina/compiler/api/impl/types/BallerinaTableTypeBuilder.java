@@ -42,6 +42,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The implementation of the methods used to build the Table type descriptor in Types API.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     private final TypesFactory typesFactory;

@@ -25,6 +25,11 @@ import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
+/**
+ * The implementation of the methods used to build the Function type descriptor in Types API.
+ *
+ * @since 2.0.0
+ */
 public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
 
     private final CompilerContext context;
@@ -135,6 +140,11 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         return null;
     }
 
+    /**
+     * The implementation of the methods used to build a Parameter of a function type descriptor.
+     *
+     * @since 2.0.0
+     */
     public class ParameterBuilder implements PARAMETER_BUILDER {
 
         private final SymbolFactory symbolFactory;

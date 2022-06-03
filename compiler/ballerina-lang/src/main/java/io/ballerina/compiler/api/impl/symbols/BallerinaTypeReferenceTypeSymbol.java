@@ -158,7 +158,8 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
 
         ModuleID moduleID = this.getModule().get().id();
         if (moduleID == null ||
-                (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
+                (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina") ||
+                        (moduleID.moduleName().equals("lang.xml") && moduleID.orgName().equals("ballerina"))) ||
                 this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
             this.signature = this.definitionName;
         } else {

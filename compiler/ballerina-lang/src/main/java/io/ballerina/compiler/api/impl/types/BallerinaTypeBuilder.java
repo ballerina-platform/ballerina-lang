@@ -39,5 +39,7 @@ public class BallerinaTypeBuilder extends TypeBuilder {
         SINGLETON_TYPE = new BallerinaSingletonTypeBuilder(context);
         TABLE_TYPE = new BallerinaTableTypeBuilder(context);
         FUNCTION_TYPE = new BallerinaFunctionTypeBuilder(context);
+        OBJECT_TYPE = new BallerinaObjectTypeBuilder(context);
+        RECORD_TYPE = new BallerinaRecordTypeBuilder(context);
     }
 }
