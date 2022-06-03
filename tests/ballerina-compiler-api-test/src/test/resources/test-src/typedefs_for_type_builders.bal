@@ -56,3 +56,40 @@ type TrxErrorData record {|
     error cause?;
     string data = "";
 |};
+
+const FOO = "foo";
+
+type FooError distinct error<Detail>;
+
+error e = error FooError(FOO, code = 3456);
+
+error<Detail> ex = error(FOO, code = 212);
+
+type State "on"|"off";
+
+type Num 1;
+
+State a = "on";
+
+const ab = 1;
+const cd = "cd1";
+var xyz1 = 23;
+
+type Mp map<int|string>;
+
+type A 5.0;
+
+A b = 5.0;
+
+type MySingleton A;
+
+type Customer record {
+    readonly int id;
+    readonly string name;
+    string lname;
+};
+
+type Employee record {
+    readonly string name;
+    int salary;
+};

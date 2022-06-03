@@ -23,13 +23,17 @@ import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 
@@ -51,6 +55,8 @@ public abstract class TypeBuilder {
     public SINGLETON SINGLETON_TYPE;
     public TABLE TABLE_TYPE;
     public FUNCTION FUNCTION_TYPE;
+    public OBJECT OBJECT_TYPE;
+    public RECORD RECORD_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -75,7 +81,7 @@ public abstract class TypeBuilder {
     }
 
     /**
-     * Represents the methods required to build the Map type symbol of an Map type descriptor.
+     * Represents the methods required to build the Map type symbol of a Map type descriptor.
      */
     public interface MAP {
 
@@ -96,6 +102,9 @@ public abstract class TypeBuilder {
         MapTypeSymbol build();
     }
 
+    /**
+     * Represents the methods required to build the Map type symbol of a Future type descriptor.
+     */
     public interface FUTURE {
 
         FUTURE withTypeParam(TypeSymbol typeParam);
@@ -122,6 +131,9 @@ public abstract class TypeBuilder {
         StreamTypeSymbol build();
     }
 
+    /**
+     * Represents the methods required to build the Map type symbol of a Tuple type descriptor.
+     */
     public interface TUPLE {
 
         TUPLE withMemberType(TypeSymbol memberType);
@@ -131,6 +143,9 @@ public abstract class TypeBuilder {
         TupleTypeSymbol build();
     }
 
+    /**
+     * Represents the methods required to build the Map type symbol of an Array type descriptor.
+     */
     public interface ARRAY {
         ARRAY withType(TypeSymbol type);
 
@@ -139,18 +154,27 @@ public abstract class TypeBuilder {
         ArrayTypeSymbol build();
     }
 
+    /**
+     * Represents the methods required to build the Map type symbol of an Error type descriptor.
+     */
     public interface ERROR {
         ERROR withTypeParam(TypeSymbol typeParam);
 
         ErrorTypeSymbol build();
     }
 
+    /**
+     * Represents the methods required to build the Map type symbol of a Singleton type descriptor.
+     */
     public interface SINGLETON {
 
         SINGLETON withValueSpace(Object value, TypeSymbol typeSymbol);
         SingletonTypeSymbol build();
     }
 
+    /**
+     * Represents the methods required to build the Map type symbol of a Table type descriptor.
+     */
     public interface TABLE {
 
         TABLE withRowType(TypeSymbol rowType);
@@ -159,6 +183,9 @@ public abstract class TypeBuilder {
         TableTypeSymbol build();
     }
 
+    /**
+     * Represents the methods required to build the Map type symbol of a Function type descriptor.
+     */
     public interface FUNCTION {
 
         FUNCTION withParams(ParameterSymbol... parameters);
@@ -173,6 +200,65 @@ public abstract class TypeBuilder {
             PARAMETER_BUILDER withType(TypeSymbol type);
             PARAMETER_BUILDER ofKind(ParameterKind kind);
             ParameterSymbol build();
+        }
+    }
+
+    /**
+     * Represents the methods required to build the Map type symbol of an Object type descriptor.
+     */
+    public interface OBJECT {
+        OBJECT withQualifier(Qualifier... qualifiers);
+        OBJECT withFields(OBJECT_FIELD... fields);
+        OBJECT withMethods(OBJECT_METHOD... methods);
+        OBJECT withTypeInclusions(TypeReferenceTypeSymbol... inclusions);
+        OBJECT_FIELD fields();
+        OBJECT_METHOD methods();
+        ObjectTypeSymbol build();
+
+        interface OBJECT_FIELD {
+            OBJECT_FIELD isPublic();
+            OBJECT_FIELD withType(TypeSymbol type);
+            OBJECT_FIELD withName(String name);
+            boolean isPublicField();
+            String getName();
+            TypeSymbol getType();
+            OBJECT_FIELD build();
+        }
+
+        interface OBJECT_METHOD {
+            OBJECT_METHOD withQualifiers(Qualifier... qualifiers);
+            OBJECT_METHOD withName(String name);
+            OBJECT_METHOD withType(FunctionTypeSymbol type);
+            String getName();
+            FunctionTypeSymbol getType();
+            OBJECT_METHOD build();
+        }
+    }
+
+    /**
+     * Represents the methods required to build the Map type symbol of a Record type descriptor.
+     */
+    public interface RECORD {
+        RECORD_FIELD fields();
+
+        RECORD withFields(RECORD_FIELD... fields);
+        RECORD withRestField(TypeSymbol restType);
+        RECORD withTypeInclusions(TypeReferenceTypeSymbol... typeInclusions);
+        RecordTypeSymbol build();
+
+        interface RECORD_FIELD {
+            RECORD_FIELD isReadOnly();
+            RECORD_FIELD withType(TypeSymbol type);
+            RECORD_FIELD withName(String name);
+            RECORD_FIELD isOptional();
+            RECORD_FIELD hasDefaultExpr();
+
+            boolean isFieldReadOnly();
+            TypeSymbol getType();
+            String getName();
+            boolean isFieldOptional();
+            boolean hasFieldDefaultExpr();
+            RECORD_FIELD build();
         }
     }
 }
