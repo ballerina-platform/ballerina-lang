@@ -702,8 +702,8 @@ public class BTestRunner {
     private void stopSuite(Scheduler scheduler, Class<?> initClazz) {
         TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class},
-                new Object[]{scheduler.getListenerRegistry()});
+        stop.directInvoke(new Class<?>[]{Scheduler.ListenerRegistry.class, Scheduler.StopHandlerRegistry.class},
+                new Object[]{scheduler.getListenerRegistry(), scheduler.getStopHandlerRegistry()});
     }
 
     private Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,
