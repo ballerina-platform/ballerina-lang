@@ -177,7 +177,8 @@ public class TestRunnerUtils {
             String outputHeader = matcher.group(2).trim();
             if (!(kindOfTestCase.equals(outputHeader) ||
                     (kindOfTestCase.equals(PARSER_ERROR) && outputHeader.equals(ERROR)))) {
-                reportDiagnostics("format of output is incorrect, It should be //@error, //@output and //@panic");
+                reportDiagnostics("format of output is incorrect, It should be //@error, //@output and //@panic" +
+                        " and given '" + outputHeader + "' for '" + kindOfTestCase + "' type test");
             }
             String output = matcher.group(3);
             line = matcher.group(1);
@@ -199,8 +200,8 @@ public class TestRunnerUtils {
             case PARSER_ERROR:
                 return kind;
             default:
-                reportDiagnostics(String.format("Incorrect test kind, expected testcase kind to be %s, %s, %s or %s",
-                                  OUTPUT, PANIC, ERROR, PARSER_ERROR));
+                reportDiagnostics(String.format("Incorrect test kind : '%s', expected testcase kind to be " +
+                                "%s, %s, %s or %s", kind, OUTPUT, PANIC, ERROR, PARSER_ERROR));
                 return OTHER;
 
         }
@@ -440,9 +441,6 @@ public class TestRunnerUtils {
 
     public static void validateOutput(CompileResult compileResult, List<String> outputValues, List<Integer> lineNumbers,
                                       int absLineNum, ITestContext context) {
-        if (lineNumbers.isEmpty() || outputValues.isEmpty()) {
-            Assert.fail("Test output is empty");
-        }
         Collection<Diagnostic> diagnostics = compileResult.getDiagnosticResult().errors();
         if (!diagnostics.isEmpty()) {
             Diagnostic diagnostic = diagnostics.iterator().next();
