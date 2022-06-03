@@ -18,7 +18,6 @@
 
 package io.ballerina.compiler.api.impl.types;
 
-import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -162,12 +161,11 @@ public abstract class TypeBuilder {
 
     public interface FUNCTION {
 
-        FUNCTION withParams(ParameterSymbol... params);
+        FUNCTION withParams(ParameterSymbol... parameters);
         FUNCTION withRestParam(ParameterSymbol restParam);
         FUNCTION withReturnType(TypeSymbol returnType);
-        FUNCTION withReturnTypeAnnots(Annotatable annots);
 
-        PARAMETER_BUILDER parameterBuilder();
+        PARAMETER_BUILDER params();
         FunctionTypeSymbol build();
 
         interface PARAMETER_BUILDER {

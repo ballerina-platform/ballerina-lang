@@ -4,15 +4,15 @@ import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
-import io.ballerina.compiler.api.symbols.Annotatable;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
+
 public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
 
     private final CompilerContext context;
@@ -31,7 +33,6 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     private List<ParameterSymbol> parameterSymbols = new ArrayList<>();
     private ParameterSymbol restParam;
     private TypeSymbol returnTypeSymbol;
-    private Annotatable annots;
 
     public PARAMETER_BUILDER PARAM_BUILDER;
 
@@ -43,12 +44,12 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     }
 
     @Override
-    public TypeBuilder.FUNCTION withParams(ParameterSymbol... params) {
+    public TypeBuilder.FUNCTION withParams(ParameterSymbol... parameters) {
         if (!parameterSymbols.isEmpty()) {
             parameterSymbols = new ArrayList<>();
         }
 
-        parameterSymbols.addAll(Arrays.asList(params));
+        parameterSymbols.addAll(Arrays.asList(parameters));
 
         return this;
     }
@@ -68,29 +69,28 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     }
 
     @Override
-    public TypeBuilder.FUNCTION withReturnTypeAnnots(Annotatable annots) {
-        this.annots = annots;
-
-        return this;
-    }
-
-    @Override
-    public PARAMETER_BUILDER parameterBuilder() {
+    public PARAMETER_BUILDER params() {
         return new ParameterBuilder(context);
     }
 
     @Override
     public FunctionTypeSymbol build() {
         List<BType> paramTypes = getParamTypes(parameterSymbols);
-        BType restType = getBType(restParam.typeDescriptor());
+        BType restType = restParam != null ? getBType(restParam.typeDescriptor()) : null;
         BType returnType = getReturnBType(returnTypeSymbol);
-        BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) symTable.invokableType.tsymbol;
-        tsymbol.returnType = returnType;
-        tsymbol.params = getBParamSymbols(parameterSymbols);
-        tsymbol.restParam = (BVarSymbol) ((BallerinaSymbol) restParam).getInternalSymbol();
-        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, returnType, tsymbol);
+        BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, 0,
+                symTable.rootPkgSymbol.pkgID, symTable.invokableType, symTable.rootPkgNode.symbol.scope.owner,
+                symTable.builtinPos, COMPILED_SOURCE);
+        tSymbol.returnType = returnType;
+        tSymbol.params = getBParamSymbols(parameterSymbols);
+        tSymbol.restParam = restParam != null ? (BVarSymbol) ((BallerinaSymbol) restParam).getInternalSymbol() : null;
+        BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, returnType, tSymbol);
+        FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typesFactory.getTypeDescriptor(bInvokableType);
+        parameterSymbols.clear();
+        restParam = null;
+        returnTypeSymbol = null;
 
-        return (FunctionTypeSymbol) typesFactory.getTypeDescriptor(bInvokableType);
+        return functionTypeSymbol;
     }
 
     private List<BVarSymbol> getBParamSymbols(List<ParameterSymbol> parameterSymbols) {
@@ -128,22 +128,22 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
                     || returnTypeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.nilType)))) {
                 return ((AbstractTypeSymbol) returnTypeSymbol).getBType();
             }
+
+            throw new IllegalArgumentException("Invalid return type provided");
         }
 
-        throw new IllegalArgumentException("Invalid return type provided");
+        return null;
     }
 
     public class ParameterBuilder implements PARAMETER_BUILDER {
 
-        private SymbolFactory symbolFactory;
-        private SymbolEnter symbolEnter;
+        private final SymbolFactory symbolFactory;
         private String name;
         private TypeSymbol type;
         private ParameterKind kind;
 
         private ParameterBuilder(CompilerContext context) {
             symbolFactory = SymbolFactory.getInstance(context);
-            symbolEnter = SymbolEnter.getInstance(context);
         }
 
         @Override
@@ -195,7 +195,5 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
 
             throw new IllegalArgumentException("Invalid type provided");
         }
-
-
     }
 }
