@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -45,6 +46,7 @@ public abstract class TypeBuilder {
     public ARRAY ARRAY_TYPE;
     public ERROR ERROR_TYPE;
     public SINGLETON SINGLETON_TYPE;
+    public TABLE TABLE_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -143,5 +145,13 @@ public abstract class TypeBuilder {
 
         SINGLETON withValueSpace(Object value, TypeSymbol typeSymbol);
         SingletonTypeSymbol build();
+    }
+
+    public interface TABLE {
+
+        TABLE withRowType(TypeSymbol rowType);
+        TABLE withKeyConstraint(TypeSymbol keyType);
+        TABLE withKeyConstraint(String... fieldNames);
+        TableTypeSymbol build();
     }
 }
