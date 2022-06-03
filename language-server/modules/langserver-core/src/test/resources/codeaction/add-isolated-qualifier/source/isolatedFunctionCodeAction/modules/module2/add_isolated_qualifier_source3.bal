@@ -1,6 +1,6 @@
-import ballerina/http;
+import ballerina/module1;
 
-service / on new http:Listener(8080) {
+service / on new module1:Listener(9090) {
     private int[] items = [];
 
     isolated resource function name . () {

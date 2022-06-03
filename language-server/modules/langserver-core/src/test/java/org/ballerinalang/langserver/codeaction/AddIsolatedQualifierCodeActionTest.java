@@ -47,7 +47,9 @@ public class AddIsolatedQualifierCodeActionTest extends AbstractCodeActionTest {
                 {"add_isolated_qualifier_config2.json",
                         "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source2.bal"},
                 {"add_isolated_qualifier_config3.json",
-                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source3.bal"}
+                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source3.bal"},
+                {"add_isolated_qualifier_config4.json",
+                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source4.bal"}
         };
     }
 }

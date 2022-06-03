@@ -26,6 +26,8 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -65,7 +67,7 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range diagnosticRange = PositionUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode nonTerminalNode = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
         
         if (nonTerminalNode.kind() == SyntaxKind.EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION) {
@@ -81,7 +83,7 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
         if (project.isEmpty()) {
             return Collections.emptyList();
         }
-        Optional<Path> filePath = CommonUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
+        Optional<Path> filePath = PathUtil.getFilePathForSymbol(symbol.get(), project.get(), context);
         if (filePath.isEmpty() || context.workspace().syntaxTree(filePath.get()).isEmpty()) {
             return Collections.emptyList();
         }
@@ -93,7 +95,7 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
         }
 
         FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) node.get(); 
-        Position position = CommonUtil.toPosition(functionDefinitionNode.functionKeyword().lineRange().startLine());
+        Position position = PositionUtil.toPosition(functionDefinitionNode.functionKeyword().lineRange().startLine());
 
         Range range = new Range(position, position);
         String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
@@ -106,7 +108,7 @@ public class AddIsolatedQualifierCodeAction extends AbstractCodeActionProvider {
 
     private List<CodeAction> getExplicitAnonFuncExpressionCodeAction(ExplicitAnonymousFunctionExpressionNode node, 
                                                                      CodeActionContext context) {
-        Position position = CommonUtil.toPosition(node.functionKeyword().lineRange().startLine());
+        Position position = PositionUtil.toPosition(node.functionKeyword().lineRange().startLine());
         Range range = new Range(position, position);
         String editText = SyntaxKind.ISOLATED_KEYWORD.stringValue() + " ";
         TextEdit textEdit = new TextEdit(range, editText);
