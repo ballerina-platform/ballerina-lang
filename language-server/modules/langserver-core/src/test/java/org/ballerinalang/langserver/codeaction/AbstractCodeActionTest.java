@@ -22,7 +22,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.AbstractLSTest;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -36,6 +37,8 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -59,10 +62,9 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
     private final Path sourcesPath = new File(getClass().getClassLoader().getResource("codeaction").getFile()).toPath();
 
-    private static final WorkspaceManager workspaceManager
-            = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
+    private  WorkspaceManager workspaceManager;
 
-    private static final LanguageServerContext serverContext = new LanguageServerContextImpl();
+    private LanguageServerContext serverContext;
 
     @Test(dataProvider = "codeaction-data-provider")
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
@@ -78,7 +80,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
         diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
@@ -134,7 +136,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                     for (JsonElement actualArg : actualArgs) {
                         JsonObject arg = actualArg.getAsJsonObject();
                         if ("doc.uri".equals(arg.get("key").getAsString())) {
-                            Optional<Path> docPath = CommonUtil.getPathFromURI(arg.get("value").getAsString());
+                            Optional<Path> docPath = PathUtil.getPathFromURI(arg.get("value").getAsString());
                             if (docPath.isPresent()) {
                                 // We just check file names, since one refers to file in build/ while
                                 // the other refers to the file in test resources
@@ -183,7 +185,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
         diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
 
@@ -217,9 +219,21 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         responseJson.remove("id");
         return responseJson;
     }
+    
+    @BeforeClass
+    public void setup() {
+        workspaceManager = new BallerinaWorkspaceManager(new LanguageServerContextImpl());
+        serverContext = new LanguageServerContextImpl();
+    }
 
     @DataProvider(name = "codeaction-data-provider")
     public abstract Object[][] dataProvider();
 
     public abstract String getResourceDir();
+    
+    @AfterClass
+    public void cleanUp() {
+        this.serverContext = null;
+        this.workspaceManager = null;
+    }
 }

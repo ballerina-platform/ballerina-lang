@@ -569,7 +569,7 @@ public class BuildCommandTest extends BaseCommandTest {
         System.setProperty(USER_NAME, "john");
 
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-        // non existing bal file
+        // non-existing bal file
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);

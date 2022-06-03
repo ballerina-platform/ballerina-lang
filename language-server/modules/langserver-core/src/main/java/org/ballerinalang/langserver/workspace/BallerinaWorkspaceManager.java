@@ -46,6 +46,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -411,7 +412,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (changes.size() == 1) {
             FileEvent fileEvent = changes.get(0);
             String uri = fileEvent.getUri();
-            Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
+            Optional<Path> pathFromURI = PathUtil.getPathFromURI(uri);
             if (pathFromURI.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -432,7 +433,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         Set<Path> reloadableProjects = new HashSet<>();
         for (FileEvent fileEvent : changes) {
             String uri = fileEvent.getUri();
-            Optional<Path> pathFromURI = CommonUtil.getPathFromURI(uri);
+            Optional<Path> pathFromURI = PathUtil.getPathFromURI(uri);
 
             if (pathFromURI.isEmpty()) {
                 return Collections.emptyList();

@@ -47,6 +47,9 @@ public class BLangCheckedExpr extends BLangExpression implements CheckedExpressi
     // This list caches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;
 
+    // Indicates whether the checking-keyword usage is redundant.
+    public boolean isRedundantChecking = false;
+
     @Override
     public BLangExpression getExpression() {
         return expr;

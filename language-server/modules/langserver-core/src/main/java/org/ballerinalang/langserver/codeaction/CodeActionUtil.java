@@ -55,7 +55,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -66,6 +65,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -378,7 +378,7 @@ public class CodeActionUtil {
     public static DiagBasedPositionDetails computePositionDetails(SyntaxTree syntaxTree, Diagnostic diagnostic,
                                                                   CodeActionContext context) {
         // Find Cursor node
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
         Document srcFile = context.currentDocument().orElseThrow();
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
@@ -511,19 +511,19 @@ public class CodeActionUtil {
                                     CodeActionUtil.getPossibleType(parentUnionRetTypeDesc, edits, context)
                                             .orElseThrow();
                             returnText = "returns " + typeName + "|error";
-                            returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                            returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                         }
                     } else {
                         // Parent function already has another return-type
                         String typeName =
                                 CodeActionUtil.getPossibleType(enclosedRetTypeDesc, edits, context).orElseThrow();
                         returnText = "returns " + typeName + "|error";
-                        returnRange = CommonUtil.toRange(enclosedRetTypeDescNode.lineRange());
+                        returnRange = PositionUtil.toRange(enclosedRetTypeDescNode.lineRange());
                     }
                 } else {
                     // Parent function has no return
                     returnText = " returns error?";
-                    Position position = CommonUtil.toPosition(
+                    Position position = PositionUtil.toPosition(
                             enclosedFunc.get().functionSignature().closeParenToken().lineRange().endLine());
                     returnRange = new Range(position, position);
                 }
@@ -551,8 +551,8 @@ public class CodeActionUtil {
     public static Node largestExpressionNode(Node node, Range range) {
         Predicate<Node> isWithinScope =
                 tNode -> tNode != null && !(tNode instanceof ExpressionStatementNode) &&
-                        CommonUtil.isWithinRange(CommonUtil.toPosition(tNode.lineRange().startLine()), range) &&
-                        CommonUtil.isWithinRange(CommonUtil.toPosition(tNode.lineRange().endLine()), range);
+                        PositionUtil.isWithinRange(PositionUtil.toPosition(tNode.lineRange().startLine()), range) &&
+                        PositionUtil.isWithinRange(PositionUtil.toPosition(tNode.lineRange().endLine()), range);
         while (isWithinScope.test(node.parent())) {
             node = node.parent();
         }
@@ -634,7 +634,7 @@ public class CodeActionUtil {
                     // A record type descriptor can be inside a type definition node
                     NonTerminalNode parent = member.parent();
                     if (parent != null && parent.kind() == SyntaxKind.TYPE_DEFINITION &&
-                            (isWithinStartCodeSegment(parent, cursorPosOffset) || 
+                            (isWithinStartCodeSegment(parent, cursorPosOffset) ||
                                     isWithinBody(parent, cursorPosOffset))) {
                         return Optional.of(parent);
                     }
@@ -1046,14 +1046,10 @@ public class CodeActionUtil {
     public static <T> Function<List<DiagnosticProperty<?>>,
             Optional<T>> getDiagPropertyFilterFunction(int propertyIndex) {
         Function<List<DiagnosticProperty<?>>, Optional<T>> filterFunction = diagnosticProperties -> {
-
-            List<DiagnosticProperty<?>> props = diagnosticProperties.stream()
-                    .filter(diagnosticProperty -> diagnosticProperty.kind() == DiagnosticPropertyKind.SYMBOLIC)
-                    .collect(Collectors.toList());
-            if (props.size() < (propertyIndex + 1)) {
+            if (diagnosticProperties.size() < (propertyIndex + 1)) {
                 return Optional.empty();
             }
-            DiagnosticProperty<?> diagnosticProperty = props.get(propertyIndex);
+            DiagnosticProperty<?> diagnosticProperty = diagnosticProperties.get(propertyIndex);
             // Nullable static API used for safety
             return Optional.ofNullable((T) diagnosticProperty.value());
         };

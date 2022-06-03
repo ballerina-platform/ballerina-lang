@@ -44,11 +44,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 @Test
 public class AnnotationRuntimeTest {
 
-    private CompileResult resultAccessNegative;
-    private final CompileResult resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
-
+    private CompileResult resultOne, resultAccessNegative;
+    
     @BeforeClass
     public void setup() {
+        resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
     }
 
