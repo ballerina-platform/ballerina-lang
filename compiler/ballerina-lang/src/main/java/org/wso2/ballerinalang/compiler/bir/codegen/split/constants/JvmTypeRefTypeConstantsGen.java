@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -30,8 +31,6 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTypeRefTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -55,10 +54,9 @@ public class JvmTypeRefTypeConstantsGen {
 
     private final String typeRefVarConstantsClass;
     private JvmTypeRefTypeGen jvmTypeRefTypeGen;
-    private ClassWriter cw;
+    private final ClassWriter cw;
     private MethodVisitor mv;
     private int methodCount;
-    private final List<String> funcNames;
     private final Map<BTypeReferenceType, String> typeRefVarMap;
 
     /**
@@ -70,7 +68,6 @@ public class JvmTypeRefTypeConstantsGen {
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, typeRefVarConstantsClass);
         visitTypeRefTypeInitMethod();
-        funcNames = new ArrayList<>();
         typeRefVarMap = new TreeMap<>(bTypeHashComparator);
     }
 
@@ -87,7 +84,8 @@ public class JvmTypeRefTypeConstantsGen {
     }
 
     private String generateTypeRefInits(BTypeReferenceType type) {
-        String varName = JvmConstants.TYPEREF_TYPE_VAR_PREFIX + type.tsymbol.name;
+        String varName =
+                JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
         visitTypeRefField(varName);
         createTypeRefType(mv, type, varName);
         return varName;
@@ -112,9 +110,6 @@ public class JvmTypeRefTypeConstantsGen {
     public void generateClass(Map<String, byte[]> jarEntries) {
         genMethodReturn(mv);
         visitTypeRefTypeInitMethod();
-        for (String funcName : funcNames) {
-            mv.visitMethodInsn(INVOKESTATIC, typeRefVarConstantsClass, funcName, "()V", false);
-        }
         genMethodReturn(mv);
         generateStaticInitializer(cw);
         cw.visitEnd();
