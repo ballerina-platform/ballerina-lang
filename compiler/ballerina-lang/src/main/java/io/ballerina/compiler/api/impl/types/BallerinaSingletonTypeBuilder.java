@@ -18,8 +18,24 @@
 
 package io.ballerina.compiler.api.impl.types;
 
+import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
+import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
+
+import java.util.Set;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
 /**
  * The implementation of the methods used to build the Singleton type descriptor.
@@ -28,12 +44,45 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
  */
 public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
 
+    private final TypesFactory typesFactory;
+    private final SymbolTable symTable;
+    private TypeSymbol valueTypeSymbol;
+    private Object value;
+
     public BallerinaSingletonTypeBuilder(CompilerContext context) {
+        typesFactory = TypesFactory.getInstance(context);
+        symTable = SymbolTable.getInstance(context);
+    }
+
+    @Override
+    public TypeBuilder.SINGLETON withValueSpace(Object value, TypeSymbol typeSymbol) {
+        this.value = value;
+        this.valueTypeSymbol = typeSymbol;
+        return this;
     }
 
     @Override
     public SingletonTypeSymbol build() {
+        // TODO: Validate if the valueTypeSymbol is matching the value's type.
+        BLangLiteral valueLiteral = new BLangLiteral(value, getValueBType(valueTypeSymbol));
+        BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
+                Names.fromString(value.toString()), symTable.rootPkgSymbol.pkgID, null,
+                symTable.rootPkgNode.symbol.owner, symTable.builtinPos, COMPILED_SOURCE);
 
-        return null;
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, Set.of(valueLiteral));
+
+        return (SingletonTypeSymbol) typesFactory.getTypeDescriptor(finiteType, finiteTypeSymbol, true);
+    }
+
+    private BType getValueBType(TypeSymbol typeSymbol) {
+        if (typeSymbol != null) {
+            if (typeSymbol instanceof AbstractTypeSymbol) {
+                return ((AbstractTypeSymbol) typeSymbol).getBType();
+            }
+
+            return symTable.anyType;
+        }
+
+        return symTable.noType;
     }
 }

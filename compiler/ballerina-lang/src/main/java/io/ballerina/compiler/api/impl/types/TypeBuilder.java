@@ -141,6 +141,7 @@ public abstract class TypeBuilder {
 
     public interface SINGLETON {
 
+        SINGLETON withValueSpace(Object value, TypeSymbol typeSymbol);
         SingletonTypeSymbol build();
     }
 }

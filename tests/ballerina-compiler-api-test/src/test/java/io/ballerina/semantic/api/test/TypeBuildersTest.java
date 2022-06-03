@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -56,6 +57,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.ERROR;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STREAM;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPEDESC;
@@ -76,7 +78,6 @@ import static org.testng.Assert.assertTrue;
  */
 public class TypeBuildersTest {
     private Types types;
-    private TypeBuilder builder;
     private final List<XMLTypeSymbol> xmlSubTypes = new ArrayList<>();
 
     @BeforeClass
@@ -90,7 +91,6 @@ public class TypeBuildersTest {
         Project project = BCompileUtil.loadProject("test-src/types-project");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         types = model.types();
-        builder = types.builder();
 
         // Extracting the XML subtypes
         List<TypeSymbol> xmlSubTypeMembers =
@@ -103,6 +103,7 @@ public class TypeBuildersTest {
     @Test(dataProvider = "xmlTypeBuilderProvider")
     public void testXMLTypeBuilder(TypeSymbol typeParam, TypeDescKind typeDescKind, TypeDescKind typeParamDescKind,
                                    String signature) {
+        TypeBuilder builder = types.builder();
         XMLTypeSymbol xmlTypeSymbol = builder.XML_TYPE.withTypeParam(typeParam).build();
         assertEquals(xmlTypeSymbol.typeKind(), typeDescKind);
         if (typeParam != null) {
@@ -128,6 +129,7 @@ public class TypeBuildersTest {
 
     @Test(dataProvider = "xmlTypeParamsFromSourceProvider")
     public void testXmlTypeParamsFromSource(String typeDef, TypeDescKind typeDescKind, String signature) {
+        TypeBuilder builder = types.builder();
         Optional<Symbol> typeSymbol = types.getTypeByName("testorg", "typesapi.builder", "1.0.0", typeDef);
         assertTrue(typeSymbol.isPresent());
         assertEquals(typeSymbol.get().kind(), SymbolKind.TYPE_DEFINITION);
@@ -247,7 +249,6 @@ public class TypeBuildersTest {
 
     @Test(dataProvider = "tupleTypeBuilderProvider")
     public void testTupleTypeBuilder(List<TypeSymbol> memberTypes, TypeSymbol restType, String signature) {
-
         TypeBuilder builder = types.builder();
         TypeBuilder.TUPLE tupleType = builder.TUPLE_TYPE.withRestType(restType);
         for (TypeSymbol memberType : memberTypes) {
@@ -294,6 +295,7 @@ public class TypeBuildersTest {
 
     @Test(dataProvider = "errorTypeBuilderProvider")
     public void testErrorTypeBuilder(Integer line, Integer column, String signature) {
+        TypeBuilder builder = types.builder();
         TypeBuilder.ERROR errorType = builder.ERROR_TYPE;
         if (line != null && column != null) {
             errorType.withTypeParam(getTypeDefSymbol(line, column));
@@ -311,6 +313,28 @@ public class TypeBuildersTest {
                 {40, 5, "error<Detail>"},
                 {46, 5, "error<SampleErrorData>"},
                 {53, 5, "error<TrxErrorData>"},
+        };
+    }
+
+    @Test(dataProvider = "singletonTypeBuilderProvider")
+    public void testSingletonTypeBuilder(Object value, TypeSymbol valueTypeSymbol) {
+        TypeBuilder builder = types.builder();
+        SingletonTypeSymbol singletonTypeSymbol = builder.SINGLETON_TYPE.withValueSpace(value, valueTypeSymbol).build();
+        assertEquals(singletonTypeSymbol.typeKind(), SINGLETON);
+        if (valueTypeSymbol.subtypeOf(types.STRING)) {
+            assertEquals(singletonTypeSymbol.signature(), "\"" + value.toString() + "\"");
+        } else {
+            assertEquals(singletonTypeSymbol.signature(), value.toString());
+        }
+    }
+
+    @DataProvider(name = "singletonTypeBuilderProvider")
+    private Object[][] getSingletonTypeBuilders() {
+        return new Object[][] {
+                {5, types.INT},
+                {"abc", types.STRING},
+                {1.5, types.FLOAT},
+                {true, types.BOOLEAN},
         };
     }
 
