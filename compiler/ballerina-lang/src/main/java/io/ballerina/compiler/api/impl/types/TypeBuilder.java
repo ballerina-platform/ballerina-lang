@@ -20,8 +20,11 @@ package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
@@ -47,6 +50,7 @@ public abstract class TypeBuilder {
     public ERROR ERROR_TYPE;
     public SINGLETON SINGLETON_TYPE;
     public TABLE TABLE_TYPE;
+    public FUNCTION FUNCTION_TYPE;
 
     /**
      * Represents the methods required to build the XML type symbol of an XML type descriptor.
@@ -153,5 +157,22 @@ public abstract class TypeBuilder {
         TABLE withKeyConstraint(TypeSymbol keyType);
         TABLE withKeyConstraint(String... fieldNames);
         TableTypeSymbol build();
+    }
+
+    public interface FUNCTION {
+
+        FUNCTION withParams(ParameterSymbol... parameters);
+        FUNCTION withRestParam(ParameterSymbol restParam);
+        FUNCTION withReturnType(TypeSymbol returnType);
+
+        PARAMETER_BUILDER params();
+        FunctionTypeSymbol build();
+
+        interface PARAMETER_BUILDER {
+            PARAMETER_BUILDER withName(String name);
+            PARAMETER_BUILDER withType(TypeSymbol type);
+            PARAMETER_BUILDER ofKind(ParameterKind kind);
+            ParameterSymbol build();
+        }
     }
 }
