@@ -303,11 +303,7 @@ public class CloneWithType {
         BArray data = ValueCreator.createArrayValue(tableValues,
                                                     TypeCreator.createArrayType(tableType.getConstrainedType()));
         BArray fieldNames;
-        if (tableType.getFieldNames() != null) {
-            fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-        } else {
-            fieldNames = ValueCreator.createArrayValue(new BString[0]);
-        }
+        fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
         return ValueCreator.createTableValue(tableType, data, fieldNames);
     }
 }

@@ -25,7 +25,8 @@ function testLiteralAsKeyValue() {
     ];
 
     tbl.add({k: 13, value: 25});
-    assertEqual(table key(k) [{ k: 12, value: 17 }, {k: 13, value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: 12, value: 17 }, {k: 13, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 13, value: 25};
     assertEqual(row, tbl.get(13));
@@ -49,7 +50,8 @@ function testStringTemplateExprAsKeyValue() {
     ];
 
     tbl.add({k: string `DEF`, value: 25});
-    assertEqual(table key(k) [{ k: string `ABC`, value: 17 }, {k: string `DEF`, value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: string `ABC`, value: 17 }, {k: string `DEF`, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row2 row = {k: string `ABC`, value: 17};
     assertEqual(row, tbl.get(string `ABC`));
@@ -73,7 +75,8 @@ function testXmlTemplateExprAsKeyValue() {
     ];
 
     tbl.add({k: xml `DEF`, value: 25});
-    assertEqual(table key(k) [{ k: xml `ABC`, value: 17 }, {k: xml `DEF`, value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: xml `ABC`, value: 17 }, {k: xml `DEF`, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row3 row = {k: xml `ABC`, value: 17};
     assertEqual(row, tbl.get(xml `ABC`));
@@ -97,7 +100,8 @@ function testListConstructorExprAsKeyValue() {
     ];
 
     tbl.add({k: [13 , 14], value: 25});
-    assertEqual(table key(k) [{ k: [12 , 13], value: 17 }, {k: [13 , 14], value: 25}], tbl);
+    var tbl2 = table key(k) [{ k: [12 , 13], value: 17 }, {k: [13 , 14], value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row4 row = {k: [13 , 14], value: 25};
     assertEqual(row, tbl.get([13 , 14]));
@@ -121,7 +125,8 @@ function testTableConstructorExprAsKeyValue() {
     ];
 
     tbl.add({k: table key(k) [{k: 13, value: 25}], value: 25});
-    assertEqual(table key(k) [{k: table key(k) [{k: 12, value: 17}], value: 17}, {k: table key(k) [{k: 13, value: 25}], value: 25}], tbl);
+    var tbl2 = table key(k) [{k: table key(k) [{k: 12, value: 17}], value: 17}, {k: table key(k) [{k: 13, value: 25}], value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row5 row = {k: table key(k) [{k: 13, value: 25}], value: 25};
     readonly & table<Row1> key(k) keyVal = table [
@@ -148,8 +153,9 @@ function testMappingConstructorExprAsKeyValue() {
     ];
 
     tbl.add({k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25});
-    assertEqual(table key(k) [{k: {"A": "a", "B": 12, "C": [13.5, 24.3]}, value: 17},
-                {k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: {"A": "a", "B": 12, "C": [13.5, 24.3]}, value: 17},
+                               {k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row6 row = {k: {"A": "z", "B": 12, "C": [23.5, 65.3]}, value: 25};
     assertEqual(row, tbl.get({"A": "z", "B": 12, "C": [23.5, 65.3]}));
@@ -171,7 +177,8 @@ function testConstRefExprAsKeyValue() {
     ];
 
     tbl.add({k: TWO, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(2));
@@ -190,7 +197,8 @@ function testTypeCastExprAsKeyValue() {
     ];
 
     tbl.add({k: <int>2.5, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(2));
@@ -209,7 +217,8 @@ function testUnaryExprAsKeyValue() {
     ];
 
     tbl.add({k: +2, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(2));
@@ -228,7 +237,8 @@ function testMultiplicativeExprAsKeyValue() {
     ];
 
     tbl.add({k: 2 * 10, value: 25});
-    assertEqual(table key(k) [{k: 10, value: 17}, {k: 20, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 10, value: 17}, {k: 20, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 20, value: 25};
     assertEqual(row, tbl.get(20));
@@ -247,7 +257,8 @@ function testAdditiveExprAsKeyValue() {
     ];
 
     tbl.add({k: 2 + 10, value: 25});
-    assertEqual(table key(k) [{k: 11, value: 17}, {k: 12, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 11, value: 17}, {k: 12, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 12, value: 25};
     assertEqual(row, tbl.get(12));
@@ -266,7 +277,8 @@ function testShiftExprAsKeyValue() {
     ];
 
     tbl.add({k: 1 << 65, value: 25});
-    assertEqual(table key(k) [{k: 1, value: 17}, {k: 2, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 1, value: 17}, {k: 2, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 2, value: 25};
     assertEqual(row, tbl.get(0x2));
@@ -291,7 +303,8 @@ function testRelationalExprAsKeyValue() {
     ];
 
     tbl.add({k: 10 >= 20, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -311,7 +324,8 @@ function testIsExprAsKeyValue() {
     ];
 
     tbl.add({k: a is map<int>, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -332,7 +346,8 @@ function testEqualityExprAsKeyValue() {
     ];
 
     tbl.add({k: a === b, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -351,7 +366,8 @@ function testBinaryBitwiseExprAsKeyValue() {
     ];
 
     tbl.add({k: 100 & 1000, value: 25});
-    assertEqual(table key(k) [{k: 110, value: 17}, {k: 96, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 110, value: 17}, {k: 96, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 96, value: 25};
     assertEqual(row, tbl.get(96));
@@ -372,7 +388,8 @@ function testLogicalExprAsKeyValue() {
     ];
 
     tbl.add({k: a && b, m: 30.5, value: 25});
-    assertEqual(table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: true, m: 20.5, value: 17}, {k: false, m: 30.5, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row7 row = {k: true, m: 20.5, value: 17};
     assertEqual(row, tbl.get([true, 20.5]));
@@ -392,7 +409,8 @@ function testConditionalExprAsKeyValue() {
     ];
 
     tbl.add({k: a is string ? 30 : 40, value: 25});
-    assertEqual(table key(k) [{k: 10, value: 17}, {k: 40, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 10, value: 17}, {k: 40, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 40, value: 25};
     assertEqual(row, tbl.get(40));
@@ -412,7 +430,8 @@ function testGroupExprAsKeyValue() {
     ];
 
     tbl.add({k: (a is string ? 30 : (<int> 40.5)), value: 25});
-    assertEqual(table key(k) [{k: 10, value: 17}, {k: 40, value: 25}], tbl);
+    var tbl2 = table key(k) [{k: 10, value: 17}, {k: 40, value: 25}];
+    assertEqual(tbl2, tbl);
 
     Row1 row = {k: 40, value: 25};
     assertEqual(row, tbl.get(40));

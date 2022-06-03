@@ -1,6 +1,6 @@
-import ballerina/http;
-service greet on new http:Listener(8080) {
-    resource function hi(http:Caller caller, http:Request request) {
+import ballerina/httpx;
+service greet on new httpx:Listener(8080) {
+    resource function hi(httpx:Caller caller, httpx:Request request) {
         checkpanic caller->respond()
     }
 }

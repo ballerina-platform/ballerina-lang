@@ -3,7 +3,7 @@
   "character": 73,
   "expected": [
     {
-      "title": "Add type cast to assignment"
+      "title": "Add type cast"
     }
   ]
 }

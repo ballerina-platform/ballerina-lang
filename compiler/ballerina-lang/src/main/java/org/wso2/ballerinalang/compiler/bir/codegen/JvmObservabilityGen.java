@@ -174,11 +174,11 @@ class JvmObservabilityGen {
             if (isService) {
                 for (BIRNode.BIRAnnotationAttachment annotationAttachment : typeDef.annotAttachments) {
                     if (DISPLAY_ANNOTATION.equals(annotationAttachment.annotTagRef.value)) {
-                        BIRNode.BIRAnnotationRecordValue annotationRecordValue = (BIRNode.BIRAnnotationRecordValue)
-                                annotationAttachment.annotValues.get(0);
-                        Map<String, BIRNode.BIRAnnotationValue> annotationMap =
-                                annotationRecordValue.annotValueEntryMap;
-                        serviceName = ((BIRNode.BIRAnnotationLiteralValue) annotationMap.get("label")).value.toString();
+                        BIRNode.ConstValue annotValue =
+                                ((BIRNode.BIRConstAnnotationAttachment) annotationAttachment).annotValue;
+                        Map<String, BIRNode.ConstValue> annotationMap =
+                                (Map<String, BIRNode.ConstValue>) annotValue.value;
+                        serviceName = annotationMap.get("label").value.toString();
                         break;
                     }
                 }
@@ -293,7 +293,8 @@ class JvmObservabilityGen {
         PackageID packageID = pkg.packageID;
         Name org = new Name(Utils.decodeIdentifier(packageID.orgName.getValue()));
         Name module = new Name(Utils.decodeIdentifier(packageID.name.getValue()));
-        PackageID currentPkgId = new PackageID(org, module, packageID.version);
+        PackageID currentPkgId = new PackageID(org, module, module, packageID.version, packageID.sourceFileName,
+                packageID.isTestPkg);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
         if (attachedTypeDef == null) {
@@ -938,7 +939,7 @@ class JvmObservabilityGen {
         for (BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
             if (OBSERVABLE_ANNOTATION.equals(
                     JvmCodeGenUtil.getPackageName(
-                            new PackageID(annot.packageID.orgName, annot.packageID.name, Names.EMPTY)) +
+                            new PackageID(annot.annotPkgId.orgName, annot.annotPkgId.name, Names.EMPTY)) +
                             annot.annotTagRef.value)) {
                 isObservableAnnotationPresent = true;
                 break;

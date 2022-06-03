@@ -328,7 +328,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     USAGE_OF_UNINITIALIZED_VARIABLE("BCE2570", "usage.of.uninitialized.variable"),
     UNINITIALIZED_VARIABLE("BCE2571", "uninitialized.variable"),
     CONTAINS_UNINITIALIZED_FIELDS("BCE2572", "uninitialized.object.fields"),
-    CONTAINS_UNINITIALIZED_VARIABLES("BCE2573", "uninitialized.variables"),
+    INVALID_FUNCTION_CALL_WITH_UNINITIALIZED_VARIABLES("BCE2573",
+                                                       "invalid.function.call.with.uninitialized.variables"),
     INVALID_ANY_VAR_DEF("BCE2574", "invalid.any.var.def"),
     INVALID_RECORD_LITERAL("BCE2575", "invalid.record.literal"),
     INVALID_FIELD_IN_RECORD_BINDING_PATTERN("BCE2576", "invalid.field.in.record.binding.pattern"),
@@ -351,7 +352,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CLOSED_ARRAY_TYPE_NOT_INITIALIZED("BCE2592", "closed.array.type.not.initialized"),
     INVALID_LIST_MEMBER_ACCESS_EXPR("BCE2593", "invalid.list.member.access.expr"),
     INVALID_ARRAY_MEMBER_ACCESS_EXPR("BCE2594", "invalid.array.member.access.expr"),
-    CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("BCE2595", "closed.array.type.can.not.infer.size"),
+    CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT("BCE2595",
+            "length.of.the.array.cannot.be.inferred.from.the.context"),
     INVALID_SORT_FUNC_RETURN_TYPE("BCE2596", "invalid.key.func.return.type"),
     INVALID_SORT_ARRAY_MEMBER_TYPE("BCE2597", "invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only
@@ -421,6 +423,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),
     INVALID_FIELD_BINDING_PATTERN_WITH_NON_REQUIRED_FIELD("BCE2653",
             "invalid.field.binding.pattern.with.non.required.field"),
+    INFER_SIZE_ONLY_SUPPORTED_IN_FIRST_DIMENSION("BCE2654", "infer.size.only.supported.in.the.first.dimension"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -492,13 +495,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     MISSING_REQUIRED_METHOD_NEXT("BCE3206", "missing.required.method.next"),
     ORDER_BY_NOT_SUPPORTED("BCE3207", "order.by.not.supported"),
     INVALID_NEXT_METHOD_RETURN_TYPE("BCE3208", "invalid.next.method.return.type"),
+    INVALID_UNBOUNDED_STREAM_CONSTRUCTOR_ITERATOR("BCE3209", "invalid.unbounded.stream.constructor.iterator"),
 
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("BCE3300", "invalid.table.constraint.subtype"),
     TABLE_KEY_SPECIFIER_MISMATCH("BCE3301", "table.key.specifier.mismatch"),
     KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("BCE3302", "key.specifier.size.mismatch.with.key.constraint"),
     KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("BCE3303", "key.specifier.mismatch.with.key.constraint"),
-    INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS("BCE3304", "invalid.key.constraint.provided.for.access"),
     MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE("BCE3305", "member.access.not.supported.keyless.table"),
     INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("BCE3306", "invalid.field.name.in.key.specifier"),
     MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("BCE3307", "multi.key.member.access.not.supported"),
@@ -514,6 +517,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3315", "on.conflict.only.works.with.tables.with.key.specifier"),
     CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS("BCE3316", "cannot.update.table.using.member.access.lvexpr"),
     KEY_SPECIFIER_EMPTY_FOR_PROVIDED_KEY_CONSTRAINT("BCE3317", "key.specifier.empty.with.key.constraint"),
+    KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY("BCE3318", "key.specifier.not.allowed.for.target.any"),
 
 
     // Taint checking related codes

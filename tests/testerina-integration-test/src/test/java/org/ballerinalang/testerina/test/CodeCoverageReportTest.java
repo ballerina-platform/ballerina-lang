@@ -76,9 +76,19 @@ public class CodeCoverageReportTest extends BaseTestCase {
         }
         copyReportDTDFile(reportRoot);
         //Validate Package names in XML File
-        List<String> expectedPackageNames = Arrays.asList(singleModuleTestRoot,
-                "report/codecov/0", "report/codecov/0/annotations", "report/codecov/0/types",
-                "report/codecov/0/constants", "report/codecov/0/creators");
+        List<String> expectedPackageNames = Arrays.asList(
+                "report/codecov$test/0/types",
+                "single-module-codecov",
+                "report/codecov/0/creators",
+                "report/codecov$test/0",
+                "report/codecov/0/types",
+                "report/codecov$test/0/constants",
+                "report/codecov$test/0/creators",
+                "report/codecov/0",
+                "report/codecov$test/0/annotations",
+                "report/codecov/0/annotations",
+                "report/codecov/0/constants"
+        );
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);
         } else {
@@ -100,26 +110,46 @@ public class CodeCoverageReportTest extends BaseTestCase {
         }
         copyReportDTDFile(reportRoot);
         ArrayList<String> expectedPackageNames = new ArrayList<>();
-        Collections.addAll(expectedPackageNames, "testerina_report/foo/0",
-                multiModuleTestRoot, "testerina_report/foo$0046math/0", multiModuleTestRoot + "/modules/bar",
-                "testerina_report/foo$0046bar/0", "testerina_report/foo$0046bar$0046tests/0",
-                "testerina_report/foo/0/annotations",
+        Collections.addAll(expectedPackageNames,
+                "testerina_report/foo$0046math$test/0/constants",
+                "testerina_report/foo$test/0/types",
+                "testerina_report/foo$0046bar/0/creators",
+                "testerina_report/foo$0046bar$0046tests/0",
+                "testerina_report/foo$0046math$test/0",
+                "testerina_report/foo/0/creators",
+                "testerina_report/foo$0046bar$0046tests/0/creators",
+                "testerina_report/foo$0046bar$0046tests/0/types",
+                "testerina_report/foo$0046math/0/constants",
+                "testerina_report/foo$0046bar$0046tests$test/0/constants",
+                "testerina_report/foo$0046math/0/types",
                 "testerina_report/foo$0046bar/0/annotations",
-                "testerina_report/foo$0046math/0/annotations",
-                "testerina_report/foo$0046bar$0046tests/0/annotations",
+                "test-report-tests/modules/math",
+                "testerina_report/foo$0046math$test/0/creators",
+                "testerina_report/foo$0046math/0/creators",
+                "testerina_report/foo$0046bar$0046tests$test/0/types",
+                "test-report-tests",
                 "testerina_report/foo/0/types",
                 "testerina_report/foo$0046bar/0/types",
-                "testerina_report/foo$0046math/0/types",
-                "testerina_report/foo$0046bar$0046tests/0/types",
-                "testerina_report/foo/0/constants",
-                "testerina_report/foo$0046math/0/constants",
-                "testerina_report/foo$0046bar/0/constants",
                 "testerina_report/foo$0046bar$0046tests/0/constants",
-                "testerina_report/foo/0/creators",
-                "testerina_report/foo$0046math/0/creators",
-                "testerina_report/foo$0046bar/0/creators",
-                "testerina_report/foo$0046bar$0046tests/0/creators",
-                multiModuleTestRoot + "/modules/math");
+                "testerina_report/foo$test/0",
+                "testerina_report/foo/0",
+                "testerina_report/foo$0046bar/0",
+                "testerina_report/foo/0/annotations",
+                "testerina_report/foo/0/constants",
+                "testerina_report/foo$0046math$test/0/types",
+                "testerina_report/foo$0046math/0/annotations",
+                "testerina_report/foo$0046bar$0046tests$test/0/creators",
+                "testerina_report/foo$0046bar$0046tests$test/0",
+                "testerina_report/foo$0046bar$0046tests/0/annotations",
+                "testerina_report/foo$0046bar$0046tests$test/0/annotations",
+                "testerina_report/foo$0046math$test/0/annotations",
+                "testerina_report/foo$test/0/annotations",
+                "testerina_report/foo$test/0/constants",
+                "testerina_report/foo$0046math/0",
+                "testerina_report/foo$0046bar/0/constants",
+                "test-report-tests/modules/bar",
+                "testerina_report/foo$test/0/creators"
+        );
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);

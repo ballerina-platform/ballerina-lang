@@ -46,6 +46,10 @@ function foo() {
 
     a = 0x;
     a = 0X;
+    a = 0xp6;
+    a = 0XP6;
+    a = 0xp-6;
+    a = 0XP-6;
 
     a = 0X12G23;
     a = 0X12G23.23EGE;

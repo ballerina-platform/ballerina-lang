@@ -181,6 +181,11 @@ public class UnionTypeTest {
         };
     }
 
+    @Test
+    public void testParenthesisedUnionType() {
+        BRunUtil.invoke(result, "testParenthesisedSingletonUnionType");
+    }
+    
     @AfterClass
     public void tearDown() {
         result = null;

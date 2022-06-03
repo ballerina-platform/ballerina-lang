@@ -49,8 +49,15 @@ public class ToExpString {
             if (xAbsValue == 0) {
                 noOfFractionDigits = 1;
             } else {
-                int integerPart = (int) (Math.log10(xAbsValue));
-                noOfFractionDigits = BigDecimal.valueOf(xAbsValue / Math.pow(10, integerPart)).scale();
+                int pow;
+                BigDecimal xInBigDecimal = BigDecimal.valueOf(x);
+                if (xAbsValue < 1) {
+                    pow = calculatePowerForFloatLessThanOne(xAbsValue);
+                    noOfFractionDigits = xInBigDecimal.scaleByPowerOfTen(pow).scale();
+                } else {
+                    pow = calculatePowerForFloatGreaterThanOrEqualToOne(xAbsValue);
+                    noOfFractionDigits = xInBigDecimal.scale() + pow;
+                }
             }
         } else {
             noOfFractionDigits = (long) fractionDigits;
@@ -71,12 +78,7 @@ public class ToExpString {
 
         int tens = 0;
         if (xAbsValue != 0 && xAbsValue < 1) {
-            double multipliedValue = xAbsValue;
-
-            while (multipliedValue < 1) {
-                multipliedValue = xAbsValue * Math.pow(10, tens + 1);
-                tens++;
-            }
+            tens = calculatePowerForFloatLessThanOne(xAbsValue);
         }
 
         BigDecimal numberBigDecimal = new BigDecimal(x);
@@ -86,25 +88,50 @@ public class ToExpString {
             numberBigDecimal  = numberBigDecimal.setScale(exponent, RoundingMode.HALF_EVEN);
         }
 
-        String power = "0".repeat(exponent);
+        return getScientificNotation(numberBigDecimal, exponent);
+    }
 
+    public static int calculatePowerForFloatLessThanOne(double xAbsValue) {
+        int pow = 0;
+        while (xAbsValue < 1) {
+            xAbsValue = xAbsValue * Math.pow(10, 1);
+            pow++;
+        }
+        return pow;
+    }
+
+    public static int calculatePowerForFloatGreaterThanOrEqualToOne(double xAbsValue) {
+        int pow = 0;
+        while (xAbsValue > 10) {
+            xAbsValue = xAbsValue / Math.pow(10, 1);
+            pow++;
+        }
+        return pow;
+    }
+
+    public static BString getScientificNotation(BigDecimal numberBigDecimal, int exp) {
+        String power = "0".repeat(exp);
         DecimalFormat decimalFormat = new DecimalFormat("0." + power + "E0");
-        decimalFormat.setRoundingMode(RoundingMode.HALF_EVEN);
-        String res = decimalFormat.format(numberBigDecimal);
-        int indexOfExp = res.lastIndexOf("E");
-        String firstSection = res.substring(0, indexOfExp);
-        int idxOfDecimalPoint = firstSection.lastIndexOf(".");
-        if (idxOfDecimalPoint == firstSection.length() - 1) {
-            firstSection = res.substring(0, idxOfDecimalPoint);
-        }
-        String secondSection = res.substring(indexOfExp + 1);
-        int p = Integer.parseInt(secondSection);
-        if (p >= 0) {
-            secondSection = "e+" + secondSection;
-        } else {
-            secondSection = "e" + secondSection;
+        String res = decimalFormat.format(numberBigDecimal).toLowerCase();
+
+        int indexOfExp = res.lastIndexOf("e");
+        String coefficient = res.substring(0, indexOfExp);
+        int idxOfDecimalPoint = coefficient.lastIndexOf(".");
+        // If there are no digits following the decimal point, remove the decimal point from the string.
+        if (idxOfDecimalPoint == coefficient.length() - 1) {
+            coefficient = res.substring(0, idxOfDecimalPoint);
         }
 
-        return StringUtils.fromString(firstSection + secondSection);
+        String exponent = res.substring(indexOfExp + 1);
+        int p = Integer.parseInt(exponent);
+        if (p >= 0) {
+            exponent = "e+" + exponent;
+        } else {
+            exponent = "e" + exponent;
+        }
+
+        String notation = coefficient + exponent;
+
+        return StringUtils.fromString(notation);
     }
 }

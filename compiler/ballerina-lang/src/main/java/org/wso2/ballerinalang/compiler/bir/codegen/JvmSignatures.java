@@ -126,10 +126,11 @@ public class JvmSignatures {
     public static final String INIT_XML_QNAME =
             "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)V";
     public static final String ADD_COLLECTION = "(L" + COLLECTION + ";)Z";
+    public static final String ADD_MODULE_CONFIG_DATA = "(L" + MAP + ";L" + MODULE + ";[L" + VARIABLE_KEY + ";)V";
     public static final String ADD_SHUTDOWN_HOOK = "(L" + JAVA_THREAD + ";)V";
     public static final String ADD_TYPE_ID = "(L" + MODULE + ";L" + STRING_VALUE + ";Z)V";
     public static final String ADD_VALUE_CREATOR = "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
-            ";L" + VALUE_CREATOR + ";)V";
+            ";ZL" + VALUE_CREATOR + ";)V";
     public static final String ANNOTATION_GET_STRAND =
             "(L" + FUNCTION_POINTER + ";L" + STRING_VALUE + ";)L" + STRING_VALUE + ";";
     public static final String ANY_TO_BYTE = "(L" + OBJECT + ";)I";
@@ -431,6 +432,8 @@ public class JvmSignatures {
     public static final String XML_GET_ATTRIBUTE = "(L" + B_XML_QNAME + ";)L" + STRING_VALUE + ";";
     public static final String XML_GET_ITEM = "(I)L" + XML_VALUE + ";";
     public static final String XML_SET_ATTRIBUTE = "(L" + B_XML_QNAME + ";L" + B_STRING_VALUE + ";)V";
+    public static final String TO_STRING_RETURN = "()L" + STRING_VALUE + ";";
+
 
     private JvmSignatures() {
     }

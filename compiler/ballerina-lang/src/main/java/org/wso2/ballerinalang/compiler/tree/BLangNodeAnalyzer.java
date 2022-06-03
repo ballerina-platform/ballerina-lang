@@ -71,7 +71,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -86,7 +85,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -139,7 +137,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -386,10 +383,6 @@ public abstract class BLangNodeAnalyzer<T> {
 
     public abstract void visit(BLangMarkdownReturnParameterDocumentation node, T data);
 
-    public abstract void visit(BLangMatchExpression node, T data);
-
-    public abstract void visit(BLangMatchExpression.BLangMatchExprPatternClause node, T data);
-
     public abstract void visit(BLangMatchGuard node, T data);
 
     public abstract void visit(BLangNamedArgsExpression node, T data);
@@ -441,8 +434,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangStringTemplateLiteral node, T data);
 
     public abstract void visit(BLangTableConstructorExpr node, T data);
-
-    public abstract void visit(BLangTableMultiKeyExpr node, T data);
 
     public abstract void visit(BLangTernaryExpr node, T data);
 
@@ -557,14 +548,6 @@ public abstract class BLangNodeAnalyzer<T> {
     public abstract void visit(BLangLock.BLangLockStmt node, T data);
 
     public abstract void visit(BLangLock.BLangUnLockStmt node, T data);
-
-    public abstract void visit(BLangMatch node, T data);
-
-    public abstract void visit(BLangMatch.BLangMatchTypedBindingPatternClause node, T data);
-
-    public abstract void visit(BLangMatch.BLangMatchStaticBindingPatternClause node, T data);
-
-    public abstract void visit(BLangMatch.BLangMatchStructuredBindingPatternClause node, T data);
 
     public abstract void visit(BLangMatchStatement node, T data);
 

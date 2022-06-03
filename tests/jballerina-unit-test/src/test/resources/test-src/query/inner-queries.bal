@@ -302,6 +302,114 @@ function testTypeTestInWhereClause() {
     assertEquality(120, result[5]);
 }
 
+type BddPath record {|
+    int[] pos = [1];
+|};
+
+public type MappingAlternative record {|
+    int[] pos;
+|};
+
+function testQueryExpWithinSelectClause1() {
+    BddPath[] paths = [{}, {}, {}];
+
+    MappingAlternative[] alts = from var {pos} in paths
+        select {
+            pos: (from var atom in pos
+                select atom)
+        };
+
+    MappingAlternative[] expected = [{"pos": [1]}, {"pos": [1]}, {"pos": [1]}];
+    assertEquality(expected, alts);
+}
+
+function testQueryExpWithinSelectClause2() {
+    int[][] data = [[1, 2, 3, 4, 5]];
+
+    (function () returns int[])[] res = from int[] arr in data
+         select function() returns int[] {
+        int[] evenNumbers = from int i in arr
+                 where i % 2 == 0
+                 select i;
+        return evenNumbers;
+    };
+    function () returns int[] func = res[0];
+    int[] expected = [2, 4];
+    assertEquality(expected, func());
+}
+
+function testQueryExpWithinQueryAction() returns error? {
+    int[][] data = [[2, 3, 4]];
+    check from int[] arr in data
+        do {
+            function () returns int[] func = function() returns int[] {
+                int[] evenNumbers = from int i in arr
+                    where i % 2 == 0
+                    select i;
+                return evenNumbers;
+            };
+            int[] expected = [2, 4];
+            assertEquality(expected, func());
+        };
+}
+
+// todo Should be enabled after fixing https://github.com/ballerina-platform/ballerina-lang/issues/32710
+//type A record {|
+//    int[] pos;
+//|};
+//
+//function testInnerQuerySymbolVisibility() {
+//   A[] res = from var a in 2...4
+//        select {
+//            pos: (from var b in (from var c in 1...2 where c == a select c)
+//                select b)
+//        };
+//   A[] expected = [{pos: [2]}, {pos: [2]}, {pos: [2]}];
+//   assertEquality(expected, res);
+//}
+
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+type Team readonly & record {|
+    string user;
+    int teamId;
+|};
+
+function testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() {
+    ScoreEvent[] events = [
+        {email: "jake@abc.com", problemId: "12", score: 80.0},
+        {email: "anne@abc.com", problemId: "20", score: 95.0},
+        {email: "peter@abc.com", problemId: "3", score: 72.0}
+    ];
+
+    Team[] team = [
+        {user: "jake@abc.com", teamId: 1},
+        {user: "anne@abc.com", teamId: 2},
+        {user: "peter@abc.com", teamId: 2}
+    ];
+
+    json j = from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
+        where ev.score > 85.5
+        select {
+            email: ev.email
+        };
+    assertEquality(true, [{email: "anne@abc.com"}] == j);
+
+    j = from var ev in (from var {email, problemId, score} in events where score > 75.5 select {email, score})
+        join var {us, ti} in (from var {user: us, teamId: ti} in team select {us, ti})
+        on ev.email equals us
+        where ev.score > 85.5
+        select {
+            email: ev.email,
+            teamId: ti
+        };
+    assertEquality(true, [{email: "anne@abc.com", teamId: 2}] == j);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

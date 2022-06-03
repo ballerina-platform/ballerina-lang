@@ -13,39 +13,6 @@
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "name",
-      "kind": "Field",
-      "detail": "Application.name",
-      "sortText": "K",
-      "insertText": "name: \"${1}\"",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "id",
-      "kind": "Field",
-      "detail": "Application.id",
-      "sortText": "K",
-      "insertText": "id: \"${2}\"",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "version",
-      "kind": "Field",
-      "detail": "Application.version",
-      "sortText": "K",
-      "insertText": "'version: ${3:0}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Fill Application Required Fields",
-      "kind": "Property",
-      "detail": "Application",
-      "sortText": "R",
-      "filterText": "fill",
-      "insertText": "name: \"\",\nid: \"\",\nversion: 0",
-      "insertTextFormat": "Snippet"
     }
   ]
 }
