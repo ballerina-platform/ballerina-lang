@@ -82,11 +82,20 @@ public class TestRunnerUtils {
     public static final Path BALLERINA_LANG_DIR = Paths.get("").toAbsolutePath().getParent().getParent();
     public static final Path TEST_DIR = BALLERINA_LANG_DIR.resolve("tests").resolve("ballerina-spec-conformance-tests");
     public static final Path BUILD_DIR = TEST_DIR.resolve("build");
+    private static final Pattern CONFORMANCE_PATTERN = Pattern.compile("/conformance/");
+    private static final Pattern OUTPUT_PATTERN = Pattern.compile("(.*)//\\s*@\\s*(\\S+)\\s?(.*)");
+    private static final Pattern HEADER_PATTERN = Pattern.compile(String.format("\\s*^(%s|%s|%s|%s)\\s*:\\s*(.*)",
+            TEST_CASE, DESCRIPTION, FAIL_ISSUE, LABELS));
+    private static final Pattern ERROR_MESSAGE_PATTERN = Pattern.compile("^(error)\\s*:\\s*(.*)");
+    private static final Pattern ERROR_LINE_NUMBER_PATTERN = Pattern.compile(":(\\d+)\\)$");
+    private static final Pattern LABEL_SPLIT_PATTERN = Pattern.compile("\\s*,\\s*");
+    private static final Pattern CONSOLE_OUT_LINE_SPLIT_PATTERN = Pattern.compile("(\r\n|\r|\n)");
+
     private static int absLineNum;
     public static String diagnostics = null;
 
     public static void readTestFile(String fileName, String path, List<Object[]> testCases) throws IOException {
-        String subPath = path.split("/conformance/")[1];
+        String subPath = CONFORMANCE_PATTERN.split(path)[1];
         subPath = subPath.substring(0, subPath.lastIndexOf("/") + 1);
 
         File testFile = new File(path);
@@ -111,7 +120,7 @@ public class TestRunnerUtils {
             String kindOfTestCase = validateKindOfTest(headersOfTestCase.get(TEST_CASE));
 
             String labels = headersOfTestCase.get(LABELS);
-            String[] testCaseLabels = labels.split("\\s*,\\s*");
+            String[] testCaseLabels = LABEL_SPLIT_PATTERN.split(labels);
 
             //TODO: if kind of testcase is other, then need to skip creating the bal file
 
@@ -163,8 +172,7 @@ public class TestRunnerUtils {
 
     private static String getExpectedValues(String kindOfTestCase, String line, int relativeLineNum,
                                             List<Integer> lineNumbers, List<String> outputValues) {
-        Pattern pattern = Pattern.compile("(.*)//\\s*@\\s*(\\S+)\\s?(.*)");
-        Matcher matcher = pattern.matcher(line);
+        Matcher matcher = OUTPUT_PATTERN.matcher(line);
         if (matcher.find()) {
             String outputHeader = matcher.group(2).trim();
             if (!(kindOfTestCase.equals(outputHeader) ||
@@ -231,13 +239,11 @@ public class TestRunnerUtils {
     private static Map<String, String> readHeaders(String line, BufferedReader buffReader) throws IOException {
         ArrayList<String> requiredHeaders = new ArrayList<>(Arrays.asList(TEST_CASE, DESCRIPTION, LABELS));
         Map<String, String> headers = new HashMap<>();
-        Pattern pattern = Pattern.compile(String.format("\\s*^(%s|%s|%s|%s)\\s*:\\s*(.*)",
-                TEST_CASE, DESCRIPTION, FAIL_ISSUE, LABELS));
         String key = null;
         String value = null;
         while (line != null) {
             String header = line.strip();
-            Matcher matcher = pattern.matcher(header);
+            Matcher matcher = HEADER_PATTERN.matcher(header);
             if (header.equals(EMPTY_STRING)) {
                 if (key == null) {
                     line = buffReader.readLine();
@@ -434,6 +440,9 @@ public class TestRunnerUtils {
 
     public static void validateOutput(CompileResult compileResult, List<String> outputValues, List<Integer> lineNumbers,
                                       int absLineNum, ITestContext context) {
+        if (lineNumbers.isEmpty() || outputValues.isEmpty()) {
+            Assert.fail("Test output is empty");
+        }
         Collection<Diagnostic> diagnostics = compileResult.getDiagnosticResult().errors();
         if (!diagnostics.isEmpty()) {
             Diagnostic diagnostic = diagnostics.iterator().next();
@@ -455,7 +464,7 @@ public class TestRunnerUtils {
         }
 
         String consoleOutput = exitDetails.consoleOutput;
-        String[] results = consoleOutput.split("(\r\n|\r|\n)", -1);
+        String[] results = CONSOLE_OUT_LINE_SPLIT_PATTERN.split(consoleOutput, -1);
         int size = outputValues.size();
         for (int i = 0; i < size; i++) {
             String expectedOutput = outputValues.get(i);
@@ -478,8 +487,8 @@ public class TestRunnerUtils {
 
     public static void validateRuntimeErrorOrPanic(String errorMsg, List<Integer> lineNumbers,
                                                    List<String> outputValues, int absLineNum, ITestContext context) {
-        Matcher matcherForErrorMsg = Pattern.compile("^(error)\\s*:\\s*(.*)").matcher(errorMsg);
-        Matcher matcherForErrorLineNum = Pattern.compile(":(\\d+)\\)$").matcher(errorMsg);
+        Matcher matcherForErrorMsg = ERROR_MESSAGE_PATTERN.matcher(errorMsg);
+        Matcher matcherForErrorLineNum = ERROR_LINE_NUMBER_PATTERN.matcher(errorMsg);
 
         if (matcherForErrorMsg.find() && matcherForErrorLineNum.find()) {
             String actualLineNum = String.valueOf(Integer.parseInt(matcherForErrorLineNum.group(1)) + absLineNum);
