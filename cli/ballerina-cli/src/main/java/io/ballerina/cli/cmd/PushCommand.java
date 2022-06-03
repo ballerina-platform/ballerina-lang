@@ -307,7 +307,7 @@ public class PushCommand implements BLauncherCmd {
                 }
             }
         } catch (IOException e) {
-            throw new ProjectException("error while validating the bala file.", e);
+            throw new ProjectException("error while validating the bala file: " + e.getMessage(), e);
         }
         throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing in bala file:" + balaPath);
     }
