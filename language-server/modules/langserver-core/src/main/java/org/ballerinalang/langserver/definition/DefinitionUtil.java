@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.util.definition;
+package org.ballerinalang.langserver.definition;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
@@ -32,6 +32,8 @@ import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.Location;
@@ -75,7 +77,7 @@ public class DefinitionUtil {
         }
 
         Optional<Location> location;
-        if (context.enclosedModuleMember().isPresent() && CommonUtil.isSelfClassSymbol(symbol.get(), context,
+        if (context.enclosedModuleMember().isPresent() && SymbolUtil.isSelfClassSymbol(symbol.get(), context,
                 context.enclosedModuleMember().get())) {
             // Within the #isSelfClassSymbol we do the instance check against the symbol. Hence casting is safe
             // If the self variable is referring to the class instance, navigate to class definition
@@ -100,7 +102,7 @@ public class DefinitionUtil {
         if (CommonUtil.isLangLib(orgName, moduleName)) {
             filepath = getFilePathForLanglib(orgName, moduleName, project.get(), symbol);
         } else {
-            filepath = CommonUtil.getFilePathForDependency(orgName, moduleName, project.get(), symbol, context);
+            filepath = PathUtil.getFilePathForDependency(orgName, moduleName, project.get(), symbol, context);
         }
 
         if (filepath.isEmpty() || symbol.getLocation().isEmpty()) {
@@ -109,9 +111,9 @@ public class DefinitionUtil {
 
         String fileUri;
         // Check if file resides in a protected dir
-        if (CommonUtil.isWriteProtectedPath(filepath.get())) {
+        if (PathUtil.isWriteProtectedPath(filepath.get())) {
             try {
-                fileUri = CommonUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
+                fileUri = PathUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());
             } catch (URISyntaxException e) {
                 throw new UserErrorException("Unable create definition file URI");
             }

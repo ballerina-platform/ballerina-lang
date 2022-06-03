@@ -32,7 +32,8 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
@@ -92,7 +93,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             ExpressionTypeResponse expressionTypeResponse = new ExpressionTypeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
                 return expressionTypeResponse;
             }
@@ -133,7 +134,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             SymbolInfoResponse symbolInfoResponse = new SymbolInfoResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
 
             if (filePath.isEmpty()) {
                 return symbolInfoResponse;
@@ -186,7 +187,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                                             parameterSymbol.getName().get(),
                                             documentation.get().parameterMap().get(parameterSymbol.getName().get()),
                                             parameterSymbol.paramKind().name(),
-                                            CommonUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor())));
+                                            NameUtil.getModifiedTypeName(context, parameterSymbol.typeDescriptor())));
                                 });
                     }
 
@@ -197,7 +198,7 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                                 restParameter.getName().get(),
                                 documentation.get().parameterMap().get(restParameter.getName().get()),
                                 restParameter.paramKind().name(),
-                                CommonUtil.getModifiedTypeName(context, restParameter.typeDescriptor())
+                                NameUtil.getModifiedTypeName(context, restParameter.typeDescriptor())
                         ));
                     }
                 }

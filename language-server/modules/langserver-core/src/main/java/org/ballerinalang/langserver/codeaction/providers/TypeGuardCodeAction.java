@@ -41,6 +41,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
@@ -97,7 +98,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
 
         // Add type guard code action
         String commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, varName.get());
-        Range range = CommonUtil.toRange(matchedNode.lineRange());
+        Range range = PositionUtil.toRange(matchedNode.lineRange());
         List<TextEdit> edits = CodeActionUtil.getTypeGuardCodeActionEdits(varName.get(), range, varTypeSymbol, context);
         if (edits.isEmpty()) {
             return Collections.emptyList();
@@ -191,7 +192,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         } else if (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             node = ((VariableDeclarationNode) matchedNode).typedBindingPattern().bindingPattern();
         }
-        return node != null &&  CommonUtil.isWithInRange(node, context.cursorPositionInTree());
+        return node != null &&  PositionUtil.isWithInRange(node, context.cursorPositionInTree());
     }
     
 }
