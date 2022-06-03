@@ -218,3 +218,10 @@ query-action,
 break-stmt,
 module-xmlns-decl,xml
 xmlns-decl-stmt,xml
+xml:children,
+xml:length,
+object:Iterable,
+variable-name-field,mapping-constructor-expr,
+value:cloneReadOnly,
+client-remote-method-call-action,
+remote-method,
