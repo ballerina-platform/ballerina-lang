@@ -1695,12 +1695,7 @@ function testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative() {
     int[] y = [3, 4];
 
     IntThreeOrFour[]|FloatThreeOrFour[]|error f = y.cloneWithType();
-    assert(f is error, true);
-    err = <error> f;
-    message = err.detail()["message"];
-    messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "'int[]' value cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': \n\t\t" +
-    "value '[3,4]' cannot be converted to '(IntThreeOrFour[]|FloatThreeOrFour[])': ambiguous target type");
+    assert(f is IntThreeOrFour[], true);
 }
 
 type Boss record {
@@ -1937,6 +1932,385 @@ function testCloneWithTypeJsonToRecordRestField() {
     assert(result is error, false);
     OpenRec & readonly rec = checkpanic result;
     assert(rec, {"arrVal":[{}],"mapVal":{}});
+}
+
+type Movie record {
+    string title;
+    int[]|decimal[] year;
+};
+
+type Union int|decimal|string|Union[]|map<Union>;
+
+type Finite 2|2d;
+
+type Emp1 record {|
+    int salary;
+|};
+
+type Emp2 record {|
+    decimal salary;
+|};
+
+function testCloneWithTypeWithAmbiguousUnion() {
+    // json
+    json val = 23.0d;
+    int|decimal unionVal = checkpanic val.cloneWithType();
+    assertTrue(unionVal is decimal);
+    assert(unionVal, 23.0d);
+
+    json[] jsonArr = [23d];
+    string[]|int[]|decimal[] arrayUnionVal = checkpanic jsonArr.cloneWithType();
+    assert(arrayUnionVal, [23d]);
+    assertTrue(arrayUnionVal is decimal[]);
+
+    json[] jsonArr1 = [23.0d, 24];
+    int[]|[decimal, int] arrTupleUnionVal = checkpanic jsonArr1.cloneWithType();
+    assert(arrTupleUnionVal, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal is [decimal, int]);
+
+    [json] jsonTuple = [23d];
+    string[]|int[]|decimal[] arrayUnionVal1 = checkpanic jsonTuple.cloneWithType();
+    assert(arrayUnionVal1, [23d]);
+    assertTrue(arrayUnionVal1 is decimal[]);
+
+    [json, json] jsonTuple1 = [23.0d, 24];
+    int[]|[decimal, int] arrTupleUnionVal1 = checkpanic jsonTuple1.cloneWithType();
+    assert(arrTupleUnionVal1, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal1 is [decimal, int]);
+
+    int[]|[decimal, int...] arrTupleRestUnionVal1 = checkpanic jsonTuple1.cloneWithType();
+    assert(arrTupleRestUnionVal1, [23.0d, 24]);
+    assertTrue(arrTupleRestUnionVal1 is [decimal, int...]);
+
+    val = [[1.2d, 2.3d]];
+    int[][]|decimal[][] clone2D = checkpanic val.cloneWithType();
+    assert(clone2D, [[1.2d, 2.3d]]);
+    assertTrue(clone2D is decimal[][]);
+
+    [[int,int...]]|[decimal,decimal...][] clone2DRest = checkpanic val.cloneWithType();
+    assert(clone2DRest, [[1.2d, 2.3d]]);
+    assertTrue(clone2DRest is [decimal,decimal...][] );
+
+    val = [[1.2d, "l"], 9];
+    [[decimal, string], int]|int[][]|decimal[][] cloneTuple = checkpanic val.cloneWithType();
+    assert(cloneTuple, [[1.2d, "l"], 9]);
+    assertTrue(cloneTuple is [[decimal, string], int]);
+
+    [[decimal, string...], int...]|int[][]|decimal[][] cloneTupleRest = checkpanic val.cloneWithType();
+    assert(cloneTupleRest, [[1.2d, "l"], 9]);
+    assertTrue(cloneTupleRest is [[decimal, string...], int...]);
+
+    json jsonMap = {
+        title: "Inception",
+        year: [2010.0d, 2011.0d]
+    };
+
+    Movie recordVal = checkpanic  jsonMap.cloneWithType(Movie);
+    assertTrue(recordVal.year is decimal[]);
+
+    json jsonMap1 = {a: [1d, 2.03d], b: [2d, 3d, 4d]};
+    map<int[]|decimal[]> mapVal = checkpanic  jsonMap1.cloneWithType();
+    assertTrue(mapVal["b"] is decimal[]);
+
+    json moviesJson = [
+        {
+            title: "Inception",
+            year: [2010.0d, 2011.0d]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010.0d, 2016.0d]
+        },
+        {
+            title: "Coco",
+            year: [2017.0d, 2018.0d]
+        }
+    ];
+
+    table<map<json>> tableJson = table [
+            {
+                title: "Inception",
+                year: [2010, 2011]
+            },
+            {
+                title: "Alice in wonderland",
+                year: [2010, 2016]
+            },
+            {
+                title: "Coco",
+                year: [2017, 2018]
+            }
+        ];
+
+    Movie[] movieArr = checkpanic moviesJson.cloneWithType();
+    assertTrue(movieArr[0].year is decimal[]);
+    assertTrue(movieArr[1].year is decimal[]);
+    assertTrue(movieArr[2].year is decimal[]);
+
+    table<Movie> movieTab = checkpanic tableJson.cloneWithType();
+    foreach Movie mov in movieTab {
+        assertTrue(mov.year is int[]);
+    }
+
+    // json with other union combinations
+    json m = {a: 1, b: 2};
+    map<int>|map<decimal> clone = checkpanic m.cloneWithType();
+    assertTrue(clone is map<int>);
+    assertTrue(clone["a"] is int);
+    assertTrue(clone["b"] is int);
+
+    m = {salary: 1000};
+    Emp1|Emp2 clone1 = checkpanic m.cloneWithType();
+    assertTrue(clone1 is Emp1);
+    assertFalse(clone1 is Emp2);
+
+    m = [m];
+    map<int>[]|map<decimal>[] clone2 = checkpanic m.cloneWithType();
+    assertTrue(clone2 is map<int>[]);
+
+    Emp1[]|Emp2[] clone3 = checkpanic m.cloneWithType();
+    assertTrue(clone3 is Emp1[]);
+
+    // anydata
+
+    anydata val1 = 23.0d;
+    int|decimal unionVal1 = checkpanic val1.cloneWithType();
+    assertTrue(unionVal1 is decimal);
+    assert(unionVal1, 23.0d);
+
+    anydata[] anydataArr = [23d];
+    string[]|int[]|decimal[] arrayUnionVal2 = checkpanic anydataArr.cloneWithType();
+    assert(arrayUnionVal2, [23d]);
+    assertTrue(arrayUnionVal2 is decimal[]);
+
+    anydata[] anydataArr1 = [23.0d, 24];
+    int[]|[decimal, int] arrTupleUnionVal2 = checkpanic anydataArr1.cloneWithType();
+    assert(arrTupleUnionVal2, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal2 is [decimal, int]);
+
+    [anydata] anydataTuple = [23d];
+    string[]|int[]|decimal[] arrayUnionVal3 = checkpanic  anydataTuple.cloneWithType();
+    assert(arrayUnionVal3, [23d]);
+    assertTrue(arrayUnionVal3 is decimal[]);
+
+    [anydata, anydata] anydataTuple1 = [23.0d, 24];
+    int[]|[decimal, int] arrTupleUnionVal3 = checkpanic  anydataTuple1.cloneWithType();
+    assert(arrTupleUnionVal3, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal3 is [decimal, int]);
+
+    int[]|[decimal, int...] arrTupleUnionVal3Rest = checkpanic  anydataTuple1.cloneWithType();
+    assert(arrTupleUnionVal3Rest, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal3Rest is [decimal, int...]);
+
+    anydata anydataMap = {
+        title: "Inception",
+        year: [2010.0d, 2011.0d]
+    };
+
+    Movie recordVal1 = checkpanic anydataMap.cloneWithType(Movie);
+    assertTrue(recordVal1.year is decimal[]);
+
+    anydata anydataMap1 = {a: [1d, 2.03d], b: [2d, 3d, 4d]};
+    map<int[]|decimal[]> mapVal1 = checkpanic anydataMap1.cloneWithType();
+    assertTrue(mapVal1["b"] is decimal[]);
+
+    anydata moviesAnydata = [
+        {
+            title: "Inception",
+            year: [2010.0d, 2011.0d]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010.0d, 2016.0d]
+        },
+        {
+            title: "Coco",
+            year: [2017.0d, 2018.0d]
+        }
+    ];
+
+    table<map<anydata>> tableAnydata = table [
+            {
+                title: "Inception",
+                year: [2010, 2011]
+            },
+            {
+                title: "Alice in wonderland",
+                year: [2010, 2016]
+            },
+            {
+                title: "Coco",
+                year: [2017, 2018]
+            }
+        ];
+
+    Movie[] movieArr1 = checkpanic moviesAnydata.cloneWithType();
+    assertTrue(movieArr1[0].year is decimal[]);
+    assertTrue(movieArr1[1].year is decimal[]);
+    assertTrue(movieArr1[2].year is decimal[]);
+
+    table<Movie> movieTab1 = checkpanic tableAnydata.cloneWithType();
+    foreach Movie mov in movieTab1 {
+        assertTrue(mov.year is int[]);
+    }
+
+    // union
+    Union val2 = 23.0d;
+    int|decimal unionVal2 = checkpanic val2.cloneWithType();
+    assertTrue(unionVal2 is decimal);
+    assert(unionVal2, 23.0d);
+
+    Union[] unionArr = [23d];
+    string[]|int[]|decimal[] arrayUnionVal4 = checkpanic unionArr.cloneWithType();
+    assert(arrayUnionVal4, [23d]);
+    assertTrue(arrayUnionVal4 is decimal[]);
+
+    Union[] UnionArr2 = [23.0d, 24];
+    int[]|[decimal, int] arrTupleUnionVal5 = checkpanic UnionArr2.cloneWithType();
+    assert(arrTupleUnionVal5, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal5 is [decimal, int]);
+
+    [Union] unionTuple = [23d];
+    string[]|int[]|decimal[] arrayUnionVal5 = checkpanic unionTuple.cloneWithType();
+    assert(arrayUnionVal5, [23d]);
+    assertTrue(arrayUnionVal5 is decimal[]);
+
+    [Union, Union] unionTuple1 = [23.0d, 24];
+    int[]|[decimal, int] arrTupleUnionVal6 = checkpanic unionTuple1.cloneWithType();
+    assert(arrTupleUnionVal6, [23.0d, 24]);
+    assertTrue(arrTupleUnionVal6 is [decimal, int]);
+
+    Union unionMap = {
+        title: "Inception",
+        year: [2010.0d, 2011.0d]
+    };
+
+    Movie recordVal2 = checkpanic unionMap.cloneWithType(Movie);
+    assertTrue(recordVal2.year is decimal[]);
+
+    Union unionMap1 = {a: [1d, 2.03d], b: [2d, 3d, 4d]};
+    map<int[]|decimal[]> mapVal2 = checkpanic unionMap1.cloneWithType();
+    assertTrue(mapVal2["b"] is decimal[]);
+
+    Union moviesUnion = [
+        {
+            title: "Inception",
+            year: [2010.0d, 2011.0d]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010.0d, 2016.0d]
+        },
+        {
+            title: "Coco",
+            year: [2017.0d, 2018.0d]
+        }
+    ];
+
+    table<map<Union>> tableUnion = table [
+            {
+                title: "Inception",
+                year: [2010, 2011]
+            },
+            {
+                title: "Alice in wonderland",
+                year: [2010, 2016]
+            },
+            {
+                title: "Coco",
+                year: [2017, 2018]
+            }
+        ];
+
+    Movie[] movieArr2 = checkpanic moviesUnion.cloneWithType();
+    assertTrue(movieArr2[0].year is decimal[]);
+    assertTrue(movieArr2[1].year is decimal[]);
+    assertTrue(movieArr2[2].year is decimal[]);
+
+    table<Movie> movieTab2 = checkpanic tableUnion.cloneWithType();
+    foreach Movie mov in movieTab2 {
+        assertTrue(mov.year is int[]);
+    }
+
+    // With Finite types
+    jsonArr = [2];
+    string[]|Finite[] arrayFiniteVal = checkpanic jsonArr.cloneWithType();
+    assertFalse(arrayFiniteVal[0] is decimal);
+    assertTrue(arrayFiniteVal[0] is int);
+
+    jsonArr = [2.0d];
+    string[]|Finite[] arrayFiniteVal1 = checkpanic jsonArr.cloneWithType();
+    assertTrue(arrayFiniteVal1[0] is decimal);
+    assertFalse(arrayFiniteVal1[0] is int);
+
+    jsonArr = [2.0];
+    string[]|Finite[]|error arrayFiniteVal2 = jsonArr.cloneWithType();
+    assertTrue(arrayFiniteVal2 is error);
+    error err = <error>arrayFiniteVal2;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '(string[]|Finite[])': \n\t	array element '[0]' should " +
+    "be of type 'string', found '2.0'\n\t	value '2.0' cannot be converted to 'Finite': ambiguous target type",
+    <string>checkpanic err.detail()["message"]);
+
+    // Negative cases
+    json jVal = [23.0d, 24];
+    int[]|[decimal, float]|error result1 = jVal.cloneWithType();
+    assertTrue(result1 is error);
+    err = <error>result1;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '(int[]|[decimal,float])': \n\t	value '[23.0,24]' cannot" +
+    " be converted to '(int[]|[decimal,float])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+
+    decimal[]|[decimal, decimal...]|[decimal, float...]|error result1Rest = jVal.cloneWithType();
+    assertTrue(result1Rest is error);
+    err = <error>result1Rest;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '(decimal[]|[decimal,decimal...]|[decimal,float...])': " +
+    "\n\t\tvalue '[23.0,24]' cannot be converted to '(decimal[]|[decimal,decimal...]|[decimal,float...])': ambiguous" +
+    " target type", <string>checkpanic err.detail()["message"]);
+
+    jVal = [23.0, 24];
+    int[]|decimal[]|float[]|error result2 = jVal.cloneWithType();
+    assertTrue(result2 is error);
+    err = <error>result2;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '(int[]|decimal[]|float[])': \n\t\tvalue '[23.0,24]' cannot" +
+    " be converted to '(int[]|decimal[]|float[])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+
+    jVal = [[1.2d, 2.3d]];
+    [int...][]|[[int, decimal...]]|error result2Rest = jVal.cloneWithType();
+    assertTrue(result2Rest is error);
+    err = <error>result2Rest;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'json[]' value cannot be converted to '([int...][]|[[int,decimal...]])': \n\t\tvalue " +
+    "'[[1.2,2.3]]' cannot be converted to '([int...][]|[[int,decimal...]])': ambiguous target type",
+    <string>checkpanic err.detail()["message"]);
+
+    jVal = {a: [1d, 2.03], b: [2, 3d, 4]};
+    map<int[]|decimal[]>|error result3 = jVal.cloneWithType();
+    assertTrue(result3 is error);
+    err = <error>result3;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'map<json>' value cannot be converted to 'map<(int[]|decimal[])>': \n\t	value '[1,2.03]' cannot " +
+    "be converted to '(int[]|decimal[])': ambiguous target type\n\t	value '[2,3,4]' cannot be converted to " +
+    "'(int[]|decimal[])': ambiguous target type", <string>checkpanic err.detail()["message"]);
+
+    jVal = {a: ["aaa"], b: [3.2]};
+    map<int|decimal>|error result4 = jVal.cloneWithType();
+    err = <error>result4;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'map<json>' value cannot be converted to 'map<(int|decimal)>': \n\t	map field 'a' should be of " +
+    "type '(int|decimal)', found '[\"aaa\"]'\n\t	map field 'b' should be of type '(int|decimal)', found '[3.2]'",
+    <string>checkpanic err.detail()["message"]);
+
+    [int, string] tuple = [1, "aaa"];
+    jVal = {a: tuple, b: [3.2]};
+    result4 = jVal.cloneWithType();
+    err = <error>result4;
+    assertEquality("{ballerina/lang.value}ConversionError", err.message());
+    assertEquality("'map<json>' value cannot be converted to 'map<(int|decimal)>': \n\t	map field 'a' should be of " +
+    "type '(int|decimal)', found '[1,\"aaa\"]'\n\t	map field 'b' should be of type '(int|decimal)', found '[3.2]'",
+    <string>checkpanic err.detail()["message"]);
 }
 
 /////////////////////////// Tests for `toJson()` ///////////////////////////
