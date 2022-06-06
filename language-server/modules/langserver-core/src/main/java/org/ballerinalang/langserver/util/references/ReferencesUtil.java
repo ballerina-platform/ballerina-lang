@@ -41,46 +41,13 @@ public class ReferencesUtil {
     }
     
     public static Map<Module, List<Location>> getReferences(PositionedOperationContext context) {
-        Optional<Document> srcFile = context.currentDocument();
-        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-        
         Map<Module, List<Location>> moduleLocationMap = new HashMap<>();
-
-        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
-            return moduleLocationMap;
-        }
-
-        Position position = context.getCursorPosition();
         Optional<Project> project = context.workspace().project(context.filePath());
-        if (project.isEmpty()) {
+        Optional<Symbol> symbol = getSymbolAtCursor(context);
+        if (project.isEmpty() || symbol.isEmpty()) {
             return moduleLocationMap;
         }
-
-        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(),
-                LinePosition.from(position.getLine(), position.getCharacter()));
-
-        if (symbolAtCursor.isEmpty()) {
-            if (position.getCharacter() == 0) {
-                return moduleLocationMap;
-            }
-            
-            // If we did not find the symbol, there are 2 possibilities.
-            //  1. Cursor is at the end (RHS) of the symbol
-            //  2. Semantic API has a limitation
-            // Out of those, 2nd one is ignored assuming semantic API behaves correctly. 1st one is caused due to the
-            // right end column being excluded when searching. To overcome that, here we search for the symbol at 
-            // (col - 1). Ideally this shouldn't be an issue, because if we had cursor at the start col or middle, the
-            // 1st search (above) would have found that.
-            position = new Position(position.getLine(), position.getCharacter() - 1);
-            symbolAtCursor = semanticModel.get().symbol(srcFile.get(),
-                    LinePosition.from(position.getLine(), position.getCharacter()));
-            if (symbolAtCursor.isEmpty()) {
-                return moduleLocationMap;
-            }
-        }
-        
-        Symbol symbol = symbolAtCursor.get();
-        moduleLocationMap.putAll(getReferences(project.get(), symbol));
+        moduleLocationMap.putAll(getReferences(project.get(), symbol.get()));
         return moduleLocationMap;
     }
 
@@ -139,5 +106,45 @@ public class ReferencesUtil {
         Position end = new Position(
                 referencePos.lineRange().endLine().line(), referencePos.lineRange().endLine().offset());
         return new Range(start, end);
+    }
+    
+    /**
+     * Returns the symbol at cursor handling a special case where cursor position is at the RHS end of the symbol.
+     *
+     * @param context Operation context triggered with a cursor position
+     * @return Symbol at cursor
+     */
+    public static Optional<Symbol> getSymbolAtCursor(PositionedOperationContext context) {
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+
+        if (semanticModel.isEmpty() || srcFile.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Position position = context.getCursorPosition();
+        Optional<Symbol> symbolAtCursor = semanticModel.get().symbol(srcFile.get(),
+                LinePosition.from(position.getLine(), position.getCharacter()));
+
+        if (symbolAtCursor.isEmpty()) {
+            if (position.getCharacter() == 0) {
+                return Optional.empty();
+            }
+
+            // If we did not find the symbol, there are 2 possibilities.
+            //  1. Cursor is at the end (RHS) of the symbol
+            //  2. Semantic API has a limitation
+            // Out of those, 2nd one is ignored assuming semantic API behaves correctly. 1st one is caused due to the
+            // right end column being excluded when searching. To overcome that, here we search for the symbol at 
+            // (col - 1). Ideally this shouldn't be an issue, because if we had cursor at the start col or middle, the
+            // 1st search (above) would have found that.
+            symbolAtCursor = semanticModel.get().symbol(srcFile.get(),
+                    LinePosition.from(position.getLine(), position.getCharacter() - 1));
+            if (symbolAtCursor.isEmpty()) {
+                return Optional.empty();
+            }
+        }
+
+        return symbolAtCursor;
     }
 }
