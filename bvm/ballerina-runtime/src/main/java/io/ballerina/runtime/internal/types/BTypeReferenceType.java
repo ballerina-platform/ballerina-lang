@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 /**
  * {@code TypeReferencedType} represents a type description which refers to another type.
  *
- * @since 2.1.0
+ * @since 2201.2.0
  */
 public class BTypeReferenceType extends BAnnotatableType implements ReferenceType {
 

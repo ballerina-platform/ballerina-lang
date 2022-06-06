@@ -29,7 +29,7 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.util.RuntimeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * <p>

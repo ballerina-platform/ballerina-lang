@@ -32,6 +32,8 @@ import static org.objectweb.asm.Opcodes.V1_8;
 
 /**
  * The common functions used in jvm constants generation.
+ *
+ * @since 2201.2.0
  */
 public class JvmConstantGenCommons {
 

@@ -65,7 +65,7 @@ import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
-import static io.ballerina.runtime.internal.util.RuntimeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * Native methods for testing functions with variable return types.

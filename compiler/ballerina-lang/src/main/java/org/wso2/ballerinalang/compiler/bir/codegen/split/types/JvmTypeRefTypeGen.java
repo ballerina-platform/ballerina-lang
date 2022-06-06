@@ -35,7 +35,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYP
 /**
  * BIR Type reference types to JVM byte code generation class.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class JvmTypeRefTypeGen {
 

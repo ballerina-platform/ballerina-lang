@@ -48,9 +48,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 /**
  * Generates Jvm class for the ballerina type reference types as constants for a given module.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
-public class JvmTypeRefTypeConstantsGen {
+public class JvmRefTypeConstantsGen {
 
     private final String typeRefVarConstantsClass;
     private JvmTypeRefTypeGen jvmTypeRefTypeGen;
@@ -59,7 +59,7 @@ public class JvmTypeRefTypeConstantsGen {
     private int methodCount;
     private final Map<BTypeReferenceType, String> typeRefVarMap;
 
-    public JvmTypeRefTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
+    public JvmRefTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
         typeRefVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                 JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);

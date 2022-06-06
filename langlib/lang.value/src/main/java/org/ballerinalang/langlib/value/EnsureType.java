@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 
-import static io.ballerina.runtime.internal.util.RuntimeUtils.getReferredType;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * Extern function lang.values:ensureType.

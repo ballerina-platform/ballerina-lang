@@ -29,7 +29,6 @@ import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -244,14 +243,6 @@ public class RuntimeUtils {
     private static boolean isInvalidBallerinaValue(Object value) {
         return (value != null && !(value instanceof Number) && !(value instanceof Boolean) &&
                 !(value instanceof BValue));
-    }
-
-    public static Type getReferredType(Type type) {
-        Type constraint = type;
-        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            constraint = getReferredType(((BTypeReferenceType) type).getReferredType());
-        }
-        return constraint;
     }
 
     private RuntimeUtils() {
