@@ -19,12 +19,20 @@ import ballerina/jballerina.java;
 
 public annotation IntConstraints Int on type, record field;
 
+public annotation X on type;
+
 type IntConstraints record {|
     int minValue?;
 |};
 
 @Int {minValue: 0}
 type PositiveInt int;
+
+@Int {minValue: 0}
+type '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Int int;
+
+@X
+type Nil ();
 
 type Person record {
     @Int {
@@ -36,8 +44,14 @@ type Person record {
 public function validateTypeRef() {
     validateType();
     validateRecordField();
+    validateTypeAnnotations();
 }
 
+function validateTypeAnnotations() {
+    typedesc<()> nilTd = Nil;
+    test:assertTrue(nilTd.@X is true);
+    test:assertTrue(Nil.@X is true);
+}
 
 function validateType() {
     PositiveInt value = 2;
@@ -58,6 +72,14 @@ function validateType() {
 
     value = -2;
     validation = validate(value);
+    if validation is error {
+        test:assertEquals(validation.message(), "Validation failed for 'minValue' constraint(s).");
+    } else {
+        test:assertFail("Expected error not found.");
+    }
+
+    '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Int value1 = -2;
+    validation = validate(value1);
     if validation is error {
         test:assertEquals(validation.message(), "Validation failed for 'minValue' constraint(s).");
     } else {
