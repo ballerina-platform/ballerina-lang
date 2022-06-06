@@ -26,7 +26,7 @@ import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.configschema.ConfigSchemaBuilder;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -66,7 +66,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             PackageMetadataResponse metadata = new PackageMetadataResponse();
             try {
-                Optional<Path> filePath = CommonUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
+                Optional<Path> filePath = PathUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
                     return metadata;
                 }
@@ -97,7 +97,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
             TextDocumentIdentifier[] documentIdentifiers = request.getDocumentIdentifiers();
             try {
                 Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier -> {
-                    CommonUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
+                    PathUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
                         Optional<Project> project = this.workspaceManager.project(path);
                         project.ifPresent(value -> jsonPackages.add(getPackageComponents(value)));
                     });
@@ -116,7 +116,7 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
         return CompletableFuture.supplyAsync(() -> {
             PackageConfigSchemaResponse response = new PackageConfigSchemaResponse();
             try {
-                Optional<Path> filePath = CommonUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
+                Optional<Path> filePath = PathUtil.getPathFromURI(request.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
                     throw new UserErrorException("File path not found.");
                 }
