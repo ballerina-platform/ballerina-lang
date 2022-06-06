@@ -51,6 +51,9 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML_ATTRIBUTES;
  */
 public class TypeUtils {
 
+    private TypeUtils() {
+    }
+
     public static boolean isValueType(Type type) {
         if (type == TYPE_INT || type == TYPE_BYTE ||
                 type == TYPE_FLOAT ||
@@ -136,6 +139,12 @@ public class TypeUtils {
         return TypeChecker.isSameType(sourceType, targetType);
     }
 
+    /**
+     * Retrieve the referred type if a given type is a type reference type.
+     *
+     * @param type type to retrieve referred
+     * @return the referred type if provided with a type reference type, else returns the original type
+     */
     public static Type getReferredType(Type type) {
         Type constraint = type;
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
