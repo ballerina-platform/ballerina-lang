@@ -155,6 +155,12 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph in text form.")
+    private boolean dumpGraph;
+
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print the raw dependency graphs in text form.")
+    private boolean dumpRawGraphs;
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -278,6 +284,8 @@ public class TestCommand implements BLauncherCmd {
                 .setObservabilityIncluded(observabilityIncluded)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
+                .setDumpGraph(dumpGraph)
+                .setDumpRawGraphs(dumpRawGraphs)
                 .build();
 
         if (targetDir != null) {
