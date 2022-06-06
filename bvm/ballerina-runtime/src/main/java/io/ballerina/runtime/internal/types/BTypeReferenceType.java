@@ -31,14 +31,10 @@ import io.ballerina.runtime.api.types.Type;
  */
 public class BTypeReferenceType extends BAnnotatableType implements ReferenceType {
 
-    private Type referredType;
+    private final Type referredType;
 
-    public BTypeReferenceType(String typeName, Module pkg, Class<?> valueClass) {
-        super(typeName, pkg, valueClass);
-    }
-
-    public BTypeReferenceType(String typeName, Type referredType) {
-        super(typeName, null, Object.class);
+    public BTypeReferenceType(String typeName, Module pkg, Type referredType) {
+        super(typeName, pkg, Object.class);
         this.referredType = referredType;
     }
 

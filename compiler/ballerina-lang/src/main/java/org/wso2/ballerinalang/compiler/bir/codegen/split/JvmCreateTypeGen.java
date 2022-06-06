@@ -147,7 +147,7 @@ public class JvmCreateTypeGen {
         this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
-        this.jvmTypeRefTypeGen = new JvmTypeRefTypeGen(jvmTypeGen);
+        this.jvmTypeRefTypeGen = new JvmTypeRefTypeGen(jvmTypeGen, jvmConstantsGen);
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);

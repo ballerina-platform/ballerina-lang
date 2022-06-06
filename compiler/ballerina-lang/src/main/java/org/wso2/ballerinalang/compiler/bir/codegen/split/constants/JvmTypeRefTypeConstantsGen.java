@@ -59,9 +59,6 @@ public class JvmTypeRefTypeConstantsGen {
     private int methodCount;
     private final Map<BTypeReferenceType, String> typeRefVarMap;
 
-    /**
-     * Stack keeps track of recursion in typeref types. The method creation is performed only if recursion is completed.
-     */
     public JvmTypeRefTypeConstantsGen(PackageID packageID, BTypeHashComparator bTypeHashComparator) {
         typeRefVarConstantsClass = JvmCodeGenUtil.getModuleLevelClassName(packageID,
                 JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
