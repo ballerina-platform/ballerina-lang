@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.ErrorUtils.createConversionError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -111,7 +112,7 @@ public class FromJsonWithType {
             throw CloneUtils.createConversionError(value, targetType, errors);
         }
 
-        Type matchingType = convertibleTypes.get(0);
+        Type matchingType = getReferredType(convertibleTypes.get(0));
 
         Object newValue;
         switch (sourceType.getTag()) {
