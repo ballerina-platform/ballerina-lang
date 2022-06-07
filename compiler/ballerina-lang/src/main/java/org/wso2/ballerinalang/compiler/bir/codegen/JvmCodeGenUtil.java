@@ -625,10 +625,10 @@ public class JvmCodeGenUtil {
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 
         if (yieldLocationVarIndex != -1) {
-            StringBuilder yieldLocationData = new StringBuilder("function '" + funcName + "'");
+            StringBuilder yieldLocationData = new StringBuilder(funcName);
             if (terminatorPos != null) {
-                yieldLocationData.append("\n\t").append(terminatorPos.lineRange().filePath()).append(":")
-                        .append(terminatorPos.lineRange().startLine().line());
+                yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
+                        .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
             }
             mv.visitLdcInsn(yieldLocationData.toString());
             mv.visitVarInsn(ASTORE, yieldLocationVarIndex);

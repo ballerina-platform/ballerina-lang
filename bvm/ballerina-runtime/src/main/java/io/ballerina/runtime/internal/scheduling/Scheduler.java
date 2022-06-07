@@ -17,7 +17,6 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.Status;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -265,7 +264,6 @@ public class Scheduler {
     }
 
     public void start() {
-        Status.addToSchedulers(this);
         this.mainBlockSem = new Semaphore(-(numThreads - 1));
         for (int i = 0; i < numThreads - 1; i++) {
             new Thread(this::runSafely, "jbal-strand-exec-" + i).start();

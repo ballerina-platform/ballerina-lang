@@ -15,29 +15,21 @@
  * under the License.
  */
 
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
-
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
- * External API to be used by the users to get status of Ballerina runtime.
+ * Used to get the status of current Ballerina runtime.
  *
  * @since 2201.2.0
  */
 public class Status {
 
-    private static final Set<Scheduler> allSchedulers = new HashSet<>();
     private static final Map<Integer, Strand> currentStrands = new HashMap<>();
-
-    public static void addToSchedulers(Scheduler scheduler) {
-        allSchedulers.add(scheduler);
-    }
 
     public static void addToStrands(Integer strandId, Strand strand) {
         currentStrands.put(strandId, strand);
@@ -47,22 +39,19 @@ public class Status {
         currentStrands.remove(strandId);
     }
 
-    public static String getAllSchedulerInfo() {
-        StringBuilder infoStr = new StringBuilder();
-        infoStr.append("No. of Schedulers: " + allSchedulers.size() + "\n");
-        for (Scheduler scheduler: allSchedulers) {
-            infoStr.append(scheduler.dumpState().toString());
-        }
-        return infoStr.toString();
-    }
+    public static String getRuntimeStateDump() {
+        StringBuilder infoStr = new StringBuilder("Ballerina Runtime State Dump [");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+        LocalDateTime localDateTime = LocalDateTime.now();
+        infoStr.append(dateTimeFormatter.format(localDateTime));
+        infoStr.append("]\n==================================================\n\n");
 
-    public static String getAllStrandInfo() {
-        StringBuilder infoStr = new StringBuilder();
-        infoStr.append("No. of currently available Strands: " + currentStrands.size() + "\n\n");
+        infoStr.append("Current Strands: (Total " + currentStrands.size() + ")\n============================\n\n");
         for (Strand strand : currentStrands.values()) {
             infoStr.append(strand.dumpState());
             infoStr.append("\n");
         }
+        infoStr.append("==================================================\n");
         return infoStr.toString();
     }
 
