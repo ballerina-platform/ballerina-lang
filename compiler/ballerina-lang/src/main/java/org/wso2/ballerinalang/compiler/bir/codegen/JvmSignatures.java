@@ -62,7 +62,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_TYPE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
@@ -85,6 +84,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.READONLY_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
@@ -212,7 +212,7 @@ public class JvmSignatures {
     public static final String GET_FUTURE_VALUE = "L" + FUTURE_VALUE + ";";
     public static final String GET_HANDLE_VALUE = "L" + HANDLE_VALUE + ";";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
-    public static final String GET_RUNTIME_REGISTRY = "L" + JvmConstants.RUNTIME_REGISTRY_CLASS + ";";
+    public static final String GET_RUNTIME_REGISTRY = "L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_RUNTIME_REGISTRY_CLASS = "()L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_LOCK_FROM_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
     public static final String GET_LOCK_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
