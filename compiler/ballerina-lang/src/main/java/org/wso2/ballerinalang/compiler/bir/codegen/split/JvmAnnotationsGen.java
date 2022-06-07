@@ -137,7 +137,8 @@ public class JvmAnnotationsGen {
 
     void loadLocalType(MethodVisitor mv, BIRNode.BIRTypeDefinition typeDefinition, JvmTypeGen jvmTypeGen) {
         if (typeDefinition.type.tag == TypeTags.TYPEREFDESC) {
-            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(typeDefinition.type));
+            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(typeDefinition.type,
+                                                                                            jvmPackageGen.symbolTable));
         } else {
             jvmTypeGen.loadType(mv, typeDefinition.type);
         }

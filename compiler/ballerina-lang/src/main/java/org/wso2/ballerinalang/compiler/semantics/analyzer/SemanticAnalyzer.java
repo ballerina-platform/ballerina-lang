@@ -4611,7 +4611,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             return fieldType;
         }
 
-        if (!types.isSelectivelyImmutableType(fieldType)) {
+        if (!types.isSelectivelyImmutableType(fieldType, data.env.enclPkg.packageID)) {
             return symTable.semanticError;
         }
 
