@@ -29,7 +29,6 @@ import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,8 +65,6 @@ public class ImportsManager {
     public static final String QUOTE = "'";
 
     private final AtomicBoolean initialized;
-
-    private static final List<String> importSnippetStrings = new ArrayList<>();
 
     /**
      * A import prefix index to import implicit imports.
@@ -189,11 +186,6 @@ public class ImportsManager {
         Identifier quotedPrefix = snippet.getPrefix();
         QuotedImport importedModule = snippet.getImportedModule();
         storeImport(quotedPrefix, importedModule);
-        importSnippetStrings.add(snippet.toString());
-    }
-
-    public static List<String> getImportSnippetStrings() {
-        return importSnippetStrings;
     }
 
     /**

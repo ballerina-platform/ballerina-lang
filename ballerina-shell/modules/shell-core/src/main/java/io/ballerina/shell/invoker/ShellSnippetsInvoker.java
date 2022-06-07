@@ -43,6 +43,7 @@ import io.ballerina.shell.exceptions.InvokerException;
 import io.ballerina.shell.exceptions.InvokerPanicException;
 import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
+import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
@@ -61,6 +62,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -314,12 +316,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param templateName Template to evaluate.
      * @throws InvokerException If execution/compilation failed.
      */
-    protected void executeProject(ClassLoadContext context, String templateName, List<String> imports)
+    protected void executeProject(ClassLoadContext context, String templateName,
+                                  Map<Identifier, Set<Identifier>> newImports)
             throws InvokerException {
         Project project = getProject(context, templateName);
         PackageCompilation compilation = compile(project);
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-        executeProject(jBallerinaBackend, project, imports);
+        executeProject(jBallerinaBackend, project, newImports);
     }
 
     /**
@@ -330,7 +333,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @param jBallerinaBackend Backed to use.
      * @throws InvokerException If execution failed.
      */
-    protected void executeProject(JBallerinaBackend jBallerinaBackend, Project project, List<String> imports)
+    protected void executeProject(JBallerinaBackend jBallerinaBackend, Project project,
+                                  Map<Identifier, Set<Identifier>> newImports)
             throws InvokerException {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
@@ -347,7 +351,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             }
 
             ArrayList<URL> urlList = new ArrayList<>();
-            if (imports.size() > 0) {
+            if (newImports.size() > 0) {
                 jarResolver.getJarFilePathsRequiredForExecution().stream()
                         .filter(jarLibrary -> !jarLibrary.path().toString().contains("main"))
                         .forEach(jarLibrary -> {
