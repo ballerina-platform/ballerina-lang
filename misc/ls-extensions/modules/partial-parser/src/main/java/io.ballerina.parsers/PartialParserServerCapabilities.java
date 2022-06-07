@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,16 @@
  */
 package io.ballerina.parsers;
 
+import org.ballerinalang.langserver.commons.registration.BallerinaServerCapability;
+
 /**
- * Represents the Service constants.
+ * Server capabilities for the partialParser service.
  *
  * @since 2.0.0
  */
-public class Constants {
-    public static final String CAPABILITY_NAME = "partialParser";
-    public static final int SPACE_COUNT_FOR_ST_TAB = 4;
+public class PartialParserServerCapabilities extends BallerinaServerCapability {
+
+    public PartialParserServerCapabilities() {
+        super(Constants.CAPABILITY_NAME);
+    }
 }
