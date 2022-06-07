@@ -116,14 +116,7 @@ public class SeparatorPreprocessor extends Preprocessor {
         if (string.isBlank()) {
             return;
         }
-        // Add semicolon if there is none
-        if (!string.endsWith(String.valueOf(SEMICOLON))) {
-            string = string + SEMICOLON;
-        }
         // If only semicolon present, pass
-        if (string.length() == 1) {
-            return;
-        }
         stack.add(string);
     }
 
