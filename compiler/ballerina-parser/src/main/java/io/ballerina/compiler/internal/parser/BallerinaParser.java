@@ -6952,8 +6952,10 @@ public class BallerinaParser extends AbstractParser {
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
         STNode ellipsis = parseOptionalEllipsis();
         
-        STNode paramName = STNodeFactory.createEmptyNode();
-        if (!isObjectTypeDesc || peek().kind == SyntaxKind.IDENTIFIER_TOKEN) {
+        STNode paramName;
+        if (isObjectTypeDesc) {
+            paramName = parseOptionalPathParamName();
+        } else {
             paramName = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
         }
 
@@ -6965,6 +6967,19 @@ public class BallerinaParser extends AbstractParser {
                 paramName, closeBracket);
     }
 
+    private STNode parseOptionalPathParamName() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case IDENTIFIER_TOKEN:
+                return consume();
+            case CLOSE_BRACKET_TOKEN:
+                return STNodeFactory.createEmptyNode();
+            default:
+                recover(nextToken, ParserRuleContext.OPTIONAL_PATH_PARAM_NAME);
+                return parseOptionalPathParamName();
+        }
+    }
+    
     private STNode parseOptionalEllipsis() {
         STToken nextToken = peek();
         switch (nextToken.kind) {

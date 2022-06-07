@@ -732,7 +732,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESC_IN_PATH_PARAM, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] PATH_PARAM_ELLIPSIS =
-            { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.ELLIPSIS, ParserRuleContext.CLOSE_BRACKET };
+            { ParserRuleContext.OPTIONAL_PATH_PARAM_NAME, ParserRuleContext.ELLIPSIS };
+    
+    private static final ParserRuleContext[] OPTIONAL_PATH_PARAM_NAME = 
+            { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.CLOSE_BRACKET };
 
     private static final ParserRuleContext[] RELATIVE_RESOURCE_PATH_END =
             { ParserRuleContext.RESOURCE_ACCESSOR_DEF_OR_DECL_RHS, ParserRuleContext.SLASH };
@@ -1539,6 +1542,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_PATH_SEGMENT:
             case PATH_PARAM_OPTIONAL_ANNOTS:
             case PATH_PARAM_ELLIPSIS:
+            case OPTIONAL_PATH_PARAM_NAME:    
             case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
             case OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER:
             case CONFIG_VAR_DECL_RHS:
@@ -1961,7 +1965,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PATH_PARAM_OPTIONAL_ANNOTS:
                 return ParserRuleContext.TYPE_DESC_IN_PATH_PARAM;
             case PATH_PARAM_ELLIPSIS:
-                return ParserRuleContext.VARIABLE_NAME;
+            case OPTIONAL_PATH_PARAM_NAME:
+                return ParserRuleContext.CLOSE_BRACKET;
             case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
             case OBJECT_TYPE_WITHOUT_FIRST_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
@@ -2301,6 +2306,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case PATH_PARAM_ELLIPSIS:
                 alternativeRules = PATH_PARAM_ELLIPSIS;
+                break;
+            case OPTIONAL_PATH_PARAM_NAME:
+                alternativeRules = OPTIONAL_PATH_PARAM_NAME;
                 break;
             case RELATIVE_RESOURCE_PATH_END:
                 alternativeRules = RELATIVE_RESOURCE_PATH_END;
@@ -3174,7 +3182,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case REST_MATCH_PATTERN:
                         return ParserRuleContext.VAR_KEYWORD;
                     case RELATIVE_RESOURCE_PATH:
-                        return ParserRuleContext.VARIABLE_NAME;
+                        return ParserRuleContext.OPTIONAL_PATH_PARAM_NAME;
                     case RESOURCE_METHOD_CALL_ACTION:
                         return ParserRuleContext.EXPRESSION;
                     default:
