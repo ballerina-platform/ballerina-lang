@@ -40,7 +40,7 @@ public class ValidatorTest {
         Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2"));
 
         Assert.assertFalse(inputValidator.isComplete("int[] x = [1,2,3,"));
-        Assert.assertFalse(inputValidator.isComplete("map<int> m = {"));
+//        Assert.assertFalse(inputValidator.isComplete("map<int> m = {"));
 
         // If-else statements
         Assert.assertTrue(inputValidator.isComplete("if (x == y) { }"));
