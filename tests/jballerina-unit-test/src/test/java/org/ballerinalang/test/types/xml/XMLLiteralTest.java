@@ -200,6 +200,8 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++,
                 "invalid literal for type 'xml': raw templates can only be assigned to " +
                         "abstract subtypes of 'ballerina/lang.object:0.0.0:RawTemplate'", 143, 52);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: 'ballerina/lang.object:0.0.0:RawTemplate[]' cannot be cast to 'string'", 144, 25);
 
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
