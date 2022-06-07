@@ -17,6 +17,9 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
+import sun.misc.Signal;
+
+import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -29,17 +32,22 @@ import java.util.Map;
  */
 public class Status {
 
+    private static final PrintStream outStream = System.out;
     private static final Map<Integer, Strand> currentStrands = new HashMap<>();
 
-    public static void addToStrands(Integer strandId, Strand strand) {
+    protected static void addToStrands(Integer strandId, Strand strand) {
         currentStrands.put(strandId, strand);
     }
 
-    public static void removeFromStrands(Integer strandId) {
+    protected static void removeFromStrands(Integer strandId) {
         currentStrands.remove(strandId);
     }
 
-    public static String getRuntimeStateDump() {
+    public static void initiateSignalListener() {
+        Signal.handle(new Signal("USR1"), signal -> outStream.println(getRuntimeStateDump()));
+    }
+
+    private static String getRuntimeStateDump() {
         StringBuilder infoStr = new StringBuilder("Ballerina Runtime State Dump [");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();

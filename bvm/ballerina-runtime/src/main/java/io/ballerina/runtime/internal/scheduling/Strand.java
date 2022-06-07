@@ -417,7 +417,7 @@ public class Strand {
         return metadata;
     }
 
-    public String dumpState() {
+    protected String dumpState() {
         StringBuilder infoStr = new StringBuilder("Strand " + this.id);
         if (this.name != null && this.getName().isPresent()) {
             infoStr.append(" " + this.getName().get());
