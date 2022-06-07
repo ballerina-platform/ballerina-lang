@@ -122,6 +122,9 @@ public class AnnotationDesugar {
     private static final String FIELD = "$field$";
     private static final String PARAM = "$param$";
     private static final String RETURNS = "$returns$";
+    public static final String STRAND = "strand";
+    public static final String THREAD = "thread";
+    public static final String STRAND_DATA = "StrandData";
     private BLangSimpleVariable annotationMap;
     private int annotFuncCount = 0;
 
@@ -1066,6 +1069,65 @@ public class AnnotationDesugar {
         }
 
         return params;
+    }
+
+    public void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation,
+                                                 SymbolEnv env) {
+        // Create annotation attachment.
+        BLangAnnotationAttachment annotAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
+        annotAttachment.annotationSymbol = symResolver.getStrandAnnotationSymbol();
+
+        Location position = actionInvocation.pos;
+
+        annotAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        annotAttachment.annotationName.value = STRAND;
+        annotAttachment.pos = position;
+        annotAttachment.annotationName.pos = position;
+
+        BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        pkgAlias.setValue(LANG_ANNOT_PKG_KEY);
+        annotAttachment.pkgAlias = pkgAlias;
+        annotAttachment.attachPoints.add(AttachPoint.Point.WORKER);
+
+        // Create record literal related to annotation node.
+        BLangRecordLiteral strandDataRecord = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        annotAttachment.expr = strandDataRecord;
+        strandDataRecord.pos = position;
+        final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symTable.rootPkgSymbol);
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(STRAND_DATA));
+        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
+        strandDataRecord.setBType(bStructSymbol.type);
+        strandDataRecord.typeChecked = true;
+
+        // Add key/value pair for `thread` field in `StrandData` record.
+        BLangRecordLiteral.BLangRecordKeyValueField threadFieldKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+        strandDataRecord.fields.add(threadFieldKeyValue);
+
+        // Create annotation field key for `thread`.
+        BLangLiteral threadKey = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        threadKey.value = THREAD;
+        threadKey.setBType(symTable.stringType);
+        threadKey.typeChecked = true;
+
+        // Create annotation field value for `thread`.
+        BLangLiteral threadValue = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        threadValue.setBType(symTable.stringType);
+        threadValue.value = "any";
+        threadValue.pos = position;
+        threadValue.typeChecked = true;
+
+        threadFieldKeyValue.key = new BLangRecordLiteral.BLangRecordKey(threadKey);
+        BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv, names.fromString(THREAD),
+                bStructSymbol);
+        threadFieldKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
+        threadFieldKeyValue.valueExpr = threadValue;
+
+        symResolver.populateAnnotationAttachmentSymbol(annotAttachment, env, constantValueResolver);
+
+        // Add annotation to action invocation.
+        actionInvocation.addAnnotationAttachment(annotAttachment);
+        ((BInvokableSymbol) actionInvocation.symbol).addAnnotation(annotAttachment.annotationAttachmentSymbol);
     }
 
     private class LocationData {

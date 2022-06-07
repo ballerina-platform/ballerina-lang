@@ -812,6 +812,10 @@ public class Desugar extends BLangNodeVisitor {
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
+        addRecordTypeNodeForTypeDef(pkgNode, prevTypeDefinitions);
+    }
+
+    private void addRecordTypeNodeForTypeDef(BLangPackage pkgNode, List<BLangTypeDefinition> prevTypeDefinitions) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             if (prevTypeDefinitions.contains(typeDef)) {
                 continue;
@@ -6356,7 +6360,22 @@ public class Desugar extends BLangNodeVisitor {
         if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
+
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
+        // isolated named worker declaration.
+        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation);
+        }
+
         rewriteInvocation(actionInvocation, actionInvocation.async);
+    }
+
+    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+        BLangPackage pkgNode = env.enclPkg;
+        List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+        annotationDesugar.addStrandAnnotationWithThreadAny(actionInvocation, env);
+        // Add record type node for internally added strand annotation.
+        addRecordTypeNodeForTypeDef(pkgNode, prevTypeDefinitions);
     }
 
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
