@@ -502,7 +502,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     TABLE_KEY_SPECIFIER_MISMATCH("BCE3301", "table.key.specifier.mismatch"),
     KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("BCE3302", "key.specifier.size.mismatch.with.key.constraint"),
     KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("BCE3303", "key.specifier.mismatch.with.key.constraint"),
-    INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS("BCE3304", "invalid.key.constraint.provided.for.access"),
     MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE("BCE3305", "member.access.not.supported.keyless.table"),
     INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("BCE3306", "invalid.field.name.in.key.specifier"),
     MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("BCE3307", "multi.key.member.access.not.supported"),
@@ -518,6 +517,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3315", "on.conflict.only.works.with.tables.with.key.specifier"),
     CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS("BCE3316", "cannot.update.table.using.member.access.lvexpr"),
     KEY_SPECIFIER_EMPTY_FOR_PROVIDED_KEY_CONSTRAINT("BCE3317", "key.specifier.empty.with.key.constraint"),
+    KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY("BCE3318", "key.specifier.not.allowed.for.target.any"),
 
 
     // Taint checking related codes

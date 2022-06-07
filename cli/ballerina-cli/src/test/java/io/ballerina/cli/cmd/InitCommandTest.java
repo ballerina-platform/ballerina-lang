@@ -58,6 +58,47 @@ public class InitCommandTest extends BaseCommandTest {
         String tomlContent = Files.readString(
                 projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
         String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + projectPath.getFileName().toString() + "\"\n" +
+                "version = \"0.1.0\"\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
+
+        Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
+        Assert.assertFalse(Files.exists(testPath));
+
+        Path resourcePath = projectPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
+        Assert.assertFalse(Files.exists(resourcePath));
+        Assert.assertTrue(Files.notExists(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertFalse(Files.exists(projectPath.resolve("main.bal")));
+
+        Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
+    @Test(description = "Initialize a new empty project within a directory has invalid characters for project name")
+    public void testInitCommandWithinInvalidCharsDir() throws IOException {
+        Path projectPath = tmpDir.resolve("hello-world");
+        Files.createDirectory(projectPath);
+        Path balFile = projectPath.resolve("data.bal");
+        Files.createFile(balFile);
+
+        System.setProperty(USER_NAME, "testuserorg");
+        String[] args = {};
+        InitCommand initCommand = new InitCommand(projectPath, printStream, false);
+        new CommandLine(initCommand).parse(args);
+        initCommand.execute();
+
+        Assert.assertTrue(Files.exists(projectPath));
+        Assert.assertTrue(Files.exists(balFile));
+        Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"hello_world\"\n" +
+                "version = \"0.1.0\"\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";

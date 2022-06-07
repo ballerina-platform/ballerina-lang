@@ -162,7 +162,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -216,7 +215,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -653,20 +651,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(clause, env);
         }
         analyzeNode(queryAction.doClause, env);
-    }
-
-    @Override
-    public void visit(BLangMatch matchNode) {
-        analyzeNode(matchNode.expr, env);
-        for (BLangMatch.BLangMatchBindingPatternClause patternClause : matchNode.patternClauses) {
-            analyzeNode(patternClause, env);
-        }
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        analyzeNode(patternClauseNode.variable, env);
-        analyzeNode(patternClauseNode.body, env);
     }
 
     @Override
@@ -1697,13 +1681,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        for (BLangExpression value : tableMultiKeyExpr.multiKeyIndexExprs) {
-            analyzeNode(value, env);
-        }
-    }
-
-    @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
     }
 
@@ -1910,23 +1887,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         analyzeNode(bLangErrorVariableDef.errorVariable, env);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause matchStaticBindingPatternClause) {
-        analyzeNode(matchStaticBindingPatternClause.body, env);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause matchStmtStructuredBindingPatternClause) {
-        analyzeNode(matchStmtStructuredBindingPatternClause.bindingPatternVariable, env);
-
-        BLangExpression typeGuardExpr = matchStmtStructuredBindingPatternClause.typeGuardExpr;
-        if (typeGuardExpr != null) {
-            analyzeNode(typeGuardExpr, env);
-        }
-
-        analyzeNode(matchStmtStructuredBindingPatternClause.body, env);
     }
 
     @Override

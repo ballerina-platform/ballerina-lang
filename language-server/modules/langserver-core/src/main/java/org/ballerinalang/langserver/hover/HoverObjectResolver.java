@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
@@ -164,9 +165,17 @@ public class HoverObjectResolver {
                 }
                 String paramName = param.getName().get();
                 String desc = paramsMap.get(paramName);
+                String defaultValueEdit = "";
+                if (param.paramKind() == ParameterKind.DEFAULTABLE) {
+                    Optional<String> defaultValueForParam = CommonUtil.getDefaultValueForType(param.typeDescriptor());
+                    if (defaultValueForParam.isPresent()) {
+                        defaultValueEdit = MarkupUtils
+                                .quotedString(String.format("(default: %s)", defaultValueForParam.get()));
+                    }
+                }
                 return MarkupUtils.quotedString(CommonUtil.getModifiedTypeName(context,
                         param.typeDescriptor())) + " "
-                        + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc;
+                        + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc + defaultValueEdit;
             }).collect(Collectors.toList()));
 
             Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();

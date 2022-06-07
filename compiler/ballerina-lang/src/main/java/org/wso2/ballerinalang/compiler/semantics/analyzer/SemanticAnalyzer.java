@@ -111,7 +111,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
@@ -158,9 +157,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -205,7 +201,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2628,29 +2623,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     @Override
-    public void visit(BLangMatch matchNode, AnalyzerData data) {
-        List<BType> exprTypes;
-        BType exprType = typeChecker.checkExpr(matchNode.expr, data.env, symTable.noType, data.prevEnvs);
-        if (Types.getReferredType(exprType).tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) exprType;
-            exprTypes = new ArrayList<>(unionType.getMemberTypes());
-        } else {
-            exprTypes = Lists.of(exprType);
-        }
-
-        matchNode.patternClauses.forEach(patternClause -> {
-            patternClause.matchExpr = matchNode.expr;
-            patternClause.accept(this, data);
-        });
-
-        if (matchNode.onFailClause != null) {
-            this.analyzeNode(matchNode.onFailClause, data);
-        }
-
-        matchNode.exprTypes = exprTypes;
-    }
-
-    @Override
     public void visit(BLangMatchStatement matchStatement, AnalyzerData data) {
         typeChecker.checkExpr(matchStatement.expr, data.env, symTable.noType, data.prevEnvs);
 
@@ -3588,133 +3560,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     @Override
-    public void visit(BLangMatchStaticBindingPatternClause patternClause, AnalyzerData data) {
-        checkStaticMatchPatternLiteralType(patternClause.literal, data);
-        analyzeStmt(patternClause.body, data);
-    }
-
-    private BType checkStaticMatchPatternLiteralType(BLangExpression expression, AnalyzerData data) {
-        SymbolEnv currentEnv = data.env;
-        switch (expression.getKind()) {
-            case LITERAL:
-            case NUMERIC_LITERAL:
-                return typeChecker.checkExpr(expression, currentEnv, symTable.noType, data.prevEnvs);
-            case BINARY_EXPR:
-                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) expression;
-
-                BType lhsType = checkStaticMatchPatternLiteralType(binaryExpr.lhsExpr, data);
-                BType rhsType = checkStaticMatchPatternLiteralType(binaryExpr.rhsExpr, data);
-                if (Types.getReferredType(lhsType).tag == TypeTags.NONE
-                        || Types.getReferredType(rhsType).tag == TypeTags.NONE) {
-                    dlog.error(binaryExpr.pos, DiagnosticErrorCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-                    expression.setBType(symTable.errorType);
-                    return expression.getBType();
-                }
-
-                expression.setBType(symTable.anyType);
-                return expression.getBType();
-            case RECORD_LITERAL_EXPR:
-                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-                recordLiteral.setBType(new BMapType(TypeTags.MAP, symTable.anydataType, null));
-                for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-                    BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue =
-                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                    if (isValidRecordLiteralKey(recLiteralKeyValue, data)) {
-                        BType fieldType = checkStaticMatchPatternLiteralType(recLiteralKeyValue.valueExpr, data);
-                        if (Types.getReferredType(fieldType).tag == TypeTags.NONE) {
-                            dlog.error(recLiteralKeyValue.valueExpr.pos,
-                                    DiagnosticErrorCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-                            expression.setBType(symTable.errorType);
-                            return expression.getBType();
-                        }
-                        types.setImplicitCastExpr(recLiteralKeyValue.valueExpr, fieldType, symTable.anyType);
-                    } else {
-                        recLiteralKeyValue.key.expr.setBType(symTable.errorType);
-                        dlog.error(recLiteralKeyValue.key.expr.pos, DiagnosticErrorCode.INVALID_RECORD_LITERAL_KEY);
-                    }
-                }
-                return recordLiteral.getBType();
-            case LIST_CONSTRUCTOR_EXPR:
-                BLangListConstructorExpr listConstructor = (BLangListConstructorExpr) expression;
-                List<BType> results = new ArrayList<>();
-                for (int i = 0; i < listConstructor.exprs.size(); i++) {
-                    BType literalType = checkStaticMatchPatternLiteralType(listConstructor.exprs.get(i), data);
-                    if (Types.getReferredType(literalType).tag == TypeTags.NONE) {
-                        // not supporting '_' for now
-                        dlog.error(listConstructor.exprs.get(i).pos,
-                                   DiagnosticErrorCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-                        expression.setBType(symTable.errorType);
-                        return expression.getBType();
-                    }
-                    results.add(literalType);
-                }
-                // since match patterns do not support arrays, this will be treated as an tuple.
-                listConstructor.setBType(new BTupleType(results));
-                return listConstructor.getBType();
-            case GROUP_EXPR:
-                BLangGroupExpr groupExpr = (BLangGroupExpr) expression;
-                BType literalType = checkStaticMatchPatternLiteralType(groupExpr.expression, data);
-                if (Types.getReferredType(literalType).tag == TypeTags.NONE) {
-                    // not supporting '_' for now
-                    dlog.error(groupExpr.expression.pos, DiagnosticErrorCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-                    expression.setBType(symTable.errorType);
-                    return expression.getBType();
-                }
-                groupExpr.setBType(literalType);
-                return groupExpr.getBType();
-            case SIMPLE_VARIABLE_REF:
-                // only support "_" in static match
-                Name varName = names.fromIdNode(((BLangSimpleVarRef) expression).variableName);
-                if (varName == Names.IGNORE) {
-                    expression.setBType(symTable.anyType);
-                    return expression.getBType();
-                }
-                BType exprType = typeChecker.checkExpr(expression, currentEnv, symTable.noType, data.prevEnvs);
-                if (exprType.tag == TypeTags.SEMANTIC_ERROR ||
-                        ((BLangSimpleVarRef) expression).symbol.getKind() != SymbolKind.CONSTANT) {
-                    dlog.error(expression.pos, DiagnosticErrorCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-                    expression.setBType(symTable.noType);
-                    return expression.getBType();
-                }
-                return exprType;
-            default:
-                dlog.error(expression.pos, DiagnosticErrorCode.INVALID_LITERAL_FOR_MATCH_PATTERN);
-                expression.setBType(symTable.errorType);
-                return expression.getBType();
-        }
-    }
-
-    private boolean isValidRecordLiteralKey(BLangRecordLiteral.BLangRecordKeyValueField recLiteralKeyValue,
-                                            AnalyzerData data) {
-        NodeKind kind = recLiteralKeyValue.key.expr.getKind();
-        return kind == NodeKind.SIMPLE_VARIABLE_REF ||
-                ((kind == NodeKind.LITERAL || kind == NodeKind.NUMERIC_LITERAL) &&
-                        Types.getReferredType(
-                                typeChecker.checkExpr(recLiteralKeyValue.key.expr,
-                                        data.env, symTable.noType, data.prevEnvs)).tag == TypeTags.STRING);
-    }
-
-    @Override
-    public void visit(BLangMatchStructuredBindingPatternClause patternClause, AnalyzerData data) {
-        patternClause.bindingPatternVariable.setBType(patternClause.matchExpr.getBType());
-        patternClause.bindingPatternVariable.expr = patternClause.matchExpr;
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(patternClause.body, data.env);
-
-        if (patternClause.typeGuardExpr != null) {
-            data.env = blockEnv;
-            analyzeDef(patternClause.bindingPatternVariable, data);
-            typeChecker.checkExpr(patternClause.typeGuardExpr, blockEnv, symTable.noType, data.prevEnvs);
-            blockEnv = typeNarrower.evaluateTruth(patternClause.typeGuardExpr, patternClause.body, blockEnv);
-        } else {
-            data.env = blockEnv;
-            analyzeDef(patternClause.bindingPatternVariable, data);
-        }
-
-        data.env = blockEnv;
-        analyzeStmt(patternClause.body, data);
-    }
-
-    @Override
     public void visit(BLangForeach foreach, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         // Check the collection's type.
@@ -3752,9 +3597,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             //not-possible
             return;
         }
-        // Create a new block environment for the onfail node.
-        SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, data.env);
-        // Check onfail node's variables and set types.
+        // Create a new block environment for the on-fail node.
+        SymbolEnv onFailEnv = SymbolEnv.createBlockEnv(onFailClause.body, data.env);
+
+        // Check on-fail node's variables and set types.
         handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
                                          onFailClause.isDeclaredWithVar, true, onFailEnv);
         data.env = onFailEnv;

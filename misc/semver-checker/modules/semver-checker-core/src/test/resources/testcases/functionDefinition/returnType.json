@@ -1,0 +1,107 @@
+[
+  {
+    "description": "Change the type of return type in a function",
+    "oldCode": "public function add(int x , int y) returns int {}",
+    "newCode": "public function add(int x , int y) returns String {}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "modified",
+                "versionImpact": "ambiguous",
+                "message":"return type is changed from 'int ' to 'String '"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove return and make it as a non return function",
+    "oldCode": "public function add(int x , int y) returns int {}",
+    "newCode": "public function add(int x , int y) {}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "major",
+                "message":"return type is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Change a function to a return function",
+    "oldCode": "public function add(int x , int y) {}",
+    "newCode": "public function add(int x , int y) returns int {}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "major",
+                "message":"return type is added"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add return type annotation to a function.",
+    "oldCode": "public function add(int x , int y) returns int{}",
+    "newCode": "public function add(int x , int y) returns @tainted int{}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove return type annotation from a function.\n",
+    "oldCode": "public function add(int x , int y) returns @tainted int{}",
+    "newCode": "public function add(int x , int y) returns int {}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify return type annotation from a function.",
+    "oldCode": "public function add(int x , int y) returns @tainted int{}",
+    "newCode": "public function add(int x , int y) returns @untainted int{}",
+    "expectedOutput": {}
+  }
+]

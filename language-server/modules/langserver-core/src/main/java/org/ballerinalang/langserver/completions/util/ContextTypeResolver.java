@@ -35,6 +35,7 @@ import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
@@ -378,9 +379,20 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!CommonUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)
-                || !(classSymbol.get() instanceof ClassSymbol)) {
+        if (!CommonUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        if (classSymbol.get().typeKind() == TypeDescKind.UNION) {
+            classSymbol = ((UnionTypeSymbol) classSymbol.get()).memberTypeDescriptors().stream()
+                    .filter(typeSymbol ->
+                            CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
+                    .map(CommonUtil::getRawType).findFirst();
+            if (classSymbol.isEmpty()) {
+                return Optional.empty();
+            }
+        }
+        if (!(classSymbol.get() instanceof ClassSymbol)) {
+            return Optional.of(classSymbol.get());
         }
         Optional<ParenthesizedArgList> args = implicitNewExpressionNode.parenthesizedArgList();
         if (args.isEmpty()) {
@@ -403,9 +415,20 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!CommonUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)
-                || !(classSymbol.get() instanceof ClassSymbol)) {
+        if (!CommonUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
+        }
+        if (classSymbol.get().typeKind() == TypeDescKind.UNION) {
+            classSymbol = ((UnionTypeSymbol) classSymbol.get()).memberTypeDescriptors().stream()
+                    .filter(typeSymbol ->
+                            CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
+                    .map(CommonUtil::getRawType).findFirst();
+            if (classSymbol.isEmpty()) {
+                return Optional.empty();
+            }
+        }
+        if (!(classSymbol.get() instanceof ClassSymbol)) {
+            return Optional.of(classSymbol.get());
         }
         Optional<MethodSymbol> methodSymbol = ((ClassSymbol) classSymbol.get()).initMethod();
         if (methodSymbol.isEmpty()) {
