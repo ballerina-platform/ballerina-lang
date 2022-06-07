@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Completion provider for {@link io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode} context.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ImplicitAnonymousFunctionExpressionNodeContext
@@ -52,7 +52,7 @@ public class ImplicitAnonymousFunctionExpressionNodeContext
 
     private boolean withinExpression(ImplicitAnonymousFunctionExpressionNode node, BallerinaCompletionContext context) {
         int cursorPosition = context.getCursorPositionInTree();
-        return CommonUtil.isWithInRange(node.expression(), cursorPosition) ||
+        return PositionUtil.isWithInRange(node.expression(), cursorPosition) ||
                 node.rightDoubleArrow().textRange().endOffset() < cursorPosition;
     }
 }
