@@ -1159,6 +1159,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
             }
+            if (!(entry.symbol != null && entry.symbol instanceof BPackageSymbol)) {
+                continue;
+            }
             for (int i = index; i < compUnits.size(); i++) {
                 boolean isUndefinedModule = true;
                 String compUnitName = compUnits.get(i).name;
@@ -1166,9 +1169,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                     isUndefinedModule = false;
                 }
                 while (entry.next != NOT_FOUND_ENTRY) {
-                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
-                        isUndefinedModule = false;
-                        break;
+                    if ((entry.next.symbol) != null) {
+                        if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+                            isUndefinedModule = false;
+                            break;
+                        }
                     }
                     entry = entry.next;
                 }
