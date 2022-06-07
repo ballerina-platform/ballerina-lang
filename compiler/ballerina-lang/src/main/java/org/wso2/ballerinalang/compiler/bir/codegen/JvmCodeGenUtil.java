@@ -618,14 +618,14 @@ public class JvmCodeGenUtil {
 
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset, int yieldLocationVarIndex,
-                                     Location terminatorPos) {
+                                     Location terminatorPos, String fullyQualifiedFuncName) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 
         if (yieldLocationVarIndex != -1) {
-            StringBuilder yieldLocationData = new StringBuilder(funcName);
+            StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
             if (terminatorPos != null) {
                 yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
                         .append(terminatorPos.lineRange().startLine().line() + 1).append(")");

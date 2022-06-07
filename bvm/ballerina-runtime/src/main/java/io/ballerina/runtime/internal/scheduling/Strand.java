@@ -424,12 +424,12 @@ public class Strand {
         }
         infoStr.append(" [" + this.getState().toString() + "]:\n");
         if (this.frames != null) {
-            String stringPrefix = "at  ";
+            String stringPrefix = "at ";
             for (Object frame : this.frames) {
                 if (frame instanceof FunctionFrame) {
                     infoStr.append(stringPrefix).append(((FunctionFrame) frame).getYieldLocation());
                     infoStr.append("\n");
-                    stringPrefix = "    ";
+                    stringPrefix = "   ";
                 }
             }
         }

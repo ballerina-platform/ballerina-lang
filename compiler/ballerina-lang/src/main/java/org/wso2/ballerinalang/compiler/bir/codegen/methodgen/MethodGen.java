@@ -504,10 +504,20 @@ public class MethodGen {
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
+            String fullyQualifiedFuncName;
+            if (func.type.tsymbol != null) {
+                PackageID funcTSymbolPkgID = func.type.tsymbol.pkgID;
+                fullyQualifiedFuncName = funcTSymbolPkgID.getOrgName().toString() + "." +
+                        funcTSymbolPkgID.getName().toString() + "." + funcTSymbolPkgID.getPackageVersion().toString() +
+                        ":" + funcName;
+            } else {
+                fullyQualifiedFuncName = funcName;
+            }
+
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
                 JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset,
-                        yieldLocationVarIndex, terminator.pos);
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName);
             }
         }
     }
