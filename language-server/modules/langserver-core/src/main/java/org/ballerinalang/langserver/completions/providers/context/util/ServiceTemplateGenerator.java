@@ -143,7 +143,6 @@ public class ServiceTemplateGenerator {
                     Either.forLeft(endNotification)));
         }).exceptionally(e -> {
             WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.getKind();
             endNotification.setMessage("Initialization Failed!");
             languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                     Either.forLeft(endNotification)));
@@ -479,7 +478,7 @@ public class ServiceTemplateGenerator {
                 serviceSnippet.moduleID, context);
         String moduleAlias = modulePrefix.replace(":", "");
         String moduleName = ModuleUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
-        
+
         if (!moduleAlias.isEmpty()) {
             symbolReference = modulePrefix + serviceSnippet.symbolName;
         } else {
