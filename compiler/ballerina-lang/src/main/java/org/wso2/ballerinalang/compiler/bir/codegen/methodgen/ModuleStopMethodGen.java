@@ -47,7 +47,6 @@ import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
-import static org.objectweb.asm.Opcodes.ICONST_2;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFNULL;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -59,7 +58,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LISTENER_REGISTRY_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -70,13 +69,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_U
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_HANDLER_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_STOP_PANIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LISTENER_STOP_HANDLER_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
@@ -96,14 +94,14 @@ public class ModuleStopMethodGen {
 
     public ModuleStopMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen) {
         this.symbolTable = symbolTable;
-        indexMap = new BIRVarToJVMIndexMap(2);
+        indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
     }
 
     public void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRNode.BIRPackage module,
                                             List<PackageID> imprtMods, AsyncDataCollector asyncDataCollector) {
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MODULE_STOP_METHOD,
-                                          INIT_LISTENER_STOP_HANDLER_REGISTRY, null, null);
+                INIT_RUNTIME_REGISTRY, null, null);
         mv.visitCode();
 
         int schedulerIndex = indexMap.addIfNotExists(SCHEDULER_VAR, symbolTable.anyType);
@@ -165,38 +163,34 @@ public class ModuleStopMethodGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, LISTENER_REGISTRY_CLASS);
+        mv.visitTypeInsn(CHECKCAST, RUNTIME_REGISTRY_CLASS);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKEVIRTUAL, LISTENER_REGISTRY_CLASS, "stopListeners",
+        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "stopListeners",
                            SET_STRAND, false);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_2);
+        mv.visitInsn(ICONST_1);
         mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STOP_HANDLER_REGISTRY_CLASS);
+        mv.visitTypeInsn(CHECKCAST, RUNTIME_REGISTRY_CLASS);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STOP_HANDLER_REGISTRY_CLASS, "moduleGracefulStop", SET_STRAND, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "moduleGracefulStop", SET_STRAND, false);
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv);
     }
 
     private void addListenerAndStopHandlerRegistryAsParameter(MethodVisitor mv) {
         int arrIndex = indexMap.addIfNotExists(ARR_VAR, symbolTable.anyType);
-        mv.visitIntInsn(BIPUSH, 3);
+        mv.visitIntInsn(BIPUSH, 2);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitVarInsn(ASTORE, arrIndex);
         mv.visitVarInsn(ALOAD, arrIndex);
         mv.visitInsn(ICONST_1);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(AASTORE);
-        mv.visitVarInsn(ALOAD, arrIndex);
-        mv.visitInsn(ICONST_2);
-        mv.visitVarInsn(ALOAD, 1);
         mv.visitInsn(AASTORE);
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         mv.visitVarInsn(ALOAD, arrIndex);
@@ -267,5 +261,4 @@ public class ModuleStopMethodGen {
     private String getModuleInitClassName(PackageID id) {
         return JvmCodeGenUtil.getModuleLevelClassName(id, MODULE_INIT_CLASS_NAME);
     }
-
 }

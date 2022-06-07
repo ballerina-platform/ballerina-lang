@@ -23,11 +23,6 @@ public type DynamicListener object {
     public function immediateStop() returns error?;
 };
 
-# A module stop handler which handles a graceful shutdown of a module.
-public type StopHandler object {
-    public function gracefulStop() returns error?;
-};
-
 # Represents a data holder of the current call stack element.
 #
 # + callableName - Callable name
@@ -57,15 +52,6 @@ public isolated function registerListener(DynamicListener 'listener) = @java:Met
 # which this function is called.
 # + listener - the listener object to be unregistered
 public isolated function deregisterListener(DynamicListener 'listener) = @java:Method {
-    'class: "org.ballerinalang.langlib.runtime.Registry"
-} external;
-
-# Registers a StopHandler object with a module for graceful shutdown of it.
-#
-# The `stopHandler` can be used to perform a graceful shutdown of the module
-# where it has been called.
-# + stopHandler - the stopHandler object to be registered
-public isolated function onGracefulStop(StopHandler stopHandler) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
@@ -103,8 +89,20 @@ public isolated function getStackTrace() returns StackFrame[] {
     return stackFrame;
 }
 
-
 isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
     name: "getStackTrace",
     'class: "org.ballerinalang.langlib.runtime.GetStackTrace"
+} external;
+
+# Type of the function passed to `onGracefulStop.
+public type StopHandler function() returns error?;
+
+# Registers a function that will be called during graceful shutdown.
+# A call to `onGracefulStop` will result in one call to the handler function
+# that was passed as an argument; the handler functions will be called
+# after calling `gracefulStop` on all registered listeners,
+# in reverse order of the corresponding calls to `onGracefulStop`.
+# + handler - function to be called
+public isolated function onGracefulStop(StopHandler 'handler) = @java:Method {
+    'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
