@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.commons;
 
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.eclipse.lsp4j.Position;
 
@@ -25,7 +26,7 @@ import org.eclipse.lsp4j.Position;
  *
  * @since 2.0.0
  */
-public interface HoverContext extends DocumentServiceContext {
+public interface HoverContext extends PositionedOperationContext {
 
     /**
      * Get the client's signature capabilities.
@@ -44,8 +45,22 @@ public interface HoverContext extends DocumentServiceContext {
 
     /**
      * Get the cursor position.
-     * 
+     *
      * @return {@link Position}
      */
     Position getCursorPosition();
+
+    /**
+     * Set the node at cursor.
+     *
+     * @param node {@link NonTerminalNode} at the cursor position
+     */
+    void setNodeAtCursor(NonTerminalNode node);
+
+    /**
+     * Get the node at the hover request triggered cursor position.
+     *
+     * @return {@link NonTerminalNode} at the cursor position
+     */
+    NonTerminalNode getNodeAtCursor();
 }
