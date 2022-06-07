@@ -6571,16 +6571,16 @@ public class Types {
 
     public static void addImmutableType(SymbolTable symTable, PackageID packageId,
                                         SelectivelyImmutableReferenceType type, BIntersectionType immutableType) {
-        Map<SelectivelyImmutableReferenceType, BIntersectionType> moduleImmutableTypeMap;
 
         Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps =
                 symTable.immutableTypeMaps;
 
         String packageIdString = getPackageIdString(packageId);
 
-        if (immutableTypeMaps.containsKey(packageIdString)) {
-            moduleImmutableTypeMap = immutableTypeMaps.get(packageIdString);
-        } else {
+        Map<SelectivelyImmutableReferenceType, BIntersectionType> moduleImmutableTypeMap =
+                immutableTypeMaps.get(packageIdString);
+
+        if (moduleImmutableTypeMap == null) {
             moduleImmutableTypeMap = new HashMap<>();
             immutableTypeMaps.put(packageIdString, moduleImmutableTypeMap);
         }
@@ -6595,12 +6595,13 @@ public class Types {
 
         String packageIdString = getPackageIdString(packageId);
 
-        if (!immutableTypeMaps.containsKey(packageIdString)) {
+        Map<SelectivelyImmutableReferenceType, BIntersectionType> moduleImmutableTypeMap =
+                immutableTypeMaps.get(packageIdString);
+
+        if (moduleImmutableTypeMap == null) {
             return Optional.empty();
         }
 
-        Map<SelectivelyImmutableReferenceType, BIntersectionType> moduleImmutableTypeMap =
-                immutableTypeMaps.get(packageIdString);
         if (moduleImmutableTypeMap.containsKey(type)) {
             return Optional.of(moduleImmutableTypeMap.get(type));
         }
