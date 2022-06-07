@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 /**
  * Hover Provider for Ballerina.
  *
- * @since 2.0.0
+ * @since 2201.1.2
  */
 public class HoverObjectResolver {
 
