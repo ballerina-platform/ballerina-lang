@@ -1387,7 +1387,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
                 } else {
                     updateClosureVarsForAttachedObjects(classDef, invokableFunc.receiver.symbol, localVarRef);
                 }
-            } if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR)) {
+            } else if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR)) {
                 // will be handled in ClassClosureDesugar
                 result = localVarRef;
                 return;

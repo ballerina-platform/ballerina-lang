@@ -2402,7 +2402,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             parameter.pos = getPosition(param);
             arrowFunction.params.add(parameter);
         }
-        ((ArrayList)arrowFunction.params).trimToSize();
         arrowFunction.body = new BLangExprFunctionBody();
         arrowFunction.body.expr = createExpression(implicitAnonymousFunctionExpressionNode.expression());
         arrowFunction.body.pos = arrowFunction.body.expr.pos;

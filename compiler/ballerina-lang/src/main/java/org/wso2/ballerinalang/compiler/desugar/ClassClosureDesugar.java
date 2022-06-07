@@ -881,8 +881,8 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
         mapFieldAccessExpr.setBType(blockMap.type);
 
         // "localVarRef"
-        BLangLiteral varRefMapIndex = ASTBuilderUtil.createLiteral(varRefPos, symTable.stringType, localVarRef.symbol.name);
-
+        BLangLiteral varRefMapIndex = ASTBuilderUtil.createLiteral(varRefPos, symTable.stringType,
+                localVarRef.symbol.name);
 
         // $paramMap$_1[self][$map$objectCtor_block][localVarRef]
         BLangIndexBasedAccess.BLangMapAccessExpr localVarRefMapAccess =
