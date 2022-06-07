@@ -135,18 +135,21 @@ public class ServiceTemplateGenerator {
                         Either.forLeft(beginNotification)));
             }
         }).thenRunAsync(() -> {
-            try {
-                this.loadListenersFromDistribution(lsContext);
-            } catch (Throwable e) {
-                //ignore
-                clientLogger.logTrace("Failed loading listener symbols from the  BallerinaUserHome due to "
-                        + e.getMessage());
-            }
+            this.loadListenersFromDistribution(lsContext);
         }).thenRunAsync(() -> {
             WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
             endNotification.setMessage("Initialized Successfully!");
             languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
                     Either.forLeft(endNotification)));
+        }).exceptionally(e -> {
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.getKind();
+            endNotification.setMessage("Initialization Failed!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
+            clientLogger.logTrace("Failed loading listener symbols from BallerinaUserHome due to "
+                    + e.getMessage());
+            return null;
         });
     }
 
