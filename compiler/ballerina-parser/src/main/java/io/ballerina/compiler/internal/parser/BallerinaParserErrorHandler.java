@@ -732,7 +732,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESC_IN_PATH_PARAM, ParserRuleContext.ANNOTATIONS };
 
     private static final ParserRuleContext[] PATH_PARAM_ELLIPSIS =
-            { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.ELLIPSIS };
+            { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.ELLIPSIS, ParserRuleContext.CLOSE_BRACKET };
 
     private static final ParserRuleContext[] RELATIVE_RESOURCE_PATH_END =
             { ParserRuleContext.RESOURCE_ACCESSOR_DEF_OR_DECL_RHS, ParserRuleContext.SLASH };

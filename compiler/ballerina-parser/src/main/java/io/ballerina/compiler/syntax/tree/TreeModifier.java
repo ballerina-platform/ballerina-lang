@@ -3187,7 +3187,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token ellipsisToken =
                 modifyToken(resourcePathParameterNode.ellipsisToken().orElse(null));
         Token paramName =
-                modifyToken(resourcePathParameterNode.paramName());
+                modifyToken(resourcePathParameterNode.paramName().orElse(null));
         Token closeBracketToken =
                 modifyToken(resourcePathParameterNode.closeBracketToken());
         return resourcePathParameterNode.modify(
