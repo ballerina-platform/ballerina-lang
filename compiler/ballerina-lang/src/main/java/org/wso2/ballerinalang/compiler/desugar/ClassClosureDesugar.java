@@ -842,8 +842,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
-        // Chek
-        if (!localVarRef.symbol.closure || localVarRef.closureDesugared) {
+        if (!enableSelfViaMapMode || !localVarRef.symbol.closure || localVarRef.closureDesugared) {
             result = localVarRef;
             return;
         }
@@ -897,7 +896,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
         localVarRef.closureDesugared = true;
 
-        result = desugar.rewrite(castExpr, env);
+        result = castExpr;
     }
 
     @Override

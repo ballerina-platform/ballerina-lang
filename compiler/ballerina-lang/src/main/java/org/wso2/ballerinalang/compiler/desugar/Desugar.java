@@ -5932,6 +5932,7 @@ public class Desugar extends BLangNodeVisitor {
 
         genVarRefExpr.setBType(type);
         genVarRefExpr.pos = varRefExpr.pos;
+        genVarRefExpr.parent = varRefExpr.parent;
 
         if ((varRefExpr.isLValue)
                 || genVarRefExpr.symbol.name.equals(IGNORE)) { //TODO temp fix to get this running in bvm

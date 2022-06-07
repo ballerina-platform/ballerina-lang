@@ -526,7 +526,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         rewriteStmts(body.stmts, blockEnv);
 
         boolean mapSymbolUpdated = false;
-        if (body.parent != null) {
+        if (body.parent != null && body.parent.getKind() == NodeKind.FUNCTION) {
             BLangFunction function = (BLangFunction) body.parent;
             mapSymbolUpdated = function.mapSymbolUpdated;
         }
@@ -555,12 +555,12 @@ public class ClosureDesugar extends BLangNodeVisitor {
             return;
         }
         if (funcNode.mapSymbol == null) {
-            funcNode.mapSymbol = createMapSymbol(FUNCTION_MAP_SYM_NAME  + funClosureMapCount, funcEnv);
+            funcNode.mapSymbol = createMapSymbol(FUNCTION_MAP_SYM_NAME + funClosureMapCount, funcEnv);
         }
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(funcNode.pos, symTable.mapType);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(funcNode.pos, funcNode.mapSymbol.name.value,
-                                                                   funcNode.mapSymbol.type, emptyRecord,
-                                                                   funcNode.mapSymbol);
+                funcNode.mapSymbol.type, emptyRecord,
+                funcNode.mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(funcNode.mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(funcNode.pos, mapVar);
         // Add the map variable to the top of the statements in the block node.
@@ -651,7 +651,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     private BLangSimpleVariableDef getClosureMap(BVarSymbol mapSymbol, SymbolEnv blockEnv) {
         BLangRecordLiteral emptyRecord = ASTBuilderUtil.createEmptyRecordLiteral(symTable.builtinPos, mapSymbol.type);
         BLangSimpleVariable mapVar = ASTBuilderUtil.createVariable(symTable.builtinPos, mapSymbol.name.value,
-                                                                   mapSymbol.type, emptyRecord, mapSymbol);
+                mapSymbol.type, emptyRecord, mapSymbol);
         mapVar.typeNode = ASTBuilderUtil.createTypeNode(mapSymbol.type);
         BLangSimpleVariableDef mapVarDef = ASTBuilderUtil.createVariableDef(symTable.builtinPos, mapVar);
         return desugar.rewrite(mapVarDef, blockEnv);
@@ -695,9 +695,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
         // Add the variable to the created map.
         BLangIndexBasedAccess accessExpr =
                 ASTBuilderUtil.createIndexBasesAccessExpr(varDefNode.pos, varDefNode.getBType(), mapSymbol,
-                                                          ASTBuilderUtil
-                                                                  .createLiteral(varDefNode.pos, symTable.stringType,
-                                                                                 varDefNode.var.name.value));
+                        ASTBuilderUtil
+                                .createLiteral(varDefNode.pos, symTable.stringType,
+                                        varDefNode.var.name.value));
         accessExpr.setBType(((BMapType) mapSymbol.type).constraint);
         accessExpr.isLValue = true;
         // Written to: 'map["x"] = 8'.
@@ -905,7 +905,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
         assignNode.varRef = rewriteExpr(assignNode.varRef);
         if (assignNode.expr.impConversionExpr != null) {
             types.setImplicitCastExpr(assignNode.expr.impConversionExpr, assignNode.expr.impConversionExpr.getBType(),
-                                      assignNode.varRef.getBType());
+                    assignNode.varRef.getBType());
         } else {
             types.setImplicitCastExpr(assignNode.expr, assignNode.expr.getBType(), assignNode.varRef.getBType());
         }
@@ -1381,14 +1381,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
                             enclosedFunction.mapSymbol);
                     BLangTypeConversionExpr typeConversionExpr =
                             ClassClosureDesugarUtils.updateClosureVarsWithMapAccessExpression(classDef,
-                            invokableFunc.receiver.symbol,
-                            localVarRef, classFunctionMapSymbol, symTable.stringType);
+                                    invokableFunc.receiver.symbol,
+                                    localVarRef, classFunctionMapSymbol, symTable.stringType);
                     result = desugar.rewrite(typeConversionExpr, classDef.oceEnvData.objMethodsEnv);
                 } else {
                     updateClosureVarsForAttachedObjects(classDef, invokableFunc.receiver.symbol, localVarRef);
                 }
             } else if (invokableFunc.flagSet.contains(Flag.OBJECT_CTOR)) {
                 // will be handled in ClassClosureDesugar
+//                localVarRef.handleAtClassClosureDesugar = true;
                 result = localVarRef;
                 return;
             } else {
@@ -1480,7 +1481,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
      */
     private BVarSymbol createMapSymbol(String mapName, SymbolEnv symbolEnv) {
         return new BVarSymbol(0, names.fromString(mapName), symbolEnv.scope.owner.pkgID,
-                              symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, VIRTUAL);
+                symTable.mapAllType, symbolEnv.scope.owner, symTable.builtinPos, VIRTUAL);
     }
 
     /**
@@ -1505,12 +1506,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     /**
      * Update the closure variables with the relevant map access expression.
-     *  a + b can become a + self[$map$objectCtor_3][b]
-     *  a + b ==> a + self[$map$objectCtor_3][b]
-     *  we are dealing with the simple var ref `b` here
-     * @param classDef   OCE class definition
+     * a + b can become a + self[$map$objectCtor_3][b]
+     * a + b ==> a + self[$map$objectCtor_3][b]
+     * we are dealing with the simple var ref `b` here
+     *
+     * @param classDef        OCE class definition
      * @param classSelfSymbol self symbol of attached method
-     * @param varRefExpr closure variable reference to be updated
+     * @param varRefExpr      closure variable reference to be updated
      */
     private void updateClosureVarsForAttachedObjects(BLangClassDefinition classDef,
                                                      BVarSymbol classSelfSymbol,
