@@ -36,6 +36,7 @@ import io.ballerina.shell.cli.handlers.ToggleDebugCommand;
 import io.ballerina.shell.cli.utils.FileUtils;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.utils.ModuleImporter;
+import io.ballerina.shell.preprocessor.SeparatorPreprocessor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -115,33 +116,38 @@ public class BallerinaShell {
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
             String result;
             try {
-                String source = terminal.readLine(leftPrompt, rightPrompt).trim();
+                String mainSource = terminal.readLine(leftPrompt, rightPrompt).trim();
                 start = Instant.now();
-                if (!commandHandler.handle(source)) {
-                    ShellCompilation shellCompilation = evaluator.getCompilation(source);
-                    Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                    if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
-                        Optional<ShellReturnValue> shellReturnValue = evaluator.getValue(compilation);
-                        if (shellReturnValue.isPresent() &&
-                                shellReturnValue.get().getExceptionStatus() == ExceptionStatus.SUCCESS) {
-                            result = shellReturnValue.get().getResult();
-                            terminal.result(result);
-                        } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
-                                ExceptionStatus.INVOKER_FAILED) {
+                SeparatorPreprocessor preProcessor = new SeparatorPreprocessor();
+                Collection<String> process = preProcessor.process(mainSource);
+                for (String source: process) {
+                    if (!commandHandler.handle(source)) {
+                        ShellCompilation shellCompilation = evaluator.getCompilation(source);
+                        Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
+                        if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
+                            Optional<ShellReturnValue> shellReturnValue = evaluator.getValue(compilation);
+                            if (shellReturnValue.isPresent() &&
+                                    shellReturnValue.get().getExceptionStatus() == ExceptionStatus.SUCCESS) {
+                                result = shellReturnValue.get().getResult();
+                                terminal.result(result);
+                            } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
+                                    ExceptionStatus.INVOKER_FAILED) {
+                                if (isContainsUndefinedModules(evaluator.diagnostics())) {
+                                    currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
+                                    evaluator.resetDiagnostics();
+                                    executeChanges(source, currentStateDiagnostics);
+                                }
+                            }
+                        } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
                             if (isContainsUndefinedModules(evaluator.diagnostics())) {
                                 currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
                                 evaluator.resetDiagnostics();
                                 executeChanges(source, currentStateDiagnostics);
                             }
                         }
-                    } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
-                        if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                            currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
-                            evaluator.resetDiagnostics();
-                            executeChanges(source, currentStateDiagnostics);
-                        }
                     }
                 }
+
             } catch (ShellExitException e) {
                 terminal.info("Bye!!!");
                 isRunning = false;
