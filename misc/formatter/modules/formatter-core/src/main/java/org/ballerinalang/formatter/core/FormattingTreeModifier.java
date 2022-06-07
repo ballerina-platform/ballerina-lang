@@ -315,13 +315,20 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBracketToken = formatToken(resourcePathParameterNode.openBracketToken(), 0, 0);
         NodeList<AnnotationNode> annotations = formatNodeList(resourcePathParameterNode.annotations(), 1, 0, 1, 0);
         TypeDescriptorNode typeDescriptor;
-        if (resourcePathParameterNode.ellipsisToken().isPresent()) {
-            typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 0, 0);
-        } else {
+        if (resourcePathParameterNode.ellipsisToken().isEmpty() && resourcePathParameterNode.paramName().isPresent()) {
             typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 1, 0);
+        } else {
+            typeDescriptor = formatNode(resourcePathParameterNode.typeDescriptor(), 0, 0);
         }
-        Token ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
-        Token paramName = formatToken(resourcePathParameterNode.paramName(), 0, 0);
+        
+        Token ellipsisToken;
+        if(resourcePathParameterNode.paramName().isPresent()) {
+            ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
+        } else {
+            ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 0, 0);
+        }
+
+        Token paramName = formatToken(resourcePathParameterNode.paramName().orElse(null), 0, 0);
         Token closeBracketToken = formatToken(resourcePathParameterNode.closeBracketToken(), env.trailingWS,
                 env.trailingNL);
 
