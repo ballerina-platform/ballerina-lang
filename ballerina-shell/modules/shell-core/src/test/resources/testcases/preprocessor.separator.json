@@ -11,7 +11,7 @@
     "name": "Add semicolon at the end",
     "input": "int number",
     "expected": [
-      "int number;"
+      "int number"
     ],
     "accepted": true
   },
@@ -26,9 +26,9 @@
   },
   {
     "name": "Do not break on contained semicolons",
-    "input": "function () { int p = 100; string h = \"hello\";};",
+    "input": "function () { int p = 100; string h = \"hello\";}",
     "expected": [
-      "function () { int p = 100; string h = \"hello\";};"
+      "function () { int p = 100; string h = \"hello\";}"
     ],
     "accepted": true
   },
@@ -45,7 +45,7 @@
     "input": "  \tint number; \n  string value ",
     "expected": [
       "int number;",
-      "string value;"
+      "string value"
     ],
     "accepted": true
   },
@@ -61,7 +61,7 @@
     "name": "Ignore toplevel semicolons if in string",
     "input": "\" a;  b; \"",
     "expected": [
-      "\" a;  b; \";"
+      "\" a;  b; \""
     ],
     "accepted": true
   },
@@ -70,7 +70,7 @@
     "input": "  int a = 0; while (a < 10) { a+= 1; }",
     "expected": [
       "int a = 0;",
-      "while (a < 10) { a+= 1; };"
+      "while (a < 10) { a+= 1; }"
     ],
     "accepted": true
   },
@@ -80,7 +80,7 @@
     "expected": [
       "(a; b; b[c;]);",
       "d;",
-      "{e; f;(h;)};"
+      "{e; f;(h;)}"
     ],
     "accepted": true
   },
@@ -106,30 +106,7 @@
     "name": "Ignore mismatched parenthesis if on string",
     "input": "(( (\")\")))",
     "expected": [
-      "(( (\")\")));"
-    ],
-    "accepted": true
-  },
-  {
-    "name": "Ignore empty semicolons I",
-    "input": ";;;;;",
-    "expected": [],
-    "accepted": true
-  },
-  {
-    "name": "Ignore empty semicolons II",
-    "input": ";;aa;;;",
-    "expected": [
-      "aa;"
-    ],
-    "accepted": true
-  },
-  {
-    "name": "Ignore empty semicolons III",
-    "input": ";;aa;bbb;;",
-    "expected": [
-      "aa;",
-      "bbb;"
+      "(( (\")\")))"
     ],
     "accepted": true
   },
@@ -143,7 +120,7 @@
     "name": "Comments are not detected",
     "input": "Hello // comment",
     "expected": [
-      "Hello;"
+      "Hello"
     ],
     "accepted": true
   },
@@ -151,7 +128,7 @@
     "name": "Comments cant be closed",
     "input": "Hello // comment // Hi",
     "expected": [
-      "Hello;"
+      "Hello"
     ],
     "accepted": true
   },
@@ -159,7 +136,7 @@
     "name": "Comment stop on new line",
     "input": "Hello // comment \n Hi // another comment",
     "expected": [
-      "Hello \n Hi;"
+      "Hello \n Hi"
     ],
     "accepted": true
   },
@@ -167,7 +144,7 @@
     "name": "Comments inside strings not detected",
     "input": "Hello \"// comment\" // Real comment",
     "expected": [
-      "Hello \"// comment\";"
+      "Hello \"// comment\""
     ],
     "accepted": true
   },
@@ -175,7 +152,7 @@
     "name": "Comments inside parenthesis removed",
     "input": "A (Hello // comment)\nB( // DDD \n))",
     "expected": [
-      "A (Hello \nB( \n));"
+      "A (Hello \nB( \n))"
     ],
     "accepted": true
   },
@@ -183,7 +160,7 @@
     "name": "Quoted Identifier Case I",
     "input": "function 'get_ɱȇşşağę_for_\\#(int val) returns string {}",
     "expected": [
-      "function 'get_ɱȇşşağę_for_\\#(int val) returns string {};"
+      "function 'get_ɱȇşşağę_for_\\#(int val) returns string {}"
     ],
     "accepted": true
   },
@@ -191,7 +168,7 @@
     "name": "Quoted Identifier Case II",
     "input": "type 'Person_\\{name\\&Ȧɢέ\\} record {}",
     "expected": [
-      "type 'Person_\\{name\\&Ȧɢέ\\} record {};"
+      "type 'Person_\\{name\\&Ȧɢέ\\} record {}"
     ],
     "accepted": true
   },
@@ -205,10 +182,10 @@
   },
   {
     "name": "Sample Program I",
-    "input": "import ballerina/io;\npublic function main() {\n    string name = \"Ballerina\";\n    string template = string `Hello ${name}!!!`;\n\n    io:println(template);\n};",
+    "input": "import ballerina/io;\npublic function main() {\n    string name = \"Ballerina\";\n    string template = string `Hello ${name}!!!`;\n\n    io:println(template);\n}",
     "expected": [
       "import ballerina/io;",
-      "public function main() {\n    string name = \"Ballerina\";\n    string template = string `Hello ${name}!!!`;\n\n    io:println(template);\n};"
+      "public function main() {\n    string name = \"Ballerina\";\n    string template = string `Hello ${name}!!!`;\n\n    io:println(template);\n}"
     ],
     "accepted": true
   },
@@ -227,7 +204,7 @@
     "name": "Right shift operation",
     "input": "a >>= 2",
     "expected": [
-      "a >>= 2;"
+      "a >>= 2"
     ],
     "accepted": true
   },
