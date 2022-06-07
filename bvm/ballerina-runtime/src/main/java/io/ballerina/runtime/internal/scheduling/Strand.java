@@ -418,76 +418,29 @@ public class Strand {
     }
 
     public String dumpState() {
-        StringBuilder infoStr = new StringBuilder();
-        try {
-            infoStr.append("Strand id: " + this.id + "\n");
-            infoStr.append("Strand hashcode: " + Integer.toHexString(this.hashCode()) + "\n");
-            infoStr.append("Strand name: " + this.getName().toString() + "\n");
-
-            infoStr.append("Strand metadata:\n");
-            infoStr.append("\tstrand initiated module: " + this.metadata.getModuleOrg() + "/" +
-                    this.metadata.getModuleName() + "/" + this.metadata.getModuleVersion() + "\n");
-            if (this.metadata.getTypeName() != null) {
-                infoStr.append("\ttype strand was initiated inside: " + this.metadata.getTypeName() + '\n');
-            }
-            infoStr.append("\tparent function where strand was initiated: " + this.metadata.getParentFunctionName() +
-                    "\n");
-
-            int count = 1;
-            if (this.frames != null) {
-                infoStr.append("frame count :" + this.frames.size() + "\n");
-                for (Object frame : frames) {
-                    if (frame != null) {
-                        infoStr.append("\tframe " + count++ + " stacktrace:\n");
-                        infoStr.append(((FunctionFrame) frame).getYieldLocation());
-                        infoStr.append("\n\n");
-                    }
-                }
-            }
-            infoStr.append("\n");
-            
-            if (this.returnValue != null) {
-                infoStr.append("notnull return value: " + this.returnValue.toString() + "\n");
-            }
-            if (this.panic != null) {
-                infoStr.append("notnull panic: " + this.panic.toString() + "\n");
-                infoStr.append("\tPrintableStackTrace: " + this.panic.getPrintableStackTrace() + "\n");
-                infoStr.append("\tErrorMessage: " + this.panic.getErrorMessage() + "\n");
-            }
-            infoStr.append("scheduler (hashcode in hex): " + Integer.toHexString(this.scheduler.hashCode()) + "\n");
-            if (this.parent != null) {
-                infoStr.append("parent strand id: " + this.parent.getId() + "\n");
-            }
-            infoStr.append("blockedOnExtern: " + this.blockedOnExtern + "\n");
-            infoStr.append("cancel: " + this.cancel + "\n");
-
-            infoStr.append("state: " + this.getState().toString() + "\n");
-            infoStr.append("schedulerItem:\n\t" + this.schedulerItem.toString() + "\n");
-
-            if (this.dependants != null) {
-                infoStr.append("dependent Scheduler items count: " + this.dependants.size() + "\n");
-                for (SchedulerItem dependant : dependants) {
-                    infoStr.append("\t" + dependant.toString() + "\n");
-                }
-            }
-
-
-            infoStr.append("strandGroup: " + this.strandGroup.toString() + "\n");
-
-            if (this.waitContext != null) {
-                infoStr.append("waitContext:\n\t" + this.waitContext.toString() + "\n");
-                infoStr.append("\t\twaitContext.schedulerItem :" + this.waitContext.schedulerItem.toString() + "\n");
-            }
-
-            if (this.waitingContexts != null) {
-                infoStr.append("No. of waitingContexts: " + this.waitingContexts.size() + "\n");
-                for (WaitContext context : this.waitingContexts) {
-                    infoStr.append("\twaitingContexts.schedulerItem: " + context.schedulerItem.toString() + "\n");
-                }
-            }
-        } catch (NullPointerException e) {
-            infoStr.append(e.getLocalizedMessage() + "\n");
+        StringBuilder infoStr = new StringBuilder("Strand " + this.id);
+        if (this.name != null && this.getName().isPresent()) {
+            infoStr.append(" " + this.getName().get());
         }
+        infoStr.append(" [" + this.getState().toString() + "]:\n");
+        if (this.frames != null) {
+            String stringPrefix = "at  ";
+            for (Object frame : this.frames) {
+                if (frame instanceof FunctionFrame) {
+                    infoStr.append(stringPrefix).append(((FunctionFrame) frame).getYieldLocation());
+                    infoStr.append("\n");
+                    stringPrefix = "    ";
+                }
+            }
+        }
+        infoStr.append("created at ");
+        infoStr.append(this.metadata.getModuleOrg()).append(".").append(this.metadata.getModuleName()).append(".")
+                .append(this.metadata.getModuleVersion()).append(":").append(this.metadata.getParentFunctionName());
+        if (this.parent != null) {
+            infoStr.append(" by strand " + this.parent.getId());
+        }
+        infoStr.append("\n");
+
         return infoStr.toString();
     }
 
