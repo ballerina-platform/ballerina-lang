@@ -158,7 +158,7 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
 
             @Override
             public void visit(ResourcePathParameterNode resourcePathParameterNode) {
-                String pathParamName = resourcePathParameterNode.paramName().text();
+                String pathParamName = resourcePathParameterNode.paramName().get().text();
                 PathParameterSymbol pathParam =
                         (PathParameterSymbol) assertSymbol(resourcePathParameterNode, model, PATH_PARAMETER,
                                                            pathParamName);
