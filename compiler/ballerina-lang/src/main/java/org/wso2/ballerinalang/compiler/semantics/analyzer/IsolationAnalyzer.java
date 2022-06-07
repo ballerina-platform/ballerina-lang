@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -341,6 +342,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(typeDefinition.typeNode, pkgEnv);
         }
 
+        visitWorkerLambdaFunctions(pkgNode.functions, pkgEnv);
+
         for (BLangClassDefinition classDefinition : pkgNode.classDefinitions) {
             if (classDefinition.flagSet.contains(Flag.ANONYMOUS) && isIsolated(classDefinition.getBType().flags)) {
                 // If this is a class definition for an object constructor expression, and the type is `isolated`,
@@ -353,9 +356,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(classDefinition, pkgEnv);
         }
 
-        for (BLangFunction function : pkgNode.functions) {
-            analyzeNode(function, pkgEnv);
-        }
+        pkgNode.functions.forEach(function -> {
+            // Skip visiting worker lambdas.
+            if (!isWorkerLambda(function)) {
+                analyzeNode(function, pkgEnv);
+            }
+        });
 
         for (BLangVariable globalVar : pkgNode.globalVars) {
             analyzeNode(globalVar, pkgEnv);
@@ -419,12 +425,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (this.inferredIsolated &&
                 !isIsolated(symbol.flags) &&
-                !Symbols.isFlagOn(symbol.flags, Flags.WORKER) &&
                 functionIsolationInferenceInfo != null &&
                 functionIsolationInferenceInfo.dependsOnlyOnInferableConstructs &&
                 // Init method isolation depends on the object field-initializers too, so we defer inference.
                 !funcNode.objInitFunction) {
             functionIsolationInferenceInfo.inferredIsolated = true;
+            if (Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
+                symbol.flags |= Flags.ISOLATED;
+                funcNode.getBType().flags |= Flags.ISOLATED;
+                funcNode.getBType().tsymbol.flags |= Flags.ISOLATED;
+            }
         }
 
         this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
@@ -508,13 +518,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             isolatedLetVarStack.peek().add(symbol);
         }
 
-        if (Symbols.isFlagOn(flags, Flags.WORKER)) {
-            markDependsOnIsolationNonInferableConstructs();
-            inferredIsolated = false;
+        if (expr.getKind() == NodeKind.LAMBDA) {
+            addIsolationInfoForWorkerVarNode(((BLangLambdaFunction) expr).function, symbol);
+        }
+    }
 
-            if (isInIsolatedFunction(env.enclInvokable)) {
-                dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
-            }
+    private void addIsolationInfoForWorkerVarNode(BLangFunction workerFunc, BVarSymbol workerVarSymbol) {
+        if (workerFunc.flagSet.contains(Flag.WORKER) && workerFunc.flagSet.contains(Flag.LAMBDA) &&
+                this.isolationInferenceInfoMap.containsKey(workerFunc.symbol)) {
+            IsolationInferenceInfo functionIsolationInferenceInfo =
+                    this.isolationInferenceInfoMap.get(workerFunc.symbol);
+            this.isolationInferenceInfoMap.put(workerVarSymbol, functionIsolationInferenceInfo);
         }
     }
 
@@ -1065,12 +1079,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        markDependsOnIsolationNonInferableConstructs();
-        inferredIsolated = false;
-
-        if (isInIsolatedFunction(env.enclInvokable)) {
-            dlog.error(forkJoin.pos, DiagnosticErrorCode.INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION);
-        }
     }
 
     @Override
@@ -1411,16 +1419,88 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        markDependsOnIsolationNonInferableConstructs();
-        inferredIsolated = false;
+        if (isInIsolatedFunction(env.enclInvokable)) {
+            if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, true)) {
+                return;
+            }
 
-        if (actionInvocationExpr.functionPointerInvocation) {
+            if (!actionInvocationExpr.functionPointerInvocation &&
+                    !isValidIsolatedAsyncInvocation(actionInvocationExpr)) {
+                return;
+            }
+
+            if (actionInvocationExpr.functionPointerInvocation &&
+                    !isIsolated(actionInvocationExpr.symbol.type.flags)) {
+                dlog.error(actionInvocationExpr.pos,
+                        DiagnosticErrorCode.INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
+                return;
+            }
+
+            analyzeInvocation(actionInvocationExpr);
             return;
         }
 
-        if (isInIsolatedFunction(env.enclInvokable)) {
-            dlog.error(actionInvocationExpr.pos, DiagnosticErrorCode.INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION);
+        if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, false)) {
+            markDependsOnIsolationNonInferableConstructs();
+            inferredIsolated = false;
+            return;
         }
+
+        analyzeInvocation(actionInvocationExpr);
+    }
+
+    private boolean checkStrandAnnotationExists(List<BLangAnnotationAttachment> attachments, boolean logError) {
+        BAnnotationSymbol strandAnnotSymbol = symResolver.getStrandAnnotationSymbol();
+        for (BLangAnnotationAttachment attachment : attachments) {
+            if (attachment.annotationSymbol == strandAnnotSymbol) {
+                if (logError) {
+                    dlog.error(attachment.pos, DiagnosticErrorCode.INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION,
+                            strandAnnotSymbol);
+                } else {
+                    dlog.warning(attachment.pos, DiagnosticWarningCode.USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED,
+                            strandAnnotSymbol);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isValidIsolatedAsyncInvocation(BLangInvocation.BLangActionInvocation actionInvocation) {
+        boolean isIsolatedStartAction = true;
+        if (actionInvocation.expr != null && !isIsolatedExpression(actionInvocation.expr)) {
+            dlog.error(actionInvocation.expr.pos,
+                    DiagnosticErrorCode.INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION);
+            isIsolatedStartAction = false;
+        }
+
+        if (!isIsolated(actionInvocation.symbol.type.flags)) {
+            dlog.error(actionInvocation.name.pos,
+                    DiagnosticErrorCode.INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION);
+            isIsolatedStartAction = false;
+        }
+
+        if (!containsIsolatedExpressionsForAllArgs(actionInvocation.requiredArgs)) {
+            isIsolatedStartAction = false;
+        }
+
+        if (!containsIsolatedExpressionsForAllArgs(actionInvocation.restArgs)) {
+            isIsolatedStartAction = false;
+        }
+
+        return isIsolatedStartAction;
+    }
+
+    private boolean containsIsolatedExpressionsForAllArgs(List<BLangExpression> args) {
+        boolean containIsolatedExprs = true;
+        for (BLangExpression arg : args) {
+            if (!isIsolatedExpression(arg)) {
+                dlog.error(arg.pos,
+                        DiagnosticErrorCode.INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGS_OF_ASYNC_INV_OF_ISOLATED_FUNC);
+                containIsolatedExprs = false;
+            }
+        }
+        return containIsolatedExprs;
     }
 
     @Override
@@ -3284,6 +3364,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (BLangClassDefinition classDefinition : classDefinitions) {
             populateInferableClass(classDefinition);
         }
+    }
+
+    private void visitWorkerLambdaFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
+        functions.forEach(function -> {
+            if (isWorkerLambda(function)) {
+                analyzeNode(function, pkgEnv);
+            }
+        });
+    }
+
+    private boolean isWorkerLambda(BLangFunction function) {
+        return function.flagSet.contains(Flag.WORKER) && function.flagSet.contains(Flag.LAMBDA);
     }
 
     private boolean inObjectInitMethod() {
