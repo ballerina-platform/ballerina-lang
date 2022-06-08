@@ -101,7 +101,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testDynamicListenerExecution() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_execution");
         runAssertDynamicListener(projectPath);
@@ -121,6 +121,46 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.addErrorLogLeecher(errLeecherA);
         serverInstance.shutdownServer();
         errLeecherA.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testStopHandlerExecution() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "stop_handler_execution");
+        runAssertStopHandlers(projectPath);
+    }
+
+    private void runAssertStopHandlers(Path projectPath) throws BallerinaTestException {
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher infoLeecher = new LogLeecher("Stopped module");
+        serverInstance.addLogLeecher(infoLeecher);
+        serverInstance.shutdownServer();
+        infoLeecher.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testModuleShutdownRegisteredWithStopHandlers() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_shutdown_order_project");
+
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher logLeecherA = new LogLeecher("Stopped current module");
+        LogLeecher logLeecherB = new LogLeecher("Stopped moduleB");
+        LogLeecher logLeecherC = new LogLeecher("Stopped moduleA");
+        LogLeecher logLeecherD = new LogLeecher("Stopped moduleC");
+        serverInstance.addLogLeecher(logLeecherA);
+        serverInstance.addLogLeecher(logLeecherB);
+        serverInstance.addLogLeecher(logLeecherC);
+        serverInstance.addLogLeecher(logLeecherD);
+        serverInstance.shutdownServer();
+        logLeecherA.waitForText(TIMEOUT);
+        logLeecherB.waitForText(TIMEOUT);
+        logLeecherC.waitForText(TIMEOUT);
+        logLeecherD.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 }
