@@ -148,7 +148,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -330,8 +329,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, AnalyzerData data) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
-        for (TopLevelNode topLevelNode : topLevelNodes) {
-            analyzeNode((BLangNode) topLevelNode, data);
+        for (int i = 0; i < topLevelNodes.size(); i++) {
+            analyzeNode((BLangNode) topLevelNodes.get(i), data);
         }
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
     }
@@ -2440,11 +2439,6 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr, AnalyzerData data) {
-        analyzeExprs(tableMultiKeyExpr.multiKeyIndexExprs, data);
-    }
-
-    @Override
     public void visit(BLangInvocation invocationExpr, AnalyzerData data) {
         analyzeExpr(invocationExpr.expr, data);
         analyzeExprs(invocationExpr.requiredArgs, data);
@@ -3303,8 +3297,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr, AnalyzerData data) {
-        analyzeNode(typeTestExpr.expr, data);
-        BType exprType = typeTestExpr.expr.getBType();
+        BLangExpression expr = typeTestExpr.expr;
+        analyzeNode(expr, data);
+        BType exprType = expr.getBType();
         BType typeNodeType = typeTestExpr.typeNode.getBType();
         if (typeNodeType == symTable.semanticError || exprType == symTable.semanticError) {
             return;
@@ -3328,7 +3323,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         // It'll be only possible iff, the target type has been assigned to the source
         // variable at some point. To do that, a value of target type should be assignable
         // to the type of the source variable.
-        if (!intersectionExists(typeTestExpr.expr, typeNodeType, data)) {
+        if (!intersectionExists(expr, typeNodeType, data, typeTestExpr.pos)) {
             dlog.error(typeTestExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CHECK, exprType, typeNodeType);
         }
     }
@@ -3350,11 +3345,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         dlog.warning(pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
     }
 
-    private boolean intersectionExists(BLangExpression expression, BType testType, AnalyzerData data) {
+    private boolean intersectionExists(BLangExpression expression, BType testType, AnalyzerData data,
+                                       Location intersectionPos) {
         BType expressionType = expression.getBType();
 
         BType intersectionType = types.getTypeIntersection(
-                Types.IntersectionContext.typeTestIntersectionExistenceContext(),
+                Types.IntersectionContext.typeTestIntersectionExistenceContext(intersectionPos),
                 expressionType, testType, data.env);
 
         // any and readonly has an intersection

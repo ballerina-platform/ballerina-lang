@@ -107,6 +107,8 @@ dependencies {
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
     dist project(':formatter:formatter-cli')
+    dist project(':semver-checker:semver-checker-core')
+    dist project(':semver-checker:semver-checker-cli')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')

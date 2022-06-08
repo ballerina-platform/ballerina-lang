@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -272,7 +273,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         BVarSymbol varSymbol = (BVarSymbol) symbol;
 
-        setNarrowedTypeInfo(typeTestExpr, varSymbol, typeTestExpr.typeNode.getBType());
+        setNarrowedTypeInfo(typeTestExpr, varSymbol, typeTestExpr.typeNode.getBType(), typeTestExpr.pos);
     }
 
     // Private methods
@@ -410,15 +411,14 @@ public class TypeNarrower extends BLangNodeVisitor {
                 env.scope.owner, expr.pos, SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
-
         if (expr.getKind() == NodeKind.UNARY_EXPR) {
             finiteType.addValue(types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
         } else {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
             finiteType.addValue(expr);
         }
-
         finiteTypeSymbol.type = finiteType;
+
         return finiteType;
     }
 
@@ -445,17 +445,19 @@ public class TypeNarrower extends BLangNodeVisitor {
                 ((BLangUnaryExpr) rhsExpr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
                 (OperatorKind.SUB.equals(((BLangUnaryExpr) rhsExpr).operator) ||
                         OperatorKind.ADD.equals(((BLangUnaryExpr) rhsExpr).operator)))) {
-            setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr));
+            setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr), binaryExpr.pos);
         } else if (rhsExperKind == NodeKind.SIMPLE_VARIABLE_REF) {
             BSymbol rhsVarSymbol = ((BLangSimpleVarRef) rhsExpr).symbol;
             if (rhsVarSymbol != symTable.notFoundSymbol && rhsVarSymbol.kind == SymbolKind.CONSTANT) {
-                setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, rhsVarSymbol.type);
+                setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, rhsVarSymbol.type, binaryExpr.pos);
             }
         }
     }
 
-    private void setNarrowedTypeInfo(BLangExpression expr, BVarSymbol varSymbol, BType narrowWithType) {
-        var nonLoggingContext = Types.IntersectionContext.typeTestIntersectionCalculationContext();
+    private void setNarrowedTypeInfo(BLangExpression expr, BVarSymbol varSymbol, BType narrowWithType,
+                                     Location intersectionPos) {
+        Types.IntersectionContext nonLoggingContext =
+                Types.IntersectionContext.typeTestIntersectionCalculationContext(intersectionPos);
         BType trueType;
         BType falseType;
         if (expr.getKind() == NodeKind.BINARY_EXPR && ((BLangBinaryExpr) expr).opKind == OperatorKind.NOT_EQUAL) {

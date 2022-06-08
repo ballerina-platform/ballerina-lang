@@ -3654,9 +3654,10 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             //not-possible
             return;
         }
-        // Create a new block environment for the onfail node.
-        SymbolEnv onFailEnv = SymbolEnv.createOnFailEnv(onFailClause, data.env);
-        // Check onfail node's variables and set types.
+        // Create a new block environment for the on-fail node.
+        SymbolEnv onFailEnv = SymbolEnv.createBlockEnv(onFailClause.body, data.env);
+
+        // Check on-fail node's variables and set types.
         handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
                                          onFailClause.isDeclaredWithVar, true, onFailEnv);
         data.env = onFailEnv;
