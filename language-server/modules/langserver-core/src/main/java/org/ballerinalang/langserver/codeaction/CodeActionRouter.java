@@ -28,6 +28,7 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
@@ -69,7 +70,7 @@ public class CodeActionRouter {
         Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(position, syntaxTree);
         CodeActionNodeType matchedNodeType = CodeActionUtil.codeActionNodeType(topLevelNode.orElse(null));
         if (topLevelNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
-            Range range = CommonUtil.toRange(topLevelNode.get().lineRange());
+            Range range = PositionUtil.toRange(topLevelNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(topLevelNode.get(), range);
             TypeSymbol matchedTypeSymbol = getMatchedTypeSymbol(ctx, expressionNode).orElse(null);
 
@@ -104,8 +105,8 @@ public class CodeActionRouter {
         }
         // Get available diagnostics based code-actions
         ctx.diagnostics(ctx.filePath()).stream().
-                filter(diag -> CommonUtil
-                        .isWithinRange(position, CommonUtil.toRange(diag.location().lineRange()))
+                filter(diag -> PositionUtil
+                        .isWithinRange(position, PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .forEach(diagnostic -> {
                     DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);

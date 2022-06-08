@@ -103,7 +103,9 @@ public class CommandConstants {
 
     public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '%s'";
 
-    public static final String ADD_TYPE_CAST_TITLE = "Add type cast to assignment";
+    public static final String ADD_TYPE_CAST_TITLE = "Add type cast";
+
+    public static final String ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE = "Add type cast to '%s'";
 
     public static final String CHANGE_VAR_TYPE_TITLE = "Change variable '%s' type to '%s'";
 
@@ -153,4 +155,7 @@ public class CommandConstants {
     public static final String MAKE_CONSTRUCT_PUBLIC = "Convert '%s' to public";
     
     public static final String EXTRACT_TYPE = "Extract type";
+
+    public static final String MAKE_ANNOT_DECL_CONST = "Convert '%s' to constant";
+
 }

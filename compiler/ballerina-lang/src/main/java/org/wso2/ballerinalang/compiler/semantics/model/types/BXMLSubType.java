@@ -32,7 +32,6 @@ import java.util.Optional;
  */
 public class BXMLSubType extends BType implements SelectivelyImmutableReferenceType {
 
-    public BIntersectionType immutableType;
     private BIntersectionType intersectionType = null;
 
     public BXMLSubType(int tag, Name name) {
@@ -81,16 +80,6 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
 
     public boolean isAnydata() {
         return true;
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void unsetImmutableType() {
-        this.immutableType = null;
     }
 
     @Override

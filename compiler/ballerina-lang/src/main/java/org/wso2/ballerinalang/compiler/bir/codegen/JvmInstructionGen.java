@@ -1962,7 +1962,7 @@ public class JvmInstructionGen {
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
         } else {
-            generateNewTypedescCreate(type, closureVars);
+            generateNewTypedescCreate(newTypeDesc.type, closureVars);
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
@@ -1975,7 +1975,11 @@ public class JvmInstructionGen {
         }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
-        jvmTypeGen.loadType(this.mv, type);
+        if (btype.tag == TypeTags.TYPEREFDESC) {
+            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(btype, symbolTable));
+        } else {
+            jvmTypeGen.loadType(this.mv, type);
+        }
 
         mv.visitIntInsn(BIPUSH, closureVars.size());
         mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);
