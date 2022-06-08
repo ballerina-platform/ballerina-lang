@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -84,12 +85,12 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
         String typeName;
         Node castExprNode;
         if (contextType.isPresent() && contextType.get().typeKind() == lhsOperand.get().typeKind()) {
-            typeName = CommonUtil.getModifiedTypeName(context, lhsOperand.get());
+            typeName = NameUtil.getModifiedTypeName(context, lhsOperand.get());
             castExprNode = binaryExpressionNode.rhsExpr();
         } else {
             //If the context type can't be determined or the context type is same as the rhs expr,
             // we add the type cast to the lhs expr.
-            typeName = CommonUtil.getModifiedTypeName(context, rhsOperand.get());
+            typeName = NameUtil.getModifiedTypeName(context, rhsOperand.get());
             castExprNode = binaryExpressionNode.lhsExpr();
         }
         String exprSourceCode = castExprNode.toSourceCode().strip(); 

@@ -268,21 +268,31 @@ public class TypeConverter {
         int targetTypeTag = targetType.getTag();
         int initialErrorCount = errors.size();
 
+        String ambiguousTargetErrMsg = "value '" + getShortSourceValue(inputValue) + "' cannot be converted to '" +
+                targetType + "': ambiguous target type";
+
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 inputValueType = TypeChecker.getType(inputValue);
+
+                Set<Type> directlyConvertibleTypesInUnion = getDirectlyConvertibleTypesInUnion(
+                        inputValue, inputValueType, (BUnionType) targetType);
+                if (directlyConvertibleTypesInUnion.size() == 1) {
+                    return directlyConvertibleTypesInUnion;
+                }
+                if (!directlyConvertibleTypesInUnion.isEmpty() && !allowAmbiguity) {
+                    addErrorMessage(0, errors, ambiguousTargetErrMsg);
+                    return new LinkedHashSet<>();
+                }
+
                 for (Type memType : ((BUnionType) targetType).getMemberTypes()) {
-                    if ((inputValueType == memType) || isIntegerSubtypeAndConvertible(inputValue, memType)) {
-                        return Set.of(memType);
-                    }
                     convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, varName,
                             isFromJson, unresolvedValues, errors, allowAmbiguity));
                 }
                 if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
-                    addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
-                            + "' cannot be converted to '" + targetType + "': ambiguous target type");
+                    addErrorMessage(0, errors, ambiguousTargetErrMsg);
                     return new LinkedHashSet<>();
                 }
                 break;
@@ -352,8 +362,7 @@ public class TypeConverter {
                 if (!allowAmbiguity && (convertibleTypes.size() > 1) && !convertibleTypes.contains(inputValueType) &&
                         !hasIntegerSubTypes(convertibleTypes)) {
                     errors.subList(initialErrorCount, errors.size()).clear();
-                    addErrorMessage(0, errors, "value '" + getShortSourceValue(inputValue)
-                            + "' cannot be converted to '" + targetType + "': ambiguous target type");
+                    addErrorMessage(0, errors, ambiguousTargetErrMsg);
                     return new LinkedHashSet<>();
                 }
                 break;
@@ -363,6 +372,22 @@ public class TypeConverter {
                 }
         }
         return convertibleTypes;
+    }
+
+    private static Set<Type> getDirectlyConvertibleTypesInUnion(Object inputValue, Type inputValueType,
+                                                                BUnionType targetType) {
+        boolean isInputValueSimpleBasicType = isSimpleBasicType(inputValueType);
+        Set<Type> directlyConvertibleTypes = new LinkedHashSet<>();
+        for (Type memType : targetType.getMemberTypes()) {
+            if (!isInputValueSimpleBasicType && TypeChecker.checkIsLikeType(inputValue, memType, false)) {
+                directlyConvertibleTypes.add(memType);
+                continue;
+            }
+            if (inputValueType == memType || isIntegerSubtypeAndConvertible(inputValue, memType)) {
+                return Set.of(memType);
+            }
+        }
+        return directlyConvertibleTypes;
     }
 
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
