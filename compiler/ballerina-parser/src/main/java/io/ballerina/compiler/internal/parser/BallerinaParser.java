@@ -8897,13 +8897,13 @@ public class BallerinaParser extends AbstractParser {
      * Parse resource method call action, given the starting expression.
      * <br/><br/>
      * <code>
-     * resource-method-call-action := expression "->/" [resource-access-path] ["." method-name] ["(" arg-list ")"]
+     * resource-method-call-action := expression "->" "/" [resource-access-path] ["." method-name] ["(" arg-list ")"]
      * </code>
      * 
-     * @param expression
-     * @param rightArrow
-     * @param slashToken
-     * @return
+     * @param expression Expression
+     * @param rightArrow Right arrow token
+     * @param slashToken Slash token
+     * @return Parsed node
      */
     private STNode parseResourceMethodCallAction(STNode expression, STNode rightArrow, STNode slashToken,
                                                  boolean isRhsExpr, boolean isInMatchGuard) {
@@ -8924,7 +8924,7 @@ public class BallerinaParser extends AbstractParser {
     }
     
     private STNode parseOptionalResourceAccessPath(boolean isRhsExpr, boolean isInMatchGuard) {
-        STNode resourceAccessPath = STNodeFactory.createEmptyNode();
+        STNode resourceAccessPath = STNodeFactory.createEmptyNodeList();
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
@@ -9004,7 +9004,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseResourceAccessPath(boolean isRhsExpr, boolean isInMatchGuard) {
         List<STNode> pathSegmentList = new ArrayList<>();
         // Parse first resource access path segment, that has no leading slash
-        STNode pathSegment = parseResourceAccessPathSegment();
+        STNode pathSegment = parseResourceAccessSegment();
         pathSegmentList.add(pathSegment);
 
         STNode leadingSlash;
@@ -9015,38 +9015,37 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
             
-            pathSegment = parseResourceAccessPathSegment();
+            pathSegment = parseResourceAccessSegment();
             
             if (previousPathSegmentNode.kind == SyntaxKind.RESOURCE_ACCESS_REST_SEGMENT) {
-                SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(previousPathSegmentNode, leadingSlash, null);
-                SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(previousPathSegmentNode, pathSegment, 
-                        DiagnosticErrorCode.RESOURCE_ACCESS_ASEMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT);
+                updateLastNodeInListWithInvalidNode(pathSegmentList, leadingSlash, null);
+                updateLastNodeInListWithInvalidNode(pathSegmentList, pathSegment, 
+                        DiagnosticErrorCode.RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT);
             } else {
                 pathSegmentList.add(leadingSlash);
                 pathSegmentList.add(pathSegment);
+                previousPathSegmentNode = pathSegment;
             }
-            
-            previousPathSegmentNode = pathSegment;
         }
 
         return STNodeFactory.createNodeList(pathSegmentList);
     }
     
-    private STNode parseResourceAccessPathSegment() {
+    private STNode parseResourceAccessSegment() {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
                 return consume();
             case OPEN_BRACKET_TOKEN:
-                return parseComputedOrResourceAccessRestPathSegment();
+                return parseComputedOrResourceAccessRestSegment();
             default:
                 recover(nextToken, ParserRuleContext.RESOURCE_ACCESS_PATH_SEGMENT);
-                return parseResourceAccessPathSegment();
+                return parseResourceAccessSegment();
         }
     }
 
     /**
-     * Parse computed resource path segment or resource access rest segment.
+     * Parse computed resource segment or resource access rest segment.
      * <code>
      * <br/>
      * computed-resource-access-segment := "[" expression "]"
@@ -9055,7 +9054,7 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      * @return Parsed node
      */
-    private STNode parseComputedOrResourceAccessRestPathSegment() {
+    private STNode parseComputedOrResourceAccessRestSegment() {
         STNode openBracket = parseOpenBracket();
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -9074,7 +9073,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 
                 recover(nextToken, ParserRuleContext.COMPUTED_SEGMENT_OR_REST_SEGMENT);
-                return parseComputedOrResourceAccessRestPathSegment();
+                return parseComputedOrResourceAccessRestSegment();
         }
     }
 
@@ -9119,6 +9118,8 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      *
      * @param expression LHS expression
+     * @param isRhsExpr  Is this an RHS action
+     * @param isInMatchGuard is this inside a match guard
      * @return
      */
     private STNode parseRemoteOrResourceMethodCallOrAsyncSendAction(STNode expression, 

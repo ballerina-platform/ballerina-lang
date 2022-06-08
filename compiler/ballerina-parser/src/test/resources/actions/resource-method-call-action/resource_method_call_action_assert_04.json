@@ -1075,6 +1075,10 @@
                       ]
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "DOT_TOKEN"
                     },
                     {
@@ -1132,6 +1136,10 @@
                       "diagnostics": [
                         "ERROR_MISSING_SLASH_TOKEN"
                       ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "DOT_TOKEN"
@@ -1223,6 +1231,10 @@
                       ]
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "DOT_TOKEN"
                     },
                     {
@@ -1300,6 +1312,10 @@
                       "diagnostics": [
                         "ERROR_MISSING_SLASH_TOKEN"
                       ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "DOT_TOKEN"
@@ -1417,6 +1433,10 @@
                       "diagnostics": [
                         "ERROR_MISSING_SLASH_TOKEN"
                       ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "DOT_TOKEN"

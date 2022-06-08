@@ -2278,6 +2278,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     }
                   ]
                 },
@@ -3032,6 +3036,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     }
                   ]
                 },

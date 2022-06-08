@@ -702,9 +702,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(ResourcePathParameterNode resourcePathParameterNode) {
 
         BLangSimpleVariable pathParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        if (resourcePathParameterNode.paramName().isPresent()) {
-            pathParam.name = createIdentifier(resourcePathParameterNode.paramName().get()); 
-        }
+        pathParam.name = createIdentifier(resourcePathParameterNode.paramName().orElse(null));
         
         BLangType typeNode = createTypeNode(resourcePathParameterNode.typeDescriptor());
         pathParam.pos = getPosition(resourcePathParameterNode);

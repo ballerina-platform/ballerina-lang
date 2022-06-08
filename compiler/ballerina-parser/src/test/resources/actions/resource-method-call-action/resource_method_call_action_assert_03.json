@@ -131,6 +131,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     }
                   ]
                 },
@@ -161,10 +165,6 @@
                         {
                           "kind": "VAR_KEYWORD",
                           "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            },
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
@@ -736,6 +736,10 @@
                       "kind": "SLASH_TOKEN"
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "DOT_TOKEN"
                     },
                     {
@@ -809,6 +813,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
@@ -888,6 +896,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
@@ -1007,6 +1019,10 @@
                       "kind": "SLASH_TOKEN"
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "DOT_TOKEN"
                     },
                     {
@@ -1090,10 +1106,6 @@
                 {
                   "kind": "MATCH_KEYWORD",
                   "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -1467,6 +1479,10 @@
                       "kind": "SLASH_TOKEN"
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "DOT_TOKEN"
                     },
                     {
@@ -1649,10 +1665,6 @@
                 {
                   "kind": "FOREACH_KEYWORD",
                   "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
@@ -2018,6 +2030,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
