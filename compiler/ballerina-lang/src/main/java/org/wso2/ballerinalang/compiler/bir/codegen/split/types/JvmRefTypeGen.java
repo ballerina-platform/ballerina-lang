@@ -37,12 +37,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TYP
  *
  * @since 2201.2.0
  */
-public class JvmTypeRefTypeGen {
+public class JvmRefTypeGen {
 
     private final JvmTypeGen jvmTypeGen;
     private final JvmConstantsGen jvmConstantsGen;
 
-    public JvmTypeRefTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
+    public JvmRefTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen) {
         this.jvmTypeGen = jvmTypeGen;
         this.jvmConstantsGen = jvmConstantsGen;
     }

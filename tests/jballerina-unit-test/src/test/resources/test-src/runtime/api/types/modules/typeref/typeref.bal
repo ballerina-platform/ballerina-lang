@@ -28,6 +28,9 @@ type IntConstraints record {|
 @Int {minValue: 0}
 type PositiveInt int;
 
+@Int {minValue: 5}
+type PositiveIntRO PositiveInt & readonly;
+
 @Int {minValue: 0}
 type '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Int int;
 
@@ -104,7 +107,7 @@ function validateRecordField() {
         test:assertFail("Expected error not found.");
     }
 
-    person = {age: 15};
+    person = {age: -15};
     validation = validateRecord(person);
     if validation is error {
         test:assertEquals(validation.message(), "Validation failed for 'minValue' constraint(s).");

@@ -1932,6 +1932,8 @@ public class TypeChecker {
                 return true;
             case TypeTags.XML_TAG:
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return isInherentlyImmutableType(((BTypeReferenceType) sourceType).getReferredType());
         }
         return false;
     }
@@ -3302,6 +3304,8 @@ public class TypeChecker {
                 return checkFillerValue((BTupleType) type, unanalyzedTypes);
             case TypeTags.UNION_TAG:
                 return checkFillerValue((BUnionType) type, unanalyzedTypes);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return hasFillerValue(((BTypeReferenceType) type).getReferredType(), unanalyzedTypes);
             default:
                 return false;
         }

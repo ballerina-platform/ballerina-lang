@@ -1975,11 +1975,7 @@ public class JvmInstructionGen {
         }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
-        if (btype.tag == TypeTags.TYPEREFDESC) {
-            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(btype, symbolTable));
-        } else {
-            jvmTypeGen.loadType(this.mv, type);
-        }
+        jvmTypeGen.loadLocalType(this.mv, btype);
 
         mv.visitIntInsn(BIPUSH, closureVars.size());
         mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);

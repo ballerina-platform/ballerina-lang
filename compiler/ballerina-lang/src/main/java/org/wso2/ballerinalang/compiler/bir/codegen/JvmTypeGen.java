@@ -1102,4 +1102,12 @@ public class JvmTypeGen {
                 loadValueType(mv, JvmCodeGenUtil.getReferredType(valueType));
         }
     }
+
+    public void loadLocalType(MethodVisitor mv, BType type) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(type));
+        } else {
+            loadType(mv, JvmCodeGenUtil.getReferredType(type));
+        }
+    }
 }
