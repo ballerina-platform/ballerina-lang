@@ -23,6 +23,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
@@ -43,7 +44,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Comparator;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
@@ -315,20 +315,16 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--dump-graph");
         testCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "");
-        String dependencyGraphLog = out.toString().replaceAll("\r", "");
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertTrue(dependencyGraphLog.contains(getOutput("dump-graph-output.txt")));
-        Assert.assertTrue(buildLog.contains(getOutput("test-bal-project-with-dump-graph.txt")));
+        Assert.assertEquals(dependencyGraphLog, getOutput("dump-graph-output.txt"));
+        Assert.assertEquals(buildLog, getOutput("test-bal-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
-        try {
-            Files.walk(projectPath.resolve("target")).sorted(Comparator.reverseOrder()).map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException ignored) {
-        }
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
     @Test(description = "Test a ballerina project with the flag dump-raw-graphs")
@@ -348,20 +344,16 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         new CommandLine(testCommand).parseArgs("--dump-raw-graphs");
         testCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "");
-        String dependencyGraphLog = out.toString().replaceAll("\r", "");
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertTrue(dependencyGraphLog.contains(getOutput("dump-raw-graphs-output.txt")));
-        Assert.assertTrue(buildLog.contains(getOutput("test-bal-project-with-dump-graph.txt")));
+        Assert.assertEquals(dependencyGraphLog, getOutput("dump-raw-graphs-output.txt"));
+        Assert.assertEquals(buildLog, getOutput("test-bal-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
-        try {
-            Files.walk(projectPath.resolve("target")).sorted(Comparator.reverseOrder()).map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException ignored) {
-        }
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

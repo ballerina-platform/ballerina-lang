@@ -29,7 +29,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -40,7 +39,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.jar.JarFile;
 
@@ -798,20 +796,16 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs("--dump-graph");
         buildCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "");
-        String dependencyGraphLog = out.toString().replaceAll("\r", "");
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertTrue(dependencyGraphLog.contains(getOutput("dump-graph-output.txt")));
-        Assert.assertTrue(buildLog.contains(getOutput("build-bal-project-with-dump-graph.txt")));
+        Assert.assertEquals(dependencyGraphLog, getOutput("dump-graph-output.txt"));
+        Assert.assertEquals(buildLog, getOutput("build-bal-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
-        try {
-            Files.walk(projectPath.resolve("target")).sorted(Comparator.reverseOrder()).map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException ignored) {
-        }
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
     @Test(description = "Build a ballerina project with the flag dump-raw-graphs")
@@ -831,20 +825,16 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs("--dump-raw-graphs");
         buildCommand.execute();
-        String buildLog = readOutput(true).replaceAll("\r", "");
-        String dependencyGraphLog = out.toString().replaceAll("\r", "");
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertTrue(dependencyGraphLog.contains(getOutput("dump-raw-graphs-output.txt")));
-        Assert.assertTrue(buildLog.contains(getOutput("build-bal-project-with-dump-graph.txt")));
+        Assert.assertEquals(dependencyGraphLog, getOutput("dump-raw-graphs-output.txt"));
+        Assert.assertEquals(buildLog, getOutput("build-bal-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
-        try {
-            Files.walk(projectPath.resolve("target")).sorted(Comparator.reverseOrder()).map(Path::toFile)
-                    .forEach(File::delete);
-        } catch (IOException ignored) {
-        }
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

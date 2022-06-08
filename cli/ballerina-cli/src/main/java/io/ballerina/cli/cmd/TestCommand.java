@@ -155,10 +155,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
-    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph in text form.")
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.")
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print the raw dependency graphs in text form.")
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all dependency graphs created in each " +
+            "attempt to update.")
     private boolean dumpRawGraphs;
 
     private static final String testCmd = "bal test [--offline]\n" +
