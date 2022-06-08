@@ -32,8 +32,10 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -153,7 +155,7 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol != null) {
             FunctionTypeSymbol functionTypeDesc = functionSymbol.typeDescriptor();
             Optional<TypeSymbol> typeSymbol = functionTypeDesc.returnTypeDescriptor();
-            typeSymbol.ifPresent(symbol -> item.setDetail(CommonUtil.getModifiedTypeName(ctx, symbol)));
+            typeSymbol.ifPresent(symbol -> item.setDetail(NameUtil.getModifiedTypeName(ctx, symbol)));
             List<String> funcArguments = CommonUtil.getFuncArguments(functionSymbol, ctx);
             if (!funcArguments.isEmpty()) {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
@@ -206,7 +208,7 @@ public final class FunctionCompletionItemBuilder {
         }
         for (int i = 0; i < functionParameters.size(); i++) {
             ParameterSymbol param = functionParameters.get(i);
-            String paramType = CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor());
+            String paramType = NameUtil.getModifiedTypeName(ctx, param.typeDescriptor());
             if (i == 0 && skipFirstParam) {
                 continue;
             }
@@ -243,7 +245,7 @@ public final class FunctionCompletionItemBuilder {
             }
             documentation.append(CommonUtil.MD_LINE_SEPARATOR).append(CommonUtil.MD_LINE_SEPARATOR)
                     .append("**Return**").append(" `")
-                    .append(CommonUtil.getModifiedTypeName(ctx, functionTypeDesc.returnTypeDescriptor().get()))
+                    .append(NameUtil.getModifiedTypeName(ctx, functionTypeDesc.returnTypeDescriptor().get()))
                     .append("` ").append(CommonUtil.MD_LINE_SEPARATOR).append(desc)
                     .append(CommonUtil.MD_LINE_SEPARATOR);
         }
@@ -285,13 +287,13 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol == null) {
             return functionName;
         }
-        boolean onQNameRef = QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor());
+        boolean onQNameRef = QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor());
         Optional<ModuleSymbol> module = functionSymbol.getModule();
         if (module.isEmpty() || onQNameRef || functionName.equals(SyntaxKind.NEW_KEYWORD.stringValue())) {
             return functionName;
         }
         ModuleID moduleID = module.get().id();
-        String modulePrefix = CommonUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
+        String modulePrefix = ModuleUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
 
         if (modulePrefix.isEmpty()) {
             return functionName;

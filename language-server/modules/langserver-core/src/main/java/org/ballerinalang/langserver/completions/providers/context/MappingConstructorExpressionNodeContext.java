@@ -27,10 +27,10 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class MappingConstructorExpressionNodeContext extends
         if (this.withinValueExpression(context, evalNode.get())) {
             completionItems.addAll(getCompletionsInValueExpressionContext(context));
         } else if (this.withinComputedNameContext(context, evalNode.get())) {
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
             } else {
