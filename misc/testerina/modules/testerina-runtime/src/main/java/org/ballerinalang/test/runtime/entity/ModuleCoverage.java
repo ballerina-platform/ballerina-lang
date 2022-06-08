@@ -94,6 +94,30 @@ public class ModuleCoverage {
         }
     }
 
+    /**
+     * Replace coverage information for a given source file.
+     *
+     * @param document     Document
+     * @param coveredLines List<Integer>
+     * @param missedLines  List<Integer>
+     */
+    public void replaceCoverage(Document document, List<Integer> coveredLines,
+                               List<Integer> missedLines) {
+        List<SourceFile> sourceFileList = new ArrayList<>(sourceFiles);
+        for (SourceFile sourceFile : sourceFileList) {
+            if (sourceFile.getName().equals(document.name())) {
+                // Remove outdated source file and add updated sourceFile
+                sourceFiles.remove(sourceFile);
+                SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines);
+                this.sourceFiles.add(newSourceFile);
+                // Update coverage counts
+                this.coveredLines = coveredLines.size();
+                this.missedLines = missedLines.size();
+                setCoveragePercentage();
+            }
+        }
+    }
+
     private void setCoveragePercentage() {
         float coverageVal = (float) this.coveredLines / (this.coveredLines + this.missedLines) * 100;
         this.coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);

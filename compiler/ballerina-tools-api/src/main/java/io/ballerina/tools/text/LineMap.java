@@ -18,6 +18,7 @@
 package io.ballerina.tools.text;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The {@code LineMap} represents a collection text lines in the {@code TextDocument}.

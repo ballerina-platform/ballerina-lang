@@ -18,6 +18,7 @@
 package io.ballerina.tools.text;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is an abstract representation of a Ballerina source file (.bal).
