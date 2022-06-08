@@ -4564,9 +4564,6 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typeBindingPattern = parseTypedBindingPattern(typeDescQualifiers,
                 ParserRuleContext.VAR_DECL_STMT);
-        if (typeBindingPattern.kind == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
-            return typeBindingPattern;
-        }
         return parseVarDeclRhs(annots, publicQualifier, varDeclQuals, typeBindingPattern, isModuleVar);
     }
 
@@ -8955,11 +8952,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseMapTypeDescriptor(STNode mapKeyword) {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.FROM_KEYWORD) {
-            STNode queryConstructType = parseQueryConstructType(mapKeyword, STNodeFactory.createEmptyNode());
-            return getExpressionAsStatement(parseQueryExprRhs(queryConstructType, false));
-        }
         STNode typeParameter = parseTypeParameter();
         return STNodeFactory.createMapTypeDescriptorNode(mapKeyword, typeParameter);
     }
@@ -12442,6 +12434,7 @@ public class BallerinaParser extends AbstractParser {
             case MINUS_TOKEN:
                 return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
             case TABLE_KEYWORD:
+            case MAP_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.FROM_KEYWORD;
             case STREAM_KEYWORD:
                 STToken nextNextToken = peek(nextTokenIndex);
@@ -15839,9 +15832,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypedBindingPattern(List<STNode> qualifiers, ParserRuleContext context) {
         STNode typeDesc = parseTypeDescriptor(qualifiers,
                 ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false, TypePrecedence.DEFAULT);
-        if (typeDesc.kind == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
-            return typeDesc;
-        }
         STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, context);
         return typeBindingPattern;
     }
