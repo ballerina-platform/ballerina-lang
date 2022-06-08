@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 
 import java.util.ArrayList;
@@ -86,8 +87,8 @@ public class JvmTupleTypeConstantsGen {
         this.jvmTupleTypeGen = jvmTupleTypeGen;
     }
 
-    public String add(BTupleType type) {
-        return tupleTypeVarMap.computeIfAbsent(type, str -> generateBTupleInits(type));
+    public String add(BTupleType type, SymbolTable symbolTable) {
+        return tupleTypeVarMap.computeIfAbsent(type, str -> generateBTupleInits(type, symbolTable));
     }
 
     private void generateTupleTypeConstantsClassInit() {
@@ -109,7 +110,7 @@ public class JvmTupleTypeConstantsGen {
     /**
      * Stack keeps track of recursion in tuple types. The method creation is performed only if recursion is completed.
      */
-    private String generateBTupleInits(BTupleType type) {
+    private String generateBTupleInits(BTupleType type, SymbolTable symbolTable) {
         String varName = JvmConstants.TUPLE_TYPE_VAR_PREFIX + constantIndex++;
         visitBTupleField(varName);
         createBTupleType(mv, type, varName);
@@ -117,23 +118,23 @@ public class JvmTupleTypeConstantsGen {
         // contains a tuple inside it.
         queue.add(new TypeNamePair(type, varName));
         if (queue.size() == 1) {
-            genPopulateMethod(type, varName);
+            genPopulateMethod(type, varName, symbolTable);
             queue.remove();
             while (!queue.isEmpty()) {
                 TypeNamePair typeNamePair = queue.remove();
-                genPopulateMethod((BTupleType) typeNamePair.type, typeNamePair.varName);
+                genPopulateMethod((BTupleType) typeNamePair.type, typeNamePair.varName, symbolTable);
             }
         }
         return varName;
     }
 
-    private void genPopulateMethod(BTupleType type, String varName) {
+    private void genPopulateMethod(BTupleType type, String varName, SymbolTable symbolTable) {
         String methodName = "$populate" + varName;
         funcNames.add(methodName);
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
         methodVisitor.visitCode();
         generateGetBTupleType(methodVisitor, varName);
-        jvmTupleTypeGen.populateTuple(methodVisitor, type);
+        jvmTupleTypeGen.populateTuple(methodVisitor, type, symbolTable);
         genMethodReturn(methodVisitor);
     }
 
