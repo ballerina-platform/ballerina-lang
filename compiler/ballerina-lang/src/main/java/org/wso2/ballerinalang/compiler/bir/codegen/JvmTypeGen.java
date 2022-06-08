@@ -1105,7 +1105,7 @@ public class JvmTypeGen {
 
     public void loadLocalType(MethodVisitor mv, BType type) {
         if (type.tag == TypeTags.TYPEREFDESC) {
-            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(type));
+            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(type, symbolTable));
         } else {
             loadType(mv, JvmCodeGenUtil.getReferredType(type));
         }
