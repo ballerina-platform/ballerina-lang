@@ -79,14 +79,9 @@ public class BRecord extends NamedCompoundVariable {
 
     private Map<Value, Value> getRecordFields() {
         try {
-            Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue,
-                                                                    METHOD_GET_KEYS,
-                                                                    GETKEYS_METHOD_SIGNATURE_PATTERN);
-
-            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
-                    getKeysMethod.get(), Collections.emptyList(), ObjectReference.INVOKE_SINGLE_THREADED);
-            loadedKeys = (ArrayReference) keyArray;
-
+            if (loadedKeys == null) {
+                loadAllKeys();
+            }
             Map<Value, Value> recordFields = new LinkedHashMap<>();
             List<Value> keysRange = loadedKeys.getValues(0, loadedKeys.length());
 
@@ -97,6 +92,18 @@ public class BRecord extends NamedCompoundVariable {
             return recordFields;
         } catch (Exception ignored) {
             return null;
+        }
+    }
+
+    private void loadAllKeys() {
+        try {
+            Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS,
+                    GETKEYS_METHOD_SIGNATURE_PATTERN);
+            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
+                    getKeysMethod.get(), Collections.emptyList(), ObjectReference.INVOKE_SINGLE_THREADED);
+            loadedKeys = (ArrayReference) keyArray;
+        } catch (Exception ignored) {
+            loadedKeys = null;
         }
     }
 
@@ -119,12 +126,10 @@ public class BRecord extends NamedCompoundVariable {
             if (!(jvmValue instanceof ObjectReference)) {
                 return 0;
             }
-            Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue,
-                                                                    METHOD_GET_KEYS,
-                                                                    GETKEYS_METHOD_SIGNATURE_PATTERN);
-            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
-                    getKeysMethod.get(), Collections.emptyList(), ObjectReference.INVOKE_SINGLE_THREADED);
-            return ((ArrayReference) keyArray).length();
+            if (loadedKeys == null) {
+                loadAllKeys();
+            }
+            return loadedKeys.length();
         } catch (Exception ignored) {
             return 0;
         }
