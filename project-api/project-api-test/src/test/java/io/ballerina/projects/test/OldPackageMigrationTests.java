@@ -59,8 +59,7 @@ public class OldPackageMigrationTests extends BaseTest {
         Path packagePath = RESOURCE_DIRECTORY.resolve("package_f");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(packagePath));
 
-        // Delete build file if exists
-        Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        deleteBuildFileAndDependenciesToml(packagePath);
 
         // Create & write old Dependencies.toml content
         Files.createFile(packagePath.resolve(DEPENDENCIES_TOML));
@@ -78,7 +77,7 @@ public class OldPackageMigrationTests extends BaseTest {
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
         // Check the warning
         Assert.assertEquals(diagnosticIterator.next().message(),
-                            "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
+                "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
         // Check updating to v2 the warning
         Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
@@ -95,8 +94,7 @@ public class OldPackageMigrationTests extends BaseTest {
         Path packagePath = RESOURCE_DIRECTORY.resolve("package_f_old_local");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(packagePath));
 
-        // Delete build file if exists
-        Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        deleteBuildFileAndDependenciesToml(packagePath);
 
         // Create & write old Dependencies.toml content
         Files.createFile(packagePath.resolve(DEPENDENCIES_TOML));
@@ -114,24 +112,24 @@ public class OldPackageMigrationTests extends BaseTest {
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
         // Check updating to v2 the warning
         Assert.assertEquals(diagnosticIterator.next().message(),
-                            "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
+                "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
         // Check detected local dependency declarations warnings
         Assert.assertEquals(diagnosticIterator.next().message(),
-                            "Detected local dependency declarations in Dependencies.toml file. "
-                                    + "Add them to Ballerina.toml using following syntax:\n"
-                                    + "[[dependency]]\n"
-                                    + "org = \"samjs\"\n"
-                                    + "name = \"package_b\"\n"
-                                    + "version = \"0.1.0\"\n"
-                                    + "repository = \"local\"\n");
+                "Detected local dependency declarations in Dependencies.toml file. "
+                        + "Add them to Ballerina.toml using following syntax:\n"
+                        + "[[dependency]]\n"
+                        + "org = \"samjs\"\n"
+                        + "name = \"package_b\"\n"
+                        + "version = \"0.1.0\"\n"
+                        + "repository = \"local\"\n");
         Assert.assertEquals(diagnosticIterator.next().message(),
-                            "Detected local dependency declarations in Dependencies.toml file. "
-                                    + "Add them to Ballerina.toml using following syntax:\n"
-                                    + "[[dependency]]\n"
-                                    + "org = \"samjs\"\n"
-                                    + "name = \"package_d\"\n"
-                                    + "version = \"0.1.0\"\n"
-                                    + "repository = \"local\"\n");
+                "Detected local dependency declarations in Dependencies.toml file. "
+                        + "Add them to Ballerina.toml using following syntax:\n"
+                        + "[[dependency]]\n"
+                        + "org = \"samjs\"\n"
+                        + "name = \"package_d\"\n"
+                        + "version = \"0.1.0\"\n"
+                        + "repository = \"local\"\n");
         // Check updated Dependencies.toml
         Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
                 packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
@@ -140,8 +138,13 @@ public class OldPackageMigrationTests extends BaseTest {
     @AfterMethod
     private void cleanUp(ITestContext ctx) throws IOException {
         Path packagePath = Path.of(ctx.getCurrentXmlTest().getParameter("packagePath"));
-        // Delete Dependencies.toml and build file
-        Files.deleteIfExists(packagePath.resolve(DEPENDENCIES_TOML));
+        deleteBuildFileAndDependenciesToml(packagePath);
+    }
+
+    private void deleteBuildFileAndDependenciesToml(Path packagePath) throws IOException {
+        // Delete build file if exists
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        // Delete Dependencies.toml file if exists
+        Files.deleteIfExists(packagePath.resolve(DEPENDENCIES_TOML));
     }
 }

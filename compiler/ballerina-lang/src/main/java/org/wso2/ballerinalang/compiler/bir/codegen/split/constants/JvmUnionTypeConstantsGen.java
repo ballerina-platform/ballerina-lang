@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.TypeNamePair;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 
 import java.util.ArrayList;
@@ -89,8 +90,8 @@ public class JvmUnionTypeConstantsGen {
         this.jvmUnionTypeGen = jvmUnionTypeGen;
     }
 
-    public String add(BUnionType type) {
-        return unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type));
+    public String add(BUnionType type, SymbolTable symbolTable) {
+        return unionTypeVarMap.computeIfAbsent(type, str -> generateBUnionInits(type, symbolTable));
     }
 
     private void generateUnionTypeConstantsClassInit() {
@@ -109,7 +110,7 @@ public class JvmUnionTypeConstantsGen {
                             "()V", null, null);
     }
 
-    private String generateBUnionInits(BUnionType type) {
+    private String generateBUnionInits(BUnionType type, SymbolTable symbolTable) {
         String varName = JvmConstants.UNION_TYPE_VAR_PREFIX + constantIndex++;
         visitBUnionField(varName);
         createBunionType(mv, type, varName);
@@ -117,23 +118,23 @@ public class JvmUnionTypeConstantsGen {
         // contains a union inside it.
         queue.add(new TypeNamePair(type, varName));
         if (queue.size() == 1) {
-            genPopulateMethod(type, varName);
+            genPopulateMethod(type, varName, symbolTable);
             queue.remove();
             while (!queue.isEmpty()) {
                 TypeNamePair typeNamePair = queue.remove();
-                genPopulateMethod((BUnionType) typeNamePair.type, typeNamePair.varName);
+                genPopulateMethod((BUnionType) typeNamePair.type, typeNamePair.varName, symbolTable);
             }
         }
         return varName;
     }
 
-    private void genPopulateMethod(BUnionType type, String varName) {
+    private void genPopulateMethod(BUnionType type, String varName, SymbolTable symbolTable) {
         String methodName = "$populate" + varName;
         funcNames.add(methodName);
         MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
         methodVisitor.visitCode();
         generateGetBUnionType(methodVisitor, varName);
-        jvmUnionTypeGen.populateUnion(cw, methodVisitor, type, unionVarConstantsClass, varName);
+        jvmUnionTypeGen.populateUnion(cw, methodVisitor, type, unionVarConstantsClass, varName, symbolTable);
         genMethodReturn(methodVisitor);
     }
 

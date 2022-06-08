@@ -336,6 +336,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
+        this.symTable.immutableTypeMaps.remove(Types.getPackageIdString(pkgSymbol.pkgID));
 
         // Add the current package node's ID to the imported package list. This is used to identify cyclic module
         // imports.
@@ -446,7 +447,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
         // them and set the fields and members of the relevant immutable type.
-        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions);
+        validateIntersectionTypeDefinitions(pkgNode.typeDefinitions, pkgNode.packageID);
         defineUndefinedReadOnlyTypes(pkgNode.typeDefinitions, typeAndClassDefs, pkgEnv);
 
         // Define service and resource nodes.
@@ -4128,7 +4129,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private void validateIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes) {
+    private void validateIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes, PackageID packageID) {
         Set<BType> loggedTypes = new HashSet<>();
 
         for (BLangTypeDefinition typeDefNode : typeDefNodes) {
@@ -4154,7 +4155,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         continue;
                     }
                     // If constituent type is error, we have already validated error intersections.
-                    if (!types.isSelectivelyImmutableType(constituentType, true)
+                    if (!types.isSelectivelyImmutableType(constituentType, true, packageID)
                             && Types.getReferredType(constituentType).tag != TypeTags.ERROR) {
 
                         hasNonReadOnlyElement = true;
@@ -4195,7 +4196,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (!types.isSelectivelyImmutableType(mutableType, true)) {
+            if (!types.isSelectivelyImmutableType(mutableType, true, packageID)) {
                 dlog.error(typeDefNode.typeNode.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, typeDefNode.name);
                 typeNode.setBType(symTable.semanticError);
             }
@@ -4289,7 +4290,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 // We reach here for `readonly object`s.
                 // We now validate if it is a valid `readonly object` - i.e., all the fields are compatible readonly
                 // types.
-                if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
+                if (!types.isSelectivelyImmutableType(objectType, new HashSet<>(), pkgEnv.enclPkg.packageID)) {
                     dlog.error(pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_TYPE, objectType);
                     return;
                 }
@@ -4376,7 +4377,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         Location pos = classDef.pos;
 
         if (Symbols.isFlagOn(classDef.getBType().flags, Flags.READONLY)) {
-            if (!types.isSelectivelyImmutableType(objectType, new HashSet<>())) {
+            if (!types.isSelectivelyImmutableType(objectType, new HashSet<>(), pkgEnv.enclPkg.packageID)) {
                 dlog.error(pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_TYPE, objectType);
                 return;
             }
