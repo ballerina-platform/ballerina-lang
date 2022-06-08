@@ -18,6 +18,7 @@
 package io.ballerina.tools.text;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,9 +58,8 @@ public abstract class TextDocument {
         if (lineMap != null) {
             return lineMap.textLines();
         }
-
         lineMap = populateTextLineMap();
-        return lineMap.textLines();
+        return Collections.unmodifiableList(lineMap.textLines());
     }
 
     protected LineMap lines() {
