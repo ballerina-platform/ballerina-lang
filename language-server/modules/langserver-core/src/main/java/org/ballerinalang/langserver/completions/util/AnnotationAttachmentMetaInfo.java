@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.common.utils.completion;
+package org.ballerinalang.langserver.completions.util;
 
 import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
 

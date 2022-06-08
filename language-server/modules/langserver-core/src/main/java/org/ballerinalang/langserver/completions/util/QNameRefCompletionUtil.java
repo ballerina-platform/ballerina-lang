@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.common.utils.completion;
+package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
@@ -37,8 +38,8 @@ import java.util.stream.Collectors;
  *
  * @since 2.0.0
  */
-public class QNameReferenceUtil {
-    private QNameReferenceUtil() {
+public class QNameRefCompletionUtil {
+    private QNameRefCompletionUtil() {
     }
 
     /**
@@ -62,7 +63,7 @@ public class QNameReferenceUtil {
      */
     public static List<Symbol> getExpressionContextEntries(BallerinaCompletionContext ctx, String moduleAlias) {
         String alias = getAlias(moduleAlias);
-        Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(ctx, alias);
+        Optional<ModuleSymbol> moduleSymbol = ModuleUtil.searchModuleForAlias(ctx, alias);
 
         return moduleSymbol.map(value -> value.allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
@@ -89,7 +90,7 @@ public class QNameReferenceUtil {
      * @param alias qualified name reference
      * @return {@link String} extracted alias
      */
-    public static String getAlias(String alias) {
+    private static String getAlias(String alias) {
         return alias.startsWith("'") ? alias.substring(1) : alias;
     }
 
@@ -104,7 +105,8 @@ public class QNameReferenceUtil {
     public static List<Symbol> getModuleContent(PositionedOperationContext context,
                                                 QualifiedNameReferenceNode qNameRef,
                                                 Predicate<Symbol> predicate) {
-        Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context, 
+                QNameRefCompletionUtil.getAlias(qNameRef));
         return module.map(moduleSymbol -> moduleSymbol.allSymbols().stream()
                 .filter(predicate)
                 .collect(Collectors.toList()))
@@ -120,7 +122,8 @@ public class QNameReferenceUtil {
      */
     public static List<Symbol> getTypesInModule(BallerinaCompletionContext context,
                                                 QualifiedNameReferenceNode qNameRef) {
-        Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
+        Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context, 
+                QNameRefCompletionUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
                 .filter(CommonUtil.typesFilter())
                 .collect(Collectors.toList()))
