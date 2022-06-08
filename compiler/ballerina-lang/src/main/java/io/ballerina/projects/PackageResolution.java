@@ -398,10 +398,10 @@ public class PackageResolution {
         for (ResolvedPackageDependency pkgDependency : sortedPackages) {
             Package resolvedPackage = pkgDependency.packageInstance();
             resolvedPackage.packageContext().resolveDependencies(dependencyResolution);
-            DependencyGraph<ModuleId> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
-            List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
-            for (ModuleId moduleId : sortedModuleIds) {
-                ModuleContext moduleContext = resolvedPackage.module(moduleId).moduleContext();
+            DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
+            List<ModuleDescriptor> sortedModuleDescriptors = moduleDependencyGraph.toTopologicallySortedList();
+            for (ModuleDescriptor moduleDescriptor : sortedModuleDescriptors) {
+                ModuleContext moduleContext = resolvedPackage.module(moduleDescriptor.name()).moduleContext();
                 sortedModuleList.add(moduleContext);
             }
         }

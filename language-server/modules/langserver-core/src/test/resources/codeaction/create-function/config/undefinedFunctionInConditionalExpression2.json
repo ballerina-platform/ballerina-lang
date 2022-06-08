@@ -1,0 +1,28 @@
+{
+  "line": 5,
+  "character": 18,
+  "expected": [
+    {
+      "title": "Create function 'getString(...)'",
+      "command": {
+        "title": "Create function 'getString(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line":5,
+                "character": 14
+              },
+              "end": {
+                "line": 5,
+                "character": 28
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

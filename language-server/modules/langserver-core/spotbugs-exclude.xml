@@ -65,7 +65,7 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil" />
+        <Class name="org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
@@ -119,7 +119,7 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.util.definition.DefinitionUtil" />
+        <Class name="org.ballerinalang.langserver.definition.DefinitionUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
@@ -164,7 +164,7 @@
         </OR>
     </Match>
     <Match>
-        <Class name="org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil" />
+        <Class name="org.ballerinalang.langserver.documentsymbol.DocumentSymbolUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>

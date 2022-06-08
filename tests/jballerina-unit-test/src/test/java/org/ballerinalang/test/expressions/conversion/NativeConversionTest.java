@@ -596,7 +596,7 @@ public class NativeConversionTest {
     @Test(description = "Test converting json to constrained map",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map<json>' " +
-                    "value cannot be converted to 'map<T1>'.*")
+                    "value cannot be converted to 'T1Map'.*")
     public void testJsonToMapConstrainedFail() {
 
         BRunUtil.invoke(compileResult, "testJsonToMapConstrainedFail");
@@ -666,7 +666,7 @@ public class NativeConversionTest {
     @Test(description = "Test an invalid json to array conversion",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map<json>' value cannot" +
-                    " be converted to 'int\\[\\]'.*")
+                    " be converted to 'IntArrayType'.*")
     public void testJsonToArrayFail() {
 
         BRunUtil.invoke(compileResult, "testJsonToArrayFail");
