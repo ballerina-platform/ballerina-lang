@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -75,6 +76,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
@@ -215,6 +217,7 @@ public class SymbolTable {
     private Types types;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
     public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
+    public Map<String, Map<SelectivelyImmutableReferenceType, BIntersectionType>> immutableTypeMaps = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -300,7 +303,8 @@ public class SymbolTable {
         }});
 
         this.anyAndReadonly =
-                ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types);
+                ImmutableTypeCloner.getImmutableIntersectionType(this.anyType, this, names, this.types,
+                                                                 rootPkgSymbol.pkgID);
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
 
         // Initialize the invokable type
@@ -1175,8 +1179,13 @@ public class SymbolTable {
         jsonInternal.isCyclic = true;
 
         jsonType = new BJSONType(jsonInternal);
-        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, rootPkgSymbol.pkgID, jsonType,
-                rootPkgSymbol, builtinPos, BUILTIN);
+        PackageID pkgID = rootPkgSymbol.pkgID;
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, jsonInternal);
+        if (immutableType.isPresent()) {
+            Types.addImmutableType(this, pkgID, jsonType, immutableType.get());
+        }
+        jsonType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.JSON, pkgID, jsonType,
+                                           rootPkgSymbol, builtinPos, BUILTIN);
 
         arrayJsonType = new BArrayType(jsonType);
         mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
@@ -1188,8 +1197,14 @@ public class SymbolTable {
         addCyclicArrayMapTableOfMapMembers(anyDataInternal);
 
         anydataType = new BAnydataType(anyDataInternal);
-        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, rootPkgSymbol.pkgID,
-                anydataType, rootPkgSymbol, builtinPos, BUILTIN);
+        PackageID pkgID = rootPkgSymbol.pkgID;
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(this, pkgID, anyDataInternal);
+        if (immutableType.isPresent()) {
+            Types.addImmutableType(this, pkgID, anydataType, immutableType.get());
+        }
+
+        anydataType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.ANYDATA, pkgID,
+                                              anydataType, rootPkgSymbol, builtinPos, BUILTIN);
         arrayAnydataType = new BArrayType(anydataType);
         mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
         anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);

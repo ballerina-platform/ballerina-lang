@@ -1,0 +1,24 @@
+{
+    "line": 1,
+    "character": 20,
+    "expected": [
+        {
+            "title": "Change return type to 'int|error'",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 0,
+                            "character": 31
+                        },
+                        "end": {
+                            "line": 0,
+                            "character": 34
+                        }
+                    },
+                    "newText": "int|error"
+                }
+            ]
+        }
+    ]
+}
