@@ -55,7 +55,8 @@ module io.ballerina.runtime {
             io.ballerina.lang.integer, io.ballerina.lang.floatingpoint, io.ballerina.lang.array,
             io.ballerina.lang.table, io.ballerina.java, io.ballerina.lang.map, io.ballerina.lang.string,
             io.ballerina.lang.xml, io.ballerina.lang.bool, io.ballerina.lang.error, io.ballerina.lang.internal,
-            io.ballerina.auth, io.ballerina.runtime.api, io.ballerina.cli.utils, io.ballerina.cli;
+            io.ballerina.lang.value, io.ballerina.auth, io.ballerina.runtime.api, io.ballerina.cli.utils,
+            io.ballerina.cli;
     exports io.ballerina.runtime.internal.util.exceptions to io.ballerina.lang.value, io.ballerina.lang.integer,
             io.ballerina.java, io.ballerina.lang.internal, io.ballerina.lang.array, io.ballerina.lang.bool,
             io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
