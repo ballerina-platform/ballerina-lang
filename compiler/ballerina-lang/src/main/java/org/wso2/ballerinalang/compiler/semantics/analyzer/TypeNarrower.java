@@ -444,7 +444,7 @@ public class TypeNarrower extends BLangNodeVisitor {
                 (rhsExperKind == NodeKind.UNARY_EXPR &&
                 ((BLangUnaryExpr) rhsExpr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
                 (OperatorKind.SUB.equals(((BLangUnaryExpr) rhsExpr).operator) ||
-                        OperatorKind.ADD.equals(((BLangUnaryExpr) rhsExpr).operator)))) {
+                OperatorKind.ADD.equals(((BLangUnaryExpr) rhsExpr).operator)))) {
             setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr), binaryExpr.pos);
         } else if (rhsExperKind == NodeKind.SIMPLE_VARIABLE_REF) {
             BSymbol rhsVarSymbol = ((BLangSimpleVarRef) rhsExpr).symbol;
