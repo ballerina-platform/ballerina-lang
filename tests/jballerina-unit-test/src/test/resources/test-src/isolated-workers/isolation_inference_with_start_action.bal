@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
+
 function f1() {
     future<int> _ = start g1();
 }
@@ -74,10 +76,10 @@ function f4() {
 }
 
 function testIsolationInferenceWithStartAction() {
-    assertEquality(true, <any>f1 is isolated function);
-    assertEquality(true, <any>f2 is isolated function);
-    assertEquality(true, <any>f3 is isolated function);
-    assertEquality(true, <any>f4 is isolated function);
+    assertTrue(<any>f1 is isolated function);
+    assertTrue(<any>f2 is isolated function);
+    assertTrue(<any>f3 is isolated function);
+    assertTrue(<any>f4 is isolated function);
 }
 
 function f5() {
@@ -126,11 +128,156 @@ function f8() {
 }
 
 function testNonIsolationInferenceWithStartAction() {
-    assertEquality(false, <any>f5 is isolated function);
-    assertEquality(false, <any>f6 is isolated function);
-    assertEquality(false, <any>f7 is isolated function);
-    assertEquality(false, <any>f8 is isolated function);
+    assertFalse(<any>f5 is isolated function);
+    assertFalse(<any>f6 is isolated function);
+    assertFalse(<any>f7 is isolated function);
+    assertFalse(<any>f8 is isolated function);
 }
+
+function hello() returns string => "hello";
+
+string helloGlobString = "hello!";
+
+function g3() returns string {
+    return helloGlobString;
+}
+
+isolated client class NonPublicIsolatedClass {
+    private string str = "hello";
+
+    remote function foo() returns int {
+        _ = hello();
+        future<int> _ = start g1();
+        return 1;
+    }
+
+    function bar(string str) returns string {
+        future<int> _ = start g1();
+        return "";
+    }
+}
+
+final string[] & readonly strArrr = [""];
+
+service class NonPublicServiceClass {
+    resource function get foo() {
+        _ = hello();
+        future<int> _ = start g1();
+    }
+
+    remote function bar() {
+        NonPublicIsolatedClass cl = new;
+        _ = cl.bar(strArrr[0]);
+        future<string> _ = start cl.bar(strArrr[0]);
+    }
+
+    function func(string str) {
+        int _ = str.length();
+        future<int> _ = start g1();
+    }
+
+    public function func2(string str) {
+        future<int> _ = start g1();
+    }
+
+    function func3(string str) {
+        future<string> _ = start g3();
+    }
+}
+
+public service class PublicServiceClass {
+    resource function get foo() {
+        _ = hello();
+        future<int> _ = start g1();
+    }
+
+    remote function bar() {
+        NonPublicIsolatedClass cl = new;
+        _ = cl.bar(strArrr[0]);
+        future<int> _ = start g1();
+    }
+
+    function func(string str) {
+        int _ = str.length();
+        NonPublicIsolatedClass cl = new;
+        future<string> _ = start cl.bar(strArrr[0]);
+    }
+
+    public function func2(string str) {
+        int _ = str.length();
+        future<int> _ = start g1();
+    }
+
+    function func3(string str) {
+        future<string> _ = start g3();
+    }
+}
+
+function testServiceClassMethodIsolationInference() {
+    assertTrue(isRemoteMethodIsolated(NonPublicIsolatedClass, "foo"));
+    assertTrue(isMethodIsolated(NonPublicIsolatedClass, "bar"));
+
+    assertTrue(isResourceIsolated(NonPublicServiceClass, "get", "foo"));
+    assertTrue(isRemoteMethodIsolated(NonPublicServiceClass, "bar"));
+    assertTrue(isMethodIsolated(NonPublicServiceClass, "func"));
+    assertTrue(isMethodIsolated(NonPublicServiceClass, "func2"));
+    assertFalse(isMethodIsolated(NonPublicServiceClass, "func3"));
+
+    assertFalse(isResourceIsolated(PublicServiceClass, "get", "foo"));
+    assertFalse(isRemoteMethodIsolated(PublicServiceClass, "bar"));
+    assertFalse(isMethodIsolated(PublicServiceClass, "func"));
+    assertFalse(isMethodIsolated(PublicServiceClass, "func2"));
+    assertFalse(isMethodIsolated(PublicServiceClass, "func3"));
+}
+
+client class NonPublicNonIsolatedClass {
+    remote function foo(string str) {
+        int _ = str.length();
+        NonPublicIsolatedClass cl = new;
+        future<string> _ = start cl.bar(strArrr[0]);
+    }
+
+    function bar(string str) returns string|error {
+        NonPublicIsolatedClass cl = new;
+        future<string> res1 = start cl.bar(strArrr[0]);
+        string res2 = checkpanic wait res1;
+        return res2;
+    }
+}
+
+public isolated client class PublicIsolatedClass {
+    remote function foo(string str) {
+        int _ = str.length();
+        NonPublicIsolatedClass cl = new;
+        future<string> _ = start cl.bar(strArrr[0]);
+    }
+
+    function bar(string str) returns string|error {
+        NonPublicIsolatedClass cl = new;
+        future<string> res1 = start cl.bar(strArrr[0]);
+        string res2 = checkpanic wait res1;
+        return res2;
+    }
+}
+
+function testClientClassMethodIsolationInference() {
+    NonPublicNonIsolatedClass c1 = new;
+    NonPublicIsolatedClass c2 = new;
+    PublicIsolatedClass c3 = new;
+
+    assertTrue(isMethodIsolated(c1, "foo"));
+    assertTrue(isMethodIsolated(c1, "bar"));
+
+    assertTrue(isMethodIsolated(c2, "foo"));
+    assertTrue(isMethodIsolated(c2, "bar"));
+
+    assertFalse(isMethodIsolated(c3, "foo"));
+    assertFalse(isMethodIsolated(c3, "bar"));
+}
+
+function assertTrue(anydata actual) => assertEquality(true, actual);
+
+function assertFalse(anydata actual) => assertEquality(false, actual);
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -142,3 +289,19 @@ function assertEquality(anydata expected, anydata actual) {
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
+
+function isResourceIsolated(service object {}|typedesc val, string resourceMethodName, string resourcePath)
+returns boolean = @java:Method {
+    'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+    paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString", "io.ballerina.runtime.api.values.BString"]
+} external;
+
+function isRemoteMethodIsolated(object {}|typedesc val, string methodName) returns boolean = @java:Method {
+    'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+    paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString"]
+} external;
+
+function isMethodIsolated(object {}|typedesc val, string methodName) returns boolean = @java:Method {
+    'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+    paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString"]
+} external;

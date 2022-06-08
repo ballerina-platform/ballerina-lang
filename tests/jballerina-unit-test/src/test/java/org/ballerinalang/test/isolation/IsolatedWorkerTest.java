@@ -36,6 +36,8 @@ import static org.ballerinalang.test.BAssertUtil.validateWarning;
 public class IsolatedWorkerTest {
     private CompileResult startActionCompileResult;
     private CompileResult namedWorkerCompileResult;
+    private CompileResult isolationInference1;
+    private CompileResult isolationInference2;
 
     private static final String ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION =
             "invalid async invocation of a non-isolated function in an 'isolated' function";
@@ -54,6 +56,10 @@ public class IsolatedWorkerTest {
     public void setup() {
         startActionCompileResult = BCompileUtil.compile("test-src/isolated-workers/isolated_start_action.bal");
         namedWorkerCompileResult = BCompileUtil.compile("test-src/isolated-workers/isolated_named_worker.bal");
+        isolationInference1 = BCompileUtil.compile(
+                "test-src/isolated-workers/isolation_inference_with_start_action.bal");
+        isolationInference2 = BCompileUtil.compile(
+                "test-src/isolated-workers/isolation_inference_with_named_workers.bal");
     }
 
     @Test(dataProvider = "functionsToTestIsolatedStartAction")
@@ -179,36 +185,51 @@ public class IsolatedWorkerTest {
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
-    @Test
-    public void testIsolationInferenceWithNamedWorkers() {
-        CompileResult isolationInference = BCompileUtil.compile(
-                "test-src/isolated-workers/isolation_inference_with_named_workers.bal");
-        int i = 0;
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 83, 5);
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 90, 5);
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 107, 5);
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 117, 5);
-        Assert.assertEquals(isolationInference.getErrorCount(), 0);
-        Assert.assertEquals(isolationInference.getWarnCount(), i);
+    @Test(dataProvider = "functionsToTestIsolationInferenceWithStartAction")
+    public void testIsolationInferenceWithStartAction(String funcName) {
+        BRunUtil.invoke(isolationInference1, funcName);
+    }
 
-        BRunUtil.invoke(isolationInference, "testIsolationInferenceWithNamedWorkers");
-        BRunUtil.invoke(isolationInference, "testNonIsolationInferenceWithNamedWorkersWithStrandAnnotation");
+    @DataProvider
+    public Object[] functionsToTestIsolationInferenceWithStartAction() {
+        return new String[]{
+                "testIsolationInferenceWithStartAction",
+                "testNonIsolationInferenceWithStartAction",
+                "testServiceClassMethodIsolationInference",
+                "testClientClassMethodIsolationInference"
+        };
+    }
+
+    @Test(dataProvider = "functionsToTestIsolationInferenceWithNamedWorkers")
+    public void testIsolationInferenceWithNamedWorkers(String funcName) {
+        BRunUtil.invoke(isolationInference2, funcName);
+    }
+
+    @DataProvider
+    public Object[] functionsToTestIsolationInferenceWithNamedWorkers() {
+        return new String[]{
+                "testIsolationInferenceWithNamedWorkers",
+                "testNonIsolationInferenceWithNamedWorkersWithStrandAnnotation",
+                "testServiceClassMethodIsolationInference",
+                "testClientClassMethodIsolationInference"
+        };
     }
 
     @Test
-    public void testIsolationInferenceWithStartAction() {
-        CompileResult isolationInference = BCompileUtil.compile(
-                "test-src/isolated-workers/isolation_inference_with_start_action.bal");
+    public void testDeprecationWarningWithStrandAnnot() {
+        CompileResult deprecationWarnRes = BCompileUtil.compile(
+                "test-src/isolated-workers/deprecation_warning_with_strand_annot.bal");
         int i = 0;
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 84, 21);
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 88, 24);
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 100, 21);
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 114, 21);
-        validateWarning(isolationInference, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 125, 21);
-        Assert.assertEquals(isolationInference.getErrorCount(), 0);
-        Assert.assertEquals(isolationInference.getWarnCount(), i);
-
-        BRunUtil.invoke(isolationInference, "testIsolationInferenceWithStartAction");
-        BRunUtil.invoke(isolationInference, "testNonIsolationInferenceWithStartAction");
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 18, 21);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 22, 24);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 34, 21);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 48, 21);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 59, 21);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 63, 5);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 70, 5);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 87, 5);
+        validateWarning(deprecationWarnRes, i++, WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED, 97, 5);
+        Assert.assertEquals(deprecationWarnRes.getErrorCount(), 0);
+        Assert.assertEquals(deprecationWarnRes.getWarnCount(), i);
     }
 }
