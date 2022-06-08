@@ -160,6 +160,15 @@ function testInvalidTypeInSelectWithQueryConstructingMap2() {
                  where user.age > 21 && user.age < 60
                  let string[] arr = [user.firstName, user.lastName]
                  select arr;
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 let string[3] arr = [user.firstName, user.lastName, " "]
+                 select arr;
+
+    var _ = map from var user in users
+                 where user.age > 21 && user.age < 60
+                 select [user.firstName];
 }
 
 function testInvalidStaticTypeWithQueryConstructingMap() {

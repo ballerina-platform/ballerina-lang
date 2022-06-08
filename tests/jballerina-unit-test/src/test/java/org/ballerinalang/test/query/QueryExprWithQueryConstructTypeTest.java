@@ -132,7 +132,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 18);
+        Assert.assertEquals(negativeResult.getErrorCount(), 20);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
@@ -162,17 +162,21 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible type in select clause: expected [string,any|error], found 'string[]'", 162, 25);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'int', found 'string'", 171, 50);
+                "incompatible type in select clause: expected [string,any|error], found 'string[3]'", 167, 25);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 173, 20);
+                "incompatible type in select clause: expected [string,any|error], found '[string]'", 171, 25);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 177, 22);
+                "incompatible types: expected 'int', found 'string'", 180, 50);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'int', found 'string'", 184, 50);
+                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 182, 20);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 186, 20);
+                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 186, 22);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 193, 50);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 195, 20);
         validateError(negativeResult, index,
-                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 190, 22);
+                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 199, 22);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
