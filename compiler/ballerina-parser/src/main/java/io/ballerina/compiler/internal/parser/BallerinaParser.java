@@ -11460,7 +11460,7 @@ public class BallerinaParser extends AbstractParser {
      * query-expr := [query-construct-type] query-pipeline select-clause
      * [query-construct-type] query-pipeline select-clause on-conflict-clause?
      * <br/>
-     * query-construct-type := table key-specifier | stream
+     * query-construct-type := table key-specifier | stream | map
      * </code>
      *
      * @return Parsed node
