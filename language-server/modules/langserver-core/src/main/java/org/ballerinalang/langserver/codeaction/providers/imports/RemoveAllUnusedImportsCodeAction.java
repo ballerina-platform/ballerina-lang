@@ -39,14 +39,6 @@ public class RemoveAllUnusedImportsCodeAction extends OptimizeImportsCodeAction 
         super();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context, NodeBasedPositionDetails posDetails) {
-        return super.getNodeBasedCodeActions(context, posDetails);
-    }
-
     @Override
     protected List<ImportDeclarationNode> organizeFileImports(List<ImportDeclarationNode> fileImports) {
         return fileImports;

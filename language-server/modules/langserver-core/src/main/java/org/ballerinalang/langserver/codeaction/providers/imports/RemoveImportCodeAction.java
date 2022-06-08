@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -33,11 +34,12 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Code Action to remove an unused/ re-declared module import.
+ * Code Action to remove an unused or re-declared module import.
  *
  * @since 2201.1.1
  */
@@ -57,23 +59,38 @@ public class RemoveImportCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails, 
                                                     CodeActionContext context) {
-        ImportDeclarationNode importDeclNode = positionDetails.matchedNode().kind() == SyntaxKind.IMPORT_DECLARATION 
-                ? (ImportDeclarationNode) positionDetails.matchedNode() 
-                : (ImportDeclarationNode) positionDetails.matchedNode().parent();
-        if (importDeclNode.orgName().isEmpty() || context.currentDocument().isEmpty()) {
+        Optional<ImportDeclarationNode> importDeclarationNode = getImportDeclarationNode(positionDetails.matchedNode());
+        if (importDeclarationNode.isEmpty() || context.currentDocument().isEmpty()) {
             return Collections.emptyList();
         }
+        ImportDeclarationNode importDeclNode = importDeclarationNode.get();
         Range range = CommonUtil.toRange(importDeclNode.textRange().startOffset(), 
                 importDeclNode.textRangeWithMinutiae().endOffset(), (context.currentDocument().get().textDocument()));
         List<TextEdit> edits = List.of(new TextEdit(range, ""));
-        String pkgName =  importDeclNode.prefix().isPresent() ? importDeclNode.prefix().get().prefix().toString() 
-                : importDeclNode.orgName().get() 
-                + importDeclNode.moduleName().stream().map(Node::toString).collect(Collectors.joining("."));
+        String pkgName = getPackageName(importDeclNode);
         String commandTitle = "BCE2002".equals(diagnostic.diagnosticInfo().code()) 
                 ? String.format(CommandConstants.REMOVE_UNUSED_IMPORT, pkgName) 
                 : String.format(CommandConstants.REMOVE_REDECLARED_IMPORT, pkgName);
         return List.of(createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
+    }
+
+    private String getPackageName(ImportDeclarationNode importDeclNode) {
+        if (importDeclNode.prefix().isPresent()) {
+            return importDeclNode.prefix().get().prefix().text();
+        }
+        return (importDeclNode.orgName().isPresent() ? importDeclNode.orgName().get().toString() : "")
+                    + importDeclNode.moduleName().stream().map(Node::toString).collect(Collectors.joining("."));
+    }
+
+    private Optional<ImportDeclarationNode> getImportDeclarationNode(NonTerminalNode node) {
+        while (node != null) {
+            if (node.kind() == SyntaxKind.IMPORT_DECLARATION) {
+                return Optional.of((ImportDeclarationNode) node);
+            }
+            node = node.parent();
+        }
+        return Optional.empty();
     }
 
     @Override
