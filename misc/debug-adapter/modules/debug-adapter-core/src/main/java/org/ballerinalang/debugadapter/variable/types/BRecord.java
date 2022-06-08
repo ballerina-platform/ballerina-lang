@@ -79,9 +79,7 @@ public class BRecord extends NamedCompoundVariable {
 
     private Map<Value, Value> getRecordFields() {
         try {
-            if (loadedKeys == null) {
-                loadAllKeys();
-            }
+            loadAllKeys();
             Map<Value, Value> recordFields = new LinkedHashMap<>();
             List<Value> keysRange = loadedKeys.getValues(0, loadedKeys.length());
 
@@ -96,14 +94,17 @@ public class BRecord extends NamedCompoundVariable {
     }
 
     private void loadAllKeys() {
-        try {
-            Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS,
-                    GETKEYS_METHOD_SIGNATURE_PATTERN);
-            Value keyArray = ((ObjectReference) jvmValue).invokeMethod(context.getOwningThread().getThreadReference(),
-                    getKeysMethod.get(), Collections.emptyList(), ObjectReference.INVOKE_SINGLE_THREADED);
-            loadedKeys = (ArrayReference) keyArray;
-        } catch (Exception ignored) {
-            loadedKeys = null;
+        if (loadedKeys == null) {
+            try {
+                Optional<Method> getKeysMethod = VariableUtils.getMethod(jvmValue, METHOD_GET_KEYS,
+                        GETKEYS_METHOD_SIGNATURE_PATTERN);
+                Value keyArray = ((ObjectReference) jvmValue).invokeMethod(
+                        context.getOwningThread().getThreadReference(), getKeysMethod.get(), Collections.emptyList(),
+                        ObjectReference.INVOKE_SINGLE_THREADED);
+                loadedKeys = (ArrayReference) keyArray;
+            } catch (Exception ignored) {
+                loadedKeys = null;
+            }
         }
     }
 
@@ -126,10 +127,8 @@ public class BRecord extends NamedCompoundVariable {
             if (!(jvmValue instanceof ObjectReference)) {
                 return 0;
             }
-            if (loadedKeys == null) {
-                loadAllKeys();
-            }
-            return loadedKeys.length();
+            loadAllKeys();
+            return loadedKeys == null ? 0 : loadedKeys.length();
         } catch (Exception ignored) {
             return 0;
         }
