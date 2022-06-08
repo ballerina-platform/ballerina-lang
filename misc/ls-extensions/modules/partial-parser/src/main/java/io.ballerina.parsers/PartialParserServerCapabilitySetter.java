@@ -23,7 +23,7 @@ import java.util.Optional;
 /**
  * Capability setter for the {@link PartialParserService}.
  *
- * @since 2.0.0
+ * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter")
 public class PartialParserServerCapabilitySetter extends
