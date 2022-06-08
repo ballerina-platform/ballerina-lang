@@ -1151,15 +1151,17 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        for (Name alias : predeclaredModules.keySet()) {
+        Name alias;
+        for (Map.Entry<Name, BPackageSymbol> e : predeclaredModules.entrySet()) {
+            alias = e.getKey();
             int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
             if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
-                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(e.getValue(),
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
             }
-            if (!(entry.symbol != null && entry.symbol instanceof BPackageSymbol)) {
+            if (!(entry.symbol instanceof BPackageSymbol)) {
                 continue;
             }
             for (int i = index; i < compUnits.size(); i++) {
@@ -1169,16 +1171,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                     isUndefinedModule = false;
                 }
                 while (entry.next != NOT_FOUND_ENTRY) {
-                    if ((entry.next.symbol) != null) {
-                        if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
-                            isUndefinedModule = false;
-                            break;
-                        }
+                    if ((entry.next.symbol != null)
+                            && ((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+                        isUndefinedModule = false;
+                        break;
                     }
                     entry = entry.next;
                 }
                 if (isUndefinedModule) {
-                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(e.getValue(),
                             new Name(compUnitName)), NOT_FOUND_ENTRY);
                 }
             }
