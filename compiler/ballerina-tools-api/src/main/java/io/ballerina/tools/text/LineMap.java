@@ -56,7 +56,7 @@ class LineMap {
         return textLine.startOffset() + linePosition.offset();
     }
 
-    ArrayList<String> textLines() {
+    List<String> textLines() {
         ArrayList<String> lines = new ArrayList();
 
         for (TextLine textLine : textLines) {

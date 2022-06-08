@@ -53,7 +53,7 @@ public abstract class TextDocument {
         return lines().textPositionFrom(linePosition);
     }
 
-    public ArrayList<String> textLines() {
+    public List<String> textLines() {
         if (lineMap != null) {
             return lineMap.textLines();
         }
