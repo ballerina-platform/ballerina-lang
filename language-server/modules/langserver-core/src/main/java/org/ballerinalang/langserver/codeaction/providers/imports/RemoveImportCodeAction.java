@@ -24,7 +24,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -64,7 +64,7 @@ public class RemoveImportCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
         ImportDeclarationNode importDeclNode = importDeclarationNode.get();
-        Range range = CommonUtil.toRange(importDeclNode.textRange().startOffset(), 
+        Range range = PositionUtil.toRange(importDeclNode.textRange().startOffset(),
                 importDeclNode.textRangeWithMinutiae().endOffset(), (context.currentDocument().get().textDocument()));
         List<TextEdit> edits = List.of(new TextEdit(range, ""));
         String pkgName = getPackageName(importDeclNode);

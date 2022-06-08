@@ -18,9 +18,6 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
-import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 
 import java.util.List;
