@@ -260,11 +260,11 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        Iterable<Module> duplicateModules = project.currentPackage().modules();
+        Iterable<Module> originalModules = project.currentPackage().modules();
         Map<String, Module> moduleMap = new HashMap<>();
 
-        for (Module duplicateModule : duplicateModules) {
-            moduleMap.put(duplicateModule.moduleName().toString(), duplicateModule);
+        for (Module originalModule : originalModules) {
+            moduleMap.put(originalModule.moduleName().toString(), originalModule);
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
