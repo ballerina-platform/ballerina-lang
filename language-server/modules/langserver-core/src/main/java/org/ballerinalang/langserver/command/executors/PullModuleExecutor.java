@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.codeaction.providers.imports.PullModuleCodeAction;
 import org.ballerinalang.langserver.command.CommandUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -86,7 +86,7 @@ public class PullModuleExecutor implements LSCommandExecutor {
 
         // TODO Prevent running parallel tasks for the same project in future
         String taskId = UUID.randomUUID().toString();
-        Path filePath = CommonUtil.getPathFromURI(fileUri)
+        Path filePath = PathUtil.getPathFromURI(fileUri)
                 .orElseThrow(() -> new UserErrorException("Couldn't determine file path"));
 
         Project project = context.workspace().project(filePath)

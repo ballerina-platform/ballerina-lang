@@ -40,6 +40,11 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
         super.test(config, source);
     }
 
+    @Override
+    public boolean loadMockedPackages() {
+        return true;
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {

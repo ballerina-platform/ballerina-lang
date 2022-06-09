@@ -69,6 +69,17 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"type_cast_function_param_config1.json", "type_cast_function_param_config1.bal"},
                 {"typeCast11.json", "typeCast.bal"},
                 {"typeCastInMemberAccess1.json", "typeCastInMemberAccess1.bal"},
+
+                {"type_cast_in_binary_operation1.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation2.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation3.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation4.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation5.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation6.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation7.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation8.json", "type_cast_in_binary_operation.bal"},
+                {"type_cast_in_binary_operation9.json", "type_cast_in_binary_operation.bal"}
+
         };
     }
 

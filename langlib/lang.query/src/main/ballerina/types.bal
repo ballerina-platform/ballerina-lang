@@ -322,16 +322,17 @@ class _LetFunction {
 
 class _InnerJoinFunction {
     *_StreamFunction;
-    function (_Frame _frame) returns any lhsKeyFunction;
-    function (_Frame _frame) returns any rhsKeyFunction;
+    function (_Frame _frame) returns any|error lhsKeyFunction;
+    function (_Frame _frame) returns any|error rhsKeyFunction;
     _FrameMultiMap rhsFramesMap = new;
     _Frame[]? rhsCandidates;
     _Frame|error? lhsFrame;
+    error? failureAtJoin = ();
 
     function init(
             _StreamPipeline pipelineToJoin,
-            function (_Frame _frame) returns any lhsKeyFunction,
-            function (_Frame _frame) returns any rhsKeyFunction) {
+            function (_Frame _frame) returns any|error lhsKeyFunction,
+            function (_Frame _frame) returns any|error rhsKeyFunction) {
         self.lhsKeyFunction = lhsKeyFunction;
         self.rhsKeyFunction = rhsKeyFunction;
         self.rhsCandidates = ();
@@ -339,8 +340,14 @@ class _InnerJoinFunction {
         self.lhsFrame = ();
         _Frame|error? f = pipelineToJoin.next();
         while (f is _Frame) {
-            self.rhsFramesMap.put(rhsKeyFunction(f).toString(), f);
-            f = pipelineToJoin.next();
+            any|error rhsKeyFuncResult = rhsKeyFunction(f);
+            if rhsKeyFuncResult is error {
+                self.failureAtJoin = rhsKeyFuncResult;
+                return;
+            } else {
+                self.rhsFramesMap.put(rhsKeyFuncResult.toString(), f);
+                f = pipelineToJoin.next();
+            }
         }
     }
 
@@ -349,12 +356,17 @@ class _InnerJoinFunction {
     # join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
+        function (_Frame _frame) returns any|error lhsKF = self.lhsKeyFunction;
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
         _Frame[]? rhsCandidates = self.rhsCandidates;
         _Frame|error? lhsFrame = self.lhsFrame;
+        error? failureAtJoin = self.failureAtJoin;
         string lhsKey = "";
+
+        if(failureAtJoin is error) {
+            fail failureAtJoin;
+        }
 
         if (lhsFrame is ()) {
             lhsFrame = pf.process();
@@ -362,7 +374,7 @@ class _InnerJoinFunction {
         }
 
         if (lhsFrame is _Frame) {
-            lhsKey = lhsKF(lhsFrame).toString();
+            lhsKey = (check lhsKF(lhsFrame)).toString();
             if (rhsCandidates is ()) {
                 rhsCandidates = rhsFramesMap.get(lhsKey);
                 self.rhsCandidates = rhsCandidates;
@@ -398,17 +410,18 @@ class _InnerJoinFunction {
 
 class _OuterJoinFunction {
     *_StreamFunction;
-    function (_Frame _frame) returns any lhsKeyFunction;
-    function (_Frame _frame) returns any rhsKeyFunction;
+    function (_Frame _frame) returns any|error lhsKeyFunction;
+    function (_Frame _frame) returns any|error rhsKeyFunction;
     _FrameMultiMap rhsFramesMap = new;
     _Frame[]? rhsCandidates;
     _Frame|error? lhsFrame;
     _Frame nilFrame;
+    error? failureAtJoin = ();
 
     function init(
             _StreamPipeline pipelineToJoin,
-            function (_Frame _frame) returns any lhsKeyFunction,
-            function (_Frame _frame) returns any rhsKeyFunction, _Frame nilFrame) {
+            function (_Frame _frame) returns any|error lhsKeyFunction,
+            function (_Frame _frame) returns any|error rhsKeyFunction, _Frame nilFrame) {
         self.lhsKeyFunction = lhsKeyFunction;
         self.rhsKeyFunction = rhsKeyFunction;
         self.rhsCandidates = ();
@@ -417,8 +430,14 @@ class _OuterJoinFunction {
         self.nilFrame = nilFrame;
         _Frame|error? f = pipelineToJoin.next();
         while (f is _Frame) {
-            self.rhsFramesMap.put(rhsKeyFunction(f).toString(), f);
-            f = pipelineToJoin.next();
+            any|error rhsKeyFuncResult = rhsKeyFunction(f);
+            if rhsKeyFuncResult is error {
+                self.failureAtJoin = rhsKeyFuncResult;
+                return;
+            } else {
+                self.rhsFramesMap.put(rhsKeyFuncResult.toString(), f);
+                f = pipelineToJoin.next();
+            }
         }
     }
 
@@ -427,13 +446,18 @@ class _OuterJoinFunction {
     # outer join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function (_Frame _frame) returns any lhsKF = self.lhsKeyFunction;
+        function (_Frame _frame) returns any|error lhsKF = self.lhsKeyFunction;
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
         _FrameMultiMap rhsFramesMap = self.rhsFramesMap;
         _Frame[]? rhsCandidates = self.rhsCandidates;
         _Frame|error? lhsFrame = self.lhsFrame;
         _Frame nilFrame = self.nilFrame;
+        error? failureAtJoin = self.failureAtJoin;
         string lhsKey = "";
+
+        if(failureAtJoin is error) {
+            fail failureAtJoin;
+        }
 
         if (lhsFrame is ()) {
             lhsFrame = pf.process();
@@ -441,7 +465,7 @@ class _OuterJoinFunction {
         }
 
         if (lhsFrame is _Frame) {
-            lhsKey = lhsKF(lhsFrame).toString();
+            lhsKey = (check lhsKF(lhsFrame)).toString();
             if (rhsCandidates is ()) {
                 rhsCandidates = rhsFramesMap.get(lhsKey);
                 self.rhsCandidates = rhsCandidates;
@@ -491,19 +515,28 @@ class _FilterFunction {
     # Desugared function to do;
     # where person.age >= 70
     # emit the next frame which satisfies the condition
-    function (_Frame _frame) returns boolean filterFunc;
+    function (_Frame _frame) returns error|boolean filterFunc;
 
-    function init(function (_Frame _frame) returns boolean filterFunc) {
+    function init(function (_Frame _frame) returns boolean|error filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        function (_Frame _frame) returns boolean filterFunc = self.filterFunc;
+        function (_Frame _frame) returns boolean|error filterFunc = self.filterFunc;
         _Frame|error? pFrame = pf.process();
-        while (pFrame is _Frame && !filterFunc(pFrame)) {
-            pFrame = pf.process();
+        while (pFrame is _Frame) {
+            boolean|error filterResult = filterFunc(pFrame);
+            if filterResult is boolean {
+                if !filterResult {
+                    pFrame = pf.process();
+                } else {
+                    return pFrame;
+                }
+            } else {
+                return filterResult;
+            }
         }
         return pFrame;
     }
@@ -521,10 +554,10 @@ class _OrderByFunction {
 
     # Desugared function to do;
     # order by person.fname true, person.age false
-    function (_Frame _frame) orderKeyFunc;
+    function (_Frame _frame) returns error? orderKeyFunc;
     stream<_Frame>? orderedStream;
 
-    function init(function (_Frame _frame) orderKeyFunc) {
+    function init(function (_Frame _frame) returns error? orderKeyFunc) {
         self.orderKeyFunc = orderKeyFunc;
         self.orderedStream = ();
         self.prevFunc = ();
@@ -533,13 +566,13 @@ class _OrderByFunction {
     public function process() returns _Frame|error? {
         if (self.orderedStream is ()) {
             _StreamFunction pf = <_StreamFunction>self.prevFunc;
-            function (_Frame _frame) orderKeyFunc = self.orderKeyFunc;
+            function (_Frame _frame) returns error? orderKeyFunc = self.orderKeyFunc;
             _Frame|error? f = pf.process();
             boolean[] directions = [];
             _OrderTreeNode oTree = new;
             // consume all events for ordering.
             while (f is _Frame) {
-                orderKeyFunc(f);
+                check orderKeyFunc(f);
                 oTree.add(f, <any[]>(checkpanic f["$orderDirection$"]), <any[]>(checkpanic f["$orderKey$"]));
                 f = pf.process();
             }
@@ -644,7 +677,7 @@ class _LimitFunction {
     *_StreamFunction;
 
     # Desugared function to limit the number of results
-    function (_Frame _frame) returns int limitFunc;
+    function (_Frame _frame) returns int|error limitFunc;
     public int count = 0;
 
     function init(function (_Frame _frame) returns int limitFunc) {
@@ -654,10 +687,10 @@ class _LimitFunction {
 
     public function process() returns _Frame|error? {
         _StreamFunction pf = <_StreamFunction>self.prevFunc;
-        function (_Frame _frame) returns int limitFunc = self.limitFunc;
+        function (_Frame _frame) returns int|error limitFunc = self.limitFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
-            int lmt = limitFunc(pFrame);
+            int lmt = check limitFunc(pFrame);
             if (lmt < 1) {
                 panic error("Invalid limit", message = "limit cannot be < 1.");
             }

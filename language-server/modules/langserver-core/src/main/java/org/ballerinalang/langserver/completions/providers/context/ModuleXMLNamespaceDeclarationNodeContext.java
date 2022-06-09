@@ -25,11 +25,11 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -61,9 +61,9 @@ public class ModuleXMLNamespaceDeclarationNodeContext extends
                     && ((ConstantSymbol) symbol).broaderTypeDescriptor().typeKind() == TypeDescKind.STRING;
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-                List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
                 completionItems.addAll(this.getCompletionItemList(moduleContent, context));
             } else {
                 List<Symbol> constants = context.visibleSymbols(context.getCursorPosition()).stream()

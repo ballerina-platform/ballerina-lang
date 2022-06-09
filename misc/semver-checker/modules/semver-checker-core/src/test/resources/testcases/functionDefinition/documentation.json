@@ -1,0 +1,89 @@
+[
+  {
+    "description": "Change the documentation in function definition",
+    "oldCode": "# Description\n#\n# +x - Parameter Description\n# +y - Parameter Description\n# + return - Return value Description\npublic function add(int x , int y ) returns int {}",
+    "newCode": "# Description\n#\n# +x - x is a int\n# +y - y is a int\n# + return - Return as int\npublic function add(int x , int y ) returns int {}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "modified",
+                "versionImpact": "patch",
+                "message": "documentation is modified"
+              }]
+            }
+            ]
+        }]
+    }
+  },
+  {
+    "description": "Add documentation in function definition",
+    "oldCode": "public function add(int x , int y ) returns int {}",
+    "newCode": "# Description\n#\n# +x - x is a int\n# +y - y is a int\n# + return - Return as int\npublic function add(int x , int y ) returns int {}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "patch",
+                "message": "documentation is added"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove documentation in function definition",
+    "oldCode": "# Description\n#\n# +x - Parameter Description\n# +y - Parameter Description\n# + return - Return value Description\npublic function add(int x , int y ) returns int {}",
+    "newCode": "public function add(int x , int y ) returns int {}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "patch",
+                "message": "documentation is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  }
+]
