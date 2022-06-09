@@ -1,0 +1,24 @@
+{
+  "line": 7,
+  "character": 15,
+  "expected": [
+    {
+      "title": "Add type cast to 'd1'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 14
+            },
+            "end": {
+              "line": 7,
+              "character": 14
+            }
+          },
+          "newText": "<int>"
+        }
+      ]
+    }
+  ]
+}

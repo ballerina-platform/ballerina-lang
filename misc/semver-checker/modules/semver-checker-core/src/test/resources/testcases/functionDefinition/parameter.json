@@ -1,0 +1,244 @@
+[
+  {
+    "description": "Change a parameter type in a function",
+    "oldCode": "public function add(int x, int y){}",
+    "newCode": "public function add(int x, String y){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "modified",
+                "versionImpact": "ambiguous",
+                "message": "type of parameter 'y' is changed from 'int' to 'String'"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Change a parameter in a function",
+    "oldCode": "public function add(int x, int y){}",
+    "newCode": "public function add(int x , String z){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "major",
+                "message": "new required parameter 'z' is added"
+              },
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "required parameter 'y' is removed"
+                }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove a parameter in a function",
+    "oldCode": "public function add(int x, int y){}",
+    "newCode": "public function add(int x ){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "major",
+                "message": "required parameter 'y' is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add a new parameter to the function",
+    "oldCode": "public function add(int x, int y){}",
+    "newCode": "public function add(int x , int y , int z ){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "major",
+                "message": "new required parameter 'z' is added"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Change the order of a parameter in function",
+    "oldCode": "public function add(int x, int y){}",
+    "newCode": "public function add(int y , int x ){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add a default value for a required parameter in function definition",
+    "oldCode": "public function add(int x){}",
+    "newCode": "public function add( int x=7){}",
+    "expectedOutput": {
+      "kind":"package",
+      "type":"modified",
+      "versionImpact":"minor",
+      "childDiffs":[
+        {
+          "kind":"module",
+          "type":"modified",
+          "versionImpact":"minor",
+          "childDiffs":[
+            {"kind":"function",
+              "type":"modified",
+              "versionImpact":"minor",
+              "childDiffs":[
+                {"kind":"unknown",
+                  "type":"modified",
+                  "versionImpact":"minor",
+                  "message":"kind of parameter 'x' is changed from 'REQUIRED_PARAM' to 'DEFAULTABLE_PARAM'"}]}]}]}
+  },
+  {
+    "description": "Add a default value for a required parameter in parameter set in function definition",
+    "oldCode": "public function add(int x , int y){}",
+    "newCode": "public function add( int x=7 , int y){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the default value parameter as a required parameter in function definition",
+    "oldCode": "public function add(int x = 7 , int y){}",
+    "newCode": "public function add(int x , int y){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the default value parameter as a required parameter in function definition",
+    "oldCode": "public function add(int x = 7){}",
+    "newCode": "public function add(int x ){}",
+    "expectedOutput": {
+      "kind":"package",
+      "type":"modified",
+      "versionImpact":"major",
+      "childDiffs":[
+        {
+          "kind":"module",
+          "type":"modified",
+          "versionImpact":"major",
+          "childDiffs":[
+            {
+              "kind":"function",
+              "type":"modified",
+              "versionImpact":"major",
+              "childDiffs":[
+                {
+                  "kind":"unknown",
+                  "type":"modified",
+                  "versionImpact":"major",
+                  "message":"kind of parameter 'x' is changed from 'DEFAULTABLE_PARAM' to 'REQUIRED_PARAM'"}]}]}]}
+  },
+  {
+    "description": "Change the default value parameter to another default value in function definition",
+    "oldCode": "public function add(int x, int y = 7 ){}",
+    "newCode": "public function add(int x, int y = 5 ){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "modified",
+                "versionImpact": "minor",
+                "message":"default value of parameter 'Optional[y ]' is changed from '7' to '5'"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Change the order of required and default values parameters.",
+    "oldCode": "public function add(int y = 7 , int x){}",
+    "newCode": "public function add(int x , int y = 7){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add parameter annotation to a function.",
+    "oldCode": "public function secureFunction(string name){}",
+    "newCode": "public function secureFunction(@untainted string name){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove parameter annotation from a function.",
+    "oldCode": "public function secureFunction(@untainted string name){}",
+    "newCode": "public function secureFunction(string name){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify parameter annotation in a function.",
+    "oldCode": "public function secureFunction(@untainted string name){}",
+    "newCode": "public function secureFunction(@tainted string name){}",
+    "expectedOutput": {}
+  }
+]
+
