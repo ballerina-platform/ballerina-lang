@@ -3829,11 +3829,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 return getNextRuleForAction();
             default:
-                return getNextRuleForKeywords(currentCtx);
+                return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
     }
 
-    private ParserRuleContext getNextRuleForKeywords(ParserRuleContext currentCtx) {
+    private ParserRuleContext getNextRuleForKeywords(ParserRuleContext currentCtx, int nextLookahead) {
         ParserRuleContext parentCtx;
         switch (currentCtx) {
             case PUBLIC_KEYWORD:
