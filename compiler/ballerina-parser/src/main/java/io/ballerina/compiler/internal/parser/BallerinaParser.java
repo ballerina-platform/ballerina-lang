@@ -5131,6 +5131,7 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
             case FROM_KEYWORD:
+            case MAP_KEYWORD:
                 return parseTableConstructorOrQuery(isRhsExpr);
             case ERROR_KEYWORD:
                 return parseErrorConstructorExpr(consume());
@@ -10580,21 +10581,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse stream-keyword.
-     *
-     * @return Parsed stream-keyword node
-     */
-    private STNode parseStreamKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.STREAM_KEYWORD) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.STREAM_KEYWORD);
-            return parseStreamKeyword();
-        }
-    }
-
-    /**
      * Parse let expression.
      * <p>
      * <code>
@@ -11470,7 +11456,7 @@ public class BallerinaParser extends AbstractParser {
      * query-expr := [query-construct-type] query-pipeline select-clause
      * [query-construct-type] query-pipeline select-clause on-conflict-clause?
      * <br/>
-     * query-construct-type := table key-specifier | stream
+     * query-construct-type := table key-specifier | stream | map
      * </code>
      *
      * @return Parsed node
@@ -11488,12 +11474,15 @@ public class BallerinaParser extends AbstractParser {
             case FROM_KEYWORD:
                 queryConstructType = STNodeFactory.createEmptyNode();
                 return parseQueryExprRhs(queryConstructType, isRhsExpr);
-            case STREAM_KEYWORD:
-                queryConstructType = parseQueryConstructType(parseStreamKeyword(), null);
-                return parseQueryExprRhs(queryConstructType, isRhsExpr);
             case TABLE_KEYWORD:
                 STNode tableKeyword = parseTableKeyword();
                 return parseTableConstructorOrQuery(tableKeyword, isRhsExpr);
+            case STREAM_KEYWORD:
+            case MAP_KEYWORD:
+                STNode streamOrMapKeyword = consume();
+                STNode keySpecifier = STNodeFactory.createEmptyNode();
+                queryConstructType = parseQueryConstructType(streamOrMapKeyword, keySpecifier);
+                return parseQueryExprRhs(queryConstructType, isRhsExpr);
             default:
                 recover(peek(), ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START);
                 return parseTableConstructorOrQueryInternal(isRhsExpr);
@@ -11540,7 +11529,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse query construct type.
      * <p>
-     * <code>query-construct-type := table key-specifier | stream</code>
+     * <code>query-construct-type := table key-specifier | stream | map</code>
      *
      * @return Parsed node
      */
@@ -12448,6 +12437,7 @@ public class BallerinaParser extends AbstractParser {
             case MINUS_TOKEN:
                 return isValidExpressionStart(peek(nextTokenIndex).kind, nextTokenIndex);
             case TABLE_KEYWORD:
+            case MAP_KEYWORD:
                 return peek(nextTokenIndex).kind == SyntaxKind.FROM_KEYWORD;
             case STREAM_KEYWORD:
                 STToken nextNextToken = peek(nextTokenIndex);
