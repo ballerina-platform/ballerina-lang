@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.util.references;
+package org.ballerinalang.langserver.references;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.eclipse.lsp4j.Position;
-import org.eclipse.lsp4j.Range;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,42 +67,6 @@ public class ReferencesUtil {
             moduleLocationMap.put(module, references);
         });
         return moduleLocationMap;
-    }
-    
-    public static String getUriFromLocation(Module module, Location location) {
-        return getPathFromLocation(module, location).toUri().toString();
-    }
-    
-    public static Path getPathFromLocation(Module module, Location location) {
-        String filePath = location.lineRange().filePath();
-
-        if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            return module.project().sourceRoot();
-        }
-
-        if (module.project().kind() == ProjectKind.BALA_PROJECT) {
-            // TODO Check if bala projects can exist within nested modules dir
-            return module.project().sourceRoot().resolve("modules")
-                    .resolve(module.moduleName().toString())
-                    .resolve(filePath);
-        }
-        
-        if (module.isDefaultModule()) {
-            return module.project().sourceRoot().resolve(filePath);
-        } else {
-            return module.project().sourceRoot()
-                    .resolve("modules")
-                    .resolve(module.moduleName().moduleNamePart())
-                    .resolve(filePath);
-        }
-    }
-
-    public static Range getRange(Location referencePos) {
-        Position start = new Position(
-                referencePos.lineRange().startLine().line(), referencePos.lineRange().startLine().offset());
-        Position end = new Position(
-                referencePos.lineRange().endLine().line(), referencePos.lineRange().endLine().offset());
-        return new Range(start, end);
     }
     
     /**

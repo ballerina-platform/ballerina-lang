@@ -23,12 +23,12 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -61,10 +61,10 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
     }
 
     private List<LSCompletionItem> typeDescriptorCItems(BallerinaCompletionContext context, TypeDefinitionNode node) {
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode nameRef
                     = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-            return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, nameRef), context);
+            return this.getCompletionItemList(QNameRefCompletionUtil.getTypesInModule(context, nameRef), context);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (onSuggestionsAfterQualifiers(context, node.typeDescriptor())) {

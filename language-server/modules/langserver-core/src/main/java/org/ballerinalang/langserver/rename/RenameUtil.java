@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.util.rename;
+package org.ballerinalang.langserver.rename;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -38,14 +38,17 @@ import io.ballerina.tools.text.TextDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
 import org.ballerinalang.langserver.commons.RenameContext;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.contexts.BallerinaContextUtils;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.util.TokensUtil;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.eclipse.lsp4j.AnnotatedTextEdit;
 import org.eclipse.lsp4j.ChangeAnnotation;
 import org.eclipse.lsp4j.Position;
@@ -88,12 +91,12 @@ public class RenameUtil {
         // Token at cursor is checked at cursor position and cursor position - 1 column due to left associativity.
         //      Ex: int val<cursor>;
         // Here, the token at cursor will be ";", but user expects "val". To achieve this, we try col-1.
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, context.getCursorPosition())
+        Token tokenAtCursor = PositionUtil.findTokenAtPosition(context, context.getCursorPosition())
                 .filter(token -> token instanceof IdentifierToken)
                 .or(() -> {
                     Position originalPos = context.getCursorPosition();
                     Position newPos = new Position(originalPos.getLine(), originalPos.getCharacter() - 1);
-                    return TokensUtil.findTokenAtPosition(context, newPos);
+                    return PositionUtil.findTokenAtPosition(context, newPos);
                 })
                 .orElse(null);
         // Check if token at cursor is an identifier
@@ -121,7 +124,7 @@ public class RenameUtil {
         }
         
         // If the node at cursor is qualified name reference with no matching import, we don't allow it to be renamed
-        if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onModulePrefix(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) nodeAtCursor;
             Optional<ImportDeclarationNode> importDeclaration =
                     getImportDeclarationNodeForQNameReference(document.get(), qNameRefNode);
@@ -130,7 +133,7 @@ public class RenameUtil {
             }
         }
 
-        return Optional.of(CommonUtil.toRange(tokenAtCursor.lineRange()));
+        return Optional.of(PositionUtil.toRange(tokenAtCursor.lineRange()));
     }
 
     private static Map<String, List<TextEdit>> getChanges(
@@ -157,7 +160,7 @@ public class RenameUtil {
             return Collections.emptyMap();
         }
 
-        if (QNameReferenceUtil.onModulePrefix(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onModulePrefix(context, nodeAtCursor)) {
             return handleQNameReferenceRename(context, document.get(), nodeAtCursor);
         }
         if (onImportPrefixNode(context, nodeAtCursor)) {
@@ -171,8 +174,8 @@ public class RenameUtil {
             Module module = entry.getKey();
             List<Location> locations = entry.getValue();
             for (Location location : locations) {
-                String uri = ReferencesUtil.getUriFromLocation(module, location);
-                Range editRange = ReferencesUtil.getRange(location);
+                String uri = PathUtil.getUriFromLocation(module, location);
+                Range editRange = PathUtil.getRange(location);
 
                 // CHeck for field binding pattern var name nodes in references
                 // Ex: 
@@ -180,7 +183,7 @@ public class RenameUtil {
                 //      Person p = {name: "name1", id: 1};
                 //      var {name, id} = p;
                 // Here var named name in mapping binding pattern need to be handled as a special case
-                Path path = ReferencesUtil.getPathFromLocation(module, location);
+                Path path = PathUtil.getPathFromLocation(module, location);
                 Optional<FieldBindingPatternVarnameNode> bindingPatternVarNode = context.workspace().syntaxTree(path)
                         .map(syntaxTree -> CommonUtil.findNode(editRange, syntaxTree))
                         .flatMap(RenameUtil::getFieldBindingPatternVarNameNode);
@@ -343,19 +346,19 @@ public class RenameUtil {
                     Module module = moduleLocations.getKey();
                     List<Location> locations = moduleLocations.getValue();
                     locations.forEach(location -> {
-                        String fileUri = ReferencesUtil.getUriFromLocation(module, location);
+                        String fileUri = PathUtil.getUriFromLocation(module, location);
                         // If within the same file
                         if (!context.fileUri().equals(fileUri)) {
                             return;
                         }
                         // If location is within import declaration node
-                        Range editRange = ReferencesUtil.getRange(location);
-                        if (CommonUtil.isWithinLineRange(location.lineRange(), importDeclaration.lineRange()) &&
+                        Range editRange = PathUtil.getRange(location);
+                        if (PositionUtil.isWithinLineRange(location.lineRange(), importDeclaration.lineRange()) &&
                                 importDeclaration.prefix().isEmpty()) {
                             // If there's no prefix, we have to add " as $newName" to the import
                             SeparatedNodeList<IdentifierToken> moduleNames = importDeclaration.moduleName();
                             LinePosition endPos = moduleNames.get(moduleNames.size() - 1).lineRange().endLine();
-                            Range range = new Range(CommonUtil.toPosition(endPos), CommonUtil.toPosition(endPos));
+                            Range range = new Range(PositionUtil.toPosition(endPos), PositionUtil.toPosition(endPos));
                             List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
                             if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
                                 String escapedNewName = CommonUtil.escapeReservedKeyword(newName);
@@ -375,7 +378,7 @@ public class RenameUtil {
                                 textEdits.add(new AnnotatedTextEdit(editRange, newName,
                                         RenameChangeAnnotation.UNQUOTED_KEYWORD.getID()));
                             } else {
-                                textEdits.add(new TextEdit(ReferencesUtil.getRange(location), newName));
+                                textEdits.add(new TextEdit(PathUtil.getRange(location), newName));
                             }
                         }
                     });
@@ -398,15 +401,15 @@ public class RenameUtil {
                     Module module = moduleLocations.getKey();
                     List<Location> locations = moduleLocations.getValue();
                     locations.forEach(location -> {
-                        String fileUri = ReferencesUtil.getUriFromLocation(module, location);
+                        String fileUri = PathUtil.getUriFromLocation(module, location);
                         // If within the same file
                         if (!context.fileUri().equals(fileUri)) {
                             return;
                         }
                         List<TextEdit> textEdits = changes.computeIfAbsent(fileUri, k -> new ArrayList<>());
-                        Range editRange = ReferencesUtil.getRange(location);
+                        Range editRange = PathUtil.getRange(location);
                         if (context.getHonorsChangeAnnotations() && SyntaxInfo.isKeyword(newName)) {
-                            String escapedNewName = CommonUtil.escapeModuleName(newName);
+                            String escapedNewName = ModuleUtil.escapeModuleName(newName);
                             textEdits.add(new AnnotatedTextEdit(editRange,
                                     escapedNewName, RenameChangeAnnotation.QUOTED_KEYWORD.getID()));
                             textEdits.add(new AnnotatedTextEdit(editRange,
@@ -448,7 +451,7 @@ public class RenameUtil {
         if (enclosingNode.isEmpty()) {
             return false;
         }
-        return CommonUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode.get());
+        return SymbolUtil.isSelfClassSymbol(symbol.get(), context, enclosingNode.get());
     }
 
     private enum RenameChangeAnnotation {
