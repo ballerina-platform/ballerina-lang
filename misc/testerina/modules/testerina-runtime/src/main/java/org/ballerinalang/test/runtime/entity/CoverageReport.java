@@ -20,6 +20,7 @@ package org.ballerinalang.test.runtime.entity;
 import com.github.difflib.DiffUtils;
 import com.github.difflib.algorithm.DiffException;
 import com.github.difflib.patch.AbstractDelta;
+import com.github.difflib.patch.DeltaType;
 import com.github.difflib.patch.Patch;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -112,7 +113,7 @@ public class CoverageReport {
      * @throws IOException
      */
     public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage,
-                               String reportFormat, Map<String, Module> duplicateModules)
+                               String reportFormat, Map<String, Module> originalModules)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
@@ -129,7 +130,7 @@ public class CoverageReport {
         }
         if (!filteredPathList.isEmpty()) {
             CoverageBuilder coverageBuilder =
-                    generateTesterinaCoverageReport(orgName, packageName, filteredPathList, duplicateModules);
+                    generateTesterinaCoverageReport(orgName, packageName, filteredPathList, originalModules);
             if (CodeCoverageUtils.isRequestedReportFormat(reportFormat, TesterinaConstants.JACOCO_XML_FORMAT)) {
                 // Add additional dependency jars for Jacoco Coverage XML if included
                 if (includesInCoverage != null) {
@@ -177,14 +178,14 @@ public class CoverageReport {
      */
     private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
                                                             List<Path> filteredPathList,
-                                                            Map<String, Module> duplicateModules) throws IOException {
+                                                            Map<String, Module> originalModules) throws IOException {
         // For the Testerina report only the ballerina specific sources need to be extracted
         addCompiledSources(filteredPathList, orgName, packageName);
         execFileLoader.load(executionDataFile.toFile());
         final CoverageBuilder coverageBuilder = analyzeStructure();
         // Create Testerina coverage report
-        createReport(coverageBuilder.getBundle(title), moduleCoverageMap, duplicateModules);
-        filterGeneratedCoverage(coverageBuilder.getBundle(title), moduleCoverageMap, duplicateModules);
+        createReport(coverageBuilder.getBundle(title), moduleCoverageMap, originalModules);
+        filterGeneratedCoverage(coverageBuilder.getBundle(title), moduleCoverageMap, originalModules);
         return coverageBuilder;
     }
 
@@ -306,7 +307,7 @@ public class CoverageReport {
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap,
-                              Map<String, Module> duplicateModules) {
+                              Map<String, Module> originalModules) {
         boolean containsSourceFiles = true;
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
@@ -401,7 +402,7 @@ public class CoverageReport {
 
     private void filterGeneratedCoverage(final IBundleCoverage bundleCoverage,
                                          Map<String, ModuleCoverage> moduleCoverageMap,
-                                         Map<String, Module> duplicateModules) {
+                                         Map<String, Module> originalModules) {
         boolean containsSourceFiles = true;
 
         // Loop through the individual package coverage
@@ -430,10 +431,10 @@ public class CoverageReport {
                     Document document = getDocument(sourceFileModule, sourceFileCoverage.getName());
 
                     // Get the module and source from before compilation
-                    Module duplicateModule = duplicateModules.get(sourceFileModule);
+                    Module originalModule = originalModules.get(sourceFileModule);
 
                     // Get the old compiled document directly from the duplicate module
-                    Document documentOld = getDocumentFromModule(duplicateModule, sourceFileCoverage.getName());
+                    Document documentOld = getDocumentFromModule(originalModule, sourceFileCoverage.getName());
 
                     try {
                         // Use diff utils to analyze the text lines in the doc
@@ -448,13 +449,14 @@ public class CoverageReport {
 
                             for (AbstractDelta<String> delta : patchDeltas) {
                                 // This means that we have to consider the block added
-                                int lineNumber = delta.getTarget().getPosition();
-                                int size = delta.getTarget().size();
+                                if (delta.getType().equals(DeltaType.INSERT)) {
+                                    int lineNumber = delta.getTarget().getPosition();
+                                    int size = delta.getTarget().size();
 
-                                for (int i = lineNumber; i < lineNumber + size; i++) {
-                                    modifiedLines.add(i);
+                                    for (int i = lineNumber; i < lineNumber + size; i++) {
+                                        modifiedLines.add(i);
+                                    }
                                 }
-
                             }
 
                             // Populate line status
