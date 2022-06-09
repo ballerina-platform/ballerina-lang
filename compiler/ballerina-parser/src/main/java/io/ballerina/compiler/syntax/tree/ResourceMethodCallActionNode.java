@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.2.0
+ * @since 2.0.0
  */
 public class ResourceMethodCallActionNode extends ActionNode {
 
@@ -45,8 +45,8 @@ public class ResourceMethodCallActionNode extends ActionNode {
         return childInBucket(2);
     }
 
-    public NodeList<Node> resourceAccessPath() {
-        return new NodeList<>(childInBucket(3));
+    public SeparatedNodeList<Node> resourceAccessPath() {
+        return new SeparatedNodeList<>(childInBucket(3));
     }
 
     public Optional<Token> dotToken() {
@@ -87,7 +87,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
             ExpressionNode expression,
             Token rightArrowToken,
             Token slashToken,
-            NodeList<Node> resourceAccessPath,
+            SeparatedNodeList<Node> resourceAccessPath,
             Token dotToken,
             SimpleNameReferenceNode methodName,
             ParenthesizedArgList arguments) {
@@ -119,14 +119,14 @@ public class ResourceMethodCallActionNode extends ActionNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2201.2.0
+     * @since 2.0.0
      */
     public static class ResourceMethodCallActionNodeModifier {
         private final ResourceMethodCallActionNode oldNode;
         private ExpressionNode expression;
         private Token rightArrowToken;
         private Token slashToken;
-        private NodeList<Node> resourceAccessPath;
+        private SeparatedNodeList<Node> resourceAccessPath;
         private Token dotToken;
         private SimpleNameReferenceNode methodName;
         private ParenthesizedArgList arguments;
@@ -164,7 +164,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
         }
 
         public ResourceMethodCallActionNodeModifier withResourceAccessPath(
-                NodeList<Node> resourceAccessPath) {
+                SeparatedNodeList<Node> resourceAccessPath) {
             Objects.requireNonNull(resourceAccessPath, "resourceAccessPath must not be null");
             this.resourceAccessPath = resourceAccessPath;
             return this;

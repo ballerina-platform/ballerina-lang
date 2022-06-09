@@ -3175,7 +3175,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             ExpressionNode expression,
             Token rightArrowToken,
             Token slashToken,
-            NodeList<Node> resourceAccessPath,
+            SeparatedNodeList<Node> resourceAccessPath,
             Token dotToken,
             SimpleNameReferenceNode methodName,
             ParenthesizedArgList arguments) {

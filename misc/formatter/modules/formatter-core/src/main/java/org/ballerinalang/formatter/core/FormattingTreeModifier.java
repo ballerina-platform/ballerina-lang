@@ -3497,12 +3497,13 @@ public class FormattingTreeModifier extends TreeModifier {
             slashToken = formatNode(resourceMethodCall.slashToken(), 0, 0);
         }
 
-        NodeList<Node> resourceAccessPath;
+        SeparatedNodeList<Node> resourceAccessPath;
         if (!resourceMethodCall.methodName().isPresent() && !resourceMethodCall.arguments().isPresent()) {
-            resourceAccessPath = 
-                    formatNodeList(resourceMethodCall.resourceAccessPath(), 0, 0, env.trailingWS, env.trailingNL);
+            resourceAccessPath = formatSeparatedNodeList(resourceMethodCall.resourceAccessPath(), 0, 
+                    0, 0, 0, env.trailingWS, env.trailingNL);
         } else {
-            resourceAccessPath = formatNodeList(resourceMethodCall.resourceAccessPath(), 0, 0, 0, 0);
+            resourceAccessPath = formatSeparatedNodeList(resourceMethodCall.resourceAccessPath(), 0, 
+                    0, 0, 0, 0, 0);
         }
 
         SimpleNameReferenceNode methodName;
