@@ -99,11 +99,21 @@ public class FrameClassGen {
         fv.visitEnd();
         fv = cw.visitField(Opcodes.ACC_PUBLIC, "yieldLocation", "Ljava/lang/String;", null, null);
         fv.visitEnd();
+        fv = cw.visitField(Opcodes.ACC_PUBLIC, "yieldStatus", "Ljava/lang/String;", null, null);
+        fv.visitEnd();
 
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "getYieldLocation", "()Ljava/lang/String;", null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
         mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, "yieldLocation", "Ljava/lang/String;");
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(1, 1);
+        mv.visitEnd();
+
+        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "getYieldStatus", "()Ljava/lang/String;", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, "yieldStatus", "Ljava/lang/String;");
         mv.visitInsn(Opcodes.ARETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
