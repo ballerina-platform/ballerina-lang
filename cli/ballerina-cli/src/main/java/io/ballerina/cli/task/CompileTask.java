@@ -88,9 +88,8 @@ public class CompileTask implements Task {
             // Errors in package resolution denotes version incompatibility errors. Hence we do not continue further.
             if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
                 if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
-                    // SingleFileProject cannot hold additional sources or resources
-                    // and BalaProjects is a read-only project.
-                    // Hence we run the code generators only for BuildProject
+                    // BalaProject is a read-only project.
+                    // Hence we run the code generators/ modifiers only for BuildProject and SingleFileProject
                     DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
                             .runCodeGenAndModifyPlugins();
                     if (codeGenAndModifyDiagnosticResult != null) {

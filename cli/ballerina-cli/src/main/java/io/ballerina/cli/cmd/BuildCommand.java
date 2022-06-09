@@ -26,9 +26,8 @@ import io.ballerina.cli.task.DumpBuildTimeTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.cli.utils.ProjectUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
@@ -222,7 +221,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // If project is empty
-        if (isProjectEmpty(project)) {
+        if (ProjectUtils.isProjectEmpty(project)) {
             CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
                     false);
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -251,16 +250,6 @@ public class BuildCommand implements BLauncherCmd {
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
-    }
-
-    private boolean isProjectEmpty(Project project) {
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private BuildOptions constructBuildOptions() {
