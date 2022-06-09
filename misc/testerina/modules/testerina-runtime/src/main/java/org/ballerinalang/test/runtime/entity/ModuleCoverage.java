@@ -106,13 +106,23 @@ public class ModuleCoverage {
         List<SourceFile> sourceFileList = new ArrayList<>(sourceFiles);
         for (SourceFile sourceFile : sourceFileList) {
             if (sourceFile.getName().equals(document.name())) {
+                // Get the covered old covered lines and old missed lines of the previous source file
+                int oldCoveredLines = sourceFile.coveredLines.size();
+                int oldMissedLines = sourceFile.missedLines.size();
+
                 // Remove outdated source file and add updated sourceFile
                 sourceFiles.remove(sourceFile);
                 SourceFile newSourceFile = new SourceFile(document, coveredLines, missedLines);
                 this.sourceFiles.add(newSourceFile);
-                // Update coverage counts
-                this.coveredLines = coveredLines.size();
-                this.missedLines = missedLines.size();
+
+                // Remove old covered and missed lines
+                this.coveredLines -= oldCoveredLines;
+                this.missedLines -= oldMissedLines;
+
+                // Add new covered and missed lines
+                this.coveredLines += coveredLines.size();
+                this.missedLines += missedLines.size();
+
                 setCoveragePercentage();
             }
         }

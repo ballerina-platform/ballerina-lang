@@ -458,7 +458,7 @@ public class CoverageReport {
                             }
 
                             // Populate line status
-                            ArrayList<Integer> lineStatus = new ArrayList<>();
+                            List<Integer> lineStatus = new ArrayList<>();
 
                             // For each line, we check the status provided and add it to a List
                             // sourceFileCoverage takes line numbers not indexes
@@ -470,7 +470,7 @@ public class CoverageReport {
                             // From the list, remove the index of the modified lines
                             // If line 1, then index is 0
                             for (Integer modifiedLine : modifiedLines) {
-                                lineStatus.remove(modifiedLine);
+                                lineStatus.remove(modifiedLine.intValue() - 1);
                             }
 
                             // Calculate coverage for new source file only if belongs to current module
@@ -486,6 +486,7 @@ public class CoverageReport {
                                 }
                             }
 
+                            // Remove previous source file module and replace it with new module coverage
                             moduleCoverageMap.remove(sourceFileModule);
                             moduleCoverage.replaceCoverage(documentOld, coveredLines, missedLines);
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
