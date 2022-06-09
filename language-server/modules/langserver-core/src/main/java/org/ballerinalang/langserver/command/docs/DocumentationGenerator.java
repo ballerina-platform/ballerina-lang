@@ -323,7 +323,7 @@ public class DocumentationGenerator {
                     Optional<Token> paramName = Optional.empty();
                     if (param.kind() == SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM
                             || param.kind() == SyntaxKind.RESOURCE_PATH_REST_PARAM) {
-                        paramName = Optional.ofNullable(((ResourcePathParameterNode) param).paramName());
+                        paramName = Optional.ofNullable(((ResourcePathParameterNode) param).paramName().orElse(null));
                     }
                     paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
                 } 

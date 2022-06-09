@@ -1,6 +1,6 @@
 function foo() {
     var b = a->/;
-    
+
     var b = a->/games;
     var b = a->/[pathSegment];
     b = a->/games/[game]/details;
@@ -11,7 +11,7 @@ function foo() {
     _ = a->/();
     b = a->/(arg1, arg2);
     c = a->/.post(arg1, arg2);
-    
+
     match a->/games {
         _ => {
         }
@@ -26,7 +26,7 @@ function foo() {
         _ => {
         }
     }
-    
+
     foreach var item in a->/games {
     }
 

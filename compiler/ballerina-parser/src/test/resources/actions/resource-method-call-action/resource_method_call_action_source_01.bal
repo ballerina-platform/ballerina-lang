@@ -1,6 +1,6 @@
 function foo() {
     a->/;
-    
+
     a->/games;
     a->/[pathSegment];
     a->/games/carrom;
@@ -9,7 +9,7 @@ function foo() {
     a->/[...restSegment];
     a->/games/[...restSegment];
     a->/games/[game]/[...restSegment];
-    
+
     a->/.get;
     a->/();
     a->/(arg1, arg2);

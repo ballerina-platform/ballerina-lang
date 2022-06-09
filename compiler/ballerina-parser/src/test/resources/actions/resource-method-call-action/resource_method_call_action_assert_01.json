@@ -84,6 +84,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     }
                   ]
                 },
@@ -111,10 +115,6 @@
                           "kind": "IDENTIFIER_TOKEN",
                           "value": "a",
                           "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            },
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
@@ -682,10 +682,6 @@
                           "value": "a",
                           "leadingMinutiae": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            },
-                            {
                               "kind": "END_OF_LINE_MINUTIAE",
                               "value": "\n"
                             },
@@ -702,6 +698,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "DOT_TOKEN"
@@ -756,6 +756,10 @@
                       "kind": "SLASH_TOKEN"
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "PARENTHESIZED_ARG_LIST",
                       "children": [
                         {
@@ -809,6 +813,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
@@ -902,6 +910,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
@@ -1045,6 +1057,10 @@
                       "kind": "SLASH_TOKEN"
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "PARENTHESIZED_ARG_LIST",
                       "children": [
                         {
@@ -1162,6 +1178,10 @@
                       "kind": "SLASH_TOKEN"
                     },
                     {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
                       "kind": "DOT_TOKEN"
                     },
                     {
@@ -1227,6 +1247,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "DOT_TOKEN"
@@ -1332,6 +1356,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "DOT_TOKEN"
@@ -1485,6 +1513,10 @@
                     },
                     {
                       "kind": "SLASH_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
                     },
                     {
                       "kind": "DOT_TOKEN"

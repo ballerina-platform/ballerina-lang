@@ -322,7 +322,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
         
         Token ellipsisToken;
-        if(resourcePathParameterNode.paramName().isPresent()) {
+        if (resourcePathParameterNode.paramName().isPresent()) {
             ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 1, 0);
         } else {
             ellipsisToken = formatToken(resourcePathParameterNode.ellipsisToken().orElse(null), 0, 0);
