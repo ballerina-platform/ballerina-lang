@@ -30,4 +30,16 @@ service on listner1 {
     resource function get foo/[@untainted string i]/bar/[@untainted string... x]() {
 
     }
+
+    resource function get person/[Foo]() {
+
+    }
+
+    resource function get [Foo]() {
+
+    }
+
+    resource function get [string s]/[Foo]/name() {
+
+    }
 }
