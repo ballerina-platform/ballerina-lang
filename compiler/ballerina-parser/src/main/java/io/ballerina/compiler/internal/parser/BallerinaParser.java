@@ -1294,23 +1294,22 @@ public class BallerinaParser extends AbstractParser {
      * Parse optional relative resource path.
      *
      * @param isObjectMember Whether object member or not
-     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseOptionalRelativePath(boolean isObjectMember, boolean isObjectTypeDesc) {
+    private STNode parseOptionalRelativePath(boolean isObjectMember) {
         STNode resourcePath;
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case DOT_TOKEN:
             case IDENTIFIER_TOKEN:
             case OPEN_BRACKET_TOKEN:
-                resourcePath = parseRelativeResourcePath(isObjectTypeDesc);
+                resourcePath = parseRelativeResourcePath();
                 break;
             case OPEN_PAREN_TOKEN:
                 return STNodeFactory.createEmptyNodeList();
             default:
                 recover(nextToken, ParserRuleContext.OPTIONAL_RELATIVE_PATH);
-                return parseOptionalRelativePath(isObjectMember, isObjectTypeDesc);
+                return parseOptionalRelativePath(isObjectMember);
         }
 
         if (!isObjectMember) {
@@ -1376,7 +1375,7 @@ public class BallerinaParser extends AbstractParser {
             case DOT_TOKEN:
             case IDENTIFIER_TOKEN:
             case OPEN_BRACKET_TOKEN:
-                STNode resourcePath = parseOptionalRelativePath(isObjectMember, isObjectTypeDesc);
+                STNode resourcePath = parseOptionalRelativePath(isObjectMember);
                 return parseFunctionDefinition(metadata, visibilityQualifier, resourcePath, qualifiers, functionKeyword,
                                                name, isObjectMember, isObjectTypeDesc);
             case EQUAL_TOKEN:
@@ -6835,10 +6834,9 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>relative-resource-path := "." | (resource-path-segment ("/" resource-path-segment)*)</code>
      *
-     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseRelativeResourcePath(boolean isObjectTypeDesc) {
+    private STNode parseRelativeResourcePath() {
         startContext(ParserRuleContext.RELATIVE_RESOURCE_PATH);
         List<STNode> pathElementList = new ArrayList<>();
 
@@ -6850,7 +6848,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first resource path segment, that has no leading slash
-        STNode pathSegment = parseResourcePathSegment(true, isObjectTypeDesc);
+        STNode pathSegment = parseResourcePathSegment(true);
         pathElementList.add(pathSegment);
 
         STNode leadingSlash;
@@ -6861,7 +6859,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             pathElementList.add(leadingSlash);
-            pathSegment = parseResourcePathSegment(false, isObjectTypeDesc);
+            pathSegment = parseResourcePathSegment(false);
             pathElementList.add(pathSegment);
             nextToken = peek();
         }
@@ -6916,10 +6914,9 @@ public class BallerinaParser extends AbstractParser {
      * <code>resource-path-segment := identifier | resource-path-parameter</code>
      *
      * @param isFirstSegment Whether we are parsing the first segment
-     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseResourcePathSegment(boolean isFirstSegment, boolean isObjectTypeDesc) {
+    private STNode parseResourcePathSegment(boolean isFirstSegment) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
@@ -6931,10 +6928,10 @@ public class BallerinaParser extends AbstractParser {
                 }
                 return consume();
             case OPEN_BRACKET_TOKEN:
-                return parseResourcePathParameter(isObjectTypeDesc);
+                return parseResourcePathParameter();
             default:
                 recover(nextToken, ParserRuleContext.RESOURCE_PATH_SEGMENT);
-                return parseResourcePathSegment(isFirstSegment, isObjectTypeDesc);
+                return parseResourcePathSegment(isFirstSegment);
         }
     }
 
@@ -6943,21 +6940,14 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>resource-path-parameter := "[" [annots] type-descriptor [...] param-name "]"</code>
      *
-     * @param isObjectTypeDesc Whether object type or not
      * @return Parsed node
      */
-    private STNode parseResourcePathParameter(boolean isObjectTypeDesc) {
+    private STNode parseResourcePathParameter() {
         STNode openBracket = parseOpenBracket();
         STNode annots = parseOptionalAnnotations();
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
         STNode ellipsis = parseOptionalEllipsis();
-        
-        STNode paramName;
-        if (isObjectTypeDesc) {
-            paramName = parseOptionalPathParamName();
-        } else {
-            paramName = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
-        }
+        STNode paramName = parseOptionalPathParamName();
 
         STNode closeBracket = parseCloseBracket();
 
