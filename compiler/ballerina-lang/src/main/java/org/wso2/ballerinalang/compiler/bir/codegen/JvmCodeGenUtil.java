@@ -618,7 +618,8 @@ public class JvmCodeGenUtil {
 
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset, int yieldLocationVarIndex,
-                                     Location terminatorPos, String fullyQualifiedFuncName) {
+                                     int yieldStatusVarIndex, Location terminatorPos, String fullyQualifiedFuncName,
+                                     String yieldStatus) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         Label yieldLocationLabel = new Label();
@@ -632,6 +633,8 @@ public class JvmCodeGenUtil {
             }
             mv.visitLdcInsn(yieldLocationData.toString());
             mv.visitVarInsn(ASTORE, yieldLocationVarIndex);
+            mv.visitLdcInsn(yieldStatus);
+            mv.visitVarInsn(ASTORE, yieldStatusVarIndex);
         }
 
         Label yieldLabel = labelGen.getLabel(funcName + "yield");

@@ -54,7 +54,7 @@ public class Status {
         infoStr.append(dateTimeFormatter.format(localDateTime));
         infoStr.append("]\n==================================================\n\n");
 
-        infoStr.append("Current Strands: (Total " + currentStrands.size() + ")\n============================\n\n");
+        infoStr.append("Current strands: (Total " + currentStrands.size() + ")\n============================\n\n");
         for (Strand strand : currentStrands.values()) {
             infoStr.append(strand.dumpState());
             infoStr.append("\n");

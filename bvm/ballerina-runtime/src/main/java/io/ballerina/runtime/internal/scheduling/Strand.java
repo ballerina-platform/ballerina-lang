@@ -418,28 +418,38 @@ public class Strand {
     }
 
     protected String dumpState() {
-        StringBuilder infoStr = new StringBuilder("Strand " + this.id);
+        StringBuilder infoStr = new StringBuilder("strand " + this.id);
         if (this.name != null && this.getName().isPresent()) {
-            infoStr.append(" " + this.getName().get());
+            infoStr.append(" \"" + this.getName().get() + "\"");
         }
-        infoStr.append(" [" + this.getState().toString() + "]:\n");
-        if (this.frames != null) {
-            String stringPrefix = "at ";
+
+        StringBuilder frameStackTrace = new StringBuilder();
+        if (this.isYielded()) {
+            String currState = "BLOCKED";
+            boolean noCurrState = true;
+            String stringPrefix = "\tat\t";
             for (Object frame : this.frames) {
-                if (frame instanceof FunctionFrame) {
-                    infoStr.append(stringPrefix).append(((FunctionFrame) frame).getYieldLocation());
-                    infoStr.append("\n");
-                    stringPrefix = "   ";
+                if (noCurrState) {
+                    currState = ((FunctionFrame) frame).getYieldStatus();
+                    noCurrState = false;
                 }
+                frameStackTrace.append(stringPrefix).append(((FunctionFrame) frame).getYieldLocation());
+                frameStackTrace.append("\n");
+                stringPrefix = "\t  \t";
             }
+            infoStr.append(" [" + currState + "]:\n");
+        } else {
+            infoStr.append(" [" + this.getState().toString() + "]:\n");
         }
-        infoStr.append("created at ");
+
+        infoStr.append("\tcreated from ");
         infoStr.append(this.metadata.getModuleOrg()).append(".").append(this.metadata.getModuleName()).append(".")
                 .append(this.metadata.getModuleVersion()).append(":").append(this.metadata.getParentFunctionName());
         if (this.parent != null) {
             infoStr.append(" by strand " + this.parent.getId());
         }
         infoStr.append("\n");
+        infoStr.append(frameStackTrace.toString());
 
         return infoStr.toString();
     }

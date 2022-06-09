@@ -207,6 +207,7 @@ public class MethodGen {
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
         int stateVarIndex = getStateVarIndex(indexMap, mv);
         int yieldLocationVarIndex = getYieldLocationVarIndex(indexMap, mv);
+        int yieldStatusVarIndex = getYieldStatusVarIndex(indexMap, mv);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -236,7 +237,7 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                yieldLocationVarIndex, localVarOffset, module, attachedType, moduleClassName);
+                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, module, attachedType, moduleClassName);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
                                                             attachedType);
@@ -260,6 +261,9 @@ public class MethodGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, yieldLocationVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, "yieldLocation", "Ljava/lang/String;");
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, yieldStatusVarIndex);
+        mv.visitFieldInsn(PUTFIELD, frameName, "yieldStatus", "Ljava/lang/String;");
 
         generateGetFrame(indexMap, localVarOffset, mv);
 
@@ -439,6 +443,13 @@ public class MethodGen {
         return stateVarIndex;
     }
 
+    private int getYieldStatusVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
+        int stateVarIndex = indexMap.addIfNotExists("yieldStatus", symbolTable.stringType);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, stateVarIndex);
+        return stateVarIndex;
+    }
+
     private void addCasesForBasicBlocks(BIRFunction func, String funcName, LabelGenerator labelGen, List<Label> lables,
                                         List<Integer> states) {
         int caseIndex = 0;
@@ -463,10 +474,10 @@ public class MethodGen {
         return ints;
     }
 
-    void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
-                             JvmInstructionGen instGen, JvmTerminatorGen termGen,
-                             BIRFunction func, int returnVarRefIndex, int stateVarIndex, int yieldLocationVarIndex,
-                             int localVarOffset, BIRPackage module, BType attachedType, String moduleClassName) {
+    void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
+                             JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex, int stateVarIndex,
+                             int yieldLocationVarIndex, int yieldStatusVarIndex, int localVarOffset,
+                             BIRPackage module, BType attachedType, String moduleClassName) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -513,12 +524,34 @@ public class MethodGen {
             } else {
                 fullyQualifiedFuncName = funcName;
             }
+            String yieldStatus = getYieldStatusByTerminator(terminator);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
                 JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset,
-                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName);
+                        yieldLocationVarIndex, yieldStatusVarIndex, terminator.pos, fullyQualifiedFuncName,
+                        yieldStatus);
             }
+        }
+    }
+
+    private String getYieldStatusByTerminator(BIRTerminator terminator) {
+        switch (terminator.kind) {
+            case WK_SEND:
+                return "BLOCKED ON WORKER MESSAGE SEND";
+            case WK_RECEIVE:
+                return "BLOCKED ON WORKER MESSAGE RECEIVE";
+            case FLUSH:
+                return "BLOCKED ON WORKER MESSAGE FLUSH";
+            case WAIT:
+            case WAIT_ALL:
+                return "WAITING";
+            case LOCK:
+                return "LOCK";
+            case UNLOCK:
+                return "UNLOCK";
+            default:
+                return "BLOCKED";
         }
     }
 
