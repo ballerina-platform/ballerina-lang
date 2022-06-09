@@ -9860,7 +9860,7 @@ public class BallerinaParser extends AbstractParser {
         return isTypeStartingToken(nodeKind, getNextNextToken());
     }
     
-    static boolean isTypeStartingToken(SyntaxKind nextTokenKind, STToken nextNextToken) {
+    private static boolean isTypeStartingToken(SyntaxKind nextTokenKind, STToken nextNextToken) {
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
             case SERVICE_KEYWORD:
@@ -12361,7 +12361,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createUnaryExpressionNode(operator, literal);
     }
 
-    static boolean isSingletonTypeDescStart(SyntaxKind tokenKind, STToken nextNextToken) {
+    private static boolean isSingletonTypeDescStart(SyntaxKind tokenKind, STToken nextNextToken) {
         switch (tokenKind) {
             case STRING_LITERAL_TOKEN:
             case DECIMAL_INTEGER_LITERAL_TOKEN:

@@ -3895,7 +3895,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
                     STToken nextToken = this.tokenReader.peek(nextLookahead);
                     STToken nextNextToken = this.tokenReader.peek(nextLookahead + 1);
-                    // This is a special case since parser quite parsing let clauses if 
+                    // This is a special case since parser quit parsing let clauses if 
                     // `isEndOfLetVarDeclarations()` is true
                     if (BallerinaParser.isEndOfLetVarDeclarations(nextToken.kind, nextNextToken)) {
                         return ParserRuleContext.LET_CLAUSE_END;
