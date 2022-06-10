@@ -111,9 +111,37 @@ target = "java8"
     modules = ["http"]
 
     [[platform.libraries]]
-    artifactId = "netty-tcnative-boringssl-static"
+    artifactId = "netty-tcnative-boringssl-static::windows-x86_64"
     version = "2.0.52.Final"
-    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final.jar"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-windows-x86_64.jar"
+    groupId = "io.netty"
+    modules = ["http"]
+    
+    [[platform.libraries]]
+    artifactId = "netty-tcnative-boringssl-static::linux-aarch_64"
+    version = "2.0.52.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-linux-aarch_64.jar"
+    groupId = "io.netty"
+    modules = ["http"]
+    
+    [[platform.libraries]]
+    artifactId = "netty-tcnative-boringssl-static::linux-x86_64"
+    version = "2.0.52.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-linux-x86_64.jar"
+    groupId = "io.netty"
+    modules = ["http"]
+    
+    [[platform.libraries]]
+    artifactId = "netty-tcnative-boringssl-static::osx-aarch_64"
+    version = "2.0.52.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-osx-aarch_64.jar"
+    groupId = "io.netty"
+    modules = ["http"]
+    
+    [[platform.libraries]]
+    artifactId = "netty-tcnative-boringssl-static::osx-x86_64"
+    version = "2.0.52.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final-osx-x86_64.jar"
     groupId = "io.netty"
     modules = ["http"]
 
