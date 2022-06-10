@@ -945,8 +945,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangTableConstructorExpr tableConstructorExpr, AnalyzerData data) {
         BType expType = data.expType;
         if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
-            List<BType> memTypes = checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), data.env,
-                                                 data);
+            InferredTupleDetails inferredTupleDetails =
+                    checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), data);
+
+            // inferredTupleDetails cannot have restMemberTypes as it does not support spread operator yet.
+            List<BType> memTypes = inferredTupleDetails.fixedMemberTypes;
             for (BType memType : memTypes) {
                 if (memType == symTable.semanticError) {
                     data.resultType = symTable.semanticError;
@@ -1086,7 +1089,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getInferredTableType(BLangTableConstructorExpr exprToLog, AnalyzerData data) {
-        List<BType> memTypes = checkExprList(new ArrayList<>(exprToLog.recordLiteralList), data.env, data);
+        InferredTupleDetails inferredTupleDetails =
+                checkExprList(new ArrayList<>(exprToLog.recordLiteralList), data);
+
+        // inferredTupleDetails cannot have restMemberTypes as it does not support spread operator yet.
+        List<BType> memTypes = inferredTupleDetails.fixedMemberTypes;
         for (BType memType : memTypes) {
             if (memType == symTable.semanticError) {
                 return  symTable.semanticError;
@@ -1651,29 +1658,37 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.TYPEDESC:
                 // i.e typedesc t = [int, string]
                 listConstructor.isTypedescExpr = true;
-                List<BType> actualTypes = new ArrayList<>();
+                InferredTupleDetails inferredTupleDetails = new InferredTupleDetails();
                 for (BLangExpression expr : listConstructor.exprs) {
                     if (expr.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                         BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) expr).expr;
                         BType spreadOpExprType = checkExpr(spreadOpExpr, symTable.noType, data);
-                        actualTypes.addAll(getListConstSpreadOpMemberTypes(expr.pos, spreadOpExprType));
+                        updateInferredTupleDetailsFromSpreadMember(expr.pos, spreadOpExprType, inferredTupleDetails);
                         continue;
                     }
 
                     BType resultType = checkExpr(expr, symTable.noType, data);
+
+                    BType memberType = resultType;
                     if (expr.getKind() == NodeKind.TYPEDESC_EXPRESSION) {
-                        actualTypes.add(((BLangTypedescExpr) expr).resolvedType);
+                        memberType = ((BLangTypedescExpr) expr).resolvedType;
                     } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        actualTypes.add(((BLangSimpleVarRef) expr).symbol.type);
+                        memberType = ((BLangSimpleVarRef) expr).symbol.type;
+                    }
+
+                    if (inferredTupleDetails.restMemberTypes.isEmpty()) {
+                        inferredTupleDetails.fixedMemberTypes.add(memberType);
                     } else {
-                        actualTypes.add(resultType);
+                        inferredTupleDetails.restMemberTypes.add(memberType);
                     }
                 }
-                if (actualTypes.size() == 1) {
-                    listConstructor.typedescType = actualTypes.get(0);
-                } else {
-                    listConstructor.typedescType = new BTupleType(actualTypes);
+
+                BTupleType tupleType = new BTupleType(inferredTupleDetails.fixedMemberTypes);
+                if (!inferredTupleDetails.restMemberTypes.isEmpty()) {
+                    tupleType.restType = getRepresentativeBroadType(inferredTupleDetails.restMemberTypes);
                 }
+
+                listConstructor.typedescType = tupleType;
                 return new BTypedescType(listConstructor.typedescType, null);
         }
 
@@ -1694,24 +1709,47 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.semanticError;
     }
 
-    private List<BType> getListConstSpreadOpMemberTypes(Location spreadMemberPos, BType spreadOpExprType) {
+    private void updateInferredTupleDetailsFromSpreadMember(Location spreadMemberPos, BType spreadOpExprType,
+                                                            InferredTupleDetails inferredTupleDetails) {
+        BType originalExprType = spreadOpExprType;
         spreadOpExprType = Types.getReferredType(spreadOpExprType);
 
-        List<BType> memTypes = new ArrayList<>();
-        if (spreadOpExprType.tag == TypeTags.TUPLE && types.isFixedLengthTuple((BTupleType) spreadOpExprType)) {
-            memTypes.addAll(((BTupleType) spreadOpExprType).tupleTypes);
-        } else if (spreadOpExprType.tag == TypeTags.ARRAY &&
-                ((BArrayType) spreadOpExprType).state == BArrayState.CLOSED) {
-            BArrayType bArrayType = (BArrayType) spreadOpExprType;
-            for (int i = 0; i < bArrayType.size; i++) {
-                memTypes.add(bArrayType.eType);
+        if (!inferredTupleDetails.restMemberTypes.isEmpty()) {
+            if (spreadOpExprType.tag == TypeTags.TUPLE) {
+                BTupleType bTupleType = (BTupleType) spreadOpExprType;
+                inferredTupleDetails.restMemberTypes.addAll(bTupleType.tupleTypes);
+                if (!types.isFixedLengthTuple(bTupleType)) {
+                    inferredTupleDetails.restMemberTypes.add(bTupleType.restType);
+                }
+            } else if (spreadOpExprType.tag == TypeTags.ARRAY) {
+                BArrayType bArrayType = (BArrayType) spreadOpExprType;
+                inferredTupleDetails.restMemberTypes.add(bArrayType.eType);
+            } else {
+                dlog.error(spreadMemberPos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP, originalExprType);
+                inferredTupleDetails.restMemberTypes.add(symTable.semanticError);
             }
-        } else {
-            dlog.error(spreadMemberPos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP);
-            memTypes.add(symTable.semanticError);
+            return;
         }
 
-        return memTypes;
+        if (spreadOpExprType.tag == TypeTags.TUPLE) {
+            BTupleType bTupleType = (BTupleType) spreadOpExprType;
+            inferredTupleDetails.fixedMemberTypes.addAll(bTupleType.tupleTypes);
+            if (!types.isFixedLengthTuple(bTupleType)) {
+                inferredTupleDetails.restMemberTypes.add(bTupleType.restType);
+            }
+        } else if (spreadOpExprType.tag == TypeTags.ARRAY) {
+            BArrayType bArrayType = (BArrayType) spreadOpExprType;
+            if (bArrayType.state == BArrayState.CLOSED) {
+                for (int i = 0; i < bArrayType.size; i++) {
+                    inferredTupleDetails.fixedMemberTypes.add(bArrayType.eType);
+                }
+            } else {
+                inferredTupleDetails.restMemberTypes.add(bArrayType.eType);
+            }
+        } else {
+            dlog.error(spreadMemberPos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FROM_SPREAD_OP, originalExprType);
+            inferredTupleDetails.fixedMemberTypes.add(symTable.semanticError);
+        }
     }
 
     private BType getListConstructorCompatibleNonUnionType(BType type, AnalyzerData data) {
@@ -2044,42 +2082,61 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return checkExpr(exprToCheck, eType, data) == symTable.semanticError;
     }
 
-    private List<BType> checkExprList(List<BLangExpression> exprs, SymbolEnv env, AnalyzerData data) {
-        return checkExprList(exprs, env, symTable.noType, data);
+    private InferredTupleDetails checkExprList(List<BLangExpression> exprs, AnalyzerData data) {
+        return checkExprList(exprs, symTable.noType, data);
     }
 
-    private List<BType> checkExprList(List<BLangExpression> exprs, SymbolEnv env, BType expType, AnalyzerData data) {
-        List<BType> types = new ArrayList<>();
+    private InferredTupleDetails checkExprList(List<BLangExpression> exprs, BType expType, AnalyzerData data) {
+        InferredTupleDetails inferredTupleDetails = new InferredTupleDetails();
         SymbolEnv prevEnv = data.env;
         BType preExpType = data.expType;
-        data.env = env;
         data.expType = expType;
         for (BLangExpression e : exprs) {
             if (e.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) e).expr;
                 BType spreadOpExprType = checkExpr(spreadOpExpr, expType, data);
-                types.addAll(getListConstSpreadOpMemberTypes(e.pos, spreadOpExprType));
+                updateInferredTupleDetailsFromSpreadMember(e.pos, spreadOpExprType, inferredTupleDetails);
                 continue;
             }
 
             checkExpr(e, expType, data);
-            types.add(data.resultType);
+            if (inferredTupleDetails.restMemberTypes.isEmpty()) {
+                inferredTupleDetails.fixedMemberTypes.add(data.resultType);
+            } else {
+                inferredTupleDetails.restMemberTypes.add(data.resultType);
+            }
         }
         data.env = prevEnv;
         data.expType = preExpType;
-        return types;
+        return inferredTupleDetails;
+    }
+
+    private static class InferredTupleDetails {
+        List<BType> fixedMemberTypes = new ArrayList<>();
+        List<BType> restMemberTypes = new ArrayList<>();
     }
 
     private BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType, AnalyzerData data) {
-        List<BType> memTypes = checkExprList(listConstructor.exprs, data.env, expType, data);
+        InferredTupleDetails inferredTupleDetails = checkExprList(listConstructor.exprs, expType, data);
+        List<BType> fixedMemberTypes = inferredTupleDetails.fixedMemberTypes;
+        List<BType> restMemberTypes = inferredTupleDetails.restMemberTypes;
 
-        for (BType memType : memTypes) {
+        for (BType memType : fixedMemberTypes) {
             if (memType == symTable.semanticError) {
                 return symTable.semanticError;
             }
         }
 
-        BTupleType tupleType = new BTupleType(memTypes);
+        for (BType memType : restMemberTypes) {
+            if (memType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+        }
+
+        BTupleType tupleType = new BTupleType(fixedMemberTypes);
+        if (!restMemberTypes.isEmpty()) {
+            tupleType.restType = getRepresentativeBroadType(restMemberTypes);
+        }
 
         if (expType.tag != TypeTags.READONLY) {
             return tupleType;
@@ -6146,7 +6203,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BType getEffectiveReadOnlyType(Location pos, BType type, AnalyzerData data) {
         BType origTargetType = Types.getReferredType(type);
         if (origTargetType == symTable.readonlyType) {
-            if (types.isInherentlyImmutableType(data.expType) || !types.isSelectivelyImmutableType(data.expType)) {
+            if (types.isInherentlyImmutableType(data.expType) ||
+                    !types.isSelectivelyImmutableType(data.expType, data.env.enclPkg.packageID)) {
                 return origTargetType;
             }
 
@@ -6175,7 +6233,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return origTargetType;
         }
 
-        if (types.isInherentlyImmutableType(data.expType) || !types.isSelectivelyImmutableType(data.expType)) {
+        if (types.isInherentlyImmutableType(data.expType) ||
+                !types.isSelectivelyImmutableType(data.expType, data.env.enclPkg.packageID)) {
             return origTargetType;
         }
 
@@ -7297,7 +7356,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
 
         if (readOnlyConstructorField) {
-            if (types.isSelectivelyImmutableType(fieldType)) {
+            if (types.isSelectivelyImmutableType(fieldType, data.env.enclPkg.packageID)) {
                 fieldType =
                         ImmutableTypeCloner.getImmutableIntersectionType(pos, types, fieldType, data.env, symTable,
                                 anonymousModelHelper, names, new HashSet<>());
@@ -9104,7 +9163,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private void markChildrenAsImmutable(BLangXMLElementLiteral bLangXMLElementLiteral, AnalyzerData data) {
         for (BLangExpression modifiedChild : bLangXMLElementLiteral.modifiedChildren) {
             BType childType = modifiedChild.getBType();
-            if (Symbols.isFlagOn(childType.flags, Flags.READONLY) || !types.isSelectivelyImmutableType(childType)) {
+            if (Symbols.isFlagOn(childType.flags, Flags.READONLY) ||
+                    !types.isSelectivelyImmutableType(childType, data.env.enclPkg.packageID)) {
                 continue;
             }
             modifiedChild.setBType(ImmutableTypeCloner.getEffectiveImmutableType(modifiedChild.pos, types, childType,
@@ -9136,7 +9196,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
-            if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
+            if (!types.isInherentlyImmutableType(fieldType) &&
+                    !types.isSelectivelyImmutableType(fieldType, false, data.env.enclPkg.packageID)) {
                 analyzeObjectConstructor(classDefForConstructor, env, data);
                 hasNeverReadOnlyField = true;
 

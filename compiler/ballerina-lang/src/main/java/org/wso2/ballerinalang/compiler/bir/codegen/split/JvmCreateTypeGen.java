@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -59,6 +60,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -278,7 +280,7 @@ public class JvmCreateTypeGen {
                     funcTypeClassMap.put(methodName, jvmRecordTypeGen.recordTypesClass);
                     mv = createPopulateTypeMethod(jvmRecordTypeGen.recordTypesCw, methodName, typeOwnerClass,
                             fieldName);
-                    jvmRecordTypeGen.populateRecord(mv, methodName, (BRecordType) bType);
+                    jvmRecordTypeGen.populateRecord(mv, methodName, (BRecordType) bType, symbolTable);
                     break;
                 case TypeTags.OBJECT:
                     funcTypeClassMap.put(methodName, jvmObjectTypeGen.objectTypesClass);
@@ -296,12 +298,12 @@ public class JvmCreateTypeGen {
                 case TypeTags.TUPLE:
                     funcTypeClassMap.put(methodName, jvmTupleTypeGen.tupleTypesClass);
                     mv = createPopulateTypeMethod(jvmTupleTypeGen.tupleTypesCw, methodName, typeOwnerClass, fieldName);
-                    jvmTupleTypeGen.populateTuple(mv, (BTupleType) bType);
+                    jvmTupleTypeGen.populateTuple(mv, (BTupleType) bType, symbolTable);
                     break;
                 default:
                     funcTypeClassMap.put(methodName, jvmUnionTypeGen.unionTypesClass);
                     mv = createPopulateTypeMethod(jvmUnionTypeGen.unionTypesCw, methodName, typeOwnerClass, fieldName);
-                    jvmUnionTypeGen.populateUnion(cw, mv, (BUnionType) bType, typesClass, fieldName);
+                    jvmUnionTypeGen.populateUnion(cw, mv, (BUnionType) bType, typesClass, fieldName, symbolTable);
                     break;
             }
 
@@ -321,21 +323,20 @@ public class JvmCreateTypeGen {
         return mv;
     }
 
-    public void addImmutableType(MethodVisitor mv, BType type) {
-        BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
-        if (immutableType == null || type.tsymbol == null || immutableType.tsymbol == null ||
-                !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))
-                || isReferringToTestPkg(type, immutableType)) {
+    public void addImmutableType(MethodVisitor mv, BType type, SymbolTable symbolTable) {
+        if (type.tsymbol == null) {
+            return;
+        }
+
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symbolTable, type.tsymbol.pkgID,
+                                                                           (SelectivelyImmutableReferenceType) type);
+        if (immutableType.isEmpty()) {
             return;
         }
 
         mv.visitInsn(DUP);
-        jvmTypeGen.loadType(mv, immutableType);
+        jvmTypeGen.loadType(mv, immutableType.get());
         mv.visitMethodInsn(INVOKEINTERFACE, TYPE, SET_IMMUTABLE_TYPE_METHOD, SET_IMMUTABLE_TYPE, true);
-    }
-
-    private static boolean isReferringToTestPkg(BType type, BIntersectionType immutableType) {
-        return !type.tsymbol.pkgID.isTestPkg && immutableType.tsymbol.pkgID.isTestPkg;
     }
 
     public void loadTypeIdSet(MethodVisitor mv, BTypeIdSet typeIdSet) {
