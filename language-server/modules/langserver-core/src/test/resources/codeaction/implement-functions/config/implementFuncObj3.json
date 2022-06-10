@@ -16,7 +16,7 @@
                             "character": 0
                         }
                     },
-                    "newText": "\n    public function pushText3(string text) {\n        \n    }\n"
+                    "newText": "\n    public function pushText3(string text) {\n        return;\n    }\n"
                 }
             ]
         }
