@@ -5635,7 +5635,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             BUnionType unionType = (BUnionType) referredType;
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             for (BType type : unionType.getMemberTypes()) {
-                BType mapType = getQueryMapConstraintType(type, pos);
+                BType mapType = getTypeOfTypeParameter(type, pos);
                 if (mapType == symTable.semanticError) {
                     return symTable.semanticError;
                 }

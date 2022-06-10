@@ -132,7 +132,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 20);
+        Assert.assertEquals(negativeResult.getErrorCount(), 23);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
@@ -175,8 +175,14 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected 'int', found 'string'", 193, 50);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'map<User>', found '(map<User>|error)'", 195, 20);
-        validateError(negativeResult, index,
+        validateError(negativeResult, index++,
                 "incompatible types: expected 'map<string>', found '(map<string>|error)'", 199, 22);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,string]', found '(string[2]|[string,int])'", 207, 29);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2] & readonly'", 217, 29);
+        validateError(negativeResult, index,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 222, 29);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
