@@ -831,6 +831,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(spreadMemberNode);
     }
 
+    public void visit(TupleMemberDescriptorNode tupleMemberDescriptorNode) {
+        visitSyntaxNode(tupleMemberDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

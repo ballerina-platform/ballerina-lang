@@ -2577,6 +2577,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 expression);
     }
 
+    @Override
+    public STTupleMemberDescriptorNode transform(
+            STTupleMemberDescriptorNode tupleMemberDescriptorNode) {
+        STNode annotation = modifyNode(tupleMemberDescriptorNode.annotation);
+        STNode typeDesc = modifyNode(tupleMemberDescriptorNode.typeDesc);
+        return tupleMemberDescriptorNode.modify(
+                annotation,
+                typeDesc);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

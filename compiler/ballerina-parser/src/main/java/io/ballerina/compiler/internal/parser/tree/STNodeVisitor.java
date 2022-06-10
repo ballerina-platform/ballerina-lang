@@ -821,6 +821,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(spreadMemberNode);
     }
 
+    public void visit(STTupleMemberDescriptorNode tupleMemberDescriptorNode) {
+        visitSyntaxNode(tupleMemberDescriptorNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

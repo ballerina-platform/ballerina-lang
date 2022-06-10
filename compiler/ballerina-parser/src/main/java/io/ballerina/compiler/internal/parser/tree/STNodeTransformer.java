@@ -821,6 +821,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(spreadMemberNode);
     }
 
+    public T transform(STTupleMemberDescriptorNode tupleMemberDescriptorNode) {
+        return transformSyntaxNode(tupleMemberDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

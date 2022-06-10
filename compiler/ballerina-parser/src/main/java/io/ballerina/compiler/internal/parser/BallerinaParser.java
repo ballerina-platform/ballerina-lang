@@ -11354,12 +11354,16 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first typedesc, that has no leading comma
+        STNode annot = parseOptionalAnnotations();
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-
-        return parseTupleTypeMembers(typeDesc, typeDescList);
+        return parseTupleTypeMembers(annot, typeDesc, typeDescList);
     }
 
     private STNode parseTupleTypeMembers(STNode typeDesc, List<STNode> typeDescList) {
+        return parseTupleTypeMembers(STNodeFactory.createEmptyNode(), typeDesc, typeDescList);
+    }
+
+    private STNode parseTupleTypeMembers(STNode annot, STNode typeDesc, List<STNode> typeDescList) {
         typeDesc = parseComplexTypeDescriptor(typeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
 
         STNode tupleMemberRhs = parseTypeDescInTupleRhs();
@@ -11373,12 +11377,14 @@ public class BallerinaParser extends AbstractParser {
                 typeDesc = invalidateTypeDescAfterRestDesc(typeDesc);
                 break;
             }
+            else {
+                typeDesc = STNodeFactory.createTupleMemberDescriptorNode(annot, typeDesc);
+            }
 
             tupleMemberRhs = parseTupleMemberRhs();
             if (tupleMemberRhs == null) {
                 break;
             }
-
             typeDescList.add(typeDesc);
             typeDescList.add(tupleMemberRhs);
             typeDesc = parseMemberDescriptor();
@@ -11389,14 +11395,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseMemberDescriptor() {
+        STNode annot = parseOptionalAnnotations();
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
         STNode tupleMemberRhs = parseTypeDescInTupleRhs();
 
         if (tupleMemberRhs != null) {
             return STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
         }
-
-        return typeDesc;
+        return STNodeFactory.createTupleMemberDescriptorNode(annot, typeDesc);
     }
 
     private STNode invalidateTypeDescAfterRestDesc(STNode restDescriptor) {

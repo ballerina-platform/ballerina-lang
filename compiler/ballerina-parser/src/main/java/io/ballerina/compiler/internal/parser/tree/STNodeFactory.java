@@ -2401,5 +2401,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ellipsis,
                 expression);
     }
+
+    public static STNode createTupleMemberDescriptorNode(
+            STNode annotation,
+            STNode typeDesc) {
+
+        return new STTupleMemberDescriptorNode(
+                annotation,
+                typeDesc);
+    }
 }
 

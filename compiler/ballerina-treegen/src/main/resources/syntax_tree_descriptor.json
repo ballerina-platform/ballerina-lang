@@ -4371,6 +4371,22 @@
                     "type": "ExpressionNode"
                 }
             ]
+        },
+        {
+            "name": "TupleMemberDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "annotation",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "typeDesc",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }
