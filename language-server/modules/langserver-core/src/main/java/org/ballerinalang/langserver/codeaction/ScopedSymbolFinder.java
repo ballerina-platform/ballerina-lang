@@ -35,7 +35,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
@@ -143,8 +143,8 @@ public class ScopedSymbolFinder extends NodeVisitor {
         visitScopedNodeMethod(node);
 
         // Visit from bottom-up in tree until we find a supported node or loose the range
-        boolean isRangeWithinNode = CommonUtil.isWithinLineRange(this.range.getStart(), node.lineRange()) &&
-                CommonUtil.isWithinLineRange(this.range.getEnd(), node.lineRange());
+        boolean isRangeWithinNode = PositionUtil.isWithinLineRange(this.range.getStart(), node.lineRange()) &&
+                PositionUtil.isWithinLineRange(this.range.getEnd(), node.lineRange());
         if (!isRangeWithinNode) {
             visit(node.parent());
         }

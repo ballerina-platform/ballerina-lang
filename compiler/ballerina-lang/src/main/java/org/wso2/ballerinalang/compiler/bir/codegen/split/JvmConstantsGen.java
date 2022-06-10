@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmUnionTypeC
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -111,16 +112,16 @@ public class JvmConstantsGen {
         refTypeConstantsGen.generateGetBTypeRefType(mv, varName);
     }
 
-    public String getTypeConstantsVar(BType type) {
+    public String getTypeConstantsVar(BType type, SymbolTable symbolTable) {
         switch (type.tag) {
             case TypeTags.ARRAY:
                 return arrayTypeConstantsGen.add((BArrayType) type);
             case TypeTags.TUPLE:
-                return tupleTypeConstantsGen.add((BTupleType) type);
+                return tupleTypeConstantsGen.add((BTupleType) type, symbolTable);
             case TypeTags.TYPEREFDESC:
                 return refTypeConstantsGen.add((BTypeReferenceType) type);
             default:
-                return unionTypeConstantsGen.add((BUnionType) type);
+                return unionTypeConstantsGen.add((BUnionType) type, symbolTable);
         }
     }
 
