@@ -116,6 +116,7 @@ public class JarResolver {
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }
+
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
             Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
