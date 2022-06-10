@@ -153,9 +153,10 @@ public class CommandConstants {
     public static final String IMPLEMENT_ALL = "Implement all";
 
     public static final String MAKE_CONSTRUCT_PUBLIC = "Convert '%s' to public";
-    
+
+    public static final String MAKE_FUNCTION_ISOLATE = "Add isolated qualifier to '%s'";
+
     public static final String EXTRACT_TYPE = "Extract type";
 
     public static final String MAKE_ANNOT_DECL_CONST = "Convert '%s' to constant";
-
 }
