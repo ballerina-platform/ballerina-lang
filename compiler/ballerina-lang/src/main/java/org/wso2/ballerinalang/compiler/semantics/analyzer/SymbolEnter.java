@@ -1155,12 +1155,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         Name alias;
+        BPackageSymbol value;
         for (Map.Entry<Name, BPackageSymbol> e : predeclaredModules.entrySet()) {
             alias = e.getKey();
             int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
+            value = e.getValue();
             if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
-                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(e.getValue(),
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(value,
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
             }
@@ -1178,7 +1180,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     entry = entry.next;
                 }
                 if (isUndefinedModule) {
-                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(e.getValue(),
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(value,
                             new Name(compUnitName)), NOT_FOUND_ENTRY);
                 }
             }
