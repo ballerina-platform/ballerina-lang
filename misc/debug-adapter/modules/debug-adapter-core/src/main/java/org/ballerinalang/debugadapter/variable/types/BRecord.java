@@ -20,6 +20,7 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import io.ballerina.identifier.Utils;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
@@ -69,7 +70,9 @@ public class BRecord extends NamedCompoundVariable {
             Map<Value, Value> recordFields = getRecordFields();
 
             for (Map.Entry<Value, Value> mapEntry : recordFields.entrySet()) {
-                childVarMap.put(VariableUtils.getStringFrom(mapEntry.getKey()), mapEntry.getValue());
+                childVarMap.put(Utils.encodeNonFunctionIdentifier(
+                        Utils.escapeSpecialCharacters(VariableUtils.getStringFrom(mapEntry.getKey()))),
+                        mapEntry.getValue());
             }
             return childVarMap;
         } catch (Exception ignored) {
