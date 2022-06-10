@@ -398,7 +398,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-        initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        if (!pkgEnv.scope.owner.pkgID.equals(PackageID.ANNOTATIONS)) {
+            initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        }
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -1161,9 +1163,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
             }
-            if (!(entry.symbol instanceof BPackageSymbol)) {
-                continue;
-            }
             for (int i = index; i < compUnits.size(); i++) {
                 boolean isUndefinedModule = true;
                 String compUnitName = compUnits.get(i).name;
@@ -1171,8 +1170,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     isUndefinedModule = false;
                 }
                 while (entry.next != NOT_FOUND_ENTRY) {
-                    if ((entry.next.symbol != null)
-                            && ((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
                         isUndefinedModule = false;
                         break;
                     }
