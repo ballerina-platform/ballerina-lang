@@ -87,7 +87,11 @@ dependencies {
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     implementation 'org.apache.kafka:kafka-clients'
     implementation 'org.apache.kafka:kafka_2.11'
-    implementation 'io.netty:netty-tcnative-boringssl-static'
+    implementation 'io.netty:netty-tcnative-boringssl-static::windows-x86_64'
+    implementation 'io.netty:netty-tcnative-boringssl-static::linux-aarch_64'
+    implementation 'io.netty:netty-tcnative-boringssl-static::linux-x86_64'
+    implementation 'io.netty:netty-tcnative-boringssl-static::osx-aarch_64'
+    implementation 'io.netty:netty-tcnative-boringssl-static::osx-x86_64'
     implementation 'org.slf4j:slf4j-api'
     implementation 'com.google.protobuf:protobuf-java'
     implementation 'commons-beanutils:commons-beanutils'
