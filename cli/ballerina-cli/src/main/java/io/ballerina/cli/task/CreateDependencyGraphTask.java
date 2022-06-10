@@ -20,8 +20,10 @@ package io.ballerina.cli.task;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.ballerinalang.central.client.CentralClientConstants;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -43,24 +45,31 @@ public class CreateDependencyGraphTask implements Task {
 
     @Override
     public void execute(Project project) {
-        List<Diagnostic> diagnostics = new ArrayList<>();
 
-        project.currentPackage().getResolution();
+        System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
-        if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
-            if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
-                DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
-                        .runCodeGenAndModifyPlugins();
-                if (codeGenAndModifyDiagnosticResult != null) {
-                    diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+        try {
+            List<Diagnostic> diagnostics = new ArrayList<>();
+
+            project.currentPackage().getResolution();
+
+            if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
+                if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
+                    DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
+                            .runCodeGenAndModifyPlugins();
+                    if (codeGenAndModifyDiagnosticResult != null) {
+                        diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                    }
                 }
             }
-        }
 
-        if (project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
-            diagnostics.addAll(project.currentPackage().getResolution().diagnosticResult().diagnostics());
-            diagnostics.forEach(d -> err.println(d.toString()));
-            throw createLauncherException("package resolution contains errors");
+            if (project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
+                diagnostics.addAll(project.currentPackage().getResolution().diagnosticResult().diagnostics());
+                diagnostics.forEach(d -> err.println(d.toString()));
+                throw createLauncherException("package resolution contains errors");
+            }
+        } catch (ProjectException e) {
+            throw createLauncherException("dependency graph resolution failed: " + e.getMessage());
         }
     }
 }

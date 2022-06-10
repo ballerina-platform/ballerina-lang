@@ -27,7 +27,9 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -39,11 +41,13 @@ import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 public class GraphCommandTest extends BaseCommandTest {
     private Path testResources;
+    ByteArrayOutputStream outStream;
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         this.testResources = super.tmpDir.resolve("build-test-resources");
+        setByteArrayOutputStream();
         try {
             copyTestResourcesToTmpDir();
         } catch (URISyntaxException e) {
@@ -56,7 +60,7 @@ public class GraphCommandTest extends BaseCommandTest {
     @Test(description = "Print the dependency graph of a valid single ballerina file with no dependencies")
     public void testPrintGraphForBalFileWithNoDependencies() throws IOException {
         Path directoryPath = this.testResources.resolve("valid-bal-file");
-        Path validBalFilePath = directoryPath.resolve("hello-world.bal");
+        Path validBalFilePath = directoryPath.resolve("hello_world.bal");
 
         // set the user root
         System.setProperty("user.dir", directoryPath.toString());
@@ -143,30 +147,14 @@ public class GraphCommandTest extends BaseCommandTest {
     }
 
     private String readFormattedOutput() throws IOException {
-        String output = readOutput(true);
-        return output.replaceAll("\r", "").strip();
+        String formattedOutput = this.outStream.toString().replaceAll("\n\t\n", "").strip();
+        this.outStream.close();
+        setByteArrayOutputStream();
+        return formattedOutput;
     }
-    // @Test(description = "Print the dependency graph of a valid single ballerina file")
-    // @Test(description = "Print the dependency graph of a valid ballerina project")
-    // valid bala file
-    // @Test(description = "Print the dependency graph of a non ballerina file")
-    // non existing bal file
-    // @Test(description = "Print the dependency graph of a bal file with no entry")
-    // @Test(description = "Print the dependency graph of a ballerina file with syntax error")
-    // @Test(description = "Print the dependency graph of a ballerina project with syntax error")
-    // @Test(description = "Print the dependency graph of a valid ballerina file")
-    // @Test(description = "Print the dependency graph with code generation of a single ballerina file")
-    // @Test(description = "Print the dependency graph with code generation of a ballerina project")
-    // sticky flag
-    // offline flag
-    // dump-raw-graphs
-    // jar conflicts?
-    // java11bal project ?
-    // get graph from a different dir ?
-    // with tests
-    // multimodule
-    // no write permission??
-    // empty package with compiler plugin?
-    // empty package with tests only ?
-    // java imports??
+
+    private void setByteArrayOutputStream() {
+        outStream = new java.io.ByteArrayOutputStream();
+        System.setOut(new PrintStream(outStream));
+    }
 }

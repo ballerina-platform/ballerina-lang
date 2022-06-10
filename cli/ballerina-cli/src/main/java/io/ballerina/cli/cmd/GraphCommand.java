@@ -23,6 +23,7 @@ import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CreateDependencyGraphTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.cli.utils.ProjectUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -90,7 +91,7 @@ public class GraphCommand {
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
 
-        boolean isSingleFileProject = isBallerinaStandaloneFile(this.projectPath);
+        boolean isSingleFileProject = FileUtils.hasExtension(this.projectPath);
         if (isSingleFileProject) {
             try {
                 project = SingleFileProject.load(this.projectPath, buildOptions);
@@ -137,13 +138,16 @@ public class GraphCommand {
         }
     }
 
-    // TODO: override getName and printLongDesc methods
-    // TODO: break execute into small functions
-
     private BuildOptions constructBuildOptions() {
+
+        // if all dependency graphs are printed it includes the final graph.
+        // Therefore, final graph is not needed to print separately.
+        boolean dumpGraph = !dumpRawGraphs;
+
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         buildOptionsBuilder
+                .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(this.dumpRawGraphs)
                 .setOffline(this.offline)
                 .setSticky(sticky);
