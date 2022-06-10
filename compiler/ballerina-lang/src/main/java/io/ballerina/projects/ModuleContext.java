@@ -44,8 +44,10 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -105,9 +107,9 @@ class ModuleContext {
         this.moduleDescriptor = moduleDescriptor;
         this.isDefaultModule = isDefaultModule;
         this.srcDocContextMap = srcDocContextMap;
-        this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
+        this.srcDocIds = sortDocuments(srcDocContextMap);
         this.testDocContextMap = testDocContextMap;
-        this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
+        this.testSrcDocIds = sortDocuments(testDocContextMap);
         this.moduleMdContext = moduleMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
         this.resourceContextMap = resourceContextMap;
@@ -554,6 +556,15 @@ class ModuleContext {
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
                 srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
                 this.moduleDescDependencies, this.resourceContextMap, this.testResourceContextMap);
+    }
+
+    private Collection<DocumentId> sortDocuments(Map<DocumentId, DocumentContext> docContextMap) {
+        List<Map.Entry<DocumentId, DocumentContext>> entries = new ArrayList<>(docContextMap.entrySet());
+        entries.sort(Comparator.comparing(object -> object.getValue().name()));
+
+        List<DocumentId> sortedList = new ArrayList<>();
+        entries.forEach(entry -> sortedList.add(entry.getKey()));
+        return Collections.unmodifiableCollection(sortedList);
     }
 
     /**
