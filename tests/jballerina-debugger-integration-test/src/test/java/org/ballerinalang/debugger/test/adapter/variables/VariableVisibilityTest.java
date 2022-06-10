@@ -385,6 +385,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(studentRecordChildVariables, "1st_name", "\"John Doe\"", "string");
         debugTestRunner.assertVariable(studentRecordChildVariables, "grades", "Grades", "record");
         debugTestRunner.assertVariable(studentRecordChildVariables, "Ȧɢέ_ /:@[`{~π", "20", "int");
+        debugTestRunner.assertVariable(studentRecordChildVariables, "course", "\"ballerina\"", "string");
 
         // record child variable visibility test (Grades record)
         Map<String, Variable> gradesChildVariables =
@@ -392,6 +393,7 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.assertVariable(gradesChildVariables, "chemistry", "65", "int");
         debugTestRunner.assertVariable(gradesChildVariables, "maths", "80", "int");
         debugTestRunner.assertVariable(gradesChildVariables, "physics", "75", "int");
+        debugTestRunner.assertVariable(gradesChildVariables, "english", "80", "int");
 
         // anonymous record child variable visibility test
         Map<String, Variable> recordChildVariables =
