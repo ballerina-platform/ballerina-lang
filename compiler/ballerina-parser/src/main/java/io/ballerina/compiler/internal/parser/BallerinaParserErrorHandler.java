@@ -3594,7 +3594,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case RECEIVE_FIELD_NAME:
                 return ParserRuleContext.COLON;
-
             case WAIT_FIELD_NAME:
                 return ParserRuleContext.WAIT_FIELD_NAME_RHS;
             case ALTERNATE_WAIT_EXPR_LIST_END:
@@ -3608,6 +3607,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DO_CLAUSE:
                 return ParserRuleContext.DO_KEYWORD;
             case LET_CLAUSE_END:
+                parentCtx = getParentContext();
+                // We can reach here without `LET_CLAUSE_LET_VAR_DECL` ctx for empty let var declarations
+                if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
+                    endContext();
+                    return ParserRuleContext.QUERY_PIPELINE_RHS;
+                }
+                return ParserRuleContext.QUERY_PIPELINE_RHS;
             case ORDER_CLAUSE_END:
             case JOIN_CLAUSE_END:
                 endContext();
@@ -3624,7 +3630,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.RETRY_KEYWORD;
             case ROLLBACK_STMT:
                 return ParserRuleContext.ROLLBACK_KEYWORD;
-
             case MODULE_ENUM_DECLARATION:
                 return ParserRuleContext.ENUM_KEYWORD;
             case MODULE_ENUM_NAME:
@@ -3888,6 +3893,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_KEYWORD:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
+                    STToken nextToken = this.tokenReader.peek(nextLookahead);
+                    STToken nextNextToken = this.tokenReader.peek(nextLookahead + 1);
+                    // This is a special case since parser quit parsing let clauses if 
+                    // `isEndOfLetVarDeclarations()` is true
+                    if (BallerinaParser.isEndOfLetVarDeclarations(nextToken.kind, nextNextToken)) {
+                        return ParserRuleContext.LET_CLAUSE_END;
+                    }
                     return ParserRuleContext.LET_CLAUSE_LET_VAR_DECL;
                 } else if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
                     endContext(); // end let-clause-let-var-decl
