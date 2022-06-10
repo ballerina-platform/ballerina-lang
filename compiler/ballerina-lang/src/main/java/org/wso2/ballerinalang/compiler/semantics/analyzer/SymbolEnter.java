@@ -1154,11 +1154,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        for (Map.Entry<Name, BPackageSymbol> e : predeclaredModules.entrySet()) {
-            Name alias = e.getKey();
+        for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
+            Name alias = predeclaredModuleEntry.getKey();
             int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
-            BPackageSymbol packageSymbol = e.getValue();
+            BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
             if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
                 this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
                         new Name(compUnits.get(index++).name)));
