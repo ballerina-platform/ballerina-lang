@@ -33,7 +33,6 @@ import java.util.Optional;
 public class BMapType extends BBuiltInRefType implements ConstrainedType, SelectivelyImmutableReferenceType {
 
     public BType constraint;
-    public BIntersectionType immutableType;
 
     private BIntersectionType intersectionType = null;
 
@@ -73,16 +72,6 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void unsetImmutableType() {
-        this.immutableType = null;
     }
 
     @Override

@@ -23,19 +23,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "thread",
-      "kind": "Field",
-      "detail": "StrandData.thread",
-      "sortText": "K",
-      "insertText": "thread: ${1:parent}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "policy",
       "kind": "Field",
       "detail": "StrandData.policy",
       "sortText": "K",
       "insertText": "policy: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "thread",
+      "kind": "Field",
+      "detail": "StrandData.thread",
+      "sortText": "K",
+      "insertText": "thread: ${1:\"parent\"}",
       "insertTextFormat": "Snippet"
     }
   ]

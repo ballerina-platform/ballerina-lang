@@ -163,7 +163,7 @@ public class Module {
         public Iterator<Document> iterator() {
             return this.documentList.iterator();
         }
-    
+
         @Override
         public Spliterator spliterator() {
             return this.documentList.spliterator();
@@ -336,14 +336,14 @@ public class Module {
             moduleContextSet.add(newModuleContext);
 
             // add dependant modules including transitives
-            Collection<ModuleId> dependants = getAllDependants(this.moduleId);
-            for (ModuleId dependantId : dependants) {
-                if (dependantId.equals(this.moduleId)) {
+            Collection<ModuleDescriptor> dependants = getAllDependants(this.moduleDescriptor);
+            for (ModuleDescriptor dependentDescriptor : dependants) {
+                if (dependentDescriptor.equals(this.moduleDescriptor)) {
                     continue;
                 }
-                Modifier module = this.packageInstance.module(dependantId).modify();
+                Modifier module = this.packageInstance.module(dependentDescriptor.name()).modify();
                 moduleContextSet.add(new ModuleContext(this.project,
-                        dependantId, module.moduleDescriptor, module.isDefaultModule, module.srcDocContextMap,
+                        module.moduleId, dependentDescriptor, module.isDefaultModule, module.srcDocContextMap,
                         module.testDocContextMap, module.moduleMdContext, module.dependencies, this.resourceContextMap,
                         this.testResourceContextMap));
             }
@@ -357,20 +357,22 @@ public class Module {
             return this;
         }
 
-        private Collection<ModuleId> getAllDependants(ModuleId updatedModuleId) {
+        private Collection<ModuleDescriptor> getAllDependants(ModuleDescriptor updatedModuleDescriptor) {
             packageInstance.getResolution(); // this will build the dependency graph if it is not built yet
-            return getAllDependants(updatedModuleId, new HashSet<>(), new HashSet<>());
+            return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
         }
 
-        private Collection<ModuleId> getAllDependants(
-                ModuleId updatedModuleId, HashSet<ModuleId> visited, HashSet<ModuleId> dependants) {
-            if (!visited.contains(updatedModuleId)) {
-                visited.add(updatedModuleId);
-                Collection<ModuleId> directDependents = this.project.currentPackage()
-                        .moduleDependencyGraph().getDirectDependents(updatedModuleId);
+        private Collection<ModuleDescriptor> getAllDependants(
+                ModuleDescriptor updatedModuleDescriptor,
+                HashSet<ModuleDescriptor> visited,
+                HashSet<ModuleDescriptor> dependants) {
+            if (!visited.contains(updatedModuleDescriptor)) {
+                visited.add(updatedModuleDescriptor);
+                Collection<ModuleDescriptor> directDependents = this.project.currentPackage()
+                        .moduleDependencyGraph().getDirectDependents(updatedModuleDescriptor);
                 if (directDependents.size() > 0) {
                     dependants.addAll(directDependents);
-                    for (ModuleId directDependent : directDependents) {
+                    for (ModuleDescriptor directDependent : directDependents) {
                         getAllDependants(directDependent, visited, dependants);
                     }
 

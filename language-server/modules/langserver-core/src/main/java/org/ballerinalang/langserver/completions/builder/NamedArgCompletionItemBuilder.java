@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
@@ -41,7 +42,7 @@ public class NamedArgCompletionItemBuilder {
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(String argName, TypeSymbol argSymbol) {
-        String defaultValue = CommonUtil.getDefaultPlaceholderForType(argSymbol).orElse("");
+        String defaultValue = DefaultValueGenerationUtil.getDefaultPlaceholderForType(argSymbol).orElse("");
         String label = argName + " = ...";
         String insertText = CommonUtil.escapeEscapeCharsInIdentifier(argName) + " = ${1:" + defaultValue + "}";
         String detail = argName + " = " + defaultValue;
