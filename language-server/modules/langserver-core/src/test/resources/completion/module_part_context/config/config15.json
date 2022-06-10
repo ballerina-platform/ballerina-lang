@@ -704,16 +704,6 @@
       ]
     },
     {
-      "label": "service on Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "E",
-      "filterText": "service_Listener",
-      "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "test/project1",
       "kind": "Module",
       "detail": "Module",
@@ -817,6 +807,16 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service on Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_Listener",
+      "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        return;\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
