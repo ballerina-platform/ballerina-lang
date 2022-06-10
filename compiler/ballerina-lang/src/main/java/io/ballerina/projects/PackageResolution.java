@@ -87,6 +87,8 @@ public class PackageResolution {
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
+        diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
+
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext, resolutionOptions);
 
         this.dependencyGraph = buildDependencyGraph(resolutionOptions);
@@ -269,6 +271,8 @@ public class PackageResolution {
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
 
+        diagnosticList.addAll(resolutionEngine.diagnosticResult().allDiagnostics);
+
         //3 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
                 packageResolver, resolutionOptions);
@@ -309,7 +313,8 @@ public class PackageResolution {
 
         // Resolve rest of the packages in the graph
         List<ResolutionRequest> resolutionRequests = depGraph.getNodes().stream()
-                .filter(depNode -> !depNode.equals(rootNode)) // Remove root node from the requests
+                .filter(depNode -> !depNode.equals(rootNode) // Remove root node from the requests
+                        && !depNode.errorNode()) // Remove error nodes from the requests
                 .map(this::createFromDepNode)
                 .collect(Collectors.toList());
         Collection<ResolutionResponse> resolutionResponses =
