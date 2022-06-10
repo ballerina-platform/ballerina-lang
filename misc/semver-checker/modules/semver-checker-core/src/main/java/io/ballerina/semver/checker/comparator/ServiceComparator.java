@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -44,6 +45,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
+import static io.ballerina.semver.checker.util.PackageUtils.SERVICE_LISTENER_EXPR_KIND;
+import static io.ballerina.semver.checker.util.PackageUtils.SERVICE_VAR_KIND;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getFunctionIdentifier;
 
 /**
  * Comparator implementation for Ballerina service declarations.
@@ -73,7 +77,7 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
                 .withChildDiffs(compareServiceQualifiers())
                 .withChildDiffs(compareServiceTypeDesc())
                 .withChildDiffs(compareAttachPoints())
-                .withChildDiffs(compareExpressionList())
+                .withChildDiffs(compareListenerExpressions())
                 .withChildDiffs(compareMembers())
                 .build();
     }
@@ -145,13 +149,22 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
         return diff.<List<Diff>>map(Collections::singletonList).orElseGet(ArrayList::new);
     }
 
-    private List<Diff> compareExpressionList() {
+    private List<Diff> compareListenerExpressions() {
+        List<Diff> listenerDiffs = new LinkedList<>();
         // TODO: implement expression list comparator
-        Optional<? extends Diff> diff = new DumbNodeListComparator<>(
-                newNode.expressions().stream().collect(Collectors.toList()),
-                oldNode.expressions().stream().collect(Collectors.toList()))
-                .computeDiff();
-        return diff.<List<Diff>>map(Collections::singletonList).orElseGet(ArrayList::new);
+        if (newNode.expressions().size() <= 1 && oldNode.expressions().size() <= 1) {
+            ExpressionNode newListener = newNode.expressions().size() > 0 ? newNode.expressions().get(0) : null;
+            ExpressionNode oldListener = oldNode.expressions().size() > 0 ? oldNode.expressions().get(0) : null;
+            new DumbNodeComparator<>(newListener, oldListener, SERVICE_LISTENER_EXPR_KIND).computeDiff()
+                    .ifPresent(listenerDiffs::add);
+        } else {
+            new DumbNodeListComparator<>(newNode.expressions().stream().collect(Collectors.toList()),
+                    oldNode.expressions().stream().collect(Collectors.toList()))
+                    .computeDiff()
+                    .ifPresent(listenerDiffs::add);
+        }
+
+        return listenerDiffs;
     }
 
     private List<Diff> compareMembers() {
@@ -182,7 +195,7 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
             serviceVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(memberDiffs::add);
         });
         varDiffExtractor.getCommons().forEach((name, serviceVars) -> new DumbNodeComparator<>(serviceVars.getKey(),
-                serviceVars.getValue()).computeDiff().ifPresent(memberDiffs::add));
+                serviceVars.getValue(), SERVICE_VAR_KIND).computeDiff().ifPresent(memberDiffs::add));
 
         return memberDiffs;
     }
@@ -191,11 +204,12 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
         service.members().forEach(member -> {
             switch (member.kind()) {
                 case OBJECT_METHOD_DEFINITION:
+                case RESOURCE_ACCESSOR_DEFINITION:
                     FunctionDefinitionNode funcNode = (FunctionDefinitionNode) member;
                     if (isNewService) {
-                        newFunctions.put(funcNode.functionName().text(), funcNode);
+                        newFunctions.put(getFunctionIdentifier(funcNode), funcNode);
                     } else {
-                        oldFunctions.put(funcNode.functionName().text(), funcNode);
+                        oldFunctions.put(getFunctionIdentifier(funcNode), funcNode);
                     }
                     break;
                 case OBJECT_FIELD:

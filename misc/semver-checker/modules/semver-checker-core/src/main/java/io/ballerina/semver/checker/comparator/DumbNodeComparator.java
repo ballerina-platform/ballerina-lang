@@ -23,10 +23,9 @@ import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
+import io.ballerina.semver.checker.util.SyntaxTreeUtils;
 
 import java.util.Optional;
-
-import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getNodeKindName;
 
 /**
  * A concrete implementation of {@link NodeComparator}, which compares the two given syntax nodes only by the changes
@@ -39,10 +38,16 @@ public class DumbNodeComparator<T extends Node> implements Comparator {
 
     protected final T newNode;
     protected final T oldNode;
+    protected String nodeKindName;
 
     DumbNodeComparator(T newNode, T oldNode) {
+        this(newNode, oldNode, null);
+    }
+
+    DumbNodeComparator(T newNode, T oldNode, String nodeKindName) {
         this.newNode = newNode;
         this.oldNode = oldNode;
+        this.nodeKindName = nodeKindName;
     }
 
     @Override
@@ -50,15 +55,18 @@ public class DumbNodeComparator<T extends Node> implements Comparator {
         NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode);
         diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
         if (newNode != null && oldNode == null) {
-            diffBuilder.withMessage(String.format("a new %s is added", getNodeKindName(newNode.kind())));
+            diffBuilder.withMessage(String.format("a new %s is added",
+                    nodeKindName != null ? nodeKindName : SyntaxTreeUtils.getNodeKindName(newNode.kind())));
             return diffBuilder.build();
         } else if (newNode == null && oldNode != null) {
-            diffBuilder.withMessage(String.format("an existing %s is removed", getNodeKindName(oldNode.kind())));
+            diffBuilder.withMessage(String.format("an existing %s is removed",
+                    nodeKindName != null ? nodeKindName : SyntaxTreeUtils.getNodeKindName(oldNode.kind())));
             return diffBuilder.build();
         } else if (newNode == null) {
             return Optional.empty();
-        } else if (!newNode.toSourceCode().equals(oldNode.toSourceCode())) {
-            diffBuilder.withMessage(String.format("%s is modified", getNodeKindName(newNode.kind())));
+        } else if (!newNode.toSourceCode().trim().equals(oldNode.toSourceCode().trim())) {
+            diffBuilder.withMessage(String.format("%s is modified",
+                    nodeKindName != null ? nodeKindName : SyntaxTreeUtils.getNodeKindName(newNode.kind())));
             return diffBuilder.build();
         }
 

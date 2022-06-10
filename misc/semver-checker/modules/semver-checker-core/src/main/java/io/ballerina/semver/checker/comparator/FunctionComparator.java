@@ -196,9 +196,8 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
                     .ifPresent(returnTypeDiffs::add);
         } else if (newReturn.isPresent()) {
             compareReturnTypes(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
-            compareReturnAnnotations(newReturn.get(), oldReturn.get()).ifPresent(returnTypeDiffs::add);
+            returnTypeDiffs.addAll(compareReturnAnnotations(newReturn.get(), oldReturn.get()));
         }
-
         return returnTypeDiffs;
     }
 
@@ -220,13 +219,14 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return Optional.empty();
     }
 
-    private Optional<NodeDiffImpl<Node>> compareReturnAnnotations(ReturnTypeDescriptorNode newReturn,
-                                                                  ReturnTypeDescriptorNode oldReturn) {
-        NodeList<AnnotationNode> newAnnots = newReturn.annotations();
-        NodeList<AnnotationNode> oldAnnots = oldReturn.annotations();
+    private List<Diff> compareReturnAnnotations(ReturnTypeDescriptorNode newR, ReturnTypeDescriptorNode oldR) {
+        List<Diff> returnAnnotationDiffs = new LinkedList<>();
+        NodeList<AnnotationNode> newAnnots = newR.annotations();
+        NodeList<AnnotationNode> oldAnnots = oldR.annotations();
 
-        // todo - implement comparison logic for return type annotations
-        return Optional.empty();
+        DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots);
+        annotsComparator.computeDiff().ifPresent(diff -> returnAnnotationDiffs.addAll(diff.getChildDiffs()));
+        return returnAnnotationDiffs;
     }
 
     private List<Diff> compareFunctionBody() {

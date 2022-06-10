@@ -22,12 +22,11 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.semver.checker.diff.NodeListDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
+import io.ballerina.semver.checker.util.SyntaxTreeUtils;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getNodeKindName;
 
 /**
  * A concrete implementation of {@link NodeListComparator}, which compares the two given syntax node lists only by the
@@ -40,15 +39,26 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
 
     protected final List<T> newNodesList;
     protected final List<T> oldNodesList;
+    protected String nodeKindName;
 
     DumbNodeListComparator(List<T> newNodesList, List<T> oldNodesList) {
-        this.newNodesList = newNodesList;
-        this.oldNodesList = oldNodesList;
+        this(newNodesList, oldNodesList, null);
     }
 
     DumbNodeListComparator(NodeList<T> newNodesList, NodeList<T> oldNodesList) {
+        this(newNodesList, oldNodesList, null);
+    }
+
+    DumbNodeListComparator(List<T> newNodesList, List<T> oldNodesList, String nodeKindName) {
+        this.newNodesList = newNodesList;
+        this.oldNodesList = oldNodesList;
+        this.nodeKindName = nodeKindName;
+    }
+
+    DumbNodeListComparator(NodeList<T> newNodesList, NodeList<T> oldNodesList, String nodeKindName) {
         this.newNodesList = newNodesList != null ? newNodesList.stream().collect(Collectors.toList()) : null;
         this.oldNodesList = oldNodesList != null ? oldNodesList.stream().collect(Collectors.toList()) : null;
+        this.nodeKindName = nodeKindName;
     }
 
     @Override
@@ -57,11 +67,11 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
         diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
         if (newNodesList != null && !newNodesList.isEmpty() && oldNodesList == null) {
             diffBuilder.withMessage(String.format("a new %s list is added",
-                    getNodeKindName(newNodesList.get(0).kind())));
+                    nodeKindName != null ? nodeKindName : SyntaxTreeUtils.getNodeKindName(newNodesList.get(0).kind())));
             return diffBuilder.build();
         } else if (newNodesList == null && oldNodesList != null && !oldNodesList.isEmpty()) {
             diffBuilder.withMessage(String.format("an existing %s list is removed",
-                    getNodeKindName(oldNodesList.get(0).kind())));
+                    nodeKindName != null ? nodeKindName : SyntaxTreeUtils.getNodeKindName(oldNodesList.get(0).kind())));
             return diffBuilder.build();
         } else if ((newNodesList == null || newNodesList.isEmpty())
                 && (oldNodesList == null || oldNodesList.isEmpty())) {
@@ -69,7 +79,7 @@ public class DumbNodeListComparator<T extends Node> implements Comparator {
         } else if (!newNodesList.stream().map(Node::toSourceCode).collect(Collectors.joining(","))
                 .equals(oldNodesList.stream().map(Node::toSourceCode).collect(Collectors.joining(",")))) {
             diffBuilder.withMessage(String.format("%s list is modified",
-                    getNodeKindName(newNodesList.get(0).kind())));
+                    nodeKindName != null ? nodeKindName : SyntaxTreeUtils.getNodeKindName(newNodesList.get(0).kind())));
             return diffBuilder.build();
         }
 

@@ -33,6 +33,7 @@ import io.ballerina.semver.checker.exception.SemverToolException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -43,6 +44,9 @@ import java.util.Map;
 public class PackageUtils {
 
     public static final String QUALIFIER_PUBLIC = "public";
+    // Pre-identified/overridden node types
+    public static final String SERVICE_LISTENER_EXPR_KIND = "service listener expression";
+    public static final String SERVICE_VAR_KIND = "service variable";
 
     /**
      * Loads the target ballerina source package instance using the Project API, from the file path of the open/active
@@ -121,5 +125,14 @@ public class PackageUtils {
                 .setConfigSchemaGen(false);
 
         return buildOptionsBuilder.build();
+    }
+
+    /**
+     * Capitalize the given word.
+     *
+     * @param str word string
+     */
+    public static String capitalize(String str) {
+        return str.substring(0, 1).toUpperCase(Locale.getDefault()) + str.substring(1).toLowerCase(Locale.getDefault());
     }
 }

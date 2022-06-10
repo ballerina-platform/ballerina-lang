@@ -17,6 +17,7 @@
  */
 package io.ballerina.semver.checker.util;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
@@ -26,6 +27,8 @@ import io.ballerina.compiler.syntax.tree.Token;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static io.ballerina.semver.checker.util.PackageUtils.capitalize;
 
 /**
  * Syntax tree API related utilities.
@@ -50,17 +53,33 @@ public class SyntaxTreeUtils {
      * @param serviceNode service declaration syntax node
      * @return the service identifier
      */
-    public static String getServiceName(ServiceDeclarationNode serviceNode) {
+    public static Optional<String> getServiceIdentifier(ServiceDeclarationNode serviceNode) {
         // Todo: refactor once the service identifier support is added to the language side
         if (serviceNode.absoluteResourcePath() != null && !serviceNode.absoluteResourcePath().isEmpty()) {
-            return serviceNode.absoluteResourcePath().stream()
+            return Optional.of(serviceNode.absoluteResourcePath().stream()
                     .map(Node::toSourceCode)
-                    .collect(Collectors.joining("_"));
-        } else if (serviceNode.typeDescriptor().isPresent()) {
-            return serviceNode.typeDescriptor().get().toSourceCode();
-        } else {
-            return String.valueOf(serviceNode.hashCode());
+                    .collect(Collectors.joining("_")));
         }
+        return Optional.empty();
+    }
+
+    /**
+     * Returns the function identifier of the given function node.
+     *
+     * @param functionNode function syntax node
+     * @return the service identifier
+     */
+    public static String getFunctionIdentifier(FunctionDefinitionNode functionNode) {
+        String functionName = functionNode.functionName().toSourceCode().trim();
+        if (functionNode.relativeResourcePath() == null || functionNode.relativeResourcePath().isEmpty()) {
+            return functionName;
+        }
+
+        String resourcePaths = functionNode.relativeResourcePath().stream()
+                .filter(node -> node.kind() == SyntaxKind.IDENTIFIER_TOKEN)
+                .map(node -> capitalize(node.toSourceCode().trim()))
+                .collect(Collectors.joining());
+        return functionName + resourcePaths;
     }
 
     /**

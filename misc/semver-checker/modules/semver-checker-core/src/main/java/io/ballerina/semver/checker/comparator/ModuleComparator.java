@@ -33,7 +33,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getServiceName;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getFunctionIdentifier;
+import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getServiceIdentifier;
 
 /**
  * Comparator implementation for Ballerina modules.
@@ -99,17 +100,25 @@ public class ModuleComparator implements Comparator {
                     case FUNCTION_DEFINITION:
                         FunctionDefinitionNode funcNode = (FunctionDefinitionNode) member;
                         if (isNewModule) {
-                            newFunctions.put(funcNode.functionName().text(), funcNode);
+                            newFunctions.put(getFunctionIdentifier(funcNode), funcNode);
                         } else {
-                            oldFunctions.put(funcNode.functionName().text(), funcNode);
+                            oldFunctions.put(getFunctionIdentifier(funcNode), funcNode);
                         }
                         break;
                     case SERVICE_DECLARATION:
                         ServiceDeclarationNode serviceNode = (ServiceDeclarationNode) member;
-                        if (isNewModule) {
-                            newServices.put(getServiceName(serviceNode), serviceNode);
+                        Optional<String> serviceName = getServiceIdentifier(serviceNode);
+                        if (serviceName.isEmpty()) {
+                            // services that does not contain a unique identifier(usually the base path),
+                            // can not be compared and therefore will be ignored.
+                            // Todo - throw a warning/improve detection
+                            break;
                         } else {
-                            oldServices.put(getServiceName(serviceNode), serviceNode);
+                            if (isNewModule) {
+                                newServices.put(serviceName.get(), serviceNode);
+                            } else {
+                                oldServices.put(serviceName.get(), serviceNode);
+                            }
                         }
                         break;
                     case CLASS_DEFINITION:

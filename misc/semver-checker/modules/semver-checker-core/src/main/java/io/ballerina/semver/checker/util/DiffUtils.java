@@ -37,6 +37,7 @@ import static io.ballerina.semver.checker.util.SemverUtils.calculateSuggestedVer
  */
 public class DiffUtils {
 
+    // Attributes defined for the JSON representation of diffs.
     public static final String DIFF_ATTR_KIND = "kind";
     public static final String DIFF_ATTR_TYPE = "type";
     public static final String DIFF_ATTR_MESSAGE = "message";
@@ -309,9 +310,9 @@ public class DiffUtils {
      */
     private static String getServiceName(ServiceDiff serviceDiff) {
         if (serviceDiff.getNewNode().isPresent()) {
-            return SyntaxTreeUtils.getServiceName(serviceDiff.getNewNode().get());
+            return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getNewNode().get()).orElse("unknown");
         } else if (serviceDiff.getOldNode().isPresent()) {
-            return SyntaxTreeUtils.getServiceName(serviceDiff.getOldNode().get());
+            return SyntaxTreeUtils.getServiceIdentifier(serviceDiff.getOldNode().get()).orElse("unknown");
         } else {
             return "unknown";
         }
