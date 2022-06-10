@@ -893,6 +893,14 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mod1:Service",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "D",
+      "insertText": "mod1:Service",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
