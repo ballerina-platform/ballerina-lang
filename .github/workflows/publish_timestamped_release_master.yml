@@ -1,4 +1,4 @@
-name: Publish Timestamped Snapshot Artifacts
+name: Publish Timestamped Snapshot Artifacts (master)
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
   publish-ballerina-lang:
     name: Build and Publish Ballerina Lang
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
     if: github.repository_owner == 'ballerina-platform'
     steps:
       -   name: Checkout Repository

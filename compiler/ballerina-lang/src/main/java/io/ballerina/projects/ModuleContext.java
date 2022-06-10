@@ -350,8 +350,7 @@ class ModuleContext {
 
         ModuleContext resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
-                new PackageDependency(resolvedModule.moduleId().packageId(), scope),
-                resolvedModule.moduleId());
+                new PackageDependency(resolvedModule.moduleId().packageId(), scope), resolvedModule.descriptor());
         moduleDependencies.add(moduleDependency);
     }
 
@@ -369,7 +368,7 @@ class ModuleContext {
         Module resolvedModule = resolvedModuleOptional.get();
         ModuleDependency moduleDependency = new ModuleDependency(
                 new PackageDependency(resolvedModule.packageInstance().packageId(), scope),
-                resolvedModule.moduleId());
+                resolvedModule.descriptor());
         moduleDependencies.add(moduleDependency);
     }
 

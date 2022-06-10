@@ -21,18 +21,23 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeIdSet;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.ValueUtils;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -72,7 +77,23 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public <V extends Object> V getZeroValue() {
-        return (V) ValueCreator.createObjectValue(this.pkg, this.typeName);
+        return (V) createObjectValueWithDefaultValues(this.pkg, this);
+    }
+
+    private static BObject createObjectValueWithDefaultValues(Module packageId, BObjectType objectType) {
+        Strand currentStrand = Scheduler.getStrand();
+        Map<String, Field> fieldsMap = objectType.getFields();
+        Field[] fields = fieldsMap.values().toArray(new Field[0]);
+        Object[] fieldValues = new Object[fields.length * 2];
+
+        for (int i = 0, j = 0; i < fields.length; i++) {
+            Type type = fields[i].getFieldType();
+            // Add default value of the field type as initial argument.
+            fieldValues[j++] = type.getZeroValue();
+            // Add boolean value for each argument to indicate the default value case.
+            fieldValues[j++] = false;
+        }
+        return ValueUtils.createObjectValue(currentStrand, packageId, objectType.getName(), fieldValues);
     }
 
     @Override

@@ -149,6 +149,14 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                         "createUndefinedFunctionInConditionalExpression.bal"},
                 {"createUndefinedFunctionInConditionalExpression3.json", 
                         "createUndefinedFunctionInConditionalExpression.bal"},
+
+                {"createUndefinedFunctionInCheckExpression1.json", "createUndefinedFunctionInCheckExpression1.bal"},
+                {"createUndefinedFunctionInCheckExpression2.json", "createUndefinedFunctionInCheckExpression2.bal"},
+                {"createUndefinedFunctionInPanicStatement.json", "createUndefinedFunctionInPanicStatement.bal"},
+                {"createUndefinedFunctionInCheckpanicExpression1.json",
+                        "createUndefinedFunctionInCheckpanicExpression1.bal"},
+                {"createUndefinedFunctionInCheckpanicExpression2.json",
+                        "createUndefinedFunctionInCheckpanicExpression2.bal"},
         };
     }
 
