@@ -343,6 +343,17 @@ function intRestParam(int... i) returns int {
      return tot;
 }
 
+type Tuple [int, string...];
+
+function testTypeRefTypedRestArg() {
+    Tuple f = [1, "hello", "Ballerina"];
+    int i = testFn(...f);
+    assertValueEquality(15, i);
+}
+
+function testFn(int a, string... b) returns int =>
+    b.reduce(function (int tot, string str) returns int => tot + str.length(), a);
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
