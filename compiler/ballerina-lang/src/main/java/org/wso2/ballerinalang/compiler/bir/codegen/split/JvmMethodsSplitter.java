@@ -44,7 +44,8 @@ public class JvmMethodsSplitter {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.moduleInitClass = moduleInitClass;
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor,
+                                               jvmPackageGen.symbolTable);
         this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID, typeHashVisitor);
         this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
         this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID);
