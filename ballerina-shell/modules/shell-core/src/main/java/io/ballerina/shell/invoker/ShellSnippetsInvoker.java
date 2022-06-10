@@ -21,18 +21,8 @@ package io.ballerina.shell.invoker;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.DiagnosticResult;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentId;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarResolver;
-import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PlatformLibrary;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BFuture;
@@ -59,6 +49,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -104,6 +96,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * or a temp file.
      */
     private File bufferFile;
+
+    private ClassLoader classLoader = null;
+
+    private ClassLoader importClassLoader = null;
 
     protected ShellSnippetsInvoker() {
         this.scheduler = new Scheduler(false);
@@ -172,10 +168,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Available declarations as a list of string.
      */
     public abstract List<String> availableModuleDeclarations();
-
-    private ClassLoader classLoader = null;
-
-    private ClassLoader importClassLoader = null;
 
     /* Template methods */
 
@@ -347,7 +339,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             if (importClassLoader == null) {
-                importClassLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar();
+                importClassLoader = getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar(jBallerinaBackend,
+                                                                                                jarResolver);
             }
 
             ArrayList<URL> urlList = new ArrayList<>();
@@ -387,14 +380,12 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             if (failErrorMessage != null) {
                 errorStream.println("fail: " + failErrorMessage);
             }
-        } catch (InvokerPanicException | MalformedURLException panicError) {
+        } catch (InvokerPanicException panicError) {
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
-            try {
-                throw panicError;
-            } catch (MalformedURLException e) {
-                throw new RuntimeException(e);
-            }
+            throw panicError;
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -550,5 +541,36 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      */
     protected PrintStream getErrorStream() {
         return System.err;
+    }
+
+    public ClassLoader getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar(JBallerinaBackend jBallerinaBackend,
+                                                                                    JarResolver jarResolver) {
+
+        Collection<JarLibrary> jarLibraries = new ArrayList<>();
+        jarResolver.getJarFilePathsRequiredForExecution().stream()
+                .filter(jarLibrary -> !jarLibrary.path().toString().contains("main")).forEach(jarLibraries::add);
+
+        return createClassLoader(jBallerinaBackend, jarLibraries);
+    }
+
+    private URLClassLoader createClassLoader(JBallerinaBackend jBallerinaBackend, Collection<JarLibrary> jarFiles) {
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            throw new IllegalStateException("Cannot create a ClassLoader: this compilation has errors.");
+        }
+
+        List<URL> urlList = new ArrayList<>(jarFiles.size());
+        for (JarLibrary jarFile : jarFiles) {
+            try {
+                urlList.add(jarFile.path().toUri().toURL());
+            } catch (MalformedURLException e) {
+                // This path cannot get executed
+                throw new RuntimeException("Failed to create classloader with all jar files", e);
+            }
+        }
+
+        return AccessController.doPrivileged(
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
+                        ClassLoader.getSystemClassLoader())
+        );
     }
 }

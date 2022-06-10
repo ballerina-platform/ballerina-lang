@@ -116,20 +116,6 @@ public class JarResolver {
         // TODO Filter out duplicate jar entries
         return jarFiles;
     }
-
-    public ClassLoader getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar() {
-        if (classLoaderWithAllJars != null) {
-            return classLoaderWithAllJars;
-        }
-
-        Collection<JarLibrary> jarLibraries = new ArrayList<>();
-        getJarFilePathsRequiredForExecution().stream()
-                .filter(jarLibrary -> !jarLibrary.path().toString().contains("main")).forEach(jarLibraries::add);
-
-        classLoaderWithAllJars = createClassLoader(jarLibraries);
-        return classLoaderWithAllJars;
-    }
-
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
             Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
