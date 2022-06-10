@@ -155,7 +155,7 @@ public class Package {
         return this.packageContext.getResolution(compilationOptions);
     }
 
-    public DependencyGraph<ModuleId> moduleDependencyGraph() {
+    public DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it
         // Each Module should know the modules that it depends on and modules that depends on it
         return this.packageContext.moduleDependencyGraph();
