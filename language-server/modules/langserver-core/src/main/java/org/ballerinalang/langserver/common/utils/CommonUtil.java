@@ -264,7 +264,7 @@ public class CommonUtil {
         return Optional.ofNullable(((ModulePartNode) syntaxTree.rootNode())
                 .findNode(TextRange.from(start, end - start), true));
     }
-    
+
     /**
      * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
      * type descriptor.
