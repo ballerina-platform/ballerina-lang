@@ -44,12 +44,11 @@ import org.wso2.ballerinalang.programfile.PackageFileWriter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -107,9 +106,9 @@ class ModuleContext {
         this.moduleDescriptor = moduleDescriptor;
         this.isDefaultModule = isDefaultModule;
         this.srcDocContextMap = srcDocContextMap;
-        this.srcDocIds = sortDocuments(srcDocContextMap);
+        this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
-        this.testSrcDocIds = sortDocuments(testDocContextMap);
+        this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
         this.moduleMdContext = moduleMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
         this.resourceContextMap = resourceContextMap;
@@ -123,12 +122,12 @@ class ModuleContext {
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
-        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig sourceDocConfig : moduleConfig.sourceDocs()) {
             srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig));
         }
 
-        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig testSrcDocConfig : moduleConfig.testSourceDocs()) {
             testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
         }
@@ -542,13 +541,13 @@ class ModuleContext {
     }
 
     ModuleContext duplicate(Project project) {
-        Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentId documentId : this.srcDocumentIds()) {
             DocumentContext documentContext = this.documentContext(documentId);
             srcDocContextMap.put(documentId, documentContext.duplicate());
         }
 
-        Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+        Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentId documentId : this.testSrcDocumentIds()) {
             DocumentContext documentContext = this.documentContext(documentId);
             testDocContextMap.put(documentId, documentContext.duplicate());
@@ -556,15 +555,6 @@ class ModuleContext {
         return new ModuleContext(project, this.moduleId, this.moduleDescriptor, this.isDefaultModule,
                 srcDocContextMap, testDocContextMap, this.moduleMdContext().orElse(null),
                 this.moduleDescDependencies, this.resourceContextMap, this.testResourceContextMap);
-    }
-
-    private Collection<DocumentId> sortDocuments(Map<DocumentId, DocumentContext> docContextMap) {
-        List<Map.Entry<DocumentId, DocumentContext>> entries = new ArrayList<>(docContextMap.entrySet());
-        entries.sort(Comparator.comparing(object -> object.getValue().name()));
-
-        List<DocumentId> sortedList = new ArrayList<>();
-        entries.forEach(entry -> sortedList.add(entry.getKey()));
-        return Collections.unmodifiableCollection(sortedList);
     }
 
     /**

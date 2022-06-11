@@ -2123,7 +2123,7 @@ public class TestBuildProject extends BaseTest {
 
         Module newDefaultModule = oldDefaultModuleModifier.apply();
 
-        // Check the document order after adding a new module
+        // Check the documents order after adding documents to a module
         // Check the order of source documents
         List<String> expectedSourceFileNames = Arrays.asList("main.bal", sourceFileName, "utils.bal");
         List<String> actualSourceFileNames = getDocumentFileNames(newDefaultModule, newDefaultModule.documentIds());
