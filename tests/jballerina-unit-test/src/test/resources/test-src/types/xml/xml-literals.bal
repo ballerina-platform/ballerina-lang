@@ -395,4 +395,7 @@ function testQueryInXMLTemplateExpr() {
 
     string str3 = "<doc><doc><num>1</num><num>2</num><num>3</num></doc></doc>";
     test:assertEquals(x6.toString(), str3);
+
+    var x7 = xml `<doc>${(from string s in ["a", "b", "c"] select xml `${s}z`)}</doc>`;
+    test:assertEquals(x7.toString(), "<doc>azbzcz</doc>");
 }
