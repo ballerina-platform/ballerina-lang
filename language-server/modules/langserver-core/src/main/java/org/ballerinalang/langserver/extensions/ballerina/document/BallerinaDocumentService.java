@@ -42,7 +42,8 @@ import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataResponse;
+import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
@@ -302,7 +303,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
             };
             BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
-            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
                 return reply;
             }
@@ -356,7 +357,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                                     SemanticModel semanticModelNew = packageCompilation.getSemanticModel(document.module().moduleId());
 
                                     // Get the file path of the found node definition
-                                    Path defFilePath = ReferencesUtil.getPathFromLocation(module, node.location());
+                                    Path defFilePath = PathUtil.getPathFromLocation(module, node.location());
                                     // Set the node syntax tree JSON with type info and source code.
                                     result.jsonSyntaxTree = DiagramUtil.getSyntaxTreeJSON(node, semanticModelNew);
                                     result.sourceCode = node.toSourceCode();
@@ -385,9 +386,9 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
      */
     @Deprecated(since = "2.0.0", forRemoval = true)
     @JsonRequest
-    public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
+    public CompletableFuture<PackageMetadataResponse> project(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
-            BallerinaProject ballerinaProject = new BallerinaProject();
+            PackageMetadataResponse ballerinaProject = new PackageMetadataResponse();
             try {
                 Optional<Path> filePath = PathUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
                 if (filePath.isEmpty()) {
