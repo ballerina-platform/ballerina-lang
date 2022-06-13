@@ -28,7 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
-import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -362,7 +362,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         inferIsolation(moduleLevelVarSymbols, getPubliclyExposedObjectTypes(pkgNode), classDefinitions);
-        logServiceIsolationWarnings(classDefinitions);
+        logServiceIsolationHints(classDefinitions);
         this.arrowFunctionTempSymbolMap.clear();
         this.isolationInferenceInfoMap.clear();
 
@@ -3752,15 +3752,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void logServiceIsolationWarnings(List<BLangClassDefinition> classDefinitions) {
+    private void logServiceIsolationHints(List<BLangClassDefinition> classDefinitions) {
         for (BLangClassDefinition classDefinition : classDefinitions) {
             if (classDefinition.flagSet.contains(Flag.SERVICE)) {
-                logServiceIsolationWarnings(classDefinition);
+                logServiceIsolationHints(classDefinition);
             }
         }
     }
 
-    private void logServiceIsolationWarnings(BLangClassDefinition classDefinition) {
+    private void logServiceIsolationHints(BLangClassDefinition classDefinition) {
         boolean isolatedService = isIsolated(classDefinition.getBType().flags);
 
         for (BLangFunction function : classDefinition.functions) {
@@ -3776,7 +3776,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            dlog.warning(getStartLocation(function.pos), getWarningCode(isolatedService, isolatedMethod));
+            dlog.hint(getStartLocation(function.pos), getHintCode(isolatedService, isolatedMethod));
         }
     }
 
@@ -3788,17 +3788,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return new BLangDiagnosticLocation(lineRange.filePath(), startLine, startLine, startColumn, startColumn);
     }
 
-    private DiagnosticWarningCode getWarningCode(boolean isolatedService, boolean isolatedMethod) {
+    private DiagnosticHintCode getHintCode(boolean isolatedService, boolean isolatedMethod) {
         if (!isolatedService && !isolatedMethod) {
-            return DiagnosticWarningCode
+            return DiagnosticHintCode
                     .CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE;
         }
 
         if (isolatedService) {
-            return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD;
+            return DiagnosticHintCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD;
         }
 
-        return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE;
+        return DiagnosticHintCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE;
     }
 
     private BInvokableSymbol createTempSymbolIfNonExistent(BLangArrowFunction bLangArrowFunction) {
