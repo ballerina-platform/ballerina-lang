@@ -2119,7 +2119,8 @@ public class TypeChecker {
                 return arrayType.getState() != ArrayState.OPEN &&
                         checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(((BTypeReferenceType) type).getReferredType(), visitedTypeSet);
+                return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
+                        ((BTypeReferenceType) type).getReferredType(), visitedTypeSet);
             default:
                 return false;
         }
