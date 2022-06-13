@@ -359,7 +359,6 @@ public enum ParserRuleContext {
     OPTIONAL_RESOURCE_ACCESS_METHOD("optional-resource-access-method"),
     OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST("optional-resource-method-call-arg-list"),
     ACTION_END("action-end"),
-    
 
     // Statements
     STATEMENT("statement"),

@@ -6949,7 +6949,6 @@ public class BallerinaParser extends AbstractParser {
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
         STNode ellipsis = parseOptionalEllipsis();
         STNode paramName = parseOptionalPathParamName();
-
         STNode closeBracket = parseCloseBracket();
 
         SyntaxKind pathPramKind =
