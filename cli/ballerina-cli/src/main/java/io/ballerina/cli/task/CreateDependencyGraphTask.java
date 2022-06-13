@@ -53,8 +53,11 @@ public class CreateDependencyGraphTask implements Task {
 
             project.currentPackage().getResolution();
 
-            if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
-                if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            // run built-in code generator compiler plugins
+            // Errors in package resolution denotes version incompatibility errors.
+            // We run code generators/modifiers only if package resolution does not have errors.
+            if (!isResolutionErroneous(project)) {
+                if (isProjectKindSuitableForCodeGenAndModify(project)) {
                     DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
                             .runCodeGenAndModifyPlugins();
                     if (codeGenAndModifyDiagnosticResult != null) {
@@ -63,7 +66,7 @@ public class CreateDependencyGraphTask implements Task {
                 }
             }
 
-            if (project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
+            if (isResolutionErroneous(project)) {
                 diagnostics.addAll(project.currentPackage().getResolution().diagnosticResult().diagnostics());
                 diagnostics.forEach(d -> err.println(d.toString()));
                 throw createLauncherException("package resolution contains errors");
@@ -71,5 +74,15 @@ public class CreateDependencyGraphTask implements Task {
         } catch (ProjectException e) {
             throw createLauncherException("dependency graph resolution failed: " + e.getMessage());
         }
+    }
+
+    private boolean isProjectKindSuitableForCodeGenAndModify(Project project) {
+        // BalaProject is a read-only project.
+        // Hence, we run the code generators/modifiers only for BuildProject and SingleFileProject
+        return !project.kind().equals(ProjectKind.BALA_PROJECT);
+    }
+
+    private boolean isResolutionErroneous(Project project) {
+        return project.currentPackage().getResolution().diagnosticResult().hasErrors();
     }
 }

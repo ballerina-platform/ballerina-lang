@@ -147,7 +147,7 @@ public class GraphCommandTest extends BaseCommandTest {
     }
 
     private String readFormattedOutput() throws IOException {
-        String formattedOutput = this.outStream.toString().replaceAll("\n\t\n", "").strip();
+        String formattedOutput = this.outStream.toString().replaceAll("\n\t\n", "\n\n").strip();
         this.outStream.close();
         setByteArrayOutputStream();
         return formattedOutput;

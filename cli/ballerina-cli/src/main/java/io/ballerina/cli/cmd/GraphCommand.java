@@ -40,7 +40,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
-import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaStandaloneFile;
 
 /**
  * This class represents the "bal graph" command.
@@ -48,20 +47,24 @@ import static org.wso2.ballerinalang.util.RepoUtils.isBallerinaStandaloneFile;
  * @since 2201.2.0
  */
 @CommandLine.Command(name = GRAPH_COMMAND, description = "bal graph - Print the dependency graph")
-public class GraphCommand {
+public class GraphCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private final boolean exitWhenFinish;
     @CommandLine.Parameters(arity = "0..1")
     private final Path projectPath;
+    private Project project;
     @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all dependency graphs created in each " +
             "attempt to update.", defaultValue = "false")
     private boolean dumpRawGraphs;
+
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true, defaultValue = "false")
     private boolean helpFlag;
+
     @CommandLine.Option(names = {"--offline"}, description = "Print the dependency graph offline without downloading " +
             "dependencies.", defaultValue = "false")
     private boolean offline;
+
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)",
             defaultValue = "false")
     private boolean sticky;
@@ -83,56 +86,63 @@ public class GraphCommand {
 
     public void execute() {
         if (this.helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(GRAPH_COMMAND);
-            this.errStream.println(commandUsageInfo);
+            printHelpCommandInfo();
             return;
         }
 
-        Project project;
+        try {
+            loadProject();
+        } catch (ProjectException e) {
+            printErrorAndExit(e.getMessage());
+            return;
+        }
+
+        if (ProjectUtils.isProjectEmpty(this.project)) {
+            printErrorAndExit("package is empty. Please add at least one .bal file.");
+            return;
+        }
+
+        validateSettingsToml();
+
+        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetDirTask(), isSingleFileProject())
+                .addTask(new ResolveMavenDependenciesTask(outStream))
+                .addTask(new CreateDependencyGraphTask(outStream))
+                .build();
+        taskExecutor.executeTasks(this.project);
+
+        exitIfRequired();
+    }
+
+    private void printHelpCommandInfo() {
+        String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(GRAPH_COMMAND);
+        this.outStream.println(commandUsageInfo);
+    }
+
+    private void loadProject() {
         BuildOptions buildOptions = constructBuildOptions();
 
-        boolean isSingleFileProject = FileUtils.hasExtension(this.projectPath);
-        if (isSingleFileProject) {
-            try {
-                project = SingleFileProject.load(this.projectPath, buildOptions);
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
+        if (isSingleFileProject()) {
+            this.project = SingleFileProject.load(this.projectPath, buildOptions);
         } else {
-            try {
-                project = BuildProject.load(this.projectPath, buildOptions);
-            } catch (ProjectException e) {
-                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                CommandUtil.exitError(this.exitWhenFinish);
-                return;
-            }
+            this.project = BuildProject.load(this.projectPath, buildOptions);
         }
+    }
 
-        // If project is empty
-        if (ProjectUtils.isProjectEmpty(project)) {
-            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
-                    false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
+    private void printErrorAndExit(String errorMessage) {
+        CommandUtil.printError(this.errStream, errorMessage, null, false);
+        CommandUtil.exitError(this.exitWhenFinish);
+    }
 
-        // Validate Settings.toml file
+    private void validateSettingsToml() {
         try {
             RepoUtils.readSettings();
         } catch (SettingsTomlException e) {
             this.outStream.println("warning: " + e.getMessage());
         }
+    }
 
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileProject)
-                .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CreateDependencyGraphTask(outStream))
-                .build();
-
-        taskExecutor.executeTasks(project);
-
+    private void exitIfRequired() {
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
@@ -150,8 +160,35 @@ public class GraphCommand {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(this.dumpRawGraphs)
                 .setOffline(this.offline)
-                .setSticky(sticky);
+                .setSticky(this.sticky);
 
         return buildOptionsBuilder.build();
+    }
+
+    private boolean isSingleFileProject() {
+        return FileUtils.hasExtension(this.projectPath);
+    }
+
+    @Override
+    public String getName() {
+        return GRAPH_COMMAND;
+    }
+
+    @Override
+    public void printLongDesc(StringBuilder out) {
+        out.append("Resolve the dependencies of the current package and print the final \n");
+        out.append("dependency graph into the console. \n");
+        out.append("This produces the textual representation of the dependency graph \n");
+        out.append("using the DOT graph description. \n");
+    }
+
+    @Override
+    public void printUsage(StringBuilder out) {
+        out.append("  bal graph [--dump-raw-graph] [--offline] [--sticky] \\n\" +\n" +
+                "            \"                    [<ballerina-file | package-path>]");
+    }
+
+    @Override
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 }
