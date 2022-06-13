@@ -2581,10 +2581,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STTupleMemberDescriptorNode transform(
             STTupleMemberDescriptorNode tupleMemberDescriptorNode) {
         STNode annotations = modifyNode(tupleMemberDescriptorNode.annotations);
-        STNode typeDesc = modifyNode(tupleMemberDescriptorNode.typeDesc);
+        STNode typeDescriptor = modifyNode(tupleMemberDescriptorNode.typeDescriptor);
         return tupleMemberDescriptorNode.modify(
                 annotations,
-                typeDesc);
+                typeDescriptor);
     }
 
     // Tokens

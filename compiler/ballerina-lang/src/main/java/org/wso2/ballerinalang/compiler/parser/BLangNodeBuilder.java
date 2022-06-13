@@ -997,7 +997,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
                 TupleMemberDescriptorNode member = (TupleMemberDescriptorNode) node;
-                tupleTypeNode.memberTypeNodes.add(createTypeNode(member.typeDesc()));
+                tupleTypeNode.memberTypeNodes.add(createTypeNode(member.typeDescriptor()));
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);

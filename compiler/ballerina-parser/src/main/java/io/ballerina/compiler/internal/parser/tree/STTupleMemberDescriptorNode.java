@@ -32,49 +32,49 @@ import java.util.Collections;
  */
 public class STTupleMemberDescriptorNode extends STNode {
     public final STNode annotations;
-    public final STNode typeDesc;
+    public final STNode typeDescriptor;
 
     STTupleMemberDescriptorNode(
             STNode annotations,
-            STNode typeDesc) {
+            STNode typeDescriptor) {
         this(
                 annotations,
-                typeDesc,
+                typeDescriptor,
                 Collections.emptyList());
     }
 
     STTupleMemberDescriptorNode(
             STNode annotations,
-            STNode typeDesc,
+            STNode typeDescriptor,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MEMBER_TYPE_DESC, diagnostics);
         this.annotations = annotations;
-        this.typeDesc = typeDesc;
+        this.typeDescriptor = typeDescriptor;
 
         addChildren(
                 annotations,
-                typeDesc);
+                typeDescriptor);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTupleMemberDescriptorNode(
                 this.annotations,
-                this.typeDesc,
+                this.typeDescriptor,
                 diagnostics);
     }
 
     public STTupleMemberDescriptorNode modify(
             STNode annotations,
-            STNode typeDesc) {
+            STNode typeDescriptor) {
         if (checkForReferenceEquality(
                 annotations,
-                typeDesc)) {
+                typeDescriptor)) {
             return this;
         }
 
         return new STTupleMemberDescriptorNode(
                 annotations,
-                typeDesc,
+                typeDescriptor,
                 diagnostics);
     }
 

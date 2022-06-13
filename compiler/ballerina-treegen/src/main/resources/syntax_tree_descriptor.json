@@ -4383,7 +4383,7 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "typeDesc",
+                    "name": "typeDescriptor",
                     "type": "TypeDescriptorNode"
                 }
             ]
