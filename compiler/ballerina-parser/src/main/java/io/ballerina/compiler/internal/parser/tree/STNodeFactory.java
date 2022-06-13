@@ -2403,11 +2403,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createTupleMemberDescriptorNode(
-            STNode annotation,
+            STNode annotations,
             STNode typeDesc) {
 
         return new STTupleMemberDescriptorNode(
-                annotation,
+                annotations,
                 typeDesc);
     }
 }

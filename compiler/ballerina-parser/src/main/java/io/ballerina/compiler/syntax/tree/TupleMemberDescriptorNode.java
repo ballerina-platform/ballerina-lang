@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,19 +24,19 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
-public class TupleMemberDescriptorNode extends TypeDescriptorNode {
+public class TupleMemberDescriptorNode extends NonTerminalNode {
 
     public TupleMemberDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public NodeList<AnnotationNode> annotation() {
+    public NodeList<AnnotationNode> annotations() {
         return new NodeList<>(childInBucket(0));
     }
 
-    public Node typeDesc() {
+    public TypeDescriptorNode typeDesc() {
         return childInBucket(1);
     }
 
@@ -53,21 +53,21 @@ public class TupleMemberDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "annotation",
+                "annotations",
                 "typeDesc"};
     }
 
     public TupleMemberDescriptorNode modify(
-            NodeList<AnnotationNode> annotation,
-            Node typeDesc) {
+            NodeList<AnnotationNode> annotations,
+            TypeDescriptorNode typeDesc) {
         if (checkForReferenceEquality(
-                annotation.underlyingListNode(),
+                annotations.underlyingListNode(),
                 typeDesc)) {
             return this;
         }
 
         return NodeFactory.createTupleMemberDescriptorNode(
-                annotation,
+                annotations,
                 typeDesc);
     }
 
@@ -82,24 +82,24 @@ public class TupleMemberDescriptorNode extends TypeDescriptorNode {
      */
     public static class TupleMemberDescriptorNodeModifier {
         private final TupleMemberDescriptorNode oldNode;
-        private NodeList<AnnotationNode> annotation;
-        private Node typeDesc;
+        private NodeList<AnnotationNode> annotations;
+        private TypeDescriptorNode typeDesc;
 
         public TupleMemberDescriptorNodeModifier(TupleMemberDescriptorNode oldNode) {
             this.oldNode = oldNode;
-            this.annotation = oldNode.annotation();
+            this.annotations = oldNode.annotations();
             this.typeDesc = oldNode.typeDesc();
         }
 
-        public TupleMemberDescriptorNodeModifier withAnnotation(
-                NodeList<AnnotationNode> annotation) {
-            Objects.requireNonNull(annotation, "annotation must not be null");
-            this.annotation = annotation;
+        public TupleMemberDescriptorNodeModifier withAnnotations(
+                NodeList<AnnotationNode> annotations) {
+            Objects.requireNonNull(annotations, "annotations must not be null");
+            this.annotations = annotations;
             return this;
         }
 
         public TupleMemberDescriptorNodeModifier withTypeDesc(
-                Node typeDesc) {
+                TypeDescriptorNode typeDesc) {
             Objects.requireNonNull(typeDesc, "typeDesc must not be null");
             this.typeDesc = typeDesc;
             return this;
@@ -107,7 +107,7 @@ public class TupleMemberDescriptorNode extends TypeDescriptorNode {
 
         public TupleMemberDescriptorNode apply() {
             return oldNode.modify(
-                    annotation,
+                    annotations,
                     typeDesc);
         }
     }

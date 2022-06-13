@@ -3258,12 +3258,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public TupleMemberDescriptorNode transform(
             TupleMemberDescriptorNode tupleMemberDescriptorNode) {
-        NodeList<AnnotationNode> annotation =
-                modifyNodeList(tupleMemberDescriptorNode.annotation());
-        Node typeDesc =
+        NodeList<AnnotationNode> annotations =
+                modifyNodeList(tupleMemberDescriptorNode.annotations());
+        TypeDescriptorNode typeDesc =
                 modifyNode(tupleMemberDescriptorNode.typeDesc());
         return tupleMemberDescriptorNode.modify(
-                annotation,
+                annotations,
                 typeDesc);
     }
 

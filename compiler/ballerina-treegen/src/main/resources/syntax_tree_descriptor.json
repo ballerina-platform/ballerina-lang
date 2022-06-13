@@ -4374,17 +4374,17 @@
         },
         {
             "name": "TupleMemberDescriptorNode",
-            "base": "TypeDescriptorNode",
-            "kind": "TYPE_DESC",
+            "base": "Node",
+            "kind": "MEMBER_TYPE_DESC",
             "attributes": [
                 {
-                    "name": "annotation",
+                    "name": "annotations",
                     "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "typeDesc",
-                    "type": "Node"
+                    "type": "TypeDescriptorNode"
                 }
             ]
         }

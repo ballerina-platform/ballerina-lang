@@ -82,9 +82,4 @@ public class AnnotationsTest extends AbstractMiscTest {
     public void testAnnotAtExprLevelRecovery() {
         testFile("annotations/annotations_source_11.bal", "annotations/annotations_assert_11.json");
     }
-
-    @Test
-    public void testAnnotTupleMembers() {
-        testFile("annotations/annotations_source_12.bal", "annotations/annotations_assert_12.json");
-    }
 }

@@ -42,7 +42,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
                           "kind": "LIST",
@@ -113,7 +113,7 @@
                       ]
                     },
                     {
-                      "kind": "TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
                           "kind": "LIST",
@@ -230,7 +230,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
                           "kind": "LIST",
@@ -256,7 +256,7 @@
                       ]
                     },
                     {
-                      "kind": "TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
                           "kind": "LIST",
@@ -375,7 +375,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
                           "kind": "LIST",
@@ -604,7 +604,7 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
                                   "kind": "LIST",
@@ -654,7 +654,7 @@
                               ]
                             },
                             {
-                              "kind": "TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
                                   "kind": "LIST",

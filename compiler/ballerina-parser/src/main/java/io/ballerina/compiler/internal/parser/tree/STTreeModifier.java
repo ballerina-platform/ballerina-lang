@@ -2580,10 +2580,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STTupleMemberDescriptorNode transform(
             STTupleMemberDescriptorNode tupleMemberDescriptorNode) {
-        STNode annotation = modifyNode(tupleMemberDescriptorNode.annotation);
+        STNode annotations = modifyNode(tupleMemberDescriptorNode.annotations);
         STNode typeDesc = modifyNode(tupleMemberDescriptorNode.typeDesc);
         return tupleMemberDescriptorNode.modify(
-                annotation,
+                annotations,
                 typeDesc);
     }
 

@@ -28,52 +28,52 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2202.0
+ * @since 2201.2.0
  */
-public class STTupleMemberDescriptorNode extends STTypeDescriptorNode {
-    public final STNode annotation;
+public class STTupleMemberDescriptorNode extends STNode {
+    public final STNode annotations;
     public final STNode typeDesc;
 
     STTupleMemberDescriptorNode(
-            STNode annotation,
+            STNode annotations,
             STNode typeDesc) {
         this(
-                annotation,
+                annotations,
                 typeDesc,
                 Collections.emptyList());
     }
 
     STTupleMemberDescriptorNode(
-            STNode annotation,
+            STNode annotations,
             STNode typeDesc,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.TYPE_DESC, diagnostics);
-        this.annotation = annotation;
+        super(SyntaxKind.MEMBER_TYPE_DESC, diagnostics);
+        this.annotations = annotations;
         this.typeDesc = typeDesc;
 
         addChildren(
-                annotation,
+                annotations,
                 typeDesc);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STTupleMemberDescriptorNode(
-                this.annotation,
+                this.annotations,
                 this.typeDesc,
                 diagnostics);
     }
 
     public STTupleMemberDescriptorNode modify(
-            STNode annotation,
+            STNode annotations,
             STNode typeDesc) {
         if (checkForReferenceEquality(
-                annotation,
+                annotations,
                 typeDesc)) {
             return this;
         }
 
         return new STTupleMemberDescriptorNode(
-                annotation,
+                annotations,
                 typeDesc,
                 diagnostics);
     }
