@@ -37,6 +37,7 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
@@ -167,7 +168,6 @@ import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredExpressionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.ResourceAccessRestSegmentNode;
-import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
@@ -3491,16 +3491,16 @@ public class FormattingTreeModifier extends TreeModifier {
         Token rightArrowToken  = formatNode(clientResourceAccessActionNode.rightArrowToken(), 0, 0);
         Token slashToken;
         if (clientResourceAccessActionNode.resourceAccessPath().isEmpty() && 
-                !clientResourceAccessActionNode.methodName().isPresent() && 
-                !clientResourceAccessActionNode.arguments().isPresent()) {
+                clientResourceAccessActionNode.methodName().isEmpty() && 
+                clientResourceAccessActionNode.arguments().isEmpty()) {
             slashToken = formatNode(clientResourceAccessActionNode.slashToken(), env.trailingWS, env.trailingNL);
         } else {
             slashToken = formatNode(clientResourceAccessActionNode.slashToken(), 0, 0);
         }
 
         SeparatedNodeList<Node> resourceAccessPath;
-        if (!clientResourceAccessActionNode.methodName().isPresent() && 
-                !clientResourceAccessActionNode.arguments().isPresent()) {
+        if (clientResourceAccessActionNode.methodName().isEmpty() && 
+                clientResourceAccessActionNode.arguments().isEmpty()) {
             resourceAccessPath = formatSeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath(), 0, 
                     0, 0, 0, env.trailingWS, env.trailingNL);
         } else {
@@ -3509,7 +3509,7 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         SimpleNameReferenceNode methodName;
-        if (!clientResourceAccessActionNode.arguments().isPresent()) {
+        if (clientResourceAccessActionNode.arguments().isEmpty()) {
             methodName = formatNode(clientResourceAccessActionNode.methodName().orElse(null), 
                     env.trailingWS, env.trailingNL);
         } else {
@@ -3535,8 +3535,7 @@ public class FormattingTreeModifier extends TreeModifier {
     public ComputedResourceAccessSegmentNode transform(
             ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
         Token openBracket = formatToken(computedResourceAccessSegmentNode.openBracketToken(), 0, 0);
-        ExpressionNode expressionNode = 
-                formatNode(computedResourceAccessSegmentNode.expression(), 0, 0);
+        ExpressionNode expressionNode = formatNode(computedResourceAccessSegmentNode.expression(), 0, 0);
         Token closeBracket = formatToken(computedResourceAccessSegmentNode.closeBracketToken(), env.trailingWS,
                 env.trailingNL);
         
@@ -3548,12 +3547,10 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public ResourceAccessRestSegmentNode transform(
-            ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+    public ResourceAccessRestSegmentNode transform(ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
         Token openBracket = formatToken(resourceAccessRestSegmentNode.openBracketToken(), 0, 0);
         Token ellipsis = formatToken(resourceAccessRestSegmentNode.ellipsisToken(), 0, 0);
-        ExpressionNode expressionNode =
-                formatNode(resourceAccessRestSegmentNode.expression(), 0, 0);
+        ExpressionNode expressionNode = formatNode(resourceAccessRestSegmentNode.expression(), 0, 0);
         Token closeBracket = formatToken(resourceAccessRestSegmentNode.closeBracketToken(), env.trailingWS,
                 env.trailingNL);
 

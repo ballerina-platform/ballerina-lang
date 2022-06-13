@@ -6897,7 +6897,7 @@ public class BallerinaParser extends AbstractParser {
             if (hasRestPram) {
                 updateLastNodeInListWithInvalidNode(validatedList, leadingSlash, null);
                 updateLastNodeInListWithInvalidNode(validatedList, pathSegment, 
-                        DiagnosticErrorCode.ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM);
+                        DiagnosticErrorCode.ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM);
                 continue;
             }
 
@@ -6949,7 +6949,6 @@ public class BallerinaParser extends AbstractParser {
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
         STNode ellipsis = parseOptionalEllipsis();
         STNode paramName = parseOptionalPathParamName();
-
         STNode closeBracket = parseCloseBracket();
 
         SyntaxKind pathPramKind =

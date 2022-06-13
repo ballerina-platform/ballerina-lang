@@ -124,9 +124,9 @@ public class ServiceDeclTest {
         
         validateError(compileResult, i++, "resource path cannot begin with slash", 35, 27);
         validateError(compileResult, i++, 
-                "resource path parameter is not allowed after resource path rest parameter", 38, 44);
+                "resource path segment is not allowed after resource path rest parameter", 38, 44);
         validateError(compileResult, i++, 
-                "resource path parameter is not allowed after resource path rest parameter", 38, 49);
+                "resource path segment is not allowed after resource path rest parameter", 38, 49);
         
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
