@@ -25,17 +25,25 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Tests for JsonToRecordDirectConverter.
  */
 public class JsonToRecordDirectConverterTests {
-    @Test(description = "Test with basic json schema string")
-    public void testBasicSchema() throws FormatterException {
-//        String jsonFileContent = Files.readString(basicSchemaJson);
-        String generatedCodeBlock = JsonToRecordDirectConverter.convert("").getCodeBlock();
-        System.out.println(generatedCodeBlock);
-//        String expectedCodeBlock = Files.readString(basicSchemaBal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, "typeTestrecord{};");
+    private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
+
+    private final Path sample0Json = RES_DIR.resolve("json")
+            .resolve("sample_0.json");
+    private final Path sample0Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_0.bal");
+    @Test(description = "Test with basic json value")
+    public void testBasicSchema() throws FormatterException, IOException {
+        String jsonFileContent = Files.readString(sample0Json);
+        String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
+                replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
