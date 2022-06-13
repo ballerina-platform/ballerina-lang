@@ -2578,16 +2578,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STResourceMethodCallActionNode transform(
-            STResourceMethodCallActionNode resourceMethodCallActionNode) {
-        STNode expression = modifyNode(resourceMethodCallActionNode.expression);
-        STNode rightArrowToken = modifyNode(resourceMethodCallActionNode.rightArrowToken);
-        STNode slashToken = modifyNode(resourceMethodCallActionNode.slashToken);
-        STNode resourceAccessPath = modifyNode(resourceMethodCallActionNode.resourceAccessPath);
-        STNode dotToken = modifyNode(resourceMethodCallActionNode.dotToken);
-        STNode methodName = modifyNode(resourceMethodCallActionNode.methodName);
-        STNode arguments = modifyNode(resourceMethodCallActionNode.arguments);
-        return resourceMethodCallActionNode.modify(
+    public STClientResourceAccessActionNode transform(
+            STClientResourceAccessActionNode clientResourceAccessActionNode) {
+        STNode expression = modifyNode(clientResourceAccessActionNode.expression);
+        STNode rightArrowToken = modifyNode(clientResourceAccessActionNode.rightArrowToken);
+        STNode slashToken = modifyNode(clientResourceAccessActionNode.slashToken);
+        STNode resourceAccessPath = modifyNode(clientResourceAccessActionNode.resourceAccessPath);
+        STNode dotToken = modifyNode(clientResourceAccessActionNode.dotToken);
+        STNode methodName = modifyNode(clientResourceAccessActionNode.methodName);
+        STNode arguments = modifyNode(clientResourceAccessActionNode.arguments);
+        return clientResourceAccessActionNode.modify(
                 expression,
                 rightArrowToken,
                 slashToken,

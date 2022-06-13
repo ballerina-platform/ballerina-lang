@@ -832,8 +832,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(spreadMemberNode);
     }
 
-    public T transform(ResourceMethodCallActionNode resourceMethodCallActionNode) {
-        return transformSyntaxNode(resourceMethodCallActionNode);
+    public T transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        return transformSyntaxNode(clientResourceAccessActionNode);
     }
 
     public T transform(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {

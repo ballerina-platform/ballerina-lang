@@ -608,8 +608,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RESOURCE_PATH_SEGMENT_PARAM;
             case "RESOURCE_PATH_REST_PARAM":
                 return SyntaxKind.RESOURCE_PATH_REST_PARAM;
-            case "RESOURCE_METHOD_CALL_ACTION":
-                return SyntaxKind.RESOURCE_METHOD_CALL_ACTION;
+            case "CLIENT_RESOURCE_ACCESS_ACTION":
+                return SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION;
             case "COMPUTED_RESOURCE_ACCESS_SEGMENT":
                 return SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT;
             case "RESOURCE_ACCESS_REST_SEGMENT":

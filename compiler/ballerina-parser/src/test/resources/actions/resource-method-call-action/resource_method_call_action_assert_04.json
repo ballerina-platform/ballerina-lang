@@ -66,7 +66,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -134,7 +134,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -259,91 +259,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "RIGHT_ARROW_TOKEN"
-                    },
-                    {
-                      "kind": "SLASH_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_SLASH_TOKEN"
-                      ]
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "COMPUTED_RESOURCE_ACCESS_SEGMENT",
-                          "children": [
-                            {
-                              "kind": "OPEN_BRACKET_TOKEN"
-                            },
-                            {
-                              "kind": "SIMPLE_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "pathSegment"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CLOSE_BRACKET_TOKEN"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "DOT_TOKEN"
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "name"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ACTION_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -408,59 +324,6 @@
                           "value": "name"
                         }
                       ]
-                    },
-                    {
-                      "kind": "PARENTHESIZED_ARG_LIST",
-                      "children": [
-                        {
-                          "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                          "kind": "LIST",
-                          "children": [
-                            {
-                              "kind": "POSITIONAL_ARG",
-                              "children": [
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "arg1"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "POSITIONAL_ARG",
-                              "children": [
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "arg2"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "CLOSE_PAREN_TOKEN"
-                        }
-                      ]
                     }
                   ]
                 },
@@ -480,7 +343,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -513,13 +376,6 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "games"
-                        },
-                        {
-                          "kind": "SLASH_TOKEN"
-                        },
-                        {
                           "kind": "COMPUTED_RESOURCE_ACCESS_SEGMENT",
                           "children": [
                             {
@@ -530,7 +386,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "game"
+                                  "value": "pathSegment"
                                 }
                               ]
                             },
@@ -538,6 +394,18 @@
                               "kind": "CLOSE_BRACKET_TOKEN"
                             }
                           ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "DOT_TOKEN"
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "name"
                         }
                       ]
                     },
@@ -612,7 +480,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -674,6 +542,138 @@
                       ]
                     },
                     {
+                      "kind": "PARENTHESIZED_ARG_LIST",
+                      "children": [
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "POSITIONAL_ARG",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "arg1"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "COMMA_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "POSITIONAL_ARG",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "arg2"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ACTION_STATEMENT",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "RIGHT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "SLASH_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_SLASH_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "games"
+                        },
+                        {
+                          "kind": "SLASH_TOKEN"
+                        },
+                        {
+                          "kind": "COMPUTED_RESOURCE_ACCESS_SEGMENT",
+                          "children": [
+                            {
+                              "kind": "OPEN_BRACKET_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "game"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
                       "kind": "DOT_TOKEN"
                     },
                     {
@@ -756,7 +756,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -846,7 +846,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -940,7 +940,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1045,7 +1045,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1108,7 +1108,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1201,7 +1201,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1284,7 +1284,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1405,7 +1405,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {

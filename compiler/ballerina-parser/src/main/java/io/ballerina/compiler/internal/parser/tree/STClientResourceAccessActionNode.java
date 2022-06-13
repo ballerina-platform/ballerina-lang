@@ -17,9 +17,9 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.ResourceMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2201.2.0
  */
-public class STResourceMethodCallActionNode extends STActionNode {
+public class STClientResourceAccessActionNode extends STActionNode {
     public final STNode expression;
     public final STNode rightArrowToken;
     public final STNode slashToken;
@@ -39,7 +39,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
     public final STNode methodName;
     public final STNode arguments;
 
-    STResourceMethodCallActionNode(
+    STClientResourceAccessActionNode(
             STNode expression,
             STNode rightArrowToken,
             STNode slashToken,
@@ -58,7 +58,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
                 Collections.emptyList());
     }
 
-    STResourceMethodCallActionNode(
+    STClientResourceAccessActionNode(
             STNode expression,
             STNode rightArrowToken,
             STNode slashToken,
@@ -67,7 +67,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
             STNode methodName,
             STNode arguments,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.RESOURCE_METHOD_CALL_ACTION, diagnostics);
+        super(SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION, diagnostics);
         this.expression = expression;
         this.rightArrowToken = rightArrowToken;
         this.slashToken = slashToken;
@@ -87,7 +87,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STResourceMethodCallActionNode(
+        return new STClientResourceAccessActionNode(
                 this.expression,
                 this.rightArrowToken,
                 this.slashToken,
@@ -98,7 +98,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
                 diagnostics);
     }
 
-    public STResourceMethodCallActionNode modify(
+    public STClientResourceAccessActionNode modify(
             STNode expression,
             STNode rightArrowToken,
             STNode slashToken,
@@ -117,7 +117,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
             return this;
         }
 
-        return new STResourceMethodCallActionNode(
+        return new STClientResourceAccessActionNode(
                 expression,
                 rightArrowToken,
                 slashToken,
@@ -129,7 +129,7 @@ public class STResourceMethodCallActionNode extends STActionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ResourceMethodCallActionNode(this, position, parent);
+        return new ClientResourceAccessActionNode(this, position, parent);
     }
 
     @Override

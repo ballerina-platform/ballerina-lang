@@ -3256,23 +3256,23 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ResourceMethodCallActionNode transform(
-            ResourceMethodCallActionNode resourceMethodCallActionNode) {
+    public ClientResourceAccessActionNode transform(
+            ClientResourceAccessActionNode clientResourceAccessActionNode) {
         ExpressionNode expression =
-                modifyNode(resourceMethodCallActionNode.expression());
+                modifyNode(clientResourceAccessActionNode.expression());
         Token rightArrowToken =
-                modifyToken(resourceMethodCallActionNode.rightArrowToken());
+                modifyToken(clientResourceAccessActionNode.rightArrowToken());
         Token slashToken =
-                modifyToken(resourceMethodCallActionNode.slashToken());
+                modifyToken(clientResourceAccessActionNode.slashToken());
         SeparatedNodeList<Node> resourceAccessPath =
-                modifySeparatedNodeList(resourceMethodCallActionNode.resourceAccessPath());
+                modifySeparatedNodeList(clientResourceAccessActionNode.resourceAccessPath());
         Token dotToken =
-                modifyToken(resourceMethodCallActionNode.dotToken().orElse(null));
+                modifyToken(clientResourceAccessActionNode.dotToken().orElse(null));
         SimpleNameReferenceNode methodName =
-                modifyNode(resourceMethodCallActionNode.methodName().orElse(null));
+                modifyNode(clientResourceAccessActionNode.methodName().orElse(null));
         ParenthesizedArgList arguments =
-                modifyNode(resourceMethodCallActionNode.arguments().orElse(null));
-        return resourceMethodCallActionNode.modify(
+                modifyNode(clientResourceAccessActionNode.arguments().orElse(null));
+        return clientResourceAccessActionNode.modify(
                 expression,
                 rightArrowToken,
                 slashToken,

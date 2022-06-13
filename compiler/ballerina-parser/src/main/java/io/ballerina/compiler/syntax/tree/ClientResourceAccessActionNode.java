@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,11 +25,11 @@ import java.util.Optional;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
-public class ResourceMethodCallActionNode extends ActionNode {
+public class ClientResourceAccessActionNode extends ActionNode {
 
-    public ResourceMethodCallActionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ClientResourceAccessActionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -83,7 +83,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
                 "arguments"};
     }
 
-    public ResourceMethodCallActionNode modify(
+    public ClientResourceAccessActionNode modify(
             ExpressionNode expression,
             Token rightArrowToken,
             Token slashToken,
@@ -102,7 +102,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
             return this;
         }
 
-        return NodeFactory.createResourceMethodCallActionNode(
+        return NodeFactory.createClientResourceAccessActionNode(
                 expression,
                 rightArrowToken,
                 slashToken,
@@ -112,17 +112,17 @@ public class ResourceMethodCallActionNode extends ActionNode {
                 arguments);
     }
 
-    public ResourceMethodCallActionNodeModifier modify() {
-        return new ResourceMethodCallActionNodeModifier(this);
+    public ClientResourceAccessActionNodeModifier modify() {
+        return new ClientResourceAccessActionNodeModifier(this);
     }
 
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2.0.0
+     * @since 2201.2.0
      */
-    public static class ResourceMethodCallActionNodeModifier {
-        private final ResourceMethodCallActionNode oldNode;
+    public static class ClientResourceAccessActionNodeModifier {
+        private final ClientResourceAccessActionNode oldNode;
         private ExpressionNode expression;
         private Token rightArrowToken;
         private Token slashToken;
@@ -131,7 +131,7 @@ public class ResourceMethodCallActionNode extends ActionNode {
         private SimpleNameReferenceNode methodName;
         private ParenthesizedArgList arguments;
 
-        public ResourceMethodCallActionNodeModifier(ResourceMethodCallActionNode oldNode) {
+        public ClientResourceAccessActionNodeModifier(ClientResourceAccessActionNode oldNode) {
             this.oldNode = oldNode;
             this.expression = oldNode.expression();
             this.rightArrowToken = oldNode.rightArrowToken();
@@ -142,53 +142,53 @@ public class ResourceMethodCallActionNode extends ActionNode {
             this.arguments = oldNode.arguments().orElse(null);
         }
 
-        public ResourceMethodCallActionNodeModifier withExpression(
+        public ClientResourceAccessActionNodeModifier withExpression(
                 ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withRightArrowToken(
+        public ClientResourceAccessActionNodeModifier withRightArrowToken(
                 Token rightArrowToken) {
             Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
             this.rightArrowToken = rightArrowToken;
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withSlashToken(
+        public ClientResourceAccessActionNodeModifier withSlashToken(
                 Token slashToken) {
             Objects.requireNonNull(slashToken, "slashToken must not be null");
             this.slashToken = slashToken;
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withResourceAccessPath(
+        public ClientResourceAccessActionNodeModifier withResourceAccessPath(
                 SeparatedNodeList<Node> resourceAccessPath) {
             Objects.requireNonNull(resourceAccessPath, "resourceAccessPath must not be null");
             this.resourceAccessPath = resourceAccessPath;
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withDotToken(
+        public ClientResourceAccessActionNodeModifier withDotToken(
                 Token dotToken) {
             this.dotToken = dotToken;
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withMethodName(
+        public ClientResourceAccessActionNodeModifier withMethodName(
                 SimpleNameReferenceNode methodName) {
             this.methodName = methodName;
             return this;
         }
 
-        public ResourceMethodCallActionNodeModifier withArguments(
+        public ClientResourceAccessActionNodeModifier withArguments(
                 ParenthesizedArgList arguments) {
             this.arguments = arguments;
             return this;
         }
 
-        public ResourceMethodCallActionNode apply() {
+        public ClientResourceAccessActionNode apply() {
             return oldNode.modify(
                     expression,
                     rightArrowToken,

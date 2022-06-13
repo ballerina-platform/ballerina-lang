@@ -831,8 +831,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(spreadMemberNode);
     }
 
-    public void visit(ResourceMethodCallActionNode resourceMethodCallActionNode) {
-        visitSyntaxNode(resourceMethodCallActionNode);
+    public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        visitSyntaxNode(clientResourceAccessActionNode);
     }
 
     public void visit(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
