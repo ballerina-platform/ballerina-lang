@@ -17,7 +17,6 @@
  */
 package io.ballerina.tools.text;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
