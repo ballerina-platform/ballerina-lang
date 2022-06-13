@@ -18,11 +18,18 @@
 
 package io.ballerina.compiler.api.impl;
 
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -44,9 +51,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class provides an API which given a type containing a type param component, returns a new type with the type
@@ -151,12 +160,57 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BObjectType typeInSymbol, BType boundType) {
-        return typeInSymbol;
+
+        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeInSymbol.tsymbol;
+        LinkedHashMap<String, BField> newObjectFields = new LinkedHashMap<>();
+
+        // Fields
+        Set<Map.Entry<String, BField>> entries = typeInSymbol.getFields().entrySet();
+        for (Map.Entry<String, BField> entry: entries) {
+            BType newType = resolve(entry.getValue().type, boundType);
+            BVarSymbol newVarSymbol = createNewVarSymbol(entry.getValue().symbol, newType);
+            BField newField = new BField(newVarSymbol.getName(), newVarSymbol.getPosition(), newVarSymbol);
+            newObjectFields.put(entry.getKey(), newField);
+        }
+
+        // Attached functions
+        List<BAttachedFunction> newAttachedFuncs = new ArrayList<>();
+        for (BAttachedFunction attachedFunc : objectTypeSymbol.attachedFuncs) {
+            BType newType = resolve(attachedFunc.type, boundType);
+            BInvokableSymbol newInvokableSymbol = resolveInvokableSymbol(attachedFunc.symbol, newType, boundType);
+            BAttachedFunction newAttachedFunc = new BAttachedFunction(attachedFunc.funcName, newInvokableSymbol,
+                                                    (BInvokableType) newType, attachedFunc.pos);
+            newAttachedFuncs.add(newAttachedFunc);
+        }
+
+        BObjectTypeSymbol newTypeSymbol = new BObjectTypeSymbol(objectTypeSymbol.tag, objectTypeSymbol.flags,
+                objectTypeSymbol.name, objectTypeSymbol.pkgID, objectTypeSymbol.getType(), objectTypeSymbol.owner,
+                objectTypeSymbol.pos, objectTypeSymbol.origin);
+        BObjectType newObjectType = new BObjectType(newTypeSymbol, typeInSymbol.flags);
+
+        newObjectType.fields = newObjectFields;
+        newTypeSymbol.attachedFuncs = newAttachedFuncs;
+
+        return newObjectType;
     }
 
     @Override
     public BType visit(BRecordType typeInSymbol, BType boundType) {
-        return typeInSymbol;
+        LinkedHashMap<String, BField> newRecordFields = new LinkedHashMap<>();
+        Set<Map.Entry<String, BField>> entries = typeInSymbol.fields.entrySet();
+        for (Map.Entry<String, BField> entry: entries) {
+            BType newType = resolve(entry.getValue().type, boundType);
+            BVarSymbol newVarSymbol = createNewVarSymbol(entry.getValue().symbol, newType);
+            BField newField = new BField(newVarSymbol.getName(), newVarSymbol.getPosition(), newVarSymbol);
+            newRecordFields.put(entry.getKey(), newField);
+        }
+
+        BType newRestType = resolve(typeInSymbol.restFieldType, boundType);
+        BRecordType newRecordType = new BRecordType(typeInSymbol.tsymbol, typeInSymbol.flags);
+
+        newRecordType.fields = newRecordFields;
+        newRecordType.restFieldType = newRestType;
+        return newRecordType;
     }
 
     @Override
@@ -266,5 +320,70 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     private boolean isTypeParam(BType type) {
         return type == this.typeParam;
+    }
+
+    private BVarSymbol createNewVarSymbol(BVarSymbol symbol, BType newType) {
+
+        if (symbol == null) {
+            return null;
+        }
+
+        BType originalType = symbol.getType();
+
+        if (originalType == newType) {
+            return symbol;
+        }
+
+        BVarSymbol duplicateSymbol = duplicateSymbol(symbol);
+        duplicateSymbol.type = newType;
+
+        return duplicateSymbol;
+    }
+
+    private BInvokableSymbol resolveInvokableSymbol(BInvokableSymbol symbol, BType newInvokableType, BType boundType) {
+        BInvokableSymbol newInvokableSymbol = duplicateSymbol(symbol);
+        newInvokableSymbol.type = newInvokableType;
+
+        for (BVarSymbol param : symbol.params) {
+            BType newParamType = resolve(param.type, boundType);
+            BVarSymbol newVarSymbol = createNewVarSymbol(param, newParamType);
+            newInvokableSymbol.params.add(newVarSymbol);
+        }
+
+        if (symbol.restParam != null) {
+            BType newReturnType = resolve(symbol.restParam.type, boundType);
+            newInvokableSymbol.restParam = createNewVarSymbol(symbol.restParam, newReturnType);
+        }
+
+        newInvokableSymbol.retType = resolve(symbol.retType, boundType);
+        return newInvokableSymbol;
+    }
+
+    private BVarSymbol duplicateSymbol(BVarSymbol original) {
+        BVarSymbol duplicate = new BVarSymbol(original.flags, original.isWildcard, original.name, original.originalName,
+                original.pkgID, original.type, original.owner, original.pos,
+                original.origin);
+        duplicate.markdownDocumentation = original.markdownDocumentation;
+
+        for (AnnotationAttachmentSymbol annot : original.getAnnotations()) {
+            duplicate.addAnnotation(annot);
+        }
+
+        duplicate.isDefaultable = original.isDefaultable;
+        duplicate.state = original.state;
+
+        return duplicate;
+    }
+
+    private BInvokableSymbol duplicateSymbol(BInvokableSymbol original) {
+        BInvokableSymbol duplicate = Symbols.createInvokableSymbol(original.tag, original.flags, original.name,
+                original.originalName, original.pkgID, original.type,
+                original.owner, original.pos, original.origin);
+        ((List<AnnotationAttachmentSymbol>) duplicate.getAnnotations()).addAll(original.getAnnotations());
+        duplicate.bodyExist = original.bodyExist;
+        duplicate.markdownDocumentation = original.markdownDocumentation;
+        duplicate.receiverSymbol = original.receiverSymbol;
+
+        return duplicate;
     }
 }
