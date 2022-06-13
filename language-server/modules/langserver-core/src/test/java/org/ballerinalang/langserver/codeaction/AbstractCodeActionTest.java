@@ -149,6 +149,14 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         continue;
                     }
                 }
+                // Match code action kind
+                JsonElement expKind = expected.get("kind");
+                if (expKind != null) {
+                    String actualKind = right.get("kind").getAsString();
+                    if (!expKind.getAsString().equals(actualKind)) {
+                        continue;
+                    }
+                }
                 // Code-action matched
                 codeActionFound = true;
                 break;

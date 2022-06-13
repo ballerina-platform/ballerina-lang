@@ -4,7 +4,7 @@
   "expected": [
     {
       "title": "Update documentation",
-      "kind": "quickfix",
+      "kind": "refactor",
       "command": {
         "title": "Update documentation",
         "command": "UPDATE_DOC",

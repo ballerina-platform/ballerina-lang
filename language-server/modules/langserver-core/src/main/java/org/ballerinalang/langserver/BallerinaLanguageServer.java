@@ -128,9 +128,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
-        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor, CodeActionKind.QuickFix,
-                CodeActionKind.Source, CodeActionKind.SourceOrganizeImports, CodeActionKind.RefactorExtract,
-                CodeActionKind.RefactorInline, CodeActionKind.RefactorRewrite));
+        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor, 
+                CodeActionKind.QuickFix, CodeActionKind.Source));
         res.getCapabilities().setCodeActionProvider(codeActionOptions);
 
         // Hover, references and definition support will be registered dynamically if supported
