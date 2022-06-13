@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Extract type",
+      "kind": "refactor.extract",
       "edits": [
         {
           "range": {

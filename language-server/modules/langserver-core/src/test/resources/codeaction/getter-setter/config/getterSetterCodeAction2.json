@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create a getter for 'count'",
+      "kind": "source",
       "edits": [
         {
           "range": {

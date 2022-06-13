@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create a setter for 'count'",
+      "kind": "source",
       "edits": [
         {
           "range": {

@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Type guard variable 'cur'",
+            "kind": "source",
             "edits": [
                 {
                     "range": {
