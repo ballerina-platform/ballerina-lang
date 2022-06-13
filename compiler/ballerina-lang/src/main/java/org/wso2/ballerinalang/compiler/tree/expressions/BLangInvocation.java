@@ -273,4 +273,28 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             return modifier.transform(this, props);
         }
     }
+
+    /**
+     * @since 2201.2.0
+     */
+    public static class BLangResourceAccessInvocation extends BLangInvocation implements ActionNode {
+        
+        public boolean invokedInsideTransaction = false;
+        public List<BLangExpression> resourceAccessPathSegments;
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public <T> void accept(BLangNodeAnalyzer<T> analyzer, T props) {
+            analyzer.visit(this, props);
+        }
+
+        @Override
+        public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
+            return modifier.transform(this, props);
+        }
+    }
 }

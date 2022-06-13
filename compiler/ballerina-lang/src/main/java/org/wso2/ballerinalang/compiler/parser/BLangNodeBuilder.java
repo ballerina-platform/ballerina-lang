@@ -38,9 +38,11 @@ import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
+import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
@@ -157,6 +159,7 @@ import io.ballerina.compiler.syntax.tree.RecordRestDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourceAccessRestSegmentNode;
 import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestArgumentNode;
 import io.ballerina.compiler.syntax.tree.RestBindingPatternNode;
@@ -1979,12 +1982,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             BLangExpression memberExpr;
             if (listMember.kind() == SyntaxKind.SPREAD_MEMBER) {
                 Node spreadMemberExpr = ((SpreadMemberNode) listMember).expression();
-                BLangExpression bLangExpr = createExpression(spreadMemberExpr);
-
-                BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
-                spreadOpExpr.setExpression(bLangExpr);
-                spreadOpExpr.pos = getPosition(spreadMemberExpr);
-                memberExpr = spreadOpExpr;
+                memberExpr = createSpreadMemberExpr(spreadMemberExpr, getPosition(spreadMemberExpr));
             } else {
                 memberExpr = createExpression(listMember);
             }
@@ -4184,6 +4182,56 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         matchStatement.pos = getPosition(matchStatementNode);
         return matchStatement;
     }
+    
+    @Override
+    public BLangNode transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        BLangInvocation.BLangResourceAccessInvocation resourceInvocation = TreeBuilder.createResourceAccessInvocation();
+        resourceInvocation.expr = createExpression(clientResourceAccessActionNode.expression());
+
+        SeparatedNodeList<Node> resourceAccessPath = clientResourceAccessActionNode.resourceAccessPath();
+        List<BLangExpression> pathSegments = new ArrayList<>(resourceAccessPath.size());
+        for (Node resourceAccessSegment : resourceAccessPath) {
+            switch (resourceAccessSegment.kind()) {
+                case COMPUTED_RESOURCE_ACCESS_SEGMENT:
+                    pathSegments.add(
+                            createExpression(((ComputedResourceAccessSegmentNode) resourceAccessSegment).expression()));
+                    break;
+                case RESOURCE_ACCESS_REST_SEGMENT:
+                    ResourceAccessRestSegmentNode resourceAccessRestSegment =
+                            (ResourceAccessRestSegmentNode) resourceAccessSegment;
+                    BLangExpression spreadMemberExpr = createSpreadMemberExpr(resourceAccessRestSegment.expression(),
+                            getPosition(resourceAccessRestSegment));
+                    pathSegments.add(spreadMemberExpr);
+                    break;
+                default:
+                    Token resourceSegmentName = (Token) resourceAccessSegment;
+                    pathSegments.add(createStringLiteral(resourceSegmentName.text(), getPosition(resourceSegmentName)));
+            }
+        }
+
+        resourceInvocation.resourceAccessPathSegments = pathSegments;
+        
+        if (clientResourceAccessActionNode.methodName().isPresent()) {
+            resourceInvocation.name = createIdentifier(clientResourceAccessActionNode.methodName().get().name());
+        } else {
+            resourceInvocation.name = createIdentifier(null, "get");
+        }
+
+        if (clientResourceAccessActionNode.arguments().isPresent()) {
+            resourceInvocation.argExprs = applyAll(clientResourceAccessActionNode.arguments().get().arguments());
+        }
+        
+        if (clientResourceAccessActionNode.expression().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode iNode = (QualifiedNameReferenceNode) clientResourceAccessActionNode.expression();
+            Token modulePrefix = iNode.modulePrefix();
+            resourceInvocation.pkgAlias = this.createIdentifier(getPosition(modulePrefix), modulePrefix);
+        } else {
+            resourceInvocation.pkgAlias = this.createIdentifier(symTable.builtinPos, "");
+        }
+        
+        resourceInvocation.pos = getPosition(clientResourceAccessActionNode);
+        return resourceInvocation;
+    }
 
     private BLangXMLSequenceLiteral createXmlSequence(TemplateExpressionNode expressionNode) {
         BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral)
@@ -6092,6 +6140,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         userDefinedType.pkgAlias = pkgAlias;
         userDefinedType.typeName = name;
         return userDefinedType;
+    }
+    
+    private BLangListConstructorSpreadOpExpr createSpreadMemberExpr(Node expr, Location pos) {
+        BLangExpression bLangExpr = createExpression(expr);
+        BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+        spreadOpExpr.setExpression(bLangExpr);
+        spreadOpExpr.pos = pos;
+        return spreadOpExpr;
     }
 
     private boolean withinByteRange(Object num) {
