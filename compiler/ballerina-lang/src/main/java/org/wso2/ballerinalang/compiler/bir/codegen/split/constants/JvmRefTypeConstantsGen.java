@@ -87,7 +87,8 @@ public class JvmRefTypeConstantsGen {
 
     private String generateTypeRefInits(BTypeReferenceType type) {
         String varName =
-                JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.getQualifiedTypeName()) + type.flags;
+                JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.getQualifiedTypeName())
+                        + type.flags;
         visitTypeRefField(varName);
         createTypeRefType(mv, type, varName);
         genPopulateMethod(type, varName);
