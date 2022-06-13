@@ -14,43 +14,40 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/config;
 import ballerina/http;
-import ballerina/io;
 
-http:ClientConfiguration mutualSslClientConf = {
-    secureSocket:{
-        keyStore:{
-            path: config:getAsString("keystore"),
-            password: "ballerina"
+public function testMutualTls(string keystorePath, string truststorePath) returns @tainted string {
+    http:ClientConfiguration mutualSslClientConf = {
+        secureSocket:{
+            keyStore:{
+                path: keystorePath,
+                password: "ballerina"
+            },
+            trustStore:{
+                path: truststorePath,
+                password: "ballerina"
+            },
+            protocol:{
+                name: "TLSv1.2",
+                versions: ["TLSv1.2", "TLSv1.1"]
+            },
+            ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
         },
-        trustStore:{
-            path: config:getAsString("truststore"),
-            password: "ballerina"
-        },
-        protocol:{
-            name: "TLSv1.2",
-            versions: ["TLSv1.2", "TLSv1.1"]
-        },
-        ciphers: ["TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"]
-    },
-    httpVersion: "2.0",
-    http2Settings: { http2PriorKnowledge: true }
-};
-
-public function main() {
+        httpVersion: "2.0",
+        http2Settings: { http2PriorKnowledge: true }
+    };
     http:Client httpClient = new("https://localhost:9104", mutualSslClientConf);
     var resp = httpClient->get("/echo/");
     if (resp is http:Response) {
         var payload = resp.getTextPayload();
         if (payload is string) {
-            io:println(payload);
+            return payload;
         } else {
             error err = payload;
-            io:println(<string> err.detail()?.message);
+            return <string> err.detail()?.message;
         }
     } else {
         error err = resp;
-        io:println(<string> err.detail()?.message);
+        return <string> err.detail()?.message;
     }
 }
