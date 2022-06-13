@@ -14,7 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
 import ballerina/lang.runtime;
 import ballerina/test;
 
@@ -41,7 +40,7 @@ public class ABC {
     public function gracefulStop() returns error? {
        incrementCount();
        assertCount(3);
-       io:println("Stopped module A");
+       panic error("Stopped module A");
     }
 
     public function immediateStop() returns error? {

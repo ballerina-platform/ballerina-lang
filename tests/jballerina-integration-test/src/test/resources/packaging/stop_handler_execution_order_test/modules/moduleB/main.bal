@@ -14,20 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
 import ballerina/lang.runtime;
 
-public function main() {
-    ListenerObject1 ep = new ListenerObject1("ModDynA");
-    ListenerObj2 lo = new ListenerObj2();
-    runtime:registerListener(ep);
-    runtime:registerListener(lo);
-    checkpanic ep.gracefulStop();
-    runtime:deregisterListener(ep);
-    checkpanic lo.gracefulStop();
-    runtime:deregisterListener(lo);
+int initCount = 0;
+int count = 0;
+
+function init() {
+    initCount += 1;
+    incrementAndAssertInt(1);
+    runtime:onGracefulStop(stopHandlerFunc);
 }
 
-public class ListenerObject1 {
+public function stopHandlerFunc() returns error? {
+    incrementAndAssertInt(12);
+    panic error("Stopped moduleB");
+}
+
+public function getInitCount() returns int {
+    return initCount;
+}
+
+public class TestListener {
 
     private string name = "";
 
@@ -36,14 +44,11 @@ public class ListenerObject1 {
     }
 
     public function 'start() returns error? {
-
+        incrementAndAssert(self.name, "moduleB", 5);
     }
 
     public function gracefulStop() returns error? {
-        runtime:sleep(2);
-        if (self.name == "ModA") {
-            panic error("Stopped module A");
-        }
+        incrementAndAssert(self.name, "moduleB", 11);
     }
 
     public function immediateStop() returns error? {
@@ -56,17 +61,15 @@ public class ListenerObject1 {
     }
 }
 
-listener ListenerObject1 ep = new ListenerObject1("ModA");
+listener TestListener ep = new TestListener("moduleB");
 
+public function incrementAndAssertInt(int val) {
+    count += 1;
+    test:assertEquals(count, val);
+}
 
-public class ListenerObj2 {
-    public function init() {}
-
-    public function 'start() returns error? {}
-
-    public function gracefulStop() returns error? {
-        runtime:sleep(2);
+function incrementAndAssert(string name, string expectedName, int val) {
+    if (expectedName == name) {
+        incrementAndAssertInt(val);
     }
-
-    public function immediateStop() returns error? {}
 }
