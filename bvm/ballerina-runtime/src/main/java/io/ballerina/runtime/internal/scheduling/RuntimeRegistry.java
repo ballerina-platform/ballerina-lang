@@ -16,12 +16,14 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.internal.types.BFunctionType;
-import io.ballerina.runtime.internal.values.FPValue;
+import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -65,12 +67,12 @@ public class RuntimeRegistry {
         }
 
         AsyncUtils.blockStrand(strand);
-        invokeMethodAsyncConcurrently(strand, strand.getMetadata(), result -> { }, () -> null, strand.scheduler);
+        invokeMethodAsyncConcurrently(strand, strand.getMetadata(), result -> { }, () -> null);
     }
 
     private void invokeMethodAsyncConcurrently(Strand strand, StrandMetadata metadata,
                                                Consumer<Object> futureResultConsumer,
-                                               Supplier<Object> returnValueSupplier, Scheduler scheduler) {
+                                               Supplier<Object> returnValueSupplier) {
         Iterator<BObject> itr = listenerSet.iterator();
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
@@ -78,7 +80,7 @@ public class RuntimeRegistry {
                 futureResultConsumer.accept(getFutureResult());
                 if (itr.hasNext()) {
                     invokeMethodAsyncConcurrently(strand, metadata, futureResultConsumer,
-                            returnValueSupplier, scheduler);
+                            returnValueSupplier);
                 } else {
                     setReturnValues(returnValueSupplier.get());
                 }
@@ -91,10 +93,25 @@ public class RuntimeRegistry {
         };
 
         BObject listener = itr.next();
-        Function<?, ?> func = o -> listener.call((Strand) (((Object[]) o)[0]), "gracefulStop");
-        BFunctionPointer<?, ?> bFunctionPointer = new FPValue<>(func, new BFunctionType(), null, false);
-        AsyncUtils.invokeFunctionPointerAsync(bFunctionPointer, strand, null, metadata,
-                new Object[]{strand}, callback, scheduler);
+        invokeMethodConcurrently(listener, strand, callback, metadata);
+    }
+
+    private void invokeMethodConcurrently(BObject listener, Strand parent, AsyncFunctionCallback callback,
+                                          StrandMetadata metadata) {
+        try {
+            Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
+            AsyncUtils.blockStrand(parent);
+            FutureValue future = scheduler.createFuture(parent, null, null, PredefinedTypes.TYPE_NULL,
+                    null, metadata);
+            future.callback = callback;
+            callback.setFuture(future);
+            callback.setStrand(parent);
+            scheduler.schedule(new Object[1], func, future);
+        } catch (BError error) {
+            callback.notifyFailure(error);
+        } catch (Throwable t) {
+            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(t.getMessage())));
+        }
     }
 
     public synchronized void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {

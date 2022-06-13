@@ -222,7 +222,7 @@ public class Scheduler {
         return schedule(params, function, future);
     }
 
-    private FutureValue schedule(Object[] params, Function function, FutureValue future) {
+    public FutureValue schedule(Object[] params, Function function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;

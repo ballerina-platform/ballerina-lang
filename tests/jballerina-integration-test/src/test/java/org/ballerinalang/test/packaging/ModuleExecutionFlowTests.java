@@ -101,16 +101,23 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testDynamicListenerExecution() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_execution");
-        runAssertDynamicListener(projectPath);
+        runAssertLoggedMessage(projectPath);
     }
 
     @Test
     public void testDynamicListenerDeregister() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_deregister");
         runAssertDynamicListener(projectPath);
+    }
+
+    @Test(enabled = false)
+    public void testMultipleDynamicListenersWithAsyncCall() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+                "dynamic_listener_async_call_test_project");
+        runAssertLoggedMessage(projectPath);
     }
 
     private void runAssertDynamicListener(Path projectPath) throws BallerinaTestException {
@@ -121,6 +128,17 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.addErrorLogLeecher(errLeecherA);
         serverInstance.shutdownServer();
         errLeecherA.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    private void runAssertLoggedMessage(Path projectPath) throws BallerinaTestException {
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher logLeecherA = new LogLeecher("Stopped module A");
+        serverInstance.addLogLeecher(logLeecherA);
+        serverInstance.shutdownServer();
+        logLeecherA.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 

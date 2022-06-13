@@ -42,11 +42,9 @@ import java.util.function.Function;
 public class Runtime {
 
     private final Scheduler scheduler;
-//    private final RuntimeRegistry runtimeRegistry;
 
     Runtime(Scheduler scheduler) {
         this.scheduler = scheduler;
-//        this.runtimeRegistry = new RuntimeRegistry(scheduler);
     }
 
     /**
