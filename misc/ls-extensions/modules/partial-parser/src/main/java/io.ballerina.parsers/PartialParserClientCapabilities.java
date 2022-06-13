@@ -20,7 +20,7 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
 /**
  * Client capabilities for the partialParser service.
  *
- * @since 2201.1.1
+ * @since 2201.0.5
  */
 public class PartialParserClientCapabilities extends BallerinaClientCapability {
 
