@@ -18,21 +18,16 @@
 
 package org.ballerinalang.test.service.http2;
 
-import java.nio.file.Path;
 import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
