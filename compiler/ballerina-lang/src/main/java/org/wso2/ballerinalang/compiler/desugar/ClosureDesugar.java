@@ -1221,6 +1221,10 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     private TreeMap<Integer, BVarSymbol> collectClosureMapSymbols(SymbolEnv symbolEnv, BLangInvokableNode enclInvokable,
                                                                   boolean isWorker) {
+        int envCountFix = 0;
+        if (enclInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
+            envCountFix = -1;
+        }
         // Recursively iterate back to the encl invokable and get all map symbols visited.
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
         while (symbolEnv != null && symbolEnv.enclInvokable == enclInvokable) {
@@ -1233,7 +1237,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
             }
 
             if (mapSym != null) {
-                enclMapSymbols.putIfAbsent(symbolEnv.envCount, mapSym);
+                enclMapSymbols.putIfAbsent(symbolEnv.envCount + envCountFix, mapSym);
             } else if (isWorker) {
                 // Create mapSymbol in outer function node when it contain workers and it's not already created.
                 // We need this to allow worker identifier to be used as a future.
@@ -1465,8 +1469,59 @@ public class ClosureDesugar extends BLangNodeVisitor {
             if (bLangFunction.paramClosureMap.containsKey(resolvedLevel)) {
                 return;
             }
-            bLangFunction.paramClosureMap
-                    .put(resolvedLevel, createMapSymbol(PARAMETER_MAP_NAME + resolvedLevel, symbolEnv));
+            if (bLangFunction.flagSet.contains(Flag.OBJECT_CTOR)) {
+                BLangClassDefinition classDefinition = (BLangClassDefinition) bLangFunction.parent;
+                OCEDynamicEnvData oceDynamicEnvData = classDefinition.oceEnvData;
+                if (!bLangFunction.paramClosureMap.containsKey(resolvedLevel)) {
+                    bLangFunction.paramClosureMap.put(resolvedLevel, oceDynamicEnvData.blockLevelMapSymbol);
+                }
+                if (bLangFunction.mapSymbol != null) {
+                    BVarSymbol selfSymbol = bLangFunction.receiver.symbol;
+                    BLangSimpleVarRef selfVarRef = ASTBuilderUtil.createVariableRef(bLangFunction.pos, selfSymbol);
+                    BLangIdentifier identifierNode = ASTBuilderUtil.createIdentifier(bLangFunction.pos,
+                            oceDynamicEnvData.blockLevelMapSymbol.name.value);
+                    BLangFieldBasedAccess fieldAccess = ASTBuilderUtil.createFieldAccessExpr(selfVarRef,
+                            identifierNode);
+                    fieldAccess.symbol = oceDynamicEnvData.blockLevelMapSymbol;
+                    fieldAccess.setBType(bLangFunction.mapSymbol.type);
+                    fieldAccess.expectedType = bLangFunction.mapSymbol.type;
+                    fieldAccess.isStoreOnCreation = true;
+                    fieldAccess.isLValue = false;
+                    fieldAccess.fieldKind = FieldKind.SINGLE;
+                    fieldAccess.leafNode = true;
+
+                    SymbolEnv env = oceDynamicEnvData.capturedClosureEnv;
+                    BLangBlockFunctionBody body = (BLangBlockFunctionBody) bLangFunction.body;
+
+                    BVarSymbol parentBlockSymbol = new BVarSymbol(0,
+                            names.fromString("$passThroughMap"),
+                            env.scope.owner.pkgID, oceDynamicEnvData.blockLevelMapSymbol.getType(), env.scope.owner, body.pos, VIRTUAL);
+
+                    BLangSimpleVariable blockMapVar = ASTBuilderUtil.createVariable(body.pos,
+                            oceDynamicEnvData.blockLevelMapSymbol.name.value,
+                            oceDynamicEnvData.blockLevelMapSymbol.getType(), fieldAccess, parentBlockSymbol);
+                    body.scope.define(blockMapVar.symbol.name, parentBlockSymbol);
+                    BLangSimpleVariableDef returnResultDef = ASTBuilderUtil.createVariableDef(body.pos,
+                            blockMapVar);
+                    returnResultDef = desugar.rewrite(returnResultDef, env);
+
+                    BLangSimpleVarRef blockRef = ASTBuilderUtil.createVariableRef(bLangFunction.pos, bLangFunction.mapSymbol);
+                    BLangSimpleVarRef rempVar = ASTBuilderUtil.createVariableRef(bLangFunction.pos, parentBlockSymbol);
+
+                    BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
+                    assignmentStmt.expr = rempVar;
+                    assignmentStmt.pos = bLangFunction.pos;
+                    assignmentStmt.setVariable(blockRef);
+
+                    assignmentStmt = desugar.rewrite(assignmentStmt, env);
+
+                    body.stmts.add(1, returnResultDef);
+                    body.stmts.add(2, assignmentStmt);
+                }
+            } else {
+                bLangFunction.paramClosureMap
+                        .put(resolvedLevel, createMapSymbol(PARAMETER_MAP_NAME + resolvedLevel, symbolEnv));
+            }
 
             symbolEnv = symbolEnv.enclEnv;
         }
@@ -1514,8 +1569,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
      * @param classSelfSymbol self symbol of attached method
      * @param varRefExpr      closure variable reference to be updated
      */
-    private void updateClosureVarsForAttachedObjects(BLangClassDefinition classDef,
-                                                     BVarSymbol classSelfSymbol,
+    private void updateClosureVarsForAttachedObjects(BLangClassDefinition classDef, BVarSymbol classSelfSymbol,
                                                      BLangSimpleVarRef varRefExpr) {
         OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
         SymbolEnv enclEnv = oceEnvData.capturedClosureEnv.enclEnv;
@@ -1530,8 +1584,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
         BVarSymbol blockMap = createMapSymbolIfAbsent(nodeKeepingClosureMap, blockClosureMapCount);
         BVarSymbol classMapSymbol = createMapSymbolIfAbsent(classDef, blockMap.name.value, true);
         BVarSymbol parentBlockMap = null;
-        if (!oceEnvData.parents.isEmpty()) {
-            BLangClassDefinition parentClass = oceEnvData.parents.get(0);
+        if (oceEnvData.parent != null) {
+            BLangClassDefinition parentClass = oceEnvData.parent;
             BVarSymbol symbol = (BVarSymbol) varRefExpr.symbol;
             OCEDynamicEnvData parentData = parentClass.oceEnvData;
             if (parentData.closureBlockSymbols.contains(symbol)) {

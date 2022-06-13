@@ -71,29 +71,39 @@ public class OCEDynamicEnvData {
     public BLangClassDefinition originalClass;
 
     // These can be removed by an proper design
-    public LinkedList<BLangClassDefinition> parents;
+    public BLangClassDefinition parent;
     public boolean fieldClosureDesugaringInProgress;
     public boolean isDirty;
     public List<BLangSimpleVarRef> desugaredClosureVars;
     public BLangExpression initInvocation;
 
+
+    // ************************ new approach START
+    public Map<BLangFunction, Set<BSymbol>> functionClosures; // functions which has closure variables inside them
+//    public BLangFunction parentFunction;
+    public Set<BSymbol> closureVarOriginalSymbols;
+    public Set<BSymbol> closureSymbolsFields;
+    // ************************ new approach END
+
     public OCEDynamicEnvData(int functions) {
         closureBlockSymbols = new HashSet<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
         closureFuncSymbols = new HashSet<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
         closureSymbols = new HashSet<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
-        parents = new LinkedList<>();
+        closureVarOriginalSymbols = new HashSet<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
         desugaredClosureVars = new ArrayList<>(DEFAULT_CLOSURE_VAR_STORAGE_CAPACITY);
         functionEnvs = new HashMap<>(functions);
         cloneAttempts = 0;
+
+        // new approach
+        functionClosures = new HashMap<>(functions);
     }
 
-    public void cleanUp() { // TODO: not used
-        parents.clear();
-        closureFuncSymbols.clear();
-        closureBlockSymbols.clear();
-        closureSymbols.clear();
-        desugaredClosureVars.clear();
-        functionEnvs.clear();
+    public void cleanUp() {
+        closureFuncSymbols = null;
+        closureBlockSymbols = null;
+        closureSymbols = null;
+        desugaredClosureVars = null;
+        functionEnvs = null;
         functionLevelMapSymbol = null;
         blockLevelMapSymbol = null;
         cloneAttempts = 0;
