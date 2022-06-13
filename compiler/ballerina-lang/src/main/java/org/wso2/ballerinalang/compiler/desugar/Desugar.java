@@ -6093,7 +6093,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // todo: handle taint table; issue: https://github.com/ballerina-platform/ballerina-lang/issues/25962
 
-        ArrayList<BLangExpression> requiredArgs = new ArrayList<>();
+        ArrayList<BLangExpression> requiredArgs = new ArrayList<>(originalMemberFuncSymbol.params.size());
         for (BVarSymbol param : originalMemberFuncSymbol.params) {
             BLangSimpleVariable fParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             fParam.symbol = new BVarSymbol(0, param.name, env.enclPkg.packageID, param.type,  funcSymbol, pos,
@@ -6109,7 +6109,7 @@ public class Desugar extends BLangNodeVisitor {
             requiredArgs.add(paramRef);
         }
 
-        ArrayList<BLangExpression> restArgs = new ArrayList<>();
+        ArrayList<BLangExpression> restArgs = new ArrayList<>(1);
         if (originalMemberFuncSymbol.restParam != null) {
             BLangSimpleVariable restParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             func.restParam = restParam;
