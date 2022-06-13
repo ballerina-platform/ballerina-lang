@@ -34,6 +34,7 @@ public class ProjectUtils {
 
     /**
      * Checks if a given project does not contain ballerina source files or test files.
+     *
      * @param project project for checking for emptiness
      * @return true if the project is empty
      */
