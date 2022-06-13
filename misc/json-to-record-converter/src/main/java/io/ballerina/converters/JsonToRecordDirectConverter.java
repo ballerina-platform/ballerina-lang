@@ -41,7 +41,8 @@ public class JsonToRecordDirectConverter {
     private JsonToRecordDirectConverter() {}
 
     public static JsonToRecordResponse convert(String jsonString) throws FormatterException {
-        Map<String, NonTerminalNode> typeDefinitionNodes = generateRecords(JsonParser.parseString(jsonString).getAsJsonObject());
+        Map<String, NonTerminalNode> typeDefinitionNodes = new LinkedHashMap<>();
+        generateRecords(JsonParser.parseString(jsonString).getAsJsonObject(), null, typeDefinitionNodes);
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
         JsonToRecordResponse response = new JsonToRecordResponse();
 
@@ -54,23 +55,27 @@ public class JsonToRecordDirectConverter {
         return response;
     }
 
-    private static Map<String, NonTerminalNode> generateRecords(JsonObject jsonObject) {
-        Map<String, NonTerminalNode> typeDefinitionNodes = new LinkedHashMap<>();
-
+    private static void generateRecords(JsonObject jsonObject, String recordName,
+                                        Map<String, NonTerminalNode> typeDefinitionNodes) {
         Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-
-        IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken("NewRecord");
-
+        IdentifierToken typeName =
+                AbstractNodeFactory.createIdentifierToken(recordName == null ? "NewRecord" : recordName);
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
-
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
 
         List<Node> recordFieldList = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            recordFieldList.add(getRecordField(ConverterUtils.getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive()), entry));
-        }
-        NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
+            Node recordField = getRecordField(entry);
+            recordFieldList.add(recordField);
 
+            if (entry.getValue().isJsonObject()) {
+                String elementKey = entry.getKey();
+                String type = elementKey.substring(0, 1).toUpperCase() + elementKey.substring(1);
+                generateRecords(entry.getValue().getAsJsonObject(), type, typeDefinitionNodes);
+            }
+        }
+
+        NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
         Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
 
         RecordTypeDescriptorNode recordTypeDescriptorNode =
@@ -80,28 +85,31 @@ public class JsonToRecordDirectConverter {
         Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
         TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
                 null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
-        typeDefinitionNodes.put("key", typeDefinitionNode);
-
-        return new LinkedHashMap<>(typeDefinitionNodes);
+        typeDefinitionNodes.put(recordName, typeDefinitionNode);
     }
 
-    private static Node getRecordField(Token typeName, Map.Entry<String, JsonElement> element) {
+    private static Node getRecordField(Map.Entry<String, JsonElement> entry) {
+        TypeDescriptorNode fieldTypeName;
+        if (entry.getValue().isJsonPrimitive()) {
+            Token typeName = ConverterUtils.getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
+            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+        } else if (entry.getValue().isJsonNull()) {
+            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+        } else {
+            String elementKey = entry.getKey();
+            String type = elementKey.substring(0, 1).toUpperCase() + elementKey.substring(1);
+            Token typeName = AbstractNodeFactory.createIdentifierToken(type);
+            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+        }
 
-        TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
-        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(element.getKey().trim());
+        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey().trim());
+        Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                fieldTypeName, fieldName, null, semicolonToken);
+                fieldTypeName, fieldName, entry.getValue().isJsonNull() ? questionMarkToken : null, semicolonToken);
 
         return recordFieldNode;
     }
-
-//    private void traverse(JsonObject object, Callable<Integer> func) {
-//        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-//            if (entry.getValue().isJsonObject()) {
-//                traverse(entry.getValue().getAsJsonObject(), null);
-//            }
-//        }
-//    }
 }

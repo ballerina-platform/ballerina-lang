@@ -38,12 +38,26 @@ public class JsonToRecordDirectConverterTests {
             .resolve("sample_0.json");
     private final Path sample0Bal = RES_DIR.resolve("ballerina")
             .resolve("sample_0.bal");
+
+    private final Path sample2Json = RES_DIR.resolve("json")
+            .resolve("sample_2.json");
+    private final Path sample2Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_2.bal");
     @Test(description = "Test with basic json value")
-    public void testBasicSchema() throws FormatterException, IOException {
+    public void testBasicJson() throws FormatterException, IOException {
         String jsonFileContent = Files.readString(sample0Json);
         String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
                 replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test with basic nested json value")
+    public void testNestedJson() throws FormatterException, IOException {
+        String jsonFileContent = Files.readString(sample2Json);
+        String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
+                replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample2Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 }
