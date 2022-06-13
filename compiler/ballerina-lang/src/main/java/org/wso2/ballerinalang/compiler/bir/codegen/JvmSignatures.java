@@ -303,7 +303,7 @@ public class JvmSignatures {
     public static final String INIT_WITH_BOOLEAN = "(L" + TYPE + ";Z)V";
     public static final String INIT_WITH_STRING = "(L" + STRING_VALUE + ";)V";
     public static final String INITIAL_METHOD_DESC = "(L" + STRAND_CLASS + ";";
-    public static final String INIT_TYPE_REF = "(L" + STRING_VALUE + ";L" + MODULE + ";L" + TYPE + ";)V";
+    public static final String INIT_TYPE_REF = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
     public static final String INSTANTIATE = "(L" + STRAND_CLASS + ";[L" + B_INITIAL_VALUE_ENTRY + ";)L" + OBJECT + ";";
     public static final String INT_VALUE_OF_METHOD = "(I)L" + INT_VALUE + ";";
     public static final String INTI_VARIABLE_KEY =
@@ -363,7 +363,7 @@ public class JvmSignatures {
     public static final String STACK_FRAMES = "L" + STACK + ";";
     public static final String RECORD_GET = "(L" + STRING_VALUE + ";L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String RECORD_GET_KEYS = "()[L" + OBJECT + ";";
-    public static final String RECORD_INIT = "(L" + TYPE + ";)V";
+    public static final String TYPE_PARAMETER = "(L" + TYPE + ";)V";
     public static final String RECORD_INIT_WRAPPER = "(L" + STRAND_CLASS + ";L" + MAP_VALUE + ";)V";
     public static final String RECORD_PUT = "(L" + STRING_VALUE + ";L" + OBJECT + ";L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String RECORD_REMOVE = "(L" + STRING_VALUE + ";L" + OBJECT + ";)L" + OBJECT + ";";

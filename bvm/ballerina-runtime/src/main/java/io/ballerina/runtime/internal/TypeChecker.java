@@ -118,6 +118,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
 
 /**
@@ -381,6 +382,14 @@ public class TypeChecker {
                 }
             }
             return true;
+        }
+
+        if (sourceTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return isSameType(((BTypeReferenceType) sourceType).getReferredType(), targetType);
+        }
+
+        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return isSameType(sourceType, ((BTypeReferenceType) targetType).getReferredType());
         }
 
         return false;
@@ -747,7 +756,7 @@ public class TypeChecker {
         }
 
         if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            targetType = ((BTypeReferenceType) targetType).getReferredType();
+            targetType = getReferredType(targetType);
             targetTypeTag = targetType.getTag();
         }
 
@@ -2025,6 +2034,8 @@ public class TypeChecker {
                 return readonlyIntersectionExists;
             case TypeTags.INTERSECTION_TAG:
                 return isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(), unresolvedTypes);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return isSelectivelyImmutableType(((BTypeReferenceType) type).getReferredType(), unresolvedTypes);
         }
         return false;
     }
@@ -2107,6 +2118,8 @@ public class TypeChecker {
                 visitedTypeSet.add(elemType.getName());
                 return arrayType.getState() != ArrayState.OPEN &&
                         checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(((BTypeReferenceType) type).getReferredType(), visitedTypeSet);
             default:
                 return false;
         }

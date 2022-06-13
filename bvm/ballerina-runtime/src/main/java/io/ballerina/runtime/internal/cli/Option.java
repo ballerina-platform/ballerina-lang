@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
+
 /**
  * Represents the option passed via the cli.
  */
@@ -117,7 +119,7 @@ public class Option {
     }
 
     private void handleOptionArgument(String val, String optionStr, BString optionName) {
-        Type fieldType = recordType.getFields().get(optionName.getValue()).getFieldType();
+        Type fieldType = getReferredType(recordType.getFields().get(optionName.getValue()).getFieldType());
         validateOptionArgument(optionStr, val);
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(optionName, val, (ArrayType) fieldType);
@@ -142,7 +144,7 @@ public class Option {
     }
 
     private boolean handleBooleanTrue(BString paramName) {
-        Type fieldType = recordType.getFields().get(paramName.getValue()).getFieldType();
+        Type fieldType = getReferredType(recordType.getFields().get(paramName.getValue()).getFieldType());
         if (isABoolean(fieldType)) {
             validateRepeatingOptions(paramName);
             recordVal.put(paramName, true);
@@ -161,7 +163,7 @@ public class Option {
     private void validateRecordKeys() {
         for (BString key : recordVal.getKeys()) {
             if (!recordKeysFound.contains(key) && isRequired(recordType, key.getValue())) {
-                Type fieldType = recordType.getFields().get(key.getValue()).getFieldType();
+                Type fieldType = getReferredType(recordType.getFields().get(key.getValue()).getFieldType());
                 if (CliUtil.isUnionWithNil(fieldType) || isSupportedArrayType(key, fieldType) ||
                         handleBooleanFalse(key, fieldType)) {
                     continue;
@@ -220,7 +222,7 @@ public class Option {
 
     private void processNamedArg(String arg, BString paramName) {
         String val = getValueString(arg);
-        Type fieldType = recordType.getFields().get(paramName.getValue()).getFieldType();
+        Type fieldType = getReferredType(recordType.getFields().get(paramName.getValue()).getFieldType());
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(paramName, val, (ArrayType) fieldType);
             return;

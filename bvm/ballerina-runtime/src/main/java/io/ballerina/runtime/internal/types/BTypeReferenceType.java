@@ -34,11 +34,14 @@ import java.util.Optional;
  */
 public class BTypeReferenceType extends BAnnotatableType implements IntersectableReferenceType {
 
-    private final Type referredType;
+    private Type referredType;
     private IntersectionType intersectionType;
 
-    public BTypeReferenceType(String typeName, Module pkg, Type referredType) {
+    public BTypeReferenceType(String typeName, Module pkg) {
         super(typeName, pkg, Object.class);
+    }
+
+    public void setReferredType(Type referredType) {
         this.referredType = referredType;
     }
 

@@ -41,9 +41,6 @@ type Nil ();
 type Foo anydata[];
 
 type Person record {
-    @Int {
-        minValue: 18
-    }
     PositiveInt age;
 };
 
@@ -88,6 +85,14 @@ function validateType() {
     validation = validate(value1);
     if validation is error {
         test:assertEquals(validation.message(), "Validation failed for 'minValue' constraint(s).");
+    } else {
+        test:assertFail("Expected error not found.");
+    }
+
+    PositiveIntRO value2 = 6;
+    PositiveIntRO|error validation1 = validate(value2);
+    if validation1 is PositiveIntRO {
+        test:assertEquals(validation1, 6);
     } else {
         test:assertFail("Expected error not found.");
     }
