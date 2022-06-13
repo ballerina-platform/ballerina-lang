@@ -78,7 +78,6 @@ public class AssertionDiffEvaluator {
         List<String> difference = null;
         String output = "\n";
         try {
-            // Make use of diff utils
             Patch<String> patch = DiffUtils.diff(actualValueList, getValueList(expected.toString()));
             difference = UnifiedDiffUtils.generateUnifiedDiff("actual", "expected",
                     actualValueList, patch, MAX_ARG_LENGTH);
