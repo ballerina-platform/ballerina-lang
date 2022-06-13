@@ -204,16 +204,16 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
 
     private ClassClosureDesugar(CompilerContext context) {
         context.put(CLASS_CLOSURE_DESUGAR_KEY, this);
-        this.symTable = SymbolTable.getInstance(context);
-        this.desugar = Desugar.getInstance(context);
-        this.names = Names.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.CLOSURE_MAP_NOT_FOUND.pos = this.symTable.builtinPos;
+        symTable = SymbolTable.getInstance(context);
+        desugar = Desugar.getInstance(context);
+        names = Names.getInstance(context);
+        dlog = BLangDiagnosticLog.getInstance(context);
+        CLOSURE_MAP_NOT_FOUND.pos = symTable.builtinPos;
     }
 
     private void reset() {
-        this.classDef = null;
-        this.env = null;
+        classDef = null;
+        env = null;
     }
 
     // region visit methods
@@ -314,7 +314,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             // Note: Although it's illegal to use a closure variable without initializing it in it's declared scope,
             // when we access (initialize) a variable from outer scope, since we desugar transaction block into a
             // lambda invocation, we need to create the `mapSymbol` in the outer node.
-//            createMapSymbolIfAbsent(env.node, blockClosureMapCount);
             result = varDefNode;
         }
     }
@@ -675,7 +674,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
                 OCEDynamicEnvData currentClassOceData = classDef.oceEnvData;
                 currentClassOceData.closureBlockSymbols.removeAll(dirtyOceEnvData.closureBlockSymbols);
                 currentClassOceData.closureFuncSymbols.removeAll(dirtyOceEnvData.closureFuncSymbols);
-                dirtyOceEnvData.parents.remove(classDef);
+                dirtyOceEnvData.parent = null;
                 for (BLangSimpleVarRef simpleVarRef : dirtyOceEnvData.desugaredClosureVars) {
                     dlog.error(simpleVarRef.pos, DiagnosticErrorCode.UNSUPPORTED_MULTILEVEL_CLOSURES, simpleVarRef);
                 }
@@ -1391,6 +1390,9 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
             return;
         }
         env = classDef.oceEnvData.capturedClosureEnv;
+        if (env == null) {
+            return;
+        }
         createMapSymbolsIfAbsent(classDef);
         addFunctionLevelClosureMapToClassDefinition(classDef);
         updateFields(classDef);
@@ -1467,9 +1469,7 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
                 oceData.closureBlockSymbols.isEmpty()) {
             return;
         }
-        SymbolEnv closureEnv = oceData.capturedClosureEnv;
-        this.env = closureEnv;
-        BLangNode node = getNextPossibleNode(closureEnv.enclEnv);
+        BLangNode node = getNextPossibleNode(env.enclEnv);
         if (node == null) {
             return;
         }
@@ -1489,11 +1489,6 @@ public class ClassClosureDesugar extends BLangNodeVisitor {
     private void addFunctionLevelClosureMapToClassDefinition(BLangClassDefinition classDef) {
         OCEDynamicEnvData oceData = classDef.oceEnvData;
         if (oceData.functionMapUpdatedInInitMethod || oceData.functionLevelMapSymbol == null) {
-            return;
-        }
-        SymbolEnv capturedClosureEnv = oceData.capturedClosureEnv;
-        this.env = capturedClosureEnv;
-        if (capturedClosureEnv.enclEnv.node == null) {
             return;
         }
         if (oceData.closureFuncSymbols.isEmpty()) {
