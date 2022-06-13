@@ -185,7 +185,7 @@ public class CoverageReport {
         final CoverageBuilder coverageBuilder = analyzeStructure();
 
         // Analyze original modules
-        List<DocumentId> excludedFiles = getGeneratedFilesToExclude(coverageBuilder.getSourceFiles(), originalModules);
+        List<DocumentId> excludedFiles = getGeneratedFilesToExclude(originalModules);
 
         // If there are files to exclude, we add that to the exclusion list
         if (excludedFiles.isEmpty() == true) {
@@ -198,28 +198,19 @@ public class CoverageReport {
         return coverageBuilder;
     }
 
-    private List<DocumentId> getGeneratedFilesToExclude(Collection<ISourceFileCoverage> sourceFileCoverages,
-                                                        Map<String, Module> originalModules) {
+    private List<DocumentId> getGeneratedFilesToExclude(Map<String, Module> originalModules) {
         List<DocumentId> excludedDocumentIds = new ArrayList<>(this.module.documentIds());
+        List<DocumentId> oldDocuementIds = new ArrayList<>();
 
-        // Iterate through the source file coverage
-        for (ISourceFileCoverage sourceFileCoverage : sourceFileCoverages) {
-
-            // Per source file, we get the package name
-            String sourceFileModule = decodeIdentifier(sourceFileCoverage.getPackageName().split("/")[1]);
-
-            // using the package name, we obtain the original module
-            Module module = originalModules.get(sourceFileModule);
-
-            // Get document from module
-            Document document = getDocumentFromModule(module, sourceFileCoverage.getName());
-
-            // if the module doesn't exist, it would be null
-            if (document != null) {
-                excludedDocumentIds.remove(document.documentId());
+        // Add all old document ids
+        for (String modules : originalModules.keySet()) {
+            Module module = originalModules.get(modules);
+            for (DocumentId documentId : module.documentIds()) {
+                oldDocuementIds.add(documentId);
             }
         }
 
+        excludedDocumentIds.removeAll(oldDocuementIds);
         return excludedDocumentIds;
     }
 
@@ -354,7 +345,6 @@ public class CoverageReport {
                 containsSourceFiles = packageCoverage.getName().isEmpty();
             }
             if (containsSourceFiles) {
-
                 for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
                     // Extract the Module name individually for each source file
                     // This is done since some source files come from other modules
@@ -369,14 +359,11 @@ public class CoverageReport {
                     } else {
                         moduleCoverage = new ModuleCoverage();
                     }
-
                     Document document = getDocument(sourceFileModule, sourceFileCoverage.getName());
-
                     // If the document exists in the exclusion list then we continue on with the loop
                     if (exclusionList != null && exclusionList.contains(document.documentId())) {
                         continue;
                     }
-
                     // If file is a source bal file
                     if (sourceFileCoverage.getName().contains(BLANG_SRC_FILE_SUFFIX) &&
                             !sourceFileCoverage.getName().contains("tests/")) {
@@ -428,15 +415,12 @@ public class CoverageReport {
                                     coveredLines.add(i);
                                 }
                             }
-
                             if (document != null) {
                                 moduleCoverage.addSourceFileCoverage(document, coveredLines,
                                         missedLines);
                             }
                             moduleCoverageMap.put(sourceFileModule, moduleCoverage);
-
                         }
-
                     }
                 }
             }
