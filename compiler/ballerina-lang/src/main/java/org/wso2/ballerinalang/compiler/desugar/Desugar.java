@@ -8841,8 +8841,8 @@ public class Desugar extends BLangNodeVisitor {
         boolean tupleTypedVararg = false;
 
         if (varargRef != null) {
-            varargType = varargRef.getBType();
-            tupleTypedVararg = Types.getReferredType(varargType).tag == TypeTags.TUPLE;
+            varargType = Types.getReferredType(varargRef.getBType());
+            tupleTypedVararg = varargType.tag == TypeTags.TUPLE;
         }
 
         // Iterate over the required args.
