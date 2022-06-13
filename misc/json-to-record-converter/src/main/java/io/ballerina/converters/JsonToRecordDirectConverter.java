@@ -72,6 +72,17 @@ public class JsonToRecordDirectConverter {
                 String elementKey = entry.getKey();
                 String type = elementKey.substring(0, 1).toUpperCase() + elementKey.substring(1);
                 generateRecords(entry.getValue().getAsJsonObject(), type, typeDefinitionNodes);
+            } else if (entry.getValue().isJsonArray()) {
+                Iterator<JsonElement> iterator = entry.getValue().getAsJsonArray().iterator();
+                while (iterator.hasNext()) {
+                    JsonElement element = iterator.next();
+                    if (element.isJsonObject()) {
+                        String elementKey = entry.getKey();
+                        String type = elementKey.substring(0, 1).toUpperCase() + elementKey.substring(1) + "Item";
+                        generateRecords(element.getAsJsonObject(), type, typeDefinitionNodes);
+                    }
+                    break;
+                }
             }
         }
 
@@ -90,26 +101,67 @@ public class JsonToRecordDirectConverter {
 
     private static Node getRecordField(Map.Entry<String, JsonElement> entry) {
         TypeDescriptorNode fieldTypeName;
-        if (entry.getValue().isJsonPrimitive()) {
-            Token typeName = ConverterUtils.getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
-            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
-        } else if (entry.getValue().isJsonNull()) {
-            Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
-            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
-        } else {
-            String elementKey = entry.getKey();
-            String type = elementKey.substring(0, 1).toUpperCase() + elementKey.substring(1);
-            Token typeName = AbstractNodeFactory.createIdentifierToken(type);
-            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
-        }
 
         IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey().trim());
+        Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+        Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
-        RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
-                fieldTypeName, fieldName, entry.getValue().isJsonNull() ? questionMarkToken : null, semicolonToken);
+        if (entry.getValue().isJsonArray()) {
+            Iterator<JsonElement> iterator = entry.getValue().getAsJsonArray().iterator();
+            Token typeName = null;
+            while (iterator.hasNext()) {
+                JsonElement element = iterator.next();
+                if (element.isJsonPrimitive()) {
+                    Token tempTypeName = ConverterUtils.getPrimitiveTypeName(element.getAsJsonPrimitive());
+                    if (typeName == null) {
+                        typeName = tempTypeName;
+                    } else if (typeName.equals(tempTypeName)) {
+                        typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+                    }
+                } else if (element.isJsonNull()) {
+                    typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+                } else if (element.isJsonObject()) {
+                    if (typeName == null) {
+                        String elementKey = entry.getKey();
+                        String type = elementKey.substring(0, 1).toUpperCase() + elementKey.substring(1) + "Item";
+                        typeName = AbstractNodeFactory.createIdentifierToken(type);
+                    }
+                }
+            }
+            NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
 
-        return recordFieldNode;
+            fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+            ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
+                    closeSBracketToken);
+            arrayDimensions = arrayDimensions.add(arrayDimension);
+
+            ArrayTypeDescriptorNode arrayTypeName =
+                    NodeFactory.createArrayTypeDescriptorNode(fieldTypeName, arrayDimensions);
+
+            RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null,
+                    null, arrayTypeName, fieldName, null, semicolonToken);
+
+            return recordFieldNode;
+        } else {
+            if (entry.getValue().isJsonPrimitive()) {
+                Token typeName = ConverterUtils.getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
+                fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+            } else if (entry.getValue().isJsonObject()) {
+                String elementKey = entry.getKey();
+                String type = elementKey.substring(0, 1).toUpperCase() + elementKey.substring(1);
+                Token typeName = AbstractNodeFactory.createIdentifierToken(type);
+                fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+            } else {
+                Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+                fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+            }
+
+            RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
+                    fieldTypeName, fieldName, entry.getValue().isJsonNull() ? questionMarkToken : null, semicolonToken);
+
+            return recordFieldNode;
+        }
     }
 }

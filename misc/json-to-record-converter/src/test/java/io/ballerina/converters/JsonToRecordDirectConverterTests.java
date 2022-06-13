@@ -39,6 +39,11 @@ public class JsonToRecordDirectConverterTests {
     private final Path sample0Bal = RES_DIR.resolve("ballerina")
             .resolve("sample_0.bal");
 
+    private final Path sample1Json = RES_DIR.resolve("json")
+            .resolve("sample_1.json");
+    private final Path sample1Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_1.bal");
+
     private final Path sample2Json = RES_DIR.resolve("json")
             .resolve("sample_2.json");
     private final Path sample2Bal = RES_DIR.resolve("ballerina")
@@ -49,6 +54,15 @@ public class JsonToRecordDirectConverterTests {
         String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
                 replaceAll("\\s+", "");
         String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    }
+
+    @Test(description = "Test with basic json value contains arrays")
+    public void testJsonWithArray() throws FormatterException, IOException {
+        String jsonFileContent = Files.readString(sample1Json);
+        String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
+                replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample1Bal).replaceAll("\\s+", "");
         Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
