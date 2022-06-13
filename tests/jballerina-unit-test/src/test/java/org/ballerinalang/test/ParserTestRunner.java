@@ -65,6 +65,7 @@ public class ParserTestRunner {
         hashSet.add("resource_method_call_action_source_08.bal"); // issue #36024
         hashSet.add("object_type_def_source_26.bal"); // issue #36024
         hashSet.add("object_type_def_source_47.bal"); // issue #36024
+        hashSet.add("service_decl_source_16.bal"); // issue #36024
         return hashSet;
     }
 

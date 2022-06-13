@@ -821,8 +821,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(spreadMemberNode);
     }
 
-    public void visit(STResourceMethodCallActionNode resourceMethodCallActionNode) {
-        visitSyntaxNode(resourceMethodCallActionNode);
+    public void visit(STClientResourceAccessActionNode clientResourceAccessActionNode) {
+        visitSyntaxNode(clientResourceAccessActionNode);
     }
 
     public void visit(STComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {

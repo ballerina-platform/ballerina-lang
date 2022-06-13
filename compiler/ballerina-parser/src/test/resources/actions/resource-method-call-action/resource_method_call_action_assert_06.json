@@ -119,7 +119,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -239,7 +239,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -355,7 +355,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -483,7 +483,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -593,7 +593,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -697,7 +697,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -830,7 +830,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -936,7 +936,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1041,7 +1041,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1169,7 +1169,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1301,7 +1301,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -1463,7 +1463,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1649,7 +1649,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1921,7 +1921,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2078,7 +2078,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2253,7 +2253,7 @@
                   ]
                 },
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {

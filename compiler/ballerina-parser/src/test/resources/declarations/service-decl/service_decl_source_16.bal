@@ -42,4 +42,8 @@ service on listner1 {
     resource function get [string s]/[Foo]/name() {
 
     }
+
+    resource function get [string s]/[Foo...]() {
+
+    }
 }

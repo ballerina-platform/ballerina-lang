@@ -3171,11 +3171,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSpreadMemberNode.createUnlinkedFacade();
     }
 
-    public static ResourceMethodCallActionNode createResourceMethodCallActionNode(
+    public static ClientResourceAccessActionNode createClientResourceAccessActionNode(
             ExpressionNode expression,
             Token rightArrowToken,
             Token slashToken,
-            NodeList<Node> resourceAccessPath,
+            SeparatedNodeList<Node> resourceAccessPath,
             Token dotToken,
             SimpleNameReferenceNode methodName,
             ParenthesizedArgList arguments) {
@@ -3184,7 +3184,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(slashToken, "slashToken must not be null");
         Objects.requireNonNull(resourceAccessPath, "resourceAccessPath must not be null");
 
-        STNode stResourceMethodCallActionNode = STNodeFactory.createResourceMethodCallActionNode(
+        STNode stClientResourceAccessActionNode = STNodeFactory.createClientResourceAccessActionNode(
                 expression.internalNode(),
                 rightArrowToken.internalNode(),
                 slashToken.internalNode(),
@@ -3192,7 +3192,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 getOptionalSTNode(dotToken),
                 getOptionalSTNode(methodName),
                 getOptionalSTNode(arguments));
-        return stResourceMethodCallActionNode.createUnlinkedFacade();
+        return stClientResourceAccessActionNode.createUnlinkedFacade();
     }
 
     public static ComputedResourceAccessSegmentNode createComputedResourceAccessSegmentNode(

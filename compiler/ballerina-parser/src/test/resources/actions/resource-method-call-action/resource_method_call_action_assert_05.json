@@ -66,7 +66,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -152,7 +152,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -318,7 +318,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -434,7 +434,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -579,7 +579,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -712,7 +712,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -876,7 +876,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1029,7 +1029,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1121,7 +1121,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1217,7 +1217,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1323,7 +1323,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1419,7 +1419,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -1700,7 +1700,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2005,7 +2005,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2256,7 +2256,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -2352,7 +2352,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2439,7 +2439,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2574,7 +2574,7 @@
               "kind": "ACTION_STATEMENT",
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -2650,7 +2650,7 @@
               "kind": "ACTION_STATEMENT",
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -2727,7 +2727,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "SIMPLE_NAME_REFERENCE",
@@ -2808,7 +2808,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2892,7 +2892,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -2991,7 +2991,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "children": [
                     {
                       "kind": "FUNCTION_CALL",
@@ -3131,7 +3131,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {
@@ -3239,7 +3239,7 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "RESOURCE_METHOD_CALL_ACTION",
+                  "kind": "CLIENT_RESOURCE_ACCESS_ACTION",
                   "hasDiagnostics": true,
                   "children": [
                     {

@@ -37,7 +37,9 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -179,7 +181,8 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
         if (unimplMethod.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = unimplMethod.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                Optional<String> defaultReturnValueForType = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil
+                        .getDefaultValueForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (defaultReturnValue.equals(CommonKeys.PARANTHESES_KEY)) {
@@ -208,7 +211,7 @@ public abstract class AbstractImplementMethodCodeAction extends AbstractCodeActi
                 .append(CommonKeys.CLOSE_BRACE_KEY)
                 .append(LINE_SEPARATOR)
                 .append(StringUtils.repeat(' ', closeBraceOffset));
-        Position editPos = CommonUtil.toPosition(editPosition);
+        Position editPos = PositionUtil.toPosition(editPosition);
         edits.add(new TextEdit(new Range(editPos, editPos), editText.toString()));
         return edits;
     }

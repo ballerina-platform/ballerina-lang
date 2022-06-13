@@ -2744,7 +2744,7 @@ public class BallerinaParser extends AbstractParser {
                     return parseParameterizedTypeDescriptor(consume());
                 }
                 
-                if (isSingletonTypeDescStart(nextToken.kind)) {
+                if (isSingletonTypeDescStart(nextToken.kind, getNextNextToken())) {
                     reportInvalidQualifierList(qualifiers);
                     return parseSingletonTypeDesc();
                 }
@@ -5550,7 +5550,8 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseTypeTestExpression(lhsExpr, isInConditionalExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
-                newLhsExpr = parseRemoteOrResourceMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr, isInMatchGuard);
+                newLhsExpr = parseRemoteMethodCallOrClientResourceAccessOrAsyncSendAction(lhsExpr, isRhsExpr, 
+                        isInMatchGuard);
                 break;
             case SYNC_SEND_TOKEN:
                 newLhsExpr = parseSyncSendAction(lhsExpr);
@@ -5989,7 +5990,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
-            case RESOURCE_METHOD_CALL_ACTION:    
+            case CLIENT_RESOURCE_ACCESS_ACTION:    
                 return true;
             default:
                 return false;
@@ -6938,7 +6939,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse resource path parameter.
      * <p>
-     * <code>resource-path-parameter := "[" [annots] type-descriptor [...] param-name "]"</code>
+     * <code>resource-path-parameter := "[" [annots] type-descriptor [...] [param-name] "]"</code>
      *
      * @return Parsed node
      */
@@ -6948,7 +6949,6 @@ public class BallerinaParser extends AbstractParser {
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PATH_PARAM);
         STNode ellipsis = parseOptionalEllipsis();
         STNode paramName = parseOptionalPathParamName();
-
         STNode closeBracket = parseCloseBracket();
 
         SyntaxKind pathPramKind =
@@ -8785,7 +8785,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
-            case RESOURCE_METHOD_CALL_ACTION:
+            case CLIENT_RESOURCE_ACCESS_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -8884,10 +8884,10 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse resource method call action, given the starting expression.
+     * Parse client resource access action, given the starting expression.
      * <br/><br/>
      * <code>
-     * resource-method-call-action := expression "->" "/" [resource-access-path] ["." method-name] ["(" arg-list ")"]
+     * client-resource-access-action := expression "->" "/" [resource-access-path] ["." method-name] ["(" arg-list ")"]
      * </code>
      * 
      * @param expression Expression
@@ -8895,9 +8895,9 @@ public class BallerinaParser extends AbstractParser {
      * @param slashToken Slash token
      * @return Parsed node
      */
-    private STNode parseResourceMethodCallAction(STNode expression, STNode rightArrow, STNode slashToken,
-                                                 boolean isRhsExpr, boolean isInMatchGuard) {
-        startContext(ParserRuleContext.RESOURCE_METHOD_CALL_ACTION);
+    private STNode parseClientResourceAccessAction(STNode expression, STNode rightArrow, STNode slashToken,
+                                                   boolean isRhsExpr, boolean isInMatchGuard) {
+        startContext(ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION);
         
         STNode resourceAccessPath = parseOptionalResourceAccessPath(isRhsExpr, isInMatchGuard);
         STNode resourceAccessMethodDot = parseOptionalResourceAccessMethodDot(isRhsExpr, isInMatchGuard);
@@ -8906,11 +8906,11 @@ public class BallerinaParser extends AbstractParser {
             resourceAccessMethodName = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
         }
         
-        STNode resourceMethodCallArgList = parseOptionalResourceMethodCallArgList(isRhsExpr, isInMatchGuard);
+        STNode resourceMethodCallArgList = parseOptionalResourceAccessActionArgList(isRhsExpr, isInMatchGuard);
         endContext();
         
-        return STNodeFactory.createResourceMethodCallActionNode(expression, rightArrow, slashToken, resourceAccessPath,
-                resourceAccessMethodDot, resourceAccessMethodName, resourceMethodCallArgList);
+        return STNodeFactory.createClientResourceAccessActionNode(expression, rightArrow, slashToken, 
+                resourceAccessPath, resourceAccessMethodDot, resourceAccessMethodName, resourceMethodCallArgList);
     }
     
     private STNode parseOptionalResourceAccessPath(boolean isRhsExpr, boolean isInMatchGuard) {
@@ -8956,7 +8956,7 @@ public class BallerinaParser extends AbstractParser {
         return dotToken;
     }
     
-    private STNode parseOptionalResourceMethodCallArgList(boolean isRhsExpr, boolean isInMatchGuard) {
+    private STNode parseOptionalResourceAccessActionArgList(boolean isRhsExpr, boolean isInMatchGuard) {
         STNode argList = STNodeFactory.createEmptyNode();
         STToken nextToken = peek();
         switch (nextToken.kind) {
@@ -8968,8 +8968,8 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_METHOD_CALL_ARG_LIST);
-                return parseOptionalResourceMethodCallArgList(isRhsExpr, isInMatchGuard);
+                recover(nextToken, ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST);
+                return parseOptionalResourceAccessActionArgList(isRhsExpr, isInMatchGuard);
         }
         
         return argList;
@@ -9098,27 +9098,13 @@ public class BallerinaParser extends AbstractParser {
         }
     }
     
-    /**
-     * Parse remote method call action, given the starting expression.
-     * <p>
-     * <code>
-     * remote-method-call-action := expression -> method-name ( arg-list )
-     * <br/>
-     * async-send-action := expression -> peer-worker ;
-     * </code>
-     *
-     * @param expression LHS expression
-     * @param isRhsExpr  Is this an RHS action
-     * @param isInMatchGuard is this inside a match guard
-     * @return
-     */
-    private STNode parseRemoteOrResourceMethodCallOrAsyncSendAction(STNode expression, 
-                                                                    boolean isRhsExpr, boolean isInMatchGuard) {
+    private STNode parseRemoteMethodCallOrClientResourceAccessOrAsyncSendAction(STNode expression, boolean isRhsExpr,
+                                                                                boolean isInMatchGuard) {
         STNode rightArrow = parseRightArrow();
-        return parseRemoteOrResourceCallOrAsyncSendActionRhs(expression, rightArrow, isRhsExpr, isInMatchGuard);
+        return parseClientResourceAccessOrAsyncSendActionRhs(expression, rightArrow, isRhsExpr, isInMatchGuard);
     }
 
-    private STNode parseRemoteOrResourceCallOrAsyncSendActionRhs(STNode expression, STNode rightArrow,
+    private STNode parseClientResourceAccessOrAsyncSendActionRhs(STNode expression, STNode rightArrow,
                                                                  boolean isRhsExpr, boolean isInMatchGuard) {
         STNode name;
         STToken nextToken = peek();
@@ -9133,7 +9119,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case SLASH_TOKEN:
                 STNode slashToken = consume();
-                return parseResourceMethodCallAction(expression, rightArrow, slashToken, isRhsExpr, isInMatchGuard);
+                return parseClientResourceAccessAction(expression, rightArrow, slashToken, isRhsExpr, isInMatchGuard);
             default:
                 if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
                     // This can be `expr->identifier` or `expr->identifier()` or `expr->[MISSING /]identifier`
@@ -9155,7 +9141,7 @@ public class BallerinaParser extends AbstractParser {
                     name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
                     break;
                 }
-                return parseRemoteOrResourceCallOrAsyncSendActionRhs(expression, rightArrow, isRhsExpr, isInMatchGuard);
+                return parseClientResourceAccessOrAsyncSendActionRhs(expression, rightArrow, isRhsExpr, isInMatchGuard);
         }
 
         return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
@@ -9178,6 +9164,21 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createAsyncSendActionNode(expression, rightArrow, peerWorker);
     }
 
+
+    /**
+     * Parse remote method call action.
+     * <p>
+     * <code>
+     * remote-method-call-action := expression -> method-name ( arg-list )
+     * <br/>
+     * async-send-action := expression -> peer-worker ;
+     * </code>
+     *
+     * @param expression LHS expression
+     * @param rightArrow  right arrow token
+     * @param name remote method name
+     * @return
+     */
     private STNode parseRemoteMethodCallAction(STNode expression, STNode rightArrow, STNode name) {
         STNode openParenToken = parseArgListOpenParenthesis();
         STNode arguments = parseArgsList();
@@ -10114,7 +10115,11 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isTypeStartingToken(SyntaxKind nodeKind) {
-        switch (nodeKind) {
+        return isTypeStartingToken(nodeKind, getNextNextToken());
+    }
+    
+    private static boolean isTypeStartingToken(SyntaxKind nextTokenKind, STToken nextNextToken) {
+        switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
@@ -10133,14 +10138,14 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return true;
             default:
-                if (isParameterizedTypeToken(nodeKind)) {
+                if (isParameterizedTypeToken(nextTokenKind)) {
                     return true;
                 }
                 
-                if (isSingletonTypeDescStart(nodeKind)) {
+                if (isSingletonTypeDescStart(nextTokenKind, nextNextToken)) {
                     return true;
                 }
-                return isSimpleType(nodeKind);
+                return isSimpleType(nextTokenKind);
         }
     }
 
@@ -10898,7 +10903,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> varDecls = new ArrayList<>();
         STToken nextToken = peek();
 
-        if (isEndOfLetVarDeclarations(nextToken.kind)) {
+        if (isEndOfLetVarDeclarations(nextToken.kind, getNextNextToken())) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
         }
@@ -10910,7 +10915,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining variable declarations
         nextToken = peek();
         STNode leadingComma;
-        while (!isEndOfLetVarDeclarations(nextToken.kind)) {
+        while (!isEndOfLetVarDeclarations(nextToken.kind, getNextNextToken())) {
             leadingComma = parseComma();
             varDecls.add(leadingComma);
             varDec = parseLetVarDecl(isRhsExpr);
@@ -10922,7 +10927,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(varDecls);
     }
 
-    private boolean isEndOfLetVarDeclarations(SyntaxKind tokenKind) {
+    static boolean isEndOfLetVarDeclarations(SyntaxKind tokenKind, STToken nextNextToken) {
         switch (tokenKind) {
             case COMMA_TOKEN:
             case AT_TOKEN:
@@ -10930,7 +10935,7 @@ public class BallerinaParser extends AbstractParser {
             case IN_KEYWORD:
                 return true;
             default:
-                return !isTypeStartingToken(tokenKind);
+                return !isTypeStartingToken(tokenKind, nextNextToken);
         }
     }
 
@@ -12614,8 +12619,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createUnaryExpressionNode(operator, literal);
     }
 
-    private boolean isSingletonTypeDescStart(SyntaxKind tokenKind) {
-        STToken nextNextToken = getNextNextToken();
+    private static boolean isSingletonTypeDescStart(SyntaxKind tokenKind, STToken nextNextToken) {
         switch (tokenKind) {
             case STRING_LITERAL_TOKEN:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -15486,7 +15490,7 @@ public class BallerinaParser extends AbstractParser {
 
     private boolean isDefiniteAction(SyntaxKind kind) {
         return kind.compareTo(SyntaxKind.REMOTE_METHOD_CALL_ACTION) >= 0 && 
-                kind.compareTo(SyntaxKind.RESOURCE_METHOD_CALL_ACTION) <= 0;
+                kind.compareTo(SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) <= 0;
     }
 
     /**
@@ -18179,6 +18183,8 @@ public class BallerinaParser extends AbstractParser {
                         secondNameRef);
             case OPEN_BRACE_TOKEN: // { foo:bar{ --> var-decl with TBP
             case IDENTIFIER_TOKEN: // var-decl
+                switchContext(ParserRuleContext.BLOCK_STMT);
+                startContext(ParserRuleContext.VAR_DECL_STMT);
                 List<STNode> varDeclQualifiers = new ArrayList<>();
                 STNode typeBindingPattern =
                         parseTypedBindingPatternTypeRhs(qualifiedNameRef, ParserRuleContext.VAR_DECL_STMT);

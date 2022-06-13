@@ -27,11 +27,11 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -71,7 +71,7 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
     protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context, Node typeDesc,
                                                                    Node initializer) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
@@ -82,7 +82,7 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
                     || symbol.kind() == SymbolKind.FUNCTION
                     || symbol.kind() == SymbolKind.TYPE_DEFINITION
                     || symbol.kind() == SymbolKind.CLASS;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
             return this.getCompletionItemList(moduleContent, context);
         }
 

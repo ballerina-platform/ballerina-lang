@@ -322,7 +322,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.private.qualifier.in.object.member.descriptor"),
     ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE0660", "error.resource.path.in.function.definition"),
     ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM("BCE0661",
-            "error.resource.path.param.not.allowed.after.rest.param"),
+            "error.resource.path.segment.is.not.allowed.after.rest.param"),
     ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR("BCE0662", "error.rest.arg.in.error.constructor"),
     ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0663",
             "error.additional.positional.arg.in.error.constructor"),

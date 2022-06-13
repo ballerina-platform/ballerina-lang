@@ -351,15 +351,14 @@ public enum ParserRuleContext {
     MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
     MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
     FUNC_DEF_OR_TYPE_DESC_RHS("func-def-or-type-desc-rhs"),
-    RESOURCE_METHOD_CALL_ACTION("resource-method-call-action"),
+    CLIENT_RESOURCE_ACCESS_ACTION("resource-method-call-action"),
     OPTIONAL_RESOURCE_ACCESS_PATH("optional-resource-access-path"),
     RESOURCE_ACCESS_PATH_SEGMENT("resource-access-path-segment"),
     COMPUTED_SEGMENT_OR_REST_SEGMENT("computed-segment-or-rest-segment"),
     RESOURCE_ACCESS_SEGMENT_RHS("resource-access-segment-rhs"),
     OPTIONAL_RESOURCE_ACCESS_METHOD("optional-resource-access-method"),
-    OPTIONAL_RESOURCE_METHOD_CALL_ARG_LIST("optional-resource-method-call-arg-list"),
+    OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST("optional-resource-method-call-arg-list"),
     ACTION_END("action-end"),
-    
 
     // Statements
     STATEMENT("statement"),

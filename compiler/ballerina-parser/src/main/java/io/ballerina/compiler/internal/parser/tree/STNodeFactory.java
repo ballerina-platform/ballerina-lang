@@ -2402,7 +2402,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createResourceMethodCallActionNode(
+    public static STNode createClientResourceAccessActionNode(
             STNode expression,
             STNode rightArrowToken,
             STNode slashToken,
@@ -2411,7 +2411,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode methodName,
             STNode arguments) {
 
-        return new STResourceMethodCallActionNode(
+        return new STClientResourceAccessActionNode(
                 expression,
                 rightArrowToken,
                 slashToken,
