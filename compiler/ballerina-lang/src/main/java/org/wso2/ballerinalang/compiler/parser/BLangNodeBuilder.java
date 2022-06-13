@@ -1176,7 +1176,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     classDefinition.addFunction(bLangFunction);
                     continue;
                 }
-                if (bLangFunction.requiredParams.size() != 0) {
+                if (!bLangFunction.requiredParams.isEmpty()) {
                     dlog.error(bLangFunction.pos, DiagnosticErrorCode.OBJECT_CTOR_INIT_CANNOT_HAVE_PARAMETERS);
                     continue;
                 }
@@ -1185,7 +1185,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             } else if (nodeKind == NodeKind.VARIABLE) {
                 BLangSimpleVariable simpleVariable = (BLangSimpleVariable) bLangNode;
                 simpleVariable.flagSet.add(Flag.OBJECT_CTOR);
-                BLangExpression expression = simpleVariable.expr;
                 classDefinition.addField((BLangSimpleVariable) bLangNode);
             } else if (nodeKind == NodeKind.USER_DEFINED_TYPE) {
                 dlog.error(bLangNode.pos, DiagnosticErrorCode.OBJECT_CTOR_DOES_NOT_SUPPORT_TYPE_REFERENCE_MEMBERS);
@@ -1193,6 +1192,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
 
         classDefinition.internal = true;
+
+        classDefinition.trimMemory();
         return classDefinition;
     }
 
@@ -4015,7 +4016,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         NodeList<Node> members = classDefinitionNode.members();
         for (Node node : members) {
-            // TODO: Check for fields other than SimpleVariableNode
             BLangNode bLangNode = node.apply(this);
             if (bLangNode.getKind() == NodeKind.FUNCTION || bLangNode.getKind() == NodeKind.RESOURCE_FUNC) {
                 BLangFunction bLangFunction = (BLangFunction) bLangNode;
@@ -4038,6 +4038,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
+        blangClass.trimMemory();
         return blangClass;
     }
 

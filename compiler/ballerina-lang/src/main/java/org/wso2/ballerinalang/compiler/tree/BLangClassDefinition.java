@@ -63,7 +63,6 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
     public BLangFunction generatedInitFunction;
     public BLangSimpleVariable receiver;
     public List<BLangSimpleVariable> referencedFields;
-    public List<BLangSimpleVarRef.BLangLocalVarRef> localVarRefs;
     public int precedence;
 
     public boolean definitionCompleted;
@@ -194,4 +193,12 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
         this.precedence = precedence;
     }
 
+    public void trimMemory() {
+        ArrayList<BLangFunction> functions = (ArrayList) this.functions;
+        functions.trimToSize();
+        ArrayList<BLangSimpleVariable> fields = (ArrayList) this.fields;
+        fields.trimToSize();
+        ArrayList<BLangSimpleVariable> annAttachments = (ArrayList) this.annAttachments;
+        annAttachments.trimToSize();
+    }
 }

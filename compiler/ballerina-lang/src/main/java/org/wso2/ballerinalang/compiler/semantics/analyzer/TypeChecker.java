@@ -6298,7 +6298,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         SymTag.VARIABLE);
                 if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
                     if (resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
-                        ClassClosureDesugarUtils.updateObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol,
+                        ClassClosureDesugarUtils.collectObjectCtorClosureSymbols(pos, currentFunc, resolvedSymbol,
                                 classDef, data.env, symbol, node);
                         return;
                     }
@@ -6338,11 +6338,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
                         SymTag.VARIABLE);
                 BLangClassDefinition classDef = (BLangClassDefinition) node;
-                if (resolvedSymbol != symTable.notFoundSymbol) {
-                    if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
-                        break;
-                    }
-                    ClassClosureDesugarUtils.updateObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol,
+                if (resolvedSymbol != symTable.notFoundSymbol && resolvedSymbol.owner.getKind() != SymbolKind.PACKAGE) {
+                    ClassClosureDesugarUtils.collectObjectCtorClosureSymbols(pos, currentFunction, resolvedSymbol,
                             classDef, cEnv, symbol, originalNode);
                     return;
                 }

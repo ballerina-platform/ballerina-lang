@@ -27,7 +27,7 @@ public class ClassClosureDesugarUtils {
 
     public static void updateProceedingClasses(SymbolEnv envArg, OCEDynamicEnvData oceEnvData,
                                                BLangClassDefinition origClassDef) {
-        SymbolEnv localEnv = envArg;
+        SymbolEnv localEnv = envArg.enclEnv;
         while (localEnv != null) {
             BLangNode node = localEnv.node;
             if (node.getKind() == NodeKind.PACKAGE) {
@@ -39,43 +39,47 @@ public class ClassClosureDesugarUtils {
                 if (classDef != origClassDef) {
                     classDef.hasClosureVars = true;
                     OCEDynamicEnvData parentOceData = classDef.oceEnvData;
-                    oceEnvData.parents.push(classDef);
+                    oceEnvData.parent = classDef;
                     parentOceData.closureFuncSymbols.addAll(oceEnvData.closureFuncSymbols);
                     parentOceData.closureBlockSymbols.addAll(oceEnvData.closureBlockSymbols);
+
+                    // new approach
+                    parentOceData.closureSymbols.addAll(oceEnvData.closureSymbols);
+                    parentOceData.closureVarOriginalSymbols.addAll(oceEnvData.closureVarOriginalSymbols);
                 }
             }
             localEnv = localEnv.enclEnv;
         }
     }
 
-    public static void updateObjectCtorClosureSymbols(Location pos, BLangFunction enclosedF, BSymbol resolvedSymbol,
-                                                      BLangClassDefinition classDef, SymbolEnv env, BSymbol symbol,
-                                                      BLangNode originalNode) {
+    public static void collectObjectCtorClosureSymbols(Location pos, BLangFunction enclosedF, BSymbol resolvedSymbol,
+                                                       BLangClassDefinition classDef, SymbolEnv env, BSymbol symbol,
+                                                       BLangNode originalNode) {
         classDef.hasClosureVars = true;
         OCEDynamicEnvData oceEnvData = classDef.oceEnvData;
-        if (resolvedSymbol.closure) {
-            if (oceEnvData.closureSymbols.contains(resolvedSymbol)) {
-                return; // already marked by this class
-            }
-            resolvedSymbol.flags |= Flags.ATTACHED;
-            resolvedSymbol.flags |= Flags.OBJECT_CTOR;
+        if (resolvedSymbol.closure && oceEnvData.closureSymbols.contains(resolvedSymbol)) {
+            return; // already marked by this class
         }
+        oceEnvData.closureSymbols.add(resolvedSymbol);
+        oceEnvData.closureVarOriginalSymbols.add(symbol);
+
+        resolvedSymbol.flags |= Flags.OBJECT_CTOR;
+        resolvedSymbol.flags |= Flags.ATTACHED;
+        resolvedSymbol.closure = true;
+
         if (originalNode.getKind() == NodeKind.ARROW_EXPR) {
             BLangArrowFunction arrowFunction = (BLangArrowFunction) originalNode;
-            arrowFunction.isInsideOCE = true;
+            arrowFunction.isInsideOCE = true; // used to update desugared element for arrow function from desugar
             if (arrowFunction.parent == null) {
                 arrowFunction.parent = classDef;
             }
-            resolvedSymbol.flags |= Flags.ATTACHED;
-            resolvedSymbol.flags |= Flags.OBJECT_CTOR;
         }
 
-        resolvedSymbol.closure = true;
-        if (enclosedF != null) {
+        if (enclosedF != null) { // for dataflow analyzer only
             enclosedF.closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
-            // TODO: can identify if attached here
         }
-        oceEnvData.closureSymbols.add(resolvedSymbol);
+
+        // TODO: refactor this for automation
         if (enclosedF != null && (enclosedF.symbol.params.contains(resolvedSymbol)
                 || (enclosedF.symbol.restParam == resolvedSymbol))) {
             oceEnvData.closureFuncSymbols.add(resolvedSymbol);
@@ -135,7 +139,8 @@ public class ClassClosureDesugarUtils {
         // self
         BLangSimpleVarRef.BLangLocalVarRef localSelfVarRef = new BLangSimpleVarRef.BLangLocalVarRef(selfSymbol);
         localSelfVarRef.setBType(classDef.getBType());
-        localSelfVarRef.closureDesugared = true;
+//        localSelfVarRef.closureDesugared = true;
+        localSelfVarRef.symbol.closure = true;
 
         // self[mapSymbol]
         BLangIndexBasedAccess.BLangStructFieldAccessExpr accessExprForClassField =
