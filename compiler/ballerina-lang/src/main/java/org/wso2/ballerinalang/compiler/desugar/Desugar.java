@@ -7186,8 +7186,10 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        // Since the support for singleton type changes are not complete, continuing with the finite type will require
+        // significant changes, therefore we are constructing a numeric literal.
         if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && unaryExpr.expectedType.tag == TypeTags.FINITE) {
-            replaceUnaryExprWithNumericLiteral(unaryExpr);
+            rewriteExpr(types.constructNumericLiteralFromUnaryExpr(unaryExpr));
             return;
         }
 
@@ -7197,44 +7199,6 @@ public class Desugar extends BLangNodeVisitor {
         }
         unaryExpr.expr = rewriteExpr(unaryExpr.expr);
         result = unaryExpr;
-    }
-
-    private void replaceUnaryExprWithNumericLiteral(BLangUnaryExpr unaryExpr) {
-        BLangExpression exprInUnary = unaryExpr.expr;
-        BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
-        Object objectValueInUnary = numericLiteralInUnary.value;
-        String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
-
-        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
-            strValueInUnary = "+" + strValueInUnary;
-        } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
-            strValueInUnary = "-" + strValueInUnary;
-        }
-
-        if (objectValueInUnary instanceof Long) {
-            objectValueInUnary = Long.parseLong(strValueInUnary);
-        } else if (objectValueInUnary instanceof Double) {
-            objectValueInUnary = Double.parseDouble(strValueInUnary);
-        } else if (objectValueInUnary instanceof String) {
-            objectValueInUnary = strValueInUnary;
-        }
-
-        BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
-                TreeBuilder.createNumericLiteralExpression();
-        newNumericLiteral.kind = ((BLangNumericLiteral) exprInUnary).kind;
-        newNumericLiteral.pos = unaryExpr.pos;
-        newNumericLiteral.value = objectValueInUnary;
-        newNumericLiteral.originalValue = strValueInUnary;
-
-        newNumericLiteral.setDeterminedType(exprInUnary.getBType());
-        newNumericLiteral.setBType(exprInUnary.getBType());
-        newNumericLiteral.expectedType = exprInUnary.getBType();
-
-        newNumericLiteral.typeChecked = unaryExpr.typeChecked;
-        newNumericLiteral.constantPropagated = unaryExpr.constantPropagated;
-        newNumericLiteral.isFiniteContext = true;
-
-        result = rewriteExpr(newNumericLiteral);
     }
 
     private void createTypeCastExprForUnaryPlusAndMinus(BLangUnaryExpr unaryExpr) {

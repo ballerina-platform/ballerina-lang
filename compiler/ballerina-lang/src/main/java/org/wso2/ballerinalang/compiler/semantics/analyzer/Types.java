@@ -498,15 +498,14 @@ public class Types {
         return symTable.noType;
     }
 
-    public BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
-        BLangExpression exprInUnary = unaryExpr.expr;
-        BLangNumericLiteral numericLiteralInUnary = (BLangNumericLiteral) exprInUnary;
-        Object objectValueInUnary = numericLiteralInUnary.value;
-        String strValueInUnary = String.valueOf(numericLiteralInUnary.value);
+    public void setValueOfNumericLiteral(BLangNumericLiteral newNumericLiteral, BLangUnaryExpr unaryExpr) {
+        Object objectValueInUnary = ((BLangNumericLiteral) (unaryExpr.expr)).value;
+        String strValueInUnary = String.valueOf(objectValueInUnary);
+        OperatorKind unaryOperatorKind = unaryExpr.operator;
 
-        if (OperatorKind.ADD.equals(unaryExpr.operator)) {
+        if (OperatorKind.ADD.equals(unaryOperatorKind)) {
             strValueInUnary = "+" + strValueInUnary;
-        } else if (OperatorKind.SUB.equals(unaryExpr.operator)) {
+        } else if (OperatorKind.SUB.equals(unaryOperatorKind)) {
             strValueInUnary = "-" + strValueInUnary;
         }
 
@@ -518,14 +517,40 @@ public class Types {
             objectValueInUnary = strValueInUnary;
         }
 
-        BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral)
-                TreeBuilder.createNumericLiteralExpression();
-        newNumericLiteral.kind = ((BLangNumericLiteral) unaryExpr.expr).kind;
-        newNumericLiteral.pos = unaryExpr.pos;
-        newNumericLiteral.setBType(exprInUnary.getBType());
         newNumericLiteral.value = objectValueInUnary;
         newNumericLiteral.originalValue = strValueInUnary;
+    }
+
+    public boolean isLiteralInUnaryAllowed(BLangUnaryExpr unaryExpr) {
+        OperatorKind unaryOperator = unaryExpr.operator;
+        return unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL &&
+                (OperatorKind.SUB.equals(unaryOperator) ||
+                        OperatorKind.ADD.equals(unaryOperator));
+    }
+
+    public boolean isExpressionAnAllowedUnaryType(BLangExpression expr, NodeKind nodeKind) {
+        if (nodeKind != NodeKind.UNARY_EXPR) {
+            return false;
+        }
+        return isLiteralInUnaryAllowed((BLangUnaryExpr) expr);
+    }
+
+    public BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
+        BLangExpression exprInUnary = unaryExpr.expr;
+
+        BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+        setValueOfNumericLiteral(newNumericLiteral, unaryExpr);
+        newNumericLiteral.kind = ((BLangNumericLiteral) exprInUnary).kind;
+        newNumericLiteral.pos = unaryExpr.pos;
+        newNumericLiteral.setDeterminedType(exprInUnary.getBType());
+        newNumericLiteral.setBType(exprInUnary.getBType());
+        newNumericLiteral.expectedType = exprInUnary.getBType();
         newNumericLiteral.typeChecked = unaryExpr.typeChecked;
+        newNumericLiteral.constantPropagated = unaryExpr.constantPropagated;
+
+        if (unaryExpr.expectedType != null && unaryExpr.expectedType.tag == TypeTags.FINITE) {
+            newNumericLiteral.isFiniteContext = true;
+        }
 
         return newNumericLiteral;
     }

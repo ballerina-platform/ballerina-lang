@@ -439,14 +439,11 @@ public class TypeNarrower extends BLangNodeVisitor {
             return;
         }
 
-        NodeKind rhsExperKind = rhsExpr.getKind();
-        if (rhsExperKind == NodeKind.LITERAL || rhsExperKind == NodeKind.NUMERIC_LITERAL ||
-                (rhsExperKind == NodeKind.UNARY_EXPR &&
-                ((BLangUnaryExpr) rhsExpr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
-                (OperatorKind.SUB.equals(((BLangUnaryExpr) rhsExpr).operator) ||
-                OperatorKind.ADD.equals(((BLangUnaryExpr) rhsExpr).operator)))) {
+        NodeKind rhsExprKind = rhsExpr.getKind();
+        if (rhsExprKind == NodeKind.LITERAL || rhsExprKind == NodeKind.NUMERIC_LITERAL ||
+                types.isExpressionAnAllowedUnaryType(rhsExpr, rhsExprKind)) {
             setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr), binaryExpr.pos);
-        } else if (rhsExperKind == NodeKind.SIMPLE_VARIABLE_REF) {
+        } else if (rhsExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
             BSymbol rhsVarSymbol = ((BLangSimpleVarRef) rhsExpr).symbol;
             if (rhsVarSymbol != symTable.notFoundSymbol && rhsVarSymbol.kind == SymbolKind.CONSTANT) {
                 setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, rhsVarSymbol.type, binaryExpr.pos);

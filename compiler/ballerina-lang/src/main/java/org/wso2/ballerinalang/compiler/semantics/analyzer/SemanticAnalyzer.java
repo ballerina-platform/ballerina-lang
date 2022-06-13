@@ -711,19 +711,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         validateAnnotationAttachmentCount(conversionExpr.annAttachments);
     }
 
-    private void replaceUnaryExpr() {
-
-    }
-
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
         boolean foundUnaryExpr = false;
         boolean isErroredExprInFiniteType = false;
+        NodeKind valueKind;
+        BLangExpression value;
 
         for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
-            BLangExpression value = finiteTypeNode.valueSpace.get(i);
+            value = finiteTypeNode.valueSpace.get(i);
+            valueKind = value.getKind();
 
-            if (value.getKind() == NodeKind.UNARY_EXPR) {
+            if (valueKind == NodeKind.UNARY_EXPR) {
                 foundUnaryExpr = true;
                 BType resultType = typeChecker.checkExpr(value, data.env, symTable.noType, data.prevEnvs);
                 if (resultType == symTable.semanticError) {
@@ -734,14 +733,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 BLangNumericLiteral newNumericLiteral =
                         types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
                 finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+            } else if ((valueKind == NodeKind.LITERAL || valueKind == NodeKind.NUMERIC_LITERAL) &&
+                    ((BLangLiteral) value).originalValue == null) {
+                // To handle enums
+                continue;
             } else {
-                if ((value.getKind() == NodeKind.LITERAL || value.getKind() == NodeKind.NUMERIC_LITERAL) &&
-                        ((BLangLiteral) value).originalValue == null) {
-                    // To handle enums
-                    continue;
-                } else {
-                    analyzeNode(value, data);
-                }
+                analyzeNode(value, data);
             }
         }
 
@@ -4085,14 +4082,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         });
 
         BLangExpression expression = constant.expr;
-
-        if (((expression.getKind() == NodeKind.UNARY_EXPR &&
-                ((BLangUnaryExpr) constant.expr).expr.getKind() != NodeKind.NUMERIC_LITERAL) &&
-                (!OperatorKind.SUB.equals(((BLangUnaryExpr) constant.expr).operator) ||
-                !OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator)) ||
-                !(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
-                expression.getKind() != NodeKind.UNARY_EXPR) &&
-                constant.typeNode == null) {
+        if (isNodeKindAllowedForConstants(expression, constant)) {
             // This has to return, because constant.symbol.type is required for further validations.
             // ATM this is only special cased for unary expressions with `+` and `-` operators with numeric expressions.
             dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
@@ -4103,6 +4093,16 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);
+    }
+
+    private boolean isNodeKindAllowedForConstants(BLangExpression expression, BLangConstant constant) {
+        return ((expression.getKind() == NodeKind.UNARY_EXPR &&
+                ((BLangUnaryExpr) constant.expr).expr.getKind() != NodeKind.NUMERIC_LITERAL) &&
+                (!OperatorKind.SUB.equals(((BLangUnaryExpr) constant.expr).operator) ||
+                        !OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator)) ||
+                !(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
+                        expression.getKind() != NodeKind.UNARY_EXPR) &&
+                constant.typeNode == null;
     }
 
     // TODO: 7/10/19 Remove this once const support is added for lists. A separate method is introduced temporarily

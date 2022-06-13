@@ -2309,9 +2309,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
 
         } else if (nodeKind == NodeKind.UNARY_EXPR && constant.typeNode == null &&
-                ((BLangUnaryExpr) constant.expr).expr.getKind() == NodeKind.NUMERIC_LITERAL &&
-                (OperatorKind.SUB.equals(((BLangUnaryExpr) constant.expr).operator) ||
-                        OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator))) {
+                types.isLiteralInUnaryAllowed((BLangUnaryExpr) constant.expr)) {
             // When unary type constants with `-` or `+` operators are defined without the type,
             // then the type of the symbol will be handled similar to handling a literal type constant
             // defined without the type.
