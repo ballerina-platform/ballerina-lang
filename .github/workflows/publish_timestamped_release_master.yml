@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - annot-tuple-members
   workflow_dispatch:
 
 jobs:
