@@ -11373,7 +11373,7 @@ public class BallerinaParser extends AbstractParser {
         STNode tupleMemberRhs = parseTypeDescInTupleRhs();
         if (tupleMemberRhs != null) {
             if (!((STNodeList) annot).isEmpty()) {
-                reportInvalidExpressionAnnots(annot, new ArrayList<>());
+                reportInvalidMetaData(annot, "tuple rest descriptor");
             }
             typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
         }
@@ -11407,7 +11407,7 @@ public class BallerinaParser extends AbstractParser {
 
         if (tupleMemberRhs != null) {
             if (!((STNodeList) annot).isEmpty()) {
-                reportInvalidExpressionAnnots(annot, new ArrayList<>());
+                reportInvalidMetaData(annot, "tuple rest descriptor");
             }
             return STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
         }
