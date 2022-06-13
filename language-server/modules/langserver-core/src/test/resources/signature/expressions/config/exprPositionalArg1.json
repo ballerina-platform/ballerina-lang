@@ -1,0 +1,14 @@
+{
+  "position": {
+    "line": 429,
+    "character": 55
+  },
+  "expected": {
+    "result": {
+      "signatures": [],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}
