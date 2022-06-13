@@ -27,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -35,6 +34,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -63,7 +63,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         }
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.expression())) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, node.expression())) {
             /*
             Captures the following cases
             (1) [module:]TypeName c = module:<cursor>
@@ -72,7 +72,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
             Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
                     || symbol.kind() == SymbolKind.FUNCTION;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else if (onSuggestionsAfterQualifiers(context, node.expression())) {
             /*

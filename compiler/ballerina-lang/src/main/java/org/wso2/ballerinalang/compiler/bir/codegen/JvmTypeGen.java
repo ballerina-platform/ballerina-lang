@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -184,18 +185,21 @@ public class JvmTypeGen {
     private final IsAnydataUniqueVisitor isAnydataUniqueVisitor;
     private final JvmConstantsGen jvmConstantsGen;
     private final TypeHashVisitor typeHashVisitor;
+    private final SymbolTable symbolTable;
     private final PackageID packageID;
     private final String anonTypesClass;
     private final String recordsClass;
     private final String objectsClass;
     private final String errorsClass;
 
-    public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID, TypeHashVisitor typeHashVisitor) {
+    public JvmTypeGen(JvmConstantsGen jvmConstantsGen, PackageID packageID, TypeHashVisitor typeHashVisitor,
+                      SymbolTable symbolTable) {
         this.jvmConstantsGen = jvmConstantsGen;
         this.packageID = packageID;
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         this.typeHashVisitor = typeHashVisitor;
+        this.symbolTable = symbolTable;
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
         this.objectsClass = getModuleLevelClassName(packageID, MODULE_OBJECTS_CREATOR_CLASS_NAME);
@@ -411,7 +415,7 @@ public class JvmTypeGen {
                     typeFieldName = "TYPE_HANDLE";
                     break;
                 case TypeTags.ARRAY:
-                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType));
+                    jvmConstantsGen.generateGetBArrayType(mv, jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
                     return;
                 case TypeTags.MAP:
                     loadMapType(mv, (BMapType) bType);
@@ -430,7 +434,8 @@ public class JvmTypeGen {
                     if (unionType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.generateGetBUnionType(mv, jvmConstantsGen.getTypeConstantsVar(bType));
+                        jvmConstantsGen.generateGetBUnionType(mv,
+                                                              jvmConstantsGen.getTypeConstantsVar(bType, symbolTable));
                     }
                     return;
                 case TypeTags.INTERSECTION:
@@ -447,7 +452,8 @@ public class JvmTypeGen {
                     if (tupleType.isCyclic) {
                         loadUserDefinedType(mv, bType);
                     } else {
-                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType));
+                        jvmConstantsGen.generateGetBTupleType(mv, jvmConstantsGen.getTypeConstantsVar(tupleType,
+                                                                                                      symbolTable));
                     }
                     return;
                 case TypeTags.FINITE:

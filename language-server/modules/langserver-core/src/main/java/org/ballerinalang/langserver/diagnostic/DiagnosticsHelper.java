@@ -19,7 +19,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.WorkspaceServiceContext;
@@ -240,7 +240,7 @@ public class DiagnosticsHelper {
                     ? projectRoot.resolve(lineRange.filePath())
                     : projectRoot;
             String resolvedUri = resolvedPath.toUri().toString();
-            String fileURI = CommonUtil.getModifiedUri(workspaceManager, resolvedUri);
+            String fileURI = PathUtil.getModifiedUri(workspaceManager, resolvedUri);
             List<Diagnostic> clientDiagnostics = diagnosticsMap.computeIfAbsent(fileURI, s -> new ArrayList<>());
             clientDiagnostics.add(diagnostic);
         }

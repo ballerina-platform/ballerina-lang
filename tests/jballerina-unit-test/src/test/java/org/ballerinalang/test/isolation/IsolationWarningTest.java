@@ -22,7 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.test.BAssertUtil.validateWarning;
+import static org.ballerinalang.test.BAssertUtil.validateHint;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -32,11 +32,11 @@ import static org.testng.Assert.assertEquals;
  * @since 2.0.0
  */
 public class IsolationWarningTest {
-    private static final String NON_ISOLATED_METHOD_WARNING = "concurrent calls will not be made to this method since" +
+    private static final String NON_ISOLATED_METHOD_HINT = "concurrent calls will not be made to this method since" +
             " the method is not an 'isolated' method";
-    private static final String NON_ISOLATED_SERVICE_WARNING = "concurrent calls will not be made to this method " +
+    private static final String NON_ISOLATED_SERVICE_HINT = "concurrent calls will not be made to this method " +
             "since the service is not an 'isolated' service";
-    private static final String NON_ISOLATED_SERVICE_AND_METHOD_WARNING = "concurrent calls will not be made to this " +
+    private static final String NON_ISOLATED_SERVICE_AND_METHOD_HINT = "concurrent calls will not be made to this " +
             "method since the service and the method are not 'isolated'";
 
     @Test
@@ -44,31 +44,31 @@ public class IsolationWarningTest {
         CompileResult result = BCompileUtil.compile(
                 "test-src/isolation-analysis/isolation_warnings_for_service_methods.bal");
         int i = 0;
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 26, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 30, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 43, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 47, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 62, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 66, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 79, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 83, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 101, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 105, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 118, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 122, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 137, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 141, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 154, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 158, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 176, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_WARNING, 180, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 193, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 197, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 211, 5);
-        validateWarning(result, i++, NON_ISOLATED_METHOD_WARNING, 215, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 228, 5);
-        validateWarning(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_WARNING, 232, 5);
-        assertEquals(result.getWarnCount(), i);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_HINT, 26, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_HINT, 30, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 43, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 47, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 62, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 66, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 79, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 83, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_HINT, 101, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_HINT, 105, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 118, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 122, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 137, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 141, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 154, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 158, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_HINT, 176, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_HINT, 180, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 193, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 197, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 211, 5);
+        validateHint(result, i++, NON_ISOLATED_METHOD_HINT, 215, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 228, 5);
+        validateHint(result, i++, NON_ISOLATED_SERVICE_AND_METHOD_HINT, 232, 5);
+        assertEquals(result.getHintCount(), i);
 
         LineRange lineRange = result.getDiagnostics()[0].location().lineRange();
         assertEquals(lineRange.filePath(), "isolation_warnings_for_service_methods.bal");

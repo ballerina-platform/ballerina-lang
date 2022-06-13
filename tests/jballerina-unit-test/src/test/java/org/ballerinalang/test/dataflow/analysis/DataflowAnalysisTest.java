@@ -100,10 +100,10 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "uninitialized field 'd'", 325, 5);
         BAssertUtil.validateError(result, i++, "variable 'd' is not initialized", 350, 16);
         BAssertUtil.validateWarning(result, i++, "unused variable 'y'", 380, 9);
-        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+        BAssertUtil.validateHint(result, i++, "concurrent calls will not be made to this method since the method " +
                 "is not an 'isolated' method", 393, 5);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 394, 9);
-        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+        BAssertUtil.validateHint(result, i++, "concurrent calls will not be made to this method since the method " +
                 "is not an 'isolated' method", 399, 5);
         BAssertUtil.validateWarning(result, i++, "unused variable 'a'", 400, 9);
         BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 408, 5);
@@ -111,9 +111,9 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'b' may not have been initialized", 429, 16);
         BAssertUtil.validateError(result, i++, "uninitialized field 'a'", 457, 5);
         BAssertUtil.validateError(result, i++, "uninitialized field 'c'", 459, 5);
-        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+        BAssertUtil.validateHint(result, i++, "concurrent calls will not be made to this method since the method " +
                 "is not an 'isolated' method", 478, 5);
-        BAssertUtil.validateWarning(result, i++, "concurrent calls will not be made to this method since the method " +
+        BAssertUtil.validateHint(result, i++, "concurrent calls will not be made to this method since the method " +
                 "is not an 'isolated' method", 493, 5);
         BAssertUtil.validateError(result, i++, "unreachable code", 521, 9);
         BAssertUtil.validateError(result, i++, "variable 'msg' is not initialized", 530, 12);
@@ -212,7 +212,8 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'i' may not have been initialized", 1096, 13);
 
         Assert.assertEquals(result.getErrorCount(), i - 32);
-        Assert.assertEquals(result.getWarnCount(), 32);
+        Assert.assertEquals(result.getWarnCount(), 28);
+        Assert.assertEquals(result.getHintCount(), 4);
     }
 
     @Test(description = "Test uninitialized variables in error-constructor-expr")
