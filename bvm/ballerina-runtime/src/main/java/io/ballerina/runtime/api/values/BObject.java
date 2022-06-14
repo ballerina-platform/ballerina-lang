@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.values;
 
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.HashMap;
@@ -61,4 +62,8 @@ public interface BObject extends RefValue {
     HashMap<String, Object> getNativeData();
 
     void set(BString fieldName, Object value);
+
+    void setClosureMap(Object closureMap);
+
+    Object getClosureMap();
 }

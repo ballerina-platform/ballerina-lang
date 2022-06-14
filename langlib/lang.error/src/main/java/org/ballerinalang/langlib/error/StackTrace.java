@@ -222,5 +222,13 @@ public class StackTrace {
             return typedesc;
         }
 
+        @Override
+        public void setClosureMap(Object closureMap) {};
+
+        @Override
+        public Object getClosureMap() {
+            return null;
+        };
+
     }
 }
