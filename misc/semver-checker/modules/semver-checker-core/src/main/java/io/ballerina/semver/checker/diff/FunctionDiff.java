@@ -40,6 +40,11 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
 
     @Override
     public void computeVersionImpact() {
+        if (isRemote() || isResource()) {
+            super.computeVersionImpact();
+            return;
+        }
+
         boolean isPublic = isPublic();
         if (newNode != null && oldNode == null) {
             // if the function is newly added
@@ -68,8 +73,7 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
     }
 
     /**
-     * Indicates whether the counterpart
-     * @return
+     * Indicates whether the counterpart function is a Ballerina resource function.
      */
     public boolean isResource() {
         boolean isNewResource = newNode != null && newNode.qualifierList().stream().anyMatch(qualifier ->
@@ -80,6 +84,9 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
         return isNewResource || isOldResource;
     }
 
+    /**
+     * Indicates whether the counterpart function is a Ballerina remote function.
+     */
     public boolean isRemote() {
         boolean isNewRemote = newNode != null && newNode.qualifierList().stream().anyMatch(qualifier ->
                 qualifier.kind() == REMOTE_KEYWORD);

@@ -194,8 +194,8 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
             NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(null, function);
             serviceVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(memberDiffs::add);
         });
-        varDiffExtractor.getCommons().forEach((name, serviceVars) -> new DumbNodeComparator<>(serviceVars.getKey(),
-                serviceVars.getValue(), SERVICE_VAR_KIND).computeDiff().ifPresent(memberDiffs::add));
+        varDiffExtractor.getCommons().forEach((name, serviceVars) -> new ObjectFieldComparator(serviceVars.getKey(),
+                serviceVars.getValue()).computeDiff().ifPresent(memberDiffs::add));
 
         return memberDiffs;
     }
