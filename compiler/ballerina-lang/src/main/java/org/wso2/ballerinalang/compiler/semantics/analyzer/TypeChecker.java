@@ -6820,7 +6820,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
-                    populateIncludedRecordParams(param, includedRecordFields);
+                    if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
+                        populateIncludedRecordParams(param, includedRecordFields, includedRecordParamNames);
+                    }
                     checkTypeParamExpr(arg, param.type, iExpr.langLibInvocation, data);
                     valueProvidedParams.add(param);
                     requiredParams.remove(param);
@@ -6840,8 +6842,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
-                populateIncludedRecordParams(varSym, includedRecordFields);
-                namedArgs.add(arg);
+                if (Symbols.isFlagOn(varSym.flags, Flags.INCLUDED)) {
+                    populateIncludedRecordParams(varSym, includedRecordFields, includedRecordParamNames);
+                } else {
+                    namedArgs.add(arg);
+                }
                 requiredParams.remove(varSym);
                 requiredIncRecordParams.remove(varSym);
                 if (valueProvidedParams.contains(varSym)) {
@@ -6853,7 +6858,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 valueProvidedParams.add(varSym);
             }
         }
-        checkSameNamedArgsInIncludedRecords(namedArgs, includedRecordFields, includedRecordParamNames);
+        checkSameNamedArgsInIncludedRecords(namedArgs, includedRecordFields);
         BVarSymbol restParam = invokableTypeSymbol.restParam;
 
         boolean errored = false;
@@ -7032,23 +7037,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private void populateIncludedRecordParams(BVarSymbol param, HashSet<String> includedRecordFields) {
-        if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
-            Set<String> fields = ((BRecordType) Types.getReferredType(param.type)).fields.keySet();
-            includedRecordFields.addAll(fields);
-        }
+    private void populateIncludedRecordParams(BVarSymbol param, HashSet<String> includedRecordFields,
+                                              List<String> includedRecordParamNames) {
+        Set<String> fields = ((BRecordType) Types.getReferredType(param.type)).fields.keySet();
+        fields.removeIf(field -> !includedRecordParamNames.contains(field));
+        includedRecordFields.addAll(fields);
     }
 
     // If there is a named-arg or positional-arg corresponding to an included-record-param,
     // it is an error for a named-arg to specify a field of that included-record-param.
-    private void checkSameNamedArgsInIncludedRecords(List<BLangExpression> namedArgs, HashSet<String> incRecordFields,
-                                                     List<String> includedRecordParamNames) {
-        incRecordFields.removeIf(field -> !includedRecordParamNames.contains(field));
+    private void checkSameNamedArgsInIncludedRecords(List<BLangExpression> namedArgs,
+                                                      HashSet<String> incRecordFields) {
+        if (incRecordFields.isEmpty()) {
+            return;
+        }
         for (BLangExpression namedArg : namedArgs) {
             String argName = ((NamedArgNode) namedArg).getName().value;
             if (incRecordFields.contains(argName)) {
                 dlog.error(namedArg.pos,
-                        DiagnosticErrorCode.DUPLICATE_ARG_VIA_NAMED_ARG_AND_ARG_FOR_INCLUDED_RECORD_PARAM, argName);
+                        DiagnosticErrorCode.
+                        CANNOT_SPECIFY_NAMED_ARG_FOR_FIELD_OF_INCLUDED_RECORD_WHEN_ARG_SPECIFIED_FOR_INCLUDED_RECORD);
             }
         }
     }
