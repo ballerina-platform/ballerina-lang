@@ -51,6 +51,11 @@ public class RuntimeRegistry {
         this.scheduler = scheduler;
     }
 
+    public void stopDynamic(Strand strand) {
+        stopListeners(strand);
+        moduleGracefulStop(strand);
+    }
+
     public synchronized void registerListener(BObject listener) {
         listenerSet.add(listener);
         scheduler.setImmortal(true);

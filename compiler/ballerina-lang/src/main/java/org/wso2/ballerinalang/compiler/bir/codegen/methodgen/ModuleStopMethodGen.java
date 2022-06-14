@@ -168,17 +168,8 @@ public class ModuleStopMethodGen {
         mv.visitInsn(ICONST_0);
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "stopListeners",
+        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "stopDynamic",
                            SET_STRAND, false);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_1);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, RUNTIME_REGISTRY_CLASS);
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitInsn(ICONST_0);
-        mv.visitInsn(AALOAD);
-        mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
-        mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "moduleGracefulStop", SET_STRAND, false);
         mv.visitInsn(ACONST_NULL);
         MethodGenUtils.visitReturn(mv);
     }
