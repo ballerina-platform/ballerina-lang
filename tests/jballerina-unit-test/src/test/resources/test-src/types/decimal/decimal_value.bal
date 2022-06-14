@@ -262,6 +262,17 @@ function testDecimalZeroOperations() {
     assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
 }
 
+function testDecimalValUsingIntLiterals() {
+    decimal result = 10000000000000000123;
+    assertEquality("1.0E+19", result.toString());
+
+    result = 9223372036854775808;
+    assertEquality("9.223372036854776E+18", result.toString());
+
+    result = 922337203685477580883748874792939797987937145676734655623565776478378749283472394;
+    assertEquality("9.223372036854776E+80", result.toString());
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

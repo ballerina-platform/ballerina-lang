@@ -512,25 +512,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             setLiteralValueForFiniteType(literalExpr, symTable.byteType, data);
             return symTable.byteType;
 
-        } else if (literalExpr.value instanceof Double) {
-            setLiteralValueForFiniteType(literalExpr, symTable.floatType, data);
-            return symTable.floatType;
-        } else if (literalExpr.value instanceof String) {
-            setLiteralValueForFiniteType(literalExpr, symTable.decimalType, data);
-            return symTable.decimalType;
-
-//        } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.FLOAT)) {
-//            if (!(literalExpr.value instanceof Long)) {
-//                // to prevent eg: 1f|1d|2d f2 = 1; from passing
-//                setLiteralValueForFiniteType(literalExpr, symTable.floatType, data);
-//                return symTable.floatType;
-//            }
-//        } else if (literalAssignableToFiniteType(literalExpr, finiteType, TypeTags.DECIMAL)) {
-//            if (!(literalExpr.value instanceof Long) && !(literalExpr.value instanceof Double)) {
-//                // to prevent eg: 1f|1d|2d f2 = 2; from passing
-//                setLiteralValueForFiniteType(literalExpr, symTable.decimalType, data);
-//                return symTable.decimalType;
-//            }
         } else {
             for (int tag = TypeTags.SIGNED32_INT; tag <= TypeTags.UNSIGNED8_INT; tag++) {
                 if (literalAssignableToFiniteType(literalExpr, finiteType, tag)) {
@@ -558,14 +539,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             literalExpr.value = String.valueOf(literalValue);
             return type;
         }
-
+        // Handle out of range ints
         if (literalValue instanceof Double) {
             return symTable.floatType;
         }
         if (literalValue instanceof String) {
             return symTable.decimalType;
         }
-        return symTable.intType;
+        return symTable.getTypeFromTag(typeTag);
     }
 
     private BType silentIntTypeCheck(BLangLiteral literalExpr, Object literalValue, BType expType,
