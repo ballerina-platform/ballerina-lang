@@ -424,6 +424,14 @@ public class Strand {
             infoStr.append(" \"" + this.getName().get() + "\"");
         }
 
+        infoStr.append(" [");
+        infoStr.append(this.metadata.getModuleOrg()).append(".").append(this.metadata.getModuleName()).append(".")
+                .append(this.metadata.getModuleVersion()).append(":").append(this.metadata.getParentFunctionName());
+        if (this.parent != null) {
+            infoStr.append("][" + this.parent.getId());
+        }
+        infoStr.append("]");
+
         StringBuilder frameStackTrace = new StringBuilder();
         if (this.isYielded()) {
             String currState = "BLOCKED";
@@ -454,14 +462,6 @@ public class Strand {
         } else {
             infoStr.append(" [" + this.getState().toString() + "]:\n");
         }
-
-        infoStr.append("\tcreated from ");
-        infoStr.append(this.metadata.getModuleOrg()).append(".").append(this.metadata.getModuleName()).append(".")
-                .append(this.metadata.getModuleVersion()).append(":").append(this.metadata.getParentFunctionName());
-        if (this.parent != null) {
-            infoStr.append(" by strand " + this.parent.getId());
-        }
-        infoStr.append("\n");
         infoStr.append(frameStackTrace.toString());
 
         return infoStr.toString();
