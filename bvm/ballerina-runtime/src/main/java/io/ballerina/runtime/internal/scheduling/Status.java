@@ -22,8 +22,7 @@ import sun.misc.Signal;
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Used to get the status of current Ballerina runtime.
@@ -33,7 +32,7 @@ import java.util.Map;
 public class Status {
 
     private static final PrintStream outStream = System.out;
-    private static final Map<Integer, Strand> currentStrands = new HashMap<>();
+    private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
 
     protected static void addToStrands(Integer strandId, Strand strand) {
         currentStrands.put(strandId, strand);
@@ -44,7 +43,7 @@ public class Status {
     }
 
     public static void initiateSignalListener() {
-        Signal.handle(new Signal("USR1"), signal -> outStream.println(getRuntimeStateDump()));
+        Signal.handle(new Signal("TRAP"), signal -> outStream.println(getRuntimeStateDump()));
     }
 
     private static String getRuntimeStateDump() {

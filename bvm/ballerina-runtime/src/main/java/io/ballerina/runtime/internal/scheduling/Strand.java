@@ -33,6 +33,7 @@ import io.ballerina.runtime.transactions.TransactionLocalContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -428,14 +429,26 @@ public class Strand {
             String currState = "BLOCKED";
             boolean noCurrState = true;
             String stringPrefix = "\tat\t";
-            for (Object frame : this.frames) {
-                if (noCurrState) {
-                    currState = ((FunctionFrame) frame).getYieldStatus();
-                    noCurrState = false;
+            try {
+                for (Object frame : this.frames) {
+                    if (noCurrState) {
+                        currState = ((FunctionFrame) frame).getYieldStatus();
+                        if (currState == null) {
+                            throw new ConcurrentModificationException();
+                        }
+                        noCurrState = false;
+                    }
+                    String yieldLocation = ((FunctionFrame) frame).getYieldLocation();
+                    if (yieldLocation == null) {
+                        throw new ConcurrentModificationException();
+                    }
+                    frameStackTrace.append(stringPrefix).append(yieldLocation);
+                    frameStackTrace.append("\n");
+                    stringPrefix = "\t  \t";
                 }
-                frameStackTrace.append(stringPrefix).append(((FunctionFrame) frame).getYieldLocation());
-                frameStackTrace.append("\n");
-                stringPrefix = "\t  \t";
+            } catch (ConcurrentModificationException ce) {
+                currState = "STATES CHANGING";
+                frameStackTrace = new StringBuilder();
             }
             infoStr.append(" [" + currState + "]:\n");
         } else {
