@@ -113,7 +113,7 @@ public class CoverageReport {
      * @throws IOException
      */
     public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage,
-                               String reportFormat, Map<String, Module> originalModules)
+                               String reportFormat, Module originalModule)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
@@ -130,7 +130,7 @@ public class CoverageReport {
         }
         if (!filteredPathList.isEmpty()) {
             CoverageBuilder coverageBuilder =
-                    generateTesterinaCoverageReport(orgName, packageName, filteredPathList, originalModules);
+                    generateTesterinaCoverageReport(orgName, packageName, filteredPathList, originalModule);
             if (CodeCoverageUtils.isRequestedReportFormat(reportFormat, TesterinaConstants.JACOCO_XML_FORMAT)) {
                 // Add additional dependency jars for Jacoco Coverage XML if included
                 if (includesInCoverage != null) {
@@ -178,14 +178,14 @@ public class CoverageReport {
      */
     private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
                                                             List<Path> filteredPathList,
-                                                            Map<String, Module> originalModules) throws IOException {
+                                                            Module originalModule) throws IOException {
         // For the Testerina report only the ballerina specific sources need to be extracted
         addCompiledSources(filteredPathList, orgName, packageName);
         execFileLoader.load(executionDataFile.toFile());
         final CoverageBuilder coverageBuilder = analyzeStructure();
 
         // Analyze original modules
-        List<DocumentId> excludedFiles = getGeneratedFilesToExclude(originalModules);
+        List<DocumentId> excludedFiles = getGeneratedFilesToExclude(originalModule);
 
         // If there are files to exclude, we add that to the exclusion list
         if (excludedFiles.isEmpty() == true) {
@@ -194,20 +194,17 @@ public class CoverageReport {
             createReport(coverageBuilder.getBundle(title), moduleCoverageMap, excludedFiles);
         }
 
-        filterGeneratedCoverage(coverageBuilder.getBundle(title), moduleCoverageMap, originalModules);
+        filterGeneratedCoverage(coverageBuilder.getBundle(title), moduleCoverageMap, originalModule);
         return coverageBuilder;
     }
 
-    private List<DocumentId> getGeneratedFilesToExclude(Map<String, Module> originalModules) {
+    private List<DocumentId> getGeneratedFilesToExclude(Module originalModules) {
         List<DocumentId> excludedDocumentIds = new ArrayList<>(this.module.documentIds());
         List<DocumentId> oldDocuementIds = new ArrayList<>();
 
         // Add all old document ids
-        for (String modules : originalModules.keySet()) {
-            Module module = originalModules.get(modules);
-            for (DocumentId documentId : module.documentIds()) {
-                oldDocuementIds.add(documentId);
-            }
+        for (DocumentId documentId : originalModules.documentIds()) {
+            oldDocuementIds.add(documentId);
         }
 
         excludedDocumentIds.removeAll(oldDocuementIds);
@@ -428,8 +425,7 @@ public class CoverageReport {
     }
 
     private void filterGeneratedCoverage(final IBundleCoverage bundleCoverage,
-                                         Map<String, ModuleCoverage> moduleCoverageMap,
-                                         Map<String, Module> originalModules) {
+                                         Map<String, ModuleCoverage> moduleCoverageMap, Module originalModule) {
         boolean containsSourceFiles = true;
 
         // Loop through the individual package coverage
@@ -456,9 +452,6 @@ public class CoverageReport {
 
                     // Get the current compiled document (with the code modifications)
                     Document document = getDocument(sourceFileModule, sourceFileCoverage.getName());
-
-                    // Get the module and source from before compilation
-                    Module originalModule = originalModules.get(sourceFileModule);
 
                     // Get the old compiled document directly from the duplicate module
                     Document documentOld = getDocumentFromModule(originalModule, sourceFileCoverage.getName());

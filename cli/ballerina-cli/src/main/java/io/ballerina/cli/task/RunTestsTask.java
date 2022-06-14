@@ -386,7 +386,7 @@ public class RunTestsTask implements Task {
                     packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
             coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat,
-                    this.coverageModules);
+                    this.coverageModules.get(module.moduleName().toString()));
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
