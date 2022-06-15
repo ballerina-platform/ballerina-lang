@@ -40,23 +40,35 @@ public class RecordAssignabilityTest {
                 "'record {| (int|string|boolean) a; (int|string) b; anydata...; |}'," +
                 " found 'record {| (int|string|boolean) a; (int|boolean) b; anydata...; |}'", 20, 54);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'record {| (int|string|boolean) a; (int|string) b; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean) b; |}'", 25, 57);
+                "'(boolean|string|int|record {| (boolean|int) b; anydata...; |})'," +
+                " found '(boolean|string|int|record {| (boolean|string) b; anydata...; |})'", 23, 53);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'(boolean|string|int|record {| (boolean|int) b; anydata...; |})'," +
+                " found '(boolean|string|int|record {| (boolean|string) b; anydata...; |})'", 24, 52);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'record {| (int|string|boolean) a; (int|string) b; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean) b; |}'", 26, 56);
+                " found 'record {| (int|string|boolean) a; (int|boolean) b; |}'", 29, 57);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'record {| (int|string|boolean) a; (int|string) b; |}'," +
+                " found 'record {| (int|string|boolean) a; (int|boolean) b; |}'", 30, 56);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'record {| (int|string|boolean) a; (int|string)...; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean)...; |}'", 29, 58);
+                " found 'record {| (int|string|boolean) a; (int|boolean)...; |}'", 33, 58);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'record {| (int|string|boolean) a; (int|string)...; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean)...; |}'", 30, 57);
+                " found 'record {| (int|string|boolean) a; (int|boolean)...; |}'", 34, 57);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'record {| (int|string|boolean) a; (int|string) b; (int|string)...; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean) b; (int|boolean)...; |}'", 33, 72);
+                " found 'record {| (int|string|boolean) a; (int|boolean) b; (int|boolean)...; |}'", 37, 72);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'record {| (int|string|boolean) a; (int|string) b; (int|string)...; |}'," +
-                " found 'record {| (int|string|boolean) a; (int|boolean) b; (int|boolean)...; |}'", 34, 71);
+                " found 'record {| (int|string|boolean) a; (int|boolean) b; (int|boolean)...; |}'", 38, 71);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'(boolean|string|int|record {| (boolean|int) b; |})'," +
+                " found '(boolean|string|int|record {| (boolean|string) b; |})'", 41, 55);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'(boolean|string|int|record {| (boolean|int) b; |})'," +
+                " found '(boolean|string|int|record {| (boolean|string) b; |})'", 42, 54);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 }

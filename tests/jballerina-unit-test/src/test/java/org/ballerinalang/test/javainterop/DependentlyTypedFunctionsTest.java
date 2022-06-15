@@ -77,6 +77,8 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++,
                       "a function with a non-'external' function body cannot be a dependently-typed function", 115, 45);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 115, 45);
+        validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) " +
+                "returns (string)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 126, 61);
         validateError(errors, indx++, "unknown type 'td'", 127, 48);
         validateError(errors, indx++, "incompatible types: expected 'function (typedesc<(string|int)>) returns " +
                 "(other)', found 'function (typedesc<(int|string)>) returns (aTypeVar)'", 127, 57);
