@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public class BLangResourceFunction extends BLangFunction {
     public List<BLangIdentifier> resourcePath;
     public BLangSimpleVariable restPathParam;
     public List<BLangSimpleVariable> pathParams = new ArrayList<>();
+    public BLangTupleTypeNode resourcePathType;
 
 
     @Override

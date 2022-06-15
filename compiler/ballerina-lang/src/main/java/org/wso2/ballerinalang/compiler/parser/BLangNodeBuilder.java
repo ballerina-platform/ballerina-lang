@@ -735,6 +735,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         bLFunction.resourcePath =  new ArrayList<>();
         List<BLangSimpleVariable> params = new ArrayList<>();
+        BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
         for (Node pathSegment : relativeResourcePath) {
             switch (pathSegment.kind()) {
                 case SLASH_TOKEN:
@@ -744,19 +745,26 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     params.add(param);
                     bLFunction.addPathParam(param);
                     bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+                    tupleTypeNode.memberTypeNodes.add(param.typeNode);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
                     params.add(restParam);
                     bLFunction.setRestPathParam(restParam);
                     bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                    tupleTypeNode.restParamType = restParam.typeNode;
                     break;
                 default:
                     bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+                    BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
+                    bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
+                    tupleTypeNode.memberTypeNodes.add(bLangFiniteTypeNode);
                     break;
             }
         }
         bLFunction.getParameters().addAll(0, params);
+        bLFunction.resourcePathType = tupleTypeNode;
 
         return bLFunction;
     }
