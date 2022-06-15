@@ -141,7 +141,8 @@ public class FuncInvocationExprTest {
                 {"testMethodInvocationWithArgVarargMixWithDefaultableParam"},
                 {"testMethodVarargEvaluationCount"},
                 {"testVarargForParamsOfDifferentKinds"},
-                {"testArrayVarArg"}
+                {"testArrayVarArg"},
+                {"testTypeRefTypedRestArg"}
         };
     }
 
