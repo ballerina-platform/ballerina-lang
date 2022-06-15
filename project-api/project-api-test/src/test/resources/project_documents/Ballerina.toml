@@ -1,0 +1,8 @@
+[package]
+distribution = "2201.0.2"
+org = "doc"
+name = "project_documents"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true
