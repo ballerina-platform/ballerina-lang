@@ -115,6 +115,7 @@ public enum ParserRuleContext {
     OBJECT_FIELD_QUALIFIER("object-field-qualifier"),
     OBJECT_FIELD_RHS("object-field-rhs"),
     OPTIONAL_FIELD_INITIALIZER("optional-field-initializer"),
+    OPTIONAL_TYPE_DESC_IN_TYPE_BINDING_PATTERN("optional-type-desc-in-type-binding-pattern"),
     FIRST_OBJECT_TYPE_QUALIFIER("first-object-type-qualifier"),
     SECOND_OBJECT_TYPE_QUALIFIER("second-object-type-qualifier"),
     FIRST_OBJECT_CONS_QUALIFIER("first-object-cons-qualifier"),
