@@ -82,14 +82,13 @@ function testMultiLevelOnFailWithoutVariableVariationOne() {
     int i = 0;
     string str = "";
 
-    while (i < 2) {
+    while i < 2 {
         do {
             str += " -> B, ";
             fail getError();
         } on fail {
             str += " -> Error #1";
         }
-
         i = i + 1;
     } on fail error e {
         str += " -> Error #2";
@@ -102,14 +101,13 @@ function testMultiLevelOnFailWithoutVariableVariationTwo() {
     int i = 0;
     string str = "";
 
-    while (i < 2) {
+    while i < 2 {
         do {
             str += " -> B, ";
             fail getError();
         } on fail error e {
             str += " -> Error #1";
         }
-
         i = i + 1;
     } on fail {
         str += " -> Error #2";
@@ -122,14 +120,13 @@ function testMultiLevelOnFailWithoutVariableVariationThree() {
     int i = 0;
     string str = "";
 
-    while (i < 2) {
+    while i < 2 {
         do {
             str += " -> B, ";
             fail getError();
         } on fail {
             str += " -> Error #1";
         }
-
         i = i + 1;
     } on fail {
         str += " -> Error #2";
@@ -408,11 +405,11 @@ function testLambdaFunctionWithOnFail() returns int {
 
 function testSimpleOnFailWithoutVariable() {
     string str = "";
-    do{
+    do {
         error err = error("Custom error thrown explicitly.");
         fail err;
     } on fail {
-            str += "Error caught";
+        str += "Error caught";
     }
      assertEquality("Error caught", str);
 }

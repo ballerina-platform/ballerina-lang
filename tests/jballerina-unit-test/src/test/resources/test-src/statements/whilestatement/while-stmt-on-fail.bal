@@ -125,8 +125,8 @@ function testWhileStmtWithOnFailWithoutVariable() {
         a = a + 1;
         str = str.concat(" Value: ", a.toString());
         if (a == 3) {
-         error err = error("Custom Error");
-         fail err;
+            error err = error("Custom Error");
+            fail err;
         }
     } on fail {
         str += "-> error caught.";

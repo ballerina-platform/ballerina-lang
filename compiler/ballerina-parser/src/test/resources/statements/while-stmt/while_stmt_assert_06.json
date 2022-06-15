@@ -163,55 +163,44 @@
                   ]
                 },
                 {
-                  "kind": "BRACED_EXPRESSION",
+                  "kind": "BINARY_EXPRESSION",
                   "children": [
                     {
-                      "kind": "OPEN_PAREN_TOKEN"
-                    },
-                    {
-                      "kind": "BINARY_EXPRESSION",
+                      "kind": "SIMPLE_NAME_REFERENCE",
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "i",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "LT_TOKEN",
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "i",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
                               "value": " "
                             }
                           ]
-                        },
-                        {
-                          "kind": "NUMERIC_LITERAL",
-                          "children": [
-                            {
-                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                              "value": "3"
-                            }
-                          ]
                         }
                       ]
                     },
                     {
-                      "kind": "CLOSE_PAREN_TOKEN",
+                      "kind": "LT_TOKEN",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "NUMERIC_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                          "value": "3",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
