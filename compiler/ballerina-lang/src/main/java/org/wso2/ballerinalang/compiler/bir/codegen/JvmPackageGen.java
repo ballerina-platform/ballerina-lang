@@ -197,6 +197,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.VALUE);
         dependentModuleArray.add(PackageID.ERROR);
         dependentModuleArray.add(PackageID.FLOAT);
+        dependentModuleArray.add(PackageID.FUNCTION);
         dependentModuleArray.add(PackageID.FUTURE);
         dependentModuleArray.add(PackageID.INT);
         dependentModuleArray.add(PackageID.MAP);
