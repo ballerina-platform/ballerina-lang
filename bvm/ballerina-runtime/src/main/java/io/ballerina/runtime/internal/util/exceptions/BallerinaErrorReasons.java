@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
@@ -66,6 +67,8 @@ public class BallerinaErrorReasons {
             StringUtils.fromString(BALLERINA_PREFIX.concat("ConversionError"));
     public static final BString ITERATOR_MUTABILITY_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("IteratorMutabilityError"));
+    public static final BString INVALID_INVOCATION =
+            getModulePrefixedReason(FUNCTION_LANG_LIB, "InvalidInvocation");
 
     public static final String NUMBER_PARSING_ERROR_IDENTIFIER = "NumberParsingError";
     public static final String BOOLEAN_PARSING_ERROR_IDENTIFIER = "BooleanParsingError";
