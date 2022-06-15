@@ -47,6 +47,8 @@ public class PackageUtils {
     // Pre-identified/overridden node types
     public static final String SERVICE_LISTENER_EXPR_KIND = "service listener expression";
     public static final String SERVICE_VAR_KIND = "service variable";
+    public static final String MODULE_VAR_INIT_KIND = "module variable initializer";
+    public static final String MODULE_CONST_INIT_KIND = "module variable initializer";
 
     /**
      * Loads the target ballerina source package instance using the Project API, from the file path of the open/active
