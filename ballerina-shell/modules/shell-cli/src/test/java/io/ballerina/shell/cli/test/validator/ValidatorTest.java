@@ -34,7 +34,6 @@ public class ValidatorTest {
         InputValidator inputValidator = new InputValidator();
 
         // Variable declarations
-        Assert.assertTrue(inputValidator.isComplete("int i = 12;"));
         Assert.assertTrue(inputValidator.isComplete("int[] x = [1,2];"));
         Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2;"));
         Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2"));
@@ -200,6 +199,44 @@ public class ValidatorTest {
                 "        exposeHeaders: [\"X-CUSTOM-HEADER\"],\n" +
                 "        maxAge: 84900\n" +
                 "    }\n" +
+                "}"));
+
+        // Multiple function testcases
+        Assert.assertFalse(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1;\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();"));
+        Assert.assertFalse(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();"));
+
+        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1;\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();" +
+                "}"));
+
+        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();" +
+                "}"));
+
+        Assert.assertTrue(inputValidator.isComplete("function name() {\n" +
+                "    int x = 1\n" +
+                "}\n" +
+                "\n" +
+                "function name1() {\n" +
+                "    name();" +
                 "}"));
 
         // Command related testcases
