@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * Implementation of {@link org.ballerinalang.model.tree.expressions.InvocationNode}.
@@ -295,6 +296,27 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         @Override
         public <T, R> R apply(BLangNodeTransformer<T, R> modifier, T props) {
             return modifier.transform(this, props);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder br = new StringBuilder();
+            br.append(expr).append("->/");
+            
+            StringJoiner joiner = new StringJoiner("/");
+            resourceAccessPathSegments.forEach(item -> joiner.add(item.toString()));
+            br.append(joiner.toString());
+                    
+            br.append(".");
+            br.append(name == null ? String.valueOf(symbol.name) : String.valueOf(name));
+            
+            br.append("(");
+            StringJoiner joiner1 = new StringJoiner(",");
+            argExprs.forEach(item -> joiner1.add(item.toString()));
+            br.append(joiner1.toString());
+            br.append(")");
+            
+            return br.toString();
         }
     }
 }
