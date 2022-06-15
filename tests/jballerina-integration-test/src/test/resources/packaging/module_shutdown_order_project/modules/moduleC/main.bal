@@ -48,17 +48,17 @@ public class TestListener {
     }
 
     public function 'start() returns error? {
-        incrementAndAssert(self.name, "basic", 6, false);
-        incrementAndAssert(self.name, "first dependent", 7, false);
-        incrementAndAssert(self.name, "second dependent", 8, false);
-        incrementAndAssert(self.name, "current", 9, false);
+        incrementAndAssert(self.name, "basic", 6);
+        incrementAndAssert(self.name, "first dependent", 7);
+        incrementAndAssert(self.name, "second dependent", 8);
+        incrementAndAssert(self.name, "current", 9);
     }
 
     public function gracefulStop() returns error? {
-        incrementAndAssert(self.name, "current", 10, true);
-        incrementAndAssert(self.name, "second dependent", 11, true);
-        incrementAndAssert(self.name, "first dependent", 12, true);
-        incrementAndAssert(self.name, "basic", 13, true);
+        incrementAndAssert(self.name, "current", 10);
+        incrementAndAssert(self.name, "second dependent", 11);
+        incrementAndAssert(self.name, "first dependent", 12);
+        incrementAndAssert(self.name, "basic", 13);
     }
 
     public function immediateStop() returns error? {
@@ -82,7 +82,7 @@ public function assertCallsToStopHandlers(string msg) {
     io:println(msg);
 }
 
-function incrementAndAssert(string name, string expectedName, int val, boolean log) {
+function incrementAndAssert(string name, string expectedName, int val) {
     if (expectedName == name) {
         incrementAndAssertInt(val);
     }
