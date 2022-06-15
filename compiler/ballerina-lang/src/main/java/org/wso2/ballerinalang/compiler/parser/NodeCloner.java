@@ -1179,6 +1179,19 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation source) {
+        BLangInvocation.BLangResourceAccessInvocation clone = new BLangInvocation.BLangResourceAccessInvocation();
+        source.cloneRef = clone;
+        clone.pkgAlias = source.pkgAlias;
+        clone.resourceAccessPathSegments = cloneList(source.resourceAccessPathSegments);
+        clone.name = source.name;
+        clone.argExprs = cloneList(source.argExprs);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.requiredArgs = cloneList(source.requiredArgs);
+        clone.expr = clone(source.expr);
+    }
+
+    @Override
     public void visit(BLangTernaryExpr source) {
 
         BLangTernaryExpr clone = new BLangTernaryExpr();
