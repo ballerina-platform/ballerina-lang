@@ -60,7 +60,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
     private BTypedesc typedesc;
     private BObjectType type;
 
-    private MapValueImpl closureMap;
+    private MapValueImpl __closureMap;
 
     private final HashMap<String, Object> nativeData = new HashMap<>();
 
@@ -72,12 +72,12 @@ public abstract class AbstractObjectValue implements ObjectValue {
     @Override
     public void setClosureMap(Object closureMap) {
         MapValueImpl mapValue = (MapValueImpl) closureMap;
-        this.closureMap = mapValue;
+        __closureMap = mapValue;
     }
 
     @Override
-    public MapValueImpl getClosureMap() {
-        return closureMap;
+    public BMap getClosureMap() {
+        return __closureMap;
     }
 
     @Override

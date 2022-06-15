@@ -226,7 +226,7 @@ public class StackTrace {
         public void setClosureMap(Object closureMap) {};
 
         @Override
-        public Object getClosureMap() {
+        public BMap getClosureMap() {
             return null;
         };
 

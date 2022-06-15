@@ -259,7 +259,7 @@ public class GenericMockObjectValue implements BObject {
     public void setClosureMap(Object closureMap) {};
 
     @Override
-    public Object getClosureMap() {
+    public BMap getClosureMap() {
         return null;
     };
 

@@ -65,5 +65,5 @@ public interface BObject extends RefValue {
 
     void setClosureMap(Object closureMap);
 
-    Object getClosureMap();
+    BMap getClosureMap();
 }
