@@ -16,6 +16,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
@@ -29,19 +30,8 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -168,6 +158,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
@@ -267,8 +258,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
+            BLangLiteral isReadonly = new BLangLiteral(false, symTable.booleanType);
+            if (Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY)) {
+                isReadonly.value = true;
+            }
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr), pos);
+                    QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
                     addTypeConversionExpr(result,
                             queryExpr.getBType()));
@@ -279,8 +274,24 @@ public class QueryDesugar extends BLangNodeVisitor {
             BType refType = Types.getReferredType(queryExpr.getBType());
             if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
                     && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
-                                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag)))) {
-                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef), pos);
+                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag == TypeTags.INTERSECTION?
+                            ((BIntersectionType) Types.getReferredType(memType)).effectiveType.tag:
+                            Types.getReferredType(memType).tag)))) {
+                BLangLiteral isReadonly = new BLangLiteral(false, symTable.booleanType);
+                if (refType.tag == TypeTags.XML_TEXT || // The xml:Text type is inherently immutable.
+                        Symbols.isFlagOn(refType.flags, Flags.READONLY)) {
+                    isReadonly.value = true;
+                } else if (refType.tag == TypeTags.UNION) {
+                    for (BType type : ((BUnionType) refType).getMemberTypes()) {
+                        if (type.tag == TypeTags.XML_TEXT || // The xml:Text type is inherently immutable.
+                                Symbols.isFlagOn(type.flags, Flags.READONLY)) {
+                            isReadonly.value = true;
+                            continue;
+                        }
+                        isReadonly.value = false;
+                    }
+                }
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef, isReadonly), pos);
             } else if (TypeTags.isStringTypeTag(refType.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
@@ -292,9 +303,13 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
                 arr.exprs = new ArrayList<>();
+                BLangLiteral isReadonly = new BLangLiteral(false, symTable.booleanType);
                 arr.setBType(arrayType);
+                if (Symbols.isFlagOn(arrayType.flags, Flags.READONLY)) {
+                    isReadonly.value = true;
+                }
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
-                        Lists.of(streamRef, arr), pos);
+                        Lists.of(streamRef, arr, isReadonly), pos);
             }
             if (containsCheckExpr) {
                 // if there's a `check` expr within the query, wrap the whole query with a `check` expr,
@@ -812,12 +827,23 @@ public class QueryDesugar extends BLangNodeVisitor {
         Location pos = queryExpr.pos;
         final BType type = queryExpr.getBType();
         String name = getNewVarName();
-        BType tableType = type;
+        BType tableType = symTable.tableType;
         BType refType = Types.getReferredType(type);
-        if (refType.tag == TypeTags.UNION) {
-            tableType = ((BUnionType) refType).getMemberTypes()
-                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.TABLE)
-                    .findFirst().orElse(symTable.tableType);
+//        if (refType.tag == TypeTags.UNION) {
+//            tableType = ((BUnionType) refType).getMemberTypes()
+//                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.TABLE ||
+//                            (Types.getReferredType(m).tag == TypeTags.INTERSECTION &&
+//                                    ((BIntersectionType) m).effectiveType.tag == TypeTags.TABLE))
+//                    .findFirst().orElse(symTable.tableType);
+//        }
+
+        for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
+            if (Types.getReferredType(memberType).tag == TypeTags.TABLE) {
+                tableType = memberType;
+            } else if (Types.getReferredType(memberType).tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
+                tableType = ((BIntersectionType) memberType).effectiveType;
+            }
         }
         final List<IdentifierNode> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
