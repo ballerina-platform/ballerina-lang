@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
+import ballerina/jballerina.java;
 
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
@@ -83,20 +84,40 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, Co
     return pipeline.getStream();
 }
 
-function toArray(stream<Type, CompletionType> strm, Type[] arr) returns Type[]|error {
+function toArray(stream<Type, CompletionType> strm, Type[] mutableArr, boolean isReadOnly) returns Type[]|error {
     record {| Type value; |}|error? v = strm.next();
+    (any|error)[] tempArr = [];
     while (v is record {| Type value; |}) {
-        arr.push(v.value);
+        tempArr.push(v.value);
         v = strm.next();
     }
     if (v is error) {
         return v;
     }
 
-    return arr;
+    if isReadOnly {
+        // Type[] & readonly immutableArr = [...x];//createImmutableArray(mutableArr); // .cloneReadOnly();
+        Type[] immutableArr = createImmutableArray(tempArr);
+        print(typeof(immutableArr));
+        print(typeof(mutableArr));
+        return immutableArr; // createImmutableArray(tempArr);
+    }
+
+    print(typeof(mutableArr));
+    return <Type[]> tempArr;
 }
 
-function toXML(stream<Type, CompletionType> strm) returns xml|error {
+function createImmutableArray(Type[] arr) returns Type[] & readonly = @java:Method {
+    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
+    name: "createImmutableArray"
+} external;
+
+function print(any|error a) = @java:Method {
+    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
+    name: "print"
+} external;
+
+function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {
     xml result = 'xml:concat();
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
@@ -109,8 +130,18 @@ function toXML(stream<Type, CompletionType> strm) returns xml|error {
     if (v is error) {
         return v;
     }
+
+    if isReadOnly {
+        return createImmutableXml(result);
+    }
+
     return result;
 }
+
+function createImmutableXml(xml inputXml) returns xml & readonly = @java:Method {
+    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
+    name: "createImmutableXml"
+} external;
 
 function toString(stream<Type, CompletionType> strm) returns string|error {
     string result = "";
@@ -128,23 +159,36 @@ function toString(stream<Type, CompletionType> strm) returns string|error {
     return result;
 }
 
-function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
+function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err, boolean isReadOnly) returns table<map<Type>>|error {
     record {| Type value; |}|CompletionType v = strm.next();
+    table<map<Type>> tbl2 = table [];
     while (v is record {| Type value; |}) {
-        error? e = trap tbl.add(<map<Type>> checkpanic v.value);
+        error? e = trap tbl2.add(<map<Type>> checkpanic v.value);
         if (e is error) {
             if (err is error) {
                 return err;
             }
-            tbl.put(<map<Type>> checkpanic v.value);
+            tbl2.put(<map<Type>> checkpanic v.value);
         }
         v = strm.next();
     }
     if (v is error) {
         return v;
     }
-    return tbl;
+
+    if isReadOnly {
+        //table<map<Type>> & readonly immutableTbl = createImmutableTable(tbl);
+        //return immutableTbl;
+        return createImmutableTable(tbl2);
+    }
+
+    return tbl2;
 }
+
+function createImmutableTable(table<map<Type>> arr) returns table<map<Type>> & readonly = @java:Method {
+    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
+    name: "createImmutableTable"
+} external;
 
 function consumeStream(stream<Type, CompletionType> strm) returns any|error {
     any|error? v = strm.next();
