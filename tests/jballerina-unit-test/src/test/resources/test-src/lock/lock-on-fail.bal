@@ -62,7 +62,7 @@ function checkLockWithinLock() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
-function failLockWithinLockWithoutVariable() returns [int, string] {
+function onFailLockWithinLockWithoutVariable() {
     lock {
         lockWithinLockInt1 = 50;
         lockWithinLockString1 = "sample value";
@@ -79,10 +79,29 @@ function failLockWithinLockWithoutVariable() returns [int, string] {
         lockWithinLockInt1 = 100;
         lockWithinLockString1 = "Error caught";
     }
-    return [lockWithinLockInt1, lockWithinLockString1];
+
+    assertEquality(100, lockWithinLockInt1);
+    assertEquality("Error caught", lockWithinLockString1);
 }
 
 function getError()  returns int|error {
     error err = error("Custom Error");
     return err;
+}
+
+type AssertionError error;
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error AssertionError("AssertionError", message = "expected '" + expectedValAsString + "', found '" +
+     actualValAsString + "'");
 }

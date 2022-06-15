@@ -18,6 +18,9 @@ function testOnFailStatement() {
     string resultOnFailWithoutVariable = testOnFailWithoutVariable();
     assertEquality("Before failure throw-> Error caught !", resultOnFailWithoutVariable);
 
+    string resultWithoutExeOnFailWithoutVariable = testWithoutExeOnFailWithoutVariable();
+    assertEquality("Before failure throw", resultWithoutExeOnFailWithoutVariable);
+
      string|error onFailWithCheckExprResult = testOnFailWithCheckExpr();
      if(onFailWithCheckExprResult is string) {
          assertEquality("Before failure throw-> Error caught ! -> Execution continues...", onFailWithCheckExprResult);
@@ -104,11 +107,20 @@ function testOnFailWithoutVariable() returns string  {
      error err = error("custom error", message = "error value");
      str += "Before failure throw";
      fail err;
-   }
-   on fail {
+   } on fail {
       str += "-> Error caught !";
    }
    return str;
+}
+
+function testWithoutExeOnFailWithoutVariable() returns string {
+    string str = "";
+       do {
+         str += "Before failure throw";
+       } on fail {
+          str += "-> Error caught !";
+       }
+       return str;
 }
 
 function testOnFailWithCheckExpr () returns string|error {

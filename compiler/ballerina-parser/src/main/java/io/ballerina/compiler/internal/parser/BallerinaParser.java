@@ -13537,7 +13537,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse on fail clause.
      * <p>
      * <code>
-     * on-fail-clause := on fail typed-binding-pattern statement-block
+     * on-fail-clause := on fail [typed-binding-pattern] statement-block
      * </code>
      *
      * @return On fail clause node
@@ -13546,7 +13546,6 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ON_FAIL_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
-        // Variable declaration is optional in `on fail`
         STToken token = peek();
         STNode typeDescriptor = STNodeFactory.createEmptyNode();
         STNode identifier = STNodeFactory.createEmptyNode();

@@ -46,14 +46,7 @@ public class LocksWithOnFailTest {
         assertSame(returnsWithFail.get(0).getClass(), Long.class);
         assertTrue(returnsWithFail.get(1) instanceof BString);
 
-        val = BRunUtil.invoke(compileResult, "failLockWithinLockWithoutVariable");
-        returnsWithFail = (BArray) val;
-        assertEquals(returnsWithFail.size(), 2);
-        assertSame(returnsWithFail.get(0).getClass(), Long.class);
-        assertTrue(returnsWithFail.get(1) instanceof BString);
-
-        assertEquals(returnsWithFail.get(0), 100L);
-        assertEquals(returnsWithFail.get(1).toString(), "Error caught");
+        BRunUtil.invoke(compileResult, "onFailLockWithinLockWithoutVariable");
 
         Object val2 = BRunUtil.invoke(compileResult, "checkLockWithinLock");
         BArray returnsWithCheck = (BArray) val2;

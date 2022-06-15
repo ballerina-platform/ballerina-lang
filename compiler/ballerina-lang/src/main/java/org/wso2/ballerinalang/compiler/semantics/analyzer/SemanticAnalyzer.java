@@ -3593,13 +3593,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangOnFailClause onFailClause, AnalyzerData data) {
-        // Create a new block environment for the onfail node.
+        // Create a new block environment for the on-fail node.
         SymbolEnv onFailEnv = SymbolEnv.createBlockEnv(onFailClause.body, data.env);
-        if (onFailClause.variableDefinitionNode != null) {
-            // Check onfail node's variables and set types.
-            handleForeachDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
+        if (onFailVarDefNode != null) {
+            // Check on-fail node's variables and set types.
+            handleForeachDefinitionVariables(onFailVarDefNode, symTable.errorType,
                     onFailClause.isDeclaredWithVar, true, onFailEnv);
-            BLangVariable onFailVarNode = (BLangVariable) onFailClause.variableDefinitionNode.getVariable();
+            BLangVariable onFailVarNode = (BLangVariable) onFailVarDefNode.getVariable();
             if (!types.isAssignable(onFailVarNode.getBType(), symTable.errorType)) {
                 dlog.error(onFailVarNode.pos, DiagnosticErrorCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR,
                         onFailVarNode.getBType());

@@ -84,18 +84,18 @@ function testMultiLevelOnFailWithoutVariableVariationOne() {
 
     while (i < 2) {
         do {
-            str += " -> Before error thrown, ";
+            str += " -> B, ";
             fail getError();
         } on fail {
-            str += " -> Error caught at level #1";
+            str += " -> Error #1";
         }
 
         i = i + 1;
     } on fail error e {
-        str += " -> Error caught at levet #2";
+        str += " -> Error #2";
     }
 
-    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+    assertEquality(" -> B,  -> Error #1 -> B,  -> Error #1", str);
 }
 
 function testMultiLevelOnFailWithoutVariableVariationTwo() {
@@ -104,18 +104,18 @@ function testMultiLevelOnFailWithoutVariableVariationTwo() {
 
     while (i < 2) {
         do {
-            str += " -> Before error thrown, ";
+            str += " -> B, ";
             fail getError();
         } on fail error e {
-            str += " -> Error caught at level #1";
+            str += " -> Error #1";
         }
 
         i = i + 1;
     } on fail {
-        str += " -> Error caught at levet #2";
+        str += " -> Error #2";
     }
 
-    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+    assertEquality(" -> B,  -> Error #1 -> B,  -> Error #1", str);
 }
 
 function testMultiLevelOnFailWithoutVariableVariationThree() {
@@ -124,18 +124,18 @@ function testMultiLevelOnFailWithoutVariableVariationThree() {
 
     while (i < 2) {
         do {
-            str += " -> Before error thrown, ";
+            str += " -> B, ";
             fail getError();
         } on fail {
-            str += " -> Error caught at level #1";
+            str += " -> Error #1";
         }
 
         i = i + 1;
     } on fail {
-        str += " -> Error caught at levet #2";
+        str += " -> Error #2";
     }
 
-    assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+    assertEquality(" -> B,  -> Error #1 -> B,  -> Error #1", str);
 }
 
 public class MyRetryManager {
