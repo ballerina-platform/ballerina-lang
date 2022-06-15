@@ -399,7 +399,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-        if (!pkgEnv.scope.owner.pkgID.equals(PackageID.ANNOTATIONS)) {
+        if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
         // Define type definitions.
