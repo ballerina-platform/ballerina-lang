@@ -11369,7 +11369,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTupleTypeMembers(STNode annot, STNode typeDesc, List<STNode> typeDescList) {
         typeDesc = parseComplexTypeDescriptor(typeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
-
+        typeDesc = STNodeFactory.createTupleMemberDescriptorNode(annot, typeDesc);
         STNode tupleMemberRhs = parseTypeDescInTupleRhs();
         if (tupleMemberRhs != null) {
             if (!((STNodeList) annot).isEmpty()) {
@@ -11383,8 +11383,6 @@ public class BallerinaParser extends AbstractParser {
             if (typeDesc.kind == SyntaxKind.REST_TYPE) {
                 typeDesc = invalidateTypeDescAfterRestDesc(typeDesc);
                 break;
-            } else {
-                typeDesc = STNodeFactory.createTupleMemberDescriptorNode(annot, typeDesc);
             }
 
             tupleMemberRhs = parseTupleMemberRhs();
