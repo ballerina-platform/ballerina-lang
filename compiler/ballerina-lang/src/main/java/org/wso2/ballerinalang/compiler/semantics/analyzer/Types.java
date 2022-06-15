@@ -1739,6 +1739,13 @@ public class Types {
                     case TypeTags.NEVER:
                         varType = symTable.neverType;
                         break;
+                    case TypeTags.ARRAY:
+                        BArrayType xmlItemArrayType = (BArrayType) constraint;
+                        varType = xmlItemArrayType.eType;
+                        break;
+                    case TypeTags.INTERSECTION:
+                        varType = getReferredType(((BIntersectionType) constraint).getEffectiveType());
+                        break;
                     default:
                         Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                         Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
