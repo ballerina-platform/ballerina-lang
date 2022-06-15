@@ -63,6 +63,11 @@ public enum OperatorPrecedence {
                 return false;
             }
         }
-        return this.level <= opPrecedence.level;
+        boolean isHigherThanOrEqual = this.level <= opPrecedence.level;
+        // A query-action-or-expr or a query-action can have actions in certain clauses.
+        if (isHigherThanOrEqual && this == QUERY) {
+            return false;
+        }
+        return isHigherThanOrEqual;
     }
 }

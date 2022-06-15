@@ -8910,6 +8910,13 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseRemoteMethodCallAction(expression, rightArrow, name);
             case SEMICOLON_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case COMMA_TOKEN:
+            case LET_KEYWORD:
+            case WHERE_KEYWORD:
+            case ORDER_KEYWORD:
+            case LIMIT_KEYWORD:
+            case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
             default:
                 recover(peek(), ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END);
@@ -10601,7 +10608,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseLetExpression(boolean isRhsExpr, boolean isInConditionalExpr) {
         STNode letKeyword = parseLetKeyword();
-        STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr);
+        STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_EXPR_LET_VAR_DECL, isRhsExpr, false);
         STNode inKeyword = parseInKeyword();
 
         // If the variable declaration list is empty, clone the letKeyword token with the given diagnostic.
@@ -10636,7 +10643,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseLetVarDeclarations(ParserRuleContext context, boolean isRhsExpr) {
+    private STNode parseLetVarDeclarations(ParserRuleContext context, boolean isRhsExpr, boolean allowActions) {
         startContext(context);
         List<STNode> varDecls = new ArrayList<>();
         STToken nextToken = peek();
@@ -10647,7 +10654,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Parse first variable declaration, that has no leading comma
-        STNode varDec = parseLetVarDecl(isRhsExpr);
+        STNode varDec = parseLetVarDecl(isRhsExpr, allowActions);
         varDecls.add(varDec);
 
         // Parse the remaining variable declarations
@@ -10656,7 +10663,7 @@ public class BallerinaParser extends AbstractParser {
         while (!isEndOfLetVarDeclarations(nextToken.kind)) {
             leadingComma = parseComma();
             varDecls.add(leadingComma);
-            varDec = parseLetVarDecl(isRhsExpr);
+            varDec = parseLetVarDecl(isRhsExpr, allowActions);
             varDecls.add(varDec);
             nextToken = peek();
         }
@@ -10684,14 +10691,14 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseLetVarDecl(boolean isRhsExpr) {
+    private STNode parseLetVarDecl(boolean isRhsExpr, boolean allowActions) {
         STNode annot = parseOptionalAnnotations();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.LET_EXPR_LET_VAR_DECL);
         STNode assign = parseAssignOp();
 
-        // allow-actions flag is always false, since there will not be any actions
-        // within the let-var-decl, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
+        STNode expression = allowActions ? parseExpression(OperatorPrecedence.QUERY, isRhsExpr, true) :
+                parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
+
         return STNodeFactory.createLetVariableDeclarationNode(annot, typedBindingPattern, assign, expression);
     }
 
@@ -11764,9 +11771,7 @@ public class BallerinaParser extends AbstractParser {
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.FROM_CLAUSE);
         STNode inKeyword = parseInKeyword();
 
-        // allow-actions flag is always false, since there will not be any actions
-        // within the from-clause, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, true);
         return STNodeFactory.createFromClauseNode(fromKeyword, typedBindingPattern, inKeyword, expression);
     }
 
@@ -11840,7 +11845,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseLetClause(boolean isRhsExpr) {
         STNode letKeyword = parseLetKeyword();
-        STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL, isRhsExpr);
+        STNode letVarDeclarations = parseLetVarDeclarations(ParserRuleContext.LET_CLAUSE_LET_VAR_DECL, isRhsExpr,
+                true);
 
         // If the variable declaration list is empty, clone the letKeyword token with the given diagnostic.
         letKeyword = cloneWithDiagnosticIfListEmpty(letVarDeclarations, letKeyword,
@@ -12018,9 +12024,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.SELECT_CLAUSE);
         STNode selectKeyword = parseSelectKeyword();
 
-        // allow-actions flag is always false, since there will not be any actions
-        // within the select-clause, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, true);
         endContext();
         return STNodeFactory.createSelectClauseNode(selectKeyword, expression);
     }
