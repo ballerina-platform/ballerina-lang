@@ -18,10 +18,7 @@
 
 package io.ballerina.shell.cli.jline.validator;
 
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeParser;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.*;
 import io.ballerina.shell.cli.utils.IncompleteInputFinder;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -52,6 +49,16 @@ public class ModuleMemberValidator implements Validator {
         ModulePartNode node = tree.rootNode();
         // Ignore code segments including imports
         Node parsedNode = NodeParser.parseModuleMemberDeclaration(source);
+        if (node.members().size() > 1) {
+            Node lastNode = node.members().get(node.members().size() - 1);
+            // Avoid false ModuleVariableDeclarations and special case functions
+            // Sample testcase : if (x == y) { x = x + 1; x = x + 1;
+            if (lastNode.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                return !lastNode.hasDiagnostics() || !lastNode.apply(incompleteInputFinder)
+                        || nextInValidator.evaluate(lastNode.toSourceCode());
+            }
+        }
+
         return !node.imports().isEmpty() || !parsedNode.hasDiagnostics() || !parsedNode.apply(incompleteInputFinder)
                 || nextInValidator.evaluate(source);
     }
