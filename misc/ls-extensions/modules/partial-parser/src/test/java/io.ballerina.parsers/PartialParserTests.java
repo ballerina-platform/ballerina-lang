@@ -42,12 +42,16 @@ public class PartialParserTests {
     private static final String SINGLE_STATEMENT = "partialParser/getSTForSingleStatement";
     private static final String EXPRESSION = "partialParser/getSTForExpression";
     private static final String MODULE_MEMBER = "partialParser/getSTForModuleMembers";
+    private static final String MODULE_PART = "partialParser/getSTForModulePart";
+    private static final String RESOURCE = "partialParser/getSTForResource";
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     private static final Path ST_WINDOWS = RES_DIR.resolve("syntax-tree").resolve("windows");
     private static final Path ST_LINUX = RES_DIR.resolve("syntax-tree").resolve("linux");
 
     private final Path sampleRecord = RES_DIR.resolve("ballerina").resolve("sample_record.bal");
+    private final Path sampleServiceNListener = RES_DIR.resolve("ballerina").resolve("sample_service_and_listener.bal");
+    private final Path sampleResource = RES_DIR.resolve("ballerina").resolve("sample_resource.bal");
 
     private Endpoint serviceEndpoint;
 
@@ -56,11 +60,27 @@ public class PartialParserTests {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    @Test(description = "Test getting ST for a single statement")
-    public void testSTForSingleStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
+    @Test(description = "Test getting ST for a single line statement")
+    public void testSTForSingleLineStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
 
         String statement = "string fullName = firstName + \"Cooper\";";
-        String file = "single_statement.json";
+        String file = "single_line_statement.json";
+
+        PartialSTRequest request = new PartialSTRequest(statement);
+        CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
+        STResponse json = (STResponse) result.get();
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a multi line statement")
+    public void testSTForMultiLineStatement() throws ExecutionException, InterruptedException, FileNotFoundException {
+
+        String statement = "\nforeach var item in arr {\n            io:println(item);\n\n}";
+        String file = "multi_line_statement.json";
 
         PartialSTRequest request = new PartialSTRequest(statement);
         CompletableFuture<?> result = serviceEndpoint.request(SINGLE_STATEMENT, request);
@@ -155,6 +175,32 @@ public class PartialParserTests {
         BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
 
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a module part")
+    public void testSTForModulePart() throws ExecutionException, InterruptedException, IOException {
+        String file = "sample_service_and_listener.json";
+
+        String modulePart =  Files.readString(sampleServiceNListener);;
+        PartialSTRequest request = new PartialSTRequest(modulePart);
+        CompletableFuture<?> result = serviceEndpoint.request(MODULE_PART, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(getFileReader(file));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a resource")
+    public void testSTForResource() throws ExecutionException, InterruptedException, IOException {
+        String file = "sample_resource.json";
+
+        String modulePart =  Files.readString(sampleResource);;
+        PartialSTRequest request = new PartialSTRequest(modulePart);
+        CompletableFuture<?> result = serviceEndpoint.request(RESOURCE, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(getFileReader(file));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
