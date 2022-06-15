@@ -83,7 +83,7 @@ type User record {|
 
 type ErrorR error<ErrorData>;
 
-function dummyTest() {
+function customError() {
     ErrorR er1 = error ErrorR("Custom error", errorCode = "104", application = {});
     ErrorR er2 = error ErrorR("Custom error", errorCode = "104", application = {id : "1", user: {}});
     ErrorR er3 = error ErrorR("Custom error", errorCode = "104", application = );
