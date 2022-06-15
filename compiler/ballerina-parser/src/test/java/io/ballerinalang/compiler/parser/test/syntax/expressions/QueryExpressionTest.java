@@ -256,4 +256,18 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testSelectClauseStartRecovery() {
         testFile("query-expr/query_expr_source_69.bal", "query-expr/query_expr_assert_69.json");
     }
+
+    @Test
+    public void testQueryActionOrExprWithClientRemoteMethodCallAction() {
+        testFile("query-expr/query_expr_source_71.bal", "query-expr/query_expr_assert_71.json");
+    }
+
+    @Test
+    public void testQueryActionOrExprWithAsyncSendAction() {
+        testFile("query-expr/query_expr_source_72.bal", "query-expr/query_expr_assert_72.json");
+        testFile("query-expr/query_expr_source_73.bal", "query-expr/query_expr_assert_73.json");
+        testFile("query-expr/query_expr_source_74.bal", "query-expr/query_expr_assert_74.json");
+        testFile("query-expr/query_expr_source_75.bal", "query-expr/query_expr_assert_75.json");
+        testFile("query-expr/query_expr_source_76.bal", "query-expr/query_expr_assert_76.json");
+    }
 }
