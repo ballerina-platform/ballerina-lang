@@ -306,6 +306,178 @@ public class XMLQueryExpressionTest {
                 "<person country=\"Germany\">Mike</person>");
     }
 
+    @Test(description = "Test simple query expression for XMLs with readonly intersection - #1")
+    public void testSimpleQueryExprForXMLWithReadonly1() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXMLWithReadonly1");
+    }
+
+    @Test(groups = {"disableOnOldParser"},
+            description = "Test simple query expression for XMLs with readonly intersection - #2")
+    public void testSimpleQueryExprForXMLWithReadonly2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXMLWithReadonly2");
+    }
+
+    @Test(description = "Test simple query expression for XMLs with readonly intersection - #3")
+    public void testSimpleQueryExprForXMLWithReadonly3() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXMLWithReadonly3");
+    }
+
+    @Test(description = "Test simple query expression with limit clause for XMLs with readonly intersection")
+    public void testQueryExprWithLimitForXMLWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExprWithLimitForXMLWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with where, let clauses for XMLs with readonly intersection")
+    public void testQueryExprWithWhereLetClausesForXMLWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExprWithWhereLetClausesForXMLWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with multiple from clauses for XMLs with readonly intersection")
+    public void testQueryExprWithMultipleFromClausesForXMLWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExprWithMultipleFromClausesForXMLWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression for xml? with readonly intersection - #1")
+    public void testSimpleQueryExprForXMLOrNilResultWithReadonly1() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResultWithReadonly1");
+    }
+
+    @Test(groups = {"disableOnOldParser"},
+            description = "Test simple query expression for xml? with readonly intersection - #2")
+    public void testSimpleQueryExprForXMLOrNilResultWithReadonly2() {
+       BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResultWithReadonly2");
+    }
+
+    @Test(description = "Test simple query expression for xml? with readonly intersection - #3")
+    public void testSimpleQueryExprForXMLOrNilResultWithReadonly3() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXMLOrNilResultWithReadonly3");
+    }
+
+    @Test(description = "Test simple query expression with limit clause for xml? with readonly intersection")
+    public void testQueryExprWithLimitForXMLOrNilResultWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExprWithLimitForXMLOrNilResultWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with where, let clauses for xml? with readonly intersection")
+    public void testQueryExprWithWhereLetClausesForXMLOrNilResultWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExprWithWhereLetClausesForXMLOrNilResultWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with multiple from clauses for xml? with readonly intersection")
+    public void testQueryExprWithMultipleFromClausesForXMLOrNilResultWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExprWithMultipleFromClausesForXMLOrNilResultWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with var for XML with readonly intersection")
+    public void testSimpleQueryExprWithVarForXMLWithReadonly() {
+        BRunUtil.invoke(result, "testSimpleQueryExprWithVarForXMLWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with list for XML with readonly intersection")
+    public void testSimpleQueryExprWithListForXMLWithReadonly() {
+        BRunUtil.invoke(result, "testSimpleQueryExprWithListForXMLWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with union type for XML with readonly intersection - #1")
+    public void testSimpleQueryExprWithUnionTypeForXMLWithReadonly1() {
+        BRunUtil.invoke(result, "testSimpleQueryExprWithUnionTypeForXMLWithReadonly1");
+    }
+
+    @Test(description = "Test simple query expression with union type for XML with readonly intersection - #2")
+    public void testSimpleQueryExprWithUnionTypeForXMLWithReadonly2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprWithUnionTypeForXMLWithReadonly2");
+    }
+
+    @Test(description = "Test simple query expression with a XML Element Literal with readonly intersection")
+    public void testSimpleQueryExprWithXMLElementLiteralWithReadonly() {
+        BRunUtil.invoke(result, "testSimpleQueryExprWithXMLElementLiteralWithReadonly");
+    }
+
+    @Test(description = "Test simple query expression with nested XML Elements with readonly intersection")
+    public void testSimpleQueryExprWithNestedXMLElementsWithReadonly() {
+        BRunUtil.invoke(result, "testSimpleQueryExprWithNestedXMLElementsWithReadonly");
+    }
+
+    @Test(description = "Test query expression iterating over xml in from clause with readonly intersection")
+    public void testQueryExpressionIteratingOverXMLInFromWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromWithReadonly");
+    }
+
+    @Test(description = "Test query expression iterating over xml:Text in from clause with readonly intersection")
+    public void testQueryExpressionIteratingOverXMLTextInFromWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLTextInFromWithReadonly");
+    }
+
+    @Test(description =
+            "Test query expression iterating over xml<xml:Element> in from clause with readonly intersection")
+    public void testQueryExpressionIteratingOverXMLElementInFromWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLElementInFromWithReadonly");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:ProcessingInstruction> in from clause with " +
+            "readonly intersection")
+    public void testQueryExpressionIteratingOverXMLPIInFromWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLPIInFromWithReadonly");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Element> in from clause with other clauses with" +
+            " readonly intersection")
+    public void testQueryExpressionIteratingOverXMLWithOtherClausesWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLWithOtherClausesWithReadonly");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Comment> in from clause with xml or nil result" +
+            "with readonly intersection")
+    public void testQueryExpressionIteratingOverXMLInFromWithXMLOrNilResultWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromWithXMLOrNilResultWithReadonly");
+    }
+
+    @Test(description = "Test query expression iterating over xml<xml:Element> in from clause in inner queries with " +
+            "readonly intersection")
+    public void testQueryExpressionIteratingOverXMLInFromInInnerQueriesWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLInFromInInnerQueriesWithReadonly");
+    }
+
+    @Test(description = "Test XML template with query expression returning xml:Element with readonly intersection")
+    public void testXMLTemplateWithQueryExpressionWithReadonly1() {
+        BRunUtil.invoke(result, "testXMLTemplateWithQueryExpressionWithReadonly1");
+    }
+
+    @Test(description = "Test XML template with query expression returning xml:Comment with readonly intersection")
+    public void testXMLTemplateWithQueryExpressionWithReadonly2() {
+        BRunUtil.invoke(result, "testXMLTemplateWithQueryExpressionWithReadonly2");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over a stream returning xml with readonly " +
+            "intersection")
+    public void testXMLTemplateWithQueryExpressionWithReadonly3() {
+        BRunUtil.invoke(result, "testXMLTemplateWithQueryExpressionWithReadonly3");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over a table returning xml with readonly " +
+            "intersection")
+    public void testXMLTemplateWithQueryExpressionWithReadonly4() {
+        BRunUtil.invoke(result, "testXMLTemplateWithQueryExpressionWithReadonly4");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over xml with namespaces with readonly " +
+            "intersection")
+    public void testQueryExpressionIteratingOverXMLWithNamespacesWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverXMLWithNamespacesWithReadonly");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over xml with namespaces with readonly " +
+            "intersection")
+    public void testQueryExpressionIteratingOverTableReturningXMLWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverTableReturningXMLWithReadonly");
+    }
+
+    @Test(description = "Test XML template with query expression iterating over xml with namespaces with readonly " +
+            "intersection")
+    public void testQueryExpressionIteratingOverStreamReturningXMLWithReadonly() {
+        BRunUtil.invoke(result, "testQueryExpressionIteratingOverStreamReturningXMLWithReadonly");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
