@@ -65,3 +65,26 @@ error uc3 = error ErrorU3("Hello");
 
 int|string uc4 = error ErrorA("msg");
 int|string b = error("err");
+
+// Test cases for issue fix: https://github.com/ballerina-platform/ballerina-lang/issues/36356
+type ErrorData record {
+    string errorCode;
+    Application application;
+};
+
+type Application record{|
+        string id;
+        User user;
+|};
+
+type User record {|
+    string name;
+|};
+
+type ErrorR error<ErrorData>;
+
+function dummyTest() {
+    ErrorR er1 = error ErrorR("Custom error", errorCode = "104", application = {});
+    ErrorR er2 = error ErrorR("Custom error", errorCode = "104", application = {id : "1", user: {}});
+    ErrorR er3 = error ErrorR("Custom error", errorCode = "104", application = );
+}
