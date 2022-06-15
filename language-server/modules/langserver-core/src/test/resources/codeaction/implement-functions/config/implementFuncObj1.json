@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Implement method \u0027pushText2\u0027",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

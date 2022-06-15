@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Create variable with '[int, string, int][]'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Remove all unused imports",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

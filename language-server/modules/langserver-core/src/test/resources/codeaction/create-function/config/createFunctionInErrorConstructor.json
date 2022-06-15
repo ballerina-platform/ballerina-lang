@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'getMessage(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'getMessage(...)'",
         "command": "CREATE_FUNC",

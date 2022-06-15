@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Create variable with 'Tuple'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

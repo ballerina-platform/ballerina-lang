@@ -9,6 +9,7 @@
       "edit": {
         "documentChanges": [
           {
+            "kind": "quickfix",
             "edits": [
               {
                 "range": {

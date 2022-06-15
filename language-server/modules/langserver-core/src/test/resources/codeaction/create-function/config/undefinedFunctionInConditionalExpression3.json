@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'getString(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'getString(...)'",
         "command": "CREATE_FUNC",
@@ -12,7 +13,7 @@
             "key": "node.range",
             "value": {
               "start": {
-                "line":9,
+                "line": 9,
                 "character": 19
               },
               "end": {

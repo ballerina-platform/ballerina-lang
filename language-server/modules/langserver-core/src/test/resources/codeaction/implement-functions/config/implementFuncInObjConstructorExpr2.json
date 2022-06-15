@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Implement method 'getName'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +23,7 @@
     },
     {
       "title": "Implement method 'getId'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

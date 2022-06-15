@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'getManufacturer(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'getManufacturer(...)'",
         "command": "CREATE_FUNC",

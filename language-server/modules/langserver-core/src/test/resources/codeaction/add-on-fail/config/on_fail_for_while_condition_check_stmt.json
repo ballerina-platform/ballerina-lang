@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Surround with do/on-fail",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

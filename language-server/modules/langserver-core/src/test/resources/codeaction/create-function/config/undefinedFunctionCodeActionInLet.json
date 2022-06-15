@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'getYear(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'getYear(...)'",
         "command": "CREATE_FUNC",

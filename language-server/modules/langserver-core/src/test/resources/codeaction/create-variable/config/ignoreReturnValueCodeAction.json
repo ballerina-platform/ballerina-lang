@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Ignore return value",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Change return type to '[string, int]'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

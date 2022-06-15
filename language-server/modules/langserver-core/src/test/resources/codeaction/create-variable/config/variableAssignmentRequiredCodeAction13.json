@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Create variable with 'map<string>'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

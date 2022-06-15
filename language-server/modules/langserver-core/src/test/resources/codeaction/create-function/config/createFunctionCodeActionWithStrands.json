@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'testAsync(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'testAsync(...)'",
         "command": "CREATE_FUNC",

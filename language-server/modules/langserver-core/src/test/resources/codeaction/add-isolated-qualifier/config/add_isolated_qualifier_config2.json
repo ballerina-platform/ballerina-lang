@@ -11,6 +11,7 @@
               "version": null,
               "uri": "publicCodeAction/modules/module2/make_function_isolated_source2_test.bal"
             },
+            "kind": "quickfix",
             "edits": [
               {
                 "range": {

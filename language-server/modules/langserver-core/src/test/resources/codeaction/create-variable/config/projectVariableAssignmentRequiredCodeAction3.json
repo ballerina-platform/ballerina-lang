@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +23,7 @@
     },
     {
       "title": "Ignore return value",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

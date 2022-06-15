@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Change parameter 'page' type to 'int'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

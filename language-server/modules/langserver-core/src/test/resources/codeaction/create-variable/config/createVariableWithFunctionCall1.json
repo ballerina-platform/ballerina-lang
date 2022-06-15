@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create variable with \u0027record {}\u0027",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +23,7 @@
     },
     {
       "title": "Create variable with \u0027map\u003cany\u003e\u0027",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Convert 'DefaultModRecord3' to public",
+      "kind": "quickfix",
       "edit": {
         "documentChanges": [
           {

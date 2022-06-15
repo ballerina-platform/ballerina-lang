@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Implement all",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

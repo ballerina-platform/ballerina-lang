@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create record 'Result'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

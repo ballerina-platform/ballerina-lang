@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Add type cast to 'd1'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

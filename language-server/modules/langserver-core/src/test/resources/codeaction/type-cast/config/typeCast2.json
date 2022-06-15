@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Add type cast",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

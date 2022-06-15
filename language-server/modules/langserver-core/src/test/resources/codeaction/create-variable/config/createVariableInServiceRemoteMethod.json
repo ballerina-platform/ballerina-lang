@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -35,6 +36,7 @@
     },
     {
       "title": "Create variable and check error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -79,6 +81,7 @@
     },
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

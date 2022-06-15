@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Pull unresolved modules",
+      "kind": "quickfix",
       "command": {
         "title": "Pull unresolved modules",
         "command": "PULL_MODULE",

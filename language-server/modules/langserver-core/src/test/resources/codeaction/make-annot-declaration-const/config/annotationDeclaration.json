@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Convert \u0027annot_decl\u0027 to constant",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
