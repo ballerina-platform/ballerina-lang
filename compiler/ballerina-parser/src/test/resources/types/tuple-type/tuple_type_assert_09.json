@@ -549,59 +549,54 @@
                               "kind": "REST_TYPE",
                               "children": [
                                 {
-                                  "kind": "MEMBER_TYPE_DESC",
+                                  "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "ARRAY_TYPE_DESC",
+                                      "kind": "PARENTHESISED_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "PARENTHESISED_TYPE_DESC",
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "UNION_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "OPEN_PAREN_TOKEN"
-                                            },
-                                            {
-                                              "kind": "UNION_TYPE_DESC",
+                                              "kind": "INT_TYPE_DESC",
                                               "children": [
                                                 {
-                                                  "kind": "INT_TYPE_DESC",
-                                                  "children": [
-                                                    {
-                                                      "kind": "INT_KEYWORD"
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "PIPE_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "BYTE_TYPE_DESC",
-                                                  "children": [
-                                                    {
-                                                      "kind": "BYTE_KEYWORD"
-                                                    }
-                                                  ]
+                                                  "kind": "INT_KEYWORD"
                                                 }
                                               ]
                                             },
                                             {
-                                              "kind": "CLOSE_PAREN_TOKEN"
+                                              "kind": "PIPE_TOKEN"
+                                            },
+                                            {
+                                              "kind": "BYTE_TYPE_DESC",
+                                              "children": [
+                                                {
+                                                  "kind": "BYTE_KEYWORD"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "LIST",
+                                          "kind": "CLOSE_PAREN_TOKEN"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "ARRAY_DIMENSION",
                                           "children": [
                                             {
-                                              "kind": "ARRAY_DIMENSION",
-                                              "children": [
-                                                {
-                                                  "kind": "OPEN_BRACKET_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "CLOSE_BRACKET_TOKEN"
-                                                }
-                                              ]
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
                                             }
                                           ]
                                         }
@@ -786,74 +781,69 @@
                               "kind": "REST_TYPE",
                               "children": [
                                 {
-                                  "kind": "MEMBER_TYPE_DESC",
+                                  "kind": "PARENTHESISED_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "PARENTHESISED_TYPE_DESC",
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "ARRAY_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                          "kind": "ARRAY_TYPE_DESC",
+                                          "kind": "PARENTHESISED_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "PARENTHESISED_TYPE_DESC",
+                                              "kind": "OPEN_PAREN_TOKEN"
+                                            },
+                                            {
+                                              "kind": "UNION_TYPE_DESC",
                                               "children": [
                                                 {
-                                                  "kind": "OPEN_PAREN_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "UNION_TYPE_DESC",
+                                                  "kind": "INT_TYPE_DESC",
                                                   "children": [
                                                     {
-                                                      "kind": "INT_TYPE_DESC",
-                                                      "children": [
-                                                        {
-                                                          "kind": "INT_KEYWORD"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "PIPE_TOKEN"
-                                                    },
-                                                    {
-                                                      "kind": "BYTE_TYPE_DESC",
-                                                      "children": [
-                                                        {
-                                                          "kind": "BYTE_KEYWORD"
-                                                        }
-                                                      ]
+                                                      "kind": "INT_KEYWORD"
                                                     }
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "CLOSE_PAREN_TOKEN"
+                                                  "kind": "PIPE_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "BYTE_TYPE_DESC",
+                                                  "children": [
+                                                    {
+                                                      "kind": "BYTE_KEYWORD"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
                                             {
-                                              "kind": "LIST",
-                                              "children": [
-                                                {
-                                                  "kind": "ARRAY_DIMENSION",
-                                                  "children": [
-                                                    {
-                                                      "kind": "OPEN_BRACKET_TOKEN"
-                                                    },
-                                                    {
-                                                      "kind": "CLOSE_BRACKET_TOKEN"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
+                                              "kind": "CLOSE_PAREN_TOKEN"
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN"
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
+                                            }
+                                          ]
                                         }
                                       ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
@@ -1034,8 +1024,11 @@
                               "kind": "REST_TYPE",
                               "children": [
                                 {
-                                  "kind": "MEMBER_TYPE_DESC",
+                                  "kind": "PARENTHESISED_TYPE_DESC",
                                   "children": [
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
                                     {
                                       "kind": "PARENTHESISED_TYPE_DESC",
                                       "children": [
@@ -1043,14 +1036,14 @@
                                           "kind": "OPEN_PAREN_TOKEN"
                                         },
                                         {
-                                          "kind": "PARENTHESISED_TYPE_DESC",
+                                          "kind": "ARRAY_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "OPEN_PAREN_TOKEN"
-                                            },
-                                            {
-                                              "kind": "ARRAY_TYPE_DESC",
+                                              "kind": "PARENTHESISED_TYPE_DESC",
                                               "children": [
+                                                {
+                                                  "kind": "OPEN_PAREN_TOKEN"
+                                                },
                                                 {
                                                   "kind": "PARENTHESISED_TYPE_DESC",
                                                   "children": [
@@ -1058,37 +1051,26 @@
                                                       "kind": "OPEN_PAREN_TOKEN"
                                                     },
                                                     {
-                                                      "kind": "PARENTHESISED_TYPE_DESC",
+                                                      "kind": "UNION_TYPE_DESC",
                                                       "children": [
                                                         {
-                                                          "kind": "OPEN_PAREN_TOKEN"
-                                                        },
-                                                        {
-                                                          "kind": "UNION_TYPE_DESC",
+                                                          "kind": "INT_TYPE_DESC",
                                                           "children": [
                                                             {
-                                                              "kind": "INT_TYPE_DESC",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "INT_KEYWORD"
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "PIPE_TOKEN"
-                                                            },
-                                                            {
-                                                              "kind": "BYTE_TYPE_DESC",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "BYTE_KEYWORD"
-                                                                }
-                                                              ]
+                                                              "kind": "INT_KEYWORD"
                                                             }
                                                           ]
                                                         },
                                                         {
-                                                          "kind": "CLOSE_PAREN_TOKEN"
+                                                          "kind": "PIPE_TOKEN"
+                                                        },
+                                                        {
+                                                          "kind": "BYTE_TYPE_DESC",
+                                                          "children": [
+                                                            {
+                                                              "kind": "BYTE_KEYWORD"
+                                                            }
+                                                          ]
                                                         }
                                                       ]
                                                     },
@@ -1098,25 +1080,25 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "LIST",
-                                                  "children": [
-                                                    {
-                                                      "kind": "ARRAY_DIMENSION",
-                                                      "children": [
-                                                        {
-                                                          "kind": "OPEN_BRACKET_TOKEN"
-                                                        },
-                                                        {
-                                                          "kind": "CLOSE_BRACKET_TOKEN"
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
+                                                  "kind": "CLOSE_PAREN_TOKEN"
                                                 }
                                               ]
                                             },
                                             {
-                                              "kind": "CLOSE_PAREN_TOKEN"
+                                              "kind": "LIST",
+                                              "children": [
+                                                {
+                                                  "kind": "ARRAY_DIMENSION",
+                                                  "children": [
+                                                    {
+                                                      "kind": "OPEN_BRACKET_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_BRACKET_TOKEN"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -1124,6 +1106,9 @@
                                           "kind": "CLOSE_PAREN_TOKEN"
                                         }
                                       ]
+                                    },
+                                    {
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },

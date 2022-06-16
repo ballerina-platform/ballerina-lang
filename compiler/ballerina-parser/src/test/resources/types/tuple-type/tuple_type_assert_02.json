@@ -314,20 +314,16 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "mytype"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "mytype"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -335,21 +331,30 @@
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "REST_TYPE",
-                                  "children": [
+                                  "kind": "COMMA_TOKEN",
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "mytype2"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "REST_TYPE",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "mytype2"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
                                 }
                               ]
                             }
@@ -414,20 +419,25 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "SINGLETON_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "UNARY_EXPRESSION",
+                                  "kind": "SINGLETON_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "PLUS_TOKEN"
-                                    },
-                                    {
-                                      "kind": "NUMERIC_LITERAL",
+                                      "kind": "UNARY_EXPRESSION",
                                       "children": [
                                         {
-                                          "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                          "value": "5"
+                                          "kind": "PLUS_TOKEN"
+                                        },
+                                        {
+                                          "kind": "NUMERIC_LITERAL",
+                                          "children": [
+                                            {
+                                              "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                              "value": "5"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -436,11 +446,16 @@
                               ]
                             },
                             {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "MEMBER_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "COMMA_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -448,32 +463,27 @@
                               "kind": "REST_TYPE",
                               "children": [
                                 {
-                                  "kind": "MEMBER_TYPE_DESC",
+                                  "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "ARRAY_TYPE_DESC",
+                                      "kind": "INT_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "INT_TYPE_DESC",
-                                          "children": [
-                                            {
-                                              "kind": "INT_KEYWORD"
-                                            }
-                                          ]
-                                        },
+                                          "kind": "INT_KEYWORD"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
                                         {
-                                          "kind": "LIST",
+                                          "kind": "ARRAY_DIMENSION",
                                           "children": [
                                             {
-                                              "kind": "ARRAY_DIMENSION",
-                                              "children": [
-                                                {
-                                                  "kind": "OPEN_BRACKET_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "CLOSE_BRACKET_TOKEN"
-                                                }
-                                              ]
+                                              "kind": "OPEN_BRACKET_TOKEN"
+                                            },
+                                            {
+                                              "kind": "CLOSE_BRACKET_TOKEN"
                                             }
                                           ]
                                         }
@@ -547,24 +557,19 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "MEMBER_TYPE_DESC",
+                              "kind": "REST_TYPE",
                               "children": [
                                 {
-                                  "kind": "REST_TYPE",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "restParam"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "ELLIPSIS_TOKEN"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "restParam"
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "ELLIPSIS_TOKEN"
                                 }
                               ]
                             }
