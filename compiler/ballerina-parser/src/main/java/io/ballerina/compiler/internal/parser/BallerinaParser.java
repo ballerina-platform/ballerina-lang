@@ -11375,7 +11375,7 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidMetaData(annot, "tuple rest descriptor");
             }
             typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
-        } else {
+        } else if (typeDesc.kind != SyntaxKind.REST_TYPE) {
             typeDesc = STNodeFactory.createTupleMemberDescriptorNode(annot, typeDesc);
         }
 
@@ -18547,16 +18547,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     // ---------------------- Convert ambiguous nodes to a specific node --------------------------
-
-    private List<STNode> getTypeDescList(List<STNode> ambiguousList) {
-        List<STNode> typeDescList = new ArrayList<>();
-        for (STNode item : ambiguousList) {
-            typeDescList.add(getTypeDescFromExpr(item));
-        }
-
-        return typeDescList;
-    }
-
     private List<STNode> getTupleMemberList(List<STNode> ambiguousList) {
         List<STNode> tupleMemberList = new ArrayList<>();
         for (STNode item : ambiguousList) {
