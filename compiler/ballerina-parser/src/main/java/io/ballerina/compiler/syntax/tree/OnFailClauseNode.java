@@ -138,14 +138,12 @@ public class OnFailClauseNode extends ClauseNode {
 
         public OnFailClauseNodeModifier withTypeDescriptor(
                 TypeDescriptorNode typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
         public OnFailClauseNodeModifier withFailErrorName(
                 IdentifierToken failErrorName) {
-            Objects.requireNonNull(failErrorName, "failErrorName must not be null");
             this.failErrorName = failErrorName;
             return this;
         }

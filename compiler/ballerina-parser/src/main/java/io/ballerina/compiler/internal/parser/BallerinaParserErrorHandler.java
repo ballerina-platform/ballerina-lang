@@ -195,7 +195,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_FIELD_INITIALIZER =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] OPTIONAL_TYPE_DESC_IN_TYPE_BINDING_PATTERN =
+    private static final ParserRuleContext[] ON_FAIL_OPTIONAL_BINDING_PATTERN =
             { ParserRuleContext.BLOCK_STMT, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
 
     private static final ParserRuleContext[] CLASS_MEMBER_OR_OBJECT_MEMBER_START =
@@ -1557,7 +1557,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PARAM_RHS:
             case FUNC_TYPE_PARAM_RHS:
             case ANNOTATION_DECL_START:
-            case OPTIONAL_TYPE_DESC_IN_TYPE_BINDING_PATTERN:
+            case ON_FAIL_OPTIONAL_BINDING_PATTERN:
                 return true;
             default:
                 return false;
@@ -1633,7 +1633,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.CLOSE_BRACE;
             case OPTIONAL_FIELD_INITIALIZER:
                 return ParserRuleContext.SEMICOLON;
-            case OPTIONAL_TYPE_DESC_IN_TYPE_BINDING_PATTERN:
+            case ON_FAIL_OPTIONAL_BINDING_PATTERN:
                 return ParserRuleContext.BLOCK_STMT;
             case OBJECT_METHOD_START:
                 return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
@@ -2119,8 +2119,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_FIELD_INITIALIZER:
                 alternativeRules = OPTIONAL_FIELD_INITIALIZER;
                 break;
-            case OPTIONAL_TYPE_DESC_IN_TYPE_BINDING_PATTERN:
-                alternativeRules = OPTIONAL_TYPE_DESC_IN_TYPE_BINDING_PATTERN;
+            case ON_FAIL_OPTIONAL_BINDING_PATTERN:
+                alternativeRules = ON_FAIL_OPTIONAL_BINDING_PATTERN;
                 break;
             case OBJECT_METHOD_START:
                 alternativeRules = OBJECT_METHOD_START;
@@ -3824,7 +3824,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case FAIL_KEYWORD:
                 if (getParentContext() == ParserRuleContext.ON_FAIL_CLAUSE) {
-                    return ParserRuleContext.OPTIONAL_TYPE_DESC_IN_TYPE_BINDING_PATTERN;
+                    return ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN;
                 }
                 return ParserRuleContext.EXPRESSION;
             case PANIC_KEYWORD:
