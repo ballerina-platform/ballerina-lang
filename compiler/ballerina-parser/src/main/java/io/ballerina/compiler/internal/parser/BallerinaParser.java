@@ -11372,7 +11372,7 @@ public class BallerinaParser extends AbstractParser {
         typeDesc = STNodeFactory.createTupleMemberDescriptorNode(annot, typeDesc);
         STNode tupleMemberRhs = parseTypeDescInTupleRhs();
         if (tupleMemberRhs != null) {
-            if (!((STNodeList) annot).isEmpty()) {
+            if (annot != null) {
                 reportInvalidMetaData(annot, "tuple rest descriptor");
             }
             typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);

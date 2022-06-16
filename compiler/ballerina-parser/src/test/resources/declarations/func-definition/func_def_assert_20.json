@@ -125,13 +125,18 @@
                                       ]
                                     },
                                     {
-                                      "kind": "SINGLETON_TYPE_DESC",
+                                      "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "BOOLEAN_LITERAL",
+                                          "kind": "SINGLETON_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "FALSE_KEYWORD"
+                                              "kind": "BOOLEAN_LITERAL",
+                                              "children": [
+                                                {
+                                                  "kind": "FALSE_KEYWORD"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }

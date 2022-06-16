@@ -84,10 +84,15 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -101,10 +106,19 @@
                               ]
                             },
                             {
-                              "kind": "STRING_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "STRING_KEYWORD"
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "STRING_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "STRING_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -227,10 +241,15 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -313,19 +332,24 @@
                               ]
                             },
                             {
-                              "kind": "REST_TYPE",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "REST_TYPE",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "mytype2"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "mytype2"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "ELLIPSIS_TOKEN"
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "ELLIPSIS_TOKEN"
                                 }
                               ]
                             }
@@ -424,27 +448,32 @@
                               "kind": "REST_TYPE",
                               "children": [
                                 {
-                                  "kind": "ARRAY_TYPE_DESC",
+                                  "kind": "MEMBER_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "INT_TYPE_DESC",
+                                      "kind": "ARRAY_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "INT_KEYWORD"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "ARRAY_DIMENSION",
+                                          "kind": "INT_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "OPEN_BRACKET_TOKEN"
-                                            },
+                                              "kind": "INT_KEYWORD"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
                                             {
-                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                              "kind": "ARRAY_DIMENSION",
+                                              "children": [
+                                                {
+                                                  "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                  "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -518,19 +547,24 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "REST_TYPE",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "kind": "REST_TYPE",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "restParam"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "restParam"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "ELLIPSIS_TOKEN"
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "ELLIPSIS_TOKEN"
                                 }
                               ]
                             }
@@ -595,45 +629,50 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "STREAM_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "STREAM_KEYWORD"
-                                },
-                                {
-                                  "kind": "STREAM_TYPE_PARAMS",
+                                  "kind": "STREAM_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "LT_TOKEN"
+                                      "kind": "STREAM_KEYWORD"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "STREAM_TYPE_PARAMS",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "mytype"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "COMMA_TOKEN",
-                                      "trailingMinutiae": [
+                                          "kind": "LT_TOKEN"
+                                        },
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "INT_TYPE_DESC",
-                                      "children": [
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "mytype"
+                                            }
+                                          ]
+                                        },
                                         {
-                                          "kind": "INT_KEYWORD"
+                                          "kind": "COMMA_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "INT_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "INT_KEYWORD"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "GT_TOKEN"
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "GT_TOKEN"
                                     }
                                   ]
                                 }
@@ -700,57 +739,62 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "TABLE_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "TABLE_KEYWORD"
-                                },
-                                {
-                                  "kind": "TYPE_PARAMETER",
+                                  "kind": "TABLE_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "LT_TOKEN"
+                                      "kind": "TABLE_KEYWORD"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "kind": "TYPE_PARAMETER",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "myType"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "GT_TOKEN",
-                                      "trailingMinutiae": [
+                                          "kind": "LT_TOKEN"
+                                        },
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "myType"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "GT_TOKEN",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "KEY_SPECIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "KEY_KEYWORD"
                                     },
                                     {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
+                                      "kind": "KEY_SPECIFIER",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "id"
+                                          "kind": "KEY_KEYWORD"
+                                        },
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "id"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN"
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 }
@@ -766,10 +810,19 @@
                               ]
                             },
                             {
-                              "kind": "INT_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -783,10 +836,19 @@
                               ]
                             },
                             {
-                              "kind": "FLOAT_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "FLOAT_KEYWORD"
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "FLOAT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "FLOAT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             }

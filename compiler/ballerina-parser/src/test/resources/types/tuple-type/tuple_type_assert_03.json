@@ -40,10 +40,19 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "INT_TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_KEYWORD"
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -57,10 +66,19 @@
                       ]
                     },
                     {
-                      "kind": "FLOAT_TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "FLOAT_KEYWORD"
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "FLOAT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "FLOAT_KEYWORD"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -145,10 +163,19 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "INT_TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "INT_KEYWORD"
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -162,10 +189,19 @@
                       ]
                     },
                     {
-                      "kind": "FLOAT_TYPE_DESC",
+                      "kind": "MEMBER_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "FLOAT_KEYWORD"
+                          "kind": "LIST",
+                          "children": []
+                        },
+                        {
+                          "kind": "FLOAT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "FLOAT_KEYWORD"
+                            }
+                          ]
                         }
                       ]
                     }
