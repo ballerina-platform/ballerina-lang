@@ -18,10 +18,9 @@
 
 package io.ballerina.shell.test.unit;
 
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
-import io.ballerina.shell.ShellCompilation;
+import io.ballerina.shell.ShellReturnValue;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.test.TestUtils;
 import org.testng.Assert;
@@ -153,8 +152,7 @@ public class EvaluatorMiscTest {
     }
 
     private String evaluate(String source, Evaluator evaluator) throws  BallerinaShellException {
-        ShellCompilation shellCompilation = evaluator.getCompilation(source);
-        Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-        return evaluator.getValue(compilation).get().getResult();
+        Optional<ShellReturnValue> shellReturnValue = evaluator.execute(source);
+        return shellReturnValue.get().getResult();
     }
 }

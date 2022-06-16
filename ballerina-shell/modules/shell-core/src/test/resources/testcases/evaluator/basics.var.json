@@ -16,5 +16,18 @@
     "description": "Print var variable.",
     "code": "println(strVar);",
     "stdout": "Hello!\n"
+  },
+  {
+    "description": "Class definition",
+    "code": "\n\nisolated class Counter {\n\n    private int n = 0;\n\n    isolated function get() returns int {\n        lock {\n\n            return self.n;\n\n        }\n    }\n\n    isolated function inc() {\n        lock {\n            self.n += 1;\n        }\n    }\n}"
+  },
+  {
+    "description": "Create object variable",
+    "code": "Counter c = new;\n\nc.inc();\nint v = c.get();"
+  },
+  {
+    "description": "Check value.",
+    "code": "v",
+    "expr": "1"
   }
 ]

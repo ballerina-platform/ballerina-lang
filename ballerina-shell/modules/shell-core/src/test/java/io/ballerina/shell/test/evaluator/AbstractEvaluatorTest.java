@@ -18,10 +18,9 @@
 
 package io.ballerina.shell.test.evaluator;
 
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.EvaluatorBuilder;
-import io.ballerina.shell.ShellCompilation;
+import io.ballerina.shell.ShellReturnValue;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.test.TestUtils;
 import io.ballerina.shell.test.evaluator.base.TestCase;
@@ -81,9 +80,8 @@ public abstract class AbstractEvaluatorTest {
                     continue;
                 }
 
-                ShellCompilation shellCompilation = evaluator.getCompilation(testCase.getCode());
-                Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                String expr = evaluator.getValue(compilation).get().getResult();
+                Optional<ShellReturnValue> shellReturnValue = evaluator.execute(testCase.getCode());
+                String expr = shellReturnValue.get().getResult();
                 Assert.assertEquals(invoker.getStdOut(), testCase.getStdout(), testCase.getDescription());
                 Assert.assertEquals(expr, testCase.getExpr(), testCase.getDescription());
                 Assert.assertNull(testCase.getError(), testCase.getDescription());
