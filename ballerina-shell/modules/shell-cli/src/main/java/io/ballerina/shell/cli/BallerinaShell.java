@@ -375,7 +375,7 @@ public class BallerinaShell {
             importModules(moduleImporter, modules);
             try {
                 terminal.println("");
-                Optional<ShellReturnValue> shellReturnValue= evaluator.execute(source);
+                Optional<ShellReturnValue> shellReturnValue = evaluator.execute(source);
                 String result = shellReturnValue.get().getResult();
                 terminal.result(result);
             } catch (BallerinaShellException error) {
