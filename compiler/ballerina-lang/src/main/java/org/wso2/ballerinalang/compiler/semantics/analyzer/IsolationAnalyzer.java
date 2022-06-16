@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
+import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -354,12 +355,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(classDefinition, pkgEnv);
         }
 
-        pkgNode.functions.forEach(function -> {
+        for (BLangFunction function : pkgNode.functions) {
             // Skip visiting worker lambdas here. They will be visited when enclosing function is visited.
             if (!isWorkerLambda(function)) {
                 analyzeNode(function, pkgEnv);
             }
-        });
+        }
 
         for (BLangVariable globalVar : pkgNode.globalVars) {
             analyzeNode(globalVar, pkgEnv);
