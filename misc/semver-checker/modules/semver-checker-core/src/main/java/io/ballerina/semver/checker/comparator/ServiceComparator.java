@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffExtractor;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
@@ -186,16 +187,18 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
                 functions.getValue()).computeDiff().ifPresent(memberDiffs::add));
 
         DiffExtractor<ObjectFieldNode> varDiffExtractor = new DiffExtractor<>(newServiceFields, oldServiceFields);
-        varDiffExtractor.getAdditions().forEach((name, function) -> {
-            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(function, null);
-            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(memberDiffs::add);
+        varDiffExtractor.getAdditions().forEach((name, variable) -> {
+            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(variable, null);
+            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).withKind(DiffKind.SERVICE_FIELD).build()
+                    .ifPresent(memberDiffs::add);
         });
-        varDiffExtractor.getRemovals().forEach((name, function) -> {
-            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(null, function);
-            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(memberDiffs::add);
+        varDiffExtractor.getRemovals().forEach((name, variable) -> {
+            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(null, variable);
+            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).withKind(DiffKind.SERVICE_FIELD).build()
+                    .ifPresent(memberDiffs::add);
         });
         varDiffExtractor.getCommons().forEach((name, serviceVars) -> new ObjectFieldComparator(serviceVars.getKey(),
-                serviceVars.getValue()).computeDiff().ifPresent(memberDiffs::add));
+                serviceVars.getValue()).computeDiff().ifPresent(diff -> memberDiffs.addAll(diff.getChildDiffs())));
 
         return memberDiffs;
     }

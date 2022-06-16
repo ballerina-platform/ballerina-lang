@@ -18,20 +18,33 @@
 
 package io.ballerina.semver.checker.diff;
 
-import java.util.Optional;
-
 /**
- * Interface for all the Ballerina source diff builder types.
+ * Represents diff kinds that can exist within Ballerina packages.
  *
  * @since 2201.2.0
  */
-public interface DiffBuilder {
+public enum DiffKind {
+    PACKAGE("package"),
+    MODULE("module"),
 
-    Optional<? extends Diff> build();
+    FUNCTION("function"),
+    SERVICE("service"),
 
-    DiffBuilder withKind(DiffKind diffKind);
+    SERVICE_FIELD("service field"),
+    REMOTE_FUNCTION("remote function"),
+    RESOURCE_FUNCTION("resource function"),
 
-    DiffBuilder withType(DiffType diffType);
+    DOCUMENTATION("documentation"),
+    UNKNOWN("unknown");
 
-    DiffBuilder withVersionImpact(SemverImpact versionImpact);
+    public final String name;
+
+    DiffKind(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
