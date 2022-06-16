@@ -116,6 +116,20 @@ target = "java8"
     path = "./lib/bcpkix-jdk15on-1.61.jar"
     groupId = "org.bouncycastle"
     modules = ["grpc"]
+    
+    [[platform.libraries]]
+    artifactId = "netty-tcnative-classes"
+    version = "2.0.52.Final"
+    path = "./lib/netty-tcnative-classes-2.0.52.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
+    
+    [[platform.libraries]]
+    artifactId = "netty-tcnative-boringssl-static"
+    version = "2.0.52.Final"
+    path = "./lib/netty-tcnative-boringssl-static-2.0.52.Final.jar"
+    groupId = "io.netty"
+    modules = ["grpc"]
 
     [[platform.libraries]]
     artifactId = "netty-tcnative-boringssl-static::windows-x86_64"
