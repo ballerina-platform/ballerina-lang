@@ -35,19 +35,19 @@ import java.util.concurrent.TimeUnit;
 public class ModuleExecutionFlowTests extends BaseTest {
     public static final int TIMEOUT = 10000;
 
-    @Test(enabled = false)
+    @Test
     public void testModuleExecutionOrder() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj1");
         runAndAssert(projectPath);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testModuleMainExecutionOrder() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj6");
         runAndAssert(projectPath);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testImportModuleHasListener() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "proj2");
         BServerInstance serverInstance = new BServerInstance(balServer);
@@ -77,7 +77,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    @Test(description = "Test 'init' is called only once for each module at runtime", enabled = false)
+    @Test(description = "Test 'init' is called only once for each module at runtime")
     public void testModuleDependencyChainForInit() throws BallerinaTestException, InterruptedException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_invocation_project");
         BServerInstance serverInstance = new BServerInstance(balServer);
@@ -101,15 +101,22 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.removeAllLeechers();
     }
 
-    @Test(enabled = false)
+    @Test
     public void testDynamicListenerExecution() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_execution");
         runAssertDynamicListener(projectPath);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testDynamicListenerDeregister() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "dynamic_listener_deregister");
+        runAssertDynamicListener(projectPath);
+    }
+
+    @Test
+    public void testMultipleDynamicListenersWithAsyncCall() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+                "dynamic_listener_async_call_test_project");
         runAssertDynamicListener(projectPath);
     }
 
@@ -121,6 +128,91 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.addErrorLogLeecher(errLeecherA);
         serverInstance.shutdownServer();
         errLeecherA.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testStopHandlerExecution() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "stop_handler_execution");
+        runAssertStopHandlers(projectPath);
+    }
+
+    private void runAssertStopHandlers(Path projectPath) throws BallerinaTestException {
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher infoLeecher = new LogLeecher("Stopped module");
+        serverInstance.addLogLeecher(infoLeecher);
+        serverInstance.shutdownServer();
+        infoLeecher.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testModuleShutdownRegisteredWithStopHandlers() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_shutdown_order_project");
+
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher logLeecherA = new LogLeecher("Stopped current module");
+        LogLeecher logLeecherB = new LogLeecher("Stopped moduleB");
+        LogLeecher logLeecherC = new LogLeecher("Stopped moduleA");
+        LogLeecher logLeecherD = new LogLeecher("Stopped moduleC");
+        serverInstance.addLogLeecher(logLeecherA);
+        serverInstance.addLogLeecher(logLeecherB);
+        serverInstance.addLogLeecher(logLeecherC);
+        serverInstance.addLogLeecher(logLeecherD);
+        serverInstance.shutdownServer();
+        logLeecherA.waitForText(TIMEOUT);
+        logLeecherB.waitForText(TIMEOUT);
+        logLeecherC.waitForText(TIMEOUT);
+        logLeecherD.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testStopHandlerExecutionOrder() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+                "stop_handler_execution_order_test");
+
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher logLeecherA = new LogLeecher("StopHandlerFunc3 in current module");
+        LogLeecher logLeecherB = new LogLeecher("StopHandlerFunc4 in current module");
+        LogLeecher logLeecherC = new LogLeecher("StopHandlerFunc5 in current module");
+        LogLeecher logLeecherD = new LogLeecher("stopHandlerFunc3 in moduleA");
+        LogLeecher logLeecherE = new LogLeecher("StopHandlerFunc5 in current module");
+        LogLeecher logLeecherF = new LogLeecher("StopHandlerFunc5 in current module");
+        LogLeecher logLeecherG = new LogLeecher("StopHandlerFunc2 in current module");
+        LogLeecher logLeecherH = new LogLeecher("Stopped current module", LogLeecher.LeecherType.ERROR);
+        LogLeecher logLeecherI = new LogLeecher("stopHandlerFunc1 in moduleA");
+        LogLeecher logLeecherJ = new LogLeecher("stopHandlerFunc2 in moduleA");
+        LogLeecher logLeecherK = new LogLeecher("Stopped moduleB", LogLeecher.LeecherType.ERROR);
+        serverInstance.addLogLeecher(logLeecherA);
+        serverInstance.addLogLeecher(logLeecherB);
+        serverInstance.addLogLeecher(logLeecherC);
+        serverInstance.addLogLeecher(logLeecherD);
+        serverInstance.addLogLeecher(logLeecherE);
+        serverInstance.addLogLeecher(logLeecherF);
+        serverInstance.addLogLeecher(logLeecherG);
+        serverInstance.addErrorLogLeecher(logLeecherH);
+        serverInstance.addLogLeecher(logLeecherI);
+        serverInstance.addLogLeecher(logLeecherJ);
+        serverInstance.addErrorLogLeecher(logLeecherK);
+        serverInstance.shutdownServer();
+        logLeecherA.waitForText(TIMEOUT);
+        logLeecherB.waitForText(TIMEOUT);
+        logLeecherC.waitForText(TIMEOUT);
+        logLeecherD.waitForText(TIMEOUT);
+        logLeecherE.waitForText(TIMEOUT);
+        logLeecherF.waitForText(TIMEOUT);
+        logLeecherG.waitForText(TIMEOUT);
+        logLeecherH.waitForText(TIMEOUT);
+        logLeecherI.waitForText(TIMEOUT);
+        logLeecherJ.waitForText(TIMEOUT);
+        logLeecherK.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 }
