@@ -180,27 +180,21 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
                 null, null);
         LogLeecher logLeecherA = new LogLeecher("StopHandlerFunc3 in current module");
-        LogLeecher logLeecherB = new LogLeecher("StopHandlerFunc4 in current module");
+        LogLeecher logLeecherB = new LogLeecher("stopHandlerFunc3 in moduleA");
         LogLeecher logLeecherC = new LogLeecher("StopHandlerFunc5 in current module");
-        LogLeecher logLeecherD = new LogLeecher("stopHandlerFunc3 in moduleA");
-        LogLeecher logLeecherE = new LogLeecher("StopHandlerFunc5 in current module");
-        LogLeecher logLeecherF = new LogLeecher("StopHandlerFunc5 in current module");
-        LogLeecher logLeecherG = new LogLeecher("StopHandlerFunc2 in current module");
-        LogLeecher logLeecherH = new LogLeecher("Stopped current module", LogLeecher.LeecherType.ERROR);
-        LogLeecher logLeecherI = new LogLeecher("stopHandlerFunc1 in moduleA");
-        LogLeecher logLeecherJ = new LogLeecher("stopHandlerFunc2 in moduleA");
-        LogLeecher logLeecherK = new LogLeecher("Stopped moduleB", LogLeecher.LeecherType.ERROR);
+        LogLeecher logLeecherD = new LogLeecher("StopHandlerFunc5 in current module");
+        LogLeecher logLeecherE = new LogLeecher("StopHandlerFunc2 in current module");
+        LogLeecher logLeecherF = new LogLeecher("Stopped current module", LogLeecher.LeecherType.ERROR);
+        LogLeecher logLeecherG = new LogLeecher("stopHandlerFunc1 in moduleA");
+        LogLeecher logLeecherH = new LogLeecher("Stopped moduleB", LogLeecher.LeecherType.ERROR);
         serverInstance.addLogLeecher(logLeecherA);
         serverInstance.addLogLeecher(logLeecherB);
         serverInstance.addLogLeecher(logLeecherC);
         serverInstance.addLogLeecher(logLeecherD);
         serverInstance.addLogLeecher(logLeecherE);
-        serverInstance.addLogLeecher(logLeecherF);
+        serverInstance.addErrorLogLeecher(logLeecherF);
         serverInstance.addLogLeecher(logLeecherG);
         serverInstance.addErrorLogLeecher(logLeecherH);
-        serverInstance.addLogLeecher(logLeecherI);
-        serverInstance.addLogLeecher(logLeecherJ);
-        serverInstance.addErrorLogLeecher(logLeecherK);
         serverInstance.shutdownServer();
         logLeecherA.waitForText(TIMEOUT);
         logLeecherB.waitForText(TIMEOUT);
@@ -210,9 +204,6 @@ public class ModuleExecutionFlowTests extends BaseTest {
         logLeecherF.waitForText(TIMEOUT);
         logLeecherG.waitForText(TIMEOUT);
         logLeecherH.waitForText(TIMEOUT);
-        logLeecherI.waitForText(TIMEOUT);
-        logLeecherJ.waitForText(TIMEOUT);
-        logLeecherK.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 }
