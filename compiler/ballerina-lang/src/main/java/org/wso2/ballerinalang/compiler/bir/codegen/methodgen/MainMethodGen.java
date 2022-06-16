@@ -152,7 +152,7 @@ public class MainMethodGen {
         // start all listeners
         startListeners(mv, serviceEPAvailable);
 
-        // initiate signal listener for runtime state dump
+        // initiate signal listener for strand dump
         mv.visitMethodInsn(INVOKESTATIC, "io/ballerina/runtime/internal/scheduling/Status", "initiateSignalListener",
                 "()V", false);
 

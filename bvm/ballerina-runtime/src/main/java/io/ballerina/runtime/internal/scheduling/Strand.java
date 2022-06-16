@@ -419,7 +419,7 @@ public class Strand {
     }
 
     protected String dumpState() {
-        StringBuilder infoStr = new StringBuilder("strand " + this.id);
+        StringBuilder infoStr = new StringBuilder("\tstrand " + this.id);
         if (this.name != null && this.getName().isPresent()) {
             infoStr.append(" \"" + this.getName().get() + "\"");
         }
@@ -436,33 +436,41 @@ public class Strand {
         if (this.isYielded()) {
             String currState = "BLOCKED";
             boolean noCurrState = true;
-            String stringPrefix = "\tat\t";
+            boolean runnableState = false;
+            String stringPrefix = "\t\tat\t";
             try {
                 for (Object frame : this.frames) {
                     if (noCurrState) {
                         currState = ((FunctionFrame) frame).getYieldStatus();
                         if (currState == null) {
-                            throw new ConcurrentModificationException();
+                            runnableState = true;
+                            break;
                         }
                         noCurrState = false;
                     }
                     String yieldLocation = ((FunctionFrame) frame).getYieldLocation();
                     if (yieldLocation == null) {
-                        throw new ConcurrentModificationException();
+                        runnableState = true;
+                        break;
                     }
                     frameStackTrace.append(stringPrefix).append(yieldLocation);
                     frameStackTrace.append("\n");
-                    stringPrefix = "\t  \t";
+                    stringPrefix = "\t\t  \t";
                 }
             } catch (ConcurrentModificationException ce) {
-                currState = "STATES CHANGING";
-                frameStackTrace = new StringBuilder();
+                runnableState = true;
             }
-            infoStr.append(" [" + currState + "]:\n");
+            if (runnableState) {
+                infoStr.append(" [RUNNABLE]\n\n");
+            } else {
+                infoStr.append(" [" + currState + "]:\n");
+                infoStr.append(frameStackTrace).append("\n");
+            }
+        } else if (this.getState().toString().contains("DONE")) {
+            infoStr.append(" [DONE]\n\n");
         } else {
-            infoStr.append(" [" + this.getState().toString() + "]:\n");
+            infoStr.append(" [RUNNABLE]\n\n");
         }
-        infoStr.append(frameStackTrace.toString());
 
         return infoStr.toString();
     }
