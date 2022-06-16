@@ -81,9 +81,9 @@ public class PublicVariableBalaTest {
 
     @Test(description = "Test the position of global variable available in a module.")
     public void testModulePublicVariablePos() {
-        CompileResult birTestResult = BCompileUtil.compile(
+        CompileResult compileResult = BCompileUtil.compile(
                 "test-src/bala/test_bala/globalvar/test_public_variable_pos.bal");
-        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
         BVarSymbol globalVarSymbol = (BVarSymbol) importedModuleEntries.get(Names.fromString("name")).symbol;
         LineRange lineRange = globalVarSymbol.pos.lineRange();
