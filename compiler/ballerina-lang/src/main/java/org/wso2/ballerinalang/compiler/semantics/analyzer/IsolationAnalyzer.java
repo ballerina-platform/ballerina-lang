@@ -342,8 +342,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(typeDefinition.typeNode, pkgEnv);
         }
 
-        visitWorkerLambdaFunctions(pkgNode.functions, pkgEnv);
-
         for (BLangClassDefinition classDefinition : pkgNode.classDefinitions) {
             if (classDefinition.flagSet.contains(Flag.ANONYMOUS) && isIsolated(classDefinition.getBType().flags)) {
                 // If this is a class definition for an object constructor expression, and the type is `isolated`,
@@ -357,7 +355,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         pkgNode.functions.forEach(function -> {
-            // Skip visiting worker lambdas.
+            // Skip visiting worker lambdas here. They will be visited when enclosing function is visited.
             if (!isWorkerLambda(function)) {
                 analyzeNode(function, pkgEnv);
             }
@@ -430,11 +428,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 // Init method isolation depends on the object field-initializers too, so we defer inference.
                 !funcNode.objInitFunction) {
             functionIsolationInferenceInfo.inferredIsolated = true;
-            if (Symbols.isFlagOn(symbol.flags, Flags.WORKER)) {
-                symbol.flags |= Flags.ISOLATED;
-                funcNode.getBType().flags |= Flags.ISOLATED;
-                funcNode.getBType().tsymbol.flags |= Flags.ISOLATED;
-            }
         }
 
         this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
@@ -1235,7 +1228,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        boolean inIsolatedFunction = isInIsolatedFunction(enclInvokable);
+        boolean inIsolatedFunction = isInIsolatedFunction();
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(enclType);
         boolean objectFieldDefaultValueRequiringIsolation = !recordFieldDefaultValue &&
                 isObjectFieldDefaultValueRequiringIsolation(env);
@@ -1419,20 +1412,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (isInIsolatedFunction(env.enclInvokable)) {
+        if (isInIsolatedFunction()) {
             if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, true)) {
                 return;
             }
 
             if (!actionInvocationExpr.functionPointerInvocation &&
                     !isValidIsolatedAsyncInvocation(actionInvocationExpr)) {
-                return;
-            }
-
-            if (actionInvocationExpr.functionPointerInvocation &&
-                    !isIsolated(actionInvocationExpr.symbol.type.flags)) {
-                dlog.error(actionInvocationExpr.pos,
-                        DiagnosticErrorCode.INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION);
                 return;
             }
 
@@ -1468,15 +1454,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isValidIsolatedAsyncInvocation(BLangInvocation.BLangActionInvocation actionInvocation) {
         boolean isIsolatedStartAction = true;
-        if (actionInvocation.expr != null && !isIsolatedExpression(actionInvocation.expr)) {
-            dlog.error(actionInvocation.expr.pos,
-                    DiagnosticErrorCode.INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION);
-            isIsolatedStartAction = false;
-        }
-
         if (!isIsolated(actionInvocation.symbol.type.flags)) {
             dlog.error(actionInvocation.name.pos,
                     DiagnosticErrorCode.INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION);
+            isIsolatedStartAction = false;
+        }
+
+        if (actionInvocation.expr != null && !isIsolatedExpression(actionInvocation.expr)) {
+            dlog.error(actionInvocation.expr.pos,
+                    DiagnosticErrorCode.INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGS_OF_ASYNC_INV_OF_ISOLATED_FUNC);
             isIsolatedStartAction = false;
         }
 
@@ -1496,7 +1482,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (BLangExpression arg : args) {
             if (!isIsolatedExpression(arg)) {
                 dlog.error(arg.pos,
-                        DiagnosticErrorCode.INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGS_OF_ASYNC_INV_OF_ISOLATED_FUNC);
+                        DiagnosticErrorCode.INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGS_OF_ASYNC_INV_OF_ISOLATED_FUNC);
                 containIsolatedExprs = false;
             }
         }
@@ -1690,7 +1676,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        // Analyzed via functions added to module level.
+        // Visit worker lambdas.
+        BLangFunction function = bLangLambdaFunction.function;
+        if (isWorkerLambda(function)) {
+            visit(function);
+        }
     }
 
     @Override
@@ -2025,7 +2015,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        boolean inIsolatedFunction = isInIsolatedFunction(env.enclInvokable);
+        boolean inIsolatedFunction = isInIsolatedFunction();
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(env.enclType);
         boolean objectFieldDefaultValueRequiringIsolation = isObjectFieldDefaultValueRequiringIsolation(env);
 
@@ -2054,7 +2044,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
-        if (inIsolatedFunction) {
+        if (inIsolatedFunction && !invocationExpr.functionPointerInvocation) {
             dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
             return;
         }
@@ -2071,6 +2061,27 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 markInitMethodDependentlyIsolatedOnFunction(initFunction, symbol);
             }
         }
+    }
+
+    private boolean isInIsolatedFunction() {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        if (enclInvokable != null && enclInvokable.flagSet.contains(Flag.WORKER)) {
+            return isInIsolatedFunction(getWorkerEnclosedFunctionInvokable());
+        }
+        return isInIsolatedFunction(enclInvokable);
+    }
+
+    private BLangInvokableNode getWorkerEnclosedFunctionInvokable() {
+        SymbolEnv env = this.env;
+        while (env != null) {
+            BLangNode node = env.node;
+            if (node != null && node.getKind() == NodeKind.FUNCTION &&
+                    !isWorkerLambda((BLangFunction) node)) {
+                return env.enclInvokable;
+            }
+            env = env.enclEnv;
+        }
+        return this.env.enclInvokable;
     }
 
     private void analyzeArgs(List<BLangExpression> requiredArgs, List<BLangExpression> restArgs) {

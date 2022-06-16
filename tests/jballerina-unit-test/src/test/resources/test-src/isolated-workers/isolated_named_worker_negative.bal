@@ -71,6 +71,16 @@ isolated function testNonIsolatedNamedWorkerInIsolatedFunc6() {
     }
 }
 
+isolated function testNonIsolatedNamedWorkerInIsolatedFunc7() {
+    _ = f2();
+    worker sampleWorker1 {
+        future<()> _ = start f3(arr);
+    }
+}
+
+isolated function f3(int[] a) {
+}
+
 isolated function testNamedWorkerWithStrandAnnotInIsolatedFunc() {
     @strand{thread:"parent"}
     worker sampleWorker1 {

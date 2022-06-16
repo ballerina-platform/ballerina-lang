@@ -41,12 +41,13 @@ public class IsolatedWorkerTest {
 
     private static final String ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION =
             "invalid async invocation of a non-isolated function in an 'isolated' function";
-    private static final String ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS =
-            "invalid access of mutable storage in a argument of an async invocation of an 'isolated' function";
-    private static final String ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION =
-            "invalid access of mutable storage in an async invocation in an 'isolated' function";
-    private static final String ERROR_INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION =
-            "invalid non-isolated worker declaration in an 'isolated' function";
+    private static final String ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT =
+            "invalid access of a non isolated expression in a argument of an async invocation of " +
+                    "an 'isolated' function";
+    private static final String ERROR_INVALID_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION =
+            "invalid invocation of a non-isolated function in an 'isolated' function";
+    private static final String ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNCTION =
+            "invalid access of mutable storage in an 'isolated' function";
     private static final String ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION =
     "'ballerina/lang.annotations:0.0.0:strand' annotation not allowed in an async invocation in an 'isolated' function";
     private static final String WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED =
@@ -105,64 +106,64 @@ public class IsolatedWorkerTest {
                 21, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 28, 27);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 28, 30);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 28, 30);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 30, 27);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 30, 30);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 30, 30);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 32, 27);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 32, 30);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 32, 35);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 73, 27);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 82, 27);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 94, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 32, 30);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 32, 35);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 73, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 82, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 94, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 105, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 114, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 114, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 114, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 126, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 126, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 126, 32);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 140, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 140, 40);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 140, 45);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 149, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 140, 40);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 140, 45);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 149, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 149, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 149, 38);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 149, 43);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 161, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 149, 38);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 149, 43);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 161, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 161, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 161, 40);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 161, 45);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 187, 27);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 196, 27);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 208, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 161, 40);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 161, 45);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 187, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 196, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 208, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 219, 33);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 228, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 228, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 228, 33);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 240, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 240, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 240, 33);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 252, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 252, 40);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 252, 45);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 261, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 252, 40);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 252, 45);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 261, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 261, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 261, 38);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 261, 43);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ASYNC_INVOCATION, 273, 27);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 261, 38);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 261, 43);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 273, 27);
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 273, 32);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 273, 40);
-        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ARGUMENTS, 273, 45);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 273, 40);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 273, 45);
         validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 278, 21);
         validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 287, 21);
         validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 296, 21);
@@ -173,15 +174,17 @@ public class IsolatedWorkerTest {
     public void testNonIsolatedNamedWorkerNegative() {
         CompileResult result = BCompileUtil.compile("test-src/isolated-workers/isolated_named_worker_negative.bal");
         int i = 0;
-        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION, 19, 12);
-        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION, 34, 12);
-        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION, 43, 12);
-        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION, 51, 12);
-        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION, 58, 12);
-        validateError(result, i++, ERROR_INVALID_NON_ISOLATED_WORKER_DECLARATION_IN_ISOLATED_FUNCTION, 69, 12);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 75, 5);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 82, 9);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 86, 9);
+        validateError(result, i++, ERROR_INVALID_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION, 20, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNCTION, 35, 17);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNCTION, 44, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNCTION, 52, 17);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNCTION, 61, 24);
+        validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
+                70, 30);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 77, 33);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 85, 5);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 92, 9);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 96, 9);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
