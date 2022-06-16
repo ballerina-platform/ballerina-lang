@@ -110,3 +110,37 @@ function testOnConflictClauseWithFunction() {
 function condition(string name) returns boolean{
     return name == "Anne";
 }
+
+function testWithReadonlyContextualTypeForQueryConstructingTables() {
+    Customer[] customerList1 = [];
+
+    CustomerTable & readonly|error out1 = table key(id, name) from var customer in customerList1
+        select {
+            id: customer.id,
+            name: customer.name
+        };
+
+    CustomerTable & readonly|error out2 = table key(id, name) from var customer in customerList1
+        select customer on conflict error("Error");
+}
+
+type T readonly & record {
+    string[] params;
+};
+
+type Type1 int[]|string;
+
+function testWithReadonlyContextualTypeForQueryConstructingLists() {
+    T _ = { params: from var s in [1, "b", "c", "abc"] select s };
+
+    Type1[] & readonly _ = from var user in [[1, 2], "a", "b", [-1, int:MAX_VALUE]]
+                                    select user;
+
+    map<Type1>[] & readonly _ = from var item in [[1, 2], "a", "b", [-1, int:MAX_VALUE]]
+                                    select {item: item};
+
+    xml a = xml `<id> 1 </id> <name> John </name>`;
+
+    xml[] & readonly _ = from var user in a
+                                 select user;
+}

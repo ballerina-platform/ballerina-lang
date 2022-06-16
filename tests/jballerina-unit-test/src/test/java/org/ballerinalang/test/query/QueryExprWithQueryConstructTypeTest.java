@@ -132,7 +132,6 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
@@ -145,6 +144,21 @@ public class QueryExprWithQueryConstructTypeTest {
                 86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error?', found 'boolean'",
                 107, 21);
+        validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'",
+                118, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Customer & readonly)', found 'Customer'", 124, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'string', found '(int|string)'", 134, 63);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 137, 44);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 140, 51);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
+                     "& readonly)> & readonly', found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'",
+                145, 41);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
@@ -174,6 +188,16 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testTableOnConflict() {
         BRunUtil.invoke(result, "testTableOnConflict");
+    }
+
+    @Test
+    public void testReadonlyTable() {
+        BRunUtil.invoke(result, "testReadonlyTable");
+    }
+
+    @Test
+    public void testReadonlyTable2() {
+        BRunUtil.invoke(result, "testReadonlyTable2");
     }
 
     @AfterClass
