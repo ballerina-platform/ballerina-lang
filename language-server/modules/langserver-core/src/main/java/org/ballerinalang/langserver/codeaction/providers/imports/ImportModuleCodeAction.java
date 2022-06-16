@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -78,7 +79,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 })
                 .forEach(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
-                    String moduleName = CommonUtil.escapeModuleName(pkgName);
+                    String moduleName = ModuleUtil.escapeModuleName(pkgName);
                     Position insertPos = getImportPosition(context);
                     String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;

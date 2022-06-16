@@ -27,7 +27,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
@@ -77,8 +77,8 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
         List<CodeAction> codeActions = new LinkedList<>();
 
         context.diagnostics(context.filePath()).stream()
-                .filter(diag -> CommonUtil.isWithinRange(context.cursorPosition(),
-                        CommonUtil.toRange(diag.location().lineRange())))
+                .filter(diag -> PositionUtil.isWithinRange(context.cursorPosition(),
+                        PositionUtil.toRange(diag.location().lineRange())))
                 .forEach(diagnostic -> {
                     CodeActionContext codeActionContext = CodeActionContextImpl.from(context.fileUri(),
                             context.filePath(), linePosition, document, semanticModel, diagnostic);

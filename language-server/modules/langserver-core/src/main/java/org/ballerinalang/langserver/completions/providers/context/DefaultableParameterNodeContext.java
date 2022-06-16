@@ -21,11 +21,11 @@ import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -51,7 +51,7 @@ public class DefaultableParameterNodeContext extends AbstractCompletionProvider<
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(ctx, nameRef);
+            List<Symbol> expressionContextEntries = QNameRefCompletionUtil.getExpressionContextEntries(ctx, nameRef);
             completionItems.addAll(this.getCompletionItemList(expressionContextEntries, ctx));
         } else {
             /*

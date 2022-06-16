@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -77,7 +78,7 @@ public class TypeGuardCompletionUtil {
         snippet += IntStream.range(0, members.size() - 1).mapToObj(value -> {
             TypeSymbol bType = members.get(value);
             String placeHolder = "\t${" + (value + 1) + "}";
-            return "if " + symbolName + " is " + CommonUtil.getModifiedTypeName(ctx, bType) + " {"
+            return "if " + symbolName + " is " + NameUtil.getModifiedTypeName(ctx, bType) + " {"
                     + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
         }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
                 + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";
