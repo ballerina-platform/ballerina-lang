@@ -40,6 +40,7 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -52,10 +53,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static io.ballerina.projects.util.FileUtils.getDirectoryLastModifiedTime;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
@@ -413,9 +417,14 @@ public class BuildProject extends Project {
         }
     }
 
-    private static void writeBuildFile(Path buildFilePath) {
+    private void writeBuildFile(Path buildFilePath) {
+        Path projectPath = this.currentPackage().project().sourceRoot();
+        Map<String, Long> lastModifiedTime = new HashMap<>();
+        lastModifiedTime.put(this.currentPackage().packageName().value(),
+                FileUtils.getDirectoryLastModifiedTime(projectPath));
+
         BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
-                RepoUtils.getBallerinaShortVersion());
+                RepoUtils.getBallerinaShortVersion(), lastModifiedTime);
         writeBuildFile(buildFilePath, buildJson);
     }
 

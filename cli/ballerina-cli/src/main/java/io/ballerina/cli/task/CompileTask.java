@@ -27,6 +27,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
@@ -36,6 +37,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
+import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
  * Task for compiling a package.
@@ -91,10 +96,13 @@ public class CompileTask implements Task {
                     // SingleFileProject cannot hold additional sources or resources
                     // and BalaProjects is a read-only project.
                     // Hence we run the code generators only for BuildProject
-                    DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
-                            .runCodeGenAndModifyPlugins();
-                    if (codeGenAndModifyDiagnosticResult != null) {
-                        diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                    if (isProjectUpdated(project)) {
+                        // Run code gen and modify plugins, if project has updated only
+                        DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
+                                .runCodeGenAndModifyPlugins();
+                        if (codeGenAndModifyDiagnosticResult != null) {
+                            diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                        }
                     }
                 }
             }

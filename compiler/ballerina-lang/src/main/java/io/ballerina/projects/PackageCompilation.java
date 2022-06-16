@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
@@ -98,21 +99,25 @@ public class PackageCompilation {
         // Compile modules in the dependency graph
         compilation.compileModules();
 
-        // Now the modules are compiled, initialize the compiler plugin manager
-        CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
-        compilation.setCompilerPluginManager(compilerPluginManager);
+        // Run code analyzers, if project has updated only
+        if (isProjectUpdated(compilation.packageContext().project())) {
+            // Now the modules are compiled, initialize the compiler plugin manager
+            CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
+            compilation.setCompilerPluginManager(compilerPluginManager);
 
-        // Do not run code analyzers, if the code generators are enabled.
-        if (compilation.compilationOptions().withCodeGenerators()) {
-            return compilation;
+            // Do not run code analyzers, if the code generators are enabled.
+            if (compilation.compilationOptions().withCodeGenerators()) {
+                return compilation;
+            }
+
+            // Run the CodeAnalyzer tasks.
+            CodeAnalyzerManager codeAnalyzerManager = compilerPluginManager.getCodeAnalyzerManager();
+            // At the moment, we run SyntaxNodeAnalysis and CompilationAnalysis tasks at the same time.
+            // We can run SyntaxNodeAnalysis for each module compilation in the future.
+            List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
+            addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
         }
 
-        // Run the CodeAnalyzer tasks.
-        CodeAnalyzerManager codeAnalyzerManager = compilerPluginManager.getCodeAnalyzerManager();
-        // At the moment, we run SyntaxNodeAnalysis and CompilationAnalysis tasks at the same time.
-        // We can run SyntaxNodeAnalysis for each module compilation in the future.
-        List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
-        addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
         return compilation;
     }
 

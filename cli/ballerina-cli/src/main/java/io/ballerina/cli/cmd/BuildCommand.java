@@ -237,7 +237,7 @@ public class BuildCommand implements BLauncherCmd {
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+//                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules

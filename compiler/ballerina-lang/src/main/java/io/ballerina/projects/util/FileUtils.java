@@ -17,7 +17,10 @@
  */
 package io.ballerina.projects.util;
 
+import io.ballerina.projects.ProjectException;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +35,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 /**
@@ -162,6 +166,31 @@ public class FileUtils {
      */
     public static boolean isValidPng(Path filePath) throws IOException {
         return isMatchingImageFormat(filePath, PNG_HEX_HEADER, 8);
+    }
+
+    /**
+     * Get last modified timestamp of a directory.
+     *
+     * @param directory directory path
+     * @return directory last modified time
+     */
+    public static long getDirectoryLastModifiedTime(Path directory) {
+        File dirFile = new File(String.valueOf(directory));
+        File[] files = dirFile.listFiles();
+        if (files != null) {
+            if (files.length == 0) {
+                return dirFile.lastModified();
+            }
+            // Sort each file in the directory based on its lastModified
+            // Time using the comparator
+            Arrays.sort(files, (o1, o2) -> {
+                // returning the file modified time
+                // in the increasing way
+                return Long.compare(o2.lastModified(), o1.lastModified()); // latest 1st
+            });
+            return files[0].lastModified();
+        }
+        throw new ProjectException("invalid directory path: " + directory);
     }
 
     /**

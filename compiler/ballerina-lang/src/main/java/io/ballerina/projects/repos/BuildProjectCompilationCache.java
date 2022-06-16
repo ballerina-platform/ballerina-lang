@@ -18,10 +18,18 @@
 package io.ballerina.projects.repos;
 
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.io.FileUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 
 /**
  * Default {@code CompilationCache} linked with the {@code BuildProject}.
@@ -30,9 +38,10 @@ import java.nio.file.Path;
  */
 public class BuildProjectCompilationCache extends FileSystemCache {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+    private Path birPath;
 
     private BuildProjectCompilationCache(Project project, Path cacheDirPath) {
-        super(project, cacheDirPath.resolve(ProjectConstants.CACHES_DIR_NAME));
+        super(project, cacheDirPath.resolve(CACHES_DIR_NAME));
     }
 
     public static BuildProjectCompilationCache from(Project project) {
@@ -42,8 +51,34 @@ public class BuildProjectCompilationCache extends FileSystemCache {
 
     @Override
     public byte[] getBir(ModuleName moduleName) {
-        // Do not return the cached BIR in the target directory
-        // We can improve this implementation to cache the BIR later to enable incremental compilation.
-        return EMPTY_BYTE_ARRAY;
+//        // Do not return the cached BIR in the target directory
+//        // We can improve this implementation to cache the BIR later to enable incremental compilation.
+//        return EMPTY_BYTE_ARRAY;
+
+        Path birFilePath = getBirPath().resolve(moduleName.toString()
+                + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
+        if (Files.exists(birFilePath)) {
+            try {
+                return FileUtils.readFileToByteArray(birFilePath.toFile());
+            } catch (IOException e) {
+                // TODO proper error handling
+                throw new RuntimeException("Failed to read the cached bir of module: " + moduleName, e);
+            }
+        }
+        return new byte[0];
+    }
+
+    private Path getBirPath() {
+        if (birPath != null) {
+            return birPath;
+        }
+        Package currentPkg = project.currentPackage();
+        PackageManifest pkgDescriptor = currentPkg.manifest();
+        Path targetCachePath = currentPkg.project().sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
+        birPath = targetCachePath.resolve(pkgDescriptor.org().value())
+                .resolve(pkgDescriptor.name().value())
+                .resolve(pkgDescriptor.version().value().toString())
+                .resolve(ProjectConstants.REPO_BIR_CACHE_NAME);
+        return birPath;
     }
 }

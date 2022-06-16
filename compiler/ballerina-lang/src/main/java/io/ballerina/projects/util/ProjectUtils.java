@@ -32,6 +32,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.PlatformLibraryScope;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.SemanticVersion;
@@ -97,6 +98,7 @@ import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
 import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
+import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -935,6 +937,21 @@ public class ProjectUtils {
         try (BufferedReader bufferedReader = Files.newBufferedReader(buildJsonPath)) {
             return new Gson().fromJson(bufferedReader, BuildJson.class);
         }
+    }
+
+    public static boolean isProjectUpdated(Project project) {
+        if (project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
+            try {
+                BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+                long lastProjectUpdatedTime = FileUtils.getDirectoryLastModifiedTime(project.sourceRoot());
+                long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                        .get(project.currentPackage().packageName().value());
+                return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+            } catch (IOException e) {
+                throw new ProjectException("Reading 'build' file failed: " + e.getMessage());
+            }
+        }
+        return true; // return true if `build` file does not exist
     }
 
     /**

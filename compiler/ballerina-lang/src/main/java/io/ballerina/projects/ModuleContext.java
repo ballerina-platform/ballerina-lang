@@ -484,14 +484,14 @@ class ModuleContext {
     }
 
     private static ByteArrayOutputStream generateBIR(ModuleContext moduleContext, CompilerContext compilerContext) {
-        // Skip caching the BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
-        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
-                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
-            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
-            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
-                return null;
-            }
-        }
+//        // Skip caching the BIR if it is a Build Project (current package) unless the --dump-bir-file flag is passed
+//        if (moduleContext.project.kind().equals(ProjectKind.BUILD_PROJECT) && !ProjectUtils.isBuiltInPackage(
+//                moduleContext.descriptor().org(), moduleContext.descriptor().packageName().toString())) {
+//            CompilerOptions compilerOptions = CompilerOptions.getInstance(compilerContext);
+//            if (!Boolean.parseBoolean(compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE))) {
+//                return null;
+//            }
+//        }
 
         // Can we improve this logic
         ByteArrayOutputStream birContent = new ByteArrayOutputStream();

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 /**
  * Test {@code ProjectUtils}.
@@ -47,7 +48,8 @@ public class ProjectUtilsTests {
     @BeforeClass
     public void setUp() throws IOException {
         tempDirectory = Files.createTempDirectory("b7a-project-utils-test-" + System.nanoTime());
-        buildJson = new BuildJson(1629359520, 1629259520, RepoUtils.getBallerinaShortVersion());
+        buildJson = new BuildJson(1629359520, 1629259520, RepoUtils.getBallerinaShortVersion(),
+                Collections.emptyMap());
     }
 
     @Test
