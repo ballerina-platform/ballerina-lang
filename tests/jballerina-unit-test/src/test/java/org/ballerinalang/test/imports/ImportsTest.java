@@ -41,20 +41,20 @@ public class ImportsTest {
     }
 
     // https://github.com/ballerina-platform/ballerina-lang/issues/27371
-    @Test(description = "Test cyclic imports", enabled = false)
+    @Test(description = "Test cyclic imports")
     public void testCyclicImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-imports");
         assertEquals(result.getErrorCount(), 3);
-        validateError(result, 0, "cyclic module imports detected " +
-                                 "'cyclic_imports/def:1.0.0 -> cyclic_imports/ghi:1.0.0 -> cyclic_imports/def:1.0.0'",
-                2, 1);
+        validateError(result, 0, "cyclic module imports detected 'cyclic_imports.abc:0.1.0 -> " +
+                        "cyclic_imports.def:0.1.0 -> cyclic_imports.ghi:0.1.0 -> cyclic_imports.abc:0.1.0'",
+                1, 1);
         validateError(result, 1, "cyclic module imports detected " +
-                                 "'cyclic_imports/abc:1.0.0 -> cyclic_imports/def:1.0.0 -> " +
-                                 "cyclic_imports/ghi:1.0.0 -> cyclic_imports/jkl:1.0.0 -> cyclic_imports/abc:1.0.0'",
-                2, 1);
-        validateError(result, 2, "cyclic module imports detected 'cyclic_imports/abc:1.0.0 -> " +
-                                 "cyclic_imports/def:1.0.0 -> cyclic_imports/ghi:1.0.0 -> cyclic_imports/abc:1.0.0'",
-                3, 1);
+                        "'cyclic_imports.def:0.1.0 -> cyclic_imports.ghi:0.1.0 -> cyclic_imports.def:0.1.0'",
+                1, 1);
+        validateError(result, 2, "cyclic module imports detected " +
+                                 "'cyclic_imports.abc:0.1.0 -> cyclic_imports.def:0.1.0 -> " +
+                                 "cyclic_imports.ghi:0.1.0 -> cyclic_imports.jkl:0.1.0 -> cyclic_imports.abc:0.1.0'",
+                1, 1);
     }
 
     @Test(description = "Test importing same module name but with different org names")

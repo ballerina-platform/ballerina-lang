@@ -33,6 +33,7 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.PackageResolutionDiagnostic;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -42,6 +43,7 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -399,10 +401,26 @@ public class PackageResolution {
             Package resolvedPackage = pkgDependency.packageInstance();
             resolvedPackage.packageContext().resolveDependencies(dependencyResolution);
             DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
-            List<ModuleDescriptor> sortedModuleDescriptors = moduleDependencyGraph.toTopologicallySortedList();
-            for (ModuleDescriptor moduleDescriptor : sortedModuleDescriptors) {
-                ModuleContext moduleContext = resolvedPackage.module(moduleDescriptor.name()).moduleContext();
-                sortedModuleList.add(moduleContext);
+            List<ModuleDescriptor> sortedModuleDescriptors
+                    = moduleDependencyGraph.toTopologicallySortedListWithCycles();
+            if (sortedModuleDescriptors == null) {
+                for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                            DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
+                            "cyclic module imports detected ''"
+                                    + cycle.stream()
+                                    .map(desc -> desc.name().toString() + ":" + desc.version().toString())
+                                    .collect(Collectors.joining(" -> ")) + "''",
+                            DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
+                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                            resolvedPackage.descriptor().toString());
+                    diagnosticList.add(diagnostic);
+                }
+            } else {
+                for (ModuleDescriptor moduleDescriptor : sortedModuleDescriptors) {
+                    ModuleContext moduleContext = resolvedPackage.module(moduleDescriptor.name()).moduleContext();
+                    sortedModuleList.add(moduleContext);
+                }
             }
         }
         this.topologicallySortedModuleList = Collections.unmodifiableList(sortedModuleList);
