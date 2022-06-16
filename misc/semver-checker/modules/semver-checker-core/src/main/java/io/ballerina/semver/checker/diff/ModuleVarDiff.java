@@ -78,6 +78,7 @@ public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
 
         @Override
         public Optional<ModuleVarDiff> build() {
+            moduleVarDiff.setKind(DiffKind.MODULE_VAR);
             if (!moduleVarDiff.getChildDiffs().isEmpty()) {
                 moduleVarDiff.computeVersionImpact();
                 moduleVarDiff.setType(DiffType.MODIFIED);

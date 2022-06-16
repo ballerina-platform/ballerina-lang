@@ -73,7 +73,7 @@ public class SyntaxTreeUtils {
      */
     public static String getModuleVarIdentifier(ModuleVariableDeclarationNode moduleVarNode) {
         // Todo: implement a separate identifier capturing logics for each binding pattern type (high priority)
-        return moduleVarNode.typedBindingPattern().toSourceCode().trim();
+        return moduleVarNode.typedBindingPattern().bindingPattern().toSourceCode().trim();
     }
 
     /**

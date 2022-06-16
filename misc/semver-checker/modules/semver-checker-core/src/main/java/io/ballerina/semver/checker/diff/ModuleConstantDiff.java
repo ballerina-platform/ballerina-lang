@@ -69,21 +69,22 @@ public class ModuleConstantDiff extends NodeDiffImpl<ConstantDeclarationNode> {
      */
     public static class Builder extends NodeDiffImpl.Builder<ConstantDeclarationNode> {
 
-        private final ModuleConstantDiff moduleVarDiff;
+        private final ModuleConstantDiff moduleConstDiff;
 
         public Builder(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
             super(newNode, oldNode);
-            moduleVarDiff = new ModuleConstantDiff(newNode, oldNode);
+            moduleConstDiff = new ModuleConstantDiff(newNode, oldNode);
         }
 
         @Override
         public Optional<ModuleConstantDiff> build() {
-            if (!moduleVarDiff.getChildDiffs().isEmpty()) {
-                moduleVarDiff.computeVersionImpact();
-                moduleVarDiff.setType(DiffType.MODIFIED);
-                return Optional.of(moduleVarDiff);
-            } else if (moduleVarDiff.getType() == DiffType.NEW || moduleVarDiff.getType() == DiffType.REMOVED) {
-                return Optional.of(moduleVarDiff);
+            moduleConstDiff.setKind(DiffKind.MODULE_CONST);
+            if (!moduleConstDiff.getChildDiffs().isEmpty()) {
+                moduleConstDiff.computeVersionImpact();
+                moduleConstDiff.setType(DiffType.MODIFIED);
+                return Optional.of(moduleConstDiff);
+            } else if (moduleConstDiff.getType() == DiffType.NEW || moduleConstDiff.getType() == DiffType.REMOVED) {
+                return Optional.of(moduleConstDiff);
             }
 
             return Optional.empty();
@@ -91,31 +92,31 @@ public class ModuleConstantDiff extends NodeDiffImpl<ConstantDeclarationNode> {
 
         @Override
         public NodeDiffBuilder withType(DiffType diffType) {
-            moduleVarDiff.setType(diffType);
+            moduleConstDiff.setType(diffType);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withVersionImpact(SemverImpact versionImpact) {
-            moduleVarDiff.setVersionImpact(versionImpact);
+            moduleConstDiff.setVersionImpact(versionImpact);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withMessage(String message) {
-            moduleVarDiff.setMessage(message);
+            moduleConstDiff.setMessage(message);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiff(Diff childDiff) {
-            moduleVarDiff.childDiffs.add(childDiff);
+            moduleConstDiff.childDiffs.add(childDiff);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiffs) {
-            moduleVarDiff.childDiffs.addAll(childDiffs);
+            moduleConstDiff.childDiffs.addAll(childDiffs);
             return this;
         }
     }
