@@ -266,6 +266,71 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     }
 
     @Override
+    public PackageCompilation getCompilation(Snippet newSnippet) throws InvokerException {
+        if (!this.initialized.get()) {
+            throw new IllegalStateException("Invoker execution not initialized.");
+        }
+
+        newImports.clear();
+
+        // TODO: (#28036) Fix the closure bug.
+
+        variableDeclarations = new HashMap<>();
+        moduleDeclarations = new HashMap<>();
+        executableSnippets = new ArrayList<>();
+        variableNames = new ArrayList<>();
+
+        // Fill the required arrays/maps
+        // Only compilation to find import validity.
+        // All imports are done on-the-spot.
+        // Others are processed later.
+
+
+        if (newSnippet instanceof ImportDeclarationSnippet) {
+            processImport((ImportDeclarationSnippet) newSnippet);
+
+        } else if (newSnippet instanceof VariableDeclarationSnippet) {
+            VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) newSnippet;
+            variableNames.addAll(varDclnSnippet.names());
+            variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
+
+        } else if (newSnippet instanceof ModuleMemberDeclarationSnippet) {
+            ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
+            Identifier moduleDeclarationName = moduleDclnSnippet.name();
+            moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
+            Set<Identifier> usedPrefixes = newSnippet.usedImports().stream()
+                    .map(Identifier::new).collect(Collectors.toSet());
+            newImports.put(moduleDeclarationName, usedPrefixes);
+
+        } else if (newSnippet instanceof ExecutableSnippet) {
+            executableSnippets.add((ExecutableSnippet) newSnippet);
+
+        } else {
+            throw new UnsupportedOperationException("Unimplemented snippet category.");
+        }
+
+
+        noModuleDeclarations = moduleDeclarations.isEmpty();
+        noVariableDeclarations = variableDeclarations.isEmpty();
+        noExecutables = executableSnippets.isEmpty();
+        PackageCompilation compilation = null;
+        if (!(noModuleDeclarations && noVariableDeclarations && noExecutables)) {
+            if (noModuleDeclarations && noVariableDeclarations) {
+                // Compile declaration template if there were declarations
+                ClassLoadContext execContext = createVariablesExecutionContext(List.of(), executableSnippets, Map.of());
+                Project project = getProject(execContext, EXECUTION_TEMPLATE_FILE);
+                compilation = compile(project);
+            } else {
+                ClassLoadContext context = createDeclarationContext(variableDeclarations.keySet(), variableNames,
+                        moduleDeclarations);
+                project = getProject(context, DECLARATION_TEMPLATE_FILE);
+                compilation = compile(project);
+            }
+        }
+        return compilation;
+    }
+
+    @Override
     public Optional<Object> execute(Optional<PackageCompilation> compilation) throws InvokerException {
         // Compilation was successful, so we can add the declarations
         // to the persisted list. Here everything is persisted.

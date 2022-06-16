@@ -130,6 +130,15 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract PackageCompilation getCompilation(Collection<Snippet> newSnippets) throws InvokerException;
 
     /**
+     * Executes single snippet and returns the compilation.
+     * Snippet parameter should only include newly added snippet.
+     *
+     * @param newSnippets New snippet to execute.
+     * @return compilation.
+     */
+    public abstract PackageCompilation getCompilation(Snippet newSnippets) throws InvokerException;
+
+    /**
      * Executes snippets and returns the output lines.
      *
      * @param compilation compilation.
