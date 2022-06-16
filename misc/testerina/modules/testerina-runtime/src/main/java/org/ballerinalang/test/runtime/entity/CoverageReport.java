@@ -194,7 +194,7 @@ public class CoverageReport {
             createReport(coverageBuilder.getBundle(title), moduleCoverageMap, excludedFiles);
         }
 
-        filterGeneratedCoverage(coverageBuilder.getBundle(title), moduleCoverageMap, originalModule);
+        filterGeneratedCoverage(moduleCoverageMap, originalModule);
         return coverageBuilder;
     }
 
@@ -420,6 +420,89 @@ public class CoverageReport {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void filterGeneratedCoverage(Map<String, ModuleCoverage> moduleCoverageMap, Module originalModule) {
+
+        for (DocumentId documentId : originalModule.documentIds()) {
+            Document originalDocument = originalModule.document(documentId);
+            Document document = getDocument(originalModule.moduleName().toString(), originalDocument.name());
+
+            try {
+                // Use diff utils to analyze the text lines in the doc
+                Patch<String> stringPatch = DiffUtils.diff(originalDocument.textDocument().textLines(),
+                        document.textDocument().textLines());
+
+                if (!stringPatch.getDeltas().isEmpty()) {
+                    List<AbstractDelta<String>> patchDeltas = stringPatch.getDeltas();
+                    List<Integer> modifiedLines = new ArrayList();
+
+                    for (AbstractDelta<String> delta : patchDeltas) {
+                        // This means that we have to consider the block added
+                        if (delta.getType().equals(DeltaType.INSERT)) {
+                            int lineNumber = delta.getTarget().getPosition();
+                            int size = delta.getTarget().size();
+
+                            for (int i = lineNumber; i < lineNumber + size; i++) {
+                                modifiedLines.add(i);
+                            }
+                        }
+                    }
+
+                    ModuleCoverage moduleCoverage = moduleCoverageMap.get(originalModule.moduleName().toString());
+
+                    List<Integer> coveredLinesList = moduleCoverage.getCoveredLinesList(document.name()).get();
+                    List<Integer> missedLinesList = moduleCoverage.getMissedLinesList(document.name()).get();
+
+                    // Populate lineStatus with zeroes
+                    List<Integer> lineStatus = new ArrayList<>();
+                    for (int i = 0; i < document.textDocument().textLines().size(); i++) {
+                        lineStatus.add(0);
+                    }
+
+                    // Replace line status with respective covered and missed statuses
+                    for (Integer coveredLine : coveredLinesList) {
+                        lineStatus.remove(coveredLine - 1);
+                        lineStatus.add(coveredLine - 1, FULLY_COVERED);
+                    }
+                    for (Integer missedLine : missedLinesList) {
+                        lineStatus.remove(missedLine - 1);
+                        lineStatus.add(missedLine - 1, NOT_COVERED);
+                    }
+
+                    List<Integer> newLineStatus = new ArrayList<>();
+                    for (int i = 0; i < lineStatus.size(); i++) {
+                        if (modifiedLines.contains(i)) {
+                            continue;
+                        }
+                        newLineStatus.add(lineStatus.get(i));
+                    }
+
+                    List<Integer> newCoveredLines = new ArrayList<>();
+                    List<Integer> newMissedLines = new ArrayList<>();
+
+                    // Go through line status and get the new covered and missed lines
+                    for (int i = 0; i < newLineStatus.size(); i++) {
+                        if (newLineStatus.get(i).equals(FULLY_COVERED)) {
+                            newCoveredLines.add(i + 1);
+                        } else if (newLineStatus.get(i).equals(NOT_COVERED)) {
+                            newMissedLines.add(i + 1);
+                        }
+                    }
+
+                    // Remove previous source file module and replace it with new module coverage
+                    moduleCoverageMap.remove(originalModule.moduleName().toString());
+                    moduleCoverage.replaceCoverage(originalDocument, newCoveredLines, newMissedLines);
+                    moduleCoverageMap.put(originalModule.moduleName().toString(), moduleCoverage);
+                }
+
+            } catch (DiffException | NullPointerException e) {
+                // Diff exception caught when diff cannot be calculated properly
+                // NullPointer caught when a Generated Source File is passed or if its an empty file
+                // continue to consider other files in the coverage
+                continue;
             }
         }
     }
