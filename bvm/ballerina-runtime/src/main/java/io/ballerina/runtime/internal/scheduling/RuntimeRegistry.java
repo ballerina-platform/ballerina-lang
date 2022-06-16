@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -72,16 +73,17 @@ public class RuntimeRegistry {
             return;
         }
         AsyncUtils.blockStrand(strand);
-        invokeMethodAsync(strand, Scheduler.getStrand().scheduler);
+        invokeMethodAsync(strand, Scheduler.getStrand().scheduler, result -> { });
     }
 
-    private void invokeMethodAsync(Strand strand, Scheduler scheduler) {
+    private void invokeMethodAsync(Strand strand, Scheduler scheduler, Consumer<Object> futureResultConsumer) {
         Iterator<BObject> itr = listenerSet.iterator();
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
             public void notifySuccess(Object result) {
+                futureResultConsumer.accept(getFutureResult());
                 if (itr.hasNext()) {
-                    invokeMethodAsync(strand, scheduler);
+                    invokeMethodAsync(strand, scheduler, futureResultConsumer);
                 } else {
                     unblockStrand();
                 }
@@ -125,16 +127,16 @@ public class RuntimeRegistry {
             return;
         }
         AsyncUtils.blockStrand(strand);
-        scheduleNext(strand);
+        scheduleNext(strand, Scheduler.getStrand().scheduler);
     }
 
-    private void scheduleNext(Strand strand) {
+    private void scheduleNext(Strand strand, Scheduler scheduler) {
         BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
             public void notifySuccess(Object result) {
                 if (!stopHandlerStack.isEmpty()) {
-                    scheduleNext(strand);
+                    scheduleNext(strand, scheduler);
                 } else {
                     unblockStrand();
                 }

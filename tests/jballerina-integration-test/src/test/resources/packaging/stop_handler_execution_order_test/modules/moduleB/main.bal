@@ -27,7 +27,7 @@ function init() {
 }
 
 public function stopHandlerFunc() returns error? {
-    incrementAndAssertInt(12);
+    incrementAndAssertInt(10);
     panic error("Stopped moduleB");
 }
 
