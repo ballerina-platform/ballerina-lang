@@ -84,37 +84,29 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, Co
     return pipeline.getStream();
 }
 
-function toArray(stream<Type, CompletionType> strm, Type[] mutableArr, boolean isReadOnly) returns Type[]|error {
+function toArray(stream<Type, CompletionType> strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
+    if isReadOnly {
+        Type[] arr2 = [];
+        return createImmutableArray(check updateArray(strm, arr2));
+    }
+    return updateArray(strm, arr);
+}
+
+function updateArray(stream<Type, CompletionType> strm, Type[] arr) returns Type[]|error {
     record {| Type value; |}|error? v = strm.next();
-    (any|error)[] tempArr = [];
     while (v is record {| Type value; |}) {
-        tempArr.push(v.value);
+        arr.push(v.value);
         v = strm.next();
     }
     if (v is error) {
         return v;
     }
-
-    if isReadOnly {
-        // Type[] & readonly immutableArr = [...x];//createImmutableArray(mutableArr); // .cloneReadOnly();
-        Type[] immutableArr = createImmutableArray(tempArr);
-        print(typeof(immutableArr));
-        print(typeof(mutableArr));
-        return immutableArr; // createImmutableArray(tempArr);
-    }
-
-    print(typeof(mutableArr));
-    return <Type[]> tempArr;
+    return arr;
 }
 
 function createImmutableArray(Type[] arr) returns Type[] & readonly = @java:Method {
     'class: "org.ballerinalang.langlib.query.CreateImmutableType",
     name: "createImmutableArray"
-} external;
-
-function print(any|error a) = @java:Method {
-    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
-    name: "print"
 } external;
 
 function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {
@@ -160,29 +152,29 @@ function toString(stream<Type, CompletionType> strm) returns string|error {
 }
 
 function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err, boolean isReadOnly) returns table<map<Type>>|error {
+    if isReadOnly {
+        table<map<Type>> tbl2 = table [];
+        return createImmutableTable(check updateTable(strm, tbl2, err));
+    }
+    return updateTable(strm, tbl, err);
+}
+
+function updateTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
     record {| Type value; |}|CompletionType v = strm.next();
-    table<map<Type>> tbl2 = table [];
     while (v is record {| Type value; |}) {
-        error? e = trap tbl2.add(<map<Type>> checkpanic v.value);
+        error? e = trap tbl.add(<map<Type>> checkpanic v.value);
         if (e is error) {
             if (err is error) {
                 return err;
             }
-            tbl2.put(<map<Type>> checkpanic v.value);
+            tbl.put(<map<Type>> checkpanic v.value);
         }
         v = strm.next();
     }
     if (v is error) {
         return v;
     }
-
-    if isReadOnly {
-        //table<map<Type>> & readonly immutableTbl = createImmutableTable(tbl);
-        //return immutableTbl;
-        return createImmutableTable(tbl2);
-    }
-
-    return tbl2;
+    return tbl;
 }
 
 function createImmutableTable(table<map<Type>> arr) returns table<map<Type>> & readonly = @java:Method {
