@@ -1,0 +1,65 @@
+{
+  "name": "James Edgar",
+  "school": "Everton High",
+  "age": 17,
+  "sports": [
+    {
+      "sport": "Baseball",
+      "position": "Shortstop"
+    },
+    {
+      "sport": "Football",
+      "position": "Cornerback"
+    },
+    {
+      "sport": "Basketball",
+      "position": "Shooting Guard"
+    }
+  ],
+  "books": [
+    {
+      "name": "Catcher in the Rye",
+      "author": {
+        "name": "J D Salinger",
+        "country": "USA",
+        "period": "Early 20th Century"
+      }
+    },
+    {
+      "name": "Picture of Dorian Grey",
+      "author": {
+        "name": "Oscar Wilde",
+        "country": "England",
+        "period": "Late 19th Century"
+      }
+    },
+    {
+      "name": "Looking for Alaska",
+      "author": {
+        "name": "John Green",
+        "country": "USA",
+        "period": "Modern"
+      }
+    },
+    {
+      "name": "Things Fall Apart",
+      "author": {
+        "name": "Chinua Achebe",
+        "country": "Nigeria",
+        "period": "Mid 20th Century"
+      }
+    }
+  ],
+  "year": "Senior",
+  "honors": false,
+  "address": {
+    "number": "3324",
+    "street": "Magnolia Street",
+    "neighborhood": "Little Albany",
+    "city": "St. Louis",
+    "state": {
+      "name": "Missouri",
+      "code": "MO"
+    }
+  }
+}

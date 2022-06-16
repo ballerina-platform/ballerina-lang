@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tests for JsonToRecordDirectConverter.
@@ -48,30 +50,60 @@ public class JsonToRecordDirectConverterTests {
             .resolve("sample_2.json");
     private final Path sample2Bal = RES_DIR.resolve("ballerina")
             .resolve("sample_2.bal");
-    @Test(description = "Test with basic json value")
-    public void testBasicJson() throws FormatterException, IOException {
-        String jsonFileContent = Files.readString(sample0Json);
-        String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
-                replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample0Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
-    }
 
-    @Test(description = "Test with basic json value contains arrays")
-    public void testJsonWithArray() throws FormatterException, IOException {
-        String jsonFileContent = Files.readString(sample1Json);
-        String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
-                replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample1Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
-    }
+    private final Path sample3Json = RES_DIR.resolve("json")
+            .resolve("sample_3.json");
+    private final Path sample3Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_3.bal");
 
-    @Test(description = "Test with basic nested json value")
-    public void testNestedJson() throws FormatterException, IOException {
-        String jsonFileContent = Files.readString(sample2Json);
-        String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
-                replaceAll("\\s+", "");
-        String expectedCodeBlock = Files.readString(sample2Bal).replaceAll("\\s+", "");
-        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+    private final Path sample4Json = RES_DIR.resolve("json")
+            .resolve("sample_4.json");
+    private final Path sample4Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_4.bal");
+
+    private final Path sample5Json = RES_DIR.resolve("json")
+            .resolve("sample_5.json");
+    private final Path sample5Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_5.bal");
+
+    private final Path sample6Json = RES_DIR.resolve("json")
+            .resolve("sample_6.json");
+    private final Path sample6Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_6.bal");
+
+    private final Path sample7Json = RES_DIR.resolve("json")
+            .resolve("sample_7.json");
+    private final Path sample7Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_7.bal");
+
+    private final Path sample8Json = RES_DIR.resolve("json")
+            .resolve("sample_8.json");
+    private final Path sample8Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_8.bal");
+
+    @Test(description = "Test all sample JSON values")
+    public void testSamples() throws IOException, FormatterException {
+        Map<Path, Path> samples = new HashMap<>();
+        samples.put(sample0Json, sample0Bal);
+        samples.put(sample1Json, sample1Bal);
+        samples.put(sample2Json, sample2Bal);
+        samples.put(sample3Json, sample3Bal);
+        samples.put(sample4Json, sample4Bal);
+        samples.put(sample5Json, sample5Bal);
+        samples.put(sample6Json, sample6Bal);
+        samples.put(sample7Json, sample7Bal);
+        samples.put(sample8Json, sample8Bal);
+        for (Map.Entry<Path, Path> sample : samples.entrySet()) {
+            String jsonFileContent = Files.readString(sample.getKey());
+            String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
+                    replaceAll("\\s+", "");
+            String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
+            Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        }
     }
 }
+
+
+//typePatientrecord{stringreference;};typeInsurerrecord{stringreference;};typePriorityrecord{CodingItem[]coding;};typePrescriptionrecord{stringreference;};typeTyperecord{CodingItem[]coding;};typePayeerecord{Type'type;};typeProviderrecord{stringreference;};typeCareTeamItemrecord{intsequence;Providerprovider;};typeDiagnosisCodeableConceptrecord{CodingItem[]coding;};typeDiagnosisItemrecord{intsequence;DiagnosisCodeableConceptdiagnosisCodeableConcept;};typeCoveragerecord{stringreference;};typeInsuranceItemrecord{intsequence;booleanfocal;Coveragecoverage;};typeCodingItemrecord{stringcode;};typeProductOrServicerecord{CodingItem[]coding;};typeUnitPricerecord{stringcurrency;decimalvalue;};typeNetrecord{stringcurrency;decimalvalue;};typeDetailItemrecord{intsequence;ProductOrServiceproductOrService;UnitPriceunitPrice;Netnet;};typeItemItemrecord{intsequence;int[]careTeamSequence;ProductOrServiceproductOrService;stringservicedDate;UnitPriceunitPrice;Netnet;DetailItem[]detail;};typeNewRecordrecord{stringresourceType;stringid;Texttext;IdentifierItem[]identifier;stringstatus;Type'type;stringuse;Patientpatient;stringcreated;Insurerinsurer;Providerprovider;Prioritypriority;Prescriptionprescription;Payeepayee;CareTeamItem[]careTeam;DiagnosisItem[]diagnosis;InsuranceItem[]insurance;ItemItem[]item;};]
+//typeCodingItemrecord{stringsystem;stringcode;};typeTyperecord{CodingItem[]coding;};typePatientrecord{stringreference;};typeInsurerrecord{stringreference;};typeProviderrecord{stringreference;};typePriorityrecord{CodingItem[]coding;};typePrescriptionrecord{stringreference;};typePayeerecord{Typetype;};typeCareTeamItemrecord{intsequence;Providerprovider;};typeDiagnosisCodeableConceptrecord{CodingItem[]coding;};typeDiagnosisItemrecord{intsequence;DiagnosisCodeableConceptdiagnosisCodeableConcept;};typeCoveragerecord{stringreference;};typeInsuranceItemrecord{intsequence;booleanfocal;Coveragecoverage;};typeProductOrServicerecord{CodingItem[]coding;};typeUnitPricerecord{decimalvalue;stringcurrency;};typeNetrecord{decimalvalue;stringcurrency;};typeDetailItemrecord{intsequence;ProductOrServiceproductOrService;UnitPriceunitPrice;Netnet;};typeItemItemrecord{intsequence;int[]careTeamSequence;ProductOrServiceproductOrService;stringservicedDate;UnitPriceunitPrice;Netnet;DetailItem[]detail;};typeNewRecordrecord{stringresourceType;stringid;Texttext;IdentifierItem[]identifier;stringstatus;Typetype;stringuse;Patientpatient;stringcreated;Insurerinsurer;Providerprovider;Prioritypriority;Prescriptionprescription;Payeepayee;CareTeamItem[]careTeam;DiagnosisItem[]diagnosis;InsuranceItem[]insurance;ItemItem[]item;};]
+

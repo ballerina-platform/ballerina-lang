@@ -14,4 +14,3 @@ type NewRecord record {
 	SportsItem[] sports;
 	MathsItem[] maths;
 };
-
