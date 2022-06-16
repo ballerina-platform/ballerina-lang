@@ -27,6 +27,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+
 /**
  * This contains methods to test query expression with xml result.
  *
@@ -34,11 +36,42 @@ import org.testng.annotations.Test;
  */
 public class XMLQueryExpressionTest {
 
-    private CompileResult result;
+    private CompileResult result, negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/xml-query-expression.bal");
+        negativeResult = BCompileUtil.compile("test-src/query/xml-query-expression-negative.bal");
+    }
+
+    @Test(description = "Negative Query expr for XML tests")
+    public void testNegativeQueryExprForXML() {
+        int index = 0;
+        validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'," +
+                        " found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'", 21, 16);
+        validateError(negativeResult, index++, "incompatible types: expected 'xml:Element & readonly', " + "" +
+                "found 'xml:Element'", 25, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<(xml:Element & readonly)> & readonly', found 'xml:Element'",
+                29, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
+                "& readonly)> & readonly', found 'xml:Comment'", 34, 16);
+        validateError(negativeResult, index++, "incompatible types: expected 'xml:Comment & readonly', " +
+                "found 'xml:Comment'", 37, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<(xml:Comment & readonly)> & readonly', found 'xml:Comment'",
+                40, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)" +
+                " & readonly)> & readonly', found 'xml:ProcessingInstruction'", 45, 16);
+        validateError(negativeResult, index++, "incompatible types: expected 'xml:ProcessingInstruction & readonly'," +
+                " found 'xml:ProcessingInstruction'", 48, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<(xml:ProcessingInstruction & readonly)> & readonly', " +
+                "found 'xml:ProcessingInstruction'", 51, 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test(description = "Test simple query expression for XMLs - #1")

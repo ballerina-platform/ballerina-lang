@@ -595,29 +595,27 @@ function testQueryExpressionIteratingOverStreamReturningXML() returns xml {
 }
 
 function testSimpleQueryExprForXMLWithReadonly1() {
-    xml book1 = xml `<book>
-                           <name>Sherlock Holmes</name>
-                           <author>Sir Arthur Conan Doyle</author>
-                           <name>The Da Vinci Code</name>
-                           <author>Dan Brown</author>
-                    </book>`;
+    xml & readonly book1 = xml `<name>Sherlock Holmes</name>`;
 
-    xml & readonly books1 = from xml x in book1/<name>
+    xml & readonly books1 = from var x in book1
         select x;
-    any _ = <readonly> books1;
-    assertEquality(books1.toString(), (xml `<name>Sherlock Holmes</name><name>The Da Vinci Code</name>`).toString());
 
-    xml:Element & readonly books2 = from var x in book1/<name>
+    any _ = <readonly> books1;
+    assertEquality(books1.toString(), (xml `<name>Sherlock Holmes</name>`).toString());
+
+    xml:Element & readonly books2 = from var x in book1
+        where x is xml:Element
         select x;
     any _ = <readonly> books2;
-    assertEquality(books2.toString(), (xml `<name>Sherlock Holmes</name><name>The Da Vinci Code</name>`).toString());
+    assertEquality(books2.toString(), (xml `<name>Sherlock Holmes</name>`).toString());
 
-    xml<xml:Element> & readonly books3 = from xml:Element x in book1/<name>
+    xml<xml:Element> & readonly books3 = from xml x in book1
+        where x is xml:Element
         select x;
     any _ = <readonly> books3;
-    assertEquality(books3.toString(), (xml `<name>Sherlock Holmes</name><name>The Da Vinci Code</name>`).toString());
+    assertEquality(books3.toString(), (xml `<name>Sherlock Holmes</name>`).toString());
 
-    xml:Comment[] comments = [xml `<!--This is a comment 1-->`, xml `<!--This is a comment 1-->`];
+    xml:Comment[] & readonly comments = [xml `<!--This is a comment 1-->`, xml `<!--This is a comment 1-->`];
 
     xml & readonly cmnt1 = from xml x in comments
         select x;
@@ -634,7 +632,7 @@ function testSimpleQueryExprForXMLWithReadonly1() {
     any _ = <readonly> cmnt3;
     assertEquality(cmnt3.toString(), (xml `<!--This is a comment 1--><!--This is a comment 1-->`).toString());
 
-    xml:ProcessingInstruction[] processingInstructions = [xml `<?target data?>`, xml `<?target url?>`];
+    xml:ProcessingInstruction[] & readonly processingInstructions = [xml `<?target data?>`, xml `<?target url?>`];
 
     xml & readonly pi1 = from xml x in processingInstructions
         select x;
@@ -675,19 +673,19 @@ function testSimpleQueryExprForXMLWithReadonly2() {
     xml:Comment comment = xml `<!--This is a comment 1-->`;
     xml compositeXml1 = theXml + bitOfText + processingInstruction + comment;
 
-    xml & readonly finalOutput1 = from var elem in compositeXml1
+    xml & readonly finalOutput1 = from var elem in compositeXml1.cloneReadOnly()
         select elem;
     any _ = <readonly> finalOutput1;
     assertEquality(finalOutput1.toString(), (xml `<book>the book</book>bit of text\u2702\u2705<?target data?><!--This is a comment 1-->`).toString());
 
     xml<xml:ProcessingInstruction|xml:Comment|xml:Element> compositeXml2 = theXml + processingInstruction + comment;
 
-    xml & readonly finalOutput2 = from var elem in compositeXml2
+    xml & readonly finalOutput2 = from var elem in compositeXml2.cloneReadOnly()
         select elem;
     any _ = <readonly> finalOutput2;
     assertEquality(finalOutput2.toString(), (xml `<book>the book</book><?target data?><!--This is a comment 1-->`).toString());
 
-    xml<xml:ProcessingInstruction|xml:Comment|xml:Element> & readonly finalOutput3 = from var elem in compositeXml2
+    xml<xml:ProcessingInstruction|xml:Comment|xml:Element> & readonly finalOutput3 = from var elem in compositeXml2.cloneReadOnly()
         select elem;
     any _ = <readonly> finalOutput3;
     assertEquality(finalOutput3.toString(), (xml `<book>the book</book><?target data?><!--This is a comment 1-->`).toString());
@@ -726,7 +724,7 @@ function testSimpleQueryExprForXMLWithReadonly3() {
                     </bookstore>`;
 
     xml & readonly finalOutput = from var price in bookstore/**/<price>
-        select price;
+        select price.cloneReadOnly();
     any _ = <readonly> finalOutput;
     assertEquality(finalOutput.toString(), (xml `<price>30.00</price><price>29.99</price><price>49.99</price><price>39.95</price>`).toString());
 }
@@ -749,7 +747,7 @@ function testQueryExprWithLimitForXMLWithReadonly() {
 
     xml & readonly authors = from var book in bookStore/<book>/<author>
         limit 2
-        select book;
+        select book.cloneReadOnly();
     any _ = <readonly> authors;
     assertEquality(authors.toString(), (xml `<author>Sir Arthur Conan Doyle</author><author>Dan Brown</author>`).toString());
 }
@@ -776,7 +774,7 @@ function testQueryExprWithWhereLetClausesForXMLWithReadonly() {
     xml & readonly authors = from var x in bookStore/<book>/<author>
         let string authorDetails = "<author>Enid Blyton</author>"
         where x.toString() == authorDetails
-        select x;
+        select x.cloneReadOnly();
     any _ = <readonly> authors;
     assertEquality(authors.toString(), (xml `<author>Enid Blyton</author>`).toString());
 }
@@ -808,7 +806,7 @@ function testQueryExprWithMultipleFromClausesForXMLWithReadonly() {
 
     xml & readonly authors = from var x in bookStore/<book>/<author>
         from var y in authorList/<author>/<name>
-        select y;
+        select y.cloneReadOnly();
     any _ = <readonly> authors;
     assertEquality(authors.toString(), (xml `<name>Sir Arthur Conan Doyle</name><name>Dan Brown</name><name>Sir Arthur Conan Doyle</name><name>Dan Brown</name>`).toString());
 }
@@ -827,7 +825,7 @@ function testSimpleQueryExprForXMLOrNilResultWithReadonly1() {
     xml book = book1 + book2;
 
     xml? & readonly books = from var x in book/<name>
-        select x;
+        select x.cloneReadOnly();
     any _ = <readonly> books;
     assertEquality(books.toString(), (xml `<name>Sherlock Holmes</name><name>The Da Vinci Code</name>`).toString());
 }
@@ -838,7 +836,7 @@ function testSimpleQueryExprForXMLOrNilResultWithReadonly2() {
     xml compositeXml = theXml + bitOfText;
 
     xml? & readonly finalOutput = from var elem in compositeXml
-        select elem;
+        select elem.cloneReadOnly();
     any _ = <readonly> finalOutput;
     assertEquality(finalOutput.toString(), (xml `<book>the book</book>bit of text\u2702\u2705`).toString());
 }
@@ -876,7 +874,7 @@ function testSimpleQueryExprForXMLOrNilResultWithReadonly3() {
                     </bookstore>`;
 
     xml? & readonly finalOutput = from var price in bookstore/**/<price>
-        select price;
+        select price.cloneReadOnly();
     any _ = <readonly> finalOutput;
     assertEquality(finalOutput.toString(), (xml `<price>30.00</price><price>29.99</price><price>49.99</price><price>39.95</price>`).toString());
 }
@@ -899,7 +897,7 @@ function testQueryExprWithLimitForXMLOrNilResultWithReadonly() {
 
     xml? & readonly authors = from var book in bookStore/<book>/<author>
         limit 2
-        select book;
+        select book.cloneReadOnly();
     any _ = <readonly> authors;
     assertEquality(authors.toString(), (xml `<author>Sir Arthur Conan Doyle</author><author>Dan Brown</author>`).toString());
 }
@@ -926,7 +924,7 @@ function testQueryExprWithWhereLetClausesForXMLOrNilResultWithReadonly() {
     xml? & readonly authors = from var x in bookStore/<book>/<author>
         let string authorDetails = "<author>Enid Blyton</author>"
         where x.toString() == authorDetails
-        select x;
+        select x.cloneReadOnly();
     any _ = <readonly> authors;
     assertEquality(authors.toString(), (xml `<author>Enid Blyton</author>`).toString());
 }
@@ -958,7 +956,7 @@ function testQueryExprWithMultipleFromClausesForXMLOrNilResultWithReadonly() {
 
     xml? & readonly authors = from var x in bookStore/<book>/<author>
         from var y in authorList/<author>/<name>
-        select y;
+        select y.cloneReadOnly();
     any _ = <readonly> authors;
     assertEquality(authors.toString(), (xml `<name>Sir Arthur Conan Doyle</name><name>Dan Brown</name><name>Sir Arthur Conan Doyle</name><name>Dan Brown</name>`).toString());
 }
@@ -977,7 +975,7 @@ function testSimpleQueryExprWithVarForXMLWithReadonly() {
     xml book = book1 + book2;
 
     xml & readonly books = from var x in book/<name>
-        select x;
+        select x.cloneReadOnly();
     any _ = <readonly> books;
     assertEquality(books.toString(), (xml `<name>Sherlock Holmes</name><name>The Da Vinci Code</name>`).toString());
 }
@@ -996,7 +994,7 @@ function testSimpleQueryExprWithListForXMLWithReadonly() {
     xml book = book1 + book2;
 
     xml:Element[] & readonly books = from var x in book/<name>
-        select x;
+        select x.cloneReadOnly();
     any _ = <readonly> books;
     assertEquality(books.toString(), ([xml `<name>Sherlock Holmes</name>`, xml `<name>The Da Vinci Code</name>`]).toString());
 }
@@ -1015,7 +1013,7 @@ function testSimpleQueryExprWithUnionTypeForXMLWithReadonly1() {
     xml book = book1 + book2;
 
     error|xml & readonly books = from var x in book/<name>
-        select x;
+        select x.cloneReadOnly();
     any _ = <readonly> checkpanic books;
     assertEquality((checkpanic books).toString(), (xml `<name>Sherlock Holmes</name><name>The Da Vinci Code</name>`).toString());
 }
@@ -1034,7 +1032,7 @@ function testSimpleQueryExprWithUnionTypeForXMLWithReadonly2() {
     xml book = book1 + book2;
 
     xml[] & readonly books = from var x in book/<name>
-        select x;
+        select x.cloneReadOnly();
     any _ = <readonly> books;
     assertEquality(books.toString(), ([xml `<name>Sherlock Holmes</name>`, xml `<name>The Da Vinci Code</name>`]).toString());
 }
@@ -1081,7 +1079,7 @@ public function testSimpleQueryExprWithNestedXMLElementsWithReadonly() {
 function testQueryExpressionIteratingOverXMLInFromWithReadonly() {
     xml x = xml `<foo>Hello<bar>World</bar></foo>`;
     xml & readonly res = from xml y in x
-        select y;
+        select y.cloneReadOnly();
     any _ = <readonly> res;
     assertEquality(res.toString(), (xml `<foo>Hello<bar>World</bar></foo>`).toString());
 }
@@ -1097,7 +1095,7 @@ function testQueryExpressionIteratingOverXMLTextInFromWithReadonly() {
 function testQueryExpressionIteratingOverXMLElementInFromWithReadonly() {
     xml<xml:Element> x = xml `<foo>Hello<bar>World</bar></foo>`;
     xml<xml:Element> & readonly res = from xml:Element y in x
-        select y;
+        select y.cloneReadOnly();
     any _ = <readonly> res;
     assertEquality(res.toString(), (xml `<foo>Hello<bar>World</bar></foo>`).toString());
 }
@@ -1105,7 +1103,7 @@ function testQueryExpressionIteratingOverXMLElementInFromWithReadonly() {
 function testQueryExpressionIteratingOverXMLPIInFromWithReadonly() {
     xml<xml:ProcessingInstruction> x = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
     xml & readonly res = from var y in x
-        select y;
+        select y.cloneReadOnly();
     any _ = <readonly> res;
     assertEquality(res.toString(), (xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`).toString());
 }
@@ -1129,7 +1127,7 @@ function testQueryExpressionIteratingOverXMLWithOtherClausesWithReadonly() {
     xml & readonly res = from xml<xml:Element> book in bookStore/<book>/<author>
         order by book.toString()
         limit 2
-        select book;
+        select book.cloneReadOnly();
     any _ = <readonly> res;
     assertEquality(res.toString(), (xml `<author>Dan Brown</author><author>Enid Blyton</author>`).toString());
 }
@@ -1137,7 +1135,7 @@ function testQueryExpressionIteratingOverXMLWithOtherClausesWithReadonly() {
 function testQueryExpressionIteratingOverXMLInFromWithXMLOrNilResultWithReadonly() {
     xml<xml:Comment> x = xml `<!-- this is a comment text -->`;
     xml? & readonly res = from var y in x
-        select y;
+        select y.cloneReadOnly();
     any _ = <readonly> res;
     assertEquality(res.toString(), (xml `<!-- this is a comment text -->`).toString());
 }
@@ -1160,7 +1158,7 @@ function testQueryExpressionIteratingOverXMLInFromInInnerQueriesWithReadonly() {
 
     xml & readonly res = from var book in (from xml:Element e in bookStore/<book>/<author>
             select e)
-        select book;
+        select book.cloneReadOnly();
     any _ = <readonly> res;
     assertEquality(res.toString(), (xml `<author>Enid Blyton</author><author>Sir Arthur Conan Doyle</author><author>Dan Brown</author>`).toString());
 }
@@ -1225,7 +1223,7 @@ function testQueryExpressionIteratingOverXMLWithNamespacesWithReadonly() {
 
     xml & readonly res = from var fname in x/<fname>
         where fname?.ns:status == "active"
-        select fname;
+        select fname.cloneReadOnly();
     any _ = <readonly> res;
     assertEquality(res.toString(), (xml `<fname xmlns:ns="foo" ns:status="active">Mike</fname>`).toString());
 }
@@ -1272,4 +1270,3 @@ function assertEquality(any|error actual, any|error expected) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
-
