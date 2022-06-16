@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.impl;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -177,7 +178,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         List<BAttachedFunction> newAttachedFuncs = new ArrayList<>();
         for (BAttachedFunction attachedFunc : objectTypeSymbol.attachedFuncs) {
             BType newType = resolve(attachedFunc.type, boundType);
-            BInvokableSymbol newInvokableSymbol = resolveInvokableSymbol(attachedFunc.symbol, newType, boundType);
+            BInvokableSymbol newInvokableSymbol = resolveInvokableSymbol(attachedFunc.symbol, (BInvokableType) newType, boundType);
             BAttachedFunction newAttachedFunc = new BAttachedFunction(attachedFunc.funcName, newInvokableSymbol,
                                                     (BInvokableType) newType, attachedFunc.pos);
             newAttachedFuncs.add(newAttachedFunc);
@@ -190,7 +191,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
         newObjectType.fields = newObjectFields;
         newTypeSymbol.attachedFuncs = newAttachedFuncs;
-
+        newTypeSymbol.type = newObjectType;
         return newObjectType;
     }
 
@@ -263,13 +264,30 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BInvokableType typeInSymbol, BType boundType) {
-        return typeInSymbol;
+        List<BType> newParamTypes = new ArrayList<>();
+        for (BType paramType : typeInSymbol.paramTypes) {
+            BType newType = resolve(paramType, boundType);
+            newParamTypes.add(newType);
+        }
+        BType newRestParamType = null;
+        if (typeInSymbol.restType != null) {
+            newRestParamType = resolve(typeInSymbol.restType, boundType);
+        }
+        BType newReturnType = null;
+        if (typeInSymbol.retType != null) {
+            newReturnType = resolve(typeInSymbol.retType, boundType);
+        }
+        return new BInvokableType(newParamTypes, newRestParamType, newReturnType, typeInSymbol.tsymbol);
     }
 
     @Override
     public BType visit(BUnionType typeInSymbol, BType boundType) {
         LinkedHashSet<BType> newMembers = new LinkedHashSet<>();
         boolean areAllSameType = true;
+
+        if (typeInSymbol.isCyclic) {
+            return resolveCyclicUnionType(typeInSymbol, boundType);
+        }
 
         for (BType memberType : typeInSymbol.getOriginalMemberTypes()) {
             BType newType = resolve(memberType, boundType);
@@ -340,9 +358,10 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         return duplicateSymbol;
     }
 
-    private BInvokableSymbol resolveInvokableSymbol(BInvokableSymbol symbol, BType newInvokableType, BType boundType) {
+    private BInvokableSymbol resolveInvokableSymbol(BInvokableSymbol symbol,
+                                                    BInvokableType newInvokableType,
+                                                    BType boundType) {
         BInvokableSymbol newInvokableSymbol = duplicateSymbol(symbol);
-        newInvokableSymbol.type = newInvokableType;
 
         for (BVarSymbol param : symbol.params) {
             BType newParamType = resolve(param.type, boundType);
@@ -351,12 +370,75 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         }
 
         if (symbol.restParam != null) {
-            BType newReturnType = resolve(symbol.restParam.type, boundType);
-            newInvokableSymbol.restParam = createNewVarSymbol(symbol.restParam, newReturnType);
+            BType newRestParam = resolve(symbol.restParam.type, boundType);
+            newInvokableSymbol.restParam = createNewVarSymbol(symbol.restParam, newRestParam);
         }
 
         newInvokableSymbol.retType = resolve(symbol.retType, boundType);
+
+        BInvokableTypeSymbol originalTSymbol = (BInvokableTypeSymbol) newInvokableType.tsymbol;
+        BInvokableTypeSymbol newInvokableTypeSym = Symbols.createInvokableTypeSymbol(originalTSymbol.tag,
+                originalTSymbol.flags, originalTSymbol.pkgID, newInvokableType, originalTSymbol.owner,
+                originalTSymbol.pos, originalTSymbol.origin);
+        newInvokableTypeSym.params = newInvokableSymbol.params;
+        newInvokableTypeSym.restParam = newInvokableSymbol.restParam;
+        newInvokableTypeSym.returnType = newInvokableSymbol.retType;
+
+        newInvokableType.tsymbol = newInvokableTypeSym;
+        newInvokableSymbol.type = newInvokableType;
+
         return newInvokableSymbol;
+    }
+
+    private BUnionType resolveCyclicUnionType(BUnionType typeInSymbol, BType boundType) {
+        return typeInSymbol;
+//        LinkedHashSet<BType> newMembers = new LinkedHashSet<>();
+//        boolean areAllSameType = true;
+//
+//        for (BType memberType : typeInSymbol.getOriginalMemberTypes()) {
+//            if (memberType instanceof BArrayType) {
+//                BArrayType arrayType = (BArrayType) memberType;
+//                if (arrayType.eType == typeInSymbol) {
+////                    BArrayType newArrayType = new BArrayType(typeInSymbol, arrayType.tsymbol, arrayType.size,
+////                            arrayType.state, arrayType.flags);
+//                    newMembers.add(arrayType);
+//                    continue;
+//                }
+//            } else if (memberType instanceof BMapType) {
+//                BMapType mapType = (BMapType) memberType;
+//                if (mapType.constraint == typeInSymbol) {
+////                    BMapType newMapType = new BMapType(mapType.tag, typeInSymbol, mapType.tsymbol, mapType.flags);
+//                    newMembers.add(mapType);
+//                    continue;
+//                }
+//            } else if (memberType instanceof BTableType) {
+//                BTableType tableType = (BTableType) memberType;
+//                if (tableType.constraint == typeInSymbol) {
+////                    BTableType newTableType = new BTableType(tableType.tag, typeInSymbol, tableType.tsymbol,
+////                            tableType.flags);
+//                    newMembers.add(tableType);
+//                    continue;
+//                } else if (tableType.constraint instanceof BMapType) {
+//                    BMapType mapType = (BMapType) tableType.constraint;
+//                    if (mapType.constraint == typeInSymbol) {
+////                        BMapType newMapType = new BMapType(mapType.tag, typeInSymbol, mapType.tsymbol, mapType.flags);
+//                        BTableType newTableType = new BTableType(tableType.tag, mapType, tableType.tsymbol,
+//                                tableType.flags);
+//                        newMembers.add(newTableType);
+//                        continue;
+//                    }
+//                }
+//            }
+//            BType newType = resolve(memberType, boundType);
+//            areAllSameType &= newType == memberType;
+//            newMembers.add(memberType);
+//        }
+//
+//        if (areAllSameType) {
+//            return typeInSymbol;
+//        }
+//
+//        return BUnionType.create(typeInSymbol.tsymbol, newMembers);
     }
 
     private BVarSymbol duplicateSymbol(BVarSymbol original) {
