@@ -18,12 +18,10 @@
 
 package io.ballerina.shell.cli;
 
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.ExceptionStatus;
-import io.ballerina.shell.ShellCompilation;
 import io.ballerina.shell.ShellReturnValue;
 import io.ballerina.shell.cli.handlers.CommandHandler;
 import io.ballerina.shell.cli.handlers.DeleteCommand;
@@ -36,7 +34,6 @@ import io.ballerina.shell.cli.handlers.ToggleDebugCommand;
 import io.ballerina.shell.cli.utils.FileUtils;
 import io.ballerina.shell.exceptions.BallerinaShellException;
 import io.ballerina.shell.utils.ModuleImporter;
-import io.ballerina.shell.preprocessor.SeparatorPreprocessor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -116,34 +113,26 @@ public class BallerinaShell {
             rightPrompt = terminal.color(rightPrompt, TerminalAdapter.BRIGHT);
             String result;
             try {
-                String mainSource = terminal.readLine(leftPrompt, rightPrompt).trim();
+                String source = terminal.readLine(leftPrompt, rightPrompt).trim();
                 start = Instant.now();
-                SeparatorPreprocessor preProcessor = new SeparatorPreprocessor();
-                Collection<String> process = preProcessor.process(mainSource);
-                for (String source: process) {
-                    if (!commandHandler.handle(source)) {
-                        ShellCompilation shellCompilation = evaluator.getCompilation(source);
-                        Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                        if (ExceptionStatus.SUCCESS == shellCompilation.getExceptionStatus()) {
-                            Optional<ShellReturnValue> shellReturnValue = evaluator.getValue(compilation);
-                            if (shellReturnValue.isPresent() &&
-                                    shellReturnValue.get().getExceptionStatus() == ExceptionStatus.SUCCESS) {
-                                result = shellReturnValue.get().getResult();
-                                terminal.result(result);
-                            } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
-                                    ExceptionStatus.INVOKER_FAILED) {
-                                if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                                    currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
-                                    evaluator.resetDiagnostics();
-                                    executeChanges(source, currentStateDiagnostics);
-                                }
-                            }
-                        } else if (shellCompilation.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
+                if (!commandHandler.handle(source)) {
+                    Optional<ShellReturnValue> shellReturnValue = evaluator.execute(source);
+                    if (shellReturnValue.isPresent() && ExceptionStatus.SUCCESS ==
+                            shellReturnValue.get().getExceptionStatus()) {
+                        result = shellReturnValue.get().getResult();
+                        terminal.result(result);
+                    } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
+                                ExceptionStatus.INVOKER_FAILED) {
                             if (isContainsUndefinedModules(evaluator.diagnostics())) {
                                 currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
                                 evaluator.resetDiagnostics();
                                 executeChanges(source, currentStateDiagnostics);
                             }
+                    } else if (shellReturnValue.get().getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
+                        if (isContainsUndefinedModules(evaluator.diagnostics())) {
+                            currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
+                            evaluator.resetDiagnostics();
+                            executeChanges(source, currentStateDiagnostics);
                         }
                     }
                 }
@@ -319,9 +308,7 @@ public class BallerinaShell {
                     String importSource = moduleImporter.getImportStatement(module);
                     terminal.info("\nAdding import: " + importSource);
                     try {
-                        ShellCompilation shellCompilation = evaluator.getCompilation(importSource);
-                        Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                        evaluator.getValue(compilation);
+                        evaluator.execute(importSource);
                         terminal.info("Import added: " + importSource);
                     } catch (BallerinaShellException ex) {
                         terminal.error("Error occurred while adding imports.");
@@ -388,10 +375,8 @@ public class BallerinaShell {
             importModules(moduleImporter, modules);
             try {
                 terminal.println("");
-                ShellCompilation shellCompilation = evaluator.getCompilation(source);
-                Optional<PackageCompilation> compilation = shellCompilation.getPackageCompilation();
-                ShellReturnValue shellReturnValue = evaluator.getValue(compilation).get();
-                String result = shellReturnValue.getResult();
+                Optional<ShellReturnValue> shellReturnValue= evaluator.execute(source);
+                String result = shellReturnValue.get().getResult();
                 terminal.result(result);
             } catch (BallerinaShellException error) {
                 terminal.error("\nCompilation aborted due to errors.");

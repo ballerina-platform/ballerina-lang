@@ -132,6 +132,82 @@ class EvaluatorImpl extends Evaluator {
     }
 
     @Override
+    public Optional<ShellReturnValue> execute(String source) throws BallerinaShellException {
+            String result = null;
+            ExceptionStatus exceptionStatus = null;
+            PackageCompilation compilation;
+            try {
+                Collection<Node> nodes = treeParser.parseString(source);
+                Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
+                for (Snippet snippet: snippets) {
+                    compilation = invoker.getCompilation(snippet);
+                    Optional<Object> invokerOut = invoker.execute(Optional.ofNullable(compilation));
+                    result = invokerOut.map(StringUtils::getExpressionStringValue).orElse(null);
+                    exceptionStatus = ExceptionStatus.SUCCESS;
+                    addAllDiagnostics(invoker.diagnostics());
+                    invoker.resetDiagnostics();
+                }
+                return Optional.of(new ShellReturnValue(result, exceptionStatus));
+            } catch (InvokerPanicException e) {
+                addAllDiagnostics(invoker.diagnostics());
+                invoker.resetDiagnostics();
+                throw e;
+            } catch (TreeParserException e) {
+                exceptionStatus = ExceptionStatus.TREE_PARSER_FAILED;
+                clearDiagnostics(exceptionStatus);
+                return Optional.of(new ShellReturnValue(exceptionStatus));
+            } catch (SnippetException e) {
+                exceptionStatus = ExceptionStatus.SNIPPET_FAILED;
+                clearDiagnostics(exceptionStatus);
+                return Optional.of(new ShellReturnValue(exceptionStatus));
+            } catch (InvokerException e) {
+                exceptionStatus = ExceptionStatus.INVOKER_FAILED;
+                clearDiagnostics(exceptionStatus);
+                return Optional.of(new ShellReturnValue(exceptionStatus));
+            } catch (Exception e) {
+                throw e;
+            }
+    }
+
+    @Override
+    public Optional<NotebookReturnValue> executeAsObject(String source) throws BallerinaShellException {
+        Object result = null;
+        ExceptionStatus exceptionStatus = null;
+        PackageCompilation compilation;
+        try {
+            Collection<Node> nodes = treeParser.parseString(source);
+            Collection<Snippet> snippets = snippetFactory.createSnippets(nodes);
+            for (Snippet snippet: snippets) {
+                compilation = invoker.getCompilation(snippet);
+                Optional<Object> invokerOut = invoker.execute(Optional.ofNullable(compilation));
+                result = invokerOut.orElse(null);
+                exceptionStatus = ExceptionStatus.SUCCESS;
+                addAllDiagnostics(invoker.diagnostics());
+                invoker.resetDiagnostics();
+            }
+            return Optional.of(new NotebookReturnValue(result, exceptionStatus));
+        } catch (InvokerPanicException e) {
+            addAllDiagnostics(invoker.diagnostics());
+            invoker.resetDiagnostics();
+            throw e;
+        } catch (TreeParserException e) {
+            exceptionStatus = ExceptionStatus.TREE_PARSER_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return Optional.of(new NotebookReturnValue(exceptionStatus));
+        } catch (SnippetException e) {
+            exceptionStatus = ExceptionStatus.SNIPPET_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return Optional.of(new NotebookReturnValue(exceptionStatus));
+        } catch (InvokerException e) {
+            exceptionStatus = ExceptionStatus.INVOKER_FAILED;
+            clearDiagnostics(exceptionStatus);
+            return Optional.of(new NotebookReturnValue(exceptionStatus));
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
     public Optional<NotebookReturnValue> getValueAsObject(Optional<PackageCompilation> compilation) throws
             BallerinaShellException {
         Object result;

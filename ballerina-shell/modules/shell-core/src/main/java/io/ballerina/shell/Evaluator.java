@@ -102,6 +102,24 @@ public abstract class Evaluator extends DiagnosticReporter {
             throws BallerinaShellException;
 
     /**
+     * Function to execute string output in the shell.
+     * If the execution failed, an error will be thrown instead.
+     *
+     * @param source string output.
+     * @return Shell return value after compilation.
+     */
+    public abstract Optional<ShellReturnValue> execute(String source) throws BallerinaShellException;
+
+    /**
+     * Function to execute string output related to Ballerina Notebook.
+     * If the execution failed, an error will be thrown instead.
+     *
+     * @param source string output.
+     * @return Shell return value after compilation.
+     */
+    public abstract Optional<NotebookReturnValue> executeAsObject(String source) throws BallerinaShellException;
+
+    /**
      * Base evaluation function which returns resulted object.
      * <p>
      * An input line may contain one or more statements separated by semicolons.
