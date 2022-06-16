@@ -316,23 +316,7 @@ function testSequenceOfSequenceOfReadonlyXmlElementIteration() {
     }
     validateValues(arr);
 
-    xml<xml<XmlElement>> elements2 = xml `<foo/><bar>value</bar><baz>1</baz>`;
-    arr = [];
-    foreach var e2 in elements2 {
-        arr.push(e2);
-    }
-    validateValues(arr);
-}
-
-function testSequenceOfSequenceOfReadonlyXmlElementIteration2() {
-    xml<xml:Element & readonly> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
-    xml:Element[] arr = [];
-    foreach var e1 in elements {
-        arr.push(e1);
-    }
-    validateValues(arr);
-
-    xml<xml<XmlElement>> elements2 = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml<xml:Element & readonly> elements2 = xml `<foo/><bar>value</bar><baz>1</baz>`;
     arr = [];
     foreach var e2 in elements2 {
         arr.push(e2);

@@ -147,8 +147,7 @@ public class XMLIterationTest {
             "xmlTypeParamElementIter",
             "xmlTypeParamPIIter",
             "testSequenceOfSequenceOfXmlElementIteration",
-            "testSequenceOfSequenceOfReadonlyXmlElementIteration",
-            "testSequenceOfSequenceOfReadonlyXmlElementIteration2"
+            "testSequenceOfSequenceOfReadonlyXmlElementIteration"
         };
     }
 
