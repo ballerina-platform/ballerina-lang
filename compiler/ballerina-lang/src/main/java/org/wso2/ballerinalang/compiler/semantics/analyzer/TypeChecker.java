@@ -5542,7 +5542,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType selectType;
         for (BType type : resultTypes) {
             solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes, resolvedTypes, env,
-                    data, false, false);
+                    data, false);
         }
 
         if (selectTypes.size() == 1) {
@@ -5569,15 +5569,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    BType solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType type,
+    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType type,
                                        BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
-                                       SymbolEnv env, AnalyzerData data, boolean isReadonly, boolean getSelectType) {
+                                       SymbolEnv env, AnalyzerData data, boolean isReadonly) {
         BType selectType, resolvedType;
         type = Types.getReferredType(type);
         switch (type.tag) {
             case TypeTags.ARRAY:
-                selectType = solveSelectTypeAndResolveType(queryExpr, selectExp, ((BArrayType) type).eType, collectionType, selectTypes, resolvedTypes,
-                        env, data, isReadonly, true);
+                BType elementType = ((BArrayType) type).eType;
+                if (elementType.tag == TypeTags.INTERSECTION) {
+                    selectType = checkExpr(selectExp, env, ((BIntersectionType) elementType).effectiveType, data);
+                } else {
+                    selectType = checkExpr(selectExp, env, elementType, data);
+                }
                 resolvedType = new BArrayType(selectType);
                 if (resolvedType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
                         Symbols.isFlagOn(type.flags, Flags.READONLY))) {
@@ -5588,9 +5592,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.TABLE:
                 selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
                         true, true), data);
-                if (getSelectType) {
-                    return selectType;
-                }
                 resolvedType = symTable.tableType;
                 if (resolvedType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
                         Symbols.isFlagOn(type.flags, Flags.READONLY))) {
@@ -5604,87 +5605,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 resolvedType = symTable.streamType;
                 break;
             case TypeTags.STRING:
-                selectType = checkExpr(selectExp, env, type, data);
-                if (getSelectType) {
-                    return selectType;
-                }
-                resolvedType = selectType;
-                if (resolvedType.tag != TypeTags.SEMANTIC_ERROR &&
-                        Types.getReferredType(selectType).tag != TypeTags.XML_TEXT && (isReadonly ||
-                        Symbols.isFlagOn(type.flags, Flags.READONLY))) {
-                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
-                            symTable, anonymousModelHelper, names, null);
-                }
-                break;
             case TypeTags.XML:
-                selectType = checkExpr(selectExp, env, symTable.xmlType, data);
-                if (getSelectType) {
-                    return selectType;
-                }
-                resolvedType = selectType;
-                if (resolvedType.tag != TypeTags.SEMANTIC_ERROR &&
-                        Types.getReferredType(selectType).tag != TypeTags.XML_TEXT && (isReadonly ||
-                        Symbols.isFlagOn(type.flags, Flags.READONLY))) {
-                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
-                            symTable, anonymousModelHelper, names, null);
-                }
-                break;
-            case TypeTags.XML_ELEMENT:
-                selectType = checkExpr(selectExp, env, symTable.xmlElementType, data);
-                if (getSelectType) {
-                    return selectType;
-                }
-                resolvedType = selectType;
-                if (resolvedType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
-                        Symbols.isFlagOn(type.flags, Flags.READONLY))) {
-                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
-                            symTable, anonymousModelHelper, names, null);
-                }
-                break;
             case TypeTags.XML_COMMENT:
-                selectType = checkExpr(selectExp, env, symTable.xmlCommentType, data);
-                if (getSelectType) {
-                    return selectType;
-                }
-                resolvedType = selectType;
-                if (resolvedType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
-                        Symbols.isFlagOn(type.flags, Flags.READONLY))) {
-                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
-                            symTable, anonymousModelHelper, names, null);
-                }
-                break;
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_PI:
             case TypeTags.XML_TEXT:
-                // The xml:Text type is inherently immutable. Therefore, it is not necessary to specifically handle
-                // readonly intersection here.
                 selectType = checkExpr(selectExp, env, type, data);
                 resolvedType = selectType;
-                break;
-            case TypeTags.XML_PI:
-                selectType = checkExpr(selectExp, env, symTable.xmlPIType, data);
-                if (getSelectType) {
-                    return selectType;
-                }
-                resolvedType = selectType;
-                if (resolvedType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
-                        Symbols.isFlagOn(type.flags, Flags.READONLY))) {
-                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
-                            symTable, anonymousModelHelper, names, null);
-                }
                 break;
             case TypeTags.INTERSECTION:
                 type = ((BIntersectionType) type).effectiveType;
-                selectType = solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes,
-                        resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY), getSelectType);
-                if (getSelectType) {
-                    return selectType;
-                }
-                return null;
+                solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes,
+                        resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY));
+                return;
             case TypeTags.NONE:
             default:
-                if (getSelectType) {
-                    //
-                    return checkExpr(selectExp, env, ((BArrayType) type).eType, data);
-                }
                 // contextually expected type not given (i.e var).
                 selectType = checkExpr(selectExp, env, type, data);
                 resolvedType = getNonContextualQueryType(selectType, collectionType);
@@ -5700,7 +5635,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             selectTypes.add(selectType);
             resolvedTypes.add(resolvedType);
         }
-        return null;
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
@@ -5710,7 +5644,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
-            if (resolvedType.tag == TypeTags.INTERSECTION) {
+            if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
                 BIntersectionType immutableTableType = ImmutableTypeCloner.getImmutableIntersectionType(null, types,
                         tableType, env, symTable, anonymousModelHelper, names, null);
                 return BUnionType.create(null, immutableTableType, symTable.errorType);

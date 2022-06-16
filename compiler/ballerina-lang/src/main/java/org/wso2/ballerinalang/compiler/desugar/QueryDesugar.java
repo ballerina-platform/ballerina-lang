@@ -829,22 +829,17 @@ public class QueryDesugar extends BLangNodeVisitor {
         String name = getNewVarName();
         BType tableType = symTable.tableType;
         BType refType = Types.getReferredType(type);
-//        if (refType.tag == TypeTags.UNION) {
-//            tableType = ((BUnionType) refType).getMemberTypes()
-//                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.TABLE ||
-//                            (Types.getReferredType(m).tag == TypeTags.INTERSECTION &&
-//                                    ((BIntersectionType) m).effectiveType.tag == TypeTags.TABLE))
-//                    .findFirst().orElse(symTable.tableType);
-//        }
-
-        for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
-            if (Types.getReferredType(memberType).tag == TypeTags.TABLE) {
-                tableType = memberType;
-            } else if (Types.getReferredType(memberType).tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
-                tableType = ((BIntersectionType) memberType).effectiveType;
+        if (refType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
+                if (Types.getReferredType(memberType).tag == TypeTags.TABLE) {
+                    tableType = memberType;
+                } else if (Types.getReferredType(memberType).tag == TypeTags.INTERSECTION &&
+                        ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
+                    tableType = ((BIntersectionType) memberType).effectiveType;
+                }
             }
         }
+
         final List<IdentifierNode> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
                 TreeBuilder.createTableConstructorExpressionNode();
