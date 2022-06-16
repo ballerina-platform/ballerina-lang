@@ -1548,8 +1548,21 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return;
         }
 
+        if (constrainedTag == TypeTags.INTERSECTION) {
+            checkIntersectionTypeForXMLSubTypes((BIntersectionType) constraintType, pos);
+            return;
+        }
+
         if (!TypeTags.isXMLTypeTag(constrainedTag) && constrainedTag != TypeTags.NEVER) {
             dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintType);
+        }
+    }
+
+    private void checkIntersectionTypeForXMLSubTypes(BIntersectionType constraintIntersectionType, Location pos) {
+        BType effectiveType = Types.getReferredType(constraintIntersectionType.getEffectiveType());
+        if (!TypeTags.isXMLTypeTag(effectiveType.tag)) {
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
+                    constraintIntersectionType);
         }
     }
 
