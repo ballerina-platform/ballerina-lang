@@ -119,7 +119,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
                 types.add(Collections.singleton("error?"));
             }
         } else {
-            List<List<String>> combinations = new ArrayList<>();
+            List<List<String>> combinedTypes = new ArrayList<>();
             ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
             returnStatementFinder.visit(funcDef.get());
             List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
@@ -135,33 +135,14 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
                     return Collections.emptyList();
                 }
                 if (typeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
-                    combinations.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
+                    combinedTypes.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
                             importEdits, context).get(0) + ")"));
                 } else {
-                    combinations.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
+                    combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
                 }
             }
 
-            for (List<String> stringTypes : combinations) {
-                if (types.isEmpty()) {
-                    for (String type : stringTypes) {
-                        types.add(Set.of(type));
-                    }
-                    continue;
-                }
-                List<Set<String>> updatedTypes = new ArrayList<>();
-                for (String type : stringTypes) {
-                    for (Set<String> strings : types) {
-                        Set<String> combination  = new HashSet<>(strings);
-                        combination.add(type);
-                        updatedTypes.add(combination);
-                    }
-                }
-                if (updatedTypes.isEmpty()) {
-                    continue;
-                }
-                types = updatedTypes;
-            }
+            types = getPossibleCombinations(combinedTypes, types);
         }
 
         // Where to insert the edit: Depends on if a return statement already available or not
@@ -207,5 +188,31 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
     public String getName() {
         return NAME;
     }
-    
+
+    public static List<Set<String>> getPossibleCombinations(List<List<String>> combinedTypes,
+                                                            List<Set<String>> typeList) {
+        for (List<String> possibleTypes : combinedTypes) {
+            // Add the items of the first combinedTypes to the typeList
+            if (typeList.isEmpty()) {
+                for (String type : possibleTypes) {
+                    typeList.add(Set.of(type));
+                }
+                continue;
+            }
+            List<Set<String>> updatedTypes = new ArrayList<>();
+            // Add each item in the next combinedTypes to the items listed in the typeList
+            for (String type : possibleTypes) {
+                for (Set<String> strings : typeList) {
+                    Set<String> combination  = new HashSet<>(strings);
+                    combination.add(type);
+                    updatedTypes.add(combination);
+                }
+            }
+            if (updatedTypes.isEmpty()) {
+                continue;
+            }
+            typeList = updatedTypes;
+        }
+        return typeList;
+    }
 }
