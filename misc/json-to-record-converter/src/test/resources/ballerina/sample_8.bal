@@ -1,6 +1,6 @@
 type Text record {
-    string div;
     string status;
+    string div;
 };
 
 type IdentifierItem record {
@@ -8,11 +8,24 @@ type IdentifierItem record {
     string value;
 };
 
+type CodingItem record {
+    string system;
+    string code;
+};
+
+type Type record {
+    CodingItem[] coding;
+};
+
 type Patient record {
     string reference;
 };
 
 type Insurer record {
+    string reference;
+};
+
+type Provider record {
     string reference;
 };
 
@@ -24,16 +37,8 @@ type Prescription record {
     string reference;
 };
 
-type Type record {
-    CodingItem[] coding;
-};
-
 type Payee record {
     Type 'type;
-};
-
-type Provider record {
-    string reference;
 };
 
 type CareTeamItem record {
@@ -60,22 +65,18 @@ type InsuranceItem record {
     Coverage coverage;
 };
 
-type CodingItem record {
-    string code;
-};
-
 type ProductOrService record {
     CodingItem[] coding;
 };
 
 type UnitPrice record {
-    string currency;
     decimal value;
+    string currency;
 };
 
 type Net record {
-    string currency;
     decimal value;
+    string currency;
 };
 
 type DetailItem record {
