@@ -38,7 +38,7 @@ public class ConverterUtils {
         } else if (value.isNumber()) {
             String strValue = value.getAsNumber().toString();
             if (strValue.contains(".")) {
-                return AbstractNodeFactory.createToken(SyntaxKind.FLOAT_KEYWORD);
+                return AbstractNodeFactory.createToken(SyntaxKind.DECIMAL_KEYWORD);
             } else {
                 return AbstractNodeFactory.createToken(SyntaxKind.INT_KEYWORD);
             }
