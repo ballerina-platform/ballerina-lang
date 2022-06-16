@@ -38,51 +38,51 @@ import static org.ballerinalang.semver.checker.util.TestUtils.executeTestData;
  * @since 2201.2.0
  */
 public class ServiceComparatorTest {
-    private static final String SERVICE_DECLARATION_TEST_DATA_ROOT  = "src/test/resources/testcases/serviceDeclaration/";
-    private static final String SERVICE_MEMBERS_TEST_DATA_ROOT  = "src/test/resources/testcases/serviceDeclaration/serviceMembers/";
-    private static final String SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT  = SERVICE_MEMBERS_TEST_DATA_ROOT + "methodDefinition/";
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT  = SERVICE_MEMBERS_TEST_DATA_ROOT + "remoteMethodDefinition/";
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT  = SERVICE_MEMBERS_TEST_DATA_ROOT + "resourceMethodDefinition/";
-    private static final String SERVICE_MEMBER_OBJECT_FIELD_TEST_DATA_ROOT  = SERVICE_MEMBERS_TEST_DATA_ROOT + "objectField/";
 
-    private static final String SERVICE_DECLARATION_ANNOTATION_TESTCASE = SERVICE_DECLARATION_TEST_DATA_ROOT  + "annotation.json";
-    private static final String SERVICE_DECLARATION_DOCUMENTATION_TESTCASE = SERVICE_DECLARATION_TEST_DATA_ROOT  +  "documentation.json";
-    private static final String SERVICE_DECLARATION_ATTACH_POINT_TESTCASE = SERVICE_DECLARATION_TEST_DATA_ROOT  + "attachPoint.json";
-    private static final String SERVICE_DECLARATION_ISOLATED_QUALIFIER_TESTCASE = SERVICE_DECLARATION_TEST_DATA_ROOT  + "isolatedQualifier.json";
-    private static final String SERVICE_DECLARATION_LISTENER_EXPRESSION_LIST_TESTCASE = SERVICE_DECLARATION_TEST_DATA_ROOT  + "listenerExpressionList.json";
-    private static final String ADVANCE_SERVICE_DECLARATION_TESTCASE = SERVICE_DECLARATION_TEST_DATA_ROOT  + "advanceServiceDeclaration.json";
+    private static final String TEST_ROOT = "src/test/resources/testcases/serviceDeclaration/";
+    private static final String MEMBER_TEST_ROOT = TEST_ROOT + "serviceMembers/";
+    private static final String METHOD_TEST_ROOT = MEMBER_TEST_ROOT + "method/";
+    private static final String REMOTE_METHOD_TEST_ROOT = MEMBER_TEST_ROOT + "remoteMethod/";
+    private static final String RESOURCE_METHOD_TEST_ROOT = MEMBER_TEST_ROOT + "resourceMethod/";
+    private static final String OBJECT_FIELD_TEST_ROOT = MEMBER_TEST_ROOT + "objectField/";
 
-    private static final String SERVICE_MEMBER_OBJECT_FIELD_ANNOTATION_TESTCASE = SERVICE_MEMBER_OBJECT_FIELD_TEST_DATA_ROOT  + "annotation.json";
-    private static final String SERVICE_MEMBER_OBJECT_FIELD_DOCUMENTATION_TESTCASE = SERVICE_MEMBER_OBJECT_FIELD_TEST_DATA_ROOT  + "documentation.json";
-    private static final String SERVICE_MEMBER_OBJECT_FIELD_IDENTIFIER_TESTCASE = SERVICE_MEMBER_OBJECT_FIELD_TEST_DATA_ROOT  + "identifier.json";
-    private static final String SERVICE_MEMBER_OBJECT_FIELD_QUALIFIER_TESTCASE = SERVICE_MEMBER_OBJECT_FIELD_TEST_DATA_ROOT  + "qualifier.json";
-    private static final String SERVICE_MEMBER_OBJECT_FIELD_TYPE_TESTCASE = SERVICE_MEMBER_OBJECT_FIELD_TEST_DATA_ROOT  + "type.json";
-    private static final String SERVICE_MEMBER_OBJECT_FIELD_VALUE_TESTCASE = SERVICE_MEMBER_OBJECT_FIELD_TEST_DATA_ROOT  + "value.json";
+    private static final String SERVICE_ANNOTATION_TESTCASE = TEST_ROOT + "annotation.json";
+    private static final String SERVICE_DOCUMENTATION_TESTCASE = TEST_ROOT + "documentation.json";
+    private static final String SERVICE_ATTACH_POINT_TESTCASE = TEST_ROOT + "attachPoint.json";
+    private static final String SERVICE_ISOLATED_QUALIFIER_TESTCASE = TEST_ROOT + "qualifiers.json";
+    private static final String SERVICE_LISTENER_TESTCASE = TEST_ROOT + "listenerExpressionList.json";
+    private static final String ADVANCE_SERVICE_TESTCASE = TEST_ROOT + "advanceServiceDeclaration.json";
 
-    private static final String SERVICE_METHOD_DEFINITION_ANNOTATION_TESTCASE = SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT + "annotation.json";
-    private static final String SERVICE_METHOD_DEFINITION_DOCUMENTATION_TESTCASE = SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT + "documentation.json";
-    private static final String SERVICE_METHOD_DEFINITION_BODY_TESTCASE = SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT + "body.json";
-    private static final String SERVICE_METHOD_DEFINITION_IDENTIFIER_TESTCASE = SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT + "identifier.json";
-    private static final String SERVICE_METHOD_DEFINITION_PARAMETER_TESTCASE = SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT + "parameter.json";
-    private static final String SERVICE_METHOD_DEFINITION_QUALIFIER_TESTCASE = SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT + "qualifier.json";
-    private static final String SERVICE_METHOD_DEFINITION_RETURN_TESTCASE = SERVICE_METHOD_DEFINITION_TEST_DATA_ROOT + "returnType.json";
+    private static final String OBJECT_FIELD_ANNOTATION_TESTCASE = OBJECT_FIELD_TEST_ROOT + "annotation.json";
+    private static final String OBJECT_FIELD_DOCUMENTATION_TESTCASE = OBJECT_FIELD_TEST_ROOT + "documentation.json";
+    private static final String OBJECT_FIELD_IDENTIFIER_TESTCASE = OBJECT_FIELD_TEST_ROOT + "identifier.json";
+    private static final String OBJECT_FIELD_QUALIFIER_TESTCASE = OBJECT_FIELD_TEST_ROOT + "qualifier.json";
+    private static final String OBJECT_FIELD_TYPE_TESTCASE = OBJECT_FIELD_TEST_ROOT + "type.json";
+    private static final String OBJECT_FIELD_VALUE_TESTCASE = OBJECT_FIELD_TEST_ROOT + "value.json";
 
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_ANNOTATION_TESTCASE = SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT + "annotation.json";
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_DOCUMENTATION_TESTCASE = SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT + "documentation.json";
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_BODY_TESTCASE = SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT + "body.json";
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_IDENTIFIER_TESTCASE = SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT + "identifier.json";
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_PARAMETER_TESTCASE = SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT + "parameter.json";
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_QUALIFIER_TESTCASE = SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT + "qualifier.json";
-    private static final String SERVICE_REMOTE_METHOD_DEFINITION_RETURN_TESTCASE = SERVICE_REMOTE_METHOD_DEFINITION_TEST_DATA_ROOT + "returnType.json";
+    private static final String METHOD_ANNOTATION_TESTCASE = METHOD_TEST_ROOT + "annotation.json";
+    private static final String METHOD_DOCUMENTATION_TESTCASE = METHOD_TEST_ROOT + "documentation.json";
+    private static final String METHOD_BODY_TESTCASE = METHOD_TEST_ROOT + "body.json";
+    private static final String METHOD_IDENTIFIER_TESTCASE = METHOD_TEST_ROOT + "identifier.json";
+    private static final String METHOD_PARAMETER_TESTCASE = METHOD_TEST_ROOT + "parameter.json";
+    private static final String METHOD_QUALIFIER_TESTCASE = METHOD_TEST_ROOT + "qualifier.json";
+    private static final String METHOD_RETURN_TESTCASE = METHOD_TEST_ROOT + "returnType.json";
 
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_ANNOTATION_TESTCASE = SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT + "annotation.json";
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_DOCUMENTATION_TESTCASE = SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT + "documentation.json";
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_BODY_TESTCASE = SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT + "body.json";
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_IDENTIFIER_TESTCASE = SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT + "identifier.json";
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_PARAMETER_TESTCASE = SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT + "parameter.json";
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_QUALIFIER_TESTCASE = SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT + "qualifier.json";
-    private static final String SERVICE_RESOURCE_METHOD_DEFINITION_RETURN_TESTCASE = SERVICE_RESOURCE_METHOD_DEFINITION_TEST_DATA_ROOT + "returnType.json";
+    private static final String REMOTE_METHOD_ANNOTATION_TESTCASE = REMOTE_METHOD_TEST_ROOT + "annotation.json";
+    private static final String REMOTE_METHOD_DOCUMENTATION_TESTCASE = REMOTE_METHOD_TEST_ROOT + "documentation.json";
+    private static final String REMOTE_METHOD_BODY_TESTCASE = REMOTE_METHOD_TEST_ROOT + "body.json";
+    private static final String REMOTE_METHOD_IDENTIFIER_TESTCASE = REMOTE_METHOD_TEST_ROOT + "identifier.json";
+    private static final String REMOTE_METHOD_PARAMETER_TESTCASE = REMOTE_METHOD_TEST_ROOT + "parameter.json";
+    private static final String REMOTE_METHOD_QUALIFIER_TESTCASE = REMOTE_METHOD_TEST_ROOT + "qualifier.json";
+    private static final String REMOTE_METHOD_RETURN_TESTCASE = REMOTE_METHOD_TEST_ROOT + "returnType.json";
 
+    private static final String RESOURCE_METHOD_ANNOTATION_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "annotation.json";
+    private static final String RESOURCE_METHOD_DOC_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "documentation.json";
+    private static final String RESOURCE_METHOD_BODY_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "body.json";
+    private static final String RESOURCE_METHOD_IDENTIFIER_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "identifier.json";
+    private static final String RESOURCE_METHOD_PARAMETER_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "parameter.json";
+    private static final String RESOURCE_METHOD_QUALIFIER_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "qualifier.json";
+    private static final String RESOURCE_METHOD_RETURN_TESTCASE = RESOURCE_METHOD_TEST_ROOT + "returnType.json";
 
     @Test(dataProvider = "serviceTestDataProvider")
     public void testServiceAnnotation(JsonElement testData) throws Exception {
@@ -100,7 +100,7 @@ public class ServiceComparatorTest {
     }
 
     @Test(dataProvider = "serviceTestDataProvider")
-    public void testServiceIsolatedQualifier(JsonElement testData) throws Exception {
+    public void testServiceQualifier(JsonElement testData) throws Exception {
         executeTestData(testData);
     }
 
@@ -249,113 +249,112 @@ public class ServiceComparatorTest {
         executeTestData(testData);
     }
 
-
     @DataProvider(name = "serviceTestDataProvider")
     public Object[] serviceTestDataProvider(Method method) throws SemverTestException {
         String filePath;
         switch (method.getName()) {
             case "testServiceAnnotation":
-                filePath = SERVICE_DECLARATION_ANNOTATION_TESTCASE;
+                filePath = SERVICE_ANNOTATION_TESTCASE;
                 break;
             case "testServiceDocumentation":
-                filePath = SERVICE_DECLARATION_DOCUMENTATION_TESTCASE;
+                filePath = SERVICE_DOCUMENTATION_TESTCASE;
                 break;
             case "testServiceAttachPoint":
-                filePath = SERVICE_DECLARATION_ATTACH_POINT_TESTCASE;
+                filePath = SERVICE_ATTACH_POINT_TESTCASE;
                 break;
             case "testServiceListenerExpressionList":
-                filePath = SERVICE_DECLARATION_LISTENER_EXPRESSION_LIST_TESTCASE;
+                filePath = SERVICE_LISTENER_TESTCASE;
                 break;
-            case "testServiceIsolatedQualifier":
-                filePath = SERVICE_DECLARATION_ISOLATED_QUALIFIER_TESTCASE;
+            case "testServiceQualifier":
+                filePath = SERVICE_ISOLATED_QUALIFIER_TESTCASE;
                 break;
             case "testAdvanceServiceDeclaration":
-                filePath = ADVANCE_SERVICE_DECLARATION_TESTCASE;
+                filePath = ADVANCE_SERVICE_TESTCASE;
                 break;
 
             case "testServiceMemberObjectFieldAnnotation":
-                filePath = SERVICE_MEMBER_OBJECT_FIELD_ANNOTATION_TESTCASE;
+                filePath = OBJECT_FIELD_ANNOTATION_TESTCASE;
                 break;
             case "testServiceMemberObjectFieldDocumentation":
-                filePath = SERVICE_MEMBER_OBJECT_FIELD_DOCUMENTATION_TESTCASE;
+                filePath = OBJECT_FIELD_DOCUMENTATION_TESTCASE;
                 break;
             case "testServiceMemberObjectFieldIdentifier":
-                filePath = SERVICE_MEMBER_OBJECT_FIELD_IDENTIFIER_TESTCASE;
+                filePath = OBJECT_FIELD_IDENTIFIER_TESTCASE;
                 break;
             case "testServiceMemberObjectFieldQualifier":
-                filePath = SERVICE_MEMBER_OBJECT_FIELD_QUALIFIER_TESTCASE;
+                filePath = OBJECT_FIELD_QUALIFIER_TESTCASE;
                 break;
             case "testServiceMemberObjectFieldType":
-                filePath = SERVICE_MEMBER_OBJECT_FIELD_TYPE_TESTCASE;
+                filePath = OBJECT_FIELD_TYPE_TESTCASE;
                 break;
             case "testServiceMemberObjectFieldValue":
-                filePath = SERVICE_MEMBER_OBJECT_FIELD_VALUE_TESTCASE;
+                filePath = OBJECT_FIELD_VALUE_TESTCASE;
                 break;
 
             case "testServiceMethodDocumentation":
-                filePath = SERVICE_METHOD_DEFINITION_DOCUMENTATION_TESTCASE;
+                filePath = METHOD_DOCUMENTATION_TESTCASE;
                 break;
             case "testServiceMethodBody":
-                filePath = SERVICE_METHOD_DEFINITION_BODY_TESTCASE;
+                filePath = METHOD_BODY_TESTCASE;
                 break;
             case "testServiceMethodIdentifier":
-                filePath = SERVICE_METHOD_DEFINITION_IDENTIFIER_TESTCASE;
+                filePath = METHOD_IDENTIFIER_TESTCASE;
                 break;
             case "testServiceMethodParameter":
-                filePath = SERVICE_METHOD_DEFINITION_PARAMETER_TESTCASE;
+                filePath = METHOD_PARAMETER_TESTCASE;
                 break;
             case "testServiceMethodQualifier":
-                filePath = SERVICE_METHOD_DEFINITION_QUALIFIER_TESTCASE;
+                filePath = METHOD_QUALIFIER_TESTCASE;
                 break;
             case "testServiceMethodReturn":
-                filePath = SERVICE_METHOD_DEFINITION_RETURN_TESTCASE;
+                filePath = METHOD_RETURN_TESTCASE;
                 break;
             case "testServiceMethodAnnotation":
-                filePath = SERVICE_METHOD_DEFINITION_ANNOTATION_TESTCASE;
+                filePath = METHOD_ANNOTATION_TESTCASE;
                 break;
 
             case "testRemoteServiceMethodDocumentation":
-                filePath = SERVICE_REMOTE_METHOD_DEFINITION_DOCUMENTATION_TESTCASE;
+                filePath = REMOTE_METHOD_DOCUMENTATION_TESTCASE;
                 break;
             case "testRemoteServiceMethodBody":
-                filePath = SERVICE_REMOTE_METHOD_DEFINITION_BODY_TESTCASE;
+                filePath = REMOTE_METHOD_BODY_TESTCASE;
                 break;
             case "testRemoteServiceMethodIdentifier":
-                filePath = SERVICE_REMOTE_METHOD_DEFINITION_IDENTIFIER_TESTCASE;
+                filePath = REMOTE_METHOD_IDENTIFIER_TESTCASE;
                 break;
             case "testRemoteServiceMethodParameter":
-                filePath = SERVICE_REMOTE_METHOD_DEFINITION_PARAMETER_TESTCASE;
+                filePath = REMOTE_METHOD_PARAMETER_TESTCASE;
                 break;
             case "testRemoteServiceMethodQualifier":
-                filePath = SERVICE_REMOTE_METHOD_DEFINITION_QUALIFIER_TESTCASE;
+                filePath = REMOTE_METHOD_QUALIFIER_TESTCASE;
                 break;
             case "testRemoteServiceMethodReturn":
-                filePath = SERVICE_REMOTE_METHOD_DEFINITION_RETURN_TESTCASE;
+                filePath = REMOTE_METHOD_RETURN_TESTCASE;
                 break;
             case "testRemoteServiceMethodAnnotation":
-                filePath = SERVICE_REMOTE_METHOD_DEFINITION_ANNOTATION_TESTCASE;
+                filePath = REMOTE_METHOD_ANNOTATION_TESTCASE;
                 break;
 
             case "testResourceServiceMethodDocumentation":
-                filePath = SERVICE_RESOURCE_METHOD_DEFINITION_DOCUMENTATION_TESTCASE;
+                filePath = RESOURCE_METHOD_DOC_TESTCASE;
                 break;
             case "testResourceServiceMethodBody":
-                filePath = SERVICE_RESOURCE_METHOD_DEFINITION_BODY_TESTCASE;
+                filePath = RESOURCE_METHOD_BODY_TESTCASE;
                 break;
             case "testResourceServiceMethodIdentifier":
-                filePath = SERVICE_RESOURCE_METHOD_DEFINITION_IDENTIFIER_TESTCASE;
+                filePath = RESOURCE_METHOD_IDENTIFIER_TESTCASE;
                 break;
             case "testResourceServiceMethodParameter":
-                filePath = SERVICE_RESOURCE_METHOD_DEFINITION_PARAMETER_TESTCASE;
+                filePath = RESOURCE_METHOD_PARAMETER_TESTCASE;
                 break;
             case "testResourceServiceMethodQualifier":
-                filePath = SERVICE_RESOURCE_METHOD_DEFINITION_QUALIFIER_TESTCASE;
+                filePath = RESOURCE_METHOD_QUALIFIER_TESTCASE;
                 break;
             case "testResourceServiceMethodReturn":
-                filePath = SERVICE_RESOURCE_METHOD_DEFINITION_RETURN_TESTCASE;
+                filePath = RESOURCE_METHOD_RETURN_TESTCASE;
                 break;
             case "testResourceServiceMethodAnnotation":
-                filePath = SERVICE_RESOURCE_METHOD_DEFINITION_ANNOTATION_TESTCASE;
+                filePath = RESOURCE_METHOD_ANNOTATION_TESTCASE;
                 break;
 
             default:

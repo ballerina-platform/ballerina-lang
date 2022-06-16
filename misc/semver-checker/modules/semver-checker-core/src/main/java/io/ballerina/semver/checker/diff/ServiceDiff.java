@@ -23,8 +23,6 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import java.util.Collection;
 import java.util.Optional;
 
-import static io.ballerina.semver.checker.util.PackageUtils.QUALIFIER_PUBLIC;
-
 /**
  * Represents the diff in between two versions of a Ballerina service declaration.
  *
