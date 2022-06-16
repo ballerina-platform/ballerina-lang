@@ -1,0 +1,167 @@
+[
+  {
+    "source": "type Person record { string name; int age; }; type Employee record { string name; int age; int empNo; }; type Department record { string code; };",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee","Department","Person"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee employee = {name: \"Jane Doe\", age: 25, empNo: 1};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["employee"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Person person = <Person>employee;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["person"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "person.name",
+    "result": {
+      "shellValue": {
+        "value":"\"Jane Doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee employeeTwo = <Employee>person;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["employeeTwo"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "employeeTwo.name",
+    "result": {
+      "shellValue": {
+        "value":"\"Jane Doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "anydata value = 100;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["value"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int i = <int>value;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["i"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "i",
+    "result": {
+      "shellValue": {
+        "value":"100",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "float f = <float>value;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["f"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "f",
+    "result": {
+      "shellValue": {
+        "value":"100.0",
+        "mimeType":"plain/text",
+        "type":"float"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "float|boolean u = <float|boolean>value;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["u"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "u",
+    "result": {
+      "shellValue": {
+        "value":"100.0",
+        "mimeType":"plain/text",
+        "type":"float"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "value = employee;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "value",
+    "result": {
+      "shellValue": {
+        "value":"{\"name\":\"Jane Doe\",\"age\":25,\"empNo\":1}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"Employee"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]
