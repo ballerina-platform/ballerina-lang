@@ -22,6 +22,10 @@ import sun.misc.Signal;
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -43,22 +47,33 @@ public class Status {
     }
 
     public static void initiateSignalListener() {
-        Signal.handle(new Signal("TRAP"), signal -> outStream.println(getRuntimeStateDump()));
+        Signal.handle(new Signal("TRAP"), signal -> outStream.println(getStrandDump()));
     }
 
-    private static String getRuntimeStateDump() {
-        StringBuilder infoStr = new StringBuilder("Ballerina Runtime State Dump [");
+    private static String getStrandDump() {
+        Map<Integer, Strand> availableStrands = new HashMap<>(currentStrands);
+        int availableStrandCount = availableStrands.size();
+        Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
+        for (Strand strand : availableStrands.values()) {
+            int strandGroupHashCode = strand.strandGroup.hashCode();
+            String strandState = strand.dumpState();
+            availableStrandGroups.computeIfAbsent(strandGroupHashCode, k -> new ArrayList<>()).add(strandState);
+        }
+        availableStrands.clear();
+
+        StringBuilder infoStr = new StringBuilder("Ballerina Strand Dump [");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now();
         infoStr.append(dateTimeFormatter.format(localDateTime));
-        infoStr.append("]\n==================================================\n\n");
-
-        infoStr.append("Current strands: (Total " + currentStrands.size() + ")\n============================\n\n");
-        for (Strand strand : currentStrands.values()) {
-            infoStr.append(strand.dumpState());
-            infoStr.append("\n");
-        }
-        infoStr.append("==================================================\n");
+        infoStr.append("]\n===========================================\n\n");
+        infoStr.append("Current no. of strand groups\t:\t").append(availableStrandGroups.size()).append("\n");
+        infoStr.append("Current no. of strands      \t:\t").append(availableStrandCount).append("\n\n");
+        availableStrandGroups.forEach((groupHashCode, strandList) -> {
+            infoStr.append("group@").append(Integer.toHexString(groupHashCode)).append(": [")
+                    .append(strandList.size()).append("]\n");
+            strandList.forEach(infoStr::append);
+        });
+        infoStr.append("===========================================\n");
         return infoStr.toString();
     }
 
