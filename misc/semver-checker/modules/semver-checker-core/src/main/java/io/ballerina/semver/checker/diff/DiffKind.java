@@ -30,6 +30,8 @@ public enum DiffKind {
     FUNCTION("function"),
     SERVICE("service"),
 
+    SERVICE_ANNOTATION("service annotation"),
+    SERVICE_LISTENER_EXPR("service listener expression"),
     SERVICE_FIELD("service field"),
     REMOTE_FUNCTION("remote function"),
     RESOURCE_FUNCTION("resource function"),

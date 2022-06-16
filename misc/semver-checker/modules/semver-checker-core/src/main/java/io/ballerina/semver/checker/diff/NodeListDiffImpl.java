@@ -173,7 +173,7 @@ public class NodeListDiffImpl<T extends Node> implements NodeListDiff<List<T>> {
             }
 
             if (this.getMessage().isPresent()) {
-                jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getVersionImpact().name()));
+                jsonObject.add(DIFF_ATTR_MESSAGE, new JsonPrimitive(this.getMessage().get()));
             }
             childArray.add(jsonObject);
         } else {

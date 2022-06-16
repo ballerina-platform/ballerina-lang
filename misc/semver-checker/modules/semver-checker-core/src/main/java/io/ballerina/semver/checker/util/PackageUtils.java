@@ -44,9 +44,6 @@ import java.util.Map;
 public class PackageUtils {
 
     public static final String QUALIFIER_PUBLIC = "public";
-    // Pre-identified/overridden node types
-    public static final String SERVICE_LISTENER_EXPR_KIND = "service listener expression";
-    public static final String SERVICE_VAR_KIND = "service variable";
 
     /**
      * Loads the target ballerina source package instance using the Project API, from the file path of the open/active

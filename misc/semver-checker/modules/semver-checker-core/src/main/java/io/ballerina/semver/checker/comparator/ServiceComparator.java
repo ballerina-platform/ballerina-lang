@@ -46,8 +46,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
-import static io.ballerina.semver.checker.util.PackageUtils.SERVICE_LISTENER_EXPR_KIND;
-import static io.ballerina.semver.checker.util.PackageUtils.SERVICE_VAR_KIND;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getFunctionIdentifier;
 
 /**
@@ -98,7 +96,10 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
 
         NodeList<AnnotationNode> newAnnots = newMeta.map(MetadataNode::annotations).orElse(null);
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
-        // todo - implement comparison logic for service annotations
+        DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
+                DiffKind.SERVICE_ANNOTATION.toString());
+        annotsComparator.computeDiff().ifPresent(metadataDiffs::add);
+
         return metadataDiffs;
     }
 
@@ -156,7 +157,7 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
         if (newNode.expressions().size() <= 1 && oldNode.expressions().size() <= 1) {
             ExpressionNode newListener = newNode.expressions().size() > 0 ? newNode.expressions().get(0) : null;
             ExpressionNode oldListener = oldNode.expressions().size() > 0 ? oldNode.expressions().get(0) : null;
-            new DumbNodeComparator<>(newListener, oldListener, SERVICE_LISTENER_EXPR_KIND).computeDiff()
+            new DumbNodeComparator<>(newListener, oldListener, DiffKind.SERVICE_LISTENER_EXPR.toString()).computeDiff()
                     .ifPresent(listenerDiffs::add);
         } else {
             new DumbNodeListComparator<>(newNode.expressions().stream().collect(Collectors.toList()),
