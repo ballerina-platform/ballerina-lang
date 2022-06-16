@@ -20,9 +20,12 @@ package io.ballerina.converters.util;
 
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.Token;
 
 import com.google.gson.JsonPrimitive;
+
+import java.util.Optional;
 
 /**
  * Util methods for JSON to record direct converter.
@@ -30,6 +33,35 @@ import com.google.gson.JsonPrimitive;
  * @since 2.0.0
  */
 public class ConverterUtils {
+
+    public static String escapeIdentifier(String identifier) {
+        if (identifier.matches("\\b[0-9]*\\b")) {
+            return "'" + identifier;
+        } else if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b")
+                || SyntaxInfo.keywords().stream().anyMatch(identifier::equals)) {
+
+            identifier = identifier.replaceAll(Constants.ESCAPE_PATTERN, "\\\\$1");
+            if (identifier.endsWith("?")) {
+                if (identifier.charAt(identifier.length() - 2) == '\\') {
+                    StringBuilder stringBuilder = new StringBuilder(identifier);
+                    stringBuilder.deleteCharAt(identifier.length() - 2);
+                    identifier = stringBuilder.toString();
+                }
+                if (SyntaxInfo.keywords().stream().anyMatch(Optional.ofNullable(identifier)
+                        .filter(sStr -> sStr.length() != 0)
+                        .map(sStr -> sStr.substring(0, sStr.length() - 1))
+                        .orElse(identifier)::equals)) {
+                    identifier = "'" + identifier;
+                } else {
+                    return identifier;
+                }
+            } else {
+                identifier = "'" + identifier;
+            }
+        }
+        return identifier;
+    }
+
     public static Token getPrimitiveTypeName(JsonPrimitive value) {
         if (value.isString()) {
             return AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
