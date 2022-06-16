@@ -25,10 +25,10 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -56,9 +56,9 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         ResolvedContext resolvedContext = ResolvedContext.NONE;
         if (this.onTypeDescContext(context, node)) {
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-                List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+                List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
                 completionItems.addAll(this.getCompletionItemList(typesInModule, context));
             } else {
                 completionItems.addAll(this.getTypeDescContextItems(context));
@@ -113,9 +113,9 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
         Predicate<Symbol> predicate =
                 symbol -> symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER;
         List<Symbol> constants;
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            constants = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+            constants = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
         } else {
             constants = context.visibleSymbols(context.getCursorPosition()).stream()
                     .filter(predicate)

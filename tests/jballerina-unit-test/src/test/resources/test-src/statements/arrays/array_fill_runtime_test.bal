@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 const constLength = 2;
 
 type Rec record {
@@ -37,6 +39,44 @@ class ObjInitNullable {
     }
 }
 
+class Student {
+    public int id;
+    public string name;
+    public int age;
+    public decimal gpa;
+    public float gre_score;
+    public string university;
+    public string country;
+    public function init(int id = 10001, string name = "Alex", int age = 24, decimal gpa = 3.75, float gre_score = 5.0,
+                        string university = "UBC", string country = "CA") {
+        self.id = id;
+        self.name = name;
+        self.age = age;
+        self.gpa = gpa;
+        self.gre_score = gre_score;
+        self.university = university;
+        self.country = country;
+    }
+}
+
+function testObjectArrayFillingWithDefaultValues() {
+    Student s = new(10024, "Roy", 26, 3.71, 5.4, "UoM", "SL");
+    Student[] arr = [];
+    arr[5] = s;
+
+    test:assertEquals(arr[0].name, "Alex");
+    test:assertEquals(arr[3].name, "Alex");
+    test:assertEquals(arr[5].name, "Roy");
+    test:assertEquals(arr[0].id, 10001);
+    test:assertEquals(arr[5].id, 10024);
+    test:assertEquals(arr[2].gpa, 3.75d);
+    test:assertEquals(arr[5].gpa, 3.71d);
+    test:assertEquals(arr[4].gre_score, 5.0);
+    test:assertEquals(arr[5].gre_score, 5.4);
+    test:assertEquals(arr[0].country, "CA");
+    test:assertEquals(arr[5].country, "SL");
+}
+
 class Age {
     public int age;
     public function init(int age = 5) {
@@ -44,13 +84,12 @@ class Age {
     }
 }
 
-// TODO: fix me https://github.com/ballerina-platform/ballerina-lang/issues/20983
 function testObjectDynamicArrayFilling() {
-    //Age[2] y = [];
-    //y[1] = new(10);
-    //
-    //assertEqualPanic(5, y[0].age);
-    //assertEqualPanic(10, y[1].age);
+    Age[2] y = [];
+    y[1] = new(10);
+
+    assertEqualPanic(5, y[0].age);
+    assertEqualPanic(10, y[1].age);
 }
 
 function testObjectRetNullableDynamicArrayFilling() {
@@ -205,6 +244,7 @@ public function main() {
     tesOneDimensionalArrayWithConstantSizeReferenceFill();
     tesTwoDimensionalArrayWithConstantSizeReferenceFill();
     testAnonRecordTypeWithDefaultValueFill();
+    testObjectArrayFillingWithDefaultValues();
 }
 
 function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {

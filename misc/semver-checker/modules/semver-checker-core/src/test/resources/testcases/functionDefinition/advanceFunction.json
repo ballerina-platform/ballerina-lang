@@ -1,0 +1,107 @@
+[
+  {
+    "description": "Remove qualifier and change the order of a parameter in function",
+    "oldCode": "public function add(int x, int y){}",
+    "newCode": "function add(int y , int x ){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "major",
+                "message": "'public' qualifier is removed"
+              }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Add a new required parameter and modify the function body in function definition",
+    "oldCode": "public function add(int x, int y) returns int {\n\tint Sum = x + y;\n\treturns sum; \n}",
+    "newCode": "public function add(int x, int y , int z) returns int {\n\tint Sum = x + y + z;\n\treturns sum; \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "new",
+                "versionImpact": "major",
+                "message": "new required parameter 'z' is added"
+              },
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "message":"function body is modified"
+                }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Remove public qualifier in a Function and add new parameter",
+    "oldCode": "public function add(){}",
+    "newCode": "function add (int x){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "function",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [{
+                "kind": "unknown",
+                "type": "removed",
+                "versionImpact": "major",
+                "message": "'public' qualifier is removed"
+              },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "major",
+                  "message": "new required parameter 'x' is added"
+                }]
+            }
+          ]
+        }]
+    }
+  },
+  {
+    "description": "Change the order of two functions in the code editor.",
+    "oldCode": "public function add(){}public function foo(){}",
+    "newCode": "public function foo(){}public function add(){}",
+    "expectedOutput": {}
+  }
+]

@@ -27,7 +27,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ModuleDescriptor {
+public class ModuleDescriptor implements Comparable<ModuleDescriptor> {
     private final ModuleName moduleName;
     private final PackageDescriptor packageDesc;
 
@@ -97,5 +97,10 @@ public class ModuleDescriptor {
     @Override
     public int hashCode() {
         return Objects.hash(moduleName, packageDesc);
+    }
+
+    @Override
+    public int compareTo(ModuleDescriptor other) {
+        return this.moduleName.toString().compareTo(other.moduleName.toString());
     }
 }
