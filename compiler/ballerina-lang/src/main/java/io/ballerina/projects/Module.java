@@ -18,9 +18,11 @@
 package io.ballerina.projects;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +30,7 @@ import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * {@code Module} represents a Ballerina module.
@@ -259,6 +262,7 @@ public class Module {
         public Modifier addDocument(DocumentConfig documentConfig) {
             DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
             this.srcDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
+            this.srcDocContextMap = sortDocuments(this.srcDocContextMap);
             return this;
         }
 
@@ -271,6 +275,7 @@ public class Module {
         public Modifier addTestDocument(DocumentConfig documentConfig) {
             DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
             this.testDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
+            this.testDocContextMap = sortDocuments(this.testDocContextMap);
             return this;
         }
 
@@ -319,7 +324,7 @@ public class Module {
 
 
         private Map<DocumentId, DocumentContext> copySrcDocs(Module oldModule, Collection<DocumentId> documentIds) {
-            Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+            Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
             for (DocumentId documentId : documentIds) {
                 srcDocContextMap.put(documentId, oldModule.moduleContext.documentContext(documentId));
             }
@@ -380,6 +385,14 @@ public class Module {
             }
 
             return dependants;
+        }
+
+        private Map<DocumentId, DocumentContext> sortDocuments(Map<DocumentId, DocumentContext> docContextMap) {
+            return docContextMap.entrySet()
+                    .stream()
+                    .sorted(Comparator.comparing(entry -> entry.getValue().name()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (e1, e2) -> e1, LinkedHashMap::new));
         }
     }
 }
