@@ -1,5 +1,5 @@
-import projectls.lsmod3;
+import ballerina/module1;
 
 public function main() {
-    int _ = lsmod3:GLOBAL_VAR;
+    int _ = module1:GLOBAL_VAR;
 }
