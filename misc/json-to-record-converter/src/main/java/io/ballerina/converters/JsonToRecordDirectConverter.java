@@ -18,18 +18,19 @@
 
 package io.ballerina.converters;
 
-import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.*;
-import io.ballerina.converters.util.ConverterUtils;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 
 import java.util.*;
-import java.util.concurrent.Callable;
 
+import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+
+import static io.ballerina.converters.util.ConverterUtils.escapeIdentifier;
+import static io.ballerina.converters.util.ConverterUtils.getPrimitiveTypeName;
 
 /**
  * API for converting JSON string to Ballerina Records directly.
@@ -59,7 +60,7 @@ public class JsonToRecordDirectConverter {
                                         Map<String, NonTerminalNode> typeDefinitionNodes) {
         Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
         IdentifierToken typeName =
-                AbstractNodeFactory.createIdentifierToken(recordName == null ? "NewRecord" : recordName);
+                AbstractNodeFactory.createIdentifierToken(escapeIdentifier(recordName == null ? "NewRecord" : recordName));
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
 
@@ -102,7 +103,7 @@ public class JsonToRecordDirectConverter {
     private static Node getRecordField(Map.Entry<String, JsonElement> entry) {
         TypeDescriptorNode fieldTypeName;
 
-        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(entry.getKey().trim());
+        IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
         Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
         Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
@@ -114,7 +115,7 @@ public class JsonToRecordDirectConverter {
             while (iterator.hasNext()) {
                 JsonElement element = iterator.next();
                 if (element.isJsonPrimitive()) {
-                    Token tempTypeName = ConverterUtils.getPrimitiveTypeName(element.getAsJsonPrimitive());
+                    Token tempTypeName = getPrimitiveTypeName(element.getAsJsonPrimitive());
                     if (typeName == null) {
                         typeName = tempTypeName;
                     } else if (typeName.equals(tempTypeName)) {
@@ -146,7 +147,7 @@ public class JsonToRecordDirectConverter {
             return recordFieldNode;
         } else {
             if (entry.getValue().isJsonPrimitive()) {
-                Token typeName = ConverterUtils.getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
+                Token typeName = getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
                 fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
             } else if (entry.getValue().isJsonObject()) {
                 String elementKey = entry.getKey();
