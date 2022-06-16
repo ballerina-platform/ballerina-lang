@@ -280,12 +280,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         executableSnippets = new ArrayList<>();
         variableNames = new ArrayList<>();
 
-        // Fill the required arrays/maps
-        // Only compilation to find import validity.
-        // All imports are done on-the-spot.
-        // Others are processed later.
-
-
         if (newSnippet instanceof ImportDeclarationSnippet) {
             processImport((ImportDeclarationSnippet) newSnippet);
 
@@ -309,7 +303,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             throw new UnsupportedOperationException("Unimplemented snippet category.");
         }
 
-
         noModuleDeclarations = moduleDeclarations.isEmpty();
         noVariableDeclarations = variableDeclarations.isEmpty();
         noExecutables = executableSnippets.isEmpty();
@@ -327,6 +320,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 compilation = compile(project);
             }
         }
+
         return compilation;
     }
 
