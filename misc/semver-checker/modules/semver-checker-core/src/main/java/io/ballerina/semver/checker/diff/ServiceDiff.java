@@ -53,6 +53,7 @@ public class ServiceDiff extends NodeDiffImpl<ServiceDeclarationNode> {
             if (!serviceDiff.getChildDiffs().isEmpty()) {
                 serviceDiff.computeVersionImpact();
                 serviceDiff.setType(DiffType.MODIFIED);
+                serviceDiff.setKind(DiffKind.SERVICE);
                 return Optional.of(serviceDiff);
             } else if (serviceDiff.getType() == DiffType.NEW || serviceDiff.getType() == DiffType.REMOVED) {
                 return Optional.of(serviceDiff);

@@ -32,6 +32,8 @@ public interface Diff {
 
     DiffType getType();
 
+    DiffKind getKind();
+
     SemverImpact getVersionImpact();
 
     void computeVersionImpact();

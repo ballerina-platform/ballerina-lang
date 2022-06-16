@@ -113,6 +113,13 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
             if (!functionDiff.getChildDiffs().isEmpty()) {
                 functionDiff.computeVersionImpact();
                 functionDiff.setType(DiffType.MODIFIED);
+                if (functionDiff.isRemote()) {
+                    functionDiff.setKind(DiffKind.REMOTE_FUNCTION);
+                } else if (functionDiff.isResource()) {
+                    functionDiff.setKind(DiffKind.RESOURCE_FUNCTION);
+                } else {
+                    functionDiff.setKind(DiffKind.FUNCTION);
+                }
                 return Optional.of(functionDiff);
             } else if (functionDiff.getType() == DiffType.NEW || functionDiff.getType() == DiffType.REMOVED) {
                 return Optional.of(functionDiff);
@@ -124,6 +131,12 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
         @Override
         public NodeDiffBuilder withType(DiffType diffType) {
             functionDiff.setType(diffType);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withKind(DiffKind diffKind) {
+            functionDiff.setKind(diffKind);
             return this;
         }
 

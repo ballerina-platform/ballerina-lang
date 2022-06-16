@@ -43,15 +43,17 @@ import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 public class DiffImpl implements Diff {
 
     protected DiffType diffType;
+    protected DiffKind diffKind;
     protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
 
     public DiffImpl() {
-        this(DiffType.UNKNOWN, SemverImpact.UNKNOWN);
+        this(DiffType.UNKNOWN, DiffKind.UNKNOWN, SemverImpact.UNKNOWN);
     }
 
-    public DiffImpl(DiffType diffType, SemverImpact versionImpact) {
+    public DiffImpl(DiffType diffType, DiffKind diffKind, SemverImpact versionImpact) {
         this.diffType = diffType;
+        this.diffKind = diffKind;
         this.versionImpact = versionImpact;
         this.childDiffs = new ArrayList<>();
     }
@@ -63,6 +65,15 @@ public class DiffImpl implements Diff {
 
     protected void setType(DiffType diffType) {
         this.diffType = diffType;
+    }
+
+    @Override
+    public DiffKind getKind() {
+        return diffKind;
+    }
+
+    protected void setKind(DiffKind diffKind) {
+        this.diffKind = diffKind;
     }
 
     @Override

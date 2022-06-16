@@ -37,7 +37,7 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.FINAL_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PRIVATE_KEYWORD;
-import static io.ballerina.semver.checker.util.PackageUtils.MODULE_VAR_INIT_KIND;
+import static io.ballerina.semver.checker.diff.DiffKind.MODULE_VAR_INIT;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.lookupQualifier;
 
 /**
@@ -179,7 +179,7 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
     private List<Diff> compareModuleVariableExpression(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
         List<Diff> exprDiffs = new LinkedList<>();
         DumbNodeComparator<Node> exprComparator = new DumbNodeComparator<>(newNode.initializer().orElse(null),
-                oldNode.initializer().orElse(null), MODULE_VAR_INIT_KIND);
+                oldNode.initializer().orElse(null), MODULE_VAR_INIT.toString());
         exprComparator.computeDiff().ifPresent(exprDiffs::add);
 
         return exprDiffs;

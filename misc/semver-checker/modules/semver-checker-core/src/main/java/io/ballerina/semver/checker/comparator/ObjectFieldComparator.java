@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
@@ -37,7 +38,6 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.FINAL_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PRIVATE_KEYWORD;
-import static io.ballerina.compiler.syntax.tree.SyntaxKind.PUBLIC_KEYWORD;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.lookupQualifier;
 
 /**
@@ -54,6 +54,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
     @Override
     public Optional<? extends Diff> computeDiff() {
         NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode)
+                .withKind(DiffKind.SERVICE_FIELD)
                 .withChildDiffs(compareObjectFieldMetadata(newNode, oldNode))
                 .withChildDiffs(compareObjectFieldQualifiers(newNode, oldNode))
                 .withChildDiffs(compareObjectFieldType(newNode, oldNode))
@@ -92,12 +93,13 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
         NodeList<Token> oldQualifiers = oldNode.qualifierList();
 
         // analyzes public qualifier changes
-        Optional<Token> newPublicQual = lookupQualifier(newQualifiers, PUBLIC_KEYWORD);
-        Optional<Token> oldPublicQual = lookupQualifier(oldQualifiers, PUBLIC_KEYWORD);
+        Optional<Token> newPublicQual = newNode.visibilityQualifier();
+        Optional<Token> oldPublicQual = oldNode.visibilityQualifier();
         if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
             // public qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newPublicQual.get(), null);
             qualifierDiffBuilder
+                    .withKind(DiffKind.SERVICE_FIELD)
                     .withVersionImpact(SemverImpact.MINOR)
                     .withMessage("'public' qualifier is added to object field '" + getObjectFieldName() + "'")
                     .build()
@@ -106,6 +108,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // public qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldPublicQual.get());
             qualifierDiffBuilder
+                    .withKind(DiffKind.SERVICE_FIELD)
                     .withVersionImpact(SemverImpact.MAJOR)
                     .withMessage("'public' qualifier is removed from object field '" + getObjectFieldName() + "'")
                     .build()
@@ -119,6 +122,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // private qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newIsolatedQual.get(), null);
             qualifierDiffBuilder
+                    .withKind(DiffKind.SERVICE_FIELD)
                     .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("'private' qualifier is added to object field '" + getObjectFieldName() + "'")
                     .build()
@@ -127,6 +131,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // private qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldIsolatedQual.get());
             qualifierDiffBuilder
+                    .withKind(DiffKind.SERVICE_FIELD)
                     .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("'private' qualifier is removed from object field '" + getObjectFieldName() + "'")
                     .build()
@@ -140,6 +145,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // transactional qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newTransactionalQual.get(), null);
             qualifierDiffBuilder
+                    .withKind(DiffKind.SERVICE_FIELD)
                     .withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
                     .withMessage("'final' qualifier is added to object field '" + getObjectFieldName() + "'")
                     .build()
@@ -148,6 +154,7 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
             // final qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldTransactionalQual.get());
             qualifierDiffBuilder
+                    .withKind(DiffKind.SERVICE_FIELD)
                     .withVersionImpact(SemverImpact.PATCH) // TODO: determine compatibility
                     .withMessage("'final' qualifier is removed from object field '" + getObjectFieldName() + "'")
                     .build()
@@ -167,10 +174,11 @@ public class ObjectFieldComparator extends NodeComparator<ObjectFieldNode> {
         } else if (!newType.toSourceCode().trim().equals(oldType.toSourceCode().trim())) {
             // Todo: improve type changes validation using semantic APIs
             NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newType, oldType);
-            diffBuilder = diffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS);
-            diffBuilder.withMessage(String.format("object field type changed from '%s' to '%s'",
-                    oldType.toSourceCode().trim(), newType.toSourceCode().trim()));
-            diffBuilder.build().ifPresent(typeDiffs::add);
+            diffBuilder.withKind(DiffKind.SERVICE_FIELD)
+                    .withVersionImpact(SemverImpact.AMBIGUOUS)
+                    .withMessage(String.format("object field type changed from '%s' to '%s'",
+                            oldType.toSourceCode().trim(), newType.toSourceCode().trim()))
+                    .build().ifPresent(typeDiffs::add);
         }
 
         return typeDiffs;

@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.util;
 
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.ModuleConstantDiff;
 import io.ballerina.semver.checker.diff.ModuleDiff;
@@ -137,7 +138,8 @@ public class DiffUtils {
         } else if ((diff instanceof NodeListDiff) && ((NodeListDiff<?>) diff).getMessage().isPresent()) {
             sb.append(((NodeListDiff<?>) diff).getMessage().get());
         } else {
-            sb.append(getDiffTypeName(diff))
+            sb.append(diff.getKind() != null && diff.getKind() != DiffKind.UNKNOWN ? diff.getKind().toString() :
+                    getDiffTypeName(diff))
                     .append(" '")
                     .append(getDiffName(diff))
                     .append("' is ")
@@ -253,6 +255,7 @@ public class DiffUtils {
     }
 
     public static String getDiffTypeName(Diff diff) {
+        // Todo: Replace remaining usages to `diff.getKind()` method
         if (diff instanceof PackageDiff) {
             return "package";
         } else if (diff instanceof ModuleDiff) {

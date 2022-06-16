@@ -38,6 +38,7 @@ import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_KIND;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_MESSAGE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_TYPE;
 import static io.ballerina.semver.checker.util.DiffUtils.DIFF_ATTR_VERSION_IMPACT;
+import static io.ballerina.semver.checker.util.DiffUtils.getDiffTypeName;
 import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 
 /**
@@ -51,6 +52,7 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
     protected final T newNode;
     protected final T oldNode;
     protected DiffType diffType;
+    protected DiffKind diffKind;
     protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
     protected String message;
@@ -99,6 +101,15 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
 
     protected void setType(DiffType diffType) {
         this.diffType = diffType;
+    }
+
+    @Override
+    public DiffKind getKind() {
+        return diffKind;
+    }
+
+    protected void setKind(DiffKind diffKind) {
+        this.diffKind = diffKind;
     }
 
     @Override
@@ -179,6 +190,11 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.getDefault())));
             jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()
                     .toLowerCase(Locale.getDefault())));
+            if (this.getKind() == null || this.getKind() == DiffKind.UNKNOWN) {
+                jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(getDiffTypeName(this)));
+            } else {
+                jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(this.getKind().toString()));
+            }
         }
 
         if (this.getMessage().isPresent()) {
@@ -221,6 +237,12 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
             }
 
             return Optional.empty();
+        }
+
+        @Override
+        public NodeDiffBuilder withKind(DiffKind diffKind) {
+            nodeDiff.setKind(diffKind);
+            return this;
         }
 
         @Override

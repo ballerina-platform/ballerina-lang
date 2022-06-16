@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffExtractor;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.FunctionDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
@@ -45,8 +46,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.ISOLATED_KEYWORD;
-import static io.ballerina.semver.checker.util.PackageUtils.SERVICE_LISTENER_EXPR_KIND;
-import static io.ballerina.semver.checker.util.PackageUtils.SERVICE_VAR_KIND;
 import static io.ballerina.semver.checker.util.SyntaxTreeUtils.getFunctionIdentifier;
 
 /**
@@ -97,7 +96,10 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
 
         NodeList<AnnotationNode> newAnnots = newMeta.map(MetadataNode::annotations).orElse(null);
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
-        // todo - implement comparison logic for service annotations
+        DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
+                DiffKind.SERVICE_ANNOTATION.toString());
+        annotsComparator.computeDiff().ifPresent(metadataDiffs::add);
+
         return metadataDiffs;
     }
 
@@ -155,7 +157,7 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
         if (newNode.expressions().size() <= 1 && oldNode.expressions().size() <= 1) {
             ExpressionNode newListener = newNode.expressions().size() > 0 ? newNode.expressions().get(0) : null;
             ExpressionNode oldListener = oldNode.expressions().size() > 0 ? oldNode.expressions().get(0) : null;
-            new DumbNodeComparator<>(newListener, oldListener, SERVICE_LISTENER_EXPR_KIND).computeDiff()
+            new DumbNodeComparator<>(newListener, oldListener, DiffKind.SERVICE_LISTENER_EXPR.toString()).computeDiff()
                     .ifPresent(listenerDiffs::add);
         } else {
             new DumbNodeListComparator<>(newNode.expressions().stream().collect(Collectors.toList()),
@@ -186,16 +188,18 @@ public class ServiceComparator extends NodeComparator<ServiceDeclarationNode> {
                 functions.getValue()).computeDiff().ifPresent(memberDiffs::add));
 
         DiffExtractor<ObjectFieldNode> varDiffExtractor = new DiffExtractor<>(newServiceFields, oldServiceFields);
-        varDiffExtractor.getAdditions().forEach((name, function) -> {
-            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(function, null);
-            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(memberDiffs::add);
+        varDiffExtractor.getAdditions().forEach((name, variable) -> {
+            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(variable, null);
+            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).withKind(DiffKind.SERVICE_FIELD).build()
+                    .ifPresent(memberDiffs::add);
         });
-        varDiffExtractor.getRemovals().forEach((name, function) -> {
-            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(null, function);
-            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(memberDiffs::add);
+        varDiffExtractor.getRemovals().forEach((name, variable) -> {
+            NodeDiffBuilder serviceVarDiffBuilder = new NodeDiffImpl.Builder<>(null, variable);
+            serviceVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).withKind(DiffKind.SERVICE_FIELD).build()
+                    .ifPresent(memberDiffs::add);
         });
         varDiffExtractor.getCommons().forEach((name, serviceVars) -> new ObjectFieldComparator(serviceVars.getKey(),
-                serviceVars.getValue()).computeDiff().ifPresent(memberDiffs::add));
+                serviceVars.getValue()).computeDiff().ifPresent(diff -> memberDiffs.addAll(diff.getChildDiffs())));
 
         return memberDiffs;
     }

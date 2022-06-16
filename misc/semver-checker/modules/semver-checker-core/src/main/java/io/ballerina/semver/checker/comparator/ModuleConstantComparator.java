@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
@@ -35,8 +36,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-
-import static io.ballerina.semver.checker.util.PackageUtils.MODULE_CONST_INIT_KIND;
 
 /**
  * Comparator implementation for Ballerina module variable declarations.
@@ -143,7 +142,7 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
     private List<Diff> compareModuleVariableExpression(ConstantDeclarationNode newNode, ConstantDeclarationNode oldNode) {
         List<Diff> exprDiffs = new LinkedList<>();
         DumbNodeComparator<Node> exprComparator = new DumbNodeComparator<>(newNode.initializer(),
-                oldNode.initializer(), MODULE_CONST_INIT_KIND);
+                oldNode.initializer(), DiffKind.MODULE_CONST_INIT.toString());
         exprComparator.computeDiff().ifPresent(exprDiffs::add);
 
         return exprDiffs;
