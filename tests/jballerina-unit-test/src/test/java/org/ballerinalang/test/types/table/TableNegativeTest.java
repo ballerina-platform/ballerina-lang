@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -155,7 +156,11 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,string,string]'",
                 462, 21);
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int,int]'", 469, 21);
-        validateError(compileResult, index, "incompatible types: expected 'int', found '[int,int,int]'", 478, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 478, 21);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                491, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                496, 13);
     }
 
     @Test
