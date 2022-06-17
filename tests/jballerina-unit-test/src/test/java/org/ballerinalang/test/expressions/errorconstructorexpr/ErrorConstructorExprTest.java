@@ -106,15 +106,15 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "compatible type for error constructor expression not " +
                 "found in type '(int|string)'", 67, 16);
         validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'application', " +
+                "expected 'Application', found 'other'", 86, 66);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'id'", 86, 80);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 86, 80);
+        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'application', " +
                 "expected 'Application', found 'other'", 87, 66);
-        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'id'", 87, 80);
-        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 87, 80);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'name'", 87, 97);
         validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'application', " +
                 "expected 'Application', found 'other'", 88, 66);
-        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'name'", 88, 97);
-        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'application', " +
-                "expected 'Application', found 'other'", 89, 66);
-        validateError(negativeSemanticResult, i++, "missing identifier", 89, 80);
+        validateError(negativeSemanticResult, i++, "missing identifier", 88, 80);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 
