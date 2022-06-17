@@ -1,8 +1,8 @@
 [
   {
-    "description": "Change the documentation in function definition",
-    "oldCode": "# Description\n#\n# +x - Parameter Description\n# +y - Parameter Description\n# + return - Return value Description\npublic function add(int x , int y ) returns int {return 5;}",
-    "newCode": "# Description\n#\n# +x - x is a int\n# +y - y is a int\n# + return - Return as int\npublic function add(int x , int y ) returns int {return 5;}",
+    "description": "Add documentation in a module service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "# Service on port 8080\nservice /demo on new http:Listener(8080){}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -16,39 +16,7 @@
             {
               "type": "modified",
               "versionImpact": "patch",
-              "kind": "function",
-              "childDiffs": [
-                {
-                  "type": "modified",
-                  "versionImpact": "patch",
-                  "kind": "documentation",
-                  "message": "documentation is modified"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "description": "Add documentation in function definition",
-    "oldCode": "public function add(int x , int y ) returns int {return 5;}",
-    "newCode": "# Description\n#\n# +x - x is a int\n# +y - y is a int\n# + return - Return as int\npublic function add(int x , int y ) returns int {return 5;}",
-    "expectedOutput": {
-      "kind": "package",
-      "type": "modified",
-      "versionImpact": "patch",
-      "childDiffs": [
-        {
-          "kind": "module",
-          "type": "modified",
-          "versionImpact": "patch",
-          "childDiffs": [
-            {
-              "type": "modified",
-              "versionImpact": "patch",
-              "kind": "function",
+              "kind": "service",
               "childDiffs": [
                 {
                   "type": "new",
@@ -64,9 +32,9 @@
     }
   },
   {
-    "description": "Remove documentation in function definition",
-    "oldCode": "# Description\n#\n# +x - Parameter Description\n# +y - Parameter Description\n# + return - Return value Description\npublic function add(int x , int y ) returns int {return 5;}",
-    "newCode": "public function add(int x , int y ) returns int {return 5;}",
+    "description": "Remove the documentation in a module service declaration",
+    "oldCode": "# Service on port 8080\nservice /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -80,13 +48,45 @@
             {
               "type": "modified",
               "versionImpact": "patch",
-              "kind": "function",
+              "kind": "service",
               "childDiffs": [
                 {
                   "type": "removed",
                   "versionImpact": "patch",
                   "kind": "documentation",
                   "message": "documentation is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify the documentation in a module service declaration",
+    "oldCode": "# Description\nservice /demo on new http:Listener(8080){}",
+    "newCode": "# Service on port 8080\nservice /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "patch",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "kind": "documentation",
+                  "message": "documentation is modified"
                 }
               ]
             }
