@@ -64,8 +64,6 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-// TODO: This currently doesn't create a new type symbol. To support more complex types such as objects, may need to
-//  consider creating new instances for the type symbols as well.
 public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     private final Map<BType, BType> boundTypes = new HashMap<>();
@@ -178,7 +176,8 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         List<BAttachedFunction> newAttachedFuncs = new ArrayList<>();
         for (BAttachedFunction attachedFunc : objectTypeSymbol.attachedFuncs) {
             BType newType = resolve(attachedFunc.type, boundType);
-            BInvokableSymbol newInvokableSymbol = resolveInvokableSymbol(attachedFunc.symbol, (BInvokableType) newType, boundType);
+            BInvokableSymbol newInvokableSymbol = resolveInvokableSymbol(attachedFunc.symbol, (BInvokableType) newType,
+                                                                         boundType);
             BAttachedFunction newAttachedFunc = new BAttachedFunction(attachedFunc.funcName, newInvokableSymbol,
                                                     (BInvokableType) newType, attachedFunc.pos);
             newAttachedFuncs.add(newAttachedFunc);
@@ -286,7 +285,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         boolean areAllSameType = true;
 
         if (typeInSymbol.isCyclic) {
-            return resolveCyclicUnionType(typeInSymbol, boundType);
+            return typeInSymbol;   // TODO: Resolve cyclic union-types with type-params [Fix #36519]
         }
 
         for (BType memberType : typeInSymbol.getOriginalMemberTypes()) {
@@ -388,57 +387,6 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
         newInvokableSymbol.type = newInvokableType;
 
         return newInvokableSymbol;
-    }
-
-    private BUnionType resolveCyclicUnionType(BUnionType typeInSymbol, BType boundType) {
-        return typeInSymbol;
-//        LinkedHashSet<BType> newMembers = new LinkedHashSet<>();
-//        boolean areAllSameType = true;
-//
-//        for (BType memberType : typeInSymbol.getOriginalMemberTypes()) {
-//            if (memberType instanceof BArrayType) {
-//                BArrayType arrayType = (BArrayType) memberType;
-//                if (arrayType.eType == typeInSymbol) {
-////                    BArrayType newArrayType = new BArrayType(typeInSymbol, arrayType.tsymbol, arrayType.size,
-////                            arrayType.state, arrayType.flags);
-//                    newMembers.add(arrayType);
-//                    continue;
-//                }
-//            } else if (memberType instanceof BMapType) {
-//                BMapType mapType = (BMapType) memberType;
-//                if (mapType.constraint == typeInSymbol) {
-////                    BMapType newMapType = new BMapType(mapType.tag, typeInSymbol, mapType.tsymbol, mapType.flags);
-//                    newMembers.add(mapType);
-//                    continue;
-//                }
-//            } else if (memberType instanceof BTableType) {
-//                BTableType tableType = (BTableType) memberType;
-//                if (tableType.constraint == typeInSymbol) {
-////                    BTableType newTableType = new BTableType(tableType.tag, typeInSymbol, tableType.tsymbol,
-////                            tableType.flags);
-//                    newMembers.add(tableType);
-//                    continue;
-//                } else if (tableType.constraint instanceof BMapType) {
-//                    BMapType mapType = (BMapType) tableType.constraint;
-//                    if (mapType.constraint == typeInSymbol) {
-////                        BMapType newMapType = new BMapType(mapType.tag, typeInSymbol, mapType.tsymbol, mapType.flags);
-//                        BTableType newTableType = new BTableType(tableType.tag, mapType, tableType.tsymbol,
-//                                tableType.flags);
-//                        newMembers.add(newTableType);
-//                        continue;
-//                    }
-//                }
-//            }
-//            BType newType = resolve(memberType, boundType);
-//            areAllSameType &= newType == memberType;
-//            newMembers.add(memberType);
-//        }
-//
-//        if (areAllSameType) {
-//            return typeInSymbol;
-//        }
-//
-//        return BUnionType.create(typeInSymbol.tsymbol, newMembers);
     }
 
     private BVarSymbol duplicateSymbol(BVarSymbol original) {
