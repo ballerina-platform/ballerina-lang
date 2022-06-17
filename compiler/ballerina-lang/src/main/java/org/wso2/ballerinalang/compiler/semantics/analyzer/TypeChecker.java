@@ -1395,19 +1395,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (fieldName.equals(((BLangRecordVarNameField) recordField).variableName.value)) {
                     return (BLangRecordLiteral.BLangRecordVarNameField) recordField;
                 }
-            } else if (recordField.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
-                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
-                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
-                BType spreadOpExprType = Types.getReferredType(spreadOperatorField.expr.getBType());
-                if (spreadOpExprType.tag != TypeTags.RECORD) {
-                    continue;
-                }
-                BRecordType recordType = (BRecordType) spreadOpExprType;
-                for (BField recField : recordType.fields.values()) {
-                    if (fieldName.equals(recField.name.value)) {
-                        return recordLiteral;
-                    }
-                }
             }
         }
 
