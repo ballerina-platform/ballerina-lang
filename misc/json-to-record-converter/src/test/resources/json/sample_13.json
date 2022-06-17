@@ -1,0 +1,21 @@
+{ "salary": 123,
+  "address": {
+    "streetAddress": "101",
+    "city": "San Diego",
+    "state": "CA"
+  },
+  "school": {
+    "name": "Royal College",
+    "address": {
+      "streetAddress": "101",
+      "city": "San Diego"
+    }
+  },
+  "work": {
+    "name": "WSO2",
+    "address": {
+      "city": "San Diego",
+      "state": "CA"
+    }
+  }
+}

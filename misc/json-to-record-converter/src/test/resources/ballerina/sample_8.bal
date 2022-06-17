@@ -9,8 +9,8 @@ type IdentifierItem record {
 };
 
 type CodingItem record {
-    string system;
     string code;
+    string system?;
 };
 
 type Type record {
@@ -70,13 +70,13 @@ type ProductOrService record {
 };
 
 type UnitPrice record {
-    decimal value;
     string currency;
+    decimal value;
 };
 
 type Net record {
-    decimal value;
     string currency;
+    decimal value;
 };
 
 type DetailItem record {
