@@ -827,9 +827,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         Location pos = queryExpr.pos;
         final BType type = queryExpr.getBType();
         String name = getNewVarName();
-        BType tableType = symTable.tableType;
+        BType tableType = type;
         BType refType = Types.getReferredType(type);
         if (refType.tag == TypeTags.UNION) {
+            tableType = symTable.tableType;
             for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
                 if (Types.getReferredType(memberType).tag == TypeTags.TABLE) {
                     tableType = memberType;
