@@ -66,7 +66,6 @@ error uc3 = error ErrorU3("Hello");
 int|string uc4 = error ErrorA("msg");
 int|string b = error("err");
 
-// Test cases for issue fix: https://github.com/ballerina-platform/ballerina-lang/issues/36356
 type ErrorData record {
     string errorCode;
     Application application;
