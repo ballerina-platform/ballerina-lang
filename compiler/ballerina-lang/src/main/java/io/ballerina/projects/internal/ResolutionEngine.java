@@ -449,7 +449,7 @@ public class ResolutionEngine {
         }
 
         String serializedGraph = serializeRawGraph("Initial");
-        console.println("\nResolving dependencies");
+        console.println();
         console.println(serializedGraph);
     }
 
@@ -471,11 +471,10 @@ public class ResolutionEngine {
         String serializedGraph;
         if (resolutionOptions.dumpRawGraphs()) {
             serializedGraph = DotGraphs.serializeDependencyNodeGraph(dependencyGraph, "Final");
-            console.println();
         } else {
             serializedGraph = DotGraphs.serializeDependencyNodeGraph(dependencyGraph);
-            console.println("\nResolving dependencies");
         }
+        console.println();
         console.println(serializedGraph);
     }
 

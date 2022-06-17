@@ -76,6 +76,12 @@ public class CompileTask implements Task {
                 start = System.currentTimeMillis();
             }
 
+            if (project.currentPackage().compilationOptions().dumpGraph()
+                    || project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                this.out.println();
+                this.out.println("Resolving dependencies");
+            }
+
             project.currentPackage().getResolution();
 
             if (project.buildOptions().dumpBuildTime()) {

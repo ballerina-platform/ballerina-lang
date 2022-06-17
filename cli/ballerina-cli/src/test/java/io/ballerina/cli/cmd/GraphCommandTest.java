@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
@@ -56,6 +57,12 @@ public class GraphCommandTest extends BaseCommandTest {
             return;
         }
         compileAndCacheTestDependencies();
+    }
+
+    @AfterMethod
+    private void resetOutStream() throws IOException {
+        this.outStream.close();
+        setByteArrayOutputStream();
     }
 
     @Test(description = "Print the dependency graph of a valid single ballerina file with no dependencies")
@@ -278,10 +285,7 @@ public class GraphCommandTest extends BaseCommandTest {
         Files.copy(validBalFilePath, Files.createDirectory(directory).resolve("hello_world.bal"));
         Path noPermissionBalFilePath = directory.resolve("hello_world.bal");
 
-        boolean isPermissionSettingSuccessful = noPermissionBalFilePath.getParent().toFile().setWritable(false, false);
-        if (!isPermissionSettingSuccessful) {
-            Assert.fail("Revoking write permission of the project failed");
-        }
+        noPermissionBalFilePath.getParent().toFile().setWritable(false, false);
 
         GraphCommand graphCommand = new GraphCommand(noPermissionBalFilePath, printStream, printStream, false);
         new CommandLine(graphCommand).parseArgs(noPermissionBalFilePath.toString());
@@ -324,7 +328,6 @@ public class GraphCommandTest extends BaseCommandTest {
 
         try {
             graphCommand.execute();
-            Assert.fail("Should throw a BLangCompilerException due to missing dependency package_z");
         } catch (BLangCompilerException e) {
             Assert.assertEquals(e.getMessage(), "failed to load the module 'foo/package_y:0.1.0' from its BIR due " +
                     "to: cannot resolve module foo/package_z:0.1.0");
@@ -355,11 +358,8 @@ public class GraphCommandTest extends BaseCommandTest {
         BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_2_1_0").toString());
     }
 
-    private String readFormattedGraphOutput() throws IOException {
-        String formattedOutput = this.outStream.toString().replaceAll("\n\t\n", "\n\n").replaceAll("\r", "").strip();
-        this.outStream.close();
-        setByteArrayOutputStream();
-        return formattedOutput;
+    private String readFormattedGraphOutput() {
+        return this.outStream.toString().replaceAll("\n\t\n", "\n\n").replaceAll("\r", "").strip();
     }
 
     private String readFormattedBuildOutput() throws IOException {
