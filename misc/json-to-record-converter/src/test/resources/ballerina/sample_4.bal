@@ -9,4 +9,3 @@ type PeopleItem record {
 type NewRecord record {
 	PeopleItem[] people;
 };
-
