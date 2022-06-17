@@ -108,7 +108,7 @@ public class CoverageReport {
     /**
      * Generates the testerina coverage report.
      *
-     * @param jBallerinaBackend  JBallerinaBackend
+     * @param jBallerinaBackend JBallerinaBackend
      * @param includesInCoverage boolean
      * @throws IOException
      */
@@ -183,17 +183,8 @@ public class CoverageReport {
         addCompiledSources(filteredPathList, orgName, packageName);
         execFileLoader.load(executionDataFile.toFile());
         final CoverageBuilder coverageBuilder = analyzeStructure();
-
-        // Analyze original modules
         List<DocumentId> excludedFiles = getGeneratedFilesToExclude(originalModule);
-
-        // If there are files to exclude, we add that to the exclusion list
-        if (excludedFiles.isEmpty() == true) {
-            createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
-        } else {
-            createReport(coverageBuilder.getBundle(title), moduleCoverageMap, excludedFiles);
-        }
-
+        createReport(coverageBuilder.getBundle(title), moduleCoverageMap, excludedFiles);
         filterGeneratedCoverage(moduleCoverageMap, originalModule);
         return coverageBuilder;
     }
@@ -201,12 +192,10 @@ public class CoverageReport {
     private List<DocumentId> getGeneratedFilesToExclude(Module originalModules) {
         List<DocumentId> excludedDocumentIds = new ArrayList<>(this.module.documentIds());
         List<DocumentId> oldDocuementIds = new ArrayList<>();
-
         // Add all old document ids
         for (DocumentId documentId : originalModules.documentIds()) {
             oldDocuementIds.add(documentId);
         }
-
         excludedDocumentIds.removeAll(oldDocuementIds);
         return excludedDocumentIds;
     }
@@ -358,7 +347,7 @@ public class CoverageReport {
                     }
                     Document document = getDocument(sourceFileModule, sourceFileCoverage.getName());
                     // If the document exists in the exclusion list then we continue on with the loop
-                    if (exclusionList != null && exclusionList.contains(document.documentId())) {
+                    if (exclusionList.contains(document.documentId())) {
                         continue;
                     }
                     // If file is a source bal file
@@ -428,37 +417,38 @@ public class CoverageReport {
 
         for (DocumentId documentId : originalModule.documentIds()) {
             Document originalDocument = originalModule.document(documentId);
-            Document document = getDocument(originalModule.moduleName().toString(), originalDocument.name());
+            Document modifiedDocument = this.module.document(originalDocument.documentId());
+
+            if (originalDocument.equals(modifiedDocument)) {
+                continue;
+            }
 
             try {
                 // Use diff utils to analyze the text lines in the doc
                 Patch<String> stringPatch = DiffUtils.diff(originalDocument.textDocument().textLines(),
-                        document.textDocument().textLines());
+                        modifiedDocument.textDocument().textLines());
 
                 if (!stringPatch.getDeltas().isEmpty()) {
                     List<AbstractDelta<String>> patchDeltas = stringPatch.getDeltas();
-                    List<Integer> modifiedLines = new ArrayList();
-
+                    List<Integer> insertedLines = new ArrayList();
                     for (AbstractDelta<String> delta : patchDeltas) {
                         // This means that we have to consider the block added
                         if (delta.getType().equals(DeltaType.INSERT)) {
                             int lineNumber = delta.getTarget().getPosition();
                             int size = delta.getTarget().size();
-
                             for (int i = lineNumber; i < lineNumber + size; i++) {
-                                modifiedLines.add(i);
+                                insertedLines.add(i);
                             }
                         }
                     }
 
                     ModuleCoverage moduleCoverage = moduleCoverageMap.get(originalModule.moduleName().toString());
-
-                    List<Integer> coveredLinesList = moduleCoverage.getCoveredLinesList(document.name()).get();
-                    List<Integer> missedLinesList = moduleCoverage.getMissedLinesList(document.name()).get();
+                    List<Integer> coveredLinesList = moduleCoverage.getCoveredLinesList(modifiedDocument.name()).get();
+                    List<Integer> missedLinesList = moduleCoverage.getMissedLinesList(modifiedDocument.name()).get();
 
                     // Populate lineStatus with zeroes
                     List<Integer> lineStatus = new ArrayList<>();
-                    for (int i = 0; i < document.textDocument().textLines().size(); i++) {
+                    for (int i = 0; i < modifiedDocument.textDocument().textLines().size(); i++) {
                         lineStatus.add(0);
                     }
 
@@ -474,7 +464,7 @@ public class CoverageReport {
 
                     List<Integer> newLineStatus = new ArrayList<>();
                     for (int i = 0; i < lineStatus.size(); i++) {
-                        if (modifiedLines.contains(i)) {
+                        if (insertedLines.contains(i)) {
                             continue;
                         }
                         newLineStatus.add(lineStatus.get(i));
@@ -503,107 +493,6 @@ public class CoverageReport {
                 // NullPointer caught when a Generated Source File is passed or if its an empty file
                 // continue to consider other files in the coverage
                 continue;
-            }
-        }
-    }
-
-    private void filterGeneratedCoverage(final IBundleCoverage bundleCoverage,
-                                         Map<String, ModuleCoverage> moduleCoverageMap, Module originalModule) {
-        boolean containsSourceFiles = true;
-
-        // Loop through the individual package coverage
-        for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
-
-            if (TesterinaConstants.DOT.equals(this.module.moduleName())) {
-                containsSourceFiles = packageCoverage.getName().isEmpty();
-            }
-
-            if (containsSourceFiles) {
-                // Get the source file coverage for each file
-                for (ISourceFileCoverage sourceFileCoverage : packageCoverage.getSourceFiles()) {
-                    // Extract the Module name individually for each source file
-                    // This is done since some source files come from other modules
-                    // sourceFileCoverage : "<orgname>/<moduleName>:<version>
-                    if (sourceFileCoverage.getPackageName().split("/").length <= 1) {
-                        continue;
-                    }
-
-                    String sourceFileModule = decodeIdentifier(sourceFileCoverage.getPackageName().split("/")[1]);
-
-                    // Get the module coverage. Since this is already calculated
-                    ModuleCoverage moduleCoverage = moduleCoverageMap.get(sourceFileModule);
-
-                    // Get the current compiled document (with the code modifications)
-                    Document document = getDocument(sourceFileModule, sourceFileCoverage.getName());
-
-                    // Get the old compiled document directly from the duplicate module
-                    Document documentOld = getDocumentFromModule(originalModule, sourceFileCoverage.getName());
-
-                    try {
-                        // Use diff utils to analyze the text lines in the doc
-                        Patch<String> stringPatch = DiffUtils.diff(documentOld.textDocument().textLines(),
-                                document.textDocument().textLines());
-
-                        if (!stringPatch.getDeltas().isEmpty() &&
-                                moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {
-
-                            List<AbstractDelta<String>> patchDeltas = stringPatch.getDeltas();
-                            List<Integer> modifiedLines = new ArrayList();
-
-                            for (AbstractDelta<String> delta : patchDeltas) {
-                                // This means that we have to consider the block added
-                                if (delta.getType().equals(DeltaType.INSERT)) {
-                                    int lineNumber = delta.getTarget().getPosition();
-                                    int size = delta.getTarget().size();
-
-                                    for (int i = lineNumber; i < lineNumber + size; i++) {
-                                        modifiedLines.add(i);
-                                    }
-                                }
-                            }
-
-                            // Populate line status
-                            List<Integer> lineStatus = new ArrayList<>();
-
-                            // For each line, we check the status provided and add it to a List
-                            // sourceFileCoverage takes line numbers not indexes
-                            for (int i = 0; i < document.textDocument().textLines().size(); i++) {
-                                lineStatus.add(sourceFileCoverage.getLine(i).getStatus());
-                            }
-
-                            // Line status now contains line numbers and not indexes. Line = index - 1
-                            // From the list, remove the index of the modified lines
-                            // If line 1, then index is 0
-                            for (Integer modifiedLine : modifiedLines) {
-                                lineStatus.remove(modifiedLine.intValue() - 1);
-                            }
-
-                            // Calculate coverage for new source file only if belongs to current module
-                            List<Integer> coveredLines = new ArrayList<>();
-                            List<Integer> missedLines = new ArrayList<>();
-
-                            // Iterate through lineStatus and tally the covered lines and missed lines
-                            for (int i = 0; i < lineStatus.size(); i++) {
-                                if (lineStatus.get(i) == FULLY_COVERED || lineStatus.get(i) == PARTLY_COVERED) {
-                                    coveredLines.add(i);
-                                } else if (lineStatus.get(i) == NOT_COVERED) {
-                                    missedLines.add(i);
-                                }
-                            }
-
-                            // Remove previous source file module and replace it with new module coverage
-                            moduleCoverageMap.remove(sourceFileModule);
-                            moduleCoverage.replaceCoverage(documentOld, coveredLines, missedLines);
-                            moduleCoverageMap.put(sourceFileModule, moduleCoverage);
-                        }
-
-                    } catch (DiffException | NullPointerException e) {
-                        // Diff exception caught when diff cannot be calculated properly
-                        // NullPointer caught when a Generated Source File is passed or if its an empty file
-                        // continue to consider other files in the coverage
-                        continue;
-                    }
-                }
             }
         }
     }
