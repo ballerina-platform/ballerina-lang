@@ -1739,14 +1739,10 @@ public class Types {
                     case TypeTags.NEVER:
                         varType = symTable.neverType;
                         break;
-                    case TypeTags.ARRAY:
-                        BArrayType xmlItemArrayType = (BArrayType) constraint;
-                        varType = xmlItemArrayType.eType;
-                        break;
                     case TypeTags.INTERSECTION:
                         varType = getReferredType(((BIntersectionType) constraint).getEffectiveType());
                         break;
-                    default:
+                    case TypeTags.UNION:
                         Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                         Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
                                 ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
@@ -1769,10 +1765,16 @@ public class Types {
                                         collectionTypesInSymTable.add(symTable.xmlPIType);
                                         break;
                                 }
-
+                                
                             }
                             varType = BUnionType.create(null, collectionTypesInSymTable);
                         }
+                        break;
+                    default:
+                        foreachNode.varType = symTable.semanticError;
+                        foreachNode.resultType = symTable.semanticError;
+                        foreachNode.nillableResultType = symTable.semanticError;
+                        return;
                 }
                 break;
             case TypeTags.XML_TEXT:

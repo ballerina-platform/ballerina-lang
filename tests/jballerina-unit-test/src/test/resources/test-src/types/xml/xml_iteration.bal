@@ -324,6 +324,24 @@ function testSequenceOfSequenceOfReadonlyXmlElementIteration() {
     validateValues(arr);
 }
 
+function testSequenceOfXmlReadonlyUnionIteration() {
+    xml<(xml:Element|xml:Comment) & readonly> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach (xml:Element|xml:Comment) & readonly e1 in elements {
+        arr.push(<xml:Element> e1);
+    }
+    validateValues(arr);
+}
+
+function testSequenceOfXmlReadonlyUnionIteration2() {
+    xml<(xml:Element & readonly | xml:Comment & readonly)> elements = xml `<foo/><bar>value</bar><baz>1</baz>`;
+    xml:Element[] arr = [];
+    foreach var e1 in elements {
+        arr.push(<xml:Element> e1);
+    }
+    validateValues(arr);
+}
+
 function validateValues(xml:Element[] arr) {
     assert(arr.length(), 3);
     assert(arr[0], xml `<foo/>`);

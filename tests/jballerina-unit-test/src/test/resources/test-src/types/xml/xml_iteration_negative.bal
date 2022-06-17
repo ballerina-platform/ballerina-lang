@@ -88,3 +88,11 @@ function xmlElementArrayIntersectionWithReadonlyTypeIter() {
         concatString(element.toString());
     }
 }
+
+public function xmlTupleTypeIter() {
+    xml<[int, string]> elements = xml ``;
+
+    foreach var element in elements {
+        concatString(element.toString());
+    }
+}

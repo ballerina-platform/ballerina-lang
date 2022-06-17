@@ -117,6 +117,9 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: 'xml' cannot be constrained with '(xml:Element[] & readonly)'",
                 85, 5);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with '[int,string]'",
+                93, 5);
     }
 
     @Test
@@ -147,7 +150,9 @@ public class XMLIterationTest {
             "xmlTypeParamElementIter",
             "xmlTypeParamPIIter",
             "testSequenceOfSequenceOfXmlElementIteration",
-            "testSequenceOfSequenceOfReadonlyXmlElementIteration"
+            "testSequenceOfSequenceOfReadonlyXmlElementIteration",
+            "testSequenceOfXmlReadonlyUnionIteration",
+            "testSequenceOfXmlReadonlyUnionIteration2"
         };
     }
 
