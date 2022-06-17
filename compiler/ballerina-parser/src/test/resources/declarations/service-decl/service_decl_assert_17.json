@@ -162,14 +162,9 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                                ]
+                                "kind": "SLASH_TOKEN"
                               }
                             ]
                           }
@@ -178,9 +173,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
                                 "kind": "IDENTIFIER_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
+                                ],
                                 "value": "bar"
                               }
                             ]
@@ -343,14 +343,9 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                                ]
+                                "kind": "SLASH_TOKEN"
                               }
                             ]
                           }
@@ -359,9 +354,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "OPEN_BRACKET_TOKEN"
+                                "kind": "OPEN_BRACKET_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
+                                ]
                               }
                             ]
                           }
@@ -561,14 +561,9 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                                ]
+                                "kind": "SLASH_TOKEN"
                               }
                             ]
                           }
@@ -577,9 +572,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "OPEN_BRACKET_TOKEN"
+                                "kind": "OPEN_BRACKET_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
+                                ]
                               }
                             ]
                           }
@@ -797,14 +797,9 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                                ]
+                                "kind": "SLASH_TOKEN"
                               }
                             ]
                           }
@@ -813,9 +808,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
                                 "kind": "IDENTIFIER_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
+                                ],
                                 "value": "bar"
                               }
                             ]
@@ -985,14 +985,9 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                                ]
+                                "kind": "SLASH_TOKEN"
                               }
                             ]
                           }
@@ -1001,9 +996,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "OPEN_BRACKET_TOKEN"
+                                "kind": "OPEN_BRACKET_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
+                                ]
                               }
                             ]
                           }
@@ -1210,14 +1210,9 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "SLASH_TOKEN",
-                                "hasDiagnostics": true,
-                                "diagnostics": [
-                                  "ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH"
-                                ]
+                                "kind": "SLASH_TOKEN"
                               }
                             ]
                           }
@@ -1226,9 +1221,14 @@
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "hasDiagnostics": true,
                             "children": [
                               {
-                                "kind": "OPEN_BRACKET_TOKEN"
+                                "kind": "OPEN_BRACKET_TOKEN",
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
+                                ]
                               }
                             ]
                           }

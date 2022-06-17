@@ -120,7 +120,14 @@ public class ServiceDeclTest {
     public void testRelativePathStartsWithSlashSyntaxError() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/" +
                 "service_relative_resource_path_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
-        validateError(compileResult, 0, "resource path cannot begin with slash", 35, 27);
+        int i = 0;
+        
+        validateError(compileResult, i++, "resource path cannot begin with slash", 35, 27);
+        validateError(compileResult, i++, 
+                "resource path segment is not allowed after resource path rest parameter", 38, 44);
+        validateError(compileResult, i++, 
+                "resource path segment is not allowed after resource path rest parameter", 38, 49);
+        
+        Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 }

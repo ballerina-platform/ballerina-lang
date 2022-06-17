@@ -182,7 +182,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
 
     @Override
     public Optional<Location> transform(ResourcePathParameterNode resourcePathParameterNode) {
-        return resourcePathParameterNode.paramName().apply(this);
+        if (resourcePathParameterNode.paramName().isEmpty()) {
+            return Optional.empty();
+        }
+        
+        return resourcePathParameterNode.paramName().get().apply(this);
     }
 
     @Override
