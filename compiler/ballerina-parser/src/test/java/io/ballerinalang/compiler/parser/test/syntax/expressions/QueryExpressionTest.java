@@ -269,5 +269,7 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         testFile("query-expr/query_expr_source_74.bal", "query-expr/query_expr_assert_74.json");
         testFile("query-expr/query_expr_source_75.bal", "query-expr/query_expr_assert_75.json");
         testFile("query-expr/query_expr_source_76.bal", "query-expr/query_expr_assert_76.json");
+        testFile("query-expr/query_expr_source_77.bal", "query-expr/query_expr_assert_77.json");
+        testFile("query-expr/query_expr_source_78.bal", "query-expr/query_expr_assert_78.json");
     }
 }

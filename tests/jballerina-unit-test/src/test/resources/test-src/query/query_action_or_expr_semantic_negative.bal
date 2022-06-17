@@ -303,3 +303,18 @@ function testQueryActionOrExprWithActionsInLimitClause() {
         limit obj->foo()
         select i;
 }
+
+function testQueryActionOrExprWithActionsInJoinClause() {
+    var obj = client object {
+        remote function foo() returns int[] {
+            return [1];
+        }
+    };
+
+    _ = from var i in 1...3
+        join var j in obj->foo()
+        on i equals j
+        select i;
+}
+
+int[][] globalQuery = from var i in 1...3 select start f1();

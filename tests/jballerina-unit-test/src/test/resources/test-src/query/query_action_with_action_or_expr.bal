@@ -630,7 +630,7 @@ function testQueryActionWithNestedQueryActionOrExpr() {
     assertEquality(124, sum);
 
     var b = from var i in (from var j in (from var k in obj->foo() where k is int select k) select obj->bam(j, 2))
-            join var l in (from var m in (from var n in obj->foo() where n is int select n) select obj->bam(m, 2))
+            join var l in (from var m in (from var n in [1, 2, "C", 4, "E"] where n is int select n) select m * 2)
             on i equals l
             let (int|string)[] val = from var x in 1...3 select obj->bar(x)
             where val is int[]

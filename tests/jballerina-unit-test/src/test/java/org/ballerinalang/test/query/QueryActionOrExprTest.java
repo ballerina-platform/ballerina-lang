@@ -66,7 +66,9 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExprWithParenthesizedQueryActionOrExpr",
                 "testPrecedenceOfActionsWithQueryActionOrExpr",
                 "testQueryActionOrExprWithAllQueryClauses",
-                "testQueryActionOrExprWithNestedQueryActionOrExpr"
+                "testQueryActionOrExprWithNestedQueryActionOrExpr",
+                "testQueryActionOrExprWithQueryConstructingTable",
+                "testQueryActionOrExprWithQueryConstructingStream"
         };
     }
 
@@ -123,6 +125,9 @@ public class QueryActionOrExprTest {
                 "belong to a basic type", 291, 18);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 303, 15);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 303, 15);
+        validateError(negativeResult, i++, "action invocation as an expression not allowed here", 315, 23);
+        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 316, 21);
+        validateError(negativeResult, i++, "action invocation as an expression not allowed here", 320, 50);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

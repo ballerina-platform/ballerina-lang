@@ -547,7 +547,7 @@ function testQueryActionOrExprWithNestedQueryActionOrExpr() {
     assertEquality([1056, 1152, 1344, 528], b);
 
     var c = from var i in (from var j in (from var k in obj->foo() where k is int select k) select obj->bam(j, 2))
-            join var l in (from var m in (from var n in obj->foo() where n is int select n) select obj->bam(m, 2))
+            join var l in (from var m in (from var n in [1, 2, "C", 4, "E"] where n is int select n) select m * 2)
             on i equals l
             let (int|string)[] val = from var x in 1...3 select obj->bar(x)
             where val is int[]
@@ -555,6 +555,157 @@ function testQueryActionOrExprWithNestedQueryActionOrExpr() {
             limit 4
             select obj->bam(l * i * val[0], 2);
     assertEquality([384, 96, 24], c);
+}
+
+public type Token record {|
+    readonly int idx;
+    string val;
+|};
+
+type TokenTable table<Token> key(idx);
+
+function testQueryActionOrExprWithQueryConstructingTable() {
+    var obj = client object {
+        remote function foo() returns (int|string)[] {
+            return [1, 2, "C", 4, "E"];
+        }
+
+        remote function bar(int i) returns int {
+            return i + 2;
+        }
+
+        remote function bam(int i, int j) returns int {
+            return i * j;
+        }
+
+        remote function getToken(int i, string j) returns Token {
+            return {idx: i, val: j};
+        }
+    };
+
+    TokenTable|error a = table key(idx) from var i in obj->foo()
+            where i is int
+            let int val = obj->bar(i)
+            order by i
+            limit 2
+            select obj->getToken(i * val, "A")
+            on conflict error("Duplicate Keys Error");
+
+    TokenTable expectedTbl1 = table [
+            {"idx":3,"val":"A"},
+            {"idx":8,"val":"A"}
+        ];
+
+    assertEquality(true, a is TokenTable);
+    if (a is TokenTable) {
+        assertEquality(expectedTbl1, a);
+    }
+
+    TokenTable|error b = table key(idx) from var i in [1, 2, 1]
+            where i is int
+            let int val = obj->bar(i)
+            order by i
+            limit 2
+            select obj->getToken(i * val, "A")
+            on conflict error("Duplicate Keys Error");
+
+    assertEquality(true, b is error);
+    if (b is error) {
+        assertEquality("Duplicate Keys Error", b.message());
+    }
+
+    TokenTable|error c = table key(idx) from var i in from var j in (from var k in obj->foo() where k is int select k) select obj->bam(j, 2)
+            from var l in from var m in (from var n in obj->foo() where n is int select n + 10) select obj->bam(m, 2)
+            let (int|string)[] val = from var x in 1...3 select obj->bar(x)
+            where val is int[]
+            order by l
+            limit 4
+            select {
+                idx: l * i * val[0],
+                val: "A"
+            };
+
+    TokenTable expectedTbl2 = table [
+            {"idx": 132, "val": "A"},
+            {"idx": 264, "val": "A"},
+            {"idx": 528, "val": "A"},
+            {"idx": 144, "val": "A"}
+        ];
+
+    assertEquality(true, c is TokenTable);
+    if (c is TokenTable) {
+        assertEquality(expectedTbl2, c);
+    }
+}
+
+function testQueryActionOrExprWithQueryConstructingStream() {
+    var obj = client object {
+        remote function foo() returns (int|string)[] {
+            return [1, 2, "C", 4, "E"];
+        }
+
+        remote function bar(int i) returns int {
+            return i + 2;
+        }
+
+        remote function bam(int i, int j) returns int {
+            return i * j;
+        }
+
+        remote function getToken(int i, string j) returns Token {
+            return {idx: i, val: j};
+        }
+    };
+
+    stream<Token> a = stream from var i in obj->foo()
+            where i is int
+            let int val = obj->bar(i)
+            order by i
+            limit 2
+            select obj->getToken(i * val, "A");
+
+    record {| Token value; |}? token = getTokenValue(a.next());
+    assertEquality({idx: 3, val: "A"}, token?.value);
+
+    token = getTokenValue(a.next());
+    assertEquality({idx: 8, val: "A"}, token?.value);
+
+
+    stream<Token> b = stream from var i in from var j in (from var k in obj->foo() where k is int select k) select obj->bam(j, 2)
+            from var l in from var m in (from var n in obj->foo() where n is int select n + 10) select obj->bam(m, 2)
+            let (int|string)[] val = from var x in 1...3 select obj->bar(x)
+            where val is int[]
+            order by l
+            limit 4
+            select {
+                idx: l * i * val[0],
+                val: "A"
+            };
+
+    token = getTokenValue(b.next());
+    assertEquality({idx: 132, val: "A"}, token?.value);
+
+    token = getTokenValue(b.next());
+    assertEquality({idx: 264, val: "A"}, token?.value);
+
+    token = getTokenValue(b.next());
+    assertEquality({idx: 528, val: "A"}, token?.value);
+
+    token = getTokenValue(b.next());
+    assertEquality({idx: 144, val: "A"}, token?.value);
+}
+
+type TokenValue record {|
+    Token value;
+|};
+
+function getTokenValue((record {| Token value; |}|error?)|(record {| Token value; |}?) returnedVal) returns TokenValue? {
+    var result = returnedVal;
+    if (result is TokenValue) {
+        return result;
+    } else {
+        return ();
+    }
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
