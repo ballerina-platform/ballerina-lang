@@ -268,14 +268,17 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             BType newType = resolve(paramType, boundType);
             newParamTypes.add(newType);
         }
+
         BType newRestParamType = null;
         if (typeInSymbol.restType != null) {
             newRestParamType = resolve(typeInSymbol.restType, boundType);
         }
+
         BType newReturnType = null;
         if (typeInSymbol.retType != null) {
             newReturnType = resolve(typeInSymbol.retType, boundType);
         }
+
         return new BInvokableType(newParamTypes, newRestParamType, newReturnType, typeInSymbol.tsymbol);
     }
 
