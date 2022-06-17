@@ -221,3 +221,10 @@ function testInvalidTypeInSelectWithQueryConstructingMap3() {
                      let string[2]|int[2]|string arr = [user.firstName, user.lastName]
                      select arr;
 }
+
+function testInvalidTypeInSelectWithQueryConstructingMap4() {
+    var a = map from string|int a in ["a", "b", 1, 2]
+                let [string, int]|[string, string] c = a
+                select c;
+    map<string> _ = a;
+}
