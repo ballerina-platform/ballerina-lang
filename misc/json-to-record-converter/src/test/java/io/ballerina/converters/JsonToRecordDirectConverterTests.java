@@ -80,6 +80,26 @@ public class JsonToRecordDirectConverterTests {
     private final Path sample8Bal = RES_DIR.resolve("ballerina")
             .resolve("sample_8.bal");
 
+    private final Path sample9Json = RES_DIR.resolve("json")
+            .resolve("sample_9.json");
+    private final Path sample9Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_9.bal");
+
+    private final Path sample10Json = RES_DIR.resolve("json")
+            .resolve("sample_10.json");
+    private final Path sample10Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_10.bal");
+
+    private final Path sample11Json = RES_DIR.resolve("json")
+            .resolve("sample_11.json");
+    private final Path sample11Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_11.bal");
+
+    private final Path sample12Json = RES_DIR.resolve("json")
+            .resolve("sample_12.json");
+    private final Path sample12Bal = RES_DIR.resolve("ballerina")
+            .resolve("sample_12.bal");
+
     private final Path sample13Json = RES_DIR.resolve("json")
             .resolve("sample_13.json");
     private final Path sample13Bal = RES_DIR.resolve("ballerina")
@@ -97,6 +117,10 @@ public class JsonToRecordDirectConverterTests {
         samples.put(sample6Json, sample6Bal);
         samples.put(sample7Json, sample7Bal);
         samples.put(sample8Json, sample8Bal);
+        samples.put(sample9Json, sample9Bal);
+        samples.put(sample10Json, sample10Bal);
+        samples.put(sample11Json, sample11Bal);
+        samples.put(sample12Json, sample12Bal);
         samples.put(sample13Json, sample13Bal);
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());

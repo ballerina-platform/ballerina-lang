@@ -37,4 +37,3 @@ type NewRecord record {
 	boolean honors;
 	Address address;
 };
-
