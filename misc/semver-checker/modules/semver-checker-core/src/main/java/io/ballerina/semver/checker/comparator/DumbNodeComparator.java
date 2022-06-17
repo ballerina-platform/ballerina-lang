@@ -72,5 +72,4 @@ public class DumbNodeComparator<T extends Node> implements Comparator {
 
         return Optional.empty();
     }
-
 }

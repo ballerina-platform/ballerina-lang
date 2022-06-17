@@ -130,6 +130,6 @@ public class PackageUtils {
      * @param str word string
      */
     public static String capitalize(String str) {
-        return str.substring(0, 1).toUpperCase(Locale.getDefault()) + str.substring(1).toLowerCase(Locale.getDefault());
+        return str.substring(0, 1).toUpperCase(Locale.ENGLISH) + str.substring(1).toLowerCase(Locale.ENGLISH);
     }
 }

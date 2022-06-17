@@ -183,9 +183,9 @@ public class NodeDiffImpl<T extends Node> implements NodeDiff<T> {
 
         // Todo: Add the rest of module-level definition types
         if (childDiffs == null || childDiffs.isEmpty() || this instanceof FunctionDiff || this instanceof ServiceDiff) {
-            jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.getDefault())));
+            jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.getType().name().toLowerCase(Locale.ENGLISH)));
             jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.getVersionImpact().name()
-                    .toLowerCase(Locale.getDefault())));
+                    .toLowerCase(Locale.ENGLISH)));
             if (this.getKind() == null || this.getKind() == DiffKind.UNKNOWN) {
                 jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(getDiffTypeName(this)));
             } else {

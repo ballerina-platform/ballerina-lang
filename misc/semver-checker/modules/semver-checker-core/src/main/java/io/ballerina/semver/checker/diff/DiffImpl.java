@@ -131,9 +131,9 @@ public class DiffImpl implements Diff {
     public JsonObject getAsJson() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
-        jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.diffType.name().toLowerCase(Locale.getDefault())));
+        jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.diffType.name().toLowerCase(Locale.ENGLISH)));
         jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.versionImpact.name()
-                .toLowerCase(Locale.getDefault())));
+                .toLowerCase(Locale.ENGLISH)));
         if (diffType == DiffType.MODIFIED && childDiffs != null && !childDiffs.isEmpty()) {
             JsonArray childArray = new JsonArray();
             childDiffs.forEach(diff -> childArray.add(diff.getAsJson()));
