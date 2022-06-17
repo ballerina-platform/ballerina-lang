@@ -1,8 +1,8 @@
 [
   {
-    "description": "Change made on Listener expression list  in a service declaration",
-    "oldCode": "service /demo on new http:Listener(8080){}",
-    "newCode": "service /demo on new udp:Listener(8080){}",
+    "description": "Change the constant value",
+    "oldCode": "public const int id = 10;",
+    "newCode": "public const int id = 11;",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,7 +14,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "module constant",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -22,7 +22,7 @@
                   "kind": "unknown",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "service listener expression is modified"
+                  "message": "module constant initializer is modified"
                 }
               ]
             }
@@ -32,9 +32,9 @@
     }
   },
   {
-    "description": "Change the port number of a service declaration",
-    "oldCode": "service /demo on new http:Listener(8080){}",
-    "newCode": "service /demo on new udp:Listener(8000){}",
+    "description": "Change the expression of a constant but doesn't change the value (Non affecting change)",
+    "oldCode": "public const int id = 10;",
+    "newCode": "public const int id = 5+5;",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -46,7 +46,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "module constant",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -54,7 +54,7 @@
                   "kind": "unknown",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "service listener expression is modified"
+                  "message": "module constant initializer is modified"
                 }
               ]
             }
@@ -64,9 +64,9 @@
     }
   },
   {
-    "description": "Change the hardcoded port number into a variable reference",
-    "oldCode": "service /demo on new http:Listener(8080){}",
-    "newCode": "int port = 8080;\nservice /demo on new udp:Listener(port){}",
+    "description": "Non affecting change in expression",
+    "oldCode": "public const boolean alive = false;",
+    "newCode": "public const boolean alive = !true;",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -78,7 +78,7 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "service",
+              "kind": "module constant",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
@@ -86,14 +86,9 @@
                   "kind": "unknown",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "service listener expression is modified"
+                  "message": "module constant initializer is modified"
                 }
               ]
-            },
-            {
-              "kind": "module variable",
-              "type": "new",
-              "versionImpact": "minor"
             }
           ]
         }
