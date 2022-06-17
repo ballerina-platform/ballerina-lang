@@ -47,7 +47,12 @@ public class Status {
     }
 
     public static void initiateSignalListener() {
-        Signal.handle(new Signal("TRAP"), signal -> outStream.println(getStrandDump()));
+        try {
+            Signal.handle(new Signal("TRAP"), signal -> outStream.println(getStrandDump()));
+        } catch (IllegalArgumentException ignored) {
+            // In some Operating Systems like Windows, "TRAP" POSIX signal is not supported.
+            // There getting the strand dump using kill signals is not enabled, hence the exception is ignored.
+        }
     }
 
     private static String getStrandDump() {
