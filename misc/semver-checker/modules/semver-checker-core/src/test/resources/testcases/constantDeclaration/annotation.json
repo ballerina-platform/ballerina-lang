@@ -14,6 +14,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 [
                   {
@@ -45,6 +48,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 [
                   {
@@ -76,6 +82,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 [
                   {

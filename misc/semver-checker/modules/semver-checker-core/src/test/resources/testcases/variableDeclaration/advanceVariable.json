@@ -14,6 +14,9 @@
           "versionImpact": "major",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "major",
               "childDiffs": [
                 {
                   "kind": "documentation",
@@ -25,7 +28,7 @@
                   "kind": "unknown",
                   "type": "removed",
                   "versionImpact": "major",
-                  "message": "'public' qualifier is removed from module variable 'id'"
+                  "message": "'public' qualifier is removed from variable 'id'"
                 }
               ]
             }
@@ -49,6 +52,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 [
                   {
@@ -62,7 +68,7 @@
                   "kind": "unknown",
                   "type": "new",
                   "versionImpact": "ambiguous",
-                  "message": "'final' qualifier is added to module variable 'id'"
+                  "message": "'final' qualifier is added to variable 'id'"
                 },
                 {
                   "kind": "unknown",
@@ -92,12 +98,15 @@
           "versionImpact": "major",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "major",
               "childDiffs": [
                 {
                   "kind": "unknown",
                   "type": "removed",
                   "versionImpact": "major",
-                  "message": "'public' qualifier is removed from module variable 'id'"
+                  "message": "'public' qualifier is removed from variable 'id'"
                 },
                 {
                   "kind": "unknown",
@@ -127,6 +136,9 @@
           "versionImpact": "major",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "major",
               "childDiffs": [
                 {
                   "kind": "documentation",
@@ -146,13 +158,13 @@
                   "kind": "unknown",
                   "type": "removed",
                   "versionImpact": "major",
-                  "message": "'public' qualifier is removed from module variable 'id'"
+                  "message": "'public' qualifier is removed from variable 'id'"
                 },
                 {
                   "kind": "unknown",
                   "type": "new",
                   "versionImpact": "ambiguous",
-                  "message": "'final' qualifier is added to module variable 'id'"
+                  "message": "'final' qualifier is added to variable 'id'"
                 },
                 {
                   "kind": "unknown",

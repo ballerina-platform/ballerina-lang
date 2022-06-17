@@ -14,6 +14,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 {
                   "kind": "unknown",
@@ -49,6 +52,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 [
                   {
@@ -86,6 +92,9 @@
           "versionImpact": "major",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "major",
               "childDiffs": [
                 {
                   "kind": "documentation",
@@ -121,6 +130,9 @@
           "versionImpact": "major",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "major",
               "childDiffs": [
                 {
                   "kind": "documentation",

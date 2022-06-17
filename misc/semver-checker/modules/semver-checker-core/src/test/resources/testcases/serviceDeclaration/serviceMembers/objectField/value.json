@@ -1,8 +1,8 @@
 [
   {
-    "description": "Change the type of a module constant",
-    "oldCode": "public const int id = 102;",
-    "newCode": "public const float id = 102;",
+    "description": "Change the value of the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tint x=8;\n\t}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,15 +14,15 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
               "type": "modified",
               "versionImpact": "ambiguous",
+              "kind": "service",
               "childDiffs": [
                 {
-                  "kind": "unknown",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "module constant type changed from 'int' to 'float'"
+                  "kind": "unknown",
+                  "message": "numeric literal is modified"
                 }
               ]
             }
@@ -32,9 +32,9 @@
     }
   },
   {
-    "description": "Change the type of a module constant int to string",
-    "oldCode": "public const int id = 102;",
-    "newCode": "public const string id = \"102\";",
+    "description": "Change the expression, but didn't change the value of the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tint x=3+2;\n\t}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -46,21 +46,15 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
               "type": "modified",
               "versionImpact": "ambiguous",
+              "kind": "service",
               "childDiffs": [
                 {
-                  "kind": "unknown",
                   "type": "modified",
                   "versionImpact": "ambiguous",
-                  "message": "module constant type changed from 'int' to 'string'"
-                },
-                {
                   "kind": "unknown",
-                  "type": "modified",
-                  "versionImpact": "ambiguous",
-                  "message": "module constant initializer is modified"
+                  "message": "binary expression is modified"
                 }
               ]
             }

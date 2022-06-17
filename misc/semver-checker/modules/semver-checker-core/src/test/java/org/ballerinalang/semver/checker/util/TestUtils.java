@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
@@ -20,16 +21,13 @@ package org.ballerinalang.semver.checker.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.semver.checker.comparator.PackageComparator;
 import io.ballerina.semver.checker.diff.PackageDiff;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.semver.checker.exception.SemverTestException;
 import org.testng.Assert;
 
-import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -58,12 +56,7 @@ public class TestUtils {
             BuildProject currentProject = ProjectUtils.createProject(newCode);
             Package oldPackage = oldProject.currentPackage();
             Package currentPackage = currentProject.currentPackage();
-            String d = testDataObject.get("description").getAsString();
-            Collection<Diagnostic> errors = currentPackage.getCompilation().diagnosticResult().errors();
-            Collection<Diagnostic> errors1 = oldPackage.getCompilation().diagnosticResult().errors();
-            System.out.println(errors1);
-            System.out.println(errors);
-            assertPackageDiff(oldPackage, currentPackage, expectedOutput,d);
+            assertPackageDiff(oldPackage, currentPackage, expectedOutput);
         } catch (Exception e) {
             throw new SemverTestException("failed to load Ballerina package using test data");
         }
@@ -76,17 +69,12 @@ public class TestUtils {
      * @param currentPackage package instance of current code
      * @param expectedOutput Expected json output for the test case
      */
-    public static void assertPackageDiff(Package oldPackage, Package currentPackage, JsonObject expectedOutput, String d) {
+    public static void assertPackageDiff(Package oldPackage, Package currentPackage, JsonObject expectedOutput) {
         PackageComparator packageComparator = new PackageComparator(currentPackage, oldPackage);
         Optional<PackageDiff> packageDiff = packageComparator.computeDiff();
         if (expectedOutput.equals(new JsonObject())) {
-            System.out.println(d);
-            System.out.println(packageDiff.get().getAsJson());
             // disabled test cases
         } else {
-            System.out.println(d);
-            System.out.println(packageDiff.get().getAsString());
-            System.out.println(packageDiff.get().getAsJson());
             packageDiff.ifPresent(diff -> Assert.assertEquals(diff.getAsJson(), expectedOutput));
         }
     }

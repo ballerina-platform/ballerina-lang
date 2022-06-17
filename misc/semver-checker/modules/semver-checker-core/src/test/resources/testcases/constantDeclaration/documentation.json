@@ -14,6 +14,9 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "patch",
               "childDiffs": [
                 {
                   "kind": "documentation",
@@ -43,6 +46,9 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "patch",
               "childDiffs": [
                 {
                   "kind": "documentation",
@@ -72,6 +78,9 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "patch",
               "childDiffs": [
                 {
                   "kind": "documentation",

@@ -14,6 +14,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 {
                   "kind": "unknown",
@@ -43,6 +46,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 {
                   "kind": "unknown",
@@ -78,6 +84,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 {
                   "kind": "unknown",
@@ -107,6 +116,9 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
               "childDiffs": [
                 {
                   "kind": "unknown",
@@ -136,6 +148,9 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
               "childDiffs": [
                 {
                   "kind": "unknown",
@@ -165,6 +180,9 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
               "childDiffs": [
                 {
                   "kind": "unknown",
@@ -194,6 +212,9 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
               "childDiffs": [
                 {
                   "kind": "unknown",

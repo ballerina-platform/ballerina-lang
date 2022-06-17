@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
+import io.ballerina.semver.checker.diff.ModuleConstantDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
@@ -50,7 +51,7 @@ public class ModuleConstantComparator extends NodeComparator<ConstantDeclaration
 
     @Override
     public Optional<? extends Diff> computeDiff() {
-        NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode)
+        NodeDiffBuilder diffBuilder = new ModuleConstantDiff.Builder(newNode, oldNode)
                 .withChildDiffs(compareModuleVariableMetadata(newNode, oldNode))
                 .withChildDiffs(compareModuleVariableQualifiers(newNode, oldNode))
                 .withChildDiffs(compareModuleVariableType(newNode, oldNode))

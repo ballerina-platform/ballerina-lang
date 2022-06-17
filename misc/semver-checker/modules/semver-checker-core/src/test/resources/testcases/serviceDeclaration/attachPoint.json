@@ -1,61 +1,8 @@
 [
   {
-    "description": "Change a Constant name",
-    "oldCode": "public const int id = 102;",
-    "newCode": "public const int num = 102;",
-    "expectedOutput": {
-      "kind": "package",
-      "type": "modified",
-      "versionImpact": "major",
-      "childDiffs": [
-        {
-          "kind": "module",
-          "type": "modified",
-          "versionImpact": "major",
-          "childDiffs": [
-            {
-              "kind": "module constant",
-              "type": "new",
-              "versionImpact": "minor"
-            },
-            {
-              "kind": "module constant",
-              "type": "removed",
-              "versionImpact": "major"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "description": "Remove a constant",
-    "oldCode": "public const int id = 102;",
-    "newCode": "",
-    "expectedOutput": {
-      "kind": "package",
-      "type": "modified",
-      "versionImpact": "major",
-      "childDiffs": [
-        {
-          "kind": "module",
-          "type": "modified",
-          "versionImpact": "major",
-          "childDiffs": [
-            {
-              "kind": "module constant",
-              "type": "removed",
-              "versionImpact": "major"
-            }
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "description": "Add a new constant",
-    "oldCode": "",
-    "newCode": "public const int num = 102;",
+    "description": "Add attach point in a service declaration",
+    "oldCode": "service  on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -67,9 +14,62 @@
           "versionImpact": "minor",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "service",
               "type": "new",
               "versionImpact": "minor"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify attach point in a service declaration",
+    "oldCode": "service / on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "new",
+              "versionImpact": "minor"
+            },
+            {
+              "kind": "service",
+              "type": "removed",
+              "versionImpact": "major"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove attach point in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "service  on new http:Listener(8080){}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "removed",
+              "versionImpact": "major"
             }
           ]
         }

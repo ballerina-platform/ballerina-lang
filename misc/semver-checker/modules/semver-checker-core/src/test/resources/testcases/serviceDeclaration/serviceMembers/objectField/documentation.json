@@ -1,8 +1,8 @@
 [
   {
-    "description": "Add documentation for variable declaration",
-    "oldCode": "public int age=1;",
-    "newCode": "#Documentation\npublic int age=1;",
+    "description": "Add Documentation to the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t#Documentation\n\tint x=5;\n\t}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,14 +14,14 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
-              "kind": "module variable",
               "type": "modified",
               "versionImpact": "patch",
+              "kind": "service",
               "childDiffs": [
                 {
-                  "kind": "documentation",
                   "type": "new",
                   "versionImpact": "patch",
+                  "kind": "documentation",
                   "message": "documentation is added"
                 }
               ]
@@ -32,9 +32,9 @@
     }
   },
   {
-    "description": "Remove documentation for variable declaration",
-    "oldCode": "#Documentation\npublic int age=1;",
-    "newCode": "public int age=1;",
+    "description": "Remove Documentation from the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\n#Documentation\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tint x=5;\n\t}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -46,14 +46,14 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
-              "kind": "module variable",
               "type": "modified",
               "versionImpact": "patch",
+              "kind": "service",
               "childDiffs": [
                 {
-                  "kind": "documentation",
                   "type": "removed",
                   "versionImpact": "patch",
+                  "kind": "documentation",
                   "message": "documentation is removed"
                 }
               ]
@@ -64,9 +64,9 @@
     }
   },
   {
-    "description": "Modify documentation for variable declaration",
-    "oldCode": "#int declaration\npublic int age=1;",
-    "newCode": "#Documentation\npublic int age=1;",
+    "description": "Modify Documentation from the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\n#Documentation\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t#declaration of x.\n\tint x=5;\n\t}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -78,14 +78,14 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
-              "kind": "module variable",
               "type": "modified",
               "versionImpact": "patch",
+              "kind": "service",
               "childDiffs": [
                 {
-                  "kind": "documentation",
                   "type": "modified",
                   "versionImpact": "patch",
+                  "kind": "documentation",
                   "message": "documentation is modified"
                 }
               ]

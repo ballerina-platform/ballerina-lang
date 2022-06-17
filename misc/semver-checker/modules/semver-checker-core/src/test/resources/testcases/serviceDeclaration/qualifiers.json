@@ -1,8 +1,8 @@
 [
   {
-    "description": "Change the type of a module constant",
-    "oldCode": "public const int id = 102;",
-    "newCode": "public const float id = 102;",
+    "description": "Remove an existing isolated qualifier in service declaration",
+    "oldCode": "isolated service /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -14,15 +14,15 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "service",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
                   "kind": "unknown",
-                  "type": "modified",
+                  "type": "removed",
                   "versionImpact": "ambiguous",
-                  "message": "module constant type changed from 'int' to 'float'"
+                  "message": "'isolated' qualifier is removed"
                 }
               ]
             }
@@ -32,9 +32,9 @@
     }
   },
   {
-    "description": "Change the type of a module constant int to string",
-    "oldCode": "public const int id = 102;",
-    "newCode": "public const string id = \"102\";",
+    "description": "Add a isolated keyword to an existing service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "isolated service /demo on new http:Listener(8080){}",
     "expectedOutput": {
       "kind": "package",
       "type": "modified",
@@ -46,21 +46,15 @@
           "versionImpact": "ambiguous",
           "childDiffs": [
             {
-              "kind": "module constant",
+              "kind": "service",
               "type": "modified",
               "versionImpact": "ambiguous",
               "childDiffs": [
                 {
                   "kind": "unknown",
-                  "type": "modified",
+                  "type": "new",
                   "versionImpact": "ambiguous",
-                  "message": "module constant type changed from 'int' to 'string'"
-                },
-                {
-                  "kind": "unknown",
-                  "type": "modified",
-                  "versionImpact": "ambiguous",
-                  "message": "module constant initializer is modified"
+                  "message": "'isolated' qualifier is added"
                 }
               ]
             }
