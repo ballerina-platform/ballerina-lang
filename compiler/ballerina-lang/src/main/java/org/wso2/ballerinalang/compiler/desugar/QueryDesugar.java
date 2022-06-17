@@ -16,7 +16,6 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
-import io.ballerina.runtime.api.types.ReadonlyType;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.clauses.OrderKeyNode;
@@ -30,8 +29,21 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.*;
-import org.wso2.ballerinalang.compiler.semantics.model.types.*;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -274,8 +286,8 @@ public class QueryDesugar extends BLangNodeVisitor {
             BType refType = Types.getReferredType(queryExpr.getBType());
             if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
                     && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
-                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag == TypeTags.INTERSECTION?
-                            ((BIntersectionType) Types.getReferredType(memType)).effectiveType.tag:
+                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag == TypeTags.INTERSECTION ?
+                            ((BIntersectionType) Types.getReferredType(memType)).effectiveType.tag :
                             Types.getReferredType(memType).tag)))) {
                 BLangLiteral isReadonly = new BLangLiteral(false, symTable.booleanType);
                 if (refType.tag == TypeTags.XML_TEXT || // The xml:Text type is inherently immutable.
@@ -291,7 +303,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                         isReadonly.value = false;
                     }
                 }
-                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION, Lists.of(streamRef, isReadonly), pos);
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION,
+                        Lists.of(streamRef, isReadonly), pos);
             } else if (TypeTags.isStringTypeTag(refType.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
