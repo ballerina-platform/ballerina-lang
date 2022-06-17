@@ -18,6 +18,7 @@
 
 package io.ballerina.converters;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -68,8 +69,13 @@ public class JsonToRecordDirectConverter {
     public static JsonToRecordResponse convert(String jsonString) throws FormatterException {
         Map<String, NonTerminalNode> typeDefinitionNodes = new LinkedHashMap<>();
         Map<String, JsonElement> jsonNodes = new LinkedHashMap<>();
-        generateRecords(JsonParser.parseString(jsonString).getAsJsonObject(),
-                null, typeDefinitionNodes, jsonNodes);
+        JsonElement parsedJsonElement = JsonParser.parseString(jsonString);
+        if (parsedJsonElement.isJsonObject()) {
+            generateRecords(parsedJsonElement.getAsJsonObject(), null, typeDefinitionNodes, jsonNodes);
+        } else if (parsedJsonElement.isJsonArray()) {
+            generateRecords(parsedJsonElement.getAsJsonArray(), null, typeDefinitionNodes, jsonNodes);
+        }
+
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
         JsonToRecordResponse response = new JsonToRecordResponse();
 
@@ -159,18 +165,45 @@ public class JsonToRecordDirectConverter {
         Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
         TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
                 null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
-//        if (typeDefinitionNodes.containsKey(recordName)) {
-//            TypeDefinitionNode oldNode = (TypeDefinitionNode) typeDefinitionNodes.get(recordName);
-//            RecordTypeDescriptorNode rd = (RecordTypeDescriptorNode) oldNode.typeDescriptor();
-//
-//            for (Node node:rd.fields()) {
-//                RecordFieldNode rfn = (RecordFieldNode) node;
-//                Ssystem.out.println(rfn.fieldName().);
-//            }
-//            Ssystem.out.println("Key is there" + oldNode.equals(typeDefinitionNode));
-//        } else {
-//            Ssystem.out.println("KEy is not there");
-//        }
+        typeDefinitionNodes.put(recordName, typeDefinitionNode);
+    }
+
+    private static void generateRecords(JsonArray jsonArray, String recordName,
+                                        Map<String, NonTerminalNode> typeDefinitionNodes,
+                                        Map<String, JsonElement> jsonNodes) {
+        Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
+        String typeNameString = recordName == null ? "NewRecordList" : (recordName + "List");
+        IdentifierToken typeName = AbstractNodeFactory
+                .createIdentifierToken(escapeIdentifier(typeNameString));
+        Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
+        Token bodyStartDelimiter = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+
+        List<Node> recordFieldList = new ArrayList<>();
+        Node recordField = getRecordField(new AbstractMap.SimpleEntry<>(StringUtils
+                .uncapitalize(recordName == null ? "NewRecord" : recordName), jsonArray), null);
+        recordFieldList.add(recordField);
+
+        Iterator<JsonElement> iterator = jsonArray.getAsJsonArray().iterator();
+        while (iterator.hasNext()) {
+            JsonElement element = iterator.next();
+            if (element.isJsonObject()) {
+                String elementKey = recordName == null ? "NewRecord" : recordName;
+                String type = StringUtils.capitalize(elementKey) + "Item";
+                generateRecords(element.getAsJsonObject(), type, typeDefinitionNodes, jsonNodes);
+            }
+            break;
+        }
+
+        NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
+        Token bodyEndDelimiter = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+
+        RecordTypeDescriptorNode recordTypeDescriptorNode =
+                NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
+                        fieldNodes, null, bodyEndDelimiter);
+
+        Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
+                null, typeKeyWord, typeName, recordTypeDescriptorNode, semicolon);
         typeDefinitionNodes.put(recordName, typeDefinitionNode);
     }
 
@@ -204,6 +237,9 @@ public class JsonToRecordDirectConverter {
                         typeName = AbstractNodeFactory.createIdentifierToken(type);
                     }
                 }
+            }
+            if (typeName == null) {
+                typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
             }
             NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
 
