@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
