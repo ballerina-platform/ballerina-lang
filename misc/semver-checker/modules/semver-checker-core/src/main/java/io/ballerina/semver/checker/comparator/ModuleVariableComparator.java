@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
+import io.ballerina.semver.checker.diff.ModuleVarDiff;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
@@ -55,7 +56,7 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
 
     @Override
     public Optional<? extends Diff> computeDiff() {
-        NodeDiffBuilder diffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode)
+        NodeDiffBuilder diffBuilder = new ModuleVarDiff.Builder(newNode, oldNode)
                 .withChildDiffs(compareModuleVariableMetadata(newNode, oldNode))
                 .withChildDiffs(compareModuleVariableQualifiers(newNode, oldNode))
                 .withChildDiffs(compareModuleVariableType(newNode, oldNode))
