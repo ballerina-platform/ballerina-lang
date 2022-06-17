@@ -18,12 +18,11 @@
 
 package io.ballerina.converters.util;
 
-import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxInfo;
-import io.ballerina.compiler.syntax.tree.Token;
-
 import com.google.gson.JsonPrimitive;
+import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerina.compiler.syntax.tree.SyntaxInfo;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 
 import java.util.Optional;
 
@@ -33,6 +32,8 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class ConverterUtils {
+
+    private ConverterUtils() {}
 
     public static String escapeIdentifier(String identifier) {
         if (identifier.matches("\\b[0-9]*\\b")) {
