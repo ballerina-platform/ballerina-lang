@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.CONFIGURABLE_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.FINAL_KEYWORD;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.PRIVATE_KEYWORD;
 import static io.ballerina.semver.checker.diff.DiffKind.MODULE_VAR_INIT;
@@ -99,17 +100,15 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         if (newPublicQual.isPresent() && oldPublicQual.isEmpty()) {
             // public qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newPublicQual.get(), null);
-            qualifierDiffBuilder
-                    .withVersionImpact(SemverImpact.MINOR)
-                    .withMessage("'public' qualifier is added to module variable '" + getModuleVariableName() + "'")
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.MINOR)
+                    .withMessage("'public' qualifier is added to variable '" + getModuleVariableName() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         } else if (newPublicQual.isEmpty() && oldPublicQual.isPresent()) {
             // public qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldPublicQual.get());
-            qualifierDiffBuilder
-                    .withVersionImpact(SemverImpact.MAJOR)
-                    .withMessage("'public' qualifier is removed from module variable '" + getModuleVariableName() + "'")
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.MAJOR)
+                    .withMessage("'public' qualifier is removed from variable '" + getModuleVariableName() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         }
@@ -120,17 +119,15 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         if (newIsolatedQual.isPresent() && oldIsolatedQual.isEmpty()) {
             // private qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newIsolatedQual.get(), null);
-            qualifierDiffBuilder
-                    .withVersionImpact(SemverImpact.PATCH)
-                    .withMessage("'private' qualifier is added to module variable '" + getModuleVariableName() + "'")
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.PATCH)
+                    .withMessage("'private' qualifier is added to variable '" + getModuleVariableName() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         } else if (newIsolatedQual.isEmpty() && oldIsolatedQual.isPresent()) {
             // private qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldIsolatedQual.get());
-            qualifierDiffBuilder
-                    .withVersionImpact(SemverImpact.PATCH)
-                    .withMessage("'private' qualifier is removed from module variable '" + getModuleVariableName() + "'")
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.PATCH)
+                    .withMessage("'private' qualifier is removed from variable '" + getModuleVariableName() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         }
@@ -141,17 +138,34 @@ public class ModuleVariableComparator extends NodeComparator<ModuleVariableDecla
         if (newTransactionalQual.isPresent() && oldTransactionalQual.isEmpty()) {
             // transactional qualifier added
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newTransactionalQual.get(), null);
-            qualifierDiffBuilder
-                    .withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
-                    .withMessage("'final' qualifier is added to module variable '" + getModuleVariableName() + "'")
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.AMBIGUOUS) // TODO: determine compatibility
+                    .withMessage("'final' qualifier is added to variable '" + getModuleVariableName() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         } else if (newTransactionalQual.isEmpty() && oldTransactionalQual.isPresent()) {
             // final qualifier removed
             NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldTransactionalQual.get());
-            qualifierDiffBuilder
-                    .withVersionImpact(SemverImpact.PATCH) // TODO: determine compatibility
-                    .withMessage("'final' qualifier is removed from module variable '" + getModuleVariableName() + "'")
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.PATCH) // TODO: determine compatibility
+                    .withMessage("'final' qualifier is removed from variable '" + getModuleVariableName() + "'")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
+        }
+
+        // analyzes final qualifier changes
+        Optional<Token> newConfigurableQual = lookupQualifier(newQualifiers, CONFIGURABLE_KEYWORD);
+        Optional<Token> oldConfigurableQual = lookupQualifier(oldQualifiers, CONFIGURABLE_KEYWORD);
+        if (newConfigurableQual.isPresent() && oldConfigurableQual.isEmpty()) {
+            // transactional qualifier added
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(newConfigurableQual.get(), null);
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.MAJOR)
+                    .withMessage("'configurable' qualifier is added to variable '" + getModuleVariableName() + "'")
+                    .build()
+                    .ifPresent(qualifierDiffs::add);
+        } else if (newConfigurableQual.isEmpty() && oldConfigurableQual.isPresent()) {
+            // final qualifier removed
+            NodeDiffBuilder qualifierDiffBuilder = new NodeDiffImpl.Builder<Node>(null, oldConfigurableQual.get());
+            qualifierDiffBuilder.withVersionImpact(SemverImpact.MAJOR)
+                    .withMessage("'configurable' qualifier is removed from variable '" + getModuleVariableName() + "'")
                     .build()
                     .ifPresent(qualifierDiffs::add);
         }
