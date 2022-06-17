@@ -34,6 +34,9 @@ type '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Int int;
 @X
 type Nil ();
 
+@Int {minValue: 0}
+type Foo anydata[];
+
 type Person record {
     @Int {
         minValue: 18
@@ -85,6 +88,14 @@ function validateType() {
     } else {
         test:assertFail("Expected error not found.");
     }
+
+    anydata[] a = [1, 2, 3];
+    Foo|error val = validateArray(a);
+    if val is Foo {
+        test:assertEquals(val, [1, 2, 3]);
+    } else {
+        test:assertFail("Expected error not found.");
+    }
 }
 
 function validateRecordField() {
@@ -128,5 +139,14 @@ public isolated function validate(anydata value, typedesc<anydata> td = <>) retu
 # + td - The type descriptor of the value to be constrained
 # + return - The type descriptor of the value which is validated or else an `constraint:Error` in case of an error
 public isolated function validateRecord(anydata value, typedesc<anydata> td = <>) returns td|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+# Validates the provided array value against the configured annotations for field.
+#
+# + value - The `anydata` type value to be constrained
+# + td - The type descriptor of the value to be constrained
+# + return - The type descriptor of the value which is validated or else an `constraint:Error` in case of an error
+public isolated function validateArray(anydata value, typedesc<anydata> td = <>) returns td|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
