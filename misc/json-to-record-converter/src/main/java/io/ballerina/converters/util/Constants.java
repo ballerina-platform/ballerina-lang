@@ -18,8 +18,6 @@
 
 package io.ballerina.converters.util;
 
-import java.util.List;
-
 /**
  * Contains keywords and other constants.
  *
