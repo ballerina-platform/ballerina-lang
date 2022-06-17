@@ -707,6 +707,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangSimpleVariable pathParam = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         pathParam.name = createIdentifier(resourcePathParameterNode.paramName().orElse(null));
         BLangType typeNode = createTypeNode(resourcePathParameterNode.typeDescriptor());
+        typeNode.pos = getPosition(resourcePathParameterNode.typeDescriptor());
         pathParam.pos = getPosition(resourcePathParameterNode);
         pathParam.annAttachments = applyAll(resourcePathParameterNode.annotations());
 
@@ -742,17 +743,21 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     continue;
                 case RESOURCE_PATH_SEGMENT_PARAM:
                     BLangSimpleVariable param = (BLangSimpleVariable) pathSegment.apply(this);
-                    params.add(param);
-                    bLFunction.addPathParam(param);
+                    if (!param.name.value.equals(Names.EMPTY.value)) {
+                        params.add(param);
+                        bLFunction.addPathParam(param);
+                    }
                     bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
                     tupleTypeNode.memberTypeNodes.add(param.typeNode);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
                     BLangSimpleVariable restParam = (BLangSimpleVariable) pathSegment.apply(this);
-                    params.add(restParam);
-                    bLFunction.setRestPathParam(restParam);
+                    if (!restParam.name.value.equals(Names.EMPTY.value)) {
+                        params.add(restParam);
+                        bLFunction.setRestPathParam(restParam);
+                    }
                     bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
-                    tupleTypeNode.restParamType = restParam.typeNode;
+                    tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
                     break;
                 default:
                     bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
@@ -3113,6 +3118,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLArrayType.dimensions = 1;
         bLSimpleVar.typeNode = bLArrayType;
         bLArrayType.pos = getPosition(restParameter.typeName());
+        bLArrayType.elemtype.pos = bLArrayType.pos;
 
         bLSimpleVar.flagSet.add(Flag.REST_PARAM);
         bLSimpleVar.pos = getPosition(restParameter);
@@ -4217,7 +4223,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             }
         }
 
-        resourceInvocation.resourceAccessPathSegments = pathSegments;
+        BLangListConstructorExpr listConstructorExpr = (BLangListConstructorExpr)
+                TreeBuilder.createListConstructorExpressionNode();
+        listConstructorExpr.exprs = pathSegments;
+        if (pathSegments.size() == 0) {
+            listConstructorExpr.pos = getPosition(clientResourceAccessActionNode.slashToken());
+        } else {
+            listConstructorExpr.pos = 
+                    getPosition(resourceAccessPath.get(0), resourceAccessPath.get(pathSegments.size() - 1));
+        }
+        
+        resourceInvocation.resourceAccessPathSegments = listConstructorExpr;
         
         if (clientResourceAccessActionNode.methodName().isPresent()) {
             resourceInvocation.name = createIdentifier(clientResourceAccessActionNode.methodName().get().name());

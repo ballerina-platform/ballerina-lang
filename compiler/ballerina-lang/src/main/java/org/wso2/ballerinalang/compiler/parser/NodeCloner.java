@@ -1183,7 +1183,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangInvocation.BLangResourceAccessInvocation clone = new BLangInvocation.BLangResourceAccessInvocation();
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
-        clone.resourceAccessPathSegments = cloneList(source.resourceAccessPathSegments);
+        clone.resourceAccessPathSegments = clone(source.resourceAccessPathSegments);
         clone.name = source.name;
         clone.argExprs = cloneList(source.argExprs);
         clone.flagSet = cloneSet(source.flagSet, Flag.class);

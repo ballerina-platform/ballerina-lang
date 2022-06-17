@@ -4758,8 +4758,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
         }
 
+        symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                                     accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+                                     accessor, pathParamSymbols, restPathParamSym, 
+                resourceFunction.resourcePathType.getBType(), funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
@@ -5078,7 +5080,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             attachedFunc = new BResourceFunction(referencedFunc.funcName,
                     funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
                     resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
-                    referencedFunc.pos);
+                    resourceFunction.resourcePathType, referencedFunc.pos);
         } else {
             attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
                     referencedFunc.pos);

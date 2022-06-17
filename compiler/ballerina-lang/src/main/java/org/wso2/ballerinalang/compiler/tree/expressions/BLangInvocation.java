@@ -281,7 +281,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
     public static class BLangResourceAccessInvocation extends BLangInvocation implements ActionNode {
         
         public boolean invokedInsideTransaction = false;
-        public List<BLangExpression> resourceAccessPathSegments;
+        public BLangListConstructorExpr resourceAccessPathSegments;
 
         @Override
         public void accept(BLangNodeVisitor visitor) {
@@ -304,7 +304,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
             br.append(expr).append("->/");
             
             StringJoiner joiner = new StringJoiner("/");
-            resourceAccessPathSegments.forEach(item -> joiner.add(item.toString()));
+            resourceAccessPathSegments.exprs.forEach(item -> joiner.add(item.toString()));
             br.append(joiner.toString());
                     
             br.append(".");

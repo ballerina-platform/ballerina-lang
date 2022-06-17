@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
@@ -34,15 +35,17 @@ public class BResourceFunction extends BAttachedFunction {
     public BVarSymbol restPathParam;
     public List<Name> resourcePath;
     public Name accessor;
+    public BType resourcePathType;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
                              List<Name> resourcePath, Name accessor, List<BVarSymbol> pathParams,
-                             BVarSymbol restPathParam, Location pos) {
+                             BVarSymbol restPathParam, BType resourcePathType, Location pos) {
         super(funcName, symbol, type, pos);
         this.resourcePath = resourcePath;
         this.accessor = accessor;
         this.pathParams = pathParams;
         this.restPathParam = restPathParam;
+        this.resourcePathType = resourcePathType;
     }
 
     @Override

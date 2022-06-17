@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -1893,7 +1894,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             if (listExprSize < memberTypeSize) {
                 for (int i = listExprSize; i < memberTypeSize; i++) {
-                    if (!types.hasFillerValue(memberTypes.get(i))) {
+                    // Skip filler values for resourceAccessPathSegments
+                    if (data.isResourceAccessPathSegments || !types.hasFillerValue(memberTypes.get(i))) {
                         dlog.error(listConstructor.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE,
                                 memberTypes.get(i));
                         return symTable.semanticError;
@@ -2006,7 +2008,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         while (nonRestTypeIndex < memberTypeSize) {
-            if (!types.hasFillerValue(memberTypes.get(nonRestTypeIndex))) {
+            // Skip filler values for resourceAccessPathSegments
+            if (data.isResourceAccessPathSegments || !types.hasFillerValue(memberTypes.get(nonRestTypeIndex))) {
                 dlog.error(listConstructor.pos, DiagnosticErrorCode.INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE,
                         memberTypes.get(nonRestTypeIndex));
                 return symTable.semanticError;
@@ -3498,6 +3501,104 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BLangExpression varRef = aInv.expr;
 
         checkActionInvocation(aInv, varRef.getBType(), data);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessAct, AnalyzerData data) {
+        // Find the lhs expression type
+        checkExpr(resourceAccessAct.expr, data);
+        BType lhsExprType = resourceAccessAct.expr.getBType();
+        
+        if (lhsExprType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(lhsExprType.tsymbol.flags, Flags.CLIENT)) {
+            dlog.error(resourceAccessAct.expr.pos, 
+                    DiagnosticErrorCode.CLIENT_RESOURCE_ACCESS_ACTION_IS_ONLY_ALLOWED_ON_CLIENT_OBJECTS);
+            data.resultType = symTable.semanticError;
+            return;
+        }
+        
+        BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) lhsExprType.tsymbol;
+
+        validateResourceAccessPathSegmentTypes(resourceAccessAct.resourceAccessPathSegments.exprs, data);
+                
+        // Filter all the resource methods defined on target resource path
+        List<BResourceFunction> resourceFunctions = new ArrayList<>();
+        data.isResourceAccessPathSegments = true;
+        for (BAttachedFunction targetFunc : objectTypeSym.attachedFuncs) {
+            if (Symbols.isResource(targetFunc.symbol)) {
+                BResourceFunction resourceFunction = (BResourceFunction) targetFunc;
+                BLangExpression clonedResourceAccPathSeg = 
+                        nodeCloner.cloneNode(resourceAccessAct.resourceAccessPathSegments);
+                BType resolvedType = checkExprSilent(clonedResourceAccPathSeg, resourceFunction.resourcePathType, data);
+                if (resolvedType != symTable.semanticError) {
+                    resourceFunctions.add(resourceFunction);
+                }
+            }
+        }
+        
+        if (resourceFunctions.size() == 0) {
+            dlog.error(resourceAccessAct.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE);
+            data.resultType = symTable.semanticError;
+            return;
+        }
+        
+        // Filter the resource methods in the list by resource access method name
+        resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessAct.name.value));
+        
+        if (resourceFunctions.size() == 0) {
+            dlog.error(resourceAccessAct.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessAct.name);
+            data.resultType = symTable.semanticError;
+            return;
+        } else if (resourceFunctions.size() > 1) {
+            dlog.error(resourceAccessAct.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED);
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        BResourceFunction targetResourceFunc = resourceFunctions.get(0);
+        checkExpr(resourceAccessAct.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
+        checkResourceAccessParamAndReturnType(resourceAccessAct, targetResourceFunc, data);
+    }
+    
+    public void validateResourceAccessPathSegmentTypes(List<BLangExpression> pathSegments, AnalyzerData data) {
+        // We should type check `pathSegments` against the resourcePathType. This method is just to validate
+        // allowed types for resource access segments hence use clones of nodes
+        for (BLangExpression pathSegment : pathSegments) {
+            BLangExpression clonedPathSegment = nodeCloner.cloneNode(pathSegment);
+            if (clonedPathSegment.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) clonedPathSegment).expr;
+                BType pathSegmentType = checkExpr(spreadOpExpr, data);
+                if (!types.isAssignable(pathSegmentType, new BArrayType(symTable.pathParamAllowedType))) {
+                    dlog.error(clonedPathSegment.getPosition(),
+                            DiagnosticErrorCode.UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE, pathSegmentType);
+                }
+                continue;
+            }
+
+            BType pathSegmentType = checkExpr(clonedPathSegment, data);
+            if (!types.isAssignable(pathSegmentType, symTable.pathParamAllowedType)) {
+                dlog.error(clonedPathSegment.getPosition(), 
+                        DiagnosticErrorCode.UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE, pathSegmentType);
+            }
+        }
+    }
+    
+    public void checkResourceAccessParamAndReturnType(BLangInvocation.BLangResourceAccessInvocation resourceAccessAct, 
+                                                      BResourceFunction targetResourceFunc, AnalyzerData data) {
+        resourceAccessAct.symbol = targetResourceFunc.symbol;
+        // targetResourceFunc params will contain path params and rest path params as well, 
+        // hence we need to remove path params from the list before calling to `checkInvocationParamAndReturnType` 
+        // method otherwise we get `missing required parameter` error
+        List<BVarSymbol> originalInvocableSymParamTypes =
+                ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params;
+        int pathParamCount = targetResourceFunc.pathParams.size() + (targetResourceFunc.restPathParam == null? 0 : 1);
+
+        List<BVarSymbol> params = new ArrayList<>(originalInvocableSymParamTypes.size() - pathParamCount);
+        params.addAll(originalInvocableSymParamTypes.subList(pathParamCount, originalInvocableSymParamTypes.size()));
+        ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = params;
+
+        checkInvocationParamAndReturnType(resourceAccessAct, data);
+
+        ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = originalInvocableSymParamTypes;
     }
 
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BType type, AnalyzerData data) {
@@ -9215,5 +9316,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         DiagnosticCode diagCode;
         BType expType;
         BType resultType;
+        boolean isResourceAccessPathSegments = false;
     }
 }
