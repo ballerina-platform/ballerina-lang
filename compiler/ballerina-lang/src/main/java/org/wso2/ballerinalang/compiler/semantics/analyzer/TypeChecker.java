@@ -5562,7 +5562,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     resolvedType = selectType;
                     break;
                 case TypeTags.MAP:
-                    List<BType> memberTypes = new ArrayList<>();
+                    List<BType> memberTypes = new ArrayList<>(2);
                     memberTypes.add(symTable.stringType);
                     memberTypes.add(((BMapType) type).getConstraint());
                     BTupleType newExpType = new BTupleType(null, memberTypes);
@@ -5573,11 +5573,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 default:
                     // contextually expected type not given (i.e var).
                     selectType = checkExpr(selectExp, env, type, data);
-                    if (queryExpr.isMap) {
-                        resolvedType = symTable.mapType;
-                    } else {
-                        resolvedType = getNonContextualQueryType(selectType, collectionType);
-                    }
+                    resolvedType = getNonContextualQueryType(queryExpr, selectType, collectionType);
                     break;
             }
             if (selectType != symTable.semanticError) {
@@ -5602,9 +5598,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else if (queryExpr.isMap) {
                 BType mapConstraintType = getTypeOfTypeParameter(selectType,
                         queryExpr.getSelectClause().expression.pos);
-                if (mapConstraintType == symTable.semanticError) {
-                    actualType = symTable.semanticError;
-                } else {
+                if (mapConstraintType != symTable.semanticError) {
                     actualType = BUnionType.create(null, new BMapType(TypeTags.MAP, mapConstraintType, null),
                             symTable.errorType);
                 }
@@ -5633,7 +5627,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         if (referredType.tag == TypeTags.UNION) {
             BUnionType unionType = (BUnionType) referredType;
-            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+            LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(unionType.getMemberTypes().size());
             for (BType type : unionType.getMemberTypes()) {
                 BType mapType = getTypeOfTypeParameter(type, pos);
                 if (mapType == symTable.semanticError) {
@@ -5648,7 +5642,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getQueryMapConstraintType(BType type, Location pos) {
-        type = Types.getReferredType(type);
         if (type.tag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) type;
             if (arrayType.state != BArrayState.OPEN && arrayType.size == 2 &&
@@ -5751,7 +5744,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return errorType;
     }
 
-    private BType getNonContextualQueryType(BType staticType, BType basicType) {
+    private BType getNonContextualQueryType(BLangQueryExpr queryExpr, BType staticType, BType basicType) {
+        if (queryExpr.isMap) {
+            return symTable.mapType;
+        }
+
         BType resultType;
         switch (basicType.tag) {
             case TypeTags.TABLE:
