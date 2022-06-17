@@ -1765,7 +1765,6 @@ public class Types {
                                         collectionTypesInSymTable.add(symTable.xmlPIType);
                                         break;
                                 }
-                                
                             }
                             varType = BUnionType.create(null, collectionTypesInSymTable);
                         }
