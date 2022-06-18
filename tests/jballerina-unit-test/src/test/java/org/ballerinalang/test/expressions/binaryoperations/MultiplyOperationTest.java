@@ -91,24 +91,68 @@ public class MultiplyOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testMultiplyStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 12);
-        BAssertUtil.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
-        BAssertUtil.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
-        BAssertUtil.validateError(resultNegative, 2, "operator '*' not defined for 'C' and 'string'", 28, 14);
-        BAssertUtil.validateError(resultNegative, 3, "operator '*' not defined for 'C' and '(float|int)'", 29, 14);
-        BAssertUtil.validateError(resultNegative, 4, "operator '*' not defined for 'string' and " +
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'json' and 'json'", 8, 10);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'string'", 14, 9);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'string' and " +
                 "'(string|string:Char)'", 30, 17);
-        BAssertUtil.validateError(resultNegative, 5, "operator '*' not defined for 'float' and 'decimal'", 37, 14);
-        BAssertUtil.validateError(resultNegative, 6, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
-        BAssertUtil.validateError(resultNegative, 7, "operator '*' not defined for 'float' and 'int'", 39, 14);
-        BAssertUtil.validateError(resultNegative, 8, "operator '*' not defined for 'decimal' and 'int'", 40, 14);
-        BAssertUtil.validateError(resultNegative, 9, "operator '*' not defined for 'int' and 'float'", 41, 18);
-        BAssertUtil.validateError(resultNegative, 10, "operator '*' not defined for 'C' and 'float'", 45, 14);
-        BAssertUtil.validateError(resultNegative, 11, "operator '*' not defined for 'C' and 'float'", 46, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 37, 14);
+        BAssertUtil.validateError(resultNegative, i++, "operator '*' not defined for 'float' and 'decimal'", 38, 14);
     }
 
     @Test(description = "Test multiplication of nullable values")
     public void testMultiplyNullable() {
         BRunUtil.invoke(result, "testMultiplyNullable");
+    }
+
+    @Test(dataProvider = "dataToTestMultiplyFloatInt", description = "Test multiplication float with int")
+    public void testMultiplyFloatInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestMultiplyFloatInt() {
+        return new Object[]{
+                "testMultiplyFloatInt",
+                "testMultiplyFloatIntSubTypes",
+                "testMultiplyFloatIntWithNullableOperands",
+                "testMultiplyFloatIntSubTypeWithNullableOperands",
+                "testResultTypeOfMultiplyFloatIntByInfering",
+                "testResultTypeOfMultiplyFloatIntForNilableOperandsByInfering",
+                "testMultiplyFloatIntToInfinityAndNaN"
+        };
+    }
+
+    @Test(dataProvider = "dataToTestMultiplyDecimalInt", description = "Test multiplication decimal with int")
+    public void testMultiplyDecimalInt(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestMultiplyDecimalInt() {
+        return new Object[]{
+                "testMultiplyDecimalInt",
+                "testMultiplyDecimalIntSubTypes",
+                "testMultiplyDecimalIntWithNullableOperands",
+                "testMultiplyDecimalIntSubTypeWithNullableOperands",
+                "testResultTypeOfMultiplyDecimalIntByInfering",
+                "testResultTypeOfMultiplyDecimalIntForNilableOperandsByInfering",
+        };
+    }
+
+    @Test(dataProvider = "dataToTestShortCircuitingInMultiplication")
+    public void testShortCircuitingInMultiplication(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestShortCircuitingInMultiplication() {
+        return new Object[]{
+                "testNoShortCircuitingInMultiplicationWithNullable",
+                "testNoShortCircuitingInMultiplicationWithNonNullable"
+        };
     }
 }

@@ -20,10 +20,12 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -45,15 +47,22 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateVariableCodeAction extends AbstractCodeActionProvider {
-    
+
     public static final String NAME = "Create Variable";
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public int priority() {
         return 999;
+    }
+
+    @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
+                            CodeActionContext context) {
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
     }
 
     /**
@@ -64,10 +73,6 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
-        if (!(diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED))) {
-            return actions;
-        }
-
         Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE) {
@@ -75,9 +80,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         }
 
         String uri = context.fileUri();
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol.get(),
-                                                                          context);
+                context);
         List<String> types = createVarTextEdits.types;
         for (int i = 0; i < types.size(); i++) {
             String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
@@ -105,13 +110,13 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                  TypeSymbol typeDescriptor, CodeActionContext context) {
         Symbol matchedSymbol = positionDetails.matchedSymbol();
 
-        Position position = CommonUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
+        Position position = PositionUtil.toPosition(positionDetails.matchedNode().lineRange().startLine());
         Set<String> allNameEntries = context.visibleSymbols(position).stream()
                 .filter(s -> s.getName().isPresent())
                 .map(s -> s.getName().get())
                 .collect(Collectors.toSet());
 
-        String name = CommonUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
+        String name = NameUtil.generateVariableName(matchedSymbol, typeDescriptor, allNameEntries);
 
         List<TextEdit> importEdits = new ArrayList<>();
         List<TextEdit> edits = new ArrayList<>();
@@ -126,6 +131,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
     }
 
     static class CreateVariableOut {
+
         String name;
         List<String> types;
         List<TextEdit> edits;

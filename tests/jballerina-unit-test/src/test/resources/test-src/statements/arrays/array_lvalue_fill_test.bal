@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 function testSimpleBasic2DArrays() {
     int[][] iarr = [];
     iarr[2][4] = 10;
@@ -101,10 +103,15 @@ class PersonObj2 {
     }
 }
 
-function test2DObjectArrays2() returns PersonObj2[][] {
+function test2DObjectArrays2() {
     PersonObj2[][] arr = [];
     arr[2][1] = new;
-    return arr;
+
+    test:assertEquals(arr[0], []);
+    test:assertEquals(arr[1], []);
+    test:assertEquals(arr[2].length(), 2);
+    test:assertEquals(arr[2][0].name, "Pubudu");
+    test:assertEquals(arr[2][1].name, "Pubudu");
 }
 
 class PersonObj3 {
@@ -119,6 +126,22 @@ function test2DObjectArrays3() returns PersonObj3[][] {
     PersonObj3[][] arr = [];
     arr[2][1] = new("Pubudu");
     return arr;
+}
+
+class PersonObj4 {
+    int id;
+    string name;
+
+    public function init(int id, string name = "Alex") {
+        self.id = id;
+        self.name = name;
+    }
+}
+
+function testObjectArrays2() {
+    PersonObj4 p = new(1001);
+    PersonObj4[] arr = [];
+    arr[1] = p;
 }
 
 type Foo record {
@@ -190,6 +213,31 @@ function testMapArrayAsAnLValue() {
     assert(<map<int>[]>[{}, {"i": 1}], arr);
 }
 
+type unionTypeWithNil 1|"foo"|();
+
+function testMDArrayFillerValues() {
+    int[2][102] arr1 = [[11, 22, 33]];
+    test:assertEquals(arr1, [[11,22,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]);
+
+    float[2][3][4] arr2 = [[[1,2],[3]]];
+    test:assertEquals(arr2, [[[1.0,2.0,0.0,0.0],[3.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0]],[[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,
+    0.0],[0.0,0.0,0.0,0.0]]]);
+
+    string[2][3][4] arr3 = [[["a","b"],["c","d","e","f"],["g"]]];
+    test:assertEquals(arr3, [[["a","b","",""],["c","d","e","f"],["g","","",""]],[["","","",""],["","","",""],
+    ["","","",""]]]);
+
+    unionTypeWithNil[2][4] arr4 = [[1, 1, "foo"]];
+    test:assertEquals(arr4, [[1,1,"foo",null],[null,null,null,null]]);
+
+    map<int[3]>[] arr5 = [];
+    arr5[3]["i"] = [1,2];
+    arr5[1]["k"] = [3];
+    test:assertEquals(arr5, [{},{"k":[3,0,0]},{},{"i":[1,2,0]}]);
+}
 
 // Util functions
 

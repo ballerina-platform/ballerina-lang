@@ -3,7 +3,7 @@
     "character": 12,
     "expected": [
         {
-            "title": "Add type cast to assignment",
+            "title": "Add type cast",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 12
                         }
                     },
-                    "newText": "\u003cint\u003e "
+                    "newText": "\u003cint\u003e"
                 }
             ]
         }

@@ -172,6 +172,15 @@ public class TypeConverter {
         if (!requiredFields.isEmpty()) {
             typeNode.add("required", requiredFields);
         }
+        // Get record type and set the type name as a property
+        if (effectiveType.getIntersectionType().isPresent()) {
+            for (BType bType : effectiveType.getIntersectionType().get().getConstituentTypes()) {
+                // Does not consider anonymous records
+                if (bType instanceof BTypeReferenceType) {
+                    typeNode.addProperty("name", bType.toString().trim());
+                }
+            }
+        }
         return typeNode;
     }
 

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 function testNilArrayFill(int index, () value) returns ()[] {
     ()[] ar = [];
     ar[index] = value;
@@ -136,7 +138,6 @@ function testUnionArrayFill3(int index) returns (Person|Person|())[] {
     return ar;
 }
 
-// disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13612
 type LiteralsAndType 1|2|int;
 
 function testUnionArrayFill4(int index) returns LiteralsAndType[] {
@@ -232,7 +233,7 @@ function testFiniteTypeArrayFill4(int index) returns state[] {
     return ar;
 }
 
-const decimal ZERO = 0.0;
+const decimal ZERO = 0;
 const decimal ONE_TWO = 1.2;
 const decimal TWO_THREE = 2.3;
 
@@ -321,6 +322,152 @@ function testFiniteTypeArrayFill() returns DEC[] {
     LiteralsAndType[] ar2 = [];
     ar2[5] = value2;
     return ar;
+}
+
+const CONST_TWO = 2;
+
+type Foo1 1|2;
+type Bar1 0|4;
+type Foo2 "1"|"2";
+type Bar2 "0"|"";
+type nil ();
+type integer int;
+type sym1 112|string|int[3];
+type Foo 1|2|sym1|3|[Bar,sym1];
+type Bar 7|int|integer;
+type sym2 Foo|Bar|boolean[];
+type sym3 7|Bar|byte;
+type sym4 11|0;
+type sym5 11|sym4|12;
+type WithFillerValSym Bar|20|sym3;
+type NoFillerValSym sym2|20|sym3;
+type finiteUnionType false|byte|0|0.0f|0d|""|["a"]|string:Char|int:Unsigned16;
+type LiteralConstAndIntType int|CONST_TWO;
+type emptyString "";
+
+function testFiniteTypeUnionArrayFill() {
+    LiteralConstAndIntType[2] arr0 = [];
+    test:assertEquals(arr0, [0,0]);
+
+    (Foo1|Bar1)[] arr1 = [];
+    arr1[1] = 1;
+    test:assertEquals(arr1, [0,1]);
+
+    (Foo2|Bar2)[] arr2 = [];
+    arr2[1] = "1";
+    test:assertEquals(arr2, ["","1"]);
+
+    (nil|int)[] arr3 = [];
+    arr3[1] = 10;
+    test:assertEquals(arr3, [(),10]);
+
+    (Foo1|integer)[] arr4 = [];
+    arr4[1] = 100;
+    test:assertEquals(arr4, [0,100]);
+
+    WithFillerValSym[] arr5 = [];
+    arr5[1] = 100;
+    test:assertEquals(arr5, [0,100]);
+
+    (Bar|20|sym5)[] arr6 = [];
+    arr6[1] = 100;
+    test:assertEquals(arr6, [0,100]);
+
+    (string:Char|emptyString)[] arr13 = [];
+    arr13[1] = "j";
+    test:assertEquals(arr13, ["","j"]);
+
+    (string:Char|Bar2)[] arr14 = [];
+    arr14[1] = "l";
+    test:assertEquals(arr14, ["","l"]);
+
+    (function () returns ())[] negativeTestFunctions = [noFillerValueCase1, noFillerValueCase2, noFillerValueCase3,
+                                                        noFillerValueCase4, noFillerValueCase5, noFillerValueCase6];
+    foreach var func in negativeTestFunctions {
+        error? funcResult = trap func();
+        test:assertTrue(funcResult is error);
+        if (funcResult is error) {
+            test:assertEquals("{ballerina/lang.array}IllegalListInsertion", funcResult.message());
+            test:assertEquals("array of length 0 cannot be expanded into array of length 2 without filler values",
+            <string>checkpanic funcResult.detail()["message"]);
+        }
+    }
+}
+
+function noFillerValueCase1() {
+    NoFillerValSym[] arr7 = [];
+    arr7[1] = 100;
+}
+
+function noFillerValueCase2() {
+    finiteUnionType[] arr8 = [];
+    arr8[1] = 100;
+}
+
+function noFillerValueCase3() {
+    (false|0|0.0f|0d|"")[] arr9 = [];
+    arr9[1] = 0;
+}
+
+function noFillerValueCase4() {
+    (string|string:Char|Foo1)[] arr10 = [];
+    arr10[1] = "k";
+}
+
+function noFillerValueCase5() {
+    (xml:Text|xml:Comment|Foo1)[] arr11 = [];
+    arr11[1] = 1;
+}
+
+function noFillerValueCase6() {
+    (string:Char|"k")[] arr12 = [];
+    arr12[1] = "k";
+}
+
+function testXMLSubtypesArrayFill() {
+    string errorMsg = "{ballerina/lang.array}IllegalListInsertion";
+    string errorDetails = "{\"message\":\"array of length 0 cannot be expanded into array of length 2 without" +
+    " filler values\"}";
+
+    xml:Element[] a = [];
+    error? result = trap setXmlArraySecondElement(a, xml `<foo/>`);
+    assertEquality(result is error, true);
+    error err = <error>result;
+    assertEquality(errorMsg, err.message());
+    assertEquality(errorDetails, err.detail().toString());
+
+    xml:Comment[] b = [];
+    result = trap setXmlArraySecondElement(b, xml `<!-- this is a comment text -->`);
+    assertEquality(result is error, true);
+    err = <error>result;
+    assertEquality(errorMsg, err.message());
+    assertEquality(errorDetails, err.detail().toString());
+
+    xml:ProcessingInstruction[] c = [];
+    result = trap setXmlArraySecondElement(c, xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`);
+    assertEquality(result is error, true);
+    err = <error>result;
+    assertEquality(errorMsg, err.message());
+    assertEquality(errorDetails, err.detail().toString());
+
+    xml:Text[] d = [];
+    result = trap setXmlArraySecondElement(d, xml `Hello World`);
+    assertEquality(result is (), true);
+    assertEquality("[``,`Hello World`]", d.toString());
+
+    xml[] e = [];
+    result = trap setXmlArraySecondElement(e, xml `Hello World`);
+    assertEquality(result is (), true);
+    assertEquality("[``,`Hello World`]", e.toString());
+
+    (xml|xml:Text)[] f = [];
+    result = trap setXmlArraySecondElement(e, xml `Hello World`);
+    assertEquality(result is (), true);
+    assertEquality("[``,`Hello World`]", e.toString());
+}
+
+function setXmlArraySecondElement(xml[] arr, xml element) {
+    arr[1] = element;
 }
 
 type AssertionError distinct error;

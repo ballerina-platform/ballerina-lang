@@ -329,3 +329,19 @@ function decimalAdd(decimal a, decimal b) returns (decimal) {
 function stringConcat(string a, string b) returns (string) {
     return a + b;
 }
+
+class Person {
+    string name;
+
+    function init(string name) {
+        self.name = name;
+    }
+}
+
+function fn(string s) returns Person? => s == "" ? () : new Person(s);
+
+@test:Config
+function testFn() {
+    Person? res = fn("");
+    test:assertEquals(res, ());
+}

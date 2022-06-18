@@ -28,7 +28,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class PackageDescriptor {
+public class PackageDescriptor implements Comparable<PackageDescriptor> {
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
@@ -111,5 +111,10 @@ public class PackageDescriptor {
             return pkgStr;
         }
         return pkgStr + ":" + packageVersion;
+    }
+
+    @Override
+    public int compareTo(PackageDescriptor other) {
+        return this.toString().compareTo(other.toString());
     }
 }

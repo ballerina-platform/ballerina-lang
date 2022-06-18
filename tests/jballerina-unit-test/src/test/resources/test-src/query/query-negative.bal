@@ -475,3 +475,47 @@ function testInvalidTypeInSelectWithQueryConstructingTable2() {
              where user.age > 21 && user.age < 60
              select {user};
 }
+
+type ScoreEvent readonly & record {|
+    string email;
+    string problemId;
+    float score;
+|};
+
+type ScoreEventType ScoreEvent;
+
+function testInvalidTypeInFromClause() {
+    ScoreEventType[] events = [];
+
+    _ = from int ev in events
+        select ev;
+}
+
+UndefinedType[] undefinedTypeList = [];
+
+public function testVariableOfUndefinedTypeUsedInFromClause() {
+    int[] _ = from var item in undefinedTypeList
+            select 1;
+}
+
+int[] customerList = [];
+
+public function testVariableOfUndefinedTypeUsedInJoin() {
+    int[] _ = from var customer in customerList
+        join UndefinedType item in undefinedTypeList
+        on 1 equals 1
+        select 1;
+}
+
+function testInvalidTypeInOnConflictClauseWithQueryConstructingTable() {
+    User[] users = [];
+    error|int msg = error("Error");
+
+    var result1 = table key(id) from var user in users
+                    where user.age > 21 && user.age < 60
+                    select {user} on conflict 1;
+
+    var result2 = table key(id) from var user in users
+                    where user.age > 21 && user.age < 60
+                    select {user} on conflict msg;
+}

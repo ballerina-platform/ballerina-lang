@@ -445,6 +445,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
         buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
+        buff.writeInt(addStringCPEntry(attachedFunc.symbol.getOriginalName().getValue()));
         buff.writeLong(attachedFunc.symbol.flags);
         writeTypeCpIndex(attachedFunc.type);
     }
@@ -462,8 +463,8 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BTableType bTableType) {
         writeTypeCpIndex(bTableType.constraint);
-        buff.writeBoolean(bTableType.fieldNameList != null);
-        if (bTableType.fieldNameList != null) {
+        buff.writeBoolean(!bTableType.fieldNameList.isEmpty());
+        if (!bTableType.fieldNameList.isEmpty()) {
             buff.writeInt(bTableType.fieldNameList.size());
             for (String fieldName : bTableType.fieldNameList) {
                 buff.writeInt(addStringCPEntry(fieldName));

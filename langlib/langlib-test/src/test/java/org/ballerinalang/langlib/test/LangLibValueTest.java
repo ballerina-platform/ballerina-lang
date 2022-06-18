@@ -59,17 +59,25 @@ public class LangLibValueTest {
         }
     }
 
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
+        file = null;
+    }
+
     @Test void testNegativeCases() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'any', found " +
-                "'ballerina/lang.value:0.0.0:Cloneable'", 21, 13);
-        validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
-                "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
+                "'ballerina/lang.value:0.0.0:Cloneable'", 22, 13);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 31, 23);
+        validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
+                "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 32, 23);
         validateWarning(negativeResult, index++, "invalid usage of the 'check' expression operator: " +
-                "no expression type is equivalent to error type", 40, 21);
+                "no expression type is equivalent to error type", 41, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'anydata', " +
+                "found 'table<RecordWithHandleField>'", 55, 13);
         assertEquals(negativeResult.getErrorCount(), index - 1);
         assertEquals(negativeResult.getWarnCount(), 1);
     }
@@ -346,7 +354,8 @@ public class LangLibValueTest {
                 "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
                 "testCloneWithTypeWithUnionTypeArrayFromIntArray",
                 "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
-                "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField"
+                "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField",
+                "testCloneWithTypeWithAmbiguousUnion"
         };
     }
 
@@ -370,7 +379,7 @@ public class LangLibValueTest {
                 { "testCloneWithTypeTupleRestTypeNegative" },
                 { "testCloneWithTypeUnionTupleRestTypeNegative" },
                 { "testCloneWithTypeToTupleTypeWithFiniteTypesNegative" },
-                { "testCloneWithTypeTupleWithoutFillerValues" }
+                { "testCloneWithTypeTupleConsideringFillerValues" }
         };
     }
 
@@ -456,8 +465,7 @@ public class LangLibValueTest {
                 { "testToJsonWithIntArray" },
                 { "testToJsonWithTable" },
                 { "testToJsonWithCyclicParameter" },
-                { "testTableToJsonConversion" },
-                { "testToJsonConversionError" }
+                { "testTableToJsonConversion" }
         };
     }
 
@@ -491,11 +499,5 @@ public class LangLibValueTest {
     public void testDecimalToString() {
         BRunUtil.invoke(compileResult, "testDecimalZeroToString");
         BRunUtil.invoke(compileResult, "testDecimalNonZeroToString");
-    }
-
-    @AfterClass
-    public void tearDown() {
-        compileResult = null;
-        file = null;
     }
 }

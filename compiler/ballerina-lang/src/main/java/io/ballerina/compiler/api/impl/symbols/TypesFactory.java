@@ -16,8 +16,6 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.IntTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -27,7 +25,7 @@ import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -113,14 +111,14 @@ public class TypesFactory {
 
     private final CompilerContext context;
     private final SymbolFactory symbolFactory;
-    private final SymbolTable symbolTable;
+    private final BLangAnonymousModelHelper anonymousModelHelper;
 
     private TypesFactory(CompilerContext context) {
         context.put(TYPES_FACTORY_KEY, this);
 
         this.context = context;
         this.symbolFactory = SymbolFactory.getInstance(context);
-        this.symbolTable = SymbolTable.getInstance(context);
+        this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
     public static TypesFactory getInstance(CompilerContext context) {
@@ -168,143 +166,135 @@ public class TypesFactory {
             }
         }
 
-        ModuleID moduleID = tSymbol == null ? null : new BallerinaModuleID(tSymbol.pkgID);
-
         if (isTypeReference(bType, tSymbol, rawTypeOnly)) {
-            return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol,
-                    typeRefFromIntersectType);
+            return new BallerinaTypeReferenceTypeSymbol(this.context, bType, tSymbol, typeRefFromIntersectType);
         }
         BTypeSymbol typeSymbol = tSymbol instanceof BTypeDefinitionSymbol ? tSymbol.type.tsymbol
                 : (BTypeSymbol) tSymbol;
-        return createTypeDescriptor(bType, typeSymbol, moduleID);
+        return createTypeDescriptor(bType, typeSymbol);
     }
 
-    private TypeSymbol createTypeDescriptor(BType bType, BTypeSymbol tSymbol, ModuleID moduleID) {
+    private TypeSymbol createTypeDescriptor(BType bType, BTypeSymbol tSymbol) {
         switch (bType.getKind()) {
             case BOOLEAN:
-                return new BallerinaBooleanTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaBooleanTypeSymbol(this.context, bType);
             case BYTE:
-                return new BallerinaByteTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaByteTypeSymbol(this.context, bType);
             case INT:
                 if (bType instanceof BIntSubType) {
                     return createIntSubType((BIntSubType) bType);
                 }
-                return new BallerinaIntTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaIntTypeSymbol(this.context, bType);
             case FLOAT:
-                return new BallerinaFloatTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaFloatTypeSymbol(this.context, bType);
             case DECIMAL:
-                return new BallerinaDecimalTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaDecimalTypeSymbol(this.context, bType);
             case STRING:
                 if (bType instanceof BStringSubType) {
-                    moduleID = new BallerinaModuleID(symbolTable.langStringModuleSymbol.pkgID);
-                    return new BallerinaStringCharTypeSymbol(this.context, moduleID, (BStringSubType) bType);
+                    return new BallerinaStringCharTypeSymbol(this.context, (BStringSubType) bType);
                 }
-                return new BallerinaStringTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaStringTypeSymbol(this.context, bType);
             case ANY:
-                return new BallerinaAnyTypeSymbol(this.context, moduleID, (BAnyType) bType);
+                return new BallerinaAnyTypeSymbol(this.context, (BAnyType) bType);
             case ANYDATA:
-                return new BallerinaAnydataTypeSymbol(this.context, moduleID, (BAnydataType) bType);
+                return new BallerinaAnydataTypeSymbol(this.context, (BAnydataType) bType);
             case HANDLE:
-                return new BallerinaHandleTypeSymbol(this.context, moduleID, (BHandleType) bType);
+                return new BallerinaHandleTypeSymbol(this.context, (BHandleType) bType);
             case JSON:
-                return new BallerinaJSONTypeSymbol(this.context, moduleID, (BJSONType) bType);
+                return new BallerinaJSONTypeSymbol(this.context, (BJSONType) bType);
             case READONLY:
-                return new BallerinaReadonlyTypeSymbol(this.context, moduleID, (BReadonlyType) bType);
+                return new BallerinaReadonlyTypeSymbol(this.context, (BReadonlyType) bType);
             case TABLE:
-                return new BallerinaTableTypeSymbol(this.context, moduleID, (BTableType) bType);
+                return new BallerinaTableTypeSymbol(this.context, (BTableType) bType);
             case XML:
                 if (bType instanceof BXMLSubType) {
                     return createXMLSubType((BXMLSubType) bType);
                 }
-                return new BallerinaXMLTypeSymbol(this.context, moduleID, (BXMLType) bType);
+                return new BallerinaXMLTypeSymbol(this.context, (BXMLType) bType);
             case OBJECT:
-                ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, moduleID, (BObjectType) bType);
+                ObjectTypeSymbol objType = new BallerinaObjectTypeSymbol(this.context, (BObjectType) bType);
                 if (Symbols.isFlagOn(tSymbol.flags, Flags.CLASS)) {
                     return symbolFactory.createClassSymbol((BClassSymbol) tSymbol, tSymbol.name.value, objType);
                 }
                 return objType;
             case RECORD:
-                return new BallerinaRecordTypeSymbol(this.context, moduleID, (BRecordType) bType);
+                return new BallerinaRecordTypeSymbol(this.context, (BRecordType) bType);
             case ERROR:
-                return new BallerinaErrorTypeSymbol(this.context, moduleID, (BErrorType) bType);
+                return new BallerinaErrorTypeSymbol(this.context, (BErrorType) bType);
             case UNION:
-                return new BallerinaUnionTypeSymbol(this.context, moduleID, (BUnionType) bType);
+                return new BallerinaUnionTypeSymbol(this.context, (BUnionType) bType);
             case FUTURE:
-                return new BallerinaFutureTypeSymbol(this.context, moduleID, (BFutureType) bType);
+                return new BallerinaFutureTypeSymbol(this.context, (BFutureType) bType);
             case MAP:
-                return new BallerinaMapTypeSymbol(this.context, moduleID, (BMapType) bType);
+                return new BallerinaMapTypeSymbol(this.context, (BMapType) bType);
             case STREAM:
-                return new BallerinaStreamTypeSymbol(this.context, moduleID, (BStreamType) bType);
+                return new BallerinaStreamTypeSymbol(this.context, (BStreamType) bType);
             case ARRAY:
-                return new BallerinaArrayTypeSymbol(this.context, moduleID, (BArrayType) bType);
+                return new BallerinaArrayTypeSymbol(this.context, (BArrayType) bType);
             case TUPLE:
-                return new BallerinaTupleTypeSymbol(this.context, moduleID, (BTupleType) bType);
+                return new BallerinaTupleTypeSymbol(this.context, (BTupleType) bType);
             case TYPEDESC:
-                return new BallerinaTypeDescTypeSymbol(this.context, moduleID, (BTypedescType) bType);
+                return new BallerinaTypeDescTypeSymbol(this.context, (BTypedescType) bType);
             case NIL:
-                return new BallerinaNilTypeSymbol(this.context, moduleID, (BNilType) bType);
+                return new BallerinaNilTypeSymbol(this.context, (BNilType) bType);
             case FINITE:
                 BFiniteType finiteType = (BFiniteType) bType;
                 Set<BLangExpression> valueSpace = finiteType.getValueSpace();
 
                 if (valueSpace.size() == 1) {
                     BLangExpression shape = valueSpace.iterator().next();
-                    return new BallerinaSingletonTypeSymbol(this.context, moduleID, (BLangLiteral) shape, bType);
+                    return new BallerinaSingletonTypeSymbol(this.context, (BLangLiteral) shape, bType);
                 }
 
-                return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
+                return new BallerinaUnionTypeSymbol(this.context, finiteType);
             case FUNCTION:
-                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) tSymbol, bType);
+                return new BallerinaFunctionTypeSymbol(this.context, (BInvokableTypeSymbol) tSymbol, bType);
             case NEVER:
-                return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
+                return new BallerinaNeverTypeSymbol(this.context, (BNeverType) bType);
             case NONE:
-                return new BallerinaNoneTypeSymbol(this.context, moduleID, (BNoType) bType);
+                return new BallerinaNoneTypeSymbol(this.context, (BNoType) bType);
             case INTERSECTION:
-                return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
+                return new BallerinaIntersectionTypeSymbol(this.context, (BIntersectionType) bType);
             case TYPEREFDESC:
-                return new BallerinaTypeReferenceTypeSymbol(this.context, moduleID, bType, tSymbol, false);
+                return new BallerinaTypeReferenceTypeSymbol(this.context, bType, tSymbol, false);
             default:
                 if (bType.tag == SEMANTIC_ERROR) {
-                    return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);
+                    return new BallerinaCompilationErrorTypeSymbol(this.context, bType);
                 }
 
-                return new BallerinaTypeSymbol(this.context, moduleID, bType);
+                return new BallerinaTypeSymbol(this.context, bType);
         }
     }
 
     private IntTypeSymbol createIntSubType(BIntSubType internalType) {
-        ModuleID moduleID = new BallerinaModuleID(symbolTable.langIntModuleSymbol.pkgID);
-
         switch (internalType.tag) {
             case UNSIGNED8_INT:
-                return new BallerinaIntUnsigned8TypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaIntUnsigned8TypeSymbol(this.context, internalType);
             case SIGNED8_INT:
-                return new BallerinaIntSigned8TypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaIntSigned8TypeSymbol(this.context, internalType);
             case UNSIGNED16_INT:
-                return new BallerinaIntUnsigned16TypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaIntUnsigned16TypeSymbol(this.context, internalType);
             case SIGNED16_INT:
-                return new BallerinaIntSigned16TypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaIntSigned16TypeSymbol(this.context, internalType);
             case UNSIGNED32_INT:
-                return new BallerinaIntUnsigned32TypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaIntUnsigned32TypeSymbol(this.context, internalType);
             case SIGNED32_INT:
-                return new BallerinaIntSigned32TypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaIntSigned32TypeSymbol(this.context, internalType);
         }
 
         throw new IllegalStateException("Invalid integer subtype type tag: " + internalType.tag);
     }
 
     private XMLTypeSymbol createXMLSubType(BXMLSubType internalType) {
-        ModuleID moduleID = new BallerinaModuleID(symbolTable.langXmlModuleSymbol.pkgID);
-
         switch (internalType.tag) {
             case XML_ELEMENT:
-                return new BallerinaXMLElementTypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaXMLElementTypeSymbol(this.context, internalType);
             case XML_PI:
-                return new BallerinaXMLProcessingInstructionTypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaXMLProcessingInstructionTypeSymbol(this.context, internalType);
             case XML_COMMENT:
-                return new BallerinaXMLCommentTypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaXMLCommentTypeSymbol(this.context, internalType);
             case XML_TEXT:
-                return new BallerinaXMLTextTypeSymbol(this.context, moduleID, internalType);
+                return new BallerinaXMLTextTypeSymbol(this.context, internalType);
         }
 
         throw new IllegalStateException("Invalid XML subtype type tag: " + internalType.tag);
@@ -322,7 +312,8 @@ public class TypesFactory {
             return false;
         }
 
-        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
+        if (!isBuiltinNamedType(bType.tag) && !(tSymbol.name.value.isEmpty()
+                || anonymousModelHelper.isAnonymousType(tSymbol))) {
             return true;
         }
 

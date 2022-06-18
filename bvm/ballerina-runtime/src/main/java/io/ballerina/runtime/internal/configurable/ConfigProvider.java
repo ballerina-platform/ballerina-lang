@@ -61,4 +61,6 @@ public interface ConfigProvider {
 
     Optional<ConfigValue> getAsXmlAndMark(Module module, VariableKey key);
 
+    Optional<ConfigValue> getAsTupleAndMark(Module module, VariableKey key);
+
 }

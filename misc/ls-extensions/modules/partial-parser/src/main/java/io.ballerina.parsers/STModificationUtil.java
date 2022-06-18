@@ -32,6 +32,9 @@ public class STModificationUtil {
     }
 
     static String getModifiedStatement(String oldStatement, STModification stModification) {
+        if (stModification == null) {
+            return oldStatement;
+        }
         TextDocument oldTextDocument = TextDocuments.from(oldStatement);
         TextEdit[] textEdits = {constructEdit(oldTextDocument, stModification)};
         TextDocumentChange textDocumentChange = TextDocumentChange.from(textEdits);

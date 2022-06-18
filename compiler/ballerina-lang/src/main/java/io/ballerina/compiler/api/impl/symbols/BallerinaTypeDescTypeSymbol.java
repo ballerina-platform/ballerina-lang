@@ -16,7 +16,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -34,7 +35,7 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
 
     private TypeSymbol typeParameter;
 
-    public BallerinaTypeDescTypeSymbol(CompilerContext context, ModuleID moduleID, BTypedescType typedescType) {
+    public BallerinaTypeDescTypeSymbol(CompilerContext context, BTypedescType typedescType) {
         super(context, TypeDescKind.TYPEDESC, typedescType);
     }
 
@@ -54,5 +55,15 @@ public class BallerinaTypeDescTypeSymbol extends AbstractTypeSymbol implements T
             return this.typeKind().getName() + "<" + this.typeParameter().get().signature() + ">";
         }
         return this.typeKind().name();
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

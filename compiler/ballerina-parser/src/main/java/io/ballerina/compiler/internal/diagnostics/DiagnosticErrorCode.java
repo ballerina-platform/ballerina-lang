@@ -247,6 +247,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_TYPE_REFERENCE("BCE0527", "error.missing.type.reference"),
     ERROR_MISSING_BACKTICK_STRING("BCE0528", "error.missing.backtick.string"),
     ERROR_MISSING_NAMED_ARG("BCE0529", "error.missing.named.arg"),
+    ERROR_MISSING_FIELD_MATCH_PATTERN_MEMBER("BCE0530", "error.missing.field.match.pattern.member"),
+    ERROR_MISSING_OBJECT_CONSTRUCTOR_EXPRESSION("BCE0531", "error.missing.object.constructor.expression"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -341,7 +343,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.field.initialization.not.allowed.in.object.type"),
     ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED("BCE0676", "error.intervening.whitespaces.are.not.allowed"),
     ERROR_INVALID_BINDING_PATTERN("BCE0677", "error.invalid.binding.pattern"),
-    ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH("BCE0678", "error.resource.path.cannot.begin.with.slash")
+    ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH("BCE0678", "error.resource.path.cannot.begin.with.slash"),
+    REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE0679",
+            "error.rest.parameter.cannot.be.included.record.parameter")
     ;
 
     String diagnosticId;

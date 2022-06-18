@@ -1,0 +1,54 @@
+[
+  {
+    "source": "1 + 2",
+    "result": {
+      "shellValue": {
+        "value":"3",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+    }
+  },
+  {
+    "source": "2 * 4",
+    "result": {
+      "shellValue": {
+        "value":"8",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+    }
+  },
+  {
+    "source": "10%4",
+    "result": {
+      "shellValue": {
+        "value":"2",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+    }
+  },
+  {
+    "source": "10>4",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]}
+    }
+  }
+]

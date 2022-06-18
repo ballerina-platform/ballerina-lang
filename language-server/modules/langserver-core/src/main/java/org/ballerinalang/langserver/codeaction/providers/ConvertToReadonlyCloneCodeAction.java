@@ -19,8 +19,9 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -45,19 +46,25 @@ public class ConvertToReadonlyCloneCodeAction extends AbstractCodeActionProvider
     private static final String CLONE_READONLY_PREFIX = "cloneReadOnly";
 
     @Override
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+                            CodeActionContext context) {
+        return diagnostic.diagnosticInfo().code()
+                .equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId()) && 
+                CodeActionNodeValidator.validate(context.nodeAtCursor());
+    }
+
+    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        if (!diagnostic.diagnosticInfo().code().equals(INVALID_CALL_WITH_MUTABLE_ARGS_IN_MATCH_GUARD.diagnosticId())) {
-            return Collections.emptyList();
-        }
+        
 
         NonTerminalNode currentNode = positionDetails.matchedNode();
         Optional<TypeSymbol> typeDescriptor = context.currentSemanticModel().get().typeOf(currentNode);
         if (typeDescriptor.isEmpty() || !isCloneReadonlyAvailable(typeDescriptor.get())) {
             return Collections.emptyList();
         }
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         String newText = getNewText(currentNode);
         String uri = context.filePath().toUri().toString();
 

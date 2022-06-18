@@ -50,11 +50,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -144,12 +144,12 @@ public class MethodGen {
     private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
-    private final CompilerContext compilerContext;
+    private final Types types;
 
-    public MethodGen(JvmPackageGen jvmPackageGen, CompilerContext compilerContext) {
+    public MethodGen(JvmPackageGen jvmPackageGen, Types types) {
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
-        this.compilerContext = compilerContext;
+        this.types = types;
     }
 
     public void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
@@ -158,7 +158,7 @@ public class MethodGen {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
                                                          jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
-                                                         asyncDataCollector, compilerContext);
+                                                         asyncDataCollector, types);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
                                attachedType, asyncDataCollector);
@@ -225,7 +225,7 @@ public class MethodGen {
 
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
                                                           jvmCastGen, jvmConstantsGen, asyncDataCollector,
-                                                          compilerContext);
+                                                          types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
                                                         jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
@@ -510,13 +510,13 @@ public class MethodGen {
                                    BIRTerminator terminator) {
         if (terminator.kind == InstructionKind.GOTO &&
                 ((BIRTerminator.GOTO) terminator).targetBB.terminator.kind == InstructionKind.RETURN &&
-                !JvmCodeGenUtil.isExternFunc(func) && func.pos != null &&
-                func.pos.lineRange().endLine().line() != 0x80000000) {
+                ((BIRTerminator.GOTO) terminator).targetBB.terminator.pos != null) {
             // The ending line number of the function is added to the line number table to prevent wrong code
             // coverage for generated return statements.
             Label label = new Label();
             mv.visitLabel(label);
-            mv.visitLineNumber(func.pos.lineRange().endLine().line() + 1, label);
+            mv.visitLineNumber(
+                    ((BIRTerminator.GOTO) terminator).targetBB.terminator.pos.lineRange().endLine().line() + 1, label);
         } else if (terminator.kind != InstructionKind.RETURN) {
             JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
         }

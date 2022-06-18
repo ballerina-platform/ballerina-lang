@@ -78,3 +78,16 @@ function testInvalidTypesWithClosedRecordUnion(ClosedRecordWithOneField|EmptyClo
         }
     }
 }
+
+type B map<int> & readonly;
+
+function captureBindingPatternNegative2(B v) returns string {
+    string s = "No match";
+
+    match v {
+        var x => {
+            string c = x;
+        }
+    }
+    return s;
+}

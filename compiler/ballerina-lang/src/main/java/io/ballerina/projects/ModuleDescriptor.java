@@ -27,11 +27,12 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ModuleDescriptor {
+public class ModuleDescriptor implements Comparable<ModuleDescriptor> {
     private final ModuleName moduleName;
     private final PackageDescriptor packageDesc;
 
     private final PackageID moduleCompilationId;
+    private final PackageID moduleTestCompilationId;
 
     private ModuleDescriptor(ModuleName moduleName, PackageDescriptor packageDesc) {
         this.moduleName = moduleName;
@@ -39,10 +40,14 @@ public class ModuleDescriptor {
 
         if (packageDesc.name().value().equals(".") && packageDesc.org().anonymous()) {
             moduleCompilationId = PackageID.DEFAULT;
+            moduleTestCompilationId = moduleCompilationId;
         } else {
             moduleCompilationId = new PackageID(new Name(packageDesc.org().value()),
                     new Name(packageDesc.name().value()), new Name(moduleName.toString()),
                     new Name(packageDesc.version().toString()), null);
+            moduleTestCompilationId = new PackageID(new Name(packageDesc.org().value()),
+                    new Name(packageDesc.name().value()), new Name(moduleName.toString()),
+                    new Name(packageDesc.version().toString()), null, true);
         }
     }
 
@@ -70,6 +75,10 @@ public class ModuleDescriptor {
         return moduleCompilationId;
     }
 
+    public PackageID moduleTestCompilationId() {
+        return moduleTestCompilationId;
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {
@@ -88,5 +97,10 @@ public class ModuleDescriptor {
     @Override
     public int hashCode() {
         return Objects.hash(moduleName, packageDesc);
+    }
+
+    @Override
+    public int compareTo(ModuleDescriptor other) {
+        return this.moduleName.toString().compareTo(other.moduleName.toString());
     }
 }

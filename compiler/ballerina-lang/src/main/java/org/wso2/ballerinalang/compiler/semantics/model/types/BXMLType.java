@@ -34,7 +34,6 @@ import java.util.Optional;
 public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     public BType constraint;
-    public BIntersectionType immutableType;
 
     private BIntersectionType intersectionType = null;
 
@@ -70,11 +69,6 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
     }
 
     @Override

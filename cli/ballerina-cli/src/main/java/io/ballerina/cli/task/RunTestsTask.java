@@ -26,6 +26,7 @@ import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -33,6 +34,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -187,8 +189,9 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        for (ModuleId moduleId : project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
-            Module module = project.currentPackage().module(moduleId);
+        for (ModuleDescriptor moduleDescriptor :
+                project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
+            Module module = project.currentPackage().module(moduleDescriptor.name());
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
@@ -642,6 +645,15 @@ public class RunTestsTask implements Task {
                 PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
                         currentPackage.packageId(), module.moduleName());
                 exclusionPathList.add(codeGeneratedTestLibrary.path());
+            }
+        }
+
+        for (ResolvedPackageDependency resolvedPackageDependency : currentPackage.getResolution().allDependencies()) {
+            Package pkg = resolvedPackageDependency.packageInstance();
+            for (ModuleId moduleId : pkg.moduleIds()) {
+                Module module = pkg.module(moduleId);
+                exclusionPathList.add(
+                        jBallerinaBackend.codeGeneratedLibrary(pkg.packageId(), module.moduleName()).path());
             }
         }
 

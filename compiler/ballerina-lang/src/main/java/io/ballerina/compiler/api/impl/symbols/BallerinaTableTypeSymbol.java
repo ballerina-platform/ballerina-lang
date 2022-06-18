@@ -17,7 +17,8 @@
 
 package io.ballerina.compiler.api.impl.symbols;
 
-import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -39,10 +40,10 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     private TypeSymbol rowTypeParameter;
     private TypeSymbol keyConstraintTypeParameter;
-    private List<String> keySpecifiers;
+    private List<String> keySpecifiers = new ArrayList<>();
     private String signature;
 
-    public BallerinaTableTypeSymbol(CompilerContext context, ModuleID moduleID, BTableType tableType) {
+    public BallerinaTableTypeSymbol(CompilerContext context, BTableType tableType) {
         super(context, TypeDescKind.TABLE, tableType);
     }
 
@@ -69,13 +70,8 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
 
     @Override
     public List<String> keySpecifiers() {
-        if (this.keySpecifiers == null) {
+        if (this.keySpecifiers.isEmpty()) {
             List<String> specifiers = ((BTableType) this.getBType()).fieldNameList;
-
-            if (specifiers == null) {
-                specifiers = new ArrayList<>();
-            }
-
             this.keySpecifiers = Collections.unmodifiableList(specifiers);
         }
 
@@ -107,5 +103,15 @@ public class BallerinaTableTypeSymbol extends AbstractTypeSymbol implements Tabl
         }
 
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

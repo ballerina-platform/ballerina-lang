@@ -10,7 +10,7 @@
         "arguments": [
           {
             "key": "module",
-            "value": "ballerina/io"
+            "value": "ballerina/iox"
           }
         ]
       }

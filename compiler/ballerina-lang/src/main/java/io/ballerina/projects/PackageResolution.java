@@ -87,6 +87,8 @@ public class PackageResolution {
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
+        diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
+
         this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext, resolutionOptions);
 
         this.dependencyGraph = buildDependencyGraph(resolutionOptions);
@@ -214,7 +216,7 @@ public class PackageResolution {
     }
 
     private LinkedHashSet<ModuleLoadRequest> getModuleLoadRequestsOfDirectDependencies() {
-        LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new LinkedHashSet<>();
+        LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
             allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests());
@@ -269,6 +271,8 @@ public class PackageResolution {
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
 
+        diagnosticList.addAll(resolutionEngine.diagnosticResult().allDiagnostics);
+
         //3 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
                 packageResolver, resolutionOptions);
@@ -309,7 +313,8 @@ public class PackageResolution {
 
         // Resolve rest of the packages in the graph
         List<ResolutionRequest> resolutionRequests = depGraph.getNodes().stream()
-                .filter(depNode -> !depNode.equals(rootNode)) // Remove root node from the requests
+                .filter(depNode -> !depNode.equals(rootNode) // Remove root node from the requests
+                        && !depNode.errorNode()) // Remove error nodes from the requests
                 .map(this::createFromDepNode)
                 .collect(Collectors.toList());
         Collection<ResolutionResponse> resolutionResponses =
@@ -393,10 +398,10 @@ public class PackageResolution {
         for (ResolvedPackageDependency pkgDependency : sortedPackages) {
             Package resolvedPackage = pkgDependency.packageInstance();
             resolvedPackage.packageContext().resolveDependencies(dependencyResolution);
-            DependencyGraph<ModuleId> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
-            List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
-            for (ModuleId moduleId : sortedModuleIds) {
-                ModuleContext moduleContext = resolvedPackage.module(moduleId).moduleContext();
+            DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
+            List<ModuleDescriptor> sortedModuleDescriptors = moduleDependencyGraph.toTopologicallySortedList();
+            for (ModuleDescriptor moduleDescriptor : sortedModuleDescriptors) {
+                ModuleContext moduleContext = resolvedPackage.module(moduleDescriptor.name()).moduleContext();
                 sortedModuleList.add(moduleContext);
             }
         }

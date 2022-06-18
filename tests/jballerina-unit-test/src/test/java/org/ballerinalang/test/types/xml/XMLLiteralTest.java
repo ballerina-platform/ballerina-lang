@@ -28,6 +28,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -189,6 +190,18 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'xml:Text', found 'xml<xml>'", 124, 19);
         BAssertUtil.validateError(negativeResult, index++, "missing xml CDATA end token", 128, 49);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 133, 45);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'string[]'", 140, 25);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'string[]'", 141, 25);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'int[]'", 142, 38);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: expected '(int|float|decimal|string|boolean|xml)', " +
+                        "found 'ballerina/lang.object:0.0.0:RawTemplate[]'", 143, 25);
+        BAssertUtil.validateError(negativeResult, index++,
+                "incompatible types: 'ballerina/lang.object:0.0.0:RawTemplate[]' cannot be cast to 'string'", 144, 25);
 
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
@@ -416,5 +429,20 @@ public class XMLLiteralTest {
     public Object[] provideFunctionNames() {
         return new String[]{"testXMLSequenceValueAssignment", "testXMLTextValueAssignment", "testXMLCDATASection",
                 "testXMLReturnUnion"};
+    }
+
+    @Test
+    public void testXMLInterpolationExprWithUserDefinedType() {
+        BRunUtil.invoke(result, "testXMLInterpolationExprWithUserDefinedType");
+    }
+
+    @Test
+    public void testQueryInXMLTemplateExpr() {
+        BRunUtil.invoke(result, "testQueryInXMLTemplateExpr");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }

@@ -88,8 +88,6 @@ import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecation
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationTextAttributeNode;
-import org.ballerinalang.model.tree.expressions.MatchExpressionNode;
-import org.ballerinalang.model.tree.expressions.MatchExpressionNode.MatchExpressionPatternNode;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.ballerinalang.model.tree.expressions.RawTemplateLiteralNode;
@@ -101,7 +99,6 @@ import org.ballerinalang.model.tree.expressions.SimpleVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.StatementExpressionNode;
 import org.ballerinalang.model.tree.expressions.StringTemplateLiteralNode;
 import org.ballerinalang.model.tree.expressions.TableConstructorExprNode;
-import org.ballerinalang.model.tree.expressions.TableMultiKeyExpressionNode;
 import org.ballerinalang.model.tree.expressions.TernaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.TrapExpressionNode;
 import org.ballerinalang.model.tree.expressions.TupleVariableReferenceNode;
@@ -145,10 +142,6 @@ import org.ballerinalang.model.tree.statements.ForeachNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
-import org.ballerinalang.model.tree.statements.MatchNode;
-import org.ballerinalang.model.tree.statements.MatchNode.MatchStaticBindingPatternNode;
-import org.ballerinalang.model.tree.statements.MatchNode.MatchStructuredBindingPatternNode;
-import org.ballerinalang.model.tree.statements.MatchNode.MatchTypedBindingPatternNode;
 import org.ballerinalang.model.tree.statements.MatchStatementNode;
 import org.ballerinalang.model.tree.statements.PanicNode;
 import org.ballerinalang.model.tree.statements.QueryActionNode;
@@ -254,8 +247,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
@@ -271,7 +262,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -321,10 +311,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -648,10 +634,6 @@ public class TreeBuilder {
         return new BLangTableConstructorExpr();
     }
 
-    public static TableMultiKeyExpressionNode createTableMultiKeyExpressionNode() {
-        return new BLangTableMultiKeyExpr();
-    }
-
     public static LetExpressionNode createLetExpressionNode() {
         return new BLangLetExpression();
     }
@@ -773,10 +755,6 @@ public class TreeBuilder {
         return new BLangIf();
     }
 
-    public static MatchNode createMatchStatement() {
-        return new BLangMatch();
-    }
-
     public static MatchStatementNode createMatchStatementNode() {
         return new BLangMatchStatement();
     }
@@ -887,18 +865,6 @@ public class TreeBuilder {
 
     public static NamedArgMatchPatternNode createNamedArgMatchPattern() {
         return new BLangNamedArgMatchPattern();
-    }
-
-    public static MatchTypedBindingPatternNode createMatchStatementSimpleBindingPattern() {
-        return new BLangMatchTypedBindingPatternClause();
-    }
-
-    public static MatchStaticBindingPatternNode createMatchStatementStaticBindingPattern() {
-        return new BLangMatchStaticBindingPatternClause();
-    }
-
-    public static MatchStructuredBindingPatternNode createMatchStatementStructuredBindingPattern() {
-        return new BLangMatchStructuredBindingPatternClause();
     }
 
     public static ServiceNode createServiceNode() {
@@ -1039,14 +1005,6 @@ public class TreeBuilder {
 
     public static NamedArgNode createNamedArgNode() {
         return new BLangNamedArgsExpression();
-    }
-
-    public static MatchExpressionPatternNode createMatchExpressionPattern() {
-        return new BLangMatchExprPatternClause();
-    }
-
-    public static MatchExpressionNode createMatchExpression() {
-        return new BLangMatchExpression();
     }
 
     public static StatementExpressionNode creatStatementExpression() {

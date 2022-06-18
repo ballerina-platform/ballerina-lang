@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.SymbolTransformer;
+import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
@@ -24,7 +26,8 @@ import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -83,8 +86,8 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
         List<AnnotationSymbol> annots = new ArrayList<>();
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
-        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : bField.symbol.getAnnotations()) {
-            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationSymbol) annot));
+        for (AnnotationAttachmentSymbol annot : bField.symbol.getAnnotations()) {
+            annots.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
         this.annots = Collections.unmodifiableList(annots);
@@ -130,5 +133,15 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
         this.signature = joiner.add(this.typeDescriptor().signature()).add(this.getName().get()).toString();
         return this.signature;
+    }
+
+    @Override
+    public void accept(SymbolVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SymbolTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

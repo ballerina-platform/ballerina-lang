@@ -219,10 +219,11 @@ public class FunctionComparator extends NodeComparator<FunctionDefinitionNode> {
         return Optional.empty();
     }
 
-    private List<Diff> compareReturnAnnotations(ReturnTypeDescriptorNode newR, ReturnTypeDescriptorNode oldR) {
+    private List<Diff> compareReturnAnnotations(ReturnTypeDescriptorNode newReturn,
+                                                ReturnTypeDescriptorNode oldReturn) {
         List<Diff> returnAnnotationDiffs = new LinkedList<>();
-        NodeList<AnnotationNode> newAnnots = newR.annotations();
-        NodeList<AnnotationNode> oldAnnots = oldR.annotations();
+        NodeList<AnnotationNode> newAnnots = newReturn.annotations();
+        NodeList<AnnotationNode> oldAnnots = oldReturn.annotations();
 
         DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots);
         annotsComparator.computeDiff().ifPresent(diff -> returnAnnotationDiffs.addAll(diff.getChildDiffs()));

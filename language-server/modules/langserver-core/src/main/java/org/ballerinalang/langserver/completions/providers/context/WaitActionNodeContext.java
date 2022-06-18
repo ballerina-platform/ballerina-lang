@@ -15,21 +15,23 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.FutureTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -37,6 +39,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -64,7 +67,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
 
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         // Covers both alternate and single wait actions
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
             eg:
@@ -74,7 +77,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION
                     || symbol instanceof VariableSymbol;
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> filteredList = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+            List<Symbol> filteredList = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
             completionItems.addAll(this.getCompletionItemList(filteredList, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
@@ -123,6 +126,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
 
     @Override
     public void sort(BallerinaCompletionContext context, WaitActionNode node, List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> contextType = context.getContextType();
         for (LSCompletionItem lsCompletionItem : completionItems) {
             CompletionItem completionItem = lsCompletionItem.getCompletionItem();
             int rank;
@@ -137,7 +141,14 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                     rank = 1;
                 } else if (symbol.kind() == VARIABLE
                         && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE) {
-                    rank = 2;
+                    Optional<TypeSymbol> typeSymbol 
+                            = ((FutureTypeSymbol) ((VariableSymbol) symbol).typeDescriptor()).typeParameter();
+                    if (typeSymbol.isPresent() && contextType.isPresent() 
+                            && typeSymbol.get().subtypeOf(contextType.get())) {
+                        rank = 1;
+                    } else {
+                        rank = 2;
+                    }
                 } else {
                     rank = SortingUtil.toRank(context, lsCompletionItem, 2);
                 }
