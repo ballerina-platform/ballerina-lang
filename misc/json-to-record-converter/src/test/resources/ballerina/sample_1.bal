@@ -6,7 +6,7 @@ type SportsItem record {
 
 type MathsItem record {
 	string question;
-	string[] options;
+	(int|decimal|string)[] options;
 	string answer;
 };
 
