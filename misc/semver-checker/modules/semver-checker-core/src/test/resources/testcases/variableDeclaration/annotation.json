@@ -1,0 +1,104 @@
+[
+  {
+    "description": "Add annotation for variable declaration",
+    "oldCode": "public int age=1;",
+    "newCode": "@tainted\npublic int age=1;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "new",
+                    "versionImpact": "ambiguous",
+                    "kind": "unknown",
+                    "message": "a new module variable annotation list is added"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove annotation for variable declaration",
+    "oldCode": "@tainted\npublic int age=1;",
+    "newCode": "public int age=1;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "removed",
+                    "versionImpact": "ambiguous",
+                    "kind": "unknown",
+                    "message": "an existing module variable annotation list is removed"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify annotation for variable declaration",
+    "oldCode": "@tainted\npublic int age=1;",
+    "newCode": "@display{\n\tlabel:\"\"\n}\npublic int age=1;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                [
+                  {
+                    "type": "modified",
+                    "versionImpact": "ambiguous",
+                    "kind": "unknown",
+                    "message": "module variable annotation list is modified"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

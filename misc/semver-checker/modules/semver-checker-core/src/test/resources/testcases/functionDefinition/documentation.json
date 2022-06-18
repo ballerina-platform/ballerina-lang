@@ -14,14 +14,14 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "function",
               "type": "modified",
               "versionImpact": "patch",
-              "kind": "function",
               "childDiffs": [
                 {
+                  "kind": "documentation",
                   "type": "modified",
                   "versionImpact": "patch",
-                  "kind": "documentation",
                   "message": "documentation is modified"
                 }
               ]
@@ -46,21 +46,18 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "function",
               "type": "modified",
               "versionImpact": "patch",
-              "kind": "function",
-              "childDiffs": [
-                {
-                  "type": "new",
-                  "versionImpact": "patch",
-                  "kind": "documentation",
-                  "message": "documentation is added"
-                }
-              ]
+              "childDiffs": [{
+                "kind": "documentation",
+                "type": "new",
+                "versionImpact": "patch",
+                "message": "documentation is added"
+              }]
             }
           ]
-        }
-      ]
+        }]
     }
   },
   {
@@ -78,21 +75,18 @@
           "versionImpact": "patch",
           "childDiffs": [
             {
+              "kind": "function",
               "type": "modified",
               "versionImpact": "patch",
-              "kind": "function",
-              "childDiffs": [
-                {
-                  "type": "removed",
-                  "versionImpact": "patch",
-                  "kind": "documentation",
-                  "message": "documentation is removed"
-                }
-              ]
+              "childDiffs": [{
+                "kind": "documentation",
+                "type": "removed",
+                "versionImpact": "patch",
+                "message": "documentation is removed"
+              }]
             }
           ]
-        }
-      ]
+        }]
     }
   }
 ]
