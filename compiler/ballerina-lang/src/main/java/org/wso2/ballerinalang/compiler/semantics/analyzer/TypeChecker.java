@@ -4959,7 +4959,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public BType createFiniteTypeForNumericUnaryExpr(BLangUnaryExpr unaryExpr, AnalyzerData data) {
-        BLangNumericLiteral newNumericLiteral = types.constructNumericLiteralFromUnaryExpr(unaryExpr);
+        BLangNumericLiteral newNumericLiteral = Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 0, Names.EMPTY, data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 unaryExpr.pos, SOURCE);
@@ -5095,7 +5095,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (unaryExpr.expr.getKind() != NodeKind.NUMERIC_LITERAL) {
             return silentTypeCheckExpr(unaryExpr.expr, referredType, data);
         }
-        BLangNumericLiteral numericLiteral = types.constructNumericLiteralFromUnaryExpr(unaryExpr);
+        BLangNumericLiteral numericLiteral = Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
         // To check value with sign against expected type
         return silentTypeCheckExpr(numericLiteral, referredType, data);
     }
@@ -8589,7 +8589,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return (Long) ((BLangLiteral) indexExpr).value;
             case UNARY_EXPR:
                 BLangNumericLiteral numericLiteral =
-                        types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) indexExpr);
+                        Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) indexExpr);
                 return (Long) numericLiteral.value;
             default:
                 return (Long) ((BConstantSymbol) ((BLangSimpleVarRef) indexExpr).symbol).value.value;

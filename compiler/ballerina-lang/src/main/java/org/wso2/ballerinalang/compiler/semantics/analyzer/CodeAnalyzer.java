@@ -1070,7 +1070,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 constValAndType.put(((BLangSimpleVarRef) constPattern.expr).variableName, constPattern.getBType());
                 break;
             case UNARY_EXPR:
-                BLangNumericLiteral newNumericLiteral = types.constructNumericLiteralFromUnaryExpr(
+                BLangNumericLiteral newNumericLiteral = Types.constructNumericLiteralFromUnaryExpr(
                         (BLangUnaryExpr) constPattern.expr);
                 constValAndType.put(newNumericLiteral.value, null);
         }

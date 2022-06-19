@@ -22,6 +22,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -70,6 +71,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private SymbolTable symTable;
+    private SemanticAnalyzer semanticAnalyzer;
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
@@ -78,6 +80,7 @@ public class TypeNarrower extends BLangNodeVisitor {
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -264,8 +267,13 @@ public class TypeNarrower extends BLangNodeVisitor {
             // Terminate for undefined symbols
             return;
         }
+
         final TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
         data.env = env;
+        // If typeNode has finite types with unary expressions in the value space, we need to
+        // convert them into numeric literals.
+        semanticAnalyzer.analyzeNode(typeTestExpr.typeNode, data.env);
+
         typeChecker.markAndRegisterClosureVariable(symbol, lhsExpression.pos, env, data);
         if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
             return;
@@ -412,7 +420,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         if (expr.getKind() == NodeKind.UNARY_EXPR) {
-            finiteType.addValue(types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
+            finiteType.addValue(Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) expr));
         } else {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
             finiteType.addValue(expr);

@@ -731,7 +731,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 }
                 // Replacing unary expression with numeric literal type for + and - numeric values
                 BLangNumericLiteral newNumericLiteral =
-                        types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+                        Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
                 finiteTypeNode.valueSpace.set(i, newNumericLiteral);
             } else if ((valueKind == NodeKind.LITERAL || valueKind == NodeKind.NUMERIC_LITERAL) &&
                     ((BLangLiteral) value).originalValue == null) {

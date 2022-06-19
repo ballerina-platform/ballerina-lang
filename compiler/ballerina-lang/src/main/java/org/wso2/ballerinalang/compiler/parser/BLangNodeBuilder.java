@@ -491,6 +491,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private Stack<BLangStatement> additionalStatements = new Stack<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
     private boolean isInLocalContext = false;
+    /* To keep track if we are inside a finite context */
+    boolean isInFiniteContext = false;
 
     private  HashSet<String> constantSet = new HashSet<String>();
 
@@ -804,7 +806,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             // Since we only allow literals and unary expressions to come to this point we can straightaway
             // cast to unary.
             BLangUnaryExpr unaryConstant = (BLangUnaryExpr) constantNode.expr;
-            types.setValueOfNumericLiteral((BLangNumericLiteral) literal, unaryConstant);
+            Types.setValueOfNumericLiteral((BLangNumericLiteral) literal, unaryConstant);
             literal.setBType(unaryConstant.expr.getBType());
         }
         literal.isConstant = true;
@@ -918,12 +920,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         reverseFlatMap(unionTypeElementsCollection, unionElements);
 
         BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
+        this.isInFiniteContext = true;
         for (TypeDescriptorNode finiteTypeEl : finiteTypeElements) {
             SingletonTypeDescriptorNode singletonTypeNode = (SingletonTypeDescriptorNode) finiteTypeEl;
             BLangExpression literalOrExpression = createLiteralOrExpression(singletonTypeNode.simpleContExprNode(),
                     true);
             bLangFiniteTypeNode.addValue(literalOrExpression);
         }
+        this.isInFiniteContext = false;
 
         if (unionElements.isEmpty()) {
             return bLangFiniteTypeNode;
@@ -5334,6 +5338,9 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangLiteral createSimpleLiteral(Node literal) {
+        if (this.isInFiniteContext) {
+            return createSimpleLiteral(literal, true);
+        }
         return createSimpleLiteral(literal, false);
     }
 

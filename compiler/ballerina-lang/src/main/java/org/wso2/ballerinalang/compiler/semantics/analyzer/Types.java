@@ -498,7 +498,7 @@ public class Types {
         return symTable.noType;
     }
 
-    public void setValueOfNumericLiteral(BLangNumericLiteral newNumericLiteral, BLangUnaryExpr unaryExpr) {
+    public static void setValueOfNumericLiteral(BLangNumericLiteral newNumericLiteral, BLangUnaryExpr unaryExpr) {
         Object objectValueInUnary = ((BLangNumericLiteral) (unaryExpr.expr)).value;
         String strValueInUnary = String.valueOf(objectValueInUnary);
         OperatorKind unaryOperatorKind = unaryExpr.operator;
@@ -535,7 +535,7 @@ public class Types {
         return isLiteralInUnaryAllowed((BLangUnaryExpr) expr);
     }
 
-    public BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
+    public static BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
         BLangExpression exprInUnary = unaryExpr.expr;
 
         BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
