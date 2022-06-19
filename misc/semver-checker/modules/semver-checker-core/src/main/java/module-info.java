@@ -9,4 +9,5 @@ module io.ballerina.semver.checker.core {
     exports io.ballerina.semver.checker to io.ballerina.semver.checker.cli;
     exports io.ballerina.semver.checker.exception to io.ballerina.semver.checker.cli;
     exports io.ballerina.semver.checker.diff to io.ballerina.semver.checker.cli;
+    exports io.ballerina.semver.checker.util to io.ballerina.semver.checker.cli;
 }
