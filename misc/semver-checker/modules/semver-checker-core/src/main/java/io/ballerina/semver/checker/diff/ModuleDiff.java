@@ -146,28 +146,27 @@ public class ModuleDiff extends DiffImpl {
             new ServiceComparator(newService, oldService).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
 
-        public void withModuleVarAdded(ModuleVariableDeclarationNode ModuleVar) {
-            ModuleVarDiff.Builder moduleVarDiffBuilder = new ModuleVarDiff.Builder(ModuleVar, null);
+        public void withModuleVarAdded(ModuleVariableDeclarationNode moduleVar) {
+            ModuleVarDiff.Builder moduleVarDiffBuilder = new ModuleVarDiff.Builder(moduleVar, null);
             moduleVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
-        public void withModuleVarRemoved(ModuleVariableDeclarationNode ModuleVar) {
-            ModuleVarDiff.Builder moduleVarDiffBuilder = new ModuleVarDiff.Builder(null, ModuleVar);
+        public void withModuleVarRemoved(ModuleVariableDeclarationNode moduleVar) {
+            ModuleVarDiff.Builder moduleVarDiffBuilder = new ModuleVarDiff.Builder(null, moduleVar);
             moduleVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
-        public void withModuleVarChanged(ModuleVariableDeclarationNode newModuleVar,
-                                         ModuleVariableDeclarationNode oldModuleVar) {
-            new ModuleVariableComparator(newModuleVar, oldModuleVar).computeDiff().ifPresent(moduleDiff.childDiffs::add);
+        public void withModuleVarChanged(ModuleVariableDeclarationNode newVar, ModuleVariableDeclarationNode oldVar) {
+            new ModuleVariableComparator(newVar, oldVar).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
 
-        public void withConstantAdded(ConstantDeclarationNode Constant) {
-            ModuleConstantDiff.Builder constantDiffBuilder = new ModuleConstantDiff.Builder(Constant, null);
+        public void withConstantAdded(ConstantDeclarationNode constant) {
+            ModuleConstantDiff.Builder constantDiffBuilder = new ModuleConstantDiff.Builder(constant, null);
             constantDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
-        public void withConstantRemoved(ConstantDeclarationNode Constant) {
-            ModuleConstantDiff.Builder constantDiffBuilder = new ModuleConstantDiff.Builder(null, Constant);
+        public void withConstantRemoved(ConstantDeclarationNode constant) {
+            ModuleConstantDiff.Builder constantDiffBuilder = new ModuleConstantDiff.Builder(null, constant);
             constantDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
