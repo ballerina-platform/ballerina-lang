@@ -21,11 +21,11 @@ import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +47,8 @@ public class IfElseStatementNodeContext extends AbstractCompletionProvider<IfEls
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            List<Symbol> expressionContextEntries =
-                    QNameReferenceUtil.getExpressionContextEntries(context, (QualifiedNameReferenceNode) nodeAtCursor);
+            List<Symbol> expressionContextEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, 
+                    (QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(this.getCompletionItemList(expressionContextEntries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));

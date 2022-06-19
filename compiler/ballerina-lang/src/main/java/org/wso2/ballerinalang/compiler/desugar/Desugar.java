@@ -58,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -5882,6 +5883,8 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        BType type = varRefExpr.getBType();
+
         BSymbol ownerSymbol = varRefExpr.symbol.owner;
         if ((varRefExpr.symbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION &&
                 Types.getReferredType(varRefExpr.symbol.type).tag == TypeTags.INVOKABLE) {
@@ -5889,6 +5892,9 @@ public class Desugar extends BLangNodeVisitor {
         } else if ((varRefExpr.symbol.tag & SymTag.TYPE) == SymTag.TYPE &&
                 !((varRefExpr.symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT)) {
             genVarRefExpr = new BLangTypeLoad(varRefExpr.symbol);
+            if (varRefExpr.symbol.tag == SymTag.TYPE_DEF) {
+                type = ((BTypeDefinitionSymbol) varRefExpr.symbol).referenceType;
+            }
         } else if ((ownerSymbol.tag & SymTag.INVOKABLE) == SymTag.INVOKABLE ||
                 (ownerSymbol.tag & SymTag.LET) == SymTag.LET) {
             // Local variable in a function/resource/action/worker/let
@@ -5923,7 +5929,7 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        genVarRefExpr.setBType(varRefExpr.getBType());
+        genVarRefExpr.setBType(type);
         genVarRefExpr.pos = varRefExpr.pos;
 
         if ((varRefExpr.isLValue)

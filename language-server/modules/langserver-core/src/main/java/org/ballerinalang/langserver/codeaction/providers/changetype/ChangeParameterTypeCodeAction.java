@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -153,13 +154,13 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             return Optional.empty();
         } else if (parameterNode.kind() == SyntaxKind.REQUIRED_PARAM) {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(requiredParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(requiredParameterNode.typeName().lineRange()));
         } else if (parameterNode.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             DefaultableParameterNode defaultableParameterNode = (DefaultableParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(defaultableParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(defaultableParameterNode.typeName().lineRange()));
         } else if (parameterNode.kind() == SyntaxKind.REST_PARAM) {
             RestParameterNode restParameterNode = (RestParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(restParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(restParameterNode.typeName().lineRange()));
         } else {
             // Skip other node types
             return Optional.empty();

@@ -301,7 +301,12 @@ public class BTestRunner {
         // As the start function we need to use $moduleStart to start all the dependent modules
         // properly.
         start.setName("$moduleStart");
-        start.invoke();
+        response = start.invoke();
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Dependant module start for test suite failed due to error : " +
+                    formatErrorMessage((Throwable) response), (Throwable) response);
+        }
+
         // Once the start function finish we will re start the scheduler with immortal true
         initScheduler.setImmortal(true);
         Thread immortalThread = new Thread(initScheduler::start, "module-start");

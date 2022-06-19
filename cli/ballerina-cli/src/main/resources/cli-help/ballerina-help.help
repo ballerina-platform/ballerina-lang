@@ -31,6 +31,8 @@ COMMANDS
         pull            Pull a package from Ballerina Central
         push            Publish a package to Ballerina Central
         search          Search Ballerina Central for packages
+        semver          Show SemVer compatibility and local package changes against
+                        published packages in Ballerina Central
 
    Other Commands:
         clean           Clean the artifacts generated during the build
