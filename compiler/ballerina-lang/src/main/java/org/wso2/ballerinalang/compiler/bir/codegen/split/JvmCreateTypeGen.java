@@ -576,6 +576,14 @@ public class JvmCreateTypeGen {
         return new AnonTypeHashInfo(hashes, labels, labelFieldMapping);
     }
 
+    public void generateRefTypeConstants(List<BIRTypeDefinition> typeDefs, SymbolTable symbolTable) {
+        for (BIRTypeDefinition typeDef : typeDefs) {
+            if (typeDef.referenceType != null) {
+                jvmConstantsGen.getTypeConstantsVar(typeDef.referenceType, symbolTable);
+            }
+        }
+    }
+
     static class AnonTypeHashInfo {
 
         int[] hashes;

@@ -16,6 +16,7 @@
 
 import ballerina/test;
 import ballerina/jballerina.java;
+import testorg/runtime_api_types.objects as o;
 
 public annotation IntConstraints Int on type, record field;
 
@@ -28,8 +29,14 @@ type IntConstraints record {|
 @Int {minValue: 0}
 type PositiveInt int;
 
+@Int {minValue: 4}
+type PositiveIntRef PositiveInt;
+
 @Int {minValue: 5}
 type PositiveIntRO PositiveInt & readonly;
+
+@Int {minValue: 6}
+type PositiveIntRef2 o:PositiveInt;
 
 @Int {minValue: 0}
 type '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Int int;
@@ -93,6 +100,31 @@ function validateType() {
     PositiveIntRO|error validation1 = validate(value2);
     if validation1 is PositiveIntRO {
         test:assertEquals(validation1, 6);
+    } else {
+        test:assertFail("Expected error not found.");
+    }
+
+    PositiveIntRef value3 = 6;
+    PositiveIntRef|error validation2 = validate(value3);
+    if validation2 is PositiveIntRef {
+        test:assertEquals(validation2, 6);
+    } else {
+        test:assertFail("Expected error not found.");
+    }
+
+    PositiveIntRef2 value4 = 7;
+    PositiveIntRef2|error validation3 = validate(value4);
+    if validation3 is PositiveIntRef2 {
+        test:assertEquals(validation3, 7);
+    } else {
+        test:assertFail("Expected error not found.");
+    }
+
+    o:PositiveInt addVal = 2;
+    PositiveIntRef2 value5 = 7 + addVal;
+    PositiveIntRef2|error validation4 = validate(value5);
+    if validation4 is PositiveIntRef2 {
+        test:assertEquals(validation4, 9);
     } else {
         test:assertFail("Expected error not found.");
     }

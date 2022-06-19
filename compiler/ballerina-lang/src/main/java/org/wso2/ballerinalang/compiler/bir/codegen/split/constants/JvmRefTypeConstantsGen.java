@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.bir.codegen.split.constants;
 
-import io.ballerina.identifier.Utils;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
@@ -86,8 +85,7 @@ public class JvmRefTypeConstantsGen {
     }
 
     private String generateTypeRefInits(BTypeReferenceType type) {
-        String varName =
-                JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.getQualifiedTypeName());
+        String varName = JvmCodeGenUtil.getRefTypeConstantName(type);
         visitTypeRefField(varName);
         createTypeRefType(mv, type, varName);
         genPopulateMethod(type, varName);
