@@ -834,7 +834,8 @@ public class JvmTypeGen {
         boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (!samePackage && (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX) || Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
+        if (!samePackage && (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX) ||
+                Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();
