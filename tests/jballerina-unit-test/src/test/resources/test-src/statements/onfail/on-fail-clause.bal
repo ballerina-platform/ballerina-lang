@@ -79,60 +79,60 @@ function testMultiLevelOnFail() {
 }
 
 function testMultiLevelOnFailWithoutVariableVariationOne() {
-    int i = 0;
+    int i = 1;
     string str = "";
 
-    while i < 2 {
+    while i <= 2 {
         do {
-            str += " -> B, ";
+            str += " -> Iteration " + i.toString() + ", ";
             fail getError();
         } on fail {
-            str += " -> Error #1";
+            str += " -> On Fail #" + i.toString();
         }
         i = i + 1;
     } on fail error e {
-        str += " -> Error #2";
+        str += " -> On Fail Final";
     }
 
-    assertEquality(" -> B,  -> Error #1 -> B,  -> Error #1", str);
+    assertEquality(" -> Iteration 1,  -> On Fail #1 -> Iteration 2,  -> On Fail #2", str);
 }
 
 function testMultiLevelOnFailWithoutVariableVariationTwo() {
-    int i = 0;
+    int i = 1;
     string str = "";
 
-    while i < 2 {
+    while i <= 2 {
         do {
-            str += " -> B, ";
+            str += " -> Iteration " + i.toString() + ", ";
             fail getError();
         } on fail error e {
-            str += " -> Error #1";
+            str += " -> On Fail #" + i.toString();
         }
         i = i + 1;
     } on fail {
-        str += " -> Error #2";
+        str += " -> On Fail Final";
     }
 
-    assertEquality(" -> B,  -> Error #1 -> B,  -> Error #1", str);
+    assertEquality(" -> Iteration 1,  -> On Fail #1 -> Iteration 2,  -> On Fail #2", str);
 }
 
 function testMultiLevelOnFailWithoutVariableVariationThree() {
-    int i = 0;
+    int i = 1;
     string str = "";
 
-    while i < 2 {
+    while i <= 2 {
         do {
-            str += " -> B, ";
+            str += " -> Iteration " + i.toString() + ", ";
             fail getError();
         } on fail {
-            str += " -> Error #1";
+            str += " -> On Fail #" + i.toString();
         }
         i = i + 1;
     } on fail {
-        str += " -> Error #2";
+        str += " -> On Fail Final";
     }
 
-    assertEquality(" -> B,  -> Error #1 -> B,  -> Error #1", str);
+    assertEquality(" -> Iteration 1,  -> On Fail #1 -> Iteration 2,  -> On Fail #2", str);
 }
 
 public class MyRetryManager {
