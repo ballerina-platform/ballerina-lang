@@ -17,10 +17,10 @@
  */
 package io.ballerina.compiler.internal.parser.tree;
 
+import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TupleMemberDescriptorNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,11 +30,11 @@ import java.util.Collections;
  *
  * @since 2201.2.0
  */
-public class STTupleMemberDescriptorNode extends STNode {
+public class STMemberTypeDescriptorNode extends STNode {
     public final STNode annotations;
     public final STNode typeDescriptor;
 
-    STTupleMemberDescriptorNode(
+    STMemberTypeDescriptorNode(
             STNode annotations,
             STNode typeDescriptor) {
         this(
@@ -43,7 +43,7 @@ public class STTupleMemberDescriptorNode extends STNode {
                 Collections.emptyList());
     }
 
-    STTupleMemberDescriptorNode(
+    STMemberTypeDescriptorNode(
             STNode annotations,
             STNode typeDescriptor,
             Collection<STNodeDiagnostic> diagnostics) {
@@ -57,13 +57,13 @@ public class STTupleMemberDescriptorNode extends STNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STTupleMemberDescriptorNode(
+        return new STMemberTypeDescriptorNode(
                 this.annotations,
                 this.typeDescriptor,
                 diagnostics);
     }
 
-    public STTupleMemberDescriptorNode modify(
+    public STMemberTypeDescriptorNode modify(
             STNode annotations,
             STNode typeDescriptor) {
         if (checkForReferenceEquality(
@@ -72,14 +72,14 @@ public class STTupleMemberDescriptorNode extends STNode {
             return this;
         }
 
-        return new STTupleMemberDescriptorNode(
+        return new STMemberTypeDescriptorNode(
                 annotations,
                 typeDescriptor,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new TupleMemberDescriptorNode(this, position, parent);
+        return new MemberTypeDescriptorNode(this, position, parent);
     }
 
     @Override

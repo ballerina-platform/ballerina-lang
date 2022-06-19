@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2201.2.0
  */
-public class TupleMemberDescriptorNode extends NonTerminalNode {
+public class MemberTypeDescriptorNode extends NonTerminalNode {
 
-    public TupleMemberDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public MemberTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -57,7 +57,7 @@ public class TupleMemberDescriptorNode extends NonTerminalNode {
                 "typeDescriptor"};
     }
 
-    public TupleMemberDescriptorNode modify(
+    public MemberTypeDescriptorNode modify(
             NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor) {
         if (checkForReferenceEquality(
@@ -66,13 +66,13 @@ public class TupleMemberDescriptorNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createTupleMemberDescriptorNode(
+        return NodeFactory.createMemberTypeDescriptorNode(
                 annotations,
                 typeDescriptor);
     }
 
-    public TupleMemberDescriptorNodeModifier modify() {
-        return new TupleMemberDescriptorNodeModifier(this);
+    public MemberTypeDescriptorNodeModifier modify() {
+        return new MemberTypeDescriptorNodeModifier(this);
     }
 
     /**
@@ -80,32 +80,32 @@ public class TupleMemberDescriptorNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class TupleMemberDescriptorNodeModifier {
-        private final TupleMemberDescriptorNode oldNode;
+    public static class MemberTypeDescriptorNodeModifier {
+        private final MemberTypeDescriptorNode oldNode;
         private NodeList<AnnotationNode> annotations;
         private TypeDescriptorNode typeDescriptor;
 
-        public TupleMemberDescriptorNodeModifier(TupleMemberDescriptorNode oldNode) {
+        public MemberTypeDescriptorNodeModifier(MemberTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
             this.annotations = oldNode.annotations();
             this.typeDescriptor = oldNode.typeDescriptor();
         }
 
-        public TupleMemberDescriptorNodeModifier withAnnotations(
+        public MemberTypeDescriptorNodeModifier withAnnotations(
                 NodeList<AnnotationNode> annotations) {
             Objects.requireNonNull(annotations, "annotations must not be null");
             this.annotations = annotations;
             return this;
         }
 
-        public TupleMemberDescriptorNodeModifier withTypeDescriptor(
+        public MemberTypeDescriptorNodeModifier withTypeDescriptor(
                 TypeDescriptorNode typeDescriptor) {
             Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
-        public TupleMemberDescriptorNode apply() {
+        public MemberTypeDescriptorNode apply() {
             return oldNode.modify(
                     annotations,
                     typeDescriptor);

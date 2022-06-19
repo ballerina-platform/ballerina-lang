@@ -4373,7 +4373,7 @@
             ]
         },
         {
-            "name": "TupleMemberDescriptorNode",
+            "name": "MemberTypeDescriptorNode",
             "base": "Node",
             "kind": "MEMBER_TYPE_DESC",
             "attributes": [
