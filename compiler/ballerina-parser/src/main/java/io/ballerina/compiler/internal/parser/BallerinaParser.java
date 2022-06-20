@@ -6916,7 +6916,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
-                if (isFirstSegment && nextToken.isMissing() && peek(0).kind == SyntaxKind.IDENTIFIER_TOKEN &&
+                if (isFirstSegment && nextToken.isMissing() && isInvalidNodeStackEmpty() &&
                         getNextNextToken().kind == SyntaxKind.SLASH_TOKEN) {
                     // special case `[MISSING]/` to improve the error message for `/hello`
                     removeInsertedToken(); // to ignore current missing identifier diagnostic
