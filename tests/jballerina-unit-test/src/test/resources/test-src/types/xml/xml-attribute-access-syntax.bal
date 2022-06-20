@@ -1,14 +1,20 @@
 import ballerina/lang.'xml;
 
+type XMLElement xml:Element;
+
 function getElementAttrBasic() returns string|error? {
     xml x = xml `<root attr="attr-val"><a></a><b></b></root>`;
-    string|error? val = x.attr;
-    return val;
+    assert(check x.attr, "attr-val");
 }
 
 function getOptionalElementAttrBasic() returns string|error? {
-    xml:Element x3 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
-    return x3?.attr;
+    xml:Element x = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    assert(check x?.attr, "attr-val");
+}
+
+function getUserDefinedTypeOptionalElementAttrBasic() returns string|error? {
+    XMLElement x = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    assert(check x.attr, "attr-val");
 }
 
 function getAttrOfASequence() returns string|error? {
