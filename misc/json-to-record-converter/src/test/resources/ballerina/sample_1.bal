@@ -1,12 +1,12 @@
 type SportsItem record {
 	string question;
-	string[] options;
+	(int|string|(int|string)[])[] options;
 	string answer;
 };
 
 type MathsItem record {
 	string question;
-	(int|decimal|string)[] options;
+	(decimal|int|string)[] options;
 	string answer;
 };
 
