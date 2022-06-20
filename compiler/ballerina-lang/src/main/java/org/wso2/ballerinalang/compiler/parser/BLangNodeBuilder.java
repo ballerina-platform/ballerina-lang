@@ -761,11 +761,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     break;
                 default:
                     bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    if (pathSegment.kind() == SyntaxKind.DOT_TOKEN) {
+                        break;
+                    }
+                    
                     BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
                     tupleTypeNode.memberTypeNodes.add(bLangFiniteTypeNode);
-                    break;
             }
         }
         bLFunction.getParameters().addAll(0, params);

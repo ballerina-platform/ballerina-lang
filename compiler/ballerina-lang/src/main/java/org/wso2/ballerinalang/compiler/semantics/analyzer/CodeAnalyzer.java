@@ -2513,6 +2513,27 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             actionInvocation.invokedInsideTransaction = true;
         }
     }
+    
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation rAInvocation, AnalyzerData data) {
+        validateInvocationInMatchGuard(rAInvocation);
+        analyzeExpr(rAInvocation.expr, data);
+        analyzeExprs(rAInvocation.requiredArgs, data);
+        analyzeExprs(rAInvocation.restArgs, data);
+        analyzeExpr(rAInvocation.resourceAccessPathSegments, data);
+        rAInvocation.invokedInsideTransaction = data.withinTransactionScope;
+        
+        if (rAInvocation.flagSet.contains(Flag.TRANSACTIONAL) && !data.withinTransactionScope) {
+            dlog.error(rAInvocation.pos, DiagnosticErrorCode.TRANSACTIONAL_FUNC_INVOKE_PROHIBITED);
+            return;
+        }
+        
+        if (Symbols.isFlagOn(rAInvocation.symbol.flags, Flags.DEPRECATED)) {
+            logDeprecatedWarningForInvocation(rAInvocation);
+        }
+
+        validateActionInvocation(rAInvocation.pos, rAInvocation);
+    }
 
     private void logDeprecatedWarningForInvocation(BLangInvocation invocationExpr) {
         String deprecatedConstruct = invocationExpr.name.toString();
