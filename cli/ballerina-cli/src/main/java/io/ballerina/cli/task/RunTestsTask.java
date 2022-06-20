@@ -181,6 +181,15 @@ public class RunTestsTask implements Task {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
+        // Print warnings for conflicted jars
+        if (!jBallerinaBackend.conflictedJars().isEmpty()) {
+            out.println("\twarning: Detected conflicting jar files:");
+            for (JBallerinaBackend.JarConflict conflict : jBallerinaBackend.conflictedJars()) {
+                out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
+            }
+        }
+
         TestProcessor testProcessor = new TestProcessor(jarResolver);
         List<String> moduleNamesList = new ArrayList<>();
         Map<String, TestSuite> testSuiteMap = new HashMap<>();

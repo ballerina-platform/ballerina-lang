@@ -158,6 +158,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
 
+    @CommandLine.Option(names = "--list-conflicted-classes",
+            description = "list conflicted classes when generating executable")
+    private Boolean listConflictedClasses;
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -280,6 +284,7 @@ public class TestCommand implements BLauncherCmd {
                 .setSkipTests(false)
                 .setTestReport(testReport)
                 .setObservabilityIncluded(observabilityIncluded)
+                .setListConflictedClasses(listConflictedClasses)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .build();
