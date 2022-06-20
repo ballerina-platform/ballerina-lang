@@ -47,6 +47,12 @@ public class XMLAttributeAccessTest {
     }
 
     @Test
+    public void testBasicOptionalAttributeAccessSyntax() {
+        Object result = BRunUtil.invoke(compileResult, "getOptionalElementAttrBasic");
+        Assert.assertEquals(result.toString(), "attr-val");
+    }
+
+    @Test
     public void testAttributeAccessSyntaxWithNS() {
         Object result = BRunUtil.invoke(compileResult, "getElementAttrWithNSPrefix");
         Assert.assertEquals(result.toString(), "attr-with-ns-val");
