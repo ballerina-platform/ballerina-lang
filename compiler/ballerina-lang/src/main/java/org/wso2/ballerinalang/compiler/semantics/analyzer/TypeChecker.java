@@ -8141,9 +8141,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldAccessExpr.originalType = fieldAccessExpr.leafNode || !nillableExprType ? actualType :
                     types.getTypeWithoutNil(actualType);
         } else if (types.isLax(effectiveType)) {
-            if (effectiveType.tag == TypeTags.TYPEREFDESC) {
-                effectiveType = ((BTypeReferenceType) effectiveType).referredType;
-            }
+            effectiveType = Types.getReferredType(varRefType);
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
