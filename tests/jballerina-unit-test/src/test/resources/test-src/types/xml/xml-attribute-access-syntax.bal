@@ -6,6 +6,10 @@ function getElementAttrBasic() returns string|error? {
     return val;
 }
 
+function getOptionalElementAttrBasic() returns string|error? {
+    xml:Element x3 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    return x3?.attr;
+}
 
 function getAttrOfASequence() returns string|error? {
     xml x = xml `<root attr="attr-val"><a attr="a-attr"></a><b attr="b-attr"></b></root>`;
