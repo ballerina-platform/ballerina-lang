@@ -22,6 +22,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -38,33 +39,20 @@ public class LangLibFunctionTest {
         compileResult = BCompileUtil.compile("test-src/functionlib_test.bal");
     }
 
-    @Test
-    public void testCallFunctionWithFunctionPointers() {
-        BRunUtil.invoke(compileResult, "testCallFunctionWithFunctionPointers");
+    @Test(dataProvider = "testFunctions")
+    public void testCallFunction(String function) {
+        BRunUtil.invoke(compileResult, function);
     }
 
-    @Test
-    public void testCallFunctionWithRequiredParameters() {
-        BRunUtil.invoke(compileResult, "testCallFunctionWithRequiredParameters");
-    }
-
-    @Test
-    public void testCallFunctionWithDefaultParameters() {
-        BRunUtil.invoke(compileResult, "testCallFunctionWithDefaultParameters");
-    }
-
-    @Test
-    public void testCallFunctionWithRestParameters() {
-        BRunUtil.invoke(compileResult, "testCallFunctionWithRestParameters");
-    }
-
-    @Test
-    public void testCallFunctionWithIncludedRecordParameters() {
-        BRunUtil.invoke(compileResult, "testCallFunctionWithIncludedRecordParameters");
-    }
-
-    @Test
-    public void testCallFunctionWithInvalidOutput() {
-        BRunUtil.invoke(compileResult, "testCallFunctionWithInvalidOutput");
+    @DataProvider(name = "testFunctions")
+    public Object[][] testFunctions() {
+        return new Object[][]{
+                {"testCallFunctionWithFunctionPointers"},
+                {"testCallFunctionWithRequiredParameters"},
+                {"testCallFunctionWithDefaultParameters"},
+                {"testCallFunctionWithRestParameters"},
+                {"testCallFunctionWithIncludedRecordParameters"},
+                {"testCallFunctionWithInvalidOutput"}
+        };
     }
 }

@@ -17,6 +17,7 @@
 import ballerina/jballerina.java;
 
 # Calls a function dynamically.
+#
 # If the arguments specified in `args` are not of the type required by `func`,
 # then this will panic.
 #

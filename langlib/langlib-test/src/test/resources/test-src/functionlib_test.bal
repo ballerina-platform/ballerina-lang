@@ -187,19 +187,19 @@ function testCallFunctionWithFunctionPointers() {
 function testCallFunctionWithInvalidOutput() {
     any|error a1 = trap function:call(value1, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InvalidInvocation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     a1 = trap function:call(value1, 10, "10");
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InherentTypeViolation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     a1 = trap function:call(value2, 10, 10, 10, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InvalidInvocation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     a1 = trap function:call(value2, 10, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InvalidInvocation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     a1 = trap function:call(value4, 10, 10);
     assertEquality(true, a1 is error);
@@ -219,24 +219,24 @@ function testCallFunctionWithInvalidOutput() {
 
     a1 = trap function:call(value8, "");
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InherentTypeViolation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     a1 = trap function:call(value8, "", "");
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InherentTypeViolation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     a1 = trap function:call(value1, 10);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InvalidInvocation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     NewPerson person = {firstName: "chiran", secondName: "sachintha"};
     a1 = trap function:call(test10, person);
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InherentTypeViolation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 
     a1 = trap function:call(test11, {});
     assertEquality(true, a1 is error);
-    assertEquality("{ballerina/lang.function}InherentTypeViolation", (<error> a1).message());
+    assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
 }
 
 function assertEquality(any|error expected, any|error actual) {
