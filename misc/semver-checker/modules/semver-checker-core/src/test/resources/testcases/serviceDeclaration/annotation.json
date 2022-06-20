@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Add annotation to a service declaration.",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \nservice /demo on new http:Listener(8080){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove annotation from a service declaration.",
+    "oldCode": "@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \nservice /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){}",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify annotation in a service declaration.",
+    "oldCode": "@display {\n\tlabel:\"Transform\",\n\ticonPath:\"Transform.png\"\n} \nservice /demo on new http:Listener(8080){}",
+    "newCode": "@display {\n\tlabel:\"Transform\"\n}\nservice /demo on new http:Listener(8080){}",
+    "expectedOutput": {}
+  }
+]

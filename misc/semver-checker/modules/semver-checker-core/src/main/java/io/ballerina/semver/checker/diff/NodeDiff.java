@@ -19,11 +19,12 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Optional;
 
 /**
- * Base representation of changes in Ballerina syntax tree nodes.
+ * Base representation for changes in Ballerina syntax tree nodes.
  *
  * @param <T> node type
  * @since 2201.2.0
@@ -33,6 +34,8 @@ public interface NodeDiff<T extends Node> extends Diff {
     Optional<T> getNewNode();
 
     Optional<T> getOldNode();
+
+    SyntaxKind getNodeKind();
 
     Optional<String> getMessage();
 }

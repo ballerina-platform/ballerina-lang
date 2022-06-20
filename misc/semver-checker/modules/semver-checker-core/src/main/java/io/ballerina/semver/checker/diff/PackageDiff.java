@@ -92,6 +92,12 @@ public class PackageDiff extends DiffImpl {
         }
 
         @Override
+        public DiffBuilder withKind(DiffKind diffKind) {
+            packageDiff.setKind(diffKind);
+            return this;
+        }
+
+        @Override
         public DiffBuilder withType(DiffType diffType) {
             packageDiff.setType(diffType);
             return this;

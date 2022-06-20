@@ -43,15 +43,17 @@ import static io.ballerina.semver.checker.util.DiffUtils.stringifyDiff;
 public class DiffImpl implements Diff {
 
     protected DiffType diffType;
+    protected DiffKind diffKind;
     protected SemverImpact versionImpact;
     protected final List<Diff> childDiffs;
 
     public DiffImpl() {
-        this(DiffType.UNKNOWN, SemverImpact.UNKNOWN);
+        this(DiffType.UNKNOWN, DiffKind.UNKNOWN, SemverImpact.UNKNOWN);
     }
 
-    public DiffImpl(DiffType diffType, SemverImpact versionImpact) {
+    public DiffImpl(DiffType diffType, DiffKind diffKind, SemverImpact versionImpact) {
         this.diffType = diffType;
+        this.diffKind = diffKind;
         this.versionImpact = versionImpact;
         this.childDiffs = new ArrayList<>();
     }
@@ -63,6 +65,15 @@ public class DiffImpl implements Diff {
 
     protected void setType(DiffType diffType) {
         this.diffType = diffType;
+    }
+
+    @Override
+    public DiffKind getKind() {
+        return diffKind;
+    }
+
+    protected void setKind(DiffKind diffKind) {
+        this.diffKind = diffKind;
     }
 
     @Override
@@ -120,9 +131,9 @@ public class DiffImpl implements Diff {
     public JsonObject getAsJson() {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add(DIFF_ATTR_KIND, new JsonPrimitive(DiffUtils.getDiffTypeName(this)));
-        jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.diffType.name().toLowerCase(Locale.getDefault())));
+        jsonObject.add(DIFF_ATTR_TYPE, new JsonPrimitive(this.diffType.name().toLowerCase(Locale.ENGLISH)));
         jsonObject.add(DIFF_ATTR_VERSION_IMPACT, new JsonPrimitive(this.versionImpact.name()
-                .toLowerCase(Locale.getDefault())));
+                .toLowerCase(Locale.ENGLISH)));
         if (diffType == DiffType.MODIFIED && childDiffs != null && !childDiffs.isEmpty()) {
             JsonArray childArray = new JsonArray();
             childDiffs.forEach(diff -> childArray.add(diff.getAsJson()));

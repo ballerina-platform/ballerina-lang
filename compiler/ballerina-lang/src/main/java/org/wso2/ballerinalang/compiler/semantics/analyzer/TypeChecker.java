@@ -7564,12 +7564,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BLangExpression> tempConcatExpressions = new ArrayList<>();
 
         for (BLangExpression expr : exprs) {
-            BType exprType;
-            if (expr.getKind() == NodeKind.QUERY_EXPR) {
+            boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
+            data.nonErrorLoggingCheck = true;
+            int prevErrorCount = this.dlog.errorCount();
+            this.dlog.resetErrorCount();
+            this.dlog.mute();
+
+            BType exprType = checkExpr(nodeCloner.cloneNode(expr), xmlElementEnv, symTable.xmlType, data);
+
+            data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            int errorCount = this.dlog.errorCount();
+            this.dlog.setErrorCount(prevErrorCount);
+
+            if (!prevNonErrorLoggingCheck) {
+                this.dlog.unmute();
+            }
+
+            if (errorCount == 0 && exprType != symTable.semanticError) {
                 exprType = checkExpr(expr, xmlElementEnv, symTable.xmlType, data);
             } else {
                 exprType = checkExpr(expr, xmlElementEnv, data);
             }
+
             if (TypeTags.isXMLTypeTag(Types.getReferredType(exprType).tag)) {
                 if (!tempConcatExpressions.isEmpty()) {
                     newChildren.add(getXMLTextLiteral(tempConcatExpressions));
