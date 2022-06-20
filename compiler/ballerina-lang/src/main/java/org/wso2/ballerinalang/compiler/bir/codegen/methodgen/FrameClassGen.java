@@ -35,7 +35,12 @@ import java.util.Map;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_FRAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 
 /**
  * Generates Jvm byte code for the generateFrame classes.
@@ -77,7 +82,7 @@ public class FrameClassGen {
             cw.visitSource(func.pos.lineRange().filePath(), null);
         }
         cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT,
-                new String[]{"io/ballerina/runtime/api/FunctionFrame"});
+                new String[]{FUNCTION_FRAME});
         JvmCodeGenUtil.generateDefaultConstructor(cw, OBJECT);
 
         int k = 0;
@@ -97,32 +102,30 @@ public class FrameClassGen {
 
         FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC, "state", "I", null, null);
         fv.visitEnd();
-        fv = cw.visitField(Opcodes.ACC_PUBLIC, "yieldLocation", "Ljava/lang/String;", null, null);
+        fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_LOCATION, GET_STRING, null, null);
         fv.visitEnd();
-        fv = cw.visitField(Opcodes.ACC_PUBLIC, "yieldStatus", "Ljava/lang/String;", null, null);
+        fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_STATUS, GET_STRING, null, null);
         fv.visitEnd();
 
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "getYieldLocation", "()Ljava/lang/String;", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, "yieldLocation", "Ljava/lang/String;");
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
-
-        mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "getYieldStatus", "()Ljava/lang/String;", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, "yieldStatus", "Ljava/lang/String;");
-        mv.visitInsn(Opcodes.ARETURN);
-        mv.visitMaxs(1, 1);
-        mv.visitEnd();
+        generateGetStringFieldMethod(cw, frameClassName, "getYieldLocation", YIELD_LOCATION);
+        generateGetStringFieldMethod(cw, frameClassName, "getYieldStatus", YIELD_STATUS);
 
         cw.visitEnd();
 
         // panic if there are errors in the frame class. These cannot be logged, since
         // frame classes are internal implementation details.
         pkgEntries.put(frameClassName + ".class", cw.toByteArray());
+    }
+
+    private void generateGetStringFieldMethod(ClassWriter cw, String frameClassName, String methodName,
+                                              String fieldName) {
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, methodName, GET_JSTRING, null, null);
+        mv.visitCode();
+        mv.visitVarInsn(Opcodes.ALOAD, 0);
+        mv.visitFieldInsn(Opcodes.GETFIELD, frameClassName, fieldName, GET_STRING);
+        mv.visitInsn(Opcodes.ARETURN);
+        mv.visitMaxs(1, 1);
+        mv.visitEnd();
     }
 
 }

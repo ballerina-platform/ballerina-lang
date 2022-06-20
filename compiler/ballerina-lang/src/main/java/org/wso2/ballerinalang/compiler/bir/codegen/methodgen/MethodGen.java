@@ -111,6 +111,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_CANCELLED_FUTURE_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
@@ -206,8 +208,8 @@ public class MethodGen {
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
         int stateVarIndex = getStateVarIndex(indexMap, mv);
-        int yieldLocationVarIndex = getYieldLocationVarIndex(indexMap, mv);
-        int yieldStatusVarIndex = getYieldStatusVarIndex(indexMap, mv);
+        int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
+        int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -260,10 +262,10 @@ public class MethodGen {
         mv.visitFieldInsn(PUTFIELD, frameName, STATE, "I");
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, yieldLocationVarIndex);
-        mv.visitFieldInsn(PUTFIELD, frameName, "yieldLocation", "Ljava/lang/String;");
+        mv.visitFieldInsn(PUTFIELD, frameName, YIELD_LOCATION, GET_STRING);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, yieldStatusVarIndex);
-        mv.visitFieldInsn(PUTFIELD, frameName, "yieldStatus", "Ljava/lang/String;");
+        mv.visitFieldInsn(PUTFIELD, frameName, YIELD_STATUS, GET_STRING);
 
         generateGetFrame(indexMap, localVarOffset, mv);
 
@@ -436,15 +438,8 @@ public class MethodGen {
         return stateVarIndex;
     }
 
-    private int getYieldLocationVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        int stateVarIndex = indexMap.addIfNotExists("yieldLocation", symbolTable.stringType);
-        mv.visitInsn(ACONST_NULL);
-        mv.visitVarInsn(ASTORE, stateVarIndex);
-        return stateVarIndex;
-    }
-
-    private int getYieldStatusVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        int stateVarIndex = indexMap.addIfNotExists("yieldStatus", symbolTable.stringType);
+    private int getFrameStringVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv, String frameStringFieldName) {
+        int stateVarIndex = indexMap.addIfNotExists(frameStringFieldName, symbolTable.stringType);
         mv.visitInsn(ACONST_NULL);
         mv.visitVarInsn(ASTORE, stateVarIndex);
         return stateVarIndex;

@@ -78,6 +78,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_STATUS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
@@ -153,8 +154,7 @@ public class MainMethodGen {
         startListeners(mv, serviceEPAvailable);
 
         // initiate signal listener for strand dump
-        mv.visitMethodInsn(INVOKESTATIC, "io/ballerina/runtime/internal/scheduling/Status", "initiateSignalListener",
-                "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_STATUS, "initiateSignalListener", "()V", false);
 
         genInitScheduler(mv);
         // register a shutdown hook to call package stop() method.

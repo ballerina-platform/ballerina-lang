@@ -51,7 +51,7 @@ public class Status {
             Signal.handle(new Signal("TRAP"), signal -> outStream.println(getStrandDump()));
         } catch (IllegalArgumentException ignored) {
             // In some Operating Systems like Windows, "TRAP" POSIX signal is not supported.
-            // There getting the strand dump using kill signals is not enabled, hence the exception is ignored.
+            // There getting the strand dump using kill signals is not expected, hence this exception is ignored.
         }
     }
 
@@ -78,6 +78,7 @@ public class Status {
                     .append(strandList.size()).append("]\n");
             strandList.forEach(infoStr::append);
         });
+        availableStrandGroups.clear();
         infoStr.append("===========================================\n");
         return infoStr.toString();
     }
