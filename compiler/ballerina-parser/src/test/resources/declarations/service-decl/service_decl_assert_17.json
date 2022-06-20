@@ -179,7 +179,7 @@
                                 "kind": "IDENTIFIER_TOKEN",
                                 "hasDiagnostics": true,
                                 "diagnostics": [
-                                  "ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM"
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
                                 ],
                                 "value": "bar"
                               }
@@ -360,7 +360,7 @@
                                 "kind": "OPEN_BRACKET_TOKEN",
                                 "hasDiagnostics": true,
                                 "diagnostics": [
-                                  "ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM"
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
                                 ]
                               }
                             ]
@@ -578,7 +578,7 @@
                                 "kind": "OPEN_BRACKET_TOKEN",
                                 "hasDiagnostics": true,
                                 "diagnostics": [
-                                  "ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM"
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
                                 ]
                               }
                             ]
@@ -814,7 +814,7 @@
                                 "kind": "IDENTIFIER_TOKEN",
                                 "hasDiagnostics": true,
                                 "diagnostics": [
-                                  "ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM"
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
                                 ],
                                 "value": "bar"
                               }
@@ -1002,7 +1002,7 @@
                                 "kind": "OPEN_BRACKET_TOKEN",
                                 "hasDiagnostics": true,
                                 "diagnostics": [
-                                  "ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM"
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
                                 ]
                               }
                             ]
@@ -1227,7 +1227,7 @@
                                 "kind": "OPEN_BRACKET_TOKEN",
                                 "hasDiagnostics": true,
                                 "diagnostics": [
-                                  "ERROR_RESOURCE_PATH_PARAM_NOT_ALLOWED_AFTER_REST_PARAM"
+                                  "ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM"
                                 ]
                               }
                             ]
