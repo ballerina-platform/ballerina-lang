@@ -3684,13 +3684,13 @@ public class Types {
                          }
                     }
                     if (sMember.tag == TypeTags.JSON && isAssignable(sUnion, targetUnion, unresolvedTypes)) {
+                        unresolvedTypes.add(new TypePair(sMember, targetUnion));
                         sourceIterator.remove();
                         continue;
                     }
                 }
                 // readonly can match to a union similar to any|error
                 if (sMember.tag == TypeTags.READONLY && isAssignable(symTable.anyAndReadonlyOrError, targetUnion)) {
-                    unresolvedTypes.add(new TypePair(sMember, targetUnion));
                     sourceIterator.remove();
                     continue;
                 }
