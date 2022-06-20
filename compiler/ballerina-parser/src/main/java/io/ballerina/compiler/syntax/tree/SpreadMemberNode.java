@@ -78,7 +78,7 @@ public class SpreadMemberNode extends NonTerminalNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2.0.0
+     * @since 2201.1.0
      */
     public static class SpreadMemberNodeModifier {
         private final SpreadMemberNode oldNode;

@@ -87,6 +87,10 @@
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
@@ -309,6 +313,10 @@
                             {
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [
@@ -1288,6 +1296,10 @@
                             {
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "PARENTHESISED_TYPE_DESC",
                                   "children": [

@@ -11370,7 +11370,7 @@ public class BallerinaParser extends AbstractParser {
         if (tupleMemberRhs != null) {
             if (!((STNodeList) annot).isEmpty()) {
                 typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, annot,
-                        DiagnosticErrorCode.ERROR_INVALID_ANNOTATIONS_REST_MEMBER);
+                        DiagnosticErrorCode.ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR);
             }
             typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
         } else {

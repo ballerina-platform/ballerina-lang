@@ -87,6 +87,10 @@
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -244,6 +248,10 @@
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -317,6 +325,10 @@
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
@@ -331,6 +343,10 @@
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "COMMA_TOKEN",
                                   "trailingMinutiae": [
                                     {
@@ -342,19 +358,28 @@
                               ]
                             },
                             {
-                              "kind": "REST_TYPE",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "mytype2"
-                                    }
-                                  ]
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
-                                  "kind": "ELLIPSIS_TOKEN"
+                                  "kind": "REST_TYPE",
+                                  "children": [
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "mytype2"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "ELLIPSIS_TOKEN"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -422,6 +447,10 @@
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
                                   "kind": "SINGLETON_TYPE_DESC",
                                   "children": [
                                     {
@@ -448,6 +477,10 @@
                             {
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "COMMA_TOKEN",
                                   "trailingMinutiae": [
@@ -557,19 +590,28 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "REST_TYPE",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "restParam"
-                                    }
-                                  ]
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
-                                  "kind": "ELLIPSIS_TOKEN"
+                                  "kind": "REST_TYPE",
+                                  "children": [
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "restParam"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "ELLIPSIS_TOKEN"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -636,6 +678,10 @@
                             {
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "STREAM_TYPE_DESC",
                                   "children": [
@@ -746,6 +792,10 @@
                             {
                               "kind": "MEMBER_TYPE_DESC",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "TABLE_TYPE_DESC",
                                   "children": [
