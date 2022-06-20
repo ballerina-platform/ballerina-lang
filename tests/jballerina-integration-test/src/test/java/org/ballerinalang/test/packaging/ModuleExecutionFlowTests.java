@@ -206,4 +206,34 @@ public class ModuleExecutionFlowTests extends BaseTest {
         logLeecherH.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
+
+    @Test
+    public void testListenerStopHandlerAsyncCall() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+                "listener_stophandler_async_call_test");
+
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher logLeecherD = new LogLeecher("StopHandler2 of current module");
+        LogLeecher logLeecherE = new LogLeecher("StopHandler1 of current module");
+        LogLeecher logLeecherF = new LogLeecher("StopHandler2 of moduleA");
+        LogLeecher logLeecherG = new LogLeecher("StopHandler1 of moduleA");
+        LogLeecher logLeecherH = new LogLeecher("graceful stop of current module", LogLeecher.LeecherType.ERROR);
+        LogLeecher logLeecherI = new LogLeecher("graceful stop of ModuleA", LogLeecher.LeecherType.ERROR);
+        serverInstance.addLogLeecher(logLeecherD);
+        serverInstance.addLogLeecher(logLeecherE);
+        serverInstance.addLogLeecher(logLeecherF);
+        serverInstance.addLogLeecher(logLeecherG);
+        serverInstance.addErrorLogLeecher(logLeecherH);
+        serverInstance.addErrorLogLeecher(logLeecherI);
+        serverInstance.shutdownServer();
+        logLeecherD.waitForText(TIMEOUT);
+        logLeecherE.waitForText(TIMEOUT);
+        logLeecherF.waitForText(TIMEOUT);
+        logLeecherG.waitForText(TIMEOUT);
+        logLeecherH.waitForText(TIMEOUT);
+        logLeecherI.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
 }
