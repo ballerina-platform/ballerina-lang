@@ -29,6 +29,7 @@ dependencies {
     compileOnly project(':formatter:formatter-core')
     implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation "org.apache.commons:commons-lang3:${project.apacheCommonsLang3Version}"
+    implementation "org.javatuples:javatuples:${project.javatuplesVersion}"
 
     testCompile 'org.testng:testng'
     testCompile project(':formatter:formatter-core')
