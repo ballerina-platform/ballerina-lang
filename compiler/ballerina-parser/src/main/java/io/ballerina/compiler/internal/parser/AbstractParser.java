@@ -129,6 +129,10 @@ public abstract class AbstractParser {
         this.insertedToken = null;
     }
 
+    protected boolean isInvalidNodeStackEmpty() {
+        return this.invalidNodeInfoStack.isEmpty();
+    }
+
     protected void startContext(ParserRuleContext context) {
         this.errorHandler.startContext(context);
     }
