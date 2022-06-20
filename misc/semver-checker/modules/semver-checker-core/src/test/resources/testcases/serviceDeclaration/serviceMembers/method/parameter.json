@@ -1,0 +1,299 @@
+[
+  {
+    "description": "Change the type of parameter of a  method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int  id) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "kind": "unknown",
+                      "message": "type of parameter 'id' is changed from 'string' to 'int'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the  parameter to readonly parameter of a  method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(readonly & int  id) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "modified",
+                      "versionImpact": "ambiguous",
+                      "kind": "unknown",
+                      "message": "type of parameter 'id' is changed from 'int' to 'readonly & int'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove parameter of a  method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello() {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "kind": "unknown",
+                      "message": "required parameter 'id' is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the order of parameter in  method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int  id, int num){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int num, int id) {\n} \n}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Change the  parameter type default to required in  method definition in a service declaration\n",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int  id = 7){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int id) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "modified",
+                      "versionImpact": "major",
+                      "kind": "unknown",
+                      "message": "kind of parameter 'id' is changed from 'DEFAULTABLE_PARAM' to 'REQUIRED_PARAM'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the parameter required to default in  method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int  id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int id = 10) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "minor",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "modified",
+                      "versionImpact": "minor",
+                      "kind": "unknown",
+                      "message": "kind of parameter 'id' is changed from 'REQUIRED_PARAM' to 'DEFAULTABLE_PARAM'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add new parameter in  method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int  id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int id, int num) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "new",
+                      "versionImpact": "major",
+                      "kind": "unknown",
+                      "message": "new required parameter 'num' is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the default value of parameter in  method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int  id = 5){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(int id = 7) {\n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "minor",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "modified",
+                      "versionImpact": "minor",
+                      "kind": "unknown",
+                      "message": "default value of parameter 'Optional[id ]' is changed from '5' to '7'"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add parameter annotation to a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(@tainted string  id) {\n} \n}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Remove parameter annotation from a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(@tainted string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello( string  id) {\n} \n}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Modify parameter annotation in a method.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(@untainted string id){\n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(@tainted string  id) {\n} \n}",
+    "expectedOutput":{}
+  }
+]

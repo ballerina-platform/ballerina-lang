@@ -41,14 +41,14 @@ import static org.ballerinalang.semver.checker.util.TestUtils.executeTestData;
 public class FunctionComparatorTest {
 
     private static final String FUNCTION_TEST_DATA_ROOT = "src/test/resources/testcases/functionDefinition/";
-    protected static final String FUNCTION_ANNOTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT + "annotation.json";
-    protected static final String FUNCTION_DOCUMENTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT + "documentation.json";
-    protected static final String FUNCTION_BODY_TESTCASE = FUNCTION_TEST_DATA_ROOT + "functionBody.json";
-    protected static final String FUNCTION_IDENTIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "identifier.json";
-    protected static final String FUNCTION_PARAMETER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "parameter.json";
-    protected static final String FUNCTION_QUALIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "qualifier.json";
-    protected static final String FUNCTION_RETURN_TESTCASE = FUNCTION_TEST_DATA_ROOT + "returnType.json";
-    protected static final String ADVANCE_FUNCTION_TESTCASE = FUNCTION_TEST_DATA_ROOT + "advanceFunction.json";
+    private static final String FUNCTION_ANNOTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT + "annotation.json";
+    private static final String FUNCTION_DOCUMENTATION_TESTCASE = FUNCTION_TEST_DATA_ROOT + "documentation.json";
+    private static final String FUNCTION_BODY_TESTCASE = FUNCTION_TEST_DATA_ROOT + "functionBody.json";
+    private static final String FUNCTION_IDENTIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "identifier.json";
+    private static final String FUNCTION_PARAMETER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "parameter.json";
+    private static final String FUNCTION_QUALIFIER_TESTCASE = FUNCTION_TEST_DATA_ROOT + "qualifier.json";
+    private static final String FUNCTION_RETURN_TESTCASE = FUNCTION_TEST_DATA_ROOT + "returnType.json";
+    private static final String ADVANCE_FUNCTION_TESTCASE = FUNCTION_TEST_DATA_ROOT + "advanceFunction.json";
 
     @Test(dataProvider = "functionTestDataProvider")
     public void testFunctionAnnotation(JsonElement testData) throws Exception {
