@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -55,9 +56,10 @@ public class CodegenCodeCoverageTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.resolve("codegen-coverage-test").toString();
         resultsJsonPath = projectBasedTestsPath.resolve("codegen-coverage-test").resolve("target").resolve("report")
                 .resolve("test_results.json");
-        Path balaPath = projectBasedTestsPath.resolve("codegen-coverage-test").resolve("balas").resolve("ibaqu" +
+        Path tempDistPath = Paths.get(balServer.getServerHome()).resolve("repo");
+        Path balaPath = projectBasedTestsPath.resolve("codegen-coverage-test").resolve("balas").resolve("ballerina" +
                 "-codeModifier-any-0.1.0.bala");
-        BCompileUtil.copyBalaToDistRepository(balaPath, "ibaqu", "codeModifier", "0.1.0");
+        BCompileUtil.copyBalaToExtractedDist(balaPath, "ballerina", "codeModifier", "0.1.0", tempDistPath);
     }
 
     @Test
