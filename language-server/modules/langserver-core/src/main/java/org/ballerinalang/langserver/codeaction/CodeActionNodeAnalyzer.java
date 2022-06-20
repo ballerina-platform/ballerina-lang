@@ -51,11 +51,11 @@ import java.util.Optional;
 
 /**
  * Node analyzer for the code actions. This analyzer will determine
- * 1. the node for node based code actions
+ * 1. The node for node based code actions
  * 2. Code action node type
- * 3. Closest statement node
+ * 3. Closest statement node to the cursor position
  * 4. Documentable node
- * 5. Enclosing documentable node
+ * 5. Enclosing documentable node of the cursor position
  *
  * @since 2201.1.0
  */
