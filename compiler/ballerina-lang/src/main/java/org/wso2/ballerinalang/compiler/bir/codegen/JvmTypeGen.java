@@ -1094,17 +1094,10 @@ public class JvmTypeGen {
 
     public void loadLocalType(MethodVisitor mv, BType type) {
         if (type.tag == TypeTags.TYPEREFDESC) {
-            PackageID pkgID = type.tsymbol.pkgID;
-            boolean samePackage = JvmCodeGenUtil.isSameModule(this.packageID, pkgID);
-            if (samePackage) {
-                jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(type, symbolTable));
-            } else {
-                String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(pkgID,
-                        JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
-                mv.visitFieldInsn(GETSTATIC, typeOwner,
-                        JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) type), GET_TYPE_REF_TYPE_IMPL);
-            }
-
+            String typeOwner = JvmCodeGenUtil.getModuleLevelClassName(type.tsymbol.pkgID,
+                    JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
+            mv.visitFieldInsn(GETSTATIC, typeOwner,
+                    JvmCodeGenUtil.getRefTypeConstantName((BTypeReferenceType) type), GET_TYPE_REF_TYPE_IMPL);
         } else {
             loadType(mv, JvmCodeGenUtil.getReferredType(type));
         }
