@@ -3518,7 +3518,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         
         BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) lhsExprType.tsymbol;
 
-        validateResourceAccessPathSegmentTypes(resourceAccessAct.resourceAccessPathSegments.exprs, data);
+        validateResourceAccessPathSegmentTypes(resourceAccessAct.resourceAccessPathSegments, data);
                 
         // Filter all the resource methods defined on target resource path
         List<BResourceFunction> resourceFunctions = new ArrayList<>();
@@ -3559,10 +3559,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         checkResourceAccessParamAndReturnType(resourceAccessAct, targetResourceFunc, data);
     }
     
-    public void validateResourceAccessPathSegmentTypes(List<BLangExpression> pathSegments, AnalyzerData data) {
+    public void validateResourceAccessPathSegmentTypes(BLangListConstructorExpr rAPathSegments, AnalyzerData data) {
         // We should type check `pathSegments` against the resourcePathType. This method is just to validate
         // allowed types for resource access segments hence use clones of nodes
-        for (BLangExpression pathSegment : pathSegments) {
+        BLangListConstructorExpr clonedRAPathSegments = nodeCloner.cloneNode(rAPathSegments);
+        for (BLangExpression pathSegment : clonedRAPathSegments.exprs) {
             BLangExpression clonedPathSegment = nodeCloner.cloneNode(pathSegment);
             if (clonedPathSegment.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 BLangExpression spreadOpExpr = ((BLangListConstructorSpreadOpExpr) clonedPathSegment).expr;
