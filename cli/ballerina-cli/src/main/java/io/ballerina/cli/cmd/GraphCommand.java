@@ -153,7 +153,6 @@ public class GraphCommand implements BLauncherCmd {
         // if all dependency graphs are printed it includes the final graph.
         // Therefore, final graph is not needed to print separately.
         boolean dumpGraph = !dumpRawGraphs;
-
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
 
         buildOptionsBuilder
