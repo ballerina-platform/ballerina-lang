@@ -636,6 +636,10 @@ class SchedulerItem {
  */
 class ItemGroup {
 
+    private static final AtomicInteger nextItemGroupId = new AtomicInteger(0);
+
+    private final int id;
+
     /**
      * Keep the list of items that should run on same thread.
      * Using a stack to get advantage of the locality.
@@ -652,10 +656,12 @@ class ItemGroup {
     public static final ItemGroup POISON_PILL = new ItemGroup();
 
     public ItemGroup(SchedulerItem item) {
+        this.id = nextItemGroupId.incrementAndGet();
         items.push(item);
     }
 
     public ItemGroup() {
+        this.id = nextItemGroupId.incrementAndGet();
     }
 
     public void add(SchedulerItem item) {
@@ -672,5 +678,9 @@ class ItemGroup {
 
     public void unlock() {
         this.groupLock.unlock();
+    }
+
+    public int getId() {
+        return id;
     }
 }

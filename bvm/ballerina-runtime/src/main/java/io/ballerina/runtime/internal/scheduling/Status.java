@@ -60,9 +60,9 @@ public class Status {
         int availableStrandCount = availableStrands.size();
         Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
         for (Strand strand : availableStrands.values()) {
-            int strandGroupHashCode = strand.strandGroup.hashCode();
+            int strandGroupId = strand.strandGroup.getId();
             String strandState = strand.dumpState();
-            availableStrandGroups.computeIfAbsent(strandGroupHashCode, k -> new ArrayList<>()).add(strandState);
+            availableStrandGroups.computeIfAbsent(strandGroupId, k -> new ArrayList<>()).add(strandState);
         }
         availableStrands.clear();
 
@@ -73,8 +73,8 @@ public class Status {
         infoStr.append("]\n===========================================\n\n");
         infoStr.append("Current no. of strand groups\t:\t").append(availableStrandGroups.size()).append("\n");
         infoStr.append("Current no. of strands      \t:\t").append(availableStrandCount).append("\n\n");
-        availableStrandGroups.forEach((groupHashCode, strandList) -> {
-            infoStr.append("group@").append(Integer.toHexString(groupHashCode)).append(": [")
+        availableStrandGroups.forEach((strandGroupId, strandList) -> {
+            infoStr.append("group ").append(strandGroupId).append(": [")
                     .append(strandList.size()).append("]\n");
             strandList.forEach(infoStr::append);
         });
