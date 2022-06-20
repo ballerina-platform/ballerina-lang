@@ -43,6 +43,7 @@ import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
+import org.javatuples.Pair;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -55,6 +56,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.converters.util.ConverterUtils.escapeIdentifier;
 import static io.ballerina.converters.util.ConverterUtils.getPrimitiveTypeName;
+import static io.ballerina.converters.util.ConverterUtils.sortTypeDescriptorNodes;
 import static io.ballerina.converters.util.ListOperationUtils.difference;
 import static io.ballerina.converters.util.ListOperationUtils.intersection;
 
@@ -233,45 +235,9 @@ public class JsonToRecordDirectConverter {
                     fieldTypeName, fieldName,
                     optionalField != null ? optionalField ? questionMarkToken : null : null, semicolonToken);
         } else if (entry.getValue().isJsonArray()) {
-            Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-            Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-
-            Iterator<JsonElement> iterator = entry.getValue().getAsJsonArray().iterator();
-            List<Token> typeNames = new ArrayList<>();
-            while (iterator.hasNext()) {
-                JsonElement element = iterator.next();
-                if (element.isJsonPrimitive()) {
-                    Token tempTypeName = getPrimitiveTypeName(element.getAsJsonPrimitive());
-                    if (!typeNames.stream().map(typeToken -> typeToken.text())
-                            .collect(Collectors.toList()).contains(tempTypeName.text())) {
-                        typeNames.add(tempTypeName);
-                    }
-                } else if (element.isJsonNull()) {
-                    Token tempTypeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
-                    if (!typeNames.stream().map(typeToken -> typeToken.text())
-                            .collect(Collectors.toList()).contains(tempTypeName.text())) {
-                        typeNames.add(tempTypeName);
-                    }
-                } else if (element.isJsonObject()) {
-                    String elementKey = entry.getKey();
-                    String type = StringUtils.capitalize(elementKey) + "Item";
-                    Token tempTypeName = AbstractNodeFactory.createIdentifierToken(type);
-                    if (!typeNames.stream().map(typeToken -> typeToken.text())
-                            .collect(Collectors.toList()).contains(tempTypeName.text())) {
-                        typeNames.add(tempTypeName);
-                    }
-                }
-            }
-
-            fieldTypeName = createUnionTypeDescriptorNode(typeNames);
-
-            NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
-            ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
-                    closeSBracketToken);
-            arrayDimensions = arrayDimensions.add(arrayDimension);
-
-            ArrayTypeDescriptorNode arrayTypeName =
-                    NodeFactory.createArrayTypeDescriptorNode(fieldTypeName, arrayDimensions);
+            Map.Entry<String, JsonArray> jsonArrayEntry =
+                    new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().getAsJsonArray());
+            ArrayTypeDescriptorNode arrayTypeName = createArrayTypeDescriptorNode(jsonArrayEntry);
 
             recordFieldNode = NodeFactory.createRecordFieldNode(null,
                     null, arrayTypeName, fieldName,
@@ -284,22 +250,74 @@ public class JsonToRecordDirectConverter {
         return recordFieldNode;
     }
 
-    private static TypeDescriptorNode createUnionTypeDescriptorNode(List<Token> typeNames) {
+    private static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(Map.Entry<String, JsonArray> entry) {
+        Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+        Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+
+        Iterator<JsonElement> iterator = entry.getValue().iterator();
+        List<TypeDescriptorNode> typeDescriptorNodes = new ArrayList<>();
+        while (iterator.hasNext()) {
+            JsonElement element = iterator.next();
+            if (element.isJsonPrimitive()) {
+                Token tempTypeName = getPrimitiveTypeName(element.getAsJsonPrimitive());
+                TypeDescriptorNode tempTypeNode = NodeFactory.createBuiltinSimpleNameReferenceNode(null, tempTypeName);
+                if (!typeDescriptorNodes.stream().map(typeNode -> typeNode.toSourceCode())
+                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                    typeDescriptorNodes.add(tempTypeNode);
+                }
+            } else if (element.isJsonNull()) {
+                Token tempTypeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+                TypeDescriptorNode tempTypeNode = NodeFactory.createBuiltinSimpleNameReferenceNode(null, tempTypeName);
+                if (!typeDescriptorNodes.stream().map(typeNode -> typeNode.toSourceCode())
+                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                    typeDescriptorNodes.add(tempTypeNode);
+                }
+            } else if (element.isJsonObject()) {
+                String elementKey = entry.getKey();
+                String type = StringUtils.capitalize(elementKey) + "Item";
+                Token tempTypeName = AbstractNodeFactory.createIdentifierToken(type);
+
+                TypeDescriptorNode tempTypeNode = NodeFactory.createBuiltinSimpleNameReferenceNode(null, tempTypeName);
+                if (!typeDescriptorNodes.stream().map(typeNode -> typeNode.toSourceCode())
+                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                    typeDescriptorNodes.add(tempTypeNode);
+                }
+            } else if (element.isJsonArray()) {
+                Map.Entry<String, JsonArray> arrayEntry =
+                        new AbstractMap.SimpleEntry<>(entry.getKey(), element.getAsJsonArray());
+                TypeDescriptorNode tempTypeNode =createArrayTypeDescriptorNode(arrayEntry);
+                if (!typeDescriptorNodes.stream().map(typeNode -> typeNode.toSourceCode())
+                        .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
+                    typeDescriptorNodes.add(tempTypeNode);
+                }
+            }
+        }
+
+        List<TypeDescriptorNode> typeDescriptorNodesSorted = sortTypeDescriptorNodes(typeDescriptorNodes);
+
+        TypeDescriptorNode fieldTypeName = createUnionTypeDescriptorNode(typeDescriptorNodesSorted);
+
+        NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
+        ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
+                closeSBracketToken);
+        arrayDimensions = arrayDimensions.add(arrayDimension);
+
+        return NodeFactory.createArrayTypeDescriptorNode(fieldTypeName, arrayDimensions);
+    }
+
+    private static TypeDescriptorNode createUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
         if (typeNames.size() == 0) {
             Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
             return NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
         } else if (typeNames.size() == 1) {
-            Token typeName = typeNames.get(0);
-            return NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
+            return typeNames.get(0);
         }
         Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
         UnionTypeDescriptorNode unionTypeDescriptorNode = null;
         for (int i = 0; i < typeNames.size() - 1; i++) {
-            TypeDescriptorNode leftTypeDesc = unionTypeDescriptorNode == null ?
-                    NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeNames.get(i)) :
-                    unionTypeDescriptorNode;
-            TypeDescriptorNode rightTypeDesc =
-                    NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeNames.get(i + 1));
+            TypeDescriptorNode leftTypeDesc =
+                    unionTypeDescriptorNode == null ? typeNames.get(i) : unionTypeDescriptorNode;
+            TypeDescriptorNode rightTypeDesc = typeNames.get(i + 1);
             unionTypeDescriptorNode =
                     NodeFactory.createUnionTypeDescriptorNode(leftTypeDesc, pipeToken, rightTypeDesc);
         }

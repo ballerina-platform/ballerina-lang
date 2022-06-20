@@ -20,11 +20,19 @@ package io.ballerina.converters.util;
 
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
+import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
+import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Util methods for JSON to record direct converter.
@@ -35,11 +43,13 @@ public class ConverterUtils {
 
     private ConverterUtils() {}
 
+    private static List<String> keywords = SyntaxInfo.keywords();
+
     public static String escapeIdentifier(String identifier) {
         if (identifier.matches("\\b[0-9]*\\b")) {
             return "'" + identifier;
         } else if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b")
-                || SyntaxInfo.keywords().stream().anyMatch(identifier::equals)) {
+                || keywords.stream().anyMatch(identifier::equals)) {
 
             identifier = identifier.replaceAll(Constants.ESCAPE_PATTERN, "\\\\$1");
             if (identifier.endsWith("?")) {
@@ -48,7 +58,7 @@ public class ConverterUtils {
                     stringBuilder.deleteCharAt(identifier.length() - 2);
                     identifier = stringBuilder.toString();
                 }
-                if (SyntaxInfo.keywords().stream().anyMatch(Optional.ofNullable(identifier)
+                if (keywords.stream().anyMatch(Optional.ofNullable(identifier)
                         .filter(sStr -> sStr.length() != 0)
                         .map(sStr -> sStr.substring(0, sStr.length() - 1))
                         .orElse(identifier)::equals)) {
@@ -77,5 +87,32 @@ public class ConverterUtils {
             }
         }
         return AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+    }
+
+    public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
+        List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream().filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream().filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        nonArrayNodes.sort(Comparator.comparing(Node::toSourceCode));
+        arrayNodes.sort((o1, o2) -> {
+            if (getNumberOfDimensions((ArrayTypeDescriptorNode) o1) == getNumberOfDimensions((ArrayTypeDescriptorNode) o2)) {
+                int result1 = ((ArrayTypeDescriptorNode) o1).memberTypeDesc().toSourceCode().compareTo(((ArrayTypeDescriptorNode) o2).memberTypeDesc().toSourceCode());
+                return result1;
+            } else {
+                int result2 = getNumberOfDimensions((ArrayTypeDescriptorNode) o1) - getNumberOfDimensions((ArrayTypeDescriptorNode) o2);
+                return result2;
+            }
+        });
+        List<TypeDescriptorNode> concatList = Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
+        return concatList;
+    }
+
+    private static int getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
+        int totalDimensions = 0;
+        totalDimensions += arrayNode.dimensions().size();
+        if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
+            int dimensions = getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
+            totalDimensions += dimensions;
+        }
+        return totalDimensions;
     }
 }
