@@ -10,4 +10,5 @@ type NewRecord record {
 	string gender;
 	int age;
 	Address address;
+	(decimal|int|string|(int|string)[]|any[]|string[]|(int|string)[][])[] testList;
 };
