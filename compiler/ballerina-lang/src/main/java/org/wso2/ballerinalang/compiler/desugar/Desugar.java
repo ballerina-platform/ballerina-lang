@@ -406,6 +406,7 @@ public class Desugar extends BLangNodeVisitor {
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    private BLangAnnotationAttachment strandAnnotAttachement;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -6371,11 +6372,18 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
-        BLangPackage pkgNode = env.enclPkg;
-        List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
-        annotationDesugar.addStrandAnnotationWithThreadAny(actionInvocation, env);
-        // Add record type node for internally added strand annotation.
-        addRecordTypeNodeForTypeDef(pkgNode, prevTypeDefinitions);
+        if (this.strandAnnotAttachement == null) {
+            BLangPackage pkgNode = env.enclPkg;
+            List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+            this.strandAnnotAttachement =
+                    annotationDesugar.addStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            // Add record type node for internally added strand annotation.
+            addRecordTypeNodeForTypeDef(pkgNode, prevTypeDefinitions);
+        }
+
+        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+        ((BInvokableSymbol) actionInvocation.symbol)
+                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
     }
 
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {

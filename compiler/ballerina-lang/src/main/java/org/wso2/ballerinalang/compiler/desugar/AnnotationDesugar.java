@@ -1071,13 +1071,10 @@ public class AnnotationDesugar {
         return params;
     }
 
-    public void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation,
-                                                 SymbolEnv env) {
+    public BLangAnnotationAttachment addStrandAnnotationWithThreadAny(Location position, SymbolEnv env) {
         // Create annotation attachment.
         BLangAnnotationAttachment annotAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         annotAttachment.annotationSymbol = symResolver.getStrandAnnotationSymbol();
-
-        Location position = actionInvocation.pos;
 
         annotAttachment.annotationName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         annotAttachment.annotationName.value = STRAND;
@@ -1124,10 +1121,7 @@ public class AnnotationDesugar {
         threadFieldKeyValue.valueExpr = threadValue;
 
         symResolver.populateAnnotationAttachmentSymbol(annotAttachment, env, constantValueResolver);
-
-        // Add annotation to action invocation.
-        actionInvocation.addAnnotationAttachment(annotAttachment);
-        ((BInvokableSymbol) actionInvocation.symbol).addAnnotation(annotAttachment.annotationAttachmentSymbol);
+        return annotAttachment;
     }
 
     private class LocationData {
