@@ -1,4 +1,4 @@
-import ibaqu/codeModifier;
+import ballerina/codeModifier;
 
 public function main() {
     codeModifier:doSomething();
