@@ -63,7 +63,7 @@ public class InherentlyImmutableTypeTest {
                 "incompatible types: expected '(string|readonly)', found '(readonly|any)'", 32, 43);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'any', found '(readonly|string)'", 34, 17);
-        Assert.assertEquals(negativeResult.getErrorCount(), 9);
+        Assert.assertEquals(negativeResult.getErrorCount(), 6);
     }
 
     @AfterClass

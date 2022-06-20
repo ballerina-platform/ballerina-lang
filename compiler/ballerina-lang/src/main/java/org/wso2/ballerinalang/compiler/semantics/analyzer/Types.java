@@ -3684,7 +3684,6 @@ public class Types {
                          }
                     }
                     if (sMember.tag == TypeTags.JSON && isAssignable(sUnion, targetUnion, unresolvedTypes)) {
-                        unresolvedTypes.add(new TypePair(sMember, targetUnion));
                         sourceIterator.remove();
                         continue;
                     }
