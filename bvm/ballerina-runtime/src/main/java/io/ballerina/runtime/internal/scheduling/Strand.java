@@ -474,7 +474,7 @@ public class Strand {
             if ((initialFrameCount == 0) || (processedFrameCount != initialFrameCount)) {
                 runnableState = true;
             }
-        } catch (ConcurrentModificationException ce) {
+        } catch (ConcurrentModificationException | NullPointerException e) {
             runnableState = true;
         }
         if (runnableState) {
