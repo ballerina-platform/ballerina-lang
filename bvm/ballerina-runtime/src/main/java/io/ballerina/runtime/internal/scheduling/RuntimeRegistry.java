@@ -18,8 +18,6 @@ package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
-import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
@@ -102,20 +100,14 @@ public class RuntimeRegistry {
 
     private void invokeMethodAsyncConcurrently(BObject listener, Strand parent, AsyncFunctionCallback callback,
                                                StrandMetadata metadata, Scheduler scheduler) {
-        try {
-            Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
-            AsyncUtils.blockStrand(parent);
-            FutureValue future = scheduler.createFuture(parent, null, null, PredefinedTypes.TYPE_NULL,
-                    null, metadata);
-            future.callback = callback;
-            callback.setFuture(future);
-            callback.setStrand(parent);
-            scheduler.schedule(new Object[1], func, future);
-        } catch (BError error) {
-            callback.notifyFailure(error);
-        } catch (Throwable t) {
-            callback.notifyFailure(ErrorCreator.createError(StringUtils.fromString(t.getMessage())));
-        }
+        Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
+        AsyncUtils.blockStrand(parent);
+        FutureValue future = scheduler.createFuture(parent, null, null, PredefinedTypes.TYPE_NULL,
+                null, metadata);
+        future.callback = callback;
+        callback.setFuture(future);
+        callback.setStrand(parent);
+        scheduler.schedule(new Object[1], func, future);
     }
 
     public synchronized void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {

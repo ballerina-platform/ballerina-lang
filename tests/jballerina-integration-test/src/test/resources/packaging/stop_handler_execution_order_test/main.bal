@@ -17,7 +17,6 @@
 import stop_handler_execution_order_test.moduleB;
 import stop_handler_execution_order_test.moduleA;
 import ballerina/test;
-import ballerina/io;
 import ballerina/lang.runtime;
 
 int initCount = 0;
@@ -39,23 +38,23 @@ public function stopHandlerFunc1() returns error? {
 
 public function stopHandlerFunc2() returns error? {
     moduleB:incrementAndAssertInt(7);
-    io:println("StopHandlerFunc2 in current module");
+    moduleB:println("StopHandlerFunc2 in current module");
 }
 
 public function stopHandlerFunc3() returns error? {
     moduleB:incrementAndAssertInt(6);
-    io:println("StopHandlerFunc3 in current module");
+    moduleB:println("StopHandlerFunc3 in current module");
     runtime:onGracefulStop(stopHandlerFunc4);
 }
 
 public function stopHandlerFunc4() returns error? {
     moduleB:incrementAndAssertInt(7);
-    io:println("StopHandlerFunc4 in current module");
+    moduleB:println("StopHandlerFunc4 in current module");
     runtime:onGracefulStop(stopHandlerFunc5);
 }
 
 public function stopHandlerFunc5() returns error? {
-    io:println("StopHandlerFunc5 in current module");
+    moduleB:println("StopHandlerFunc5 in current module");
 }
 
 public function main() {

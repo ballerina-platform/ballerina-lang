@@ -15,7 +15,6 @@
 // under the License.
 
 import stop_handler_execution_order_test.moduleB;
-import ballerina/io;
 import ballerina/lang.runtime;
 
 int initCount = 0;
@@ -28,17 +27,17 @@ function init() {
 
 public function stopHandlerFunc1() returns error? {
     moduleB:incrementAndAssertInt(9);
-    io:println("stopHandlerFunc1 in moduleA");
+    moduleB:println("stopHandlerFunc1 in moduleA");
     runtime:onGracefulStop(stopHandlerFunc2);
 }
 
 public function stopHandlerFunc2() returns error? {
     moduleB:incrementAndAssertInt(11);
-    io:println("stopHandlerFunc2 in moduleA");
+    moduleB:println("stopHandlerFunc2 in moduleA");
 }
 
 public function stopHandlerFunc3() returns error? {
-    io:println("stopHandlerFunc3 in moduleA");
+    moduleB:println("stopHandlerFunc3 in moduleA");
 }
 
 public function main() {

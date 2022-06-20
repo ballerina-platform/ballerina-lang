@@ -14,8 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
+import ballerina/jballerina.java;
 import ballerina/lang.runtime;
+import ballerina/test;
 
 int initCount = 0;
 int count = 0;
@@ -73,3 +74,19 @@ function incrementAndAssert(string name, string expectedName, int val) {
         incrementAndAssertInt(val);
     }
 }
+
+public function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+public function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+public function printlnInternal(handle receiver, handle strValue)  = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
