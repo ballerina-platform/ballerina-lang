@@ -458,6 +458,28 @@ public class ErrorTest {
         BRunUtil.invoke(cloneableResult, testFunction);
     }
 
+    @Test
+    public void testErrorTypeAccessNegative() {
+        CompileResult moduleResult = BCompileUtil.compile("test-src/error/error-negative-project");
+        int i = 0;
+        BAssertUtil.validateError(moduleResult, i++, "attempt to refer to non-accessible symbol 'E5'", 20, 22);
+        BAssertUtil.validateError(moduleResult, i++, "undefined error type descriptor 'E5'", 20, 22);
+        BAssertUtil.validateError(moduleResult, i++, "attempt to refer to non-accessible symbol 'E6'", 21, 22);
+        BAssertUtil.validateError(moduleResult, i++, "undefined error type descriptor 'E6'", 21, 22);
+        BAssertUtil.validateError(moduleResult, i++, "attempt to refer to non-accessible symbol 'E7'", 22, 22);
+        BAssertUtil.validateError(moduleResult, i++, "undefined error type descriptor 'E7'", 22, 22);
+        BAssertUtil.validateError(moduleResult, i++, "attempt to refer to non-accessible symbol 'E8'", 23, 22);
+        BAssertUtil.validateError(moduleResult, i++, "undefined error type descriptor 'E8'", 23, 22);
+        BAssertUtil.validateError(moduleResult, i++, "attempt to refer to non-accessible symbol 'E9'", 24, 22);
+        BAssertUtil.validateError(moduleResult, i++, "undefined error type descriptor 'E9'", 24, 22);
+        BAssertUtil.validateError(moduleResult, i++, "attempt to refer to non-accessible symbol 'E10'", 25, 22);
+        BAssertUtil.validateError(moduleResult, i++, "undefined error type descriptor 'E10'", 25, 22);
+        BAssertUtil.validateError(moduleResult, i++, "cannot create a new error value from 'er:E8_Public'", 30, 29);
+        BAssertUtil.validateError(moduleResult, i++, "cannot create a new error value from 'er:E9_Public'", 31, 29);
+        BAssertUtil.validateError(moduleResult, i++, "cannot create a new error value from 'er:E10_Public'", 32, 29);
+        Assert.assertEquals(moduleResult.getErrorCount(), i);
+    }
+
     @AfterClass
     public void cleanup() {
         errorTestResult = null;

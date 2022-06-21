@@ -28,7 +28,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction getFailure() returns error {\n    \n}\n"
+                "newText": "\n\nfunction getFailure() returns error {\n    return error(\"\");\n}\n"
               }
             ]
           }

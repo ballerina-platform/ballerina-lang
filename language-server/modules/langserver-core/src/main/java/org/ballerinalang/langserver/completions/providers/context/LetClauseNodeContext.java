@@ -23,10 +23,10 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -51,12 +51,12 @@ public class LetClauseNodeContext extends IntermediateClauseNodeContext<LetClaus
 
         if (cursorAtTheEndOfClause(context, node)) {
             completionItems.addAll(this.getKeywordCompletions(context, node));
-        } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        } else if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, qNameRef);
 
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
         } else {

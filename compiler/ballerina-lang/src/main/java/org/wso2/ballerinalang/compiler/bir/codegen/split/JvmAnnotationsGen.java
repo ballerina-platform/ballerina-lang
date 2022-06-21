@@ -60,13 +60,16 @@ public class JvmAnnotationsGen {
     private final String annotationsClass;
     private final JvmPackageGen jvmPackageGen;
     private final JvmTypeGen jvmTypeGen;
+    private final JvmConstantsGen jvmConstantsGen;
     private final BIRNode.BIRPackage module;
 
-    public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen) {
+    public JvmAnnotationsGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen,
+                             JvmConstantsGen jvmConstantsGen) {
         this.annotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
         this.jvmPackageGen = jvmPackageGen;
         this.jvmTypeGen = jvmTypeGen;
         this.module = module;
+        this.jvmConstantsGen = jvmConstantsGen;
     }
 
     public void generateAnnotationsClass(Map<String, byte[]> jarEntries) {
@@ -127,13 +130,21 @@ public class JvmAnnotationsGen {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
-        loadLocalType(mv, typeDef, jvmTypeGen);
+        BType refType = typeDef.referenceType == null || typeDef.type.tag == TypeTags.RECORD ? typeDef.type :
+                typeDef.referenceType;
+        loadLocalType(mv, refType, jvmTypeGen);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
                 JvmSignatures.PROCESS_ANNOTATIONS, false);
+
     }
 
-    void loadLocalType(MethodVisitor mv, BIRNode.BIRTypeDefinition typeDefinition, JvmTypeGen jvmTypeGen) {
-        jvmTypeGen.loadType(mv, typeDefinition.type);
+    void loadLocalType(MethodVisitor mv, BType type, JvmTypeGen jvmTypeGen) {
+        if (type.tag == TypeTags.TYPEREFDESC) {
+            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(type,
+                    jvmPackageGen.symbolTable));
+        } else {
+            jvmTypeGen.loadType(mv, type);
+        }
     }
 
 }

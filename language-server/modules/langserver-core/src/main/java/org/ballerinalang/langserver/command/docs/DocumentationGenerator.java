@@ -45,7 +45,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
@@ -86,7 +86,7 @@ public class DocumentationGenerator {
     public static Optional<Range> getDocsRange(NonTerminalNode node) {
         for (Node next : node.children()) {
             if (next.kind() == SyntaxKind.METADATA && ((MetadataNode) next).documentationString().isPresent()) {
-                return Optional.of(CommonUtil.toRange(((MetadataNode) next).documentationString().get().lineRange()));
+                return Optional.of(PositionUtil.toRange(((MetadataNode) next).documentationString().get().lineRange()));
             }
         }
         return Optional.empty();
@@ -163,9 +163,9 @@ public class DocumentationGenerator {
     private static DocAttachmentInfo generateServiceDocumentation(ServiceDeclarationNode serviceDeclrNode,
                                                                   SyntaxTree syntaxTree) {
         MetadataNode metadata = serviceDeclrNode.metadata().orElse(null);
-        Position docStart = CommonUtil.toRange(serviceDeclrNode.lineRange()).getStart();
+        Position docStart = PositionUtil.toRange(serviceDeclrNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
-            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+            docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
         return new DocAttachmentInfo(desc, docStart, getPadding(serviceDeclrNode, syntaxTree));
@@ -181,9 +181,9 @@ public class DocumentationGenerator {
     private static DocAttachmentInfo generateModuleVarDocumentation(ModuleVariableDeclarationNode varDeclarationNode,
                                                                   SyntaxTree syntaxTree) {
         Optional<MetadataNode> metadata = varDeclarationNode.metadata();
-        Position docStart = CommonUtil.toRange(varDeclarationNode.lineRange()).getStart();
+        Position docStart = PositionUtil.toRange(varDeclarationNode.lineRange()).getStart();
         if (metadata.isPresent() && !metadata.get().annotations().isEmpty()) {
-            docStart = CommonUtil.toRange(metadata.get().annotations().get(0).lineRange()).getStart();
+            docStart = PositionUtil.toRange(metadata.get().annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
         return new DocAttachmentInfo(desc, docStart, getPadding(varDeclarationNode, syntaxTree));
@@ -201,7 +201,7 @@ public class DocumentationGenerator {
         return getFunctionNodeDocumentation(bLangFunction.functionSignature(),
                                             bLangFunction.relativeResourcePath(),
                                             bLangFunction.metadata().orElse(null),
-                                            CommonUtil.toRange(bLangFunction.lineRange()),
+                                            PositionUtil.toRange(bLangFunction.lineRange()),
                                             syntaxTree);
     }
 
@@ -217,7 +217,7 @@ public class DocumentationGenerator {
         return getFunctionNodeDocumentation(methodDeclrNode.methodSignature(),
                                             methodDeclrNode.relativeResourcePath(),
                                             methodDeclrNode.metadata().orElse(null),
-                                            CommonUtil.toRange(methodDeclrNode.lineRange()),
+                                            PositionUtil.toRange(methodDeclrNode.lineRange()),
                                             syntaxTree);
     }
 
@@ -231,9 +231,9 @@ public class DocumentationGenerator {
     private static DocAttachmentInfo generateRecordOrObjectDocumentation(TypeDefinitionNode typeDefNode,
                                                                          SyntaxTree syntaxTree) {
         MetadataNode metadata = typeDefNode.metadata().orElse(null);
-        Position docStart = CommonUtil.toRange(typeDefNode.lineRange()).getStart();
+        Position docStart = PositionUtil.toRange(typeDefNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
-            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+            docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
         String desc = String.format("Description%n");
@@ -279,9 +279,9 @@ public class DocumentationGenerator {
     private static DocAttachmentInfo generateClassDocumentation(ClassDefinitionNode classDefNode,
                                                                 SyntaxTree syntaxTree) {
         MetadataNode metadata = classDefNode.metadata().orElse(null);
-        Position docStart = CommonUtil.toRange(classDefNode.lineRange()).getStart();
+        Position docStart = PositionUtil.toRange(classDefNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
-            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+            docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
         LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
@@ -312,7 +312,7 @@ public class DocumentationGenerator {
                     hasDeprecated = true;
                 }
             }
-            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+            docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
         LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
@@ -361,9 +361,9 @@ public class DocumentationGenerator {
     private static DocAttachmentInfo generateAnnotationDocumentation(
             AnnotationDeclarationNode annotationDeclarationNode, SyntaxTree syntaxTree) {
         MetadataNode metadata = annotationDeclarationNode.metadata().orElse(null);
-        Position docStart = CommonUtil.toRange(annotationDeclarationNode.lineRange()).getStart();
+        Position docStart = PositionUtil.toRange(annotationDeclarationNode.lineRange()).getStart();
         if (metadata != null && !metadata.annotations().isEmpty()) {
-            docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
+            docStart = PositionUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
         return new DocAttachmentInfo(desc, docStart, getPadding(annotationDeclarationNode, syntaxTree));
