@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.langlib.query;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
+
 /**
  * Implementation of lang.query:checkNaN(float).
  *
@@ -26,5 +29,10 @@ public class CheckNaN {
 
     public static boolean checkNaN(double x) {
         return Double.isNaN(x);
+    }
+
+    public static void print(Object value, BString string) {
+        System.out.println(string);
+        System.out.println(StringUtils.getStringValue(value, null));
     }
 }
