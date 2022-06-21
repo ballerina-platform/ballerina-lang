@@ -21,6 +21,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -177,5 +178,10 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "invalid worker receive statement position, must be a top level " +
                 "statement in a worker", 135, 20);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }

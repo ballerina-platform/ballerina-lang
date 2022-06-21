@@ -10704,7 +10704,6 @@ public class BallerinaParser extends AbstractParser {
         STNode annot = parseOptionalAnnotations();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.LET_EXPR_LET_VAR_DECL);
         STNode assign = parseAssignOp();
-
         STNode expression = context ==  ParserRuleContext.LET_CLAUSE_LET_VAR_DECL ?
                 parseExpression(OperatorPrecedence.QUERY, isRhsExpr, allowActions) :
                 parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
@@ -12033,7 +12032,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseSelectClause(boolean isRhsExpr, boolean allowActions) {
         startContext(ParserRuleContext.SELECT_CLAUSE);
         STNode selectKeyword = parseSelectKeyword();
-
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, allowActions);
         endContext();
         return STNodeFactory.createSelectClauseNode(selectKeyword, expression);
