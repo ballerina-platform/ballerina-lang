@@ -254,6 +254,14 @@
       "sortText": "CC",
       "insertText": "TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GLOBAL_VAR",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "BC",
+      "insertText": "GLOBAL_VAR",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

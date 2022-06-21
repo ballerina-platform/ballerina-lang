@@ -158,7 +158,8 @@ public class DefinitionTest {
         return new Object[][]{
                 {"defProject8.json", "project"},
                 {"def_error_config2.json", "project"},
-                {"def_retry_spec_config1.json", "project"}
+                {"def_retry_spec_config1.json", "project"},
+                {"defProject13.json", "project"}
         };
     }
 
