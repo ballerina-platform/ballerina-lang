@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects.util;
 
-import io.ballerina.projects.ProjectException;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,8 +33,13 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.stream.Collectors;
+
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
+import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 
 /**
  * Utilities related to files.
@@ -169,28 +172,55 @@ public class FileUtils {
     }
 
     /**
-     * Get last modified timestamp of a directory.
+     * Get last modified timestamp of a ballerina project.
      *
-     * @param directory directory path
-     * @return directory last modified time
+     * @param projectRoot project root path
+     * @return last modified time of the ballerina project
      */
-    public static long getDirectoryLastModifiedTime(Path directory) {
-        File dirFile = new File(String.valueOf(directory));
-        File[] files = dirFile.listFiles();
+    public static long lastModifiedTimeOfBalProject(Path projectRoot) {
+        File[] files = projectRoot.toFile().listFiles();
+        long latestDate = 0;
         if (files != null) {
-            if (files.length == 0) {
-                return dirFile.lastModified();
+            for (File file : files) {
+                long fileModifiedDate = latestDate;
+                String filename = file.toPath().getFileName().toString();
+                if (file.isDirectory()) {
+                    if (isChild(projectRoot.resolve(MODULES_ROOT), file.toPath())
+                            && isChild(projectRoot.resolve(TEST_DIR_NAME), file.toPath())
+                            && isChild(projectRoot.resolve(RESOURCE_DIR_NAME), file.toPath())) {
+                        fileModifiedDate = lastModifiedTimeOfBalProject(file.toPath());
+                    }
+                } else {
+                    if (file.toPath().equals(projectRoot.resolve(BALLERINA_TOML))) {
+                        // Ballerina.toml
+                        fileModifiedDate = file.lastModified();
+                    } else if (filename.endsWith(BLANG_SOURCE_EXT)
+                            && file.toPath().equals(projectRoot.resolve(filename))) {
+                        // default module ballerina source files
+                        fileModifiedDate = file.lastModified();
+                    } else if (isChild(projectRoot.resolve(MODULES_ROOT), file.toPath())
+                            && filename.endsWith(BLANG_SOURCE_EXT)) {
+                        // modules projectRoot ballerina source files
+                        fileModifiedDate = file.lastModified();
+                    } else if (isChild(projectRoot.resolve(TEST_DIR_NAME), file.toPath())
+                            && filename.endsWith(BLANG_SOURCE_EXT)) {
+                        // tests projectRoot ballerina test source files
+                        fileModifiedDate = file.lastModified();
+                    } else if (isChild(projectRoot.resolve(RESOURCE_DIR_NAME), file.toPath())) {
+                        // resources projectRoot files
+                        fileModifiedDate = file.lastModified();
+                    }
+                }
+                if (fileModifiedDate > latestDate) {
+                    latestDate = fileModifiedDate;
+                }
             }
-            // Sort each file in the directory based on its lastModified
-            // Time using the comparator
-            Arrays.sort(files, (o1, o2) -> {
-                // returning the file modified time
-                // in the increasing way
-                return Long.compare(o2.lastModified(), o1.lastModified()); // latest 1st
-            });
-            return files[0].lastModified();
         }
-        throw new ProjectException("invalid directory path: " + directory);
+        return latestDate;
+    }
+
+    private static boolean isChild(Path parentPath, Path childPath) {
+        return childPath.startsWith(parentPath.toAbsolutePath());
     }
 
     /**

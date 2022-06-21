@@ -943,10 +943,12 @@ public class ProjectUtils {
         if (project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
             try {
                 BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
-                long lastProjectUpdatedTime = FileUtils.getDirectoryLastModifiedTime(project.sourceRoot());
-                long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
-                        .get(project.currentPackage().packageName().value());
-                return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+                long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
+                if (!buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                    long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                            .get(project.currentPackage().packageName().value());
+                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
+                }
             } catch (IOException e) {
                 throw new ProjectException("Reading 'build' file failed: " + e.getMessage());
             }

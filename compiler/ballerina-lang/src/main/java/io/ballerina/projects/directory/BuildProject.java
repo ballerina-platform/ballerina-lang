@@ -59,7 +59,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.projects.util.FileUtils.getDirectoryLastModifiedTime;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectUtils.getDependenciesTomlContent;
@@ -241,6 +240,13 @@ public class BuildProject extends Project {
             // check whether buildJson is null and last updated time has expired
             if (buildJson != null && !shouldUpdate) {
                 buildJson.setLastBuildTime(System.currentTimeMillis());
+
+                Path projectPath = this.currentPackage().project().sourceRoot();
+                Map<String, Long> lastModifiedTime = new HashMap<>();
+                lastModifiedTime.put(this.currentPackage().packageName().value(),
+                        FileUtils.lastModifiedTimeOfBalProject(projectPath));
+                buildJson.setLastModifiedTime(lastModifiedTime);
+
                 writeBuildFile(buildFilePath, buildJson);
             } else {
                 writeBuildFile(buildFilePath);
@@ -421,7 +427,7 @@ public class BuildProject extends Project {
         Path projectPath = this.currentPackage().project().sourceRoot();
         Map<String, Long> lastModifiedTime = new HashMap<>();
         lastModifiedTime.put(this.currentPackage().packageName().value(),
-                FileUtils.getDirectoryLastModifiedTime(projectPath));
+                FileUtils.lastModifiedTimeOfBalProject(projectPath));
 
         BuildJson buildJson = new BuildJson(System.currentTimeMillis(), System.currentTimeMillis(),
                 RepoUtils.getBallerinaShortVersion(), lastModifiedTime);
