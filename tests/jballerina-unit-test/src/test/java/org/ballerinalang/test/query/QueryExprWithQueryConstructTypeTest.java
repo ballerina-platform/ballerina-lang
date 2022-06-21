@@ -149,10 +149,20 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
     public void testSemanticNegativeScenarios() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 1);
-        validateError(semanticsNegativeResult, 0, "on conflict can only be used with queries which produce tables " +
-                        "with key specifiers",
-                39, 13);
+        int index = 0;
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                        "tables with key specifiers", 39, 13);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 59, 9);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 71, 9);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 84, 9);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 95, 9);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 103, 14);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), index);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
