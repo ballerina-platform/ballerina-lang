@@ -7052,9 +7052,9 @@ public class Types {
     }
 
     /**
-     * Holds sharable analyzer data between {@link TypeChecker} and {@link SemanticAnalyzer}.
+     * Holds common analyzer data between {@link TypeChecker} and {@link SemanticAnalyzer}.
      */
-    public static class TypeCheckingSharableData {
+    public static class CommonAnalyzerData {
         Stack<SymbolEnv> queryEnvs = new Stack<>();
         Stack<BLangNode> queryFinalClauses = new Stack<>();
         boolean checkWithinQueryExpr = false;
