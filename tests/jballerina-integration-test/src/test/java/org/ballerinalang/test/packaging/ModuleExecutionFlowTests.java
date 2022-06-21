@@ -134,17 +134,19 @@ public class ModuleExecutionFlowTests extends BaseTest {
     @Test
     public void testStopHandlerExecution() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging", "stop_handler_execution");
-        runAssertStopHandlers(projectPath);
-    }
-
-    private void runAssertStopHandlers(Path projectPath) throws BallerinaTestException {
         BServerInstance serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
                 null, null);
-        LogLeecher infoLeecher = new LogLeecher("Stopped module");
-        serverInstance.addLogLeecher(infoLeecher);
+        LogLeecher infoLeecher1 = new LogLeecher("Stopped stopHandlerFunc3");
+        LogLeecher infoLeecher2 = new LogLeecher("Stopped stopHandlerFunc2");
+        LogLeecher infoLeecher3 = new LogLeecher("Stopped stopHandlerFunc1");
+        serverInstance.addLogLeecher(infoLeecher1);
+        serverInstance.addLogLeecher(infoLeecher2);
+        serverInstance.addLogLeecher(infoLeecher3);
         serverInstance.shutdownServer();
-        infoLeecher.waitForText(TIMEOUT);
+        infoLeecher1.waitForText(TIMEOUT);
+        infoLeecher2.waitForText(TIMEOUT);
+        infoLeecher3.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 
@@ -234,6 +236,29 @@ public class ModuleExecutionFlowTests extends BaseTest {
         logLeecherG.waitForText(TIMEOUT);
         logLeecherH.waitForText(TIMEOUT);
         logLeecherI.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testStopHandlerAsyncCall() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging",
+                "stop_handler_async_call_test");
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        LogLeecher infoLeecher1 = new LogLeecher("Stopped stopHandlerFunc3");
+        LogLeecher infoLeecher2 = new LogLeecher("Stopped stopHandlerFunc4");
+        LogLeecher infoLeecher3 = new LogLeecher("Stopped stopHandlerFunc2");
+        LogLeecher infoLeecher4 = new LogLeecher("Stopped stopHandlerFunc1");
+        serverInstance.addLogLeecher(infoLeecher1);
+        serverInstance.addLogLeecher(infoLeecher2);
+        serverInstance.addLogLeecher(infoLeecher3);
+        serverInstance.addLogLeecher(infoLeecher4);
+        serverInstance.shutdownServer();
+        infoLeecher1.waitForText(TIMEOUT);
+        infoLeecher2.waitForText(TIMEOUT);
+        infoLeecher3.waitForText(TIMEOUT);
+        infoLeecher4.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 }
