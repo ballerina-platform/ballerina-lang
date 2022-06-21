@@ -3591,7 +3591,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // method otherwise we get `missing required parameter` error
         List<BVarSymbol> originalInvocableSymParamTypes =
                 ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params;
-        int pathParamCount = targetResourceFunc.pathParams.size() + (targetResourceFunc.restPathParam == null? 0 : 1);
+        int pathParamCount = targetResourceFunc.pathParams.size() + (targetResourceFunc.restPathParam == null ? 0 : 1);
 
         List<BVarSymbol> params = new ArrayList<>(originalInvocableSymParamTypes.size() - pathParamCount);
         params.addAll(originalInvocableSymParamTypes.subList(pathParamCount, originalInvocableSymParamTypes.size()));
