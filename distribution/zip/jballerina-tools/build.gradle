@@ -107,6 +107,8 @@ dependencies {
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
     dist project(':formatter:formatter-cli')
+    dist project(':semver-checker:semver-checker-core')
+    dist project(':semver-checker:semver-checker-cli')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')
@@ -133,6 +135,7 @@ dependencies {
     langserverLib project(':ls-extensions:performance-analyzer-services')
     langserverLib project(':ls-extensions:partial-parser')
     langserverLib project(':ls-extensions:trigger-service')
+    langserverLib project(':ls-extensions:bal-shell-service')
 
     debugAdapterLib project(path: ':debug-adapter:debug-adapter-core', configuration: 'libs')
     debugAdapterLib project(':debug-adapter:debug-adapter-cli')

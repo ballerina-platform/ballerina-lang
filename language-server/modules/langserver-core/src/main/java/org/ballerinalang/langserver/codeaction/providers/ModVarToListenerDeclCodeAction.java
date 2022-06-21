@@ -31,6 +31,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -79,7 +80,7 @@ public class ModVarToListenerDeclCodeAction extends AbstractCodeActionProvider {
                 (TypedBindingPatternNode) nodeUriPair.get().getLeft().parent();
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> textEdits = new ArrayList<>();
-        Position pos = CommonUtil.toRange(typedBindingPatternNode.lineRange()).getStart();
+        Position pos = PositionUtil.toRange(typedBindingPatternNode.lineRange()).getStart();
         Position insertPos = new Position(pos.getLine(), pos.getCharacter());
         textEdits.add(new TextEdit(new Range(insertPos, insertPos),
                 SyntaxKind.LISTENER_KEYWORD.stringValue().trim() + " "));

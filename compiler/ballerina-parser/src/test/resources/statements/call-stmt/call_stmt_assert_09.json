@@ -131,54 +131,33 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "QUALIFIED_NAME_REFERENCE",
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "QUALIFIED_NAME_REFERENCE",
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "mod1"
+                                },
+                                {
+                                  "kind": "COLON_TOKEN",
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION"
+                                    "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
                                   ],
-                                  "children": [
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "mod1"
-                                    },
-                                    {
-                                      "kind": "COLON_TOKEN",
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_INTERVENING_WHITESPACES_ARE_NOT_ALLOWED"
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_IDENTIFIER"
-                                      ]
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN",
-                                  "isMissing": true
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN",
-                                  "isMissing": true
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
                                 }
                               ]
                             }
@@ -217,7 +196,6 @@
         },
         {
           "kind": "OBJECT_METHOD_DEFINITION",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
@@ -273,7 +251,6 @@
             },
             {
               "kind": "FUNCTION_BODY_BLOCK",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_BRACE_TOKEN",
@@ -286,15 +263,12 @@
                 },
                 {
                   "kind": "LIST",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "CALL_STATEMENT",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "CHECK_EXPRESSION",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "CHECK_KEYWORD",
@@ -312,40 +286,18 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTION_CALL",
-                              "hasDiagnostics": true,
+                              "kind": "QUALIFIED_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "QUALIFIED_NAME_REFERENCE",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION"
-                                  ],
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "mod1"
-                                    },
-                                    {
-                                      "kind": "COLON_TOKEN"
-                                    },
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "fun1"
-                                    }
-                                  ]
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "mod1"
                                 },
                                 {
-                                  "kind": "OPEN_PAREN_TOKEN",
-                                  "isMissing": true
+                                  "kind": "COLON_TOKEN"
                                 },
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN",
-                                  "isMissing": true
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "fun1"
                                 }
                               ]
                             }
@@ -462,7 +414,6 @@
                       "children": [
                         {
                           "kind": "CHECK_EXPRESSION",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "CHECK_KEYWORD",
@@ -480,39 +431,17 @@
                               ]
                             },
                             {
-                              "kind": "FUNCTION_CALL",
-                              "hasDiagnostics": true,
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION"
-                                  ],
-                                  "children": [
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "fun2",
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "fun2",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
-                                        }
-                                      ]
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
                                     }
                                   ]
-                                },
-                                {
-                                  "kind": "OPEN_PAREN_TOKEN",
-                                  "isMissing": true
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN",
-                                  "isMissing": true
                                 }
                               ]
                             }

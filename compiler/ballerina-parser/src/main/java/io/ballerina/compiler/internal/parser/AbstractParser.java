@@ -125,6 +125,10 @@ public abstract class AbstractParser {
         this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind, context);
     }
 
+    protected void removeInsertedToken() {
+        this.insertedToken = null;
+    }
+
     protected void startContext(ParserRuleContext context) {
         this.errorHandler.startContext(context);
     }

@@ -44,7 +44,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
@@ -146,19 +145,14 @@ public class SymbolBIRTest {
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
                 .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
-        List<String> fooFunctions = getSymbolNames(fooPkgSymbol, SymTag.FUNCTION);
-        SemanticAPITestUtils.assertList(fooModule.functions(), fooFunctions);
-
-        List<String> fooConstants = getSymbolNames(fooPkgSymbol, SymTag.CONSTANT);
-        SemanticAPITestUtils.assertList(fooModule.constants(), fooConstants);
-
-        List<String> fooTypeDefs = getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF);
-        fooTypeDefs.remove("PersonObj");
-        fooTypeDefs.remove("Colour");
-        fooTypeDefs.remove("Dog");
-        fooTypeDefs.remove("EmployeeObj");
-        fooTypeDefs.remove("Human");
-        SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
+        SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman", 
+                "testAnonTypeDefSymbolsIsNotVisible", "add"));
+        SemanticAPITestUtils.assertList(fooModule.constants(), List.of("RED", "GREEN", "BLUE", "PI", "TRUE", "FALSE"));
+        
+        SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
+                "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
+                "Annot", "Detail"));
+        
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 

@@ -421,7 +421,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "AN",
+      "sortText": "R",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },

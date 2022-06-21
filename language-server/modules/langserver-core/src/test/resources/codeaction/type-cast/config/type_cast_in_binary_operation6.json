@@ -1,0 +1,24 @@
+{
+  "line": 11,
+  "character": 15,
+  "expected": [
+    {
+      "title": "Add type cast to 'f1'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 17
+            },
+            "end": {
+              "line": 11,
+              "character": 17
+            }
+          },
+          "newText": "<int>"
+        }
+      ]
+    }
+  ]
+}

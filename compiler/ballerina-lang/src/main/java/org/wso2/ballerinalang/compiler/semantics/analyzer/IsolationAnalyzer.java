@@ -28,7 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
-import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
+import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -162,7 +162,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -216,7 +215,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -364,7 +362,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         inferIsolation(moduleLevelVarSymbols, getPubliclyExposedObjectTypes(pkgNode), classDefinitions);
-        logServiceIsolationWarnings(classDefinitions);
+        logServiceIsolationHints(classDefinitions);
         this.arrowFunctionTempSymbolMap.clear();
         this.isolationInferenceInfoMap.clear();
 
@@ -653,20 +651,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(clause, env);
         }
         analyzeNode(queryAction.doClause, env);
-    }
-
-    @Override
-    public void visit(BLangMatch matchNode) {
-        analyzeNode(matchNode.expr, env);
-        for (BLangMatch.BLangMatchBindingPatternClause patternClause : matchNode.patternClauses) {
-            analyzeNode(patternClause, env);
-        }
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        analyzeNode(patternClauseNode.variable, env);
-        analyzeNode(patternClauseNode.body, env);
     }
 
     @Override
@@ -1697,13 +1681,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        for (BLangExpression value : tableMultiKeyExpr.multiKeyIndexExprs) {
-            analyzeNode(value, env);
-        }
-    }
-
-    @Override
     public void visit(BLangTransactionalExpr transactionalExpr) {
     }
 
@@ -1910,23 +1887,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         analyzeNode(bLangErrorVariableDef.errorVariable, env);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause matchStaticBindingPatternClause) {
-        analyzeNode(matchStaticBindingPatternClause.body, env);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause matchStmtStructuredBindingPatternClause) {
-        analyzeNode(matchStmtStructuredBindingPatternClause.bindingPatternVariable, env);
-
-        BLangExpression typeGuardExpr = matchStmtStructuredBindingPatternClause.typeGuardExpr;
-        if (typeGuardExpr != null) {
-            analyzeNode(typeGuardExpr, env);
-        }
-
-        analyzeNode(matchStmtStructuredBindingPatternClause.body, env);
     }
 
     @Override
@@ -3792,15 +3752,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return true;
     }
 
-    private void logServiceIsolationWarnings(List<BLangClassDefinition> classDefinitions) {
+    private void logServiceIsolationHints(List<BLangClassDefinition> classDefinitions) {
         for (BLangClassDefinition classDefinition : classDefinitions) {
             if (classDefinition.flagSet.contains(Flag.SERVICE)) {
-                logServiceIsolationWarnings(classDefinition);
+                logServiceIsolationHints(classDefinition);
             }
         }
     }
 
-    private void logServiceIsolationWarnings(BLangClassDefinition classDefinition) {
+    private void logServiceIsolationHints(BLangClassDefinition classDefinition) {
         boolean isolatedService = isIsolated(classDefinition.getBType().flags);
 
         for (BLangFunction function : classDefinition.functions) {
@@ -3816,7 +3776,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 continue;
             }
 
-            dlog.warning(getStartLocation(function.pos), getWarningCode(isolatedService, isolatedMethod));
+            dlog.hint(getStartLocation(function.pos), getHintCode(isolatedService, isolatedMethod));
         }
     }
 
@@ -3828,17 +3788,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return new BLangDiagnosticLocation(lineRange.filePath(), startLine, startLine, startColumn, startColumn);
     }
 
-    private DiagnosticWarningCode getWarningCode(boolean isolatedService, boolean isolatedMethod) {
+    private DiagnosticHintCode getHintCode(boolean isolatedService, boolean isolatedMethod) {
         if (!isolatedService && !isolatedMethod) {
-            return DiagnosticWarningCode
+            return DiagnosticHintCode
                     .CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD_IN_NON_ISOLATED_SERVICE;
         }
 
         if (isolatedService) {
-            return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD;
+            return DiagnosticHintCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_METHOD;
         }
 
-        return DiagnosticWarningCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE;
+        return DiagnosticHintCode.CONCURRENT_CALLS_WILL_NOT_BE_MADE_TO_NON_ISOLATED_SERVICE;
     }
 
     private BInvokableSymbol createTempSymbolIfNonExistent(BLangArrowFunction bLangArrowFunction) {
