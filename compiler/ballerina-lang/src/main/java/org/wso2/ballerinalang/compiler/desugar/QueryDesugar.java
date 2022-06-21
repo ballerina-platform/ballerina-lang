@@ -1869,7 +1869,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         containsCheckExpr = true;
-        this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        if(checkedExpr.equivalentErrorTypeList != null) {
+            this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        }
         this.acceptNode(checkedExpr.expr);
     }
 
