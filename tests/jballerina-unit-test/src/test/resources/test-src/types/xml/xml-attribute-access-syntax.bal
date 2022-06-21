@@ -1,20 +1,43 @@
 import ballerina/lang.'xml;
 
 type XMLElement xml:Element;
+type XMLElement2 xml<xml:Element>;
+type XMLElement3 xml<xml<xml:Element>>;
 
-function getElementAttrBasic() returns string|error? {
+function getElementAttrBasic() returns error? {
     xml x = xml `<root attr="attr-val"><a></a><b></b></root>`;
+    xml<xml:Element> x2 = xml `<root attr="attr-val"><a></a><b></b></root>`;
+    xml<xml<xml:Element>> x3 = xml `<root attr="attr-val"><a></a><b></b></root>`;
     assert(check x.attr, "attr-val");
+    assert(check x2.attr, "attr-val");
+    assert(check x3.attr, "attr-val");
 }
 
-function getOptionalElementAttrBasic() returns string|error? {
+function getOptionalElementAttrBasic() returns error? {
     xml:Element x = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    xml<xml:Element> x2 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    xml<xml<xml:Element>> x3 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
     assert(check x?.attr, "attr-val");
+    assert(check x2?.attr, "attr-val");
+    assert(check x3?.attr, "attr-val");
 }
 
-function getUserDefinedTypeOptionalElementAttrBasic() returns string|error? {
+function getUserDefinedTypeElementAttrBasic() returns error? {
     XMLElement x = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    XMLElement2 x2 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    XMLElement3 x3 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
     assert(check x.attr, "attr-val");
+    assert(check x2.attr, "attr-val");
+    assert(check x3.attr, "attr-val");
+}
+
+function getUserDefinedTypeOptionalElementAttrBasic() returns error? {
+    XMLElement x = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    XMLElement2 x2 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    XMLElement3 x3 = xml `<elem xmlns="ns-uri" attr="attr-val" xml:space="default"></elem>`;
+    assert(check x?.attr, "attr-val");
+    assert(check x2?.attr, "attr-val");
+    assert(check x3?.attr, "attr-val");
 }
 
 function getAttrOfASequence() returns string|error? {

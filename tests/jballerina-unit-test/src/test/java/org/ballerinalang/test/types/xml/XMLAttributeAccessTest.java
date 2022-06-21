@@ -51,6 +51,11 @@ public class XMLAttributeAccessTest {
     }
 
     @Test
+    public void testUserDefinedAttributeAccessSyntax() {
+        BRunUtil.invoke(compileResult, "getUserDefinedTypeElementAttrBasic");
+    }
+
+    @Test
     public void testUserDefinedOptionalAttributeAccessSyntax() {
         BRunUtil.invoke(compileResult, "getUserDefinedTypeOptionalElementAttrBasic");
     }
