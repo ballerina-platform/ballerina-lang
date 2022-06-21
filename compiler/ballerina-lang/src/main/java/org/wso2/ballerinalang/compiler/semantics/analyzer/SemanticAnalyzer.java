@@ -4702,13 +4702,4 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             this.env = env;
         }
     }
-//
-//    public static class QueryData {
-//        Stack<SymbolEnv> queryEnvs;
-//        Stack<BLangNode> queryFinalClauses;
-//        boolean checkWithinQueryExpr = false;
-//        HashSet<BType> checkedErrorList;
-//        boolean breakToParallelQueryEnv = false;
-//        int letCount = 0;
-//    }
 }
