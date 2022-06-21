@@ -1,0 +1,26 @@
+[package]
+org = "ballerina"
+name = "platformLibPkg1"
+version = "0.1.0"
+distribution = "2201.0.4-rc1.4"
+
+[[platform.java11.dependency]]
+groupId="org.ballerina"
+artifactId="native1"
+version="1.0.0"
+path="./lib/native1.txt"
+
+[[platform.java11.dependency]]
+groupId="org.apache"
+artifactId="lib1"
+version="2.0.0"
+path="./lib/lib1.txt"
+
+[[platform.java11.dependency]]
+path="./lib/lib2.txt"
+
+[[platform.java11.dependency]]
+groupId="org.apache"
+artifactId="lib3"
+version="2.0.0"
+path="./lib/lib3.txt"

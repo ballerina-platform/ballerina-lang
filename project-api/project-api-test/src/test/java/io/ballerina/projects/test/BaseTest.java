@@ -18,6 +18,7 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
@@ -36,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
@@ -48,9 +50,13 @@ import static io.ballerina.projects.util.ProjectConstants.LOCAL_REPOSITORY_NAME;
 public class BaseTest {
     static final Path USER_HOME = Paths.get("build").resolve("user-home");
     static final PrintStream OUT = System.out;
+    static final Path CUSTOM_USER_HOME = Paths.get("build", "userHome");
+    static final Path CENTRAL_CACHE = CUSTOM_USER_HOME.resolve("repositories/central.ballerina.io");
 
     @BeforeSuite
-    public void init() {
+    public void init() throws IOException {
+        Files.createDirectories(CENTRAL_CACHE);
+
         // Here package_a depends on package_b
         // and package_b depends on package_c
         // Therefore package_c is transitive dependency of package_a
@@ -134,5 +140,10 @@ public class BaseTest {
         String ballerinaHome = System.getProperty("ballerina.home");
         Path balaRepoPath = Paths.get(ballerinaHome).resolve("repo").resolve("bala");
         return balaRepoPath.resolve(org).resolve(pkgName).resolve(version).resolve("any");
+    }
+
+    String getErrorsAsString(DiagnosticResult diagnosticResult) {
+        return diagnosticResult.diagnostics().stream().map(
+                diagnostic -> diagnostic.toString() + "\n").collect(Collectors.joining());
     }
 }

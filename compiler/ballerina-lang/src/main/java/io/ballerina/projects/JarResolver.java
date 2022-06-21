@@ -152,7 +152,7 @@ public class JarResolver {
 
                 if (existingVersion.compareTo(newVersion) >= 0) {
                     if (!newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
-                        // issue warning
+                        // TODO: issue a warning. For this we need to design diagnostic reporting in JarResolver
                     }
                     continue;
                 }
