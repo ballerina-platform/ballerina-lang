@@ -1354,6 +1354,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 dlog.error(recordLiteral.pos,
                         DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
                 data.resultType = symTable.semanticError;
+            }
+            if (data.resultType == symTable.semanticError) {
                 return false;
             }
         }

@@ -108,6 +108,8 @@ public class TableNegativeTest {
                 "is not found in table constraint type 'CustomerDetail'", 230, 35);
         validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
                 "a constant expression", 237, 9);
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
+                "a constant expression", 240, 9);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
                 + " found 'table<record {| (string|int|boolean) name?; (int|boolean)...; |}>'", 254, 41);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
@@ -159,7 +161,11 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
                 491, 13);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                492, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
                 496, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                497, 13);
     }
 
     @Test
