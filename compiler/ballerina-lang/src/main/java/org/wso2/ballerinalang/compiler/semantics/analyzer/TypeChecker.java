@@ -8109,7 +8109,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType actualType = symTable.semanticError;
 
         boolean nillableExprType = false;
-        BType effectiveType = varRefType;
+        BType effectiveType = Types.getReferredType(varRefType);
 
         if (varRefType.tag == TypeTags.UNION) {
             Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
@@ -8140,7 +8140,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldAccessExpr.originalType = fieldAccessExpr.leafNode || !nillableExprType ? actualType :
                     types.getTypeWithoutNil(actualType);
         } else if (types.isLax(effectiveType)) {
-            effectiveType = Types.getReferredType(varRefType);
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
