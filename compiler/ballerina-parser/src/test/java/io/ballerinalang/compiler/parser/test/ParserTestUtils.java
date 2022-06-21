@@ -72,7 +72,7 @@ public class ParserTestUtils {
      * <b>WARNING</b>: Enabling this flag will update all the assertion files in unit tests.
      * Should be used only if there is a bulk update that needs to be made to the test assertions.
      */
-    private static final boolean UPDATE_ASSERTS = true;
+    private static final boolean UPDATE_ASSERTS = false;
 
     /**
      * Test parsing a valid source.

@@ -1125,6 +1125,10 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "hasDiagnostics": true,
                                           "children": [
@@ -1300,6 +1304,10 @@
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
@@ -1471,6 +1479,10 @@
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
@@ -1484,6 +1496,10 @@
                                     {
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
                                         {
                                           "kind": "COMMA_TOKEN",
                                           "trailingMinutiae": [
@@ -1499,6 +1515,10 @@
                                       "kind": "MEMBER_TYPE_DESC",
                                       "hasDiagnostics": true,
                                       "children": [
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
                                         {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "hasDiagnostics": true,

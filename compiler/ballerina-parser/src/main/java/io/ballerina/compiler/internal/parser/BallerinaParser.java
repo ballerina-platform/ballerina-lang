@@ -11332,7 +11332,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTupleTypeDesc() {
         STNode openBracket = parseOpenBracket();
-        startContext(ParserRuleContext.TUPLE_MEMBER_OPTIONAL_ANNOTATIONS);
+        startContext(ParserRuleContext.TUPLE_MEMBERS);
         STNode memberTypeDesc = parseTupleMemberTypeDescList();
         STNode closeBracket = parseCloseBracket();
         endContext();
