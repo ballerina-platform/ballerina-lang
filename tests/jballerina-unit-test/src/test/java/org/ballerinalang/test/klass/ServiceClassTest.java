@@ -52,13 +52,13 @@ public class ServiceClassTest {
         int index = 0;
         validateError(result, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
-                        "found 'json'", 37, 31);
+                        "found 'json'", 37, 32);
         validateError(result, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
-                        "found 'anydata'", 37, 40);
+                        "found 'anydata'", 37, 41);
         validateError(result, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as rest path param, " +
-                        "found 'anydata'", 37, 64);
+                        "found 'anydata'", 37, 65);
         Assert.assertEquals(index, 3);
     }
 
@@ -67,10 +67,6 @@ public class ServiceClassTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/klass/service_type_resource_method_decl_neg.bal");
         int index = 0;
-        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
-                19, 5);
-        validateError(result, index++, "resource method declarations are not allowed in an object type definition",
-                20, 5);
         validateError(result, index++, "no implementation found for the method 'onMesage' of class 'SClass'", 23, 1);
         validateError(result, index++, "incompatible types: expected 'Foo', found 'Baz'", 88, 13);
         Assert.assertEquals(result.getErrorCount(), index);
@@ -83,7 +79,7 @@ public class ServiceClassTest {
         int index = 0;
         validateError(result, index++, "only 'int', 'string', 'float', 'boolean', 'decimal' types " +
                         "are supported as path params, found 'other'",
-                22, 28);
+                22, 29);
         validateError(result, index++, "undefined module 'module1'",
                 22, 29);
         validateError(result, index++, "unknown type 'RequestMessage'", 22, 29);
