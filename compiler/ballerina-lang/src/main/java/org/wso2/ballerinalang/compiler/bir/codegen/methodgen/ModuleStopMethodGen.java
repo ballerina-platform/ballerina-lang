@@ -116,8 +116,8 @@ public class ModuleStopMethodGen {
 
         String moduleInitClass = getModuleInitClassName(module.packageID);
         String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
-        String lambdaName = generateStopDynamicListenerLambdaBody(cw);
-        generateCallStopDynamicListenersLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
+        String lambdaName = generateStopDynamicLambdaBody(cw);
+        generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         int i = imprtMods.size() - 1;
         while (i >= 0) {
@@ -132,7 +132,7 @@ public class ModuleStopMethodGen {
         mv.visitEnd();
     }
 
-    private String generateStopDynamicListenerLambdaBody(ClassWriter cw) {
+    private String generateStopDynamicLambdaBody(ClassWriter cw) {
         String lambdaName = "$lambda$stopdynamic";
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, LAMBDA_STOP_DYNAMIC, null, null);
         mv.visitCode();
@@ -140,9 +140,9 @@ public class ModuleStopMethodGen {
         return lambdaName;
     }
 
-    private void generateCallStopDynamicListenersLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
-                                                        AsyncDataCollector asyncDataCollector) {
-        addListenerAndStopHandlerRegistryAsParameter(mv);
+    private void generateCallStopDynamicLambda(MethodVisitor mv, String lambdaName, String moduleInitClass,
+                                               AsyncDataCollector asyncDataCollector) {
+        addRuntimeRegistryAsParameter(mv);
         int futureIndex = indexMap.addIfNotExists(FUTURE_VAR, symbolTable.anyType);
         generateMethodBody(mv, moduleInitClass, lambdaName, asyncDataCollector);
 
@@ -174,7 +174,7 @@ public class ModuleStopMethodGen {
         MethodGenUtils.visitReturn(mv);
     }
 
-    private void addListenerAndStopHandlerRegistryAsParameter(MethodVisitor mv) {
+    private void addRuntimeRegistryAsParameter(MethodVisitor mv) {
         int arrIndex = indexMap.addIfNotExists(ARR_VAR, symbolTable.anyType);
         mv.visitIntInsn(BIPUSH, 2);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);

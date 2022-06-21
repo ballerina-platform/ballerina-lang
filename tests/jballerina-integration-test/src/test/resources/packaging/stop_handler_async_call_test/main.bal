@@ -21,21 +21,30 @@ import ballerina/test;
 int count = 0;
 
 function stopHandlerFunc1() returns error? {
+    runtime:sleep(2);
     incrementCount();
-    assertCount(6);
+    assertCount(7);
     println("Stopped stopHandlerFunc1");
 }
 
 function stopHandlerFunc2() returns error? {
     incrementCount();
-    assertCount(5);
+    assertCount(6);
     println("Stopped stopHandlerFunc2");
 }
 
 function stopHandlerFunc3() returns error? {
+    runtime:sleep(2);
     incrementCount();
     assertCount(4);
     println("Stopped stopHandlerFunc3");
+}
+
+function stopHandlerFunc4() returns error? {
+    runtime:sleep(2);
+    incrementCount();
+    assertCount(5);
+    println("Stopped stopHandlerFunc4");
 }
 
 function init() {
@@ -43,6 +52,7 @@ function init() {
     assertCount(1);
     runtime:onGracefulStop(stopHandlerFunc1);
     runtime:onGracefulStop(stopHandlerFunc2);
+    runtime:onGracefulStop(stopHandlerFunc4);
 }
 
 public function main() {
