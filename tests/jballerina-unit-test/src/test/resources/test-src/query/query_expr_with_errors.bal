@@ -110,9 +110,8 @@ public function queryWithACheckFailEncl() {
 public function queryWithACheckFail() returns int[]|error {
     // If the evaluation of an expression within the query-expr completing abruptly with a check-fail,
     // an error will get propagated to the query result level.
-    int[] intArr = from var item in [1, 2, 3]
+    int[]|error intArr = from var item in [1, 2, 3]
                  select check verifyCheck(item);
-    assertEquality(true, false); // this shouldn't be reachable.
     return intArr;
 }
 
@@ -183,23 +182,21 @@ public type SemanticDiagnostic record {|
 |};
 
 function testDistinctErrorReturn() {
-    SemanticError|int[] val1 = getIntArrayOrSemanticError();
-    assertTrue(val1 is SemanticError);
+    getIntArrayOrSemanticError();
 
-    UnreachableError|int[] val2 = getIntArrayOrUnreachableError();
-    assertTrue(val2 is UnreachableError);
+    getIntArrayOrUnreachableError();
 }
 
-function getIntArrayOrSemanticError() returns int[]|SemanticError {
-    int[] val = from var _ in [1, 2, 3]
+function getIntArrayOrSemanticError() {
+    int[]|SemanticError val = from var _ in [1, 2, 3]
         select check throwSemanticError();
-    return val;
+    assertTrue(val is SemanticError);
 }
 
-function getIntArrayOrUnreachableError() returns int[]|UnreachableError {
-    int[] val = from var _ in [1, 2, 3]
+function getIntArrayOrUnreachableError() {
+    int[]|UnreachableError val = from var _ in [1, 2, 3]
         select check throwUnreachableError();
-    return val;
+    assertTrue(val is UnreachableError);
 }
 
 function throwSemanticError() returns int|SemanticError {
@@ -213,7 +210,7 @@ function throwUnreachableError() returns int|UnreachableError {
 function testCatchingErrorAtOnFail() {
     error? res1 = ();
     do {
-        _ = from int v in 1 ... 3
+        _ = check from int v in 1 ... 3
             select check verifyCheck(v);
     } on fail error err {
         res1 = err;
@@ -223,10 +220,10 @@ function testCatchingErrorAtOnFail() {
     error? res2 = ();
     do {
         do {
-            _ = from int v in 1 ... 3
+            _ = check from int v in 1 ... 3
                 select check verifyCheck(v);
         } on fail error err {
-            _ = from int v in 1 ... 3
+            _ = check from int v in 1 ... 3
                 select check verifyCheck(v);
         }
     } on fail error err {
@@ -236,7 +233,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res3 = ();
     do {
-        _ = from int v in 1 ... 3
+        _ = check from int v in 1 ... 3
             let int intVal = check verifyCheck(v)
             select 1;
     } on fail error err {
@@ -246,7 +243,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res4 = ();
     do {
-        _ = from int a in (from int v in [1, 2]
+        _ = check from int a in (check from int v in [1, 2]
                 let int m = check verifyCheck(v)
                 select m)
             select a;
@@ -257,7 +254,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res5 = ();
     do {
-        _ = from int a in (from int v in [1, 2]
+        _ = check from int a in (check from int v in [1, 2]
                 select check verifyCheck(v))
             select a;
     } on fail error err {
@@ -267,7 +264,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res6 = ();
     do {
-        _ = from int a in (from int v in check verifyCheckArr()
+        _ = check from int a in (check from int v in check verifyCheckArr()
                 select v)
             select a;
     } on fail error err {
@@ -277,9 +274,9 @@ function testCatchingErrorAtOnFail() {
 
     error? res7 = ();
     do {
-        _ = from int a in from int v in (from int i in 1 ... 3
+        _ = check from int a in (check from int v in (check from int i in 1 ... 3
                     select check verifyCheck(i))
-                select v
+                select v)
             select a;
     } on fail error err {
         res7 = err;
@@ -288,7 +285,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res8 = ();
     do {
-        _ = from int v in 1 ... 3
+        _ = check from int v in 1 ... 3
             where check verifyCheck(v) == 1
             select v;
     } on fail error err {
@@ -298,7 +295,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res9 = ();
     do {
-        _ = from int v in (from int i in 1 ... 3
+        _ = check from int v in (check from int i in 1 ... 3
                 where check verifyCheck(i) == 1
                 select i)
             select v;
@@ -309,8 +306,8 @@ function testCatchingErrorAtOnFail() {
 
     error? res10 = ();
     do {
-        _ = from int i in 1 ... 3
-            join int j in (from int jj in 1 ... 3
+        _ = check from int i in 1 ... 3
+            join int j in (check from int jj in 1 ... 3
                 select check verifyCheck(jj))
             on i equals j
             select i;
@@ -321,7 +318,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res11 = ();
     do {
-        _ = from int i in 1 ... 3
+        _ = check from int i in 1 ... 3
             join int j in 1 ... 3
             on check verifyCheck(i) equals j
             select i;
@@ -332,7 +329,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res12 = ();
     do {
-        _ = from int i in 1 ... 3
+        _ = check from int i in 1 ... 3
             join int j in 1 ... 3
             on i equals check verifyCheck(j)
             select i;
@@ -343,7 +340,7 @@ function testCatchingErrorAtOnFail() {
 
     error? res13 = ();
     do {
-        _ = from int i in 1 ... 3
+        _ = check from int i in 1 ... 3
            order by check verifyCheck(i)
            select i;
     } on fail error err {
@@ -353,8 +350,8 @@ function testCatchingErrorAtOnFail() {
 
     error? res14 = ();
     do {
-        _ = from int i in 1 ... 3
-            outer join int j in (from int jj in 1 ... 3
+        _ = check from int i in 1 ... 3
+            outer join int j in (check from int jj in 1 ... 3
                 select check verifyCheck(jj))
             on i equals j
             select i;
@@ -369,7 +366,7 @@ function testErrorReturnedFromSelect() {
 }
 
 function checkErrorAtSelect() returns error? {
-    _ = from int v in 1 ... 3
+    _ = check from int v in 1 ... 3
         select check verifyCheck(v);
 }
 
@@ -379,13 +376,13 @@ function testErrorReturnedFromWhereClause() {
 }
 
 function checkErrorAtWhere1() returns error? {
-    _ = from int v in 1 ... 3
+    _ = check from int v in 1 ... 3
         where check verifyCheck(v) == 1
         select v;
 }
 
 function checkErrorAtWhere2() returns error? {
-    _ = from int v in (from int i in 1 ... 3
+    _ = check from int v in (check from int i in 1 ... 3
             where check verifyCheck(i) == 1
             select i)
         select v;
@@ -397,13 +394,13 @@ function testErrorReturnedFromLetClause() {
 }
 
 function checkErrorAtLet1() returns error? {
-    _ = from int v in 1 ... 3
+    _ = check from int v in 1 ... 3
         let int newVar = check verifyCheck(v)
         select v;
 }
 
 function checkErrorAtLet2() returns error? {
-    _ = from int v in (from int i in 1 ... 3
+    _ = check from int v in (check from int i in 1 ... 3
             let int newVar = check verifyCheck(i)
             select i)
         select v;
@@ -415,13 +412,13 @@ function testErrorReturnedFromLimitClause() {
 }
 
 function checkErrorAtLimitClause1() returns error? {
-    _ = from int i in 1 ... 3
+    _ = check from int i in 1 ... 3
         limit check verifyCheck(i)
         select i;
 }
 
 function checkErrorAtLimitClause2() returns error? {
-    _ = from int v in (from int i in 1 ... 3
+    _ = check from int v in (check from int i in 1 ... 3
             limit check verifyCheck(i)
             select i)
         select v;
@@ -437,44 +434,44 @@ function testErrorReturnedFromJoinClause() {
 }
 
 function checkErrorAtJoinClause() returns error? {
-    _ = from int i in 1 ... 3
-        join int j in (from int jj in 1 ... 3
+    _ = check from int i in 1 ... 3
+        join int j in (check from int jj in 1 ... 3
             select check verifyCheck(jj))
         on i equals j
         select i;
 }
 
 function checkErrorAtOnEqualLHS() returns error? {
-    _ = from int i in 1 ... 3
+    _ = check from int i in 1 ... 3
         join int j in 1 ... 3
         on check verifyCheck(i) equals j
         select i;
 }
 
 function checkErrorAtOnEqualRHS() returns error? {
-    _ = from int i in 1 ... 3
+    _ = check from int i in 1 ... 3
         join int j in 1 ... 3
         on i equals check verifyCheck(j)
         select i;
 }
 
 function checkErrorAtOuterJoin() returns error? {
-    _ = from int i in 1 ... 3
-        outer join int j in (from int jj in 1 ... 3
+    _ = check from int i in 1 ... 3
+        outer join int j in (check from int jj in 1 ... 3
             select check verifyCheck(jj))
         on i equals j
         select i;
 }
 
 function checkErrorAtOuterJoinOnEqualLHS() returns error? {
-    _ = from int i in 1 ... 3
+    _ = check from int i in 1 ... 3
         outer join int j in 1 ... 3
         on check verifyCheck(i) equals j
         select i;
 }
 
 function checkErrorAtOuterJoinOnEqualRHS() returns error? {
-    _ = from int i in 1 ... 3
+    _ = check from int i in 1 ... 3
         outer join int j in 1 ... 3
         on i equals check verifyCheck(j)
         select i;
@@ -485,7 +482,7 @@ function testErrorReturnedFromOrderByClause() {
 }
 
 function checkErrorAtOrderBy() returns error? {
-    _ = from int i in 1...3
+    _ = check from int i in 1...3
        order by check verifyCheck(i)
        select i;
 }
