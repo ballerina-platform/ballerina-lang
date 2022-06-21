@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 
+import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -45,10 +46,16 @@ public class ConverterUtils {
 
     private static List<String> keywords = SyntaxInfo.keywords();
 
+    /**
+     * This method returns the identifiers with special characters
+     *
+     * @param identifier Identifier name
+     * @return {@link String} Special characters escaped identifier
+     */
     public static String escapeIdentifier(String identifier) {
-        if (identifier.matches("\\b[0-9]*\\b")) {
+        if (identifier.matches("\\b\\d*\\b")) {
             return "'" + identifier;
-        } else if (!identifier.matches("\\b[_a-zA-Z][_a-zA-Z0-9]*\\b")
+        } else if (!identifier.matches("\\b[_a-zA-Z]\\w*\\b")
                 || keywords.stream().anyMatch(identifier::equals)) {
 
             identifier = identifier.replaceAll(Constants.ESCAPE_PATTERN, "\\\\$1");
@@ -73,6 +80,12 @@ public class ConverterUtils {
         return identifier;
     }
 
+    /**
+     * This method returns the SyntaxToken corresponding to the JsonPrimitive
+     *
+     * @param value JsonPrimitive that has to be classified
+     * @return {@link Token} Classified Syntax Token
+     */
     public static Token getPrimitiveTypeName(JsonPrimitive value) {
         if (value.isString()) {
             return AbstractNodeFactory.createToken(SyntaxKind.STRING_KEYWORD);
@@ -86,32 +99,42 @@ public class ConverterUtils {
                 return AbstractNodeFactory.createToken(SyntaxKind.INT_KEYWORD);
             }
         }
-        return AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
+        return AbstractNodeFactory.createToken(SyntaxKind.ANYDATA_KEYWORD);
     }
 
+    /**
+     * This method returns the sorted TypeDescriptorNode list
+     *
+     * @param typeDescriptorNodes List of TypeDescriptorNodes has to be sorted
+     * @return {@link List<TypeDescriptorNode>} The sorted TypeDescriptorNode list
+     */
     public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
-        List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream().filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
-        List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream().filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
-        nonArrayNodes.sort(Comparator.comparing(Node::toSourceCode));
-        arrayNodes.sort((o1, o2) -> {
-            if (getNumberOfDimensions((ArrayTypeDescriptorNode) o1) == getNumberOfDimensions((ArrayTypeDescriptorNode) o2)) {
-                int result1 = ((ArrayTypeDescriptorNode) o1).memberTypeDesc().toSourceCode().compareTo(((ArrayTypeDescriptorNode) o2).memberTypeDesc().toSourceCode());
-                return result1;
-            } else {
-                int result2 = getNumberOfDimensions((ArrayTypeDescriptorNode) o1) - getNumberOfDimensions((ArrayTypeDescriptorNode) o2);
-                return result2;
-            }
+        List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
+                .filter(node -> !(node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        List<TypeDescriptorNode> arrayNodes = typeDescriptorNodes.stream()
+                .filter(node -> (node instanceof ArrayTypeDescriptorNode)).collect(Collectors.toList());
+        nonArrayNodes.sort(Comparator.comparing(TypeDescriptorNode::toSourceCode));
+        arrayNodes.sort((node1, node2) -> {
+            ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
+            ArrayTypeDescriptorNode arrayNode2 = (ArrayTypeDescriptorNode) node2;
+            return getNumberOfDimensions(arrayNode1) == getNumberOfDimensions(arrayNode2) ?
+                    (arrayNode1).memberTypeDesc().toSourceCode()
+                            .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
+                    getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
         });
-        List<TypeDescriptorNode> concatList = Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
-        return concatList;
+        return Stream.concat(nonArrayNodes.stream(), arrayNodes.stream()).collect(Collectors.toList());
     }
 
-    private static int getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
-        int totalDimensions = 0;
-        totalDimensions += arrayNode.dimensions().size();
+    /**
+     * This method returns the number of dimensions of an ArrayTypeDescriptorNode
+     *
+     * @param arrayNode ArrayTypeDescriptorNode for which the no. of dimensions has to be calculated
+     * @return {@link Integer} The total no. of dimensions of the ArrayTypeDescriptorNode
+     */
+    private static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
+        int totalDimensions = arrayNode.dimensions().size();
         if (arrayNode.memberTypeDesc() instanceof ArrayTypeDescriptorNode) {
-            int dimensions = getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());
-            totalDimensions += dimensions;
+            totalDimensions += getNumberOfDimensions((ArrayTypeDescriptorNode) arrayNode.memberTypeDesc());;
         }
         return totalDimensions;
     }
