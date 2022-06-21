@@ -3177,6 +3177,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
+        boolean failureHandled = data.failureHandled;
+        data.failureHandled = true;
+        data.errorTypes.push(new LinkedHashSet<>());
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
         int fromCount = 0;
         for (BLangNode clause : queryExpr.getQueryClauses()) {
@@ -3192,6 +3195,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             }
             analyzeNode(clause, data);
         }
+        data.errorTypes.pop();
+        data.failureHandled = failureHandled;
     }
 
     @Override
