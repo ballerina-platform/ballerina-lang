@@ -73,6 +73,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
@@ -115,6 +116,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
@@ -160,6 +162,16 @@ public class Types {
     private int recordCount = 0;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
+
+    public static class TypeCheckingSharableData {
+        Stack<SymbolEnv> queryEnvs = new Stack<>();
+        Stack<BLangNode> queryFinalClauses = new Stack<>();
+        boolean checkWithinQueryExpr = false;
+        HashSet<BType> checkedErrorList = new HashSet<>();
+        boolean breakToParallelQueryEnv = false;
+        int letCount = 0;
+        boolean nonErrorLoggingCheck = false;
+    }
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);

@@ -346,16 +346,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return checkExpr(expr, env, symTable.noType, new Stack<>());
     }
 
-    public BType checkExpr(BLangExpression expr, SymbolEnv env, Stack<SymbolEnv> prevEnvs) {
-        return checkExpr(expr, env, symTable.noType, prevEnvs);
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+                           Types.TypeCheckingSharableData typeCheckingSharableData) {
+        return checkExpr(expr, env, symTable.noType, prevEnvs, typeCheckingSharableData);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs) {
         final AnalyzerData data = new AnalyzerData();
         data.env = env;
         data.prevEnvs = prevEnvs;
-        data.queryFinalClauses = new Stack<>();
-        data.queryEnvs = new Stack<>();
+        data.typeCheckingSharableData.queryFinalClauses = new Stack<>();
+        data.typeCheckingSharableData.queryEnvs = new Stack<>();
+        return checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
+    }
+
+    public BType checkExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs,
+                           Types.TypeCheckingSharableData typeCheckingSharableData) {
+        final AnalyzerData data = new AnalyzerData();
+        data.env = env;
+        data.prevEnvs = prevEnvs;
+        data.typeCheckingSharableData = typeCheckingSharableData;
         return checkExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
@@ -411,8 +421,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void analyzeObjectConstructor(BLangNode node, SymbolEnv env, AnalyzerData data) {
-        if (!data.nonErrorLoggingCheck) {
-            semanticAnalyzer.analyzeNode(node, env);
+        if (!data.typeCheckingSharableData.nonErrorLoggingCheck) {
+            semanticAnalyzer.analyzeNode(node, env, data.typeCheckingSharableData);
         }
     }
 
@@ -998,7 +1008,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             List<BType> memTypes = new ArrayList<>();
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
                 BLangRecordLiteral clonedExpr = recordLiteral;
-                if (data.nonErrorLoggingCheck) {
+                if (data.typeCheckingSharableData.nonErrorLoggingCheck) {
                     clonedExpr.cloneAttempt++;
                     clonedExpr = nodeCloner.cloneNode(recordLiteral);
                 }
@@ -1044,8 +1054,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = tableType;
         } else if (applicableExpType.tag == TypeTags.UNION) {
 
-            boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-            data.nonErrorLoggingCheck = true;
+            boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = true;
             int errorCount = this.dlog.errorCount();
             this.dlog.mute();
 
@@ -1055,7 +1065,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 dlog.resetErrorCount();
 
                 BLangTableConstructorExpr clonedTableExpr = tableConstructorExpr;
-                if (data.nonErrorLoggingCheck) {
+                if (data.typeCheckingSharableData.nonErrorLoggingCheck) {
                     tableConstructorExpr.cloneAttempt++;
                     clonedTableExpr = nodeCloner.cloneNode(tableConstructorExpr);
                 }
@@ -1067,7 +1077,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
 
-            data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
             this.dlog.setErrorCount(errorCount);
             if (!prevNonErrorLoggingCheck) {
                 this.dlog.unmute();
@@ -1075,7 +1085,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             if (matchingTypes.isEmpty()) {
                 BLangTableConstructorExpr exprToLog = tableConstructorExpr;
-                if (data.nonErrorLoggingCheck) {
+                if (data.typeCheckingSharableData.nonErrorLoggingCheck) {
                     tableConstructorExpr.cloneAttempt++;
                     exprToLog = nodeCloner.cloneNode(tableConstructorExpr);
                 }
@@ -1584,9 +1594,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                     AnalyzerData data) {
         int tag = bType.tag;
         if (tag == TypeTags.UNION) {
-            boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
+            boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
             int errorCount = this.dlog.errorCount();
-            data.nonErrorLoggingCheck = true;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = true;
             this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
@@ -1613,7 +1623,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
 
-            data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
             this.dlog.setErrorCount(errorCount);
             if (!prevNonErrorLoggingCheck) {
                 this.dlog.unmute();
@@ -1621,7 +1631,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
             if (compatibleTypes.isEmpty()) {
                 BLangListConstructorExpr exprToLog = listConstructor;
-                if (data.nonErrorLoggingCheck) {
+                if (data.typeCheckingSharableData.nonErrorLoggingCheck) {
                     listConstructor.cloneAttempt++;
                     exprToLog = nodeCloner.cloneNode(listConstructor);
                 }
@@ -1689,7 +1699,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         BLangListConstructorExpr exprToLog = listConstructor;
-        if (data.nonErrorLoggingCheck) {
+        if (data.typeCheckingSharableData.nonErrorLoggingCheck) {
             listConstructor.cloneAttempt++;
             exprToLog = nodeCloner.cloneNode(listConstructor);
         }
@@ -2018,7 +2028,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkReadOnlyListType(BLangListConstructorExpr listConstructor, AnalyzerData data) {
-        if (!data.nonErrorLoggingCheck) {
+        if (!data.typeCheckingSharableData.nonErrorLoggingCheck) {
             BType inferredType = getInferredTupleType(listConstructor, symTable.readonlyType, data);
 
             if (inferredType == symTable.semanticError) {
@@ -2047,7 +2057,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BLangExpression exprToCheck = expr;
 
-        if (data.nonErrorLoggingCheck) {
+        if (data.typeCheckingSharableData.nonErrorLoggingCheck) {
             expr.cloneAttempt++;
             exprToCheck = nodeCloner.cloneNode(expr);
         }
@@ -2099,6 +2109,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         tupleType.flags |= Flags.READONLY;
         return tupleType;
     }
+
 
     public void visit(BLangRecordLiteral recordLiteral, AnalyzerData data) {
         BType expType = data.expType;
@@ -2272,8 +2283,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                                        AnalyzerData data) {
         int tag = bType.tag;
         if (tag == TypeTags.UNION) {
-            boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-            data.nonErrorLoggingCheck = true;
+            boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = true;
             int errorCount = this.dlog.errorCount();
             this.dlog.mute();
 
@@ -2302,7 +2313,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
 
-            data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
             dlog.setErrorCount(errorCount);
             if (!prevNonErrorLoggingCheck) {
                 this.dlog.unmute();
@@ -2357,7 +2368,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkReadOnlyMappingType(BLangRecordLiteral mappingConstructor, AnalyzerData data) {
-        if (!data.nonErrorLoggingCheck) {
+        if (!data.typeCheckingSharableData.nonErrorLoggingCheck) {
             BType inferredType = defineInferredRecordType(mappingConstructor, symTable.readonlyType, data);
 
             if (inferredType == symTable.semanticError) {
@@ -3398,14 +3409,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkExprSilent(BLangExpression expr, BType expType, AnalyzerData data) {
-        boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-        data.nonErrorLoggingCheck = true;
+        boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = true;
         int errorCount = this.dlog.errorCount();
         this.dlog.mute();
 
         BType type = checkExpr(expr, expType, data);
 
-        data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         dlog.setErrorCount(errorCount);
         if (!prevNonErrorLoggingCheck) {
             this.dlog.unmute();
@@ -3534,12 +3545,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
-                                              new Name(String.format("$let_symbol_%d$", data.letCount++)),
+                                              new Name(String.format("$let_symbol_%d$", data.typeCheckingSharableData.letCount++)),
                 data.env.enclPkg.symbol.pkgID, letExpression.getBType(), data.env.scope.owner,
                                               letExpression.pos);
         letExpression.env = SymbolEnv.createExprEnv(letExpression, data.env, letSymbol);
         for (BLangLetVariable letVariable : letExpression.letVarDeclarations) {
-            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letExpression.env);
+            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letExpression.env,
+                    data.typeCheckingSharableData);
         }
         BType exprType = checkExpr(letExpression.expr, letExpression.env, data.expType, data);
         types.checkType(letExpression, exprType, data.expType);
@@ -4722,15 +4734,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType checkAndGetType(BLangExpression expr, SymbolEnv env, BLangBinaryExpr binaryExpr, AnalyzerData data) {
-        boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-        data.nonErrorLoggingCheck = true;
+        boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
         this.dlog.resetErrorCount();
         this.dlog.mute();
 
         expr.cloneAttempt++;
         BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), env, binaryExpr.expectedType, data);
-        data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
         this.dlog.setErrorCount(prevErrorCount);
         if (!prevNonErrorLoggingCheck) {
@@ -4911,14 +4923,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         conversionExpr.targetType = targetType;
 
-        boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-        data.nonErrorLoggingCheck = true;
+        boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
         this.dlog.resetErrorCount();
         this.dlog.mute();
 
         BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), targetType, data);
-        data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
         this.dlog.setErrorCount(prevErrorCount);
 
@@ -4951,7 +4963,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BLangFunction function = bLangLambdaFunction.function;
         symResolver.checkRedeclaredSymbols(bLangLambdaFunction);
 
-        if (!data.nonErrorLoggingCheck) {
+        if (!data.typeCheckingSharableData.nonErrorLoggingCheck) {
             data.env.enclPkg.lambdaFunctions.add(bLangLambdaFunction);
         }
 
@@ -5477,8 +5489,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
-        data.checkWithinQueryExpr = isWithinQuery(data);
+        Types.TypeCheckingSharableData typeCheckerData = data.typeCheckingSharableData;
+        typeCheckerData.checkWithinQueryExpr = !typeCheckerData.checkWithinQueryExpr
+                && isWithinQuery(data);
         visitCheckAndCheckPanicExpr(checkedExpr, data);
+        if (typeCheckerData.checkWithinQueryExpr
+                && typeCheckerData.checkedErrorList != null
+                && checkedExpr.equivalentErrorTypeList != null) {
+            typeCheckerData.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        }
     }
 
     @Override
@@ -5488,24 +5507,29 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
-        if (data.breakToParallelQueryEnv) {
-            data.queryEnvs.push(data.prevEnvs.peek());
+        Types.TypeCheckingSharableData typeCheckerData = data.typeCheckingSharableData;
+        boolean prevCheckWithinQueryExpr = typeCheckerData.checkWithinQueryExpr;
+        typeCheckerData.checkWithinQueryExpr = false;
+        HashSet<BType> prevCheckedErrorList = typeCheckerData.checkedErrorList;
+        typeCheckerData.checkedErrorList = new HashSet<>();
+        if (typeCheckerData.breakToParallelQueryEnv) {
+            typeCheckerData.queryEnvs.push(data.prevEnvs.peek());
         } else {
-            data.queryEnvs.push(data.env);
+            typeCheckerData.queryEnvs.push(data.env);
             data.prevEnvs.push(data.env);
         }
-        data.queryFinalClauses.push(queryExpr.getSelectClause());
+        typeCheckerData.queryFinalClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this, data));
-        BType actualType = resolveQueryType(data.queryEnvs.peek(),
-                                            ((BLangSelectClause) data.queryFinalClauses.peek()).expression,
+        BType actualType = resolveQueryType(typeCheckerData.queryEnvs.peek(),
+                                            ((BLangSelectClause) typeCheckerData.queryFinalClauses.peek()).expression,
                                             collectionNode.getBType(), data.expType, queryExpr, data);
         actualType = (actualType == symTable.semanticError) ? actualType :
                 types.checkType(queryExpr.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-        data.queryFinalClauses.pop();
-        data.queryEnvs.pop();
-        if (!data.breakToParallelQueryEnv) {
+        typeCheckerData.queryFinalClauses.pop();
+        typeCheckerData.queryEnvs.pop();
+        if (!typeCheckerData.breakToParallelQueryEnv) {
             data.prevEnvs.pop();
         }
 
@@ -5518,33 +5542,44 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return;
             }
         }
-        data.checkWithinQueryExpr = false;
+        typeCheckerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
+        typeCheckerData.checkedErrorList = prevCheckedErrorList;
         data.resultType = actualType;
     }
 
     private boolean isWithinQuery(AnalyzerData data) {
-        return !data.queryEnvs.isEmpty() && !data.queryFinalClauses.isEmpty();
+        return !data.typeCheckingSharableData.queryEnvs.isEmpty()
+                && !data.typeCheckingSharableData.queryFinalClauses.isEmpty();
     }
 
     private BType resolveQueryType(SymbolEnv env, BLangExpression selectExp, BType collectionType,
                                    BType targetType, BLangQueryExpr queryExpr, AnalyzerData data) {
-        List<BType> resultTypes = types.getAllTypes(targetType, true).stream()
+        List<BType> safeResultTypes = types.getAllTypes(targetType, true).stream()
                 .filter(t -> !types.isAssignable(t, symTable.errorType))
                 .filter(t -> !types.isAssignable(t, symTable.nilType))
                 .collect(Collectors.toList());
         // resultTypes will be empty if the targetType is `error?`
-        if (resultTypes.isEmpty()) {
-            resultTypes.add(symTable.noType);
+        if (safeResultTypes.isEmpty()) {
+            safeResultTypes.add(symTable.noType);
         }
         BType actualType = symTable.semanticError;
         List<BType> selectTypes = new ArrayList<>();
         List<BType> resolvedTypes = new ArrayList<>();
         BType selectType, resolvedType;
-        for (BType type : resultTypes) {
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(data.typeCheckingSharableData.checkedErrorList);
+
+        for (BType type : safeResultTypes) {
             switch (type.tag) {
                 case TypeTags.ARRAY:
-                    selectType = checkExpr(selectExp, env, ((BArrayType) type).eType, data);
-                    resolvedType = new BArrayType(selectType);
+                    BType elementType = ((BArrayType) type).eType;
+                    if (data.typeCheckingSharableData.checkWithinQueryExpr) {
+                        selectType = checkExpr(selectExp, env, elementType, data);
+                        memberTypes.add(new BArrayType(selectType));
+                        resolvedType = BUnionType.create(null, memberTypes);
+                    } else {
+                        selectType = checkExpr(selectExp, env, elementType, data);
+                        resolvedType = new BArrayType(selectType);
+                    }
                     break;
                 case TypeTags.TABLE:
                     selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
@@ -5581,18 +5616,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         if (selectTypes.size() == 1) {
-            BType errorType = getErrorType(collectionType, queryExpr, data);
+            BType completionType = getCompletionType(collectionType, queryExpr.isStream, data);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
-                return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
+                return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
             } else if (queryExpr.isTable) {
                 actualType = getQueryTableType(queryExpr, selectType);
             } else {
                 actualType = resolvedTypes.get(0);
             }
 
-            if (errorType != null && errorType.tag != TypeTags.NIL) {
-                return BUnionType.create(null, actualType, errorType);
+            if (completionType != null && completionType.tag != TypeTags.NIL) {
+                return BUnionType.create(null, actualType, completionType);
             } else {
                 return actualType;
             }
@@ -5644,14 +5679,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private BType getErrorType(BType collectionType, BLangQueryExpr queryExpr, AnalyzerData data) {
+    private BType getCompletionType(BType collectionType, boolean isStream, AnalyzerData data) {
         if (collectionType.tag == TypeTags.SEMANTIC_ERROR) {
             return null;
         }
-        BType returnType = null, errorType = null;
+        BType returnType = null, completionType = null;
         switch (collectionType.tag) {
             case TypeTags.STREAM:
-                errorType = ((BStreamType) collectionType).completionType;
+                completionType = ((BStreamType) collectionType).completionType;
                 break;
             case TypeTags.OBJECT:
                 returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
@@ -5666,28 +5701,36 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 returnType = types.getResultTypeOfNextInvocation(
                         (BObjectType) Types.getReferredType(invokableSymbol.retType));
         }
-        List<BType> errorTypes = new ArrayList<>();
+        Set<BType> completionTypes = new LinkedHashSet<>();
         if (returnType != null) {
-            types.getAllTypes(returnType, true).stream()
-                    .filter(t -> types.isAssignable(t, symTable.errorType))
-                    .forEach(errorTypes::add);
+            if (isStream) {
+                types.getAllTypes(returnType, true).stream()
+                        .filter(t -> (types.isAssignable(t, symTable.errorType)
+                                || types.isAssignable(t, symTable.nilType)))
+                        .forEach(completionTypes::add);
+            } else {
+                types.getAllTypes(returnType, true).stream()
+                        .filter(t -> types.isAssignable(t, symTable.errorType))
+                        .forEach(completionTypes::add);
+            }
         }
-        if (data.checkWithinQueryExpr && queryExpr.isStream) {
-            if (errorTypes.isEmpty()) {
+
+        if (data.typeCheckingSharableData.checkWithinQueryExpr) {
+            completionTypes.addAll(data.typeCheckingSharableData.checkedErrorList);
+            if (completionTypes.isEmpty()) {
                 // if there's no completion type at this point,
                 // then () gets added as a valid completion type for streams.
-                errorTypes.add(symTable.nilType);
+                completionTypes.add(symTable.nilType);
             }
-            errorTypes.add(symTable.errorType);
         }
-        if (!errorTypes.isEmpty()) {
-            if (errorTypes.size() == 1) {
-                errorType = errorTypes.get(0);
+        if (!completionTypes.isEmpty()) {
+            if (completionTypes.size() == 1) {
+                completionType = completionTypes.iterator().next();
             } else {
-                errorType = BUnionType.create(null, errorTypes.toArray(new BType[0]));
+                completionType = BUnionType.create(null, completionTypes.toArray(new BType[0]));
             }
         }
-        return errorType;
+        return completionType;
     }
 
     private BType getNonContextualQueryType(BType staticType, BType basicType) {
@@ -5714,77 +5757,87 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
-        if (data.breakToParallelQueryEnv) {
-            data.queryEnvs.push(data.prevEnvs.peek());
+        Types.TypeCheckingSharableData typeCheckerData = data.typeCheckingSharableData;
+        HashSet<BType> prevCheckedErrorList = typeCheckerData.checkedErrorList;
+        typeCheckerData.checkedErrorList = new LinkedHashSet<>();
+        if (typeCheckerData.breakToParallelQueryEnv) {
+            typeCheckerData.queryEnvs.push(data.prevEnvs.peek());
         } else {
-            data.queryEnvs.push(data.env);
+            typeCheckerData.queryEnvs.push(data.env);
             data.prevEnvs.push(data.env);
         }
         BLangDoClause doClause = queryAction.getDoClause();
-        data.queryFinalClauses.push(doClause);
+        typeCheckerData.queryFinalClauses.push(doClause);
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
         // Analyze foreach node's statements.
-        semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body, data.queryEnvs.peek()),
-                                     data.prevEnvs);
-        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
+                typeCheckerData.queryEnvs.peek()), data.prevEnvs, typeCheckerData);
+        BType actualType = symTable.nilType;
+        if (!typeCheckerData.checkedErrorList.isEmpty()) {
+            LinkedHashSet<BType> returnTypes = new LinkedHashSet<>();
+            returnTypes.add(symTable.nilType);
+            returnTypes.addAll(typeCheckerData.checkedErrorList);
+            actualType = BUnionType.create(null, returnTypes);
+        }
         data.resultType =
                 types.checkType(doClause.pos, actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
-        data.queryFinalClauses.pop();
-        data.queryEnvs.pop();
-        if (!data.breakToParallelQueryEnv) {
+        typeCheckerData.queryFinalClauses.pop();
+        typeCheckerData.queryEnvs.pop();
+        if (!typeCheckerData.breakToParallelQueryEnv) {
             data.prevEnvs.pop();
         }
+        typeCheckerData.checkedErrorList = prevCheckedErrorList;
     }
 
     @Override
     public void visit(BLangFromClause fromClause, AnalyzerData data) {
-        boolean prevBreakToParallelEnv = data.breakToParallelQueryEnv;
+        boolean prevBreakToParallelEnv = data.typeCheckingSharableData.breakToParallelQueryEnv;
         BLangExpression collection = fromClause.collection;
         if (collection.getKind() == NodeKind.QUERY_EXPR ||
                 (collection.getKind() == NodeKind.GROUP_EXPR
                         && ((BLangGroupExpr) collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
-            data.breakToParallelQueryEnv = true;
+            data.typeCheckingSharableData.breakToParallelQueryEnv = true;
         }
-        SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, data.queryEnvs.pop());
+        SymbolEnv fromEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, data.typeCheckingSharableData.queryEnvs.pop());
         fromClause.env = fromEnv;
-        data.queryEnvs.push(fromEnv);
-        checkExpr(fromClause.collection, data.queryEnvs.peek(), data);
+        data.typeCheckingSharableData.queryEnvs.push(fromEnv);
+        checkExpr(fromClause.collection, data.typeCheckingSharableData.queryEnvs.peek(), data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
-        handleInputClauseVariables(fromClause, data.queryEnvs.peek());
-        data.breakToParallelQueryEnv = prevBreakToParallelEnv;
+        handleInputClauseVariables(fromClause, data.typeCheckingSharableData.queryEnvs.peek());
+        data.typeCheckingSharableData.breakToParallelQueryEnv = prevBreakToParallelEnv;
     }
 
     @Override
     public void visit(BLangJoinClause joinClause, AnalyzerData data) {
-        boolean prevBreakEnv = data.breakToParallelQueryEnv;
+        boolean prevBreakEnv = data.typeCheckingSharableData.breakToParallelQueryEnv;
         BLangExpression collection = joinClause.collection;
         if (collection.getKind() == NodeKind.QUERY_EXPR ||
                 (collection.getKind() == NodeKind.GROUP_EXPR
                         && ((BLangGroupExpr) collection).expression.getKind() == NodeKind.QUERY_EXPR)) {
-            data.breakToParallelQueryEnv = true;
+            data.typeCheckingSharableData.breakToParallelQueryEnv = true;
         }
-        SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, data.queryEnvs.pop());
+        SymbolEnv joinEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, data.typeCheckingSharableData.queryEnvs.pop());
         joinClause.env = joinEnv;
-        data.queryEnvs.push(joinEnv);
-        checkExpr(joinClause.collection, data.queryEnvs.peek(), data);
+        data.typeCheckingSharableData.queryEnvs.push(joinEnv);
+        checkExpr(joinClause.collection, data.typeCheckingSharableData.queryEnvs.peek(), data);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
-        handleInputClauseVariables(joinClause, data.queryEnvs.peek());
+        handleInputClauseVariables(joinClause, data.typeCheckingSharableData.queryEnvs.peek());
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this, data);
         }
-        data.breakToParallelQueryEnv = prevBreakEnv;
+        data.typeCheckingSharableData.breakToParallelQueryEnv = prevBreakEnv;
     }
 
     @Override
     public void visit(BLangLetClause letClause, AnalyzerData data) {
-        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(letClause, data.queryEnvs.pop());
+        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(letClause, data.typeCheckingSharableData.queryEnvs.pop());
         letClause.env = letEnv;
-        data.queryEnvs.push(letEnv);
+        data.typeCheckingSharableData.queryEnvs.push(letEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv);
+            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, data.typeCheckingSharableData);
         }
     }
 
@@ -5795,26 +5848,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangSelectClause selectClause, AnalyzerData data) {
-        SymbolEnv selectEnv = SymbolEnv.createTypeNarrowedEnv(selectClause, data.queryEnvs.pop());
+        SymbolEnv selectEnv = SymbolEnv.createTypeNarrowedEnv(selectClause, data.typeCheckingSharableData.queryEnvs.pop());
         selectClause.env = selectEnv;
-        data.queryEnvs.push(selectEnv);
+        data.typeCheckingSharableData.queryEnvs.push(selectEnv);
     }
 
     @Override
     public void visit(BLangDoClause doClause, AnalyzerData data) {
-        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(doClause, data.queryEnvs.pop());
+        SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(doClause, data.typeCheckingSharableData.queryEnvs.pop());
         doClause.env = letEnv;
-        data.queryEnvs.push(letEnv);
+        data.typeCheckingSharableData.queryEnvs.push(letEnv);
     }
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
-        checkExpr(onConflictClause.expression, data.queryEnvs.peek(), symTable.errorOrNilType, data);
+        checkExpr(onConflictClause.expression, data.typeCheckingSharableData.queryEnvs.peek(), symTable.errorOrNilType, data);
     }
 
     @Override
     public void visit(BLangLimitClause limitClause, AnalyzerData data) {
-        BType exprType = checkExpr(limitClause.expression, data.queryEnvs.peek(), data);
+        BType exprType = checkExpr(limitClause.expression, data.typeCheckingSharableData.queryEnvs.peek(), data);
         if (!types.isAssignable(exprType, symTable.intType)) {
             dlog.error(limitClause.expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.intType, exprType);
@@ -5824,13 +5877,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangOnClause onClause, AnalyzerData data) {
         BType lhsType, rhsType;
-        BLangNode joinNode = getLastInputNodeFromEnv(data.queryEnvs.peek());
+        BLangNode joinNode = getLastInputNodeFromEnv(data.typeCheckingSharableData.queryEnvs.peek());
         // lhsExprEnv should only contain scope entries before join condition.
-        onClause.lhsEnv = getEnvBeforeInputNode(data.queryEnvs.peek(), joinNode);
+        onClause.lhsEnv = getEnvBeforeInputNode(data.typeCheckingSharableData.queryEnvs.peek(), joinNode);
         lhsType = checkExpr(onClause.lhsExpr, onClause.lhsEnv, data);
         // rhsExprEnv should only contain scope entries after join condition.
-        onClause.rhsEnv = getEnvAfterJoinNode(data.queryEnvs.peek(), joinNode);
-        rhsType = checkExpr(onClause.rhsExpr, onClause.rhsEnv != null ? onClause.rhsEnv : data.queryEnvs.peek(), data);
+        onClause.rhsEnv = getEnvAfterJoinNode(data.typeCheckingSharableData.queryEnvs.peek(), joinNode);
+        rhsType = checkExpr(onClause.rhsExpr, onClause.rhsEnv != null ? onClause.rhsEnv : data.typeCheckingSharableData.queryEnvs.peek(), data);
         if (!types.isAssignable(lhsType, rhsType)) {
             dlog.error(onClause.rhsExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsType, rhsType);
         }
@@ -5838,7 +5891,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangOrderByClause orderByClause, AnalyzerData data) {
-        orderByClause.env = data.queryEnvs.peek();
+        orderByClause.env = data.typeCheckingSharableData.queryEnvs.peek();
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), orderByClause.env, data);
             if (!types.isOrderedType(exprType, false)) {
@@ -5859,15 +5912,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private SymbolEnv handleFilterClauses (BLangExpression filterExpression, AnalyzerData data) {
-        checkExpr(filterExpression, data.queryEnvs.peek(), symTable.booleanType, data);
+        checkExpr(filterExpression, data.typeCheckingSharableData.queryEnvs.peek(), symTable.booleanType, data);
         BType actualType = filterExpression.getBType();
         if (TypeTags.TUPLE == actualType.tag) {
             dlog.error(filterExpression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, data.queryFinalClauses.peek(),
-                                                         data.queryEnvs.pop());
-        data.queryEnvs.push(filterEnv);
+        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, data.typeCheckingSharableData.queryFinalClauses.peek(),
+                                                         data.typeCheckingSharableData.queryEnvs.pop());
+        data.typeCheckingSharableData.queryEnvs.push(filterEnv);
         return filterEnv;
     }
 
@@ -6037,8 +6090,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private BType getCandidateType(BLangCheckedExpr checkedExpr, BType checkExprCandidateType, AnalyzerData data) {
-        boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-        data.nonErrorLoggingCheck = true;
+        boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
         this.dlog.resetErrorCount();
         this.dlog.mute();
@@ -6051,7 +6104,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             rhsType = checkExpr(clone, checkExprCandidateType, data);
         }
-        data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         this.dlog.setErrorCount(prevErrorCount);
         if (!prevNonErrorLoggingCheck) {
             this.dlog.unmute();
@@ -7292,7 +7345,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         BLangExpression exprToCheck = valueExpr;
-        if (data.nonErrorLoggingCheck) {
+        if (data.typeCheckingSharableData.nonErrorLoggingCheck) {
             exprToCheck = nodeCloner.cloneNode(valueExpr);
         } else {
             ((BLangNode) field).setBType(fieldType);
@@ -9201,12 +9254,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public static class AnalyzerData {
         public SymbolEnv env;
         boolean isTypeChecked;
-        Stack<SymbolEnv> queryEnvs, prevEnvs;
-        Stack<BLangNode> queryFinalClauses;
-        boolean nonErrorLoggingCheck = false;
-        boolean checkWithinQueryExpr = false;
-        boolean breakToParallelQueryEnv = false;
-        int letCount = 0;
+        Stack<SymbolEnv> prevEnvs;
+        Types.TypeCheckingSharableData typeCheckingSharableData = new Types.TypeCheckingSharableData();
         DiagnosticCode diagCode;
         BType expType;
         BType resultType;
