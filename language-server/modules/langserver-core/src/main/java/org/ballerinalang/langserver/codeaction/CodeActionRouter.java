@@ -76,6 +76,7 @@ public class CodeActionRouter {
             NodeBasedPositionDetails posDetails = NodeBasedPositionDetailsImpl.PositionDetailsBuilder.newBuilder()
                     .setTopLevelNodeType(matchedTypeSymbol)
                     .setTopLevelNode(codeActionNode.get())
+                    .setCodeActionNode(codeActionNode.get())
                     .setDocumentableNode(analyzer.getDocumentableNode().orElse(null))
                     .setEnclosingDocumentableNode(analyzer.getEnclosingDocumentableNode().orElse(null))
                     .setStatementNode(analyzer.getStatementNode().orElse(null))

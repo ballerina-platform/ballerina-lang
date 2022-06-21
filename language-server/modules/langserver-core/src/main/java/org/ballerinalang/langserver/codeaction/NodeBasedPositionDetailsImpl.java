@@ -64,6 +64,7 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
     public NonTerminalNode matchedStatementNode() {
         return matchedStmtNode;
     }
+    
     @Override
     public NonTerminalNode matchedCodeActionNode() {
         return matchedCodeActionNode;
