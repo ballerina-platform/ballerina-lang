@@ -17517,7 +17517,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
-                startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+                startContext(ParserRuleContext.TUPLE_MEMBERS);
                 STNode memberTypeDescs = STNodeFactory.createNodeList(getTupleMemberList(members));
                 STNode tupleTypeDesc =
                         STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
