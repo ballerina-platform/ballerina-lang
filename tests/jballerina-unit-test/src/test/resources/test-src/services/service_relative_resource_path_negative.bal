@@ -38,3 +38,14 @@ service on new Listener() {
     resource function get fd/[string ...e]/fdfd/[int ...f] () {
     }
 }
+
+service on new Listener() {
+    resource function get limit/[int id] () {
+    }
+
+    resource function get /limit/[int id] () {
+    }
+
+    resource function get foo/limit/[int id] () {
+    }
+}
