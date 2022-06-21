@@ -3504,13 +3504,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
-    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessAct, AnalyzerData data) {
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation, AnalyzerData data) {
         // Find the lhs expression type
-        checkExpr(resourceAccessAct.expr, data);
-        BType lhsExprType = resourceAccessAct.expr.getBType();
+        checkExpr(resourceAccessInvocation.expr, data);
+        BType lhsExprType = resourceAccessInvocation.expr.getBType();
         
         if (lhsExprType.tag != TypeTags.OBJECT || !Symbols.isFlagOn(lhsExprType.tsymbol.flags, Flags.CLIENT)) {
-            dlog.error(resourceAccessAct.expr.pos, 
+            dlog.error(resourceAccessInvocation.expr.pos, 
                     DiagnosticErrorCode.CLIENT_RESOURCE_ACCESS_ACTION_IS_ONLY_ALLOWED_ON_CLIENT_OBJECTS);
             data.resultType = symTable.semanticError;
             return;
@@ -3518,7 +3518,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         
         BObjectTypeSymbol objectTypeSym = (BObjectTypeSymbol) lhsExprType.tsymbol;
 
-        validateResourceAccessPathSegmentTypes(resourceAccessAct.resourceAccessPathSegments, data);
+        validateResourceAccessPathSegmentTypes(resourceAccessInvocation.resourceAccessPathSegments, data);
                 
         // Filter all the resource methods defined on target resource path
         List<BResourceFunction> resourceFunctions = new ArrayList<>();
@@ -3527,7 +3527,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (Symbols.isResource(targetFunc.symbol)) {
                 BResourceFunction resourceFunction = (BResourceFunction) targetFunc;
                 BLangExpression clonedResourceAccPathSeg = 
-                        nodeCloner.cloneNode(resourceAccessAct.resourceAccessPathSegments);
+                        nodeCloner.cloneNode(resourceAccessInvocation.resourceAccessPathSegments);
                 BType resolvedType = checkExprSilent(clonedResourceAccPathSeg, resourceFunction.resourcePathType, data);
                 if (resolvedType != symTable.semanticError) {
                     resourceFunctions.add(resourceFunction);
@@ -3536,27 +3536,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         
         if (resourceFunctions.size() == 0) {
-            dlog.error(resourceAccessAct.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE);
+            dlog.error(resourceAccessInvocation.resourceAccessPathSegments.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE);
             data.resultType = symTable.semanticError;
             return;
         }
         
         // Filter the resource methods in the list by resource access method name
-        resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessAct.name.value));
+        resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessInvocation.name.value));
         
         if (resourceFunctions.size() == 0) {
-            dlog.error(resourceAccessAct.pos, DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessAct.name);
+            dlog.error(resourceAccessInvocation.pos, 
+                    DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name);
             data.resultType = symTable.semanticError;
             return;
         } else if (resourceFunctions.size() > 1) {
-            dlog.error(resourceAccessAct.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED);
+            dlog.error(resourceAccessInvocation.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED);
             data.resultType = symTable.semanticError;
             return;
         }
 
         BResourceFunction targetResourceFunc = resourceFunctions.get(0);
-        checkExpr(resourceAccessAct.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
-        checkResourceAccessParamAndReturnType(resourceAccessAct, targetResourceFunc, data);
+        checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
+        checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
     }
     
     public void validateResourceAccessPathSegmentTypes(BLangListConstructorExpr rAPathSegments, AnalyzerData data) {
@@ -3583,9 +3584,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
     
-    public void checkResourceAccessParamAndReturnType(BLangInvocation.BLangResourceAccessInvocation resourceAccessAct, 
+    public void checkResourceAccessParamAndReturnType(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvoc,
                                                       BResourceFunction targetResourceFunc, AnalyzerData data) {
-        resourceAccessAct.symbol = targetResourceFunc.symbol;
+        resourceAccessInvoc.symbol = targetResourceFunc.symbol;
         // targetResourceFunc params will contain path params and rest path params as well, 
         // hence we need to remove path params from the list before calling to `checkInvocationParamAndReturnType` 
         // method otherwise we get `missing required parameter` error
@@ -3597,7 +3598,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         params.addAll(originalInvocableSymParamTypes.subList(pathParamCount, originalInvocableSymParamTypes.size()));
         ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = params;
 
-        checkInvocationParamAndReturnType(resourceAccessAct, data);
+        checkInvocationParamAndReturnType(resourceAccessInvoc, data);
 
         ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = originalInvocableSymParamTypes;
     }

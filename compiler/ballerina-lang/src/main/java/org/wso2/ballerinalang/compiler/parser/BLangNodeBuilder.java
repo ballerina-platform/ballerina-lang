@@ -759,12 +759,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
                     tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
                     break;
+                case DOT_TOKEN:
+                    bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
+                    break;
                 default:
                     bLFunction.resourcePath.add(createIdentifier((Token) pathSegment));
-                    if (pathSegment.kind() == SyntaxKind.DOT_TOKEN) {
-                        break;
-                    }
-                    
                     BLangFiniteTypeNode bLangFiniteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                     BLangLiteral simpleLiteral = createSimpleLiteral(pathSegment, true);
                     bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
