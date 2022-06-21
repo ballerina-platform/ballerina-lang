@@ -25,6 +25,5 @@ import ballerina/jballerina.java;
 # + args - the arguments to be passed to the function
 # + return - the return value of the call to the function
 public isolated function call(@isolatedParam function func, any|error... args) returns any|error = @java:Method {
-    'class: "org.ballerinalang.langlib.function.Call",
-     name: "call"
+    'class: "org.ballerinalang.langlib.function.Call"
 } external;
