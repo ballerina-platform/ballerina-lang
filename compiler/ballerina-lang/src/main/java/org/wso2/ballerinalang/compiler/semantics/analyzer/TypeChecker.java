@@ -6783,12 +6783,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             requiredParams.add(nonRestParam);
         }
 
-        List<String> includedRecordParamNames = new ArrayList<>(incRecordParams.size());
+        List<String> includedRecordParamFieldNames = new ArrayList<>(incRecordParams.size());
         for (BVarSymbol incRecordParam : incRecordParams) {
             if (Symbols.isFlagOn(Flags.asMask(incRecordParam.getFlags()), Flags.REQUIRED)) {
                 requiredIncRecordParams.add(incRecordParam);
             }
-            includedRecordParamNames.add(incRecordParam.name.value);
+            includedRecordParamFieldNames.add(incRecordParam.name.value);
         }
 
         HashSet<String> includedRecordFields = new HashSet<>();
@@ -6821,7 +6821,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
                     if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
-                        populateIncludedRecordParams(param, includedRecordFields, includedRecordParamNames);
+                        populateIncludedRecordParams(param, includedRecordFields, includedRecordParamFieldNames);
                     }
                     checkTypeParamExpr(arg, param.type, iExpr.langLibInvocation, data);
                     valueProvidedParams.add(param);
@@ -6843,7 +6843,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     break;
                 }
                 if (Symbols.isFlagOn(varSym.flags, Flags.INCLUDED)) {
-                    populateIncludedRecordParams(varSym, includedRecordFields, includedRecordParamNames);
+                    populateIncludedRecordParams(varSym, includedRecordFields, includedRecordParamFieldNames);
                 } else {
                     namedArgs.add(arg);
                 }
@@ -7040,8 +7040,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private void populateIncludedRecordParams(BVarSymbol param, HashSet<String> includedRecordFields,
                                               List<String> includedRecordParamNames) {
         Set<String> fields = ((BRecordType) Types.getReferredType(param.type)).fields.keySet();
-        fields.removeIf(field -> !includedRecordParamNames.contains(field));
-        includedRecordFields.addAll(fields);
+        for (String field : fields) {
+            if (includedRecordParamNames.contains(field)) {
+                includedRecordFields.add(field);
+            }
+        }
     }
 
     // If there is a named-arg or positional-arg corresponding to an included-record-param,

@@ -236,6 +236,11 @@ public class FunctionWithIncludedRecordParam {
         BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters23");
     }
 
+    @Test
+    public void testFuctionWithIncludedRecordParameters24() {
+        BRunUtil.invoke(result, "testFuctionWithIncludedRecordParameters24");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
