@@ -82,7 +82,7 @@ public class DebugCompletionTest extends BaseTestCase {
         // Debug completions test at the end of the main() method.
         assertCompletionSuggestions();
         completions = debugTestRunner.fetchCompletions(debugHitInfo.getRight(), "");
-        Assert.assertEquals(completions.size(), 41);
+        Assert.assertEquals(completions.size(), 42);
     }
 
     private void assertCompletionSuggestions() throws BallerinaTestException {
