@@ -166,16 +166,6 @@ public class Types {
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
 
-    public static class TypeCheckingSharableData {
-        Stack<SymbolEnv> queryEnvs = new Stack<>();
-        Stack<BLangNode> queryFinalClauses = new Stack<>();
-        boolean checkWithinQueryExpr = false;
-        HashSet<BType> checkedErrorList = new HashSet<>();
-        boolean breakToParallelQueryEnv = false;
-        int letCount = 0;
-        boolean nonErrorLoggingCheck = false;
-    }
-
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
         if (types == null) {
@@ -7059,5 +7049,18 @@ public class Types {
         NEVER,
         ANYDATA,
         JSON
+    }
+
+    /**
+     * Holds sharable analyzer data between {@link TypeChecker} and {@link SemanticAnalyzer}.
+     */
+    public static class TypeCheckingSharableData {
+        Stack<SymbolEnv> queryEnvs = new Stack<>();
+        Stack<BLangNode> queryFinalClauses = new Stack<>();
+        boolean checkWithinQueryExpr = false;
+        HashSet<BType> checkedErrorList = new HashSet<>();
+        boolean breakToParallelQueryEnv = false;
+        int letCount = 0;
+        boolean nonErrorLoggingCheck = false;
     }
 }

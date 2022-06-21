@@ -145,33 +145,57 @@ public class ErrorQueryTest {
     @Test(description = "Test negative scenarios for different constructors with queries")
     public void testNegativeScenarios() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found 'stream<int>'", 84, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found 'stream<int,CustomError?>'", 91, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found 'stream<int,CustomError?>'", 95, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found 'stream<int,CustomError?>'", 105, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found 'stream<int,CustomError?>'", 109, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found 'stream<int,CustomError?>'", 113, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found 'stream<int,CustomError?>'", 118, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', found 'stream<int,(CustomError|error)?>'", 123, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', found 'stream<int,error>'", 127, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
+                "found 'stream<int>'", 84, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
+                "found 'stream<int,CustomError?>'", 91, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
+                "found 'stream<int,CustomError?>'", 95, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
+                "found 'stream<int,CustomError?>'", 105, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
+                "found 'stream<int,CustomError?>'", 109, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
+                "found 'stream<int,CustomError?>'", 113, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
+                "found 'stream<int,CustomError?>'", 118, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
+                "found 'stream<int,(CustomError|error)?>'", 123, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
+                "found 'stream<int,error>'", 127, 21);
 
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', found '(table<Customer> key(id)|error)'", 136, 36);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', found '(table<Customer> key(id)|error)'", 143, 36);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', found '(table<Customer> key(id)|error)'", 148, 36);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(CustomerTable|CustomError)', found '(table<Customer> key(id)|error|CustomError)'", 152, 48);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', " +
+                "found '(table<Customer> key(id)|error)'", 136, 36);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', " +
+                "found '(table<Customer> key(id)|error)'", 143, 36);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', " +
+                "found '(table<Customer> key(id)|error)'", 148, 36);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(CustomerTable|CustomError)', " +
+                "found '(table<Customer> key(id)|error|CustomError)'", 152, 48);
 
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(int[]|CustomError)'", 161, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(int[]|CustomError)'", 171, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(int[]|CustomError)'", 175, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(CustomError|int[])'", 179, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(int[]|error)'", 192, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(int[]|error)'", 196, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
+                "found '(int[]|CustomError)'", 161, 18);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
+                "found '(int[]|CustomError)'", 171, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
+                "found '(int[]|CustomError)'", 175, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
+                "found '(CustomError|int[])'", 179, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
+                "found '(int[]|error)'", 192, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
+                "found '(int[]|error)'", 196, 15);
 
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|error)'", 206, 13);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|error)'", 210, 13);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|CustomError)'", 214, 13);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: '(xml[]|error)' is not an iterable collection", 219, 30);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|error)'", 224, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml|error)'", 206, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml|error)'", 210, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml|CustomError)'", 214, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: '(xml[]|error)' " +
+                "is not an iterable collection", 219, 30);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
+                "found '(xml|error)'", 224, 13);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

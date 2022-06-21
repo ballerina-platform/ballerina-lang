@@ -3545,7 +3545,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public void visit(BLangLetExpression letExpression, AnalyzerData data) {
         BLetSymbol letSymbol = new BLetSymbol(SymTag.LET, Flags.asMask(new HashSet<>(Lists.of())),
-                                              new Name(String.format("$let_symbol_%d$", data.typeCheckingSharableData.letCount++)),
+                                              new Name(String.format("$let_symbol_%d$",
+                                                      data.typeCheckingSharableData.letCount++)),
                 data.env.enclPkg.symbol.pkgID, letExpression.getBType(), data.env.scope.owner,
                                               letExpression.pos);
         letExpression.env = SymbolEnv.createExprEnv(letExpression, data.env, letSymbol);
@@ -5848,7 +5849,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangSelectClause selectClause, AnalyzerData data) {
-        SymbolEnv selectEnv = SymbolEnv.createTypeNarrowedEnv(selectClause, data.typeCheckingSharableData.queryEnvs.pop());
+        SymbolEnv selectEnv = SymbolEnv.createTypeNarrowedEnv(selectClause,
+                data.typeCheckingSharableData.queryEnvs.pop());
         selectClause.env = selectEnv;
         data.typeCheckingSharableData.queryEnvs.push(selectEnv);
     }
@@ -5862,7 +5864,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
-        checkExpr(onConflictClause.expression, data.typeCheckingSharableData.queryEnvs.peek(), symTable.errorOrNilType, data);
+        checkExpr(onConflictClause.expression, data.typeCheckingSharableData.queryEnvs.peek(),
+                symTable.errorOrNilType, data);
     }
 
     @Override
@@ -5883,7 +5886,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         lhsType = checkExpr(onClause.lhsExpr, onClause.lhsEnv, data);
         // rhsExprEnv should only contain scope entries after join condition.
         onClause.rhsEnv = getEnvAfterJoinNode(data.typeCheckingSharableData.queryEnvs.peek(), joinNode);
-        rhsType = checkExpr(onClause.rhsExpr, onClause.rhsEnv != null ? onClause.rhsEnv : data.typeCheckingSharableData.queryEnvs.peek(), data);
+        rhsType = checkExpr(onClause.rhsExpr,
+                onClause.rhsEnv != null ? onClause.rhsEnv : data.typeCheckingSharableData.queryEnvs.peek(), data);
         if (!types.isAssignable(lhsType, rhsType)) {
             dlog.error(onClause.rhsExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, lhsType, rhsType);
         }
@@ -5918,8 +5922,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             dlog.error(filterExpression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression, data.typeCheckingSharableData.queryFinalClauses.peek(),
-                                                         data.typeCheckingSharableData.queryEnvs.pop());
+        SymbolEnv filterEnv = typeNarrower.evaluateTruth(filterExpression,
+                data.typeCheckingSharableData.queryFinalClauses.peek(),
+                data.typeCheckingSharableData.queryEnvs.pop());
         data.typeCheckingSharableData.queryEnvs.push(filterEnv);
         return filterEnv;
     }

@@ -132,9 +132,9 @@ class _InitFunction {
     }
 
     public function process() returns _Frame|error? {
-        any|error col = self.collection;
-        if(col is error) {
-            return col;
+        any|error collection = self.collection;
+        if(collection is error) {
+            return collection;
         }
         _Iterator i = <_Iterator>self.itr;
         record {|(any|error) value;|}|error? v = i.next();
