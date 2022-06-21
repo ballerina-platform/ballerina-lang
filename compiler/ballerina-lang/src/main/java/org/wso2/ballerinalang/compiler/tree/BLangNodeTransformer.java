@@ -160,6 +160,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1029,6 +1030,10 @@ public abstract class BLangNodeTransformer<T, R> {
     }
 
     public R transform(BLangValueType node, T data) {
+        return transformNode(node, data);
+    }
+
+    public R transform(BLangMemberTypeNode node, T data) {
         return transformNode(node, data);
     }
 }

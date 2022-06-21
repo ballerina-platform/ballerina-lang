@@ -244,6 +244,7 @@ public enum NodeKind {
     ERROR_TYPE,
     STREAM_TYPE,
     TABLE_TYPE,
+    MEMBER_TYPE,
 
     /* Internal */
     NODE_ENTRY
