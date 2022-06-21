@@ -278,10 +278,8 @@ public class RunCommandTest extends BaseCommandTest {
         new CommandLine(runCommand).parseArgs("--dump-graph");
         runCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
-        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertEquals(dependencyGraphLog, getOutput("dump-graph-output.txt"));
-        Assert.assertEquals(buildLog, getOutput("run-bal-project-with-dump-graph.txt"));
+        Assert.assertEquals(buildLog, getOutput("run-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
@@ -300,17 +298,12 @@ public class RunCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
-
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         new CommandLine(runCommand).parseArgs("--dump-raw-graphs");
         runCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
-        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertEquals(dependencyGraphLog, getOutput("dump-raw-graphs-output.txt"));
-        Assert.assertEquals(buildLog, getOutput("run-bal-project-with-dump-graph.txt"));
+        Assert.assertEquals(buildLog, getOutput("run-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());

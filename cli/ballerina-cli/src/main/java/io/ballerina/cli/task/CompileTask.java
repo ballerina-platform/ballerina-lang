@@ -23,6 +23,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -82,7 +83,11 @@ public class CompileTask implements Task {
                 this.out.println("Resolving dependencies");
             }
 
-            project.currentPackage().getResolution();
+            PackageResolution packageResolution = project.currentPackage().getResolution();
+
+            if(project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                packageResolution.dumpGraphs(out);
+            }
 
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
@@ -104,7 +109,15 @@ public class CompileTask implements Task {
                 }
             }
 
-            project.currentPackage().getCompilation();
+            if (packageResolution != project.currentPackage().getResolution()) {
+                packageResolution = project.currentPackage().getResolution();
+                if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                    packageResolution.dumpGraphs(out);
+                }
+            }
+            if (project.currentPackage().compilationOptions().dumpGraph()) {
+                packageResolution.dumpGraphs(out);
+            }
 
             // Print diagnostics and exit when version incompatibility issues are found in package resolution.
             if (project.currentPackage().getResolution().diagnosticResult().hasErrors()) {

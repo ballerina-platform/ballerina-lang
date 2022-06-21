@@ -21,14 +21,11 @@ package io.ballerina.cli.cmd;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import picocli.CommandLine;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -42,14 +39,12 @@ import java.util.Objects;
  * @since 2201.2.0
  */
 public class GraphCommandTest extends BaseCommandTest {
-    private ByteArrayOutputStream outStream;
     private Path testResources;
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         this.testResources = super.tmpDir.resolve("build-test-resources");
-        setByteArrayOutputStream();
         try {
             copyTestResourcesToTmpDir();
         } catch (URISyntaxException e) {
@@ -57,12 +52,6 @@ public class GraphCommandTest extends BaseCommandTest {
             return;
         }
         compileAndCacheTestDependencies();
-    }
-
-    @AfterMethod
-    private void resetOutStream() throws IOException {
-        this.outStream.close();
-        setByteArrayOutputStream();
     }
 
     @Test(description = "Print the dependency graph of a valid single ballerina file with no dependencies")
@@ -74,7 +63,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(validBalFilePath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-file-with-no-dependencies.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -87,7 +76,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(balFilePath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-file-with-dependencies.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -100,7 +89,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(balProjectPath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-with-no-dependencies.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -113,7 +102,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(balProjectPath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-with-dependencies.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -126,7 +115,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs("--dump-raw-graphs", balFilePath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-file-with-dump-raw-graphs.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -139,7 +128,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs("--dump-raw-graphs", balProjectPath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-with-dump-raw-graphs.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -153,7 +142,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(nonBalFilePath.toString());
         graphCommand.execute();
 
-        String buildLog = readFormattedBuildOutput();
+        String buildLog = readFormattedOutput();
         String expectedLog = "ballerina: Invalid Ballerina source file(.bal): " + nonBalFilePath;
         Assert.assertEquals(buildLog, expectedLog);
     }
@@ -166,7 +155,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(nonExistingBalFilePath.toString());
         graphCommand.execute();
 
-        String buildLog = readFormattedBuildOutput();
+        String buildLog = readFormattedOutput();
         String expectedLog = "ballerina: The file does not exist: " + nonExistingBalFilePath;
         Assert.assertEquals(buildLog, expectedLog);
     }
@@ -180,7 +169,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(noEntryBalFilePath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-file-with-no-dependencies.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -193,7 +182,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(emptyPackagePath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedBuildOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = "ballerina: package is empty. Please add at least one .bal file.";
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -206,7 +195,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(balProjectWithTestsPath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-with-tests.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -223,7 +212,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(balProjectWithSticky.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-without-sticky.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -239,11 +228,10 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs("--sticky", balProjectWithSticky.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-with-sticky.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
-
 
     @Test(description = "Print the dependency graph of a ballerina project with a minor version dependency conflict")
     public void testPrintGraphForBalProjectWithMinorVersionDependencyConflict() throws IOException {
@@ -257,7 +245,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(balProjectWithSticky.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-minor-conflict.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -273,7 +261,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(balProjectWithSticky.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-major-conflict.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -291,7 +279,7 @@ public class GraphCommandTest extends BaseCommandTest {
         new CommandLine(graphCommand).parseArgs(noPermissionBalFilePath.toString());
         graphCommand.execute();
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-file-with-no-dependencies.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -307,7 +295,7 @@ public class GraphCommandTest extends BaseCommandTest {
         graphCommand.execute();
 
         // dependency graph without package_z should be received.
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-missing-dir-dep.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -333,7 +321,7 @@ public class GraphCommandTest extends BaseCommandTest {
                     "to: cannot resolve module foo/package_z:0.1.0");
         }
 
-        String actualLog = readFormattedGraphOutput();
+        String actualLog = readFormattedOutput();
         String expectedLog = CommandOutputUtils.getOutput("graph-for-bal-project-missing-trans-dep.txt");
         Assert.assertEquals(actualLog, expectedLog);
     }
@@ -358,16 +346,7 @@ public class GraphCommandTest extends BaseCommandTest {
         BCompileUtil.compileAndCacheBala(dependencyConflictPath.resolve("package_o_2_1_0").toString());
     }
 
-    private String readFormattedGraphOutput() {
-        return this.outStream.toString().replaceAll("\n\t\n", "\n\n").replaceAll("\r", "").strip();
-    }
-
-    private String readFormattedBuildOutput() throws IOException {
-        return readOutput(true).replaceAll("\r", "").strip();
-    }
-
-    private void setByteArrayOutputStream() {
-        outStream = new java.io.ByteArrayOutputStream();
-        System.setOut(new PrintStream(outStream));
+    private String readFormattedOutput() throws IOException {
+        return readOutput(true).replaceAll("\n\t\n", "\n\n").replaceAll("\r", "").strip();
     }
 }

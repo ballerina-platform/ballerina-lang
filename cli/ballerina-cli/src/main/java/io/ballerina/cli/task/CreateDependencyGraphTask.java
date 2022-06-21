@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -37,9 +38,11 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
  * @since 2201.2.0
  */
 public class CreateDependencyGraphTask implements Task {
+    private final transient PrintStream out;
     private final transient PrintStream err;
 
-    public CreateDependencyGraphTask(PrintStream err) {
+    public CreateDependencyGraphTask(PrintStream err, PrintStream out) {
+        this.out = out;
         this.err = err;
     }
 
@@ -51,7 +54,11 @@ public class CreateDependencyGraphTask implements Task {
         try {
             List<Diagnostic> diagnostics = new ArrayList<>();
 
-            project.currentPackage().getResolution();
+            PackageResolution packageResolution = project.currentPackage().getResolution();
+
+            if(project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                packageResolution.dumpGraphs(out);
+            }
 
             // run built-in code generator compiler plugins
             // Errors in package resolution denotes version incompatibility errors.
@@ -64,6 +71,16 @@ public class CreateDependencyGraphTask implements Task {
                         diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
                     }
                 }
+            }
+
+            if (packageResolution != project.currentPackage().getResolution()) {
+                packageResolution = project.currentPackage().getResolution();
+                if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                    packageResolution.dumpGraphs(out);
+                }
+            }
+            if (project.currentPackage().compilationOptions().dumpGraph()) {
+                packageResolution.dumpGraphs(out);
             }
 
             if (isResolutionErroneous(project)) {

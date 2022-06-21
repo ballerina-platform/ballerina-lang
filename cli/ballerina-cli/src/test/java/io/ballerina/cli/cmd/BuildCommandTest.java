@@ -790,17 +790,12 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
-
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs("--dump-graph");
         buildCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
-        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertEquals(dependencyGraphLog, getOutput("dump-graph-output.txt"));
-        Assert.assertEquals(buildLog, getOutput("build-bal-project-with-dump-graph.txt"));
+        Assert.assertEquals(buildLog, getOutput("build-project-with-dump-graph.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
@@ -819,17 +814,12 @@ public class BuildCommandTest extends BaseCommandTest {
         Path projectPath = dumpGraphResourcePath.resolve("package_a");
         System.setProperty("user.dir", projectPath.toString());
 
-        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
-        System.setOut(new java.io.PrintStream(out));
-
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs("--dump-raw-graphs");
         buildCommand.execute();
         String buildLog = readOutput(true).replaceAll("\r", "").strip();
-        String dependencyGraphLog = out.toString().replaceAll("\r", "").strip();
 
-        Assert.assertEquals(dependencyGraphLog, getOutput("dump-raw-graphs-output.txt"));
-        Assert.assertEquals(buildLog, getOutput("build-bal-project-with-dump-graph.txt"));
+        Assert.assertEquals(buildLog, getOutput("build-project-with-dump-raw-graphs.txt"));
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("package_a").resolve("0.1.0").resolve("java11")
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());

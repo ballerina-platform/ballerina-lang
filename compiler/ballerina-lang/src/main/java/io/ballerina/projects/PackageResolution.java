@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -74,6 +75,7 @@ public class PackageResolution {
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
     private boolean autoUpdate;
+    private String dependencyGraphDump;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
@@ -126,6 +128,15 @@ public class PackageResolution {
                 .filter(resolvedPkg -> resolvedPkg.packageId() != rootPackageContext.packageId())
                 .collect(Collectors.toList());
         return dependenciesWithTransitives;
+    }
+
+    /**
+     * Print the final dependency graph to a user provided print stream.
+     *
+     * @param printStream user provided print stream.
+     */
+    public void dumpGraphs(PrintStream printStream) {
+        printStream.append(this.dependencyGraphDump);
     }
 
     PackageContext packageContext() {
@@ -270,6 +281,7 @@ public class PackageResolution {
                 blendedManifest, packageResolver, moduleResolver, resolutionOptions);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
+        this.dependencyGraphDump = resolutionEngine.dumpGraphs();
 
         diagnosticList.addAll(resolutionEngine.diagnosticResult().allDiagnostics);
 
