@@ -5573,7 +5573,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 default:
                     // contextually expected type not given (i.e var).
                     selectType = checkExpr(selectExp, env, type, data);
-                    resolvedType = getNonContextualQueryType(queryExpr, selectType, collectionType);
+
+                    if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
+                        resolvedType = symTable.mapType;
+                    } else {
+                        resolvedType = getNonContextualQueryType(selectType, collectionType);
+                    }
                     break;
             }
             if (selectType != symTable.semanticError) {
@@ -5744,11 +5749,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return errorType;
     }
 
-    private BType getNonContextualQueryType(BLangQueryExpr queryExpr, BType staticType, BType basicType) {
-        if (queryExpr.isMap) {
-            return symTable.mapType;
-        }
-
+    private BType getNonContextualQueryType(BType staticType, BType basicType) {
         BType resultType;
         switch (basicType.tag) {
             case TypeTags.TABLE:
