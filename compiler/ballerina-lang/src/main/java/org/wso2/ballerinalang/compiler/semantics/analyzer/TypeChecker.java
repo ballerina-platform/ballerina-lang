@@ -7617,15 +7617,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BLangExpression> tempConcatExpressions = new ArrayList<>();
 
         for (BLangExpression expr : exprs) {
-            boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-            data.nonErrorLoggingCheck = true;
+            boolean prevNonErrorLoggingCheck = data.typeCheckingSharableData.nonErrorLoggingCheck;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = true;
             int prevErrorCount = this.dlog.errorCount();
             this.dlog.resetErrorCount();
             this.dlog.mute();
 
             BType exprType = checkExpr(nodeCloner.cloneNode(expr), xmlElementEnv, symTable.xmlType, data);
 
-            data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+            data.typeCheckingSharableData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
             int errorCount = this.dlog.errorCount();
             this.dlog.setErrorCount(prevErrorCount);
 
