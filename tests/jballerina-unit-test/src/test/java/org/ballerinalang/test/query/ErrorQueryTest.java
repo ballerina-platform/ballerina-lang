@@ -127,6 +127,21 @@ public class ErrorQueryTest {
         BRunUtil.invoke(result, "testErrorReturnedFromOrderByClause");
     }
 
+    @Test
+    public void testErrorReturnedFromStream() {
+        BRunUtil.invoke(result, "testErrorReturnedFromStream");
+    }
+
+    @Test
+    public void testErrorReturnedFromTable() {
+        BRunUtil.invoke(result, "testErrorReturnedFromTable");
+    }
+
+    @Test
+    public void testErrorReturnedFromXml() {
+        BRunUtil.invoke(result, "testErrorReturnedFromXml");
+    }
+
     @Test(description = "Test negative scenarios for different constructors with queries")
     public void testNegativeScenarios() {
         int i = 0;
@@ -151,6 +166,12 @@ public class ErrorQueryTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(CustomError|int[])'", 179, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(int[]|error)'", 192, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '(int[]|error)'", 196, 15);
+
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|error)'", 206, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|error)'", 210, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|CustomError)'", 214, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: '(xml[]|error)' is not an iterable collection", 219, 30);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', found '(xml|error)'", 224, 13);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

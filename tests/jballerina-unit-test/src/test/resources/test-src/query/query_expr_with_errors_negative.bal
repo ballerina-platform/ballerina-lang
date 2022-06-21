@@ -197,6 +197,35 @@ function testArrayConstruction() {
         select check getIntOrError();
 }
 
+xml theXml = xml `<book>the book</book>`;
+xml bitOfText = xml `bit of text\u2702\u2705`;
+xml compositeXml = theXml + bitOfText;
+
+function testXmlConstruction() {
+    //expected 'xml', found 'xml|error'
+    xml _ = from var elem in compositeXml
+        select check getXmlOrError();
+
+    //expected 'xml', found 'xml|error'
+    xml _ = from var elem in check getXmlArrOrError()
+        select theXml;
+
+    //expected 'xml', found 'xml|CustomError'
+    xml _ = from var elem in compositeXml
+        let int i = check getIntOrCustomError()
+        select theXml;
+
+    //'(xml[]|error)' is not an iterable collection
+    xml _ = from var elem in (from var x in check getXmlArrOrError()
+            select x)
+        select theXml;
+
+    //expected 'xml', found 'xml|error'
+    xml _ = from var elem in (check from var x in check getXmlArrOrError()
+            select x)
+        select theXml;
+}
+
 function getCustomerOrError() returns Customer|error {
     return error("Dummy Error");
 }
@@ -210,5 +239,13 @@ function getIntOrError() returns int|error {
 }
 
 function getIntArrOrError() returns int[]|error {
+    return error("Custom error");
+}
+
+function getXmlOrError() returns xml|error {
+    return error("Custom error");
+}
+
+function getXmlArrOrError() returns xml[]|error {
     return error("Custom error");
 }

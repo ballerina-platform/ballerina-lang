@@ -487,6 +487,159 @@ function checkErrorAtOrderBy() returns error? {
        select i;
 }
 
+type CustomError distinct error;
+
+class Iterable {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}?;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}? {
+                return {
+                    value: 0
+                };
+            }
+        };
+    }
+}
+
+class IterableWithCustomError {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}|CustomError?;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}|CustomError? {
+                    return error CustomError("custom");
+            }
+        };
+    }
+}
+
+class IterableWithErrorPanic {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}|error;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}|error {
+                panic error("Custom error");
+            }
+        };
+    }
+}
+
+Iterable numGen = new Iterable();
+
+IterableWithCustomError numGenWithError = new IterableWithCustomError();
+
+IterableWithErrorPanic numGenWithPanic = new IterableWithErrorPanic();
+
+type ValueRecord record {|
+    int value;
+|};
+
+function testErrorReturnedFromStream() {
+    stream<int> stream1 = stream from int i in numGen
+        select i;
+    int? val1 = stream1.next()?.value;
+    assertEquality(val1, 0);
+
+    stream<int, CustomError?> stream2 = stream from int i in numGenWithError
+        select i;
+    ValueRecord|CustomError? val2 = stream2.next();
+    assertTrue(val2 is CustomError);
+
+    stream<int, CustomError?> stream3 = stream from int i in 1...3
+        select check getIntOrCustomError();
+    ValueRecord|CustomError? val3 = stream3.next();
+    assertTrue(val3 is CustomError);
+
+    stream<int, CustomError?> stream4 = stream from int i in 1...2
+        let var res = (check from int j in 1...3 select check getIntOrCustomError())
+        select i;
+    ValueRecord|CustomError? val4 = stream4.next();
+    assertTrue(val4 is CustomError);
+
+    stream<int, CustomError?> stream5 = stream from int i in (stream from int j in 1...3
+                                                        select check getIntOrCustomError())
+                                        select i;
+    ValueRecord|CustomError? val5 = stream5.next();
+    assertTrue(val5 is CustomError);
+
+    stream<int, error?> stream6 = stream from int i in numGenWithPanic
+        select i;
+    ValueRecord|error? val6 = trap stream6.next();
+    assertTrue(val6 is error);
+
+    stream<int, error?> stream7 = stream from int i in (stream from int j in 1...3
+                                                        select verifyPanic(j))
+                                        select i;
+    ValueRecord|error? val7 = trap stream7.next();
+    assertTrue(val7 is error);
+
+    stream<int, CustomError?> stream8 = stream from int i in (check from int j in 1...3
+                                                        select check getIntOrCustomError())
+                                        select i;
+    ValueRecord|CustomError? val8 = stream8.next();
+    assertTrue(val8 is error);
+}
+
+type Customer record {
+    readonly int id;
+    readonly string name;
+    int noOfItems;
+};
+
+type CustomerTable table<Customer> key(id);
+
+function testErrorReturnedFromTable() {
+    CustomerTable|error customerTable1 = table key(id) from int i in 1 ... 3
+        select check getCustomerOrError();
+    assertTrue(customerTable1 is error);
+
+    CustomerTable|error customerTable2 = table key(id) from int i in 1 ... 3
+        let int id = check verifyCheck(i)
+        select {id: 1, name: "Melina", noOfItems: 12};
+    assertTrue(customerTable2 is error);
+
+    CustomerTable|error customerTable3 = table key(id) from int i in check verifyCheckArr()
+        select {id: 1, name: "Melina", noOfItems: 12};
+    assertTrue(customerTable3 is error);
+
+    CustomerTable|CustomError|error customerTable4 = table key(id) from int i in numGenWithError
+        select check getCustomerOrError();
+    assertTrue(customerTable4 is error);
+}
+
+xml theXml = xml `<book>the book</book>`;
+xml bitOfText = xml `bit of text\u2702\u2705`;
+xml compositeXml = theXml + bitOfText;
+
+function testErrorReturnedFromXml() {
+    xml|error xml1 = from var elem in compositeXml
+        select check getXmlOrError();
+    assertTrue(xml1 is error);
+
+    xml|error xml2 = from var elem in check getXmlArrOrError()
+        select theXml;
+    assertTrue(xml2 is error);
+
+    xml|CustomError xml3 = from var elem in compositeXml
+        let int i = check getIntOrCustomError()
+        select theXml;
+    assertTrue(xml3 is CustomError);
+
+    xml|error xml4 = from var elem in (check from var x in check getXmlArrOrError()
+            select x)
+        select theXml;
+    assertTrue(xml4 is error);
+}
+
 // Utils ---------------------------------------------------------------------------------------------------------
 
 public function verifyCheck(int i) returns int|error {
@@ -499,6 +652,22 @@ public function verifyPanic(int i) returns int {
 
 public function verifyCheckArr() returns int[]|error {
     return error("Verify Check.");
+}
+
+function getIntOrCustomError() returns int|CustomError {
+    return error CustomError("Custom error");
+}
+
+function getCustomerOrError() returns Customer|error {
+    return error("Dummy Error");
+}
+
+function getXmlOrError() returns xml|error {
+    return error("Custom error");
+}
+
+function getXmlArrOrError() returns xml[]|error {
+    return error("Custom error");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
