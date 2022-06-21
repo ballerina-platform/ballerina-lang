@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -162,6 +163,14 @@ public class QueryExprWithQueryConstructTypeTest {
                 "tables with key specifiers", 95, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
                 "tables with key specifiers", 103, 14);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 119, 9);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 126, 47);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 131, 9);
+        validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
+                "tables with key specifiers", 144, 9);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), index);
     }
 
@@ -184,6 +193,19 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testTableOnConflict() {
         BRunUtil.invoke(result, "testTableOnConflict");
+    }
+
+    @Test(dataProvider = "dataToTestQueryConstructingTable")
+    public void testQueryConstructingTable(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryConstructingTable() {
+        return new Object[]{
+                "testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetClause",
+                "testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInWhereClause"
+        };
     }
 
     @AfterClass
