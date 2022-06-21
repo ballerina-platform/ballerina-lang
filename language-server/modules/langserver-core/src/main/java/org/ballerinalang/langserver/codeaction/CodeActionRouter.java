@@ -25,7 +25,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -66,12 +65,11 @@ public class CodeActionRouter {
         SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
         Position position = ctx.cursorPosition();
         // Run code action node analyzer
-        CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer();
-        analyzer.analyze(position, syntaxTree);
+        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(position, syntaxTree);
         Optional<NonTerminalNode> codeActionNode = analyzer.getCodeActionNode();
         CodeActionNodeType matchedNodeType = analyzer.getCodeActionNodeType();
         if (codeActionNode.isPresent() && matchedNodeType != CodeActionNodeType.NONE) {
-            Range range = CommonUtil.toRange(codeActionNode.get().lineRange());
+            Range range = PositionUtil.toRange(codeActionNode.get().lineRange());
             Node expressionNode = CodeActionUtil.largestExpressionNode(codeActionNode.get(), range);
             TypeSymbol matchedTypeSymbol = getMatchedTypeSymbol(ctx, expressionNode).orElse(null);
 
@@ -109,7 +107,7 @@ public class CodeActionRouter {
                 .forEach(diagnostic -> {
                     DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
                     codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
-                            .stream().forEach(provider -> {
+                                             .forEach(provider -> {
                                 try {
                                     // Check whether the code action request has been cancelled
                                     // in order to avoid unnecessary calculations

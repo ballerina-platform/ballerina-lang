@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
@@ -57,11 +58,11 @@ import java.util.Optional;
  * 4. Documentable node
  * 5. Enclosing documentable node of the cursor position
  *
- * @since 2201.1.0
+ * @since 2201.1.2
  */
 public class CodeActionNodeAnalyzer extends NodeVisitor {
 
-    private int positionOffset;
+    private final int positionOffset;
 
     private NonTerminalNode codeActionNode;
     private CodeActionNodeType codeActionNodeType;
@@ -69,7 +70,8 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     private NonTerminalNode documentableNode;
     private NonTerminalNode enclosingDocumentableNode;
 
-    public CodeActionNodeAnalyzer() {
+    private CodeActionNodeAnalyzer(int positionOffset) {
+        this.positionOffset = positionOffset;
     }
 
     /**
@@ -79,15 +81,18 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
      * @param cursorPosition Cursor position
      * @param syntaxTree     Syntax tree
      */
-    public void analyze(Position cursorPosition, SyntaxTree syntaxTree) {
+    public static CodeActionNodeAnalyzer analyze(Position cursorPosition, SyntaxTree syntaxTree) {
         LinePosition linePos = LinePosition.from(cursorPosition.getLine(), cursorPosition.getCharacter());
-        this.positionOffset = syntaxTree.textDocument().textPositionFrom(linePos);
+        int positionOffset = syntaxTree.textDocument().textPositionFrom(linePos);
+        CodeActionNodeAnalyzer analyzer = new CodeActionNodeAnalyzer(positionOffset);
         NonTerminalNode node = CommonUtil.findNode(new Range(cursorPosition, cursorPosition), syntaxTree);
         if (node.kind() == SyntaxKind.LIST) {
-            node.parent().accept(this);
+            node.parent().accept(analyzer);
         } else {
-            node.accept(this);
+            node.accept(analyzer);
         }
+        
+        return analyzer;
     }
 
     /*
@@ -371,6 +376,22 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
         checkAndSetCodeActionNode(node);
         checkAndSetCodeActionNodeType(CodeActionNodeType.ASSIGNMENT);
         visitSyntaxNode(node);
+    }
+
+    @Override
+    public void visit(ObjectFieldNode node) {
+        checkAndSetCodeActionNode(node);
+        checkAndSetCodeActionNodeType(CodeActionNodeType.OBJECT_FIELD);
+        
+        int startOffset = node.visibilityQualifier()
+                .map(token -> token.textRange().startOffset())
+                .or(() -> node.qualifierList().stream().findFirst().map(token -> token.textRange().startOffset()))
+                .orElseGet(() -> node.typeName().textRange().startOffset());
+        int endOffset = node.semicolonToken().textRange().endOffset();
+        if (isWithinRange(startOffset, endOffset)) {
+           checkAndSetEnclosingDocumentableNode(node);
+           checkAndSetDocumentableNode(node);
+        }
     }
 
     public void visit(Node node) {
