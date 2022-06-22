@@ -200,4 +200,31 @@ function testInvalidStaticTypeWithQueryConstructingMap() {
                      where user.age > 21 && user.age < 60
                      let string[2] arr = [user.firstName, user.lastName]
                      select arr;
+
+    map<string>|error a7 = map from var user in users2
+                     where user.age > 21 && user.age < 60
+                     let string[2]|[string, int] arr = [user.firstName, user.lastName]
+                     select arr;
+}
+
+function testInvalidTypeInSelectWithQueryConstructingMap3() {
+    table<User> key(id) users1 = table [];
+    User[] users2 = [];
+
+    var a1 = map from var user in users2
+                     where user.age > 21 && user.age < 60
+                     let (int[2]|string[2]) & readonly u = [user.id, user.age]
+                     select u;
+
+    var a2 = map from var user in users2
+                     where user.age > 21 && user.age < 60
+                     let string[2]|int[2]|string arr = [user.firstName, user.lastName]
+                     select arr;
+}
+
+function testInvalidTypeInSelectWithQueryConstructingMap4() {
+    var a = map from string|int a in ["a", "b", 1, 2]
+                let [string, int]|[string, string] c = a
+                select c;
+    map<string> _ = a;
 }
