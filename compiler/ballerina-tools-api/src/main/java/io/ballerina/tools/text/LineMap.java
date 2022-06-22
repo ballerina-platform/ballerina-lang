@@ -18,6 +18,7 @@
 package io.ballerina.tools.text;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,7 +62,8 @@ class LineMap {
         for (TextLine textLine : textLines) {
             lines.add(textLine.text());
         }
-        return lines;
+
+        return Collections.unmodifiableList(lines);
     }
 
     private void positionRangeCheck(int position) {
