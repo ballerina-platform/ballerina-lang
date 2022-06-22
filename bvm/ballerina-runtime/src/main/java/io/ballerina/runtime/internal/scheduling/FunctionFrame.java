@@ -1,4 +1,4 @@
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.internal.scheduling;
 
 /**
  * This interface represents the function frame which saves the existing
@@ -9,7 +9,5 @@ package io.ballerina.runtime.api;
 public interface FunctionFrame {
 
     String getYieldLocation();
-
-    String getYieldStatus();
 
 }

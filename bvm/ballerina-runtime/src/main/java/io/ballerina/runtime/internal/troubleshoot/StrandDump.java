@@ -15,55 +15,30 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.scheduling;
+package io.ballerina.runtime.internal.troubleshoot;
 
-import sun.misc.Signal;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
-import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Used to get the status of current Ballerina runtime.
+ * Used to get the status of current Ballerina strands.
  *
  * @since 2201.2.0
  */
-public class Status {
+public class StrandDump {
 
-    private static final PrintStream outStream = System.out;
-    private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
-
-    protected static void addToStrands(Integer strandId, Strand strand) {
-        currentStrands.put(strandId, strand);
-    }
-
-    protected static void removeFromStrands(Integer strandId) {
-        currentStrands.remove(strandId);
-    }
-
-    public static void initiateSignalListener() {
-        try {
-            Signal.handle(new Signal("TRAP"), signal -> outStream.println(getStrandDump()));
-        } catch (IllegalArgumentException ignored) {
-            // In some Operating Systems like Windows, "TRAP" POSIX signal is not supported.
-            // There getting the strand dump using kill signals is not expected, hence this exception is ignored.
-        }
-    }
-
-    private static String getStrandDump() {
-        Map<Integer, Strand> availableStrands = new HashMap<>(currentStrands);
+    public static String getStrandDump() {
+        Map<Integer, Strand> availableStrands = Scheduler.getCurrentStrands();
         int availableStrandCount = availableStrands.size();
         Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
-        for (Strand strand : availableStrands.values()) {
-            int strandGroupId = strand.strandGroup.getId();
-            String strandState = strand.dumpState();
-            availableStrandGroups.computeIfAbsent(strandGroupId, k -> new ArrayList<>()).add(strandState);
-        }
+        populateAvailableStrandGroups(availableStrands, availableStrandGroups);
         availableStrands.clear();
 
         StringBuilder infoStr = new StringBuilder("Ballerina Strand Dump [");
@@ -83,5 +58,14 @@ public class Status {
         return infoStr.toString();
     }
 
-    private Status() {}
+    private static void populateAvailableStrandGroups(Map<Integer, Strand> availableStrands,
+                                                      Map<Integer, List<String>> availableStrandGroups) {
+        for (Strand strand : availableStrands.values()) {
+            int strandGroupId = strand.getStrandGroupId();
+            String strandState = strand.dumpState();
+            availableStrandGroups.computeIfAbsent(strandGroupId, k -> new ArrayList<>()).add(strandState);
+        }
+    }
+
+    private StrandDump() {}
  }

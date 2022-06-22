@@ -184,7 +184,7 @@ public class JvmConstants {
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";
     public static final String STRAND_STATE = "io/ballerina/runtime/internal/scheduling/State";
     public static final String RUNTIME_STATUS = "io/ballerina/runtime/internal/scheduling/Status";
-    public static final String FUNCTION_FRAME = "io/ballerina/runtime/api/FunctionFrame";
+    public static final String FUNCTION_FRAME = "io/ballerina/runtime/internal/scheduling/FunctionFrame";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
     public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
@@ -370,7 +370,6 @@ public class JvmConstants {
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String YIELD_LOCATION = "yieldLocation";
-    public static final String YIELD_STATUS = "yieldStatus";
 
     // observability related constants
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";

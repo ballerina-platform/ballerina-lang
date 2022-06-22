@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.FunctionFrame;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -48,6 +47,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSACTION_CONTEXT_PROPERTY;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_ON_AND_YIELD;
+import static io.ballerina.runtime.internal.scheduling.State.DONE;
 import static io.ballerina.runtime.internal.scheduling.State.RUNNABLE;
 import static io.ballerina.runtime.internal.scheduling.State.YIELD;
 
@@ -59,13 +59,13 @@ import static io.ballerina.runtime.internal.scheduling.State.YIELD;
 
 public class Strand {
 
-    private static AtomicInteger nextStrandId = new AtomicInteger(0);
+    private static final AtomicInteger nextStrandId = new AtomicInteger(0);
 
-    private int id;
-    private String name;
-    private StrandMetadata metadata;
+    private final int id;
+    private final String name;
+    private final StrandMetadata metadata;
 
-    public Stack<Object> frames;
+    public Stack<FunctionFrame> frames;
     public int resumeIndex;
     public Object returnValue;
     public BError panic;
@@ -87,6 +87,7 @@ public class Strand {
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
+    private String yieldStatus;
     private final ReentrantLock strandLock;
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
@@ -361,6 +362,10 @@ public class Strand {
         return dataChannel;
     }
 
+    public void setYieldStatus(String yieldStatus) {
+        this.yieldStatus = yieldStatus;
+    }
+
     public void setState(State state) {
         this.lock();
         this.state = state;
@@ -399,6 +404,14 @@ public class Strand {
         return id;
     }
 
+    public int getStrandGroupId() {
+        return strandGroup.getId();
+    }
+
+    public boolean isStrandGroupScheduled() {
+        return strandGroup.isScheduled();
+    }
+
     /**
      * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
      * call or function pointer variable name.
@@ -418,7 +431,7 @@ public class Strand {
         return metadata;
     }
 
-    protected String dumpState() {
+    public String dumpState() {
         StringBuilder strandInfo = new StringBuilder("\tstrand " + this.id);
         if (this.name != null && this.getName().isPresent()) {
             strandInfo.append(" \"").append(this.getName().get()).append("\"");
@@ -435,54 +448,39 @@ public class Strand {
         if (this.isYielded()) {
             getInfoFromYieldedState(strandInfo);
         } else if (this.getState().toString().equals("DONE")) {
-            strandInfo.append(" [DONE]\n\n");
+            strandInfo.append(" [").append(DONE).append("]\n\n");
         } else {
-            strandInfo.append(" [RUNNABLE]\n\n");
+            strandInfo.append(" [").append(RUNNABLE).append("]\n\n");
         }
 
         return strandInfo.toString();
     }
 
     private void getInfoFromYieldedState(StringBuilder strandInfo) {
+        Stack<FunctionFrame> strandFrames = this.frames;
+        if ((strandFrames == null) || (strandFrames.isEmpty())) {
+            // this means the strand frames is changed, hence the state is runnable
+            strandInfo.append(" [").append(RUNNABLE).append("]\n\n");
+            return;
+        }
+
         StringBuilder frameStackTrace = new StringBuilder();
-        String currState = "BLOCKED";
-        boolean noCurrState = true;
-        boolean runnableState = false;
         String stringPrefix = "\t\tat\t";
         try {
-            int initialFrameCount = this.frames.size();
-            int processedFrameCount = 0;
-            for (Object frame : this.frames) {
-                processedFrameCount++;
-                if (noCurrState) {
-                    currState = ((FunctionFrame) frame).getYieldStatus();
-                    if (currState == null) {
-                        runnableState = true;
-                        break;
-                    }
-                    noCurrState = false;
-                }
-                String yieldLocation = ((FunctionFrame) frame).getYieldLocation();
-                if (yieldLocation == null) {
-                    runnableState = true;
-                    break;
-                }
+            for (FunctionFrame frame : strandFrames) {
+                String yieldLocation = frame.getYieldLocation();
                 frameStackTrace.append(stringPrefix).append(yieldLocation);
                 frameStackTrace.append("\n");
                 stringPrefix = "\t\t  \t";
             }
-            if ((initialFrameCount == 0) || (processedFrameCount != initialFrameCount)) {
-                runnableState = true;
-            }
-        } catch (ConcurrentModificationException | NullPointerException e) {
-            runnableState = true;
+        } catch (ConcurrentModificationException ce) {
+            // this exception can be thrown when frames get added or removed while it is being iterated
+            // that means now the strand state is changed from yielded state to runnable state
+            strandInfo.append(" [").append(RUNNABLE).append("]\n\n");
+            return;
         }
-        if (runnableState) {
-            strandInfo.append(" [RUNNABLE]\n\n");
-        } else {
-            strandInfo.append(" [").append(currState).append("]:\n");
-            strandInfo.append(frameStackTrace).append("\n");
-        }
+        strandInfo.append(" [").append(this.yieldStatus).append("]:\n");
+        strandInfo.append(frameStackTrace).append("\n");
     }
 
     /**
