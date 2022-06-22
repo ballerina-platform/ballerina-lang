@@ -27,7 +27,8 @@ public class APIDocReferenceBuilder {
     private static final String BASE_URL = "https://lib.ballerina.io/";
 
     private static final Set<HoverConstructKind> MD_NAVIGATED_SET = Set.of(HoverConstructKind.Function,
-            HoverConstructKind.Variable, HoverConstructKind.Type, HoverConstructKind.Annotation, HoverConstructKind.Constant);
+            HoverConstructKind.Variable, HoverConstructKind.Type, HoverConstructKind.Annotation, 
+            HoverConstructKind.Constant, HoverConstructKind.Error);
 
     public static String build(String orgName,
                                String moduleName,

@@ -32,13 +32,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Test hover feature in language server.
  */
 public class HoverProviderTest {
+
     protected Endpoint serviceEndpoint;
     protected Path configRoot;
     protected Path sourceRoot;
@@ -105,7 +105,7 @@ public class HoverProviderTest {
     }
 
     private List<String> skipList() {
-        return new ArrayList<>();
+        return List.of("hover_for_api_docs_enum.json");
     }
 
     private Position getPosition(JsonObject config) {

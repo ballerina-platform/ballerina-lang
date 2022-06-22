@@ -1,10 +1,10 @@
 {
   "position": {
-    "line": 227,
-    "character": 14
+    "line": 6,
+    "character": 10
   },
   "source": {
-    "file": "hover.bal"
+    "file": "hover_for_api_docs.bal"
   },
   "expected": {
     "result": {
