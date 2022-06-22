@@ -32,11 +32,13 @@ import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -68,6 +70,7 @@ public class Scheduler {
     private BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
+    private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
     private final Strand previousStrand;
 
     private AtomicInteger totalStrands = new AtomicInteger();
@@ -110,6 +113,10 @@ public class Scheduler {
     public static Strand getStrandNoException() {
         // issue #22871 is opened to fix this
         return strandHolder.get().strand;
+    }
+
+    public static Map<Integer, Strand> getCurrentStrands() {
+        return new HashMap<>(currentStrands);
     }
 
     /**
@@ -405,7 +412,6 @@ public class Scheduler {
                 }
 
                 cleanUp(justCompleted);
-                Status.removeFromStrands(justCompleted.getId());
 
                 int strandsLeft = totalStrands.decrementAndGet();
                 if (strandsLeft == 0) {
@@ -457,6 +463,8 @@ public class Scheduler {
         justCompleted.scheduler = null;
         justCompleted.frames = null;
         justCompleted.waitingContexts = null;
+
+        currentStrands.remove(justCompleted.getId());
         //TODO: more cleanup , eg channels
     }
 
@@ -504,7 +512,7 @@ public class Scheduler {
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties);
-        Status.addToStrands(newStrand.getId(), newStrand);
+        currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -512,7 +520,7 @@ public class Scheduler {
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
-        Status.addToStrands(newStrand.getId(), newStrand);
+        currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
@@ -682,5 +690,9 @@ class ItemGroup {
 
     public int getId() {
         return id;
+    }
+
+    public boolean isScheduled() {
+        return scheduled.get();
     }
 }

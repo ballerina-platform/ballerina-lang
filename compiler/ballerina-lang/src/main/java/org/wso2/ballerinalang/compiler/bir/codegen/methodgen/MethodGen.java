@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -112,7 +113,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_CANCELLED_FUTURE_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
@@ -209,7 +209,6 @@ public class MethodGen {
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
         int stateVarIndex = getStateVarIndex(indexMap, mv);
         int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
-        int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -239,7 +238,7 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, module, attachedType, moduleClassName);
+                yieldLocationVarIndex, localVarOffset, module, attachedType, moduleClassName);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
                                                             attachedType);
@@ -263,9 +262,6 @@ public class MethodGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, yieldLocationVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, YIELD_LOCATION, GET_STRING);
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, yieldStatusVarIndex);
-        mv.visitFieldInsn(PUTFIELD, frameName, YIELD_STATUS, GET_STRING);
 
         generateGetFrame(indexMap, localVarOffset, mv);
 
@@ -471,7 +467,7 @@ public class MethodGen {
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
                              JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex, int stateVarIndex,
-                             int yieldLocationVarIndex, int yieldStatusVarIndex, int localVarOffset,
+                             int yieldLocationVarIndex, int localVarOffset,
                              BIRPackage module, BType attachedType, String moduleClassName) {
 
         String funcName = func.name.value;
@@ -510,24 +506,26 @@ public class MethodGen {
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
-            String fullyQualifiedFuncName;
-            if (func.type.tsymbol != null) {
-                PackageID funcTSymbolPkgID = func.type.tsymbol.pkgID;
-                fullyQualifiedFuncName = funcTSymbolPkgID.getOrgName().toString() + "." +
-                        funcTSymbolPkgID.getName().toString() + "." + funcTSymbolPkgID.getPackageVersion().toString() +
-                        ":" + funcName;
-            } else {
-                fullyQualifiedFuncName = funcName;
-            }
+            String fullyQualifiedFuncName = getFullyQualifiedFuncName(func.type.tsymbol, funcName);
             String yieldStatus = getYieldStatusByTerminator(terminator);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
                 JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset,
-                        yieldLocationVarIndex, yieldStatusVarIndex, terminator.pos, fullyQualifiedFuncName,
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName,
                         yieldStatus);
             }
         }
+    }
+
+    private String getFullyQualifiedFuncName(BTypeSymbol funcTypeSymbol, String funcName) {
+        if (funcTypeSymbol != null) {
+            PackageID funcTSymbolPkgID = funcTypeSymbol.pkgID;
+            return funcTSymbolPkgID.getOrgName().toString() + "." +
+                    funcTSymbolPkgID.getName().toString() + "." + funcTSymbolPkgID.getPackageVersion().toString() +
+                    ":" + funcName;
+        }
+        return funcName;
     }
 
     private String getYieldStatusByTerminator(BIRTerminator terminator) {
