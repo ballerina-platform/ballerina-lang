@@ -211,9 +211,9 @@ function validateTypeAnnotations() {
     test:assertTrue(anyTd.@X is true);
     test:assertTrue(Map.@X is true);
 
-    // td = Record;
-    // test:assertTrue(td.@X is true);
-    // test:assertTrue(Record.@X is true);
+    anyTd = Record;
+    test:assertTrue(anyTd.@X is true);
+    test:assertTrue(Record.@X is true);
 
     anyTd = Table;
     test:assertTrue(anyTd.@X is true);
