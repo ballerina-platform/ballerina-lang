@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 25,
+    "character": 33
+  },
+  "source": {
+    "file": "hover_for_api_docs.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "[View API Docs](https://lib.ballerina.io/ballerina\\/module1\\/0.1.0\\/constants#TEST_INT_CONST1)"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

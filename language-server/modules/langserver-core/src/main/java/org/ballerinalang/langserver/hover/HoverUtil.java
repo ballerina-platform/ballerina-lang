@@ -92,12 +92,17 @@ public class HoverUtil {
             hoverObj = provider.getHoverObjectForSymbol(symbolAtCursor.get());
         }
         //Add reference to APIDocs.
-        if (hoverObj.getContents().isRight() && !hoverObj.getContents().getRight().getValue().isEmpty()) {
+        if (hoverObj.getContents().isRight()) {
             MarkupContent markupContent = hoverObj.getContents().getRight();
             String content = markupContent.getValue();
+
             HoverSymbolResolver symbolResolver =
-                    new HoverSymbolResolver(semanticModel.get());
+                    new HoverSymbolResolver(context, semanticModel.get());
             Optional<Symbol> symbol = context.getNodeAtCursor().apply(symbolResolver);
+            if (!symbolResolver.isSymbolReferable()) {
+                return hoverObj;
+            }
+
             Optional<ModuleID> moduleID = symbol.flatMap(Symbol::getModule).map(ModuleSymbol::id);
             Optional<HoverConstructKind> constructKind = symbolResolver.getConstructKind();
             if (moduleID.isEmpty() || symbol.get().getName().isEmpty() || constructKind.isEmpty()) {
@@ -106,7 +111,7 @@ public class HoverUtil {
             String url = APIDocReferenceBuilder.build(moduleID.get().orgName(),
                     moduleID.get().moduleName(), moduleID.get().version(), constructKind.get(),
                     symbol.get().getName().get());
-            markupContent.setValue(content + MarkupUtils.getHorizontalSeparator()
+            markupContent.setValue((content.isEmpty() ? "" : content + MarkupUtils.getHorizontalSeparator())
                     + "[View API Docs](" + url + ")");
             hoverObj.setContents(markupContent);
         }

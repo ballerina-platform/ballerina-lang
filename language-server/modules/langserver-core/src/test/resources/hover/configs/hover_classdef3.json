@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "Mod3\n  \n  \n---  \n  \n### Fields  \n  \n`string` ***PERSON_KW*** : PERSON Keyword  \n  \n---  \n  \n### Methods  \n  \n+ `public function getName() returns string`  \nGet name of the person  \n"
+        "value": "Mod3\n  \n  \n---  \n  \n### Fields  \n  \n`string` ***PERSON_KW*** : PERSON Keyword  \n  \n---  \n  \n### Methods  \n  \n+ `public function getName() returns string`  \nGet name of the person  \n  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/lstest\\/projectls.lsmod3\\/0.1.0\\/classes\\/Mod3Class)"
       }
     },
     "id": {
