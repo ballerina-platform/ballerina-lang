@@ -89,6 +89,7 @@ public class ManifestBuilder {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
+    private static final String INCLUDE = "include";
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
     private static final String TEMPLATE = "template";
@@ -158,6 +159,7 @@ public class ManifestBuilder {
         List<String> authors = Collections.emptyList();
         List<String> keywords = Collections.emptyList();
         List<String> exported = Collections.emptyList();
+        List<String> include = Collections.emptyList();
         String repository = "";
         String ballerinaVersion = "";
         String visibility = "";
@@ -172,6 +174,7 @@ public class ManifestBuilder {
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
+                include = getStringArrayFromPackageNode(pkgNode, INCLUDE);
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
                 visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
@@ -236,7 +239,7 @@ public class ManifestBuilder {
         }
 
         return PackageManifest.from(packageDescriptor, pluginDescriptor, platforms, localRepoDependencies, otherEntries,
-                diagnostics(), license, authors, keywords, exported, repository, ballerinaVersion, visibility,
+                diagnostics(), license, authors, keywords, exported, include, repository, ballerinaVersion, visibility,
                 template, icon);
     }
 

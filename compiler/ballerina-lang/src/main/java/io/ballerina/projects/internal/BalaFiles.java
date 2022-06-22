@@ -60,7 +60,6 @@ import java.util.stream.Stream;
 
 import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.internal.ProjectFiles.loadDocuments;
-import static io.ballerina.projects.internal.ProjectFiles.loadResources;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
@@ -170,9 +169,10 @@ public class BalaFiles {
         List<DocumentData> srcDocs = loadDocuments(modulePath);
         List<DocumentData> testSrcDocs = Collections.emptyList();
         DocumentData moduleMd = loadDocument(moduleDocPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        List<Path> resources = loadResources(modulePath);
+        // TODO: add resources later from includes
+//        List<Path> resources = loadResources(modulePath);
 
-        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, resources,
+        return ModuleData.from(modulePath, moduleName, srcDocs, testSrcDocs, moduleMd, Collections.emptyList(),
                 Collections.emptyList());
     }
 
@@ -401,14 +401,14 @@ public class BalaFiles {
         return compilerPluginJson.map(pluginJson -> PackageManifest
                         .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
                                 packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                                packageJson.getExport(), packageJson.getSourceRepository(),
+                                packageJson.getExport(), packageJson.getInclude(), packageJson.getSourceRepository(),
                                 packageJson.getBallerinaVersion(), packageJson.getVisibility(),
                                 packageJson.getTemplate()))
                 .orElseGet(() -> PackageManifest
                         .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
                                 packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                                packageJson.getSourceRepository(), packageJson.getBallerinaVersion(),
-                                packageJson.getVisibility(),
+                                packageJson.getInclude(), packageJson.getSourceRepository(),
+                                packageJson.getBallerinaVersion(), packageJson.getVisibility(),
                                 packageJson.getTemplate()));
     }
 
