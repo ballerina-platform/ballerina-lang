@@ -106,20 +106,6 @@ function getFutureInt(int i) returns future<int> {
     return res;
 }
 
-// Commented since transactions won't work without the transaction internal module.
-// Usage is valid, no compilation errors.
-//function testQueryActionOrExprWithCommitAction() {
-//    transaction {
-//        int[] a = from int i in 1...5
-//                  let error? v = commit
-//                  select i;
-//
-//        error?[] a = from int i in 1...5
-//                     let error? v = commit
-//                     select commit;
-//    }
-//}
-
 function testQueryActionOrExprWithClientRemoteMethodCall() {
     var obj = client object {
         remote function foo() returns int[] {

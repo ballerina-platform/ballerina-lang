@@ -10627,7 +10627,8 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false, isInConditionalExpr);
+        STNode expression = parseExpression(OperatorPrecedence.REMOTE_CALL_ACTION, isRhsExpr, false,
+                isInConditionalExpr);
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
     }
 
@@ -11186,7 +11187,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Give high priority to the body-expr. This is done by lowering the current
         // precedence bewfore visiting the body.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.REMOTE_CALL_ACTION, isRhsExpr, false);
 
         STNode semiColon;
         if (isAnon) {
@@ -11235,7 +11236,7 @@ public class BallerinaParser extends AbstractParser {
         STNode rightDoubleArrow = parseDoubleRightArrow();
         // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
         // operators. That is done by lowering the current precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.REMOTE_CALL_ACTION, isRhsExpr, false);
         return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow, expression);
     }
 
