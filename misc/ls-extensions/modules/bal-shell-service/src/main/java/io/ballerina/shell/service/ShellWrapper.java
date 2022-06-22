@@ -34,6 +34,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -74,9 +75,12 @@ public class ShellWrapper {
      */
     public BalShellGetResultResponse getResult(String source) {
         BalShellGetResultResponse output = new BalShellGetResultResponse();
-        PrintStream original = System.out;
+        PrintStream originalOut = System.out;
+        PrintStream originalErr = System.err;
         ConsoleOutCollector consoleOutCollector = new ConsoleOutCollector();
-        System.setOut(new PrintStream(consoleOutCollector, false, Charset.defaultCharset()));
+        PrintStream printStreamCollector = new PrintStream(consoleOutCollector, false, StandardCharsets.UTF_8);
+        System.setOut(printStreamCollector);
+        System.setErr(printStreamCollector);
         try {
             ShellCompilation shellCompilation = evaluator.getCompilation(source);
             // continue the execution if the compilation is done successfully
@@ -101,8 +105,8 @@ public class ShellWrapper {
             } else {
                 throw new InvokerException();
             }
-        } catch (InvokerPanicException error) {
-            output.addError("panic: " + error.getMessage());
+        } catch (InvokerPanicException ignored) {
+            // panics are collected by console out
         } catch (Exception error) { // handling unidentified runtime errors and invoker exceptions
             output.addError(error.getMessage());
         } finally {
@@ -114,7 +118,9 @@ public class ShellWrapper {
             );
             evaluator.resetDiagnostics();
             evaluator.clearPreviousVariablesAndModuleDclnsNames();
-            System.setOut(original);
+            printStreamCollector.close();
+            System.setOut(originalOut);
+            System.setErr(originalErr);
         }
         return output;
     }
