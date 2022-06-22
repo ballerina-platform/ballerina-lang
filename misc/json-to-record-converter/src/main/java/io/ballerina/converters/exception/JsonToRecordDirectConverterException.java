@@ -16,16 +16,20 @@
  *  under the License.
  */
 
-package io.ballerina.converters.util;
+package io.ballerina.converters.exception;
 
 /**
- * Contains keywords and other constants.
+ * JSON to Record converter exception.
  *
  * @since 2.0.0
  */
-public class Constants {
+public class JsonToRecordDirectConverterException extends Exception {
 
-    private Constants() {}
+    public JsonToRecordDirectConverterException(String message, Throwable e) {
+        super(message, e);
+    }
 
-    public static final String ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*-=^+();:\\_{}\\s|.$])";
+    public JsonToRecordDirectConverterException(String message) {
+        super(message);
+    }
 }

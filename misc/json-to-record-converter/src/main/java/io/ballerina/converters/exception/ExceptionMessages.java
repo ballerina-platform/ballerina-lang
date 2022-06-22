@@ -16,16 +16,21 @@
  *  under the License.
  */
 
-package io.ballerina.converters.util;
+package io.ballerina.converters.exception;
 
 /**
- * Contains keywords and other constants.
+ * Contains exception messages of the JSON to Record converter.
  *
  * @since 2.0.0
  */
-public class Constants {
+public class ExceptionMessages {
 
-    private Constants() {}
+    public static String syntaxException(String jsonSyntaxExceptionMessage) {
+        return jsonSyntaxExceptionMessage;
+    }
 
-    public static final String ESCAPE_PATTERN = "([\\[\\]\\\\?!<>@#&~`*-=^+();:\\_{}\\s|.$])";
+    public static String unsupportedJson() {
+        return "Unsupported, Null or Missing type in Json";
+    }
+
 }
