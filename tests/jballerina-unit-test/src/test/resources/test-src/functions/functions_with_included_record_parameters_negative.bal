@@ -194,3 +194,67 @@ function functionWithIncludedRecordParam14(int a, *Options options, int c = 10) 
 function functionWithIncludedRecordParam15(int a, int b = 12, *Options options, int c = 10) {
     string? name = options?.name;
 }
+
+type Record1 record {
+    int id;
+    string name;
+};
+
+function fn1(*Record1 record1) {
+
+}
+
+type Record2 record {|
+    int id?;
+    string name?;
+|};
+
+function fn2(*Record2 record2) {
+
+}
+
+function functionWithIncludedRecordParam16() {
+    fn1(id = 2, record1 = {id: 2, name: ""}); // error
+    fn1(record1 = {id: 2, name: ""}, id = 2); // error
+    fn1(record1 = {id: 2, name: ""}, name = "2"); // error
+    fn1({id: 2, name: ""}, name = "2"); // error
+    fn1({id: 2, name: "", addr: ""}, name = "2"); // error
+    
+    fn2(id = 2, record2 = {name: ""}); // error
+    fn2(record2 = {name: ""}, id = 2); // error
+    fn2(record2 = {name: ""}, name = ""); // error
+}
+
+type Record3 record {|
+    int idNew?;
+    string nameNew?;
+|};
+
+function fn3(*Record2 record2, *Record3 record3) {
+    
+}
+
+function functionWithIncludedRecordParam17() {
+    fn3(record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""});
+    fn3(record2 = {id: 2, name: ""}, idNew = 21, record3 = {idNew: 3, nameNew: ""}); // error
+    fn3(record2 = {id: 2, name: ""}, idNew = 21, record3 = {nameNew: ""}); // error
+    fn3({id: 2, name: ""}, {nameNew: ""}, idNew = 21); // error
+    fn3({name: ""}, {nameNew: ""}, idNew = 21, id = 2); // error
+    fn3(id = 2, record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""}); // error
+    fn3(idNew = 2, record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""}); // error
+    fn3(idNew = 2, id = 3, record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""}); // error
+}
+
+type Record4 record {|
+    int idNew?;
+    string nameNew?;
+    Record3 rec?;
+|};
+
+function fn4(*Record4 record4) {
+    
+}
+
+function functionWithIncludedRecordParam18() {
+    fn4(rec = {}, record4 = {}); // error
+}
