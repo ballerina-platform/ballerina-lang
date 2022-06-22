@@ -182,7 +182,7 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 break;
             }
 
-            if (!codeActionFound) {
+            if (!codeActionFound && actual.title != null) {
                 mismatchedCodeActions.add(actual);
             }
         }
