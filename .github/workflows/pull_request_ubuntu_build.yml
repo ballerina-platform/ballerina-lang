@@ -11,6 +11,9 @@ on:
       - stage-swan-lake
       - 2201.[0-9]+.x
 
+permissions:
+  contents: read
+
 jobs:
   ubuntu_build:
     name: Build with all tests on Ubuntu

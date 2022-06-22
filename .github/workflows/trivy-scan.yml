@@ -5,6 +5,9 @@ on:
   schedule:
     - cron:  '0 0 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   ubuntu_build:
     name: Build on Ubuntu

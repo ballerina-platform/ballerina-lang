@@ -5,6 +5,9 @@ on:
   schedule:
     - cron: "0 2 * * *"
 
+permissions:
+  contents: read
+
 jobs:
   conformance_test:
     name: Run conformance test suite on latest Ubuntu
