@@ -66,9 +66,14 @@ error uc3 = error ErrorU3("Hello");
 int|string uc4 = error ErrorA("msg");
 int|string b = error("err");
 
-type ErrorData record {
+type ErrorData1 record {
     string errorCode;
     Application application;
+};
+
+type ErrorData2 record {
+    string errorCode;
+    Application[] application;
 };
 
 type Application record{|
@@ -80,10 +85,12 @@ type User record {|
     string name;
 |};
 
-type ErrorR error<ErrorData>;
+type ErrorR1 error<ErrorData1>;
+type ErrorR2 error<ErrorData2>;
 
 function customError() {
-    ErrorR er1 = error ErrorR("Custom error", errorCode = "104", application = {});
-    ErrorR er2 = error ErrorR("Custom error", errorCode = "104", application = {id : "1", user: {}});
-    ErrorR er3 = error ErrorR("Custom error", errorCode = "104", application = );
+    ErrorR1 er1 = error ErrorR1("Custom error", errorCode = "104", application = {});
+    ErrorR1 er2 = error ErrorR1("Custom error", errorCode = "104", application = {id : "1", user: {}});
+    ErrorR1 er3 = error ErrorR1("Custom error", errorCode = "104", application = );
+    ErrorR2 er4 = error ErrorR2("Custom error", errorCode = "104", application = [{}]);
 }

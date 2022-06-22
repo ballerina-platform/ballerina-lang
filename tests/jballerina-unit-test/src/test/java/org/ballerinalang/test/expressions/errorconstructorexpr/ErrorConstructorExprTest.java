@@ -104,10 +104,12 @@ public class ErrorConstructorExprTest {
                 66, 18);
         validateError(negativeSemanticResult, i++, "compatible type for error constructor expression not " +
                 "found in type '(int|string)'", 67, 16);
-        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'id'", 86, 80);
-        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 86, 80);
-        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'name'", 87, 97);
-        validateError(negativeSemanticResult, i++, "missing identifier", 88, 80);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'id'", 92, 82);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 92, 82);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'name'", 93, 99);
+        validateError(negativeSemanticResult, i++, "missing identifier", 94, 82);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'id'", 95, 83);
+        validateError(negativeSemanticResult, i++, "missing non-defaultable required record field 'user'", 95, 83);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 
