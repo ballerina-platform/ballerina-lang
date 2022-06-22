@@ -3548,16 +3548,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             dlog.error(resourceAccessInvocation.pos, 
                     DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name);
             data.resultType = symTable.semanticError;
-            return;
         } else if (resourceFunctions.size() > 1) {
             dlog.error(resourceAccessInvocation.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED);
             data.resultType = symTable.semanticError;
-            return;
+        } else {
+            BResourceFunction targetResourceFunc = resourceFunctions.get(0);
+            checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
+            checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
-
-        BResourceFunction targetResourceFunc = resourceFunctions.get(0);
-        checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
-        checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
     }
     
     public void validateResourceAccessPathSegmentTypes(BLangListConstructorExpr rAPathSegments, AnalyzerData data) {

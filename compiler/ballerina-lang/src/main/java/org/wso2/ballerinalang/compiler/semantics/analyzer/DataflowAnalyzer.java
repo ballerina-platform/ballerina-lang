@@ -1467,8 +1467,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangResourceAccessInvocation actionInvocation) {
-        this.visit((BLangInvocation) actionInvocation);
+    public void visit(BLangResourceAccessInvocation resourceAccessInvocation) {
+        analyzeNode(resourceAccessInvocation.resourceAccessPathSegments, env);
+        this.visit((BLangInvocation) resourceAccessInvocation);
     }
 
     @Override
