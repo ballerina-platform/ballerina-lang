@@ -166,6 +166,17 @@ public class TableNegativeTest {
                 496, 13);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
                 497, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                509, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
+                509, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                510, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
+                510, 13);
+        validateError(compileResult, index++, "value expression of key specifier 'z' must be a constant expression",
+                510, 13);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
