@@ -56,7 +56,7 @@ public class CreateDependencyGraphTask implements Task {
 
             PackageResolution packageResolution = project.currentPackage().getResolution();
 
-            if(project.currentPackage().compilationOptions().dumpRawGraphs()) {
+            if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                 packageResolution.dumpGraphs(out);
             }
 
@@ -73,6 +73,8 @@ public class CreateDependencyGraphTask implements Task {
                 }
             }
 
+            // We dump the raw graphs twice only if code generator/modifier plugins are engaged
+            // since the package has changed now
             if (packageResolution != project.currentPackage().getResolution()) {
                 packageResolution = project.currentPackage().getResolution();
                 if (project.currentPackage().compilationOptions().dumpRawGraphs()) {

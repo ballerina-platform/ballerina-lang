@@ -131,9 +131,9 @@ public class PackageResolution {
     }
 
     /**
-     * Print the final dependency graph to a user provided print stream.
+     * Print the final dependency graph to the provided print stream.
      *
-     * @param printStream user provided print stream.
+     * @param printStream print stream
      */
     public void dumpGraphs(PrintStream printStream) {
         printStream.append(this.dependencyGraphDump);

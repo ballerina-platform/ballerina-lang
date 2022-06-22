@@ -24,13 +24,13 @@ import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CreateDependencyGraphTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.FileUtils;
-import io.ballerina.cli.utils.ProjectUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -48,12 +48,14 @@ import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
  */
 @CommandLine.Command(name = GRAPH_COMMAND, description = "bal graph - Print the dependency graph")
 public class GraphCommand implements BLauncherCmd {
+    private Project project;
     private final PrintStream outStream;
     private final PrintStream errStream;
     private final boolean exitWhenFinish;
+
     @CommandLine.Parameters(arity = "0..1")
     private final Path projectPath;
-    private Project project;
+
     @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all dependency graphs created in each " +
             "attempt to update.", defaultValue = "false")
     private boolean dumpRawGraphs;
