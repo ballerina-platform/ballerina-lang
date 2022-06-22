@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.IntegerCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.PackageCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.StringCPEntry;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
+import org.wso2.ballerinalang.compiler.diagnostic.CompilerBadSadDiagnostic;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeParamAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -171,8 +172,8 @@ public class BIRPackageSymbolEnter {
         this.types = Types.getInstance(context);
     }
 
-    public BPackageSymbol definePackage(PackageID packageId, byte[] packageBinaryContent) {
-        BPackageSymbol pkgSymbol = definePackage(packageId, new ByteArrayInputStream(packageBinaryContent));
+    public BPackageSymbol definePackage(BLangPackage pkgNode, byte[] packageBinaryContent) {
+        BPackageSymbol pkgSymbol = definePackage(pkgNode, new ByteArrayInputStream(packageBinaryContent));
 
         // Strip magic value (4 bytes) and the version (2 bytes) off from the binary content of the package.
         byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
@@ -184,23 +185,23 @@ public class BIRPackageSymbolEnter {
         return pkgSymbol;
     }
 
-    private BPackageSymbol definePackage(PackageID packageId, InputStream programFileInStream) {
+    private BPackageSymbol definePackage(BLangPackage pkgNode, InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             BIRPackageSymbolEnv prevEnv = this.env;
             this.env = new BIRPackageSymbolEnv();
-            this.env.requestedPackageId = packageId;
+            this.env.requestedPackageId = pkgNode.packageID;
 
-            BPackageSymbol pkgSymbol = definePackage(dataInStream);
+            BPackageSymbol pkgSymbol = definePackage(pkgNode, dataInStream);
             this.env = prevEnv;
             return pkgSymbol;
         } catch (Throwable e) {
-            throw new BLangCompilerException("failed to load the module '" + packageId.toString() + "' from its BIR" +
+            throw new BLangCompilerException("failed to load the module '" + pkgNode.packageID.toString() + "' from its BIR" +
                     (e.getMessage() != null ? (" due to: " + e.getMessage()) : ""), e);
         }
     }
 
-    private BPackageSymbol definePackage(DataInputStream dataInStream) throws IOException {
+    private BPackageSymbol definePackage(BLangPackage pkgNode, DataInputStream dataInStream) throws IOException {
         byte[] magic = new byte[4];
         dataInStream.read(magic, 0, 4);
         if (!Arrays.equals(magic, BIRPackageFile.BIR_MAGIC)) {
@@ -218,10 +219,10 @@ public class BIRPackageSymbolEnter {
         this.env.constantPool = readConstantPool(dataInStream);
 
         int pkgCPIndex = dataInStream.readInt();
-        return definePackage(dataInStream, pkgCPIndex);
+        return definePackage(pkgNode, dataInStream, pkgCPIndex);
     }
 
-    private BPackageSymbol definePackage(DataInputStream dataInStream, int pkgCpIndex) throws IOException {
+    private BPackageSymbol definePackage(BLangPackage pkgNode, DataInputStream dataInStream, int pkgCpIndex) throws IOException {
 
         PackageCPEntry pkgCpEntry = (PackageCPEntry) this.env.constantPool[pkgCpIndex];
 
@@ -231,12 +232,13 @@ public class BIRPackageSymbolEnter {
         String pkgVersion = ((StringCPEntry) this.env.constantPool[pkgCpEntry.versionCPIndex]).value;
 
         PackageID pkgId = createPackageID(orgName, pkgName, moduleName, pkgVersion);
+        pkgNode.packageID = pkgId;
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable, COMPILED_SOURCE);
 
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
         // Define import packages.
-        defineSymbols(dataInStream, rethrow(this::defineImportPackage));
+        defineSymbols(dataInStream, rethrow(dataInStream1 -> defineImportPackage(pkgNode, dataInStream1)));
 
         // Define constants.
         defineSymbols(dataInStream, rethrow(this::defineConstant));
@@ -372,7 +374,7 @@ public class BIRPackageSymbolEnter {
     }
 
     // TODO do we need to load all the import packages of a compiled package.
-    private void defineImportPackage(DataInputStream dataInStream) throws IOException {
+    private void defineImportPackage(BLangPackage pkgNode, DataInputStream dataInStream) throws IOException {
         String orgName = getStringCPEntryValue(dataInStream);
         String pkgName = getStringCPEntryValue(dataInStream);
         String moduleName = getStringCPEntryValue(dataInStream);
@@ -382,10 +384,14 @@ public class BIRPackageSymbolEnter {
         //TODO: after bala_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         if (importPackageSymbol == null) {
-            throw new BLangCompilerException("cannot resolve module " + importPkgID);
+            BLangCompilerException exception = new BLangCompilerException("cannot resolve module " + importPkgID);
+            pkgNode.addDiagnostic(new CompilerBadSadDiagnostic(
+                    new BLangDiagnosticLocation(pkgNode.packageID.pkgName.value, 0, 0, 0, 0)
+                    , exception));
+        } else {
+            this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
+            this.env.pkgSymbol.imports.add(importPackageSymbol);
         }
-        this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
-        this.env.pkgSymbol.imports.add(importPackageSymbol);
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {

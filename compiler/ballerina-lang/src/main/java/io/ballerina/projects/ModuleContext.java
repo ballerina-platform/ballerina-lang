@@ -525,11 +525,13 @@ class ModuleContext {
                 org.wso2.ballerinalang.compiler.PackageCache.getInstance(compilerContext);
         BIRPackageSymbolEnter birPackageSymbolEnter = BIRPackageSymbolEnter.getInstance(compilerContext);
 
-        PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
-        moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(moduleCompilationId, moduleContext.birBytes);
+        BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        pkgNode.packageID = moduleContext.descriptor().moduleCompilationId();
+        moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(pkgNode, moduleContext.birBytes);
+        moduleContext.bLangPackage = pkgNode;
         moduleContext.bPackageSymbol.exported = moduleContext.isExported();
         moduleContext.bPackageSymbol.descriptor = moduleContext.descriptor();
-        packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
+        packageCache.putSymbol(pkgNode.packageID, moduleContext.bPackageSymbol);
     }
 
     static void loadPlatformSpecificCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
