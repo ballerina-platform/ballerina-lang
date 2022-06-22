@@ -17,96 +17,52 @@
 import ballerina/lang.runtime;
 import ballerina/test;
 
-int count = 0;
+import runtime_api.moduleA;
 
 function stopHandlerFunc1() returns error? {
-    runtime:sleep(2);
-    incrementCount();
-    assertCount(8);
+    runtime:sleep(1);
+    moduleA:incrementCount();
+    moduleA:assertCount(10);
 }
 
 function stopHandlerFunc2() returns error? {
-    incrementCount();
-    assertCount(7);
+    moduleA:incrementCount();
+    moduleA:assertCount(9);
 }
 
 function stopHandlerFunc3() returns error? {
-    runtime:sleep(2);
-    incrementCount();
-    assertCount(5);
+    runtime:sleep(0.5);
+    moduleA:incrementCount();
+    moduleA:assertCount(7);
 }
 
 function stopHandlerFunc4() returns error? {
-    runtime:sleep(2);
-    incrementCount();
-    assertCount(6);
-    runtime:onGracefulStop(stopHandlerFunc5);
-}
-
-function stopHandlerFunc5() returns error? {
-    runtime:sleep(2);
-    incrementCount();
-    assertCount(4);
+    runtime:sleep(1.5);
+    moduleA:incrementCount();
+    moduleA:assertCount(8);
 }
 
 function init() {
-    incrementCount();
-    assertCount(1);
+    moduleA:incrementCount();
+    moduleA:assertCount(1);
     runtime:onGracefulStop(stopHandlerFunc1);
     runtime:onGracefulStop(stopHandlerFunc2);
     runtime:onGracefulStop(stopHandlerFunc4);
 }
 
-public class ListenerObj {
-
-    *runtime:DynamicListener;
-    private string name = "";
-
-    public function init(string name) {
-        self.name = name;
-    }
-
-    public function 'start() returns error? {
-        if (self.name == "ModDyncListener") {
-            incrementCount();
-            assertCount(3);
-        }
-    }
-
-    public function gracefulStop() returns error? {
-        if (self.name == "ModDyncListener") {
-            incrementCount();
-            assertCount(4);
-        }
-    }
-
-    public function immediateStop() {
-    }
-
-    public function attach(service object {} s, string[]|string? name = ()) returns error? {
-    }
-
-    public function detach(service object {} s) returns error? {
-    }
-}
-
-final ListenerObj lo = new ListenerObj("ModDyncListener");
+final moduleA:ListenerObj lo = new moduleA:ListenerObj("ModDyncListener");
 
 public function main() {
-    incrementCount();
-    assertCount(2);
+    moduleA:incrementCount();
+    moduleA:assertCount(2);
     runtime:registerListener(lo);
     runtime:onGracefulStop(stopHandlerFunc3);
 
     checkpanic lo.'start();
-    checkpanic lo.gracefulStop();
+    error? v = lo.gracefulStop();
+    if (v is error) {
+        test:assertEquals(v.message(), "listener in main stopped");
+    }
     runtime:deregisterListener(lo);
-}
-
-function incrementCount() {
-    count += 1;
-}
-
-function assertCount(int val) {
-    test:assertEquals(count, val);
+    moduleA:main();
 }
