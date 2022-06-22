@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -71,17 +70,16 @@ public class RuntimeRegistry {
             return;
         }
         AsyncUtils.blockStrand(strand);
-        invokeMethodAsync(strand, Scheduler.getStrand().scheduler, result -> { });
+        invokeMethodAsync(strand, Scheduler.getStrand().scheduler);
     }
 
-    private void invokeMethodAsync(Strand strand, Scheduler scheduler, Consumer<Object> futureResultConsumer) {
+    private void invokeMethodAsync(Strand strand, Scheduler scheduler) {
         Iterator<BObject> itr = listenerSet.iterator();
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
             public void notifySuccess(Object result) {
-                futureResultConsumer.accept(getFutureResult());
                 if (itr.hasNext()) {
-                    invokeMethodAsync(strand, scheduler, futureResultConsumer);
+                    invokeMethodAsync(strand, scheduler);
                 } else {
                     unblockStrand();
                 }
@@ -101,11 +99,8 @@ public class RuntimeRegistry {
     private void invokeMethodAsyncConcurrently(BObject listener, Strand parent, AsyncFunctionCallback callback,
                                                StrandMetadata metadata, Scheduler scheduler) {
         Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
-        AsyncUtils.blockStrand(parent);
-        FutureValue future = scheduler.createFuture(parent, null, null, PredefinedTypes.TYPE_NULL,
+        FutureValue future = scheduler.createFuture(parent, callback, null, PredefinedTypes.TYPE_NULL,
                 null, metadata);
-        future.callback = callback;
-        callback.setFuture(future);
         callback.setStrand(parent);
         scheduler.schedule(new Object[1], func, future);
     }
