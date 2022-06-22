@@ -1355,12 +1355,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
                 data.resultType = symTable.semanticError;
             }
-            if (data.resultType == symTable.semanticError) {
-                return false;
-            }
         }
 
-        return true;
+        return data.resultType != symTable.semanticError;
     }
 
     private boolean isConstExpression(BLangExpression expression) {
