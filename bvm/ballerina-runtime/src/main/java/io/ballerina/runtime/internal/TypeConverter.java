@@ -122,8 +122,6 @@ public class TypeConverter {
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return convertValues(((BTypeReferenceType) targetType).getReferredType(), inputValue);
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                         BLangExceptionHelper.getErrorDetails(
