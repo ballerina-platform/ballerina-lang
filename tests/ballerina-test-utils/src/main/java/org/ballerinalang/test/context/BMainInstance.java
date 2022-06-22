@@ -221,6 +221,9 @@ public class BMainInstance implements BMain {
             }
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            if (envProperties != null) {
+                addJavaAgents(envProperties);
+            }
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
