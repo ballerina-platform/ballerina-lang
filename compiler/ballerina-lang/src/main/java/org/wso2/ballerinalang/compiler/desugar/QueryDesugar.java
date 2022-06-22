@@ -288,8 +288,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
-                    addTypeConversionExpr(result,
-                            queryExpr.getBType()));
+                    addTypeConversionExpr(result, queryExpr.getBType()));
             streamStmtExpr.setBType(queryExpr.getBType());
             onConflictExpr = null;
         } else {
