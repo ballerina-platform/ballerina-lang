@@ -133,4 +133,46 @@ public class SymbolDocumentationTest {
         Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.FUNCTION);
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
+
+    @Test(description = "test implicit-new-expression documentation")
+    public void testImplicitNewExprDocumentation() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(19);
+        functionPos.setCharacter(27);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
+                "Counter constructor.\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "num");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getDescription(),
+                "Number to increment");
+        Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.METHOD);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
+    @Test(description = "test explicit-new-expression documentation")
+    public void testExplicitNewExprDocumentation() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(20);
+        functionPos.setCharacter(28);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertNotEquals(symbolInfoResponse.getDocumentation(), null);
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getDescription(),
+                "File constructor.\n");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getName(), "path");
+        Assert.assertEquals(symbolInfoResponse.getDocumentation().getParameters().get(0).getDescription(),
+                "Path of the file");
+        Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.METHOD);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
 }

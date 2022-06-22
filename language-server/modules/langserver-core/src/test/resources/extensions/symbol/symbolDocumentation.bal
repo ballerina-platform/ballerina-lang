@@ -17,6 +17,8 @@ public function main() returns error? {
     module1:function3(1,2);
     module1:function1();
     createPerson("test","colombo");
+    Counter counter = new (12);
+    File f = check new File("test.txt", "Hello World");
 }
 
 # Creates and returns a `Person` object given the parameters.
@@ -32,4 +34,32 @@ public function main() returns error? {
 @deprecated
 public function createPerson(string fname, @deprecated string street) returns string {
     return "";
+}
+
+
+public class Counter {
+    private int num;
+
+    # Counter constructor.
+    #
+    # + num - Number to increment
+    public function init(int num) {
+        self.num = num;
+    }
+}
+
+
+class File {
+    string path;
+    string contents;
+
+    # File constructor.
+    #
+    # + path - Path of the file
+    # + contents - Contents of the file
+    function init(string path, string? contents) returns error? {
+        self.path = path;
+        self.contents = check contents.ensureType(string);
+        return;
+    }
 }
