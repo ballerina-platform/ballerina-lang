@@ -1,6 +1,9 @@
 {
-  "line": 1,
-  "character": 20,
+  "position": {
+    "line": 1,
+    "character": 20
+  },
+  "source": "remove_redeclared_import_source.bal",
   "expected": [
     {
       "title": "Remove all unused imports",

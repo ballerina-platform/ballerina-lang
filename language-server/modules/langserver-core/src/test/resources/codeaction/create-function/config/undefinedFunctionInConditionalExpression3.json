@@ -1,6 +1,9 @@
 {
-  "line": 9,
-  "character": 23,
+  "position": {
+    "line": 9,
+    "character": 23
+  },
+  "source": "createUndefinedFunctionInConditionalExpression.bal",
   "expected": [
     {
       "title": "Create function 'getString(...)'",

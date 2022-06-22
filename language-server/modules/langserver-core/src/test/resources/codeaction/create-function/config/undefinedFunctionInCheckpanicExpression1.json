@@ -1,6 +1,9 @@
 {
-  "line": 1,
-  "character": 31,
+  "position": {
+    "line": 1,
+    "character": 31
+  },
+  "source": "createUndefinedFunctionInCheckpanicExpression1.bal",
   "expected": [
     {
       "title": "Create function 'getInt(...)'",

@@ -1,6 +1,9 @@
 {
-  "line": 1,
-  "character": 13,
+  "position": {
+    "line": 1,
+    "character": 13
+  },
+  "source": "createUndefinedFunctionInPanicStatement.bal",
   "expected": [
     {
       "title": "Create function 'getErr(...)'",

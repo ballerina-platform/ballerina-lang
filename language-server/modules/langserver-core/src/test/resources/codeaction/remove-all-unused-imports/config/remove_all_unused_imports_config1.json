@@ -1,6 +1,10 @@
 {
-  "line": 2,
-  "character": 29,
+  "position": {
+    "line": 2
+    "character": 29
+  },
+  "source": "remove_all_unused_imports_source1.bal",
+  ,
   "expected": [
     {
       "title": "Remove all unused imports",
@@ -17,7 +21,7 @@
               "character": 0
             }
           },
-          "newText":""
+          "newText": ""
         }
       ]
     },

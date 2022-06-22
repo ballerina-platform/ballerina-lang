@@ -142,20 +142,15 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 // Named Args
                 {"create_function_with_named_args1.json"},
 
-                {"createUndefinedFunctionInConditionalExpression1.json",
-                        "createUndefinedFunctionInConditionalExpression.bal"},
-                {"createUndefinedFunctionInConditionalExpression2.json",
-                        "createUndefinedFunctionInConditionalExpression.bal"},
-                {"createUndefinedFunctionInConditionalExpression3.json",
-                        "createUndefinedFunctionInConditionalExpression.bal"},
+                {"createUndefinedFunctionInConditionalExpression1.json"},
+                {"createUndefinedFunctionInConditionalExpression2.json"},
+                {"createUndefinedFunctionInConditionalExpression3.json"},
 
-                {"createUndefinedFunctionInCheckExpression1.json", "createUndefinedFunctionInCheckExpression1.bal"},
-                {"createUndefinedFunctionInCheckExpression2.json", "createUndefinedFunctionInCheckExpression2.bal"},
-                {"createUndefinedFunctionInPanicStatement.json", "createUndefinedFunctionInPanicStatement.bal"},
-                {"createUndefinedFunctionInCheckpanicExpression1.json",
-                        "createUndefinedFunctionInCheckpanicExpression1.bal"},
-                {"createUndefinedFunctionInCheckpanicExpression2.json",
-                        "createUndefinedFunctionInCheckpanicExpression2.bal"},
+                {"createUndefinedFunctionInCheckExpression1.json"},
+                {"createUndefinedFunctionInCheckExpression2.json"},
+                {"createUndefinedFunctionInPanicStatement.json"},
+                {"createUndefinedFunctionInCheckpanicExpression1.json"},
+                {"createUndefinedFunctionInCheckpanicExpression2.json"},
         };
     }
 

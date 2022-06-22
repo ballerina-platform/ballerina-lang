@@ -1,6 +1,9 @@
 {
-  "line": 5,
-  "character": 5,
+  "position": {
+    "line": 5,
+    "character": 5
+  },
+  "source": "isolatedFunctionCodeAction/modules/module1/add_isolated_qualifier_source1.bal",
   "expected": [
     {
       "title": "Add isolated qualifier to 'testFunction'",
