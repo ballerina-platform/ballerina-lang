@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,15 +20,12 @@ package io.ballerina.converters.util;
 
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
-import io.ballerina.compiler.syntax.tree.ArrayDimensionNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxInfo;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 
-import java.lang.reflect.Array;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -47,10 +44,10 @@ public class ConverterUtils {
     private static List<String> keywords = SyntaxInfo.keywords();
 
     /**
-     * This method returns the identifiers with special characters
+     * This method returns the identifiers with special characters.
      *
-     * @param identifier Identifier name
-     * @return {@link String} Special characters escaped identifier
+     * @param identifier Identifier name.
+     * @return {@link String} Special characters escaped identifier.
      */
     public static String escapeIdentifier(String identifier) {
         if (identifier.matches("\\b\\d*\\b")) {
@@ -81,10 +78,10 @@ public class ConverterUtils {
     }
 
     /**
-     * This method returns the SyntaxToken corresponding to the JsonPrimitive
+     * This method returns the SyntaxToken corresponding to the JsonPrimitive.
      *
-     * @param value JsonPrimitive that has to be classified
-     * @return {@link Token} Classified Syntax Token
+     * @param value JsonPrimitive that has to be classified.
+     * @return {@link Token} Classified Syntax Token.
      */
     public static Token getPrimitiveTypeName(JsonPrimitive value) {
         if (value.isString()) {
@@ -103,10 +100,10 @@ public class ConverterUtils {
     }
 
     /**
-     * This method returns the sorted TypeDescriptorNode list
+     * This method returns the sorted TypeDescriptorNode list.
      *
-     * @param typeDescriptorNodes List of TypeDescriptorNodes has to be sorted
-     * @return {@link List<TypeDescriptorNode>} The sorted TypeDescriptorNode list
+     * @param typeDescriptorNodes List of TypeDescriptorNodes has to be sorted.
+     * @return {@link List<TypeDescriptorNode>} The sorted TypeDescriptorNode list.
      */
     public static List<TypeDescriptorNode> sortTypeDescriptorNodes(List<TypeDescriptorNode> typeDescriptorNodes) {
         List<TypeDescriptorNode> nonArrayNodes = typeDescriptorNodes.stream()
@@ -117,7 +114,7 @@ public class ConverterUtils {
         arrayNodes.sort((node1, node2) -> {
             ArrayTypeDescriptorNode arrayNode1 = (ArrayTypeDescriptorNode) node1;
             ArrayTypeDescriptorNode arrayNode2 = (ArrayTypeDescriptorNode) node2;
-            return getNumberOfDimensions(arrayNode1) == getNumberOfDimensions(arrayNode2) ?
+            return getNumberOfDimensions(arrayNode1).equals(getNumberOfDimensions(arrayNode2)) ?
                     (arrayNode1).memberTypeDesc().toSourceCode()
                             .compareTo((arrayNode2).memberTypeDesc().toSourceCode()) :
                     getNumberOfDimensions(arrayNode1) - getNumberOfDimensions(arrayNode2);
@@ -126,10 +123,10 @@ public class ConverterUtils {
     }
 
     /**
-     * This method returns the number of dimensions of an ArrayTypeDescriptorNode
+     * This method returns the number of dimensions of an ArrayTypeDescriptorNode.
      *
-     * @param arrayNode ArrayTypeDescriptorNode for which the no. of dimensions has to be calculated
-     * @return {@link Integer} The total no. of dimensions of the ArrayTypeDescriptorNode
+     * @param arrayNode ArrayTypeDescriptorNode for which the no. of dimensions has to be calculated.
+     * @return {@link Integer} The total no. of dimensions of the ArrayTypeDescriptorNode.
      */
     private static Integer getNumberOfDimensions(ArrayTypeDescriptorNode arrayNode) {
         int totalDimensions = arrayNode.dimensions().size();

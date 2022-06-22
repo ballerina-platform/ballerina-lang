@@ -18,6 +18,7 @@
 
 package io.ballerina.converters;
 
+import io.ballerina.converters.exception.JsonToRecordDirectConverterException;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -106,7 +107,7 @@ public class JsonToRecordDirectConverterTests {
             .resolve("sample_13.bal");
 
     @Test(description = "Test all sample JSON values")
-    public void testSamples() throws IOException, FormatterException {
+    public void testSamples() throws IOException, FormatterException, JsonToRecordDirectConverterException {
         Map<Path, Path> samples = new HashMap<>();
         samples.put(sample0Json, sample0Bal);
         samples.put(sample1Json, sample1Bal);
@@ -124,7 +125,8 @@ public class JsonToRecordDirectConverterTests {
         samples.put(sample13Json, sample13Bal);
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
-            String generatedCodeBlock = JsonToRecordDirectConverter.convert(jsonFileContent).getCodeBlock().
+            String generatedCodeBlock =
+                    JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false).getCodeBlock().
                     replaceAll("\\s+", "");
             String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
             Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);

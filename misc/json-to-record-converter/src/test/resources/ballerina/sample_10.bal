@@ -21,6 +21,6 @@ type NewRecordItem record {
     ToppingItem[] topping;
 };
 
-type NewRecordList record {
+type NewRecord record {
     NewRecordItem[] newRecord;
 };
