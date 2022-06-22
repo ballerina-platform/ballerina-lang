@@ -132,19 +132,10 @@ public class JvmAnnotationsGen {
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
         BType refType = typeDef.referenceType == null || typeDef.type.tag == TypeTags.RECORD ? typeDef.type :
                 typeDef.referenceType;
-        loadLocalType(mv, refType, jvmTypeGen);
+        jvmTypeGen.loadLocalType(mv, refType);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
                 JvmSignatures.PROCESS_ANNOTATIONS, false);
 
-    }
-
-    void loadLocalType(MethodVisitor mv, BType type, JvmTypeGen jvmTypeGen) {
-        if (type.tag == TypeTags.TYPEREFDESC) {
-            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(type,
-                    jvmPackageGen.symbolTable));
-        } else {
-            jvmTypeGen.loadType(mv, type);
-        }
     }
 
 }
