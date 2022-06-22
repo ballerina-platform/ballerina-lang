@@ -22,6 +22,8 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleId;
@@ -121,6 +123,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
     private Map<VariableDeclarationSnippet, Set<Identifier>> variableDeclarations;
     private Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations;
+
+    private final Map<Identifier, ModuleMemberDeclarationSnippet> availableModuleDeclarations;
     private List<ExecutableSnippet> executableSnippets;
     private List<Identifier> variableNames;
     private Project project;
@@ -154,6 +158,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         this.importsManager = new ImportsManager();
         this.newDefinedVariableNames = new ArrayList<>();
         this.newModuleDeclnNames = new ArrayList<>();
+        this.availableModuleDeclarations = new HashMap<>();
     }
 
     /**
@@ -233,6 +238,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
                 Identifier moduleDeclarationName = moduleDclnSnippet.name();
                 moduleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
+                availableModuleDeclarations.put(moduleDeclarationName, moduleDclnSnippet);
                 Set<Identifier> usedPrefixes = newSnippet.usedImports().stream()
                         .map(Identifier::new).collect(Collectors.toSet());
                 newImports.put(moduleDeclarationName, usedPrefixes);
@@ -601,14 +607,56 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     public List<String> availableVariables() {
         // Available variables and values as string.
         List<String> varStrings = new ArrayList<>();
+        List<String> variablesDeclarations = new ArrayList<>();
+        List<String> finalVariablesDeclarations = new ArrayList<>();
+        List<String> constVariablesDeclarations = new ArrayList<>();
+        String varString;
+
         for (GlobalVariable entry : globalVars.values()) {
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
             String objStr = StringUtils.getExpressionStringValue(obj);
             String value = StringUtils.shortenedString(objStr);
-            String varString = String.format("(%s) %s %s = %s",
-                    entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
-            varStrings.add(varString);
+            if (entry.getQualifiersAndMetadata().isEmpty()) {
+                varString = String.format("(%s) %s %s %s = %s",
+                        entry.getVariableName(), entry.getQualifiersAndMetadata(), entry.getType(),
+                        entry.getVariableName(), value);
+                finalVariablesDeclarations.add(varString);
+            } else {
+                varString = String.format("(%s) %s %s = %s",
+                        entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
+                variablesDeclarations.add(varString);
+            }
         }
+
+        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> entry : availableModuleDeclarations.entrySet()){
+            if (entry.getValue().getRootNode().kind() == SyntaxKind.CONST_DECLARATION) {
+                ConstantDeclarationNode constantDeclarationNode =
+                        (ConstantDeclarationNode) entry.getValue().getRootNode();
+                String varName = constantDeclarationNode.variableName().text();
+                String constKeyword = constantDeclarationNode.constKeyword().text();
+                String value = constantDeclarationNode.initializer().toString();
+
+                varString = String.format("(%s) %s %s = %s", varName, constKeyword, varName, value);
+                constVariablesDeclarations.add(varString);
+            }
+
+        }
+
+        if (variablesDeclarations.size() > 0) {
+            varStrings.add("Variable declarations");
+            varStrings.addAll(variablesDeclarations);
+        }
+
+        if (finalVariablesDeclarations.size() > 0) {
+            varStrings.add("Final variable declarations");
+            varStrings.addAll(finalVariablesDeclarations);
+        }
+
+        if (constVariablesDeclarations.size() > 0) {
+            varStrings.add("Constant Variable Declarations");
+            varStrings.addAll(constVariablesDeclarations);
+        }
+
         return varStrings;
     }
 
@@ -629,10 +677,12 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
     public List<String> availableModuleDeclarations() {
         // Module level dclns.
         List<String> moduleDclnStrings = new ArrayList<>();
-        for (Map.Entry<Identifier, String> entry : moduleDclns.entrySet()) {
-            String varString = String.format("(%s) %s", entry.getKey(),
-                    StringUtils.shortenedString(entry.getValue()));
-            moduleDclnStrings.add(varString);
+        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> entry: availableModuleDeclarations.entrySet()) {
+            if (!(entry.getValue().getRootNode().kind() == SyntaxKind.CONST_DECLARATION)) {
+                String varString = String.format("(%s) %s", entry.getKey(),
+                        StringUtils.shortenedString(entry.getValue()));
+                moduleDclnStrings.add(varString);
+            }
         }
         return moduleDclnStrings;
     }
