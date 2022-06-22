@@ -665,6 +665,23 @@ function testMapConstructingQueryExpr() {
     }
 }
 
+function testMapConstructingQueryExpr2() {
+    map<int>|error map1 = map from var e in (checkpanic map from var e in [1, 2, 10, 3, 5, 20]
+                                order by e descending
+                                select [e.toString(), e])
+                                order by e ascending
+                                select [e.toString(), e];
+    assertEqual(map1, {"1":1,"2":2,"3":3,"5":5,"10":10,"20":20});
+
+    map<int>|error map2 = map from var e in (from var e in [1, 2, 5, 4]
+                                let int f = e / 2
+                                order by f ascending
+                                select f)
+                                order by e descending
+                                select [e.toString(), e];
+    assertEqual(map2, {"2":2,"1":1,"0":0});
+}
+
 function testMapConstructingQueryExprWithDuplicateKeys() {
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
     Customer c2 = {id: 2, name: "James", noOfItems: 5};
@@ -874,6 +891,29 @@ function testMapConstructingQueryExprWithLimitClause() {
         }]
         on conflict onConflictError;
     assertEqual(customerMap1, {"Melina":{"id":1,"name":"Melina","noOfItems":12}});
+}
+
+function testMapConstructingQueryExprWithOrderByClause() {
+    map<int>|error sorted1 = map from var e in [1, 2, 10, 3, 5, 20]
+                                order by e ascending
+                                select [e.toString(), e];
+    assertEqual(sorted1, {"1":1,"2":2,"3":3,"5":5,"10":10,"20":20});
+
+    map<int>|error sorted2 = map from var e in [1, 2, 10, 3, 5, 20]
+                                order by e descending
+                                select [e.toString(), e];
+    assertEqual(sorted2, {"20":20,"10":10,"5":5,"3":3,"2":2,"1":1});
+
+    var sorted3 = map from var e in ["1", "2", "10", "3", "5", "20"]
+                    order by e ascending
+                    select [e, e] on conflict ();
+    assertEqual(sorted3, {"1":"1","10":"10","2":"2","20":"20","3":"3","5":"5"});
+
+    var sorted4 = map from var e in [1, 2, 5, 4]
+                    let int f = e / 2
+                    order by f ascending
+                    select [f.toString(), e] on conflict error("Error");
+    assertEqual(sorted4, error("Error"));
 }
 
 function assertEqual(anydata|error actual, anydata|error expected) {

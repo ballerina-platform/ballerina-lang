@@ -248,6 +248,16 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testMapConstructingQueryExprWithLimitClause");
     }
 
+    @Test
+    public void testMapConstructingQueryExpr2() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExpr2");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOrderByClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOrderByClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
