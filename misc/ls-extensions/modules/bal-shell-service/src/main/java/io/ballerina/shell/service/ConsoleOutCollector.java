@@ -53,7 +53,7 @@ public class ConsoleOutCollector extends OutputStream {
     public List<String> getLines() {
         // collecting if there is any left in the buffer
         String buffered = collectFromBuffer();
-        if (!buffered.trim().isEmpty()) {
+        if (!buffered.isEmpty()) {
             lines.add(buffered);
         }
         return lines;
@@ -73,6 +73,6 @@ public class ConsoleOutCollector extends OutputStream {
         }
         String buffered = new String(bytes, StandardCharsets.UTF_8);
         buffer.clear();
-        return buffered;
+        return buffered.trim();
     }
 }
