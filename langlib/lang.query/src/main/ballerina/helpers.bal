@@ -146,10 +146,11 @@ function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, err
     return tbl;
 }
 
-function addToMap(stream<Type, CompletionType> strm, map<Type|error> mp, error? err) returns map<Type|error>|error {
+function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err) returns map<Type>|error {
+// Here, `err` is used to get the expression of on-conflict clause
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
-        [string, Type|error]|error value = trap (<[string, Type|error]> checkpanic v.value);
+        [string, Type]|error value = trap (<[string, Type]> checkpanic v.value);
         if value !is error {
             string key = value[0];
             if mp.hasKey(key) && err is error {
