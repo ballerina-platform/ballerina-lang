@@ -123,7 +123,6 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
     private Map<VariableDeclarationSnippet, Set<Identifier>> variableDeclarations;
     private Map<Identifier, ModuleMemberDeclarationSnippet> moduleDeclarations;
-
     private final Map<Identifier, ModuleMemberDeclarationSnippet> availableModuleDeclarations;
     private List<ExecutableSnippet> executableSnippets;
     private List<Identifier> variableNames;
@@ -616,7 +615,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
             String objStr = StringUtils.getExpressionStringValue(obj);
             String value = StringUtils.shortenedString(objStr);
-            if (entry.getQualifiersAndMetadata().isEmpty()) {
+            if (!entry.getQualifiersAndMetadata().isEmpty()) {
                 varString = String.format("(%s) %s %s %s = %s",
                         entry.getVariableName(), entry.getQualifiersAndMetadata(), entry.getType(),
                         entry.getVariableName(), value);
@@ -628,7 +627,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             }
         }
 
-        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> entry : availableModuleDeclarations.entrySet()){
+        for (Map.Entry<Identifier, ModuleMemberDeclarationSnippet> entry : availableModuleDeclarations.entrySet()) {
             if (entry.getValue().getRootNode().kind() == SyntaxKind.CONST_DECLARATION) {
                 ConstantDeclarationNode constantDeclarationNode =
                         (ConstantDeclarationNode) entry.getValue().getRootNode();
