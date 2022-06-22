@@ -347,7 +347,7 @@ public class CoverageReport {
                     }
                     Document document = getDocument(sourceFileModule, sourceFileCoverage.getName());
                     // If the document exists in the exclusion list then we continue on with the loop
-                    if (exclusionList.contains(document.documentId())) {
+                    if (document != null && exclusionList.contains(document.documentId())) {
                         continue;
                     }
                     // If file is a source bal file
