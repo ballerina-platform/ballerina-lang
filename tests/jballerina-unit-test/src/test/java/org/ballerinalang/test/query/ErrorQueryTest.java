@@ -128,18 +128,23 @@ public class ErrorQueryTest {
     }
 
     @Test
-    public void testErrorReturnedFromStream() {
-        BRunUtil.invoke(result, "testErrorReturnedFromStream");
+    public void testErrorReturnedFromStreamConstruction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromStreamConstruction");
     }
 
     @Test
-    public void testErrorReturnedFromTable() {
-        BRunUtil.invoke(result, "testErrorReturnedFromTable");
+    public void testErrorReturnedFromTableConstruction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromTableConstruction");
     }
 
     @Test
-    public void testErrorReturnedFromXml() {
-        BRunUtil.invoke(result, "testErrorReturnedFromXml");
+    public void testErrorReturnedFromXmlConstruction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromXmlConstruction");
+    }
+
+    @Test
+    public void testErrorReturnedFromArrayConstruction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromArrayConstruction");
     }
 
     @Test(description = "Test negative scenarios for different constructors with queries")

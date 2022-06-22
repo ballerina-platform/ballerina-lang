@@ -5491,8 +5491,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangCheckedExpr checkedExpr, AnalyzerData data) {
         Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
-        typeCheckerData.checkWithinQueryExpr = !typeCheckerData.checkWithinQueryExpr
-                && isWithinQuery(data);
+        typeCheckerData.checkWithinQueryExpr = isWithinQuery(data);
         visitCheckAndCheckPanicExpr(checkedExpr, data);
         if (typeCheckerData.checkWithinQueryExpr
                 && typeCheckerData.checkedErrorList != null
@@ -5509,10 +5508,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
         Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
+
+        //reset common analyzer data
         boolean prevCheckWithinQueryExpr = typeCheckerData.checkWithinQueryExpr;
         typeCheckerData.checkWithinQueryExpr = false;
+
         HashSet<BType> prevCheckedErrorList = typeCheckerData.checkedErrorList;
         typeCheckerData.checkedErrorList = new HashSet<>();
+
+        Stack<BLangNode> prevQueryFinalClauses = typeCheckerData.queryFinalClauses;
+        typeCheckerData.queryFinalClauses = new Stack<>();
+
+        int prevLetCount = typeCheckerData.letCount;
+        typeCheckerData.letCount = 0;
+
         if (typeCheckerData.breakToParallelQueryEnv) {
             typeCheckerData.queryEnvs.push(data.prevEnvs.peek());
         } else {
@@ -5543,8 +5552,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return;
             }
         }
+        
+        //re-assign common analyzer data
         typeCheckerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
         typeCheckerData.checkedErrorList = prevCheckedErrorList;
+        typeCheckerData.queryFinalClauses = prevQueryFinalClauses;
+        typeCheckerData.letCount = prevLetCount;
+
         data.resultType = actualType;
     }
 
@@ -5759,8 +5773,20 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
         Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
+
+        //reset common analyzer data
+        boolean prevCheckWithinQueryExpr = typeCheckerData.checkWithinQueryExpr;
+        typeCheckerData.checkWithinQueryExpr = false;
+
         HashSet<BType> prevCheckedErrorList = typeCheckerData.checkedErrorList;
         typeCheckerData.checkedErrorList = new LinkedHashSet<>();
+
+        Stack<BLangNode> prevQueryFinalClauses = typeCheckerData.queryFinalClauses;
+        typeCheckerData.queryFinalClauses = new Stack<>();
+
+        int prevLetCount = typeCheckerData.letCount;
+        typeCheckerData.letCount = 0;
+
         if (typeCheckerData.breakToParallelQueryEnv) {
             typeCheckerData.queryEnvs.push(data.prevEnvs.peek());
         } else {
@@ -5788,7 +5814,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (!typeCheckerData.breakToParallelQueryEnv) {
             data.prevEnvs.pop();
         }
+
+        //re-assign common analyzer data
+        typeCheckerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
         typeCheckerData.checkedErrorList = prevCheckedErrorList;
+        typeCheckerData.queryFinalClauses = prevQueryFinalClauses;
+        typeCheckerData.letCount = prevLetCount;
     }
 
     @Override

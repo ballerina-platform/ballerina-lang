@@ -543,7 +543,7 @@ type ValueRecord record {|
     int value;
 |};
 
-function testErrorReturnedFromStream() {
+function testErrorReturnedFromStreamConstruction() {
     stream<int> stream1 = stream from int i in numGen
         select i;
     int? val1 = stream1.next()?.value;
@@ -597,7 +597,7 @@ type Customer record {
 
 type CustomerTable table<Customer> key(id);
 
-function testErrorReturnedFromTable() {
+function testErrorReturnedFromTableConstruction() {
     CustomerTable|error customerTable1 = table key(id) from int i in 1 ... 3
         select check getCustomerOrError();
     assertTrue(customerTable1 is error);
@@ -620,7 +620,7 @@ xml theXml = xml `<book>the book</book>`;
 xml bitOfText = xml `bit of text\u2702\u2705`;
 xml compositeXml = theXml + bitOfText;
 
-function testErrorReturnedFromXml() {
+function testErrorReturnedFromXmlConstruction() {
     xml|error xml1 = from var elem in compositeXml
         select check getXmlOrError();
     assertTrue(xml1 is error);
@@ -638,6 +638,31 @@ function testErrorReturnedFromXml() {
             select x)
         select theXml;
     assertTrue(xml4 is error);
+}
+
+function testErrorReturnedFromArrayConstruction() {
+    int[]|CustomError arr1 = from int i in numGenWithError
+        select i;
+    assertTrue(arr1 is CustomError);
+    assertTrue(arr1 is error);
+
+    int[]|CustomError arr2 = from int i in 1 ... 3
+        select check getIntOrCustomError();
+    assertTrue(arr2 is CustomError);
+
+    int[]|CustomError arr3 = from int i in numGenWithError
+        select check getIntOrCustomError();
+    assertTrue(arr3 is CustomError);
+
+    CustomError|int[] arr4 = from int i in 1 ... 3
+        let int j = check getIntOrCustomError()
+        select j;
+    assertTrue(arr4 is CustomError);
+
+    int[]|error arr5 = from int i in 1 ... 3
+        where i == check getIntOrCustomError()
+        select i;
+    assertTrue(arr5 is error);
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------

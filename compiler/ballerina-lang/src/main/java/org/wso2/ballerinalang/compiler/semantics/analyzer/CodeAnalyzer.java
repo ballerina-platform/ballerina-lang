@@ -3203,7 +3203,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
         boolean prevFailureHandled = data.failureHandled;
         data.failureHandled = true;
-        data.errorTypes.push(new LinkedHashSet<>());
+//        data.errorTypes.push(new LinkedHashSet<>());
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3220,7 +3220,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         validateActionParentNode(queryAction.pos, queryAction);
         data.failureHandled = prevFailureHandled;
-        data.errorTypes.pop();
+//        data.errorTypes.pop();
     }
 
     @Override

@@ -842,6 +842,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
+        data.commonAnalyzerData = new Types.CommonAnalyzerData();
         boolean isLambda = false;
         if (currentEnv.node.getKind() == FUNCTION) {
             BLangFunction function = (BLangFunction) currentEnv.node;
