@@ -161,7 +161,7 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 55, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 68, 13);
         validateWarning(result, i++, "unused variable 'ft'", 80, 5);
-        validateError(result, i++, "invalid async invocation of a non-isolated function in an 'isolated' function",
+        validateError(result, i++, "invalid start action calling a non-isolated function in an 'isolated' function",
                 80, 28);
         validateWarning(result, i++, "unused variable 'a'", 94, 5);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 94, 13);

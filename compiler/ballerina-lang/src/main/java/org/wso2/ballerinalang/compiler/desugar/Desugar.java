@@ -406,6 +406,7 @@ public class Desugar extends BLangNodeVisitor {
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    // Reuse the strand annotation in isolated workers and start action
     private BLangAnnotationAttachment strandAnnotAttachement;
 
     public static Desugar getInstance(CompilerContext context) {
@@ -813,10 +814,11 @@ public class Desugar extends BLangNodeVisitor {
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
-        addRecordTypeNodeForTypeDef(pkgNode, prevTypeDefinitions);
+        addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
     }
 
-    private void addRecordTypeNodeForTypeDef(BLangPackage pkgNode, List<BLangTypeDefinition> prevTypeDefinitions) {
+    private void addInitFunctionForRecordTypeNodeInTypeDef(BLangPackage pkgNode,
+                                                         List<BLangTypeDefinition> prevTypeDefinitions) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             if (prevTypeDefinitions.contains(typeDef)) {
                 continue;
@@ -6375,10 +6377,11 @@ public class Desugar extends BLangNodeVisitor {
         if (this.strandAnnotAttachement == null) {
             BLangPackage pkgNode = env.enclPkg;
             List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+            // Create strand annotation once and reuse it for all isolated start-actions and named workers.
             this.strandAnnotAttachement =
-                    annotationDesugar.addStrandAnnotationWithThreadAny(actionInvocation.pos, env);
-            // Add record type node for internally added strand annotation.
-            addRecordTypeNodeForTypeDef(pkgNode, prevTypeDefinitions);
+                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            // Add init function for record type node in type def introduced for internally added strand annotation.
+            addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
         }
 
         actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);

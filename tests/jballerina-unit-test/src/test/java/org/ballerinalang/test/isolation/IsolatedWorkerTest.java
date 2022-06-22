@@ -40,16 +40,19 @@ public class IsolatedWorkerTest {
     private CompileResult isolationInference2;
 
     private static final String ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION =
-            "invalid async invocation of a non-isolated function in an 'isolated' function";
+            "invalid start action calling a non-isolated function in an 'isolated' function";
     private static final String ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT =
-            "invalid access of a non isolated expression in a argument of an async invocation of " +
-                    "an 'isolated' function";
+            "invalid start action accessing a non isolated expression in an argument of a " +
+                    "async call of an 'isolated' function";
     private static final String ERROR_INVALID_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION =
             "invalid invocation of a non-isolated function in an 'isolated' function";
     private static final String ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNCTION =
             "invalid access of mutable storage in an 'isolated' function";
-    private static final String ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION =
-    "'ballerina/lang.annotations:0.0.0:strand' annotation not allowed in an async invocation in an 'isolated' function";
+    private static final String ERROR_INVALID_STRAND_ANNOTATION_IN_START_ACTION_IN_ISOLATED_FUNCTION =
+    "'ballerina/lang.annotations:0.0.0:strand' annotation not allowed in a start action in an 'isolated' function";
+    private static final String ERROR_INVALID_STRAND_ANNOTATION_IN_WORKER_IN_ISOLATED_FUNCTION =
+            "'ballerina/lang.annotations:0.0.0:strand' annotation not allowed in a worker declaration in an" +
+                    " 'isolated' function";
     private static final String WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED =
             "usage of 'ballerina/lang.annotations:0.0.0:strand' annotation will be deprecated";
 
@@ -164,9 +167,9 @@ public class IsolatedWorkerTest {
                 273, 32);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 273, 40);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 273, 45);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 278, 21);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 287, 21);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 296, 21);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_START_ACTION_IN_ISOLATED_FUNCTION, 278, 21);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_START_ACTION_IN_ISOLATED_FUNCTION, 287, 21);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_START_ACTION_IN_ISOLATED_FUNCTION, 296, 21);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -182,9 +185,9 @@ public class IsolatedWorkerTest {
         validateError(result, i++, ERROR_INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION,
                 70, 30);
         validateError(result, i++, ERROR_INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGUMENT, 77, 33);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 85, 5);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 92, 9);
-        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION, 96, 9);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_WORKER_IN_ISOLATED_FUNCTION, 85, 5);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_WORKER_IN_ISOLATED_FUNCTION, 92, 9);
+        validateError(result, i++, ERROR_INVALID_STRAND_ANNOTATION_IN_WORKER_IN_ISOLATED_FUNCTION, 96, 9);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

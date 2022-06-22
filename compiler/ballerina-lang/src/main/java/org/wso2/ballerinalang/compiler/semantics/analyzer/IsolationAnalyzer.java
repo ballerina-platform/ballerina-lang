@@ -1229,7 +1229,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        boolean inIsolatedFunction = isInIsolatedFunction();
+        boolean inIsolatedFunction = isInIsolatedFunction(env);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(enclType);
         boolean objectFieldDefaultValueRequiringIsolation = !recordFieldDefaultValue &&
                 isObjectFieldDefaultValueRequiringIsolation(env);
@@ -1413,13 +1413,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (isInIsolatedFunction()) {
-            if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, true)) {
+        boolean isWorker = actionInvocationExpr.functionPointerInvocation;
+        if (isInIsolatedFunction(env)) {
+            if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, true, isWorker)) {
                 return;
             }
 
-            if (!actionInvocationExpr.functionPointerInvocation &&
-                    !isValidIsolatedAsyncInvocation(actionInvocationExpr)) {
+            if (!isWorker && !isValidIsolatedAsyncInvocation(actionInvocationExpr)) {
                 return;
             }
 
@@ -1427,7 +1427,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, false)) {
+        if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, false, isWorker)) {
             markDependsOnIsolationNonInferableConstructs();
             inferredIsolated = false;
             return;
@@ -1436,16 +1436,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         analyzeInvocation(actionInvocationExpr);
     }
 
-    private boolean checkStrandAnnotationExists(List<BLangAnnotationAttachment> attachments, boolean logError) {
+    private boolean checkStrandAnnotationExists(List<BLangAnnotationAttachment> attachments, boolean inIsolatedFunc,
+                                                boolean isWorker) {
         BAnnotationSymbol strandAnnotSymbol = symResolver.getStrandAnnotationSymbol();
+        String actionInvocation = isWorker ? "worker declaration" : "start action";
         for (BLangAnnotationAttachment attachment : attachments) {
             if (attachment.annotationSymbol == strandAnnotSymbol) {
-                if (logError) {
+                if (inIsolatedFunc) {
                     dlog.error(attachment.pos, DiagnosticErrorCode.INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION,
-                            strandAnnotSymbol);
+                            strandAnnotSymbol, actionInvocation);
                 } else {
                     dlog.warning(attachment.pos, DiagnosticWarningCode.USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED,
-                            strandAnnotSymbol);
+                            strandAnnotSymbol, actionInvocation);
                 }
                 return true;
             }
@@ -2016,7 +2018,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        boolean inIsolatedFunction = isInIsolatedFunction();
+        boolean inIsolatedFunction = isInIsolatedFunction(env);
         boolean recordFieldDefaultValue = isRecordFieldDefaultValue(env.enclType);
         boolean objectFieldDefaultValueRequiringIsolation = isObjectFieldDefaultValueRequiringIsolation(env);
 
@@ -2064,7 +2066,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    private boolean isInIsolatedFunction() {
+    private boolean isInIsolatedFunction(SymbolEnv env) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
         if (enclInvokable != null && enclInvokable.flagSet.contains(Flag.WORKER)) {
             return isInIsolatedFunction(getWorkerEnclosedFunctionInvokable());

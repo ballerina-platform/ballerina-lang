@@ -1071,7 +1071,7 @@ public class AnnotationDesugar {
         return params;
     }
 
-    public BLangAnnotationAttachment addStrandAnnotationWithThreadAny(Location position, SymbolEnv env) {
+    public BLangAnnotationAttachment createStrandAnnotationWithThreadAny(Location position, SymbolEnv env) {
         // Create annotation attachment.
         BLangAnnotationAttachment annotAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         annotAttachment.annotationSymbol = symResolver.getStrandAnnotationSymbol();
