@@ -2004,7 +2004,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.PARAM_END;
             case ANNOTATION_DECL_START:
                 return ParserRuleContext.ANNOTATION_KEYWORD;
-            case TUPLE_MEMBERS:
+            case TUPLE_MEMBER:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
@@ -4143,7 +4143,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_EXPRESSION:
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
-            case TYPE_DESC_IN_TUPLE:
             case TYPE_DESC_IN_SERVICE:
             case TYPE_DESC_IN_PATH_PARAM:
             case TUPLE_MEMBERS:
@@ -4521,7 +4520,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
             case TUPLE_MEMBERS:
-                return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
+                return ParserRuleContext.TUPLE_MEMBER;
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 endContext();
                 return ParserRuleContext.SEMICOLON;
@@ -5052,7 +5051,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
-            case TYPE_DESC_IN_TUPLE:
             case TUPLE_MEMBERS:
                 endContext(); // End array/tuple type descriptor context
                 return ParserRuleContext.TYPE_DESC_RHS;

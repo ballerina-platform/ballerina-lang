@@ -488,7 +488,7 @@
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_TYPE_DESC"
+                                "ERROR_MISSING_IDENTIFIER"
                               ]
                             }
                           ]

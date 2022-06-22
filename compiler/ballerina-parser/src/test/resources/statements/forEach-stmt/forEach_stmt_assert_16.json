@@ -253,6 +253,10 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
                                               "kind": "SIMPLE_NAME_REFERENCE",
                                               "hasDiagnostics": true,
                                               "children": [
@@ -261,7 +265,7 @@
                                                   "isMissing": true,
                                                   "hasDiagnostics": true,
                                                   "diagnostics": [
-                                                    "ERROR_MISSING_TYPE_DESC"
+                                                    "ERROR_MISSING_IDENTIFIER"
                                                   ]
                                                 }
                                               ]
@@ -271,6 +275,10 @@
                                         {
                                           "kind": "MEMBER_TYPE_DESC",
                                           "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
                                             {
                                               "kind": "COMMA_TOKEN",
                                               "trailingMinutiae": [
@@ -285,6 +293,10 @@
                                         {
                                           "kind": "MEMBER_TYPE_DESC",
                                           "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
                                             {
                                               "kind": "SINGLETON_TYPE_DESC",
                                               "children": [
