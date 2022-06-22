@@ -37,11 +37,11 @@ import java.util.stream.Collectors;
 public class BLangTupleTypeNode extends BLangType implements TupleTypeNode {
 
     // BLangNodes
-    public List<BLangType> memberTypeNodes = new ArrayList<>();
+    public List<BLangMemberTypeNode> memberTypeNodes = new ArrayList<>();
     public BLangType restParamType;
 
     @Override
-    public List<BLangType> getMemberTypeNodes() {
+    public List<BLangMemberTypeNode> getMemberTypeNodes() {
         return memberTypeNodes;
     }
 

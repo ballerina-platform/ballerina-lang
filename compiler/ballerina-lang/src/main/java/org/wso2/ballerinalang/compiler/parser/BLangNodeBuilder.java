@@ -431,6 +431,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -996,8 +997,11 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 RestDescriptorNode restDescriptor = (RestDescriptorNode) node;
                 tupleTypeNode.restParamType = createTypeNode(restDescriptor.typeDescriptor());
             } else {
-                MemberTypeDescriptorNode member = (MemberTypeDescriptorNode) node;
-                tupleTypeNode.memberTypeNodes.add(createTypeNode(member.typeDescriptor()));
+                MemberTypeDescriptorNode memberNode = (MemberTypeDescriptorNode) node;
+                BLangMemberTypeNode member = (BLangMemberTypeNode) TreeBuilder.createMemberTypeNode();
+                member.typeNode = createTypeNode(memberNode.typeDescriptor());
+                member.annAttachments = applyAll(memberNode.annotations());
+                tupleTypeNode.memberTypeNodes.add(member);
             }
         }
         tupleTypeNode.pos = getPosition(tupleTypeDescriptorNode);

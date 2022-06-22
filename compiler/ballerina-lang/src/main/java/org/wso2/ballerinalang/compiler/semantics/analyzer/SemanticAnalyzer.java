@@ -181,6 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -889,12 +890,21 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
-        List<BLangType> memberTypeNodes = tupleTypeNode.memberTypeNodes;
-        for (BLangType memType : memberTypeNodes) {
+        List<BLangMemberTypeNode> memberTypeNodes = tupleTypeNode.memberTypeNodes;
+        for (BLangMemberTypeNode memType : memberTypeNodes) {
             analyzeDef(memType, data);
         }
         if (tupleTypeNode.restParamType != null) {
             analyzeDef(tupleTypeNode.restParamType, data);
+        }
+    }
+
+    @Override
+    public void visit(BLangMemberTypeNode memberTypeNode, AnalyzerData data) {
+        analyzeDef(memberTypeNode.typeNode, data);
+        for (BLangAnnotationAttachment annotationAttachment : memberTypeNode.annAttachments) {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
+            this.analyzeDef(annotationAttachment, data);
         }
     }
 
