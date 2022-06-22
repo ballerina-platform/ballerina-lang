@@ -26,8 +26,21 @@ public class CyclicDependenciesTest {
     private static final ResolutionEngine.DependencyNode PACKAGE_05 = createNode("wso2", "database", "3.2.2");
     private static final ResolutionEngine.DependencyNode PACKAGE_06 = createNode("wso2", "thread", "1.0.0");
 
-    @Test(dataProvider = "cases")
-    public void test(String testCase, List<List<ResolutionEngine.DependencyNode>> expectedCycles) {
+    @Test
+    public void testAcyclicDependencies() {
+        MutableGraph mutableGraph = DotGraphUtils.createGraph(RESOURCE_DIRECTORY.resolve("case000.dot"));
+        DependencyGraph<ResolutionEngine.DependencyNode> dependencyGraph =
+                DotGraphUtils.createDependencyNodeGraph(mutableGraph);
+        List<ResolutionEngine.DependencyNode> sortedDependencies =
+                dependencyGraph.toTopologicallySortedListWithCycles();
+
+        Assert.assertEquals(dependencyGraph.findCycles().size(), 0);
+        Assert.assertNotNull(sortedDependencies);
+        Assert.assertEquals(sortedDependencies, List.of(PACKAGE_04, PACKAGE_02, PACKAGE_06, PACKAGE_01));
+    }
+
+    @Test(dataProvider = "provideCyclicDependencies")
+    public void testCyclicDependencies(String testCase, List<List<ResolutionEngine.DependencyNode>> expectedCycles) {
         MutableGraph mutableGraph = DotGraphUtils.createGraph(RESOURCE_DIRECTORY.resolve(testCase + ".dot"));
         DependencyGraph<ResolutionEngine.DependencyNode> dependencyGraph =
                 DotGraphUtils.createDependencyNodeGraph(mutableGraph);
@@ -40,8 +53,8 @@ public class CyclicDependenciesTest {
         actualCycles.forEach(cycle -> Assert.assertTrue(expectedCycles.contains(cycle)));
     }
 
-    @DataProvider(name = "cases")
-    private Object[][] cases() {
+    @DataProvider(name = "provideCyclicDependencies")
+    private Object[][] provideCyclicDependencies() {
         return new Object[][]{
                 {"case001", List.of(
                         Arrays.asList(PACKAGE_01, PACKAGE_02, PACKAGE_04, PACKAGE_01),

@@ -396,7 +396,23 @@ public class PackageResolution {
         // Compile the module and collect diagnostics.
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
-        List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
+        List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedListWithCycles();
+        if (sortedPackages == null) {
+            for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
+                        "cyclic module imports detected ''"
+                                + cycle.stream()
+                                .map(dependency -> dependency.packageInstance().descriptor().toString())
+                                .collect(Collectors.joining(" -> ")) + "''",
+                        DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
+                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                        rootPackageContext.descriptor().name().toString());
+                diagnosticList.add(diagnostic);
+            }
+            this.topologicallySortedModuleList = Collections.unmodifiableList(sortedModuleList);
+            return;
+        }
         for (ResolvedPackageDependency pkgDependency : sortedPackages) {
             Package resolvedPackage = pkgDependency.packageInstance();
             resolvedPackage.packageContext().resolveDependencies(dependencyResolution);
@@ -409,11 +425,12 @@ public class PackageResolution {
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
                             "cyclic module imports detected ''"
                                     + cycle.stream()
-                                    .map(desc -> desc.name().toString() + ":" + desc.version().toString())
+                                    .map(desc -> desc.org().toString() + "/" + desc.name().toString() + ":"
+                                            + desc.version().toString())
                                     .collect(Collectors.joining(" -> ")) + "''",
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
                     PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
-                            resolvedPackage.descriptor().toString());
+                            resolvedPackage.descriptor().name().toString());
                     diagnosticList.add(diagnostic);
                 }
             } else {

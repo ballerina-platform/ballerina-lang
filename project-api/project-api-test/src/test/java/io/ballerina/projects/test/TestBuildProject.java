@@ -1285,7 +1285,7 @@ public class TestBuildProject extends BaseTest {
                 .contains("unknown type 'PersonalDetails'"));
     }
 
-    @Test
+    @Test(enabled = false)
     public void testEditPackageWithCyclicDependency() {
         Path projectPath = RESOURCE_DIRECTORY
                 .resolve("projects_for_edit_api_tests/package_with_cyclic_dependencies");

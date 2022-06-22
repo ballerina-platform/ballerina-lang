@@ -142,7 +142,7 @@ public class DependencyGraph<T> {
     }
 
     public List<T> toTopologicallySortedListWithCycles() {
-        if (topologicallySortedNodes != null && cyclicDependencies != null) {
+        if (cyclicDependencies != null) {
             return topologicallySortedNodes;
         }
 
@@ -183,20 +183,21 @@ public class DependencyGraph<T> {
 
         for (T node : new TreeSet<>(dependencies.get(vertex))) {
             if (ancestors.contains(node)) {
-                List<T> cyclic = new ArrayList<>(ancestors.subList(ancestors.indexOf(node), ancestors.size()));
+                List<T> newCycle = new ArrayList<>(ancestors.subList(ancestors.indexOf(node), ancestors.size()));
 
                 boolean contains = false;
                 for (List<T> cycle: cyclicDependencies) {
-                    if (new HashSet<>(cycle).equals(new HashSet<>(cyclic))) {
+                    if (new HashSet<>(cycle).equals(new HashSet<>(newCycle))) {
                         contains = true;
                         break;
                     }
                 }
                 if (!contains) {
-                    cyclicDependencies.add(cyclic);
+                    cyclicDependencies.add(newCycle);
                 }
+
                 topologicallySortedNodes = null;
-            } else {
+            } else if (!visited.contains(node) || !cyclicDependencies.isEmpty()) {
                 sortTopologicallyWithCycles(node, visited, ancestors);
             }
         }
