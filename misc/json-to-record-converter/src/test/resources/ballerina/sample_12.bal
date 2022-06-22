@@ -3,6 +3,6 @@ type NewRecordItem record {
 	string value;
 };
 
-type NewRecordList record {
+type NewRecord record {
 	NewRecordItem[] newRecord;
 };
