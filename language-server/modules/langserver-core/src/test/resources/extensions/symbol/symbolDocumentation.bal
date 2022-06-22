@@ -19,6 +19,7 @@ public function main() returns error? {
     createPerson("test","colombo");
     Counter counter = new (12);
     File f = check new File("test.txt", "Hello World");
+    Person pr = new;
 }
 
 # Creates and returns a `Person` object given the parameters.
@@ -35,7 +36,6 @@ public function main() returns error? {
 public function createPerson(string fname, @deprecated string street) returns string {
     return "";
 }
-
 
 public class Counter {
     private int num;
@@ -61,5 +61,14 @@ class File {
         self.path = path;
         self.contents = check contents.ensureType(string);
         return;
+    }
+}
+
+class Person {
+    string name = "";
+    int id = 123;
+
+    function getName() returns string {
+        return self.name;
     }
 }

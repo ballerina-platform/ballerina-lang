@@ -175,4 +175,20 @@ public class SymbolDocumentationTest {
         Assert.assertEquals(symbolInfoResponse.getSymbolKind(), SymbolKind.METHOD);
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
+
+    @Test(description = "test implicit-new-expression documentation without init()")
+    public void testImplicitNewExprDocumentationWithoutInit() throws IOException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(symbolDocumentBalFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        Position functionPos = new Position();
+        functionPos.setLine(21);
+        functionPos.setCharacter(19);
+        SymbolInfoResponse symbolInfoResponse = LSExtensionTestUtil.getSymbolDocumentation(
+                inputFile.toString(), functionPos, this.serviceEndpoint);
+
+        Assert.assertEquals(symbolInfoResponse.getDocumentation(), null);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
 }
