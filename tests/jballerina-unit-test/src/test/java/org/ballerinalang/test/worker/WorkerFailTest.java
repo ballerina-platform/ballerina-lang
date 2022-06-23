@@ -120,7 +120,12 @@ public class WorkerFailTest {
     public void testSendReceiveMismatch() {
         CompileResult result = BCompileUtil.compile("test-src/workers/send_receive_mismatch_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "incompatible types: expected 'string', found 'int'", 25, 20);
+        Assert.assertEquals(result.getWarnCount(), 2);
+        validateWarning(result, 0, "the 'strand' annotation will be deprecated"
+                , 18, 5);
+        validateWarning(result, 1, "the 'strand' annotation will be deprecated"
+                , 23, 5);
+        validateError(result, 2, "incompatible types: expected 'string', found 'int'", 25, 20);
     }
 
     @Test

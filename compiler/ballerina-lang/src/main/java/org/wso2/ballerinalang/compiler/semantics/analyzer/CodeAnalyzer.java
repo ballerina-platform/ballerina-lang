@@ -1990,7 +1990,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
+        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2044,7 +2044,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = data.workerActionSystemStack.peek();
 
-        if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
+        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
@@ -2073,7 +2073,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         WorkerActionSystem was = data.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        if (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt) {
+        if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
@@ -2585,7 +2585,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         while (parent != null) {
             final NodeKind kind = parent.getKind();
-            if (parent instanceof StatementNode) {
+            if (parent instanceof StatementNode || checkActionInQuery(kind)) {
                 return true;
             } else if (parent instanceof ActionNode || parent instanceof BLangVariable || kind == NodeKind.CHECK_EXPR ||
                     kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.TRAP_EXPR || kind == NodeKind.GROUP_EXPR ||
@@ -2602,6 +2602,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         dlog.error(pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION_AS_EXPR);
         return false;
+    }
+
+    private boolean checkActionInQuery(NodeKind parentKind) {
+        return parentKind == NodeKind.FROM || parentKind == NodeKind.SELECT ||
+                parentKind == NodeKind.LET_CLAUSE;
     }
 
     @Override
@@ -3183,6 +3188,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.errorTypes.push(new LinkedHashSet<>());
         boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
+        boolean prevWithinQuery = data.withinQuery;
+        data.withinQuery = true;
         int fromCount = 0;
         for (BLangNode clause : queryExpr.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -3199,6 +3206,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         data.failureHandled = failureHandled;
         data.errorTypes.pop();
+        data.withinQuery = prevWithinQuery;
         data.queryToTableWithKey = prevQueryToTableWithKey;
     }
 
@@ -3206,6 +3214,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangQueryAction queryAction, AnalyzerData data) {
         boolean prevFailureHandled = data.failureHandled;
         data.failureHandled = true;
+        boolean prevWithinQuery = data.withinQuery;
+        data.withinQuery = true;
         data.errorTypes.push(new LinkedHashSet<>());
         int fromCount = 0;
         for (BLangNode clause : queryAction.getQueryClauses()) {
@@ -3223,6 +3233,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         }
         validateActionParentNode(queryAction.pos, queryAction);
         data.failureHandled = prevFailureHandled;
+        data.withinQuery = prevWithinQuery;
         data.errorTypes.pop();
     }
 
@@ -4095,6 +4106,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean failureHandled;
         boolean failVisited;
         boolean queryToTableWithKey;
+        boolean withinQuery;
         Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
         Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;
