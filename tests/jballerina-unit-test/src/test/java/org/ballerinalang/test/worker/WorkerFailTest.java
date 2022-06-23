@@ -121,9 +121,9 @@ public class WorkerFailTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/send_receive_mismatch_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
         Assert.assertEquals(result.getWarnCount(), 2);
-        validateWarning(result, 0, "usage of 'ballerina/lang.annotations:0.0.0:strand' annotation will be deprecated"
+        validateWarning(result, 0, "usage of 'strand' annotation will be deprecated"
                 , 18, 5);
-        validateWarning(result, 1, "usage of 'ballerina/lang.annotations:0.0.0:strand' annotation will be deprecated"
+        validateWarning(result, 1, "usage of 'strand' annotation will be deprecated"
                 , 23, 5);
         validateError(result, 2, "incompatible types: expected 'string', found 'int'", 25, 20);
     }

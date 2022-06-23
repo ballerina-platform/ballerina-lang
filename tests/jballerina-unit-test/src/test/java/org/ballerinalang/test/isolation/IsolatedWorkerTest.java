@@ -49,12 +49,11 @@ public class IsolatedWorkerTest {
     private static final String ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNCTION =
             "invalid access of mutable storage in an 'isolated' function";
     private static final String ERROR_INVALID_STRAND_ANNOTATION_IN_START_ACTION_IN_ISOLATED_FUNCTION =
-    "'ballerina/lang.annotations:0.0.0:strand' annotation not allowed in a start action in an 'isolated' function";
+            "'strand' annotation not allowed in a start action in an 'isolated' function";
     private static final String ERROR_INVALID_STRAND_ANNOTATION_IN_WORKER_IN_ISOLATED_FUNCTION =
-            "'ballerina/lang.annotations:0.0.0:strand' annotation not allowed in a worker declaration in an" +
-                    " 'isolated' function";
+            "'strand' annotation not allowed in a worker declaration in an 'isolated' function";
     private static final String WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED =
-            "usage of 'ballerina/lang.annotations:0.0.0:strand' annotation will be deprecated";
+            "usage of 'strand' annotation will be deprecated";
 
     @BeforeClass
     public void setup() {

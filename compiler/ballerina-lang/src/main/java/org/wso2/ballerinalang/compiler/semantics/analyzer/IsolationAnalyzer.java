@@ -1439,15 +1439,14 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean checkStrandAnnotationExists(List<BLangAnnotationAttachment> attachments, boolean inIsolatedFunc,
                                                 boolean isWorker) {
         BAnnotationSymbol strandAnnotSymbol = symResolver.getStrandAnnotationSymbol();
-        String actionInvocation = isWorker ? "worker declaration" : "start action";
         for (BLangAnnotationAttachment attachment : attachments) {
             if (attachment.annotationSymbol == strandAnnotSymbol) {
                 if (inIsolatedFunc) {
+                    String actionInvocation = isWorker ? "worker declaration" : "start action";
                     dlog.error(attachment.pos, DiagnosticErrorCode.INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION,
-                            strandAnnotSymbol, actionInvocation);
+                            actionInvocation);
                 } else {
-                    dlog.warning(attachment.pos, DiagnosticWarningCode.USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED,
-                            strandAnnotSymbol, actionInvocation);
+                    dlog.warning(attachment.pos, DiagnosticWarningCode.USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED);
                 }
                 return true;
             }
@@ -3303,8 +3302,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private void analyzeFunctionInStartActionForInference(SymbolEnv env, List<BLangExpression> requiredArgs,
                                                           List<BLangExpression> restArgs, BLangExpression expr,
                                                           BInvokableSymbol symbol) {
-        Set<BLangExpression> argsList = new HashSet<>();
-        argsList.addAll(requiredArgs);
+        Set<BLangExpression> argsList = new HashSet<>(requiredArgs);
         argsList.addAll(restArgs);
         if (expr != null) {
             argsList.add(expr);
