@@ -50,6 +50,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.types.BRecordType;
 import org.ballerinalang.langlib.value.FromJsonWithType;
 
 import java.util.ArrayList;
@@ -276,16 +277,34 @@ public class Values {
     public static Object validateRecord(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         Long age = ((BMap) value).getIntValue(StringUtils.fromString("age"));
-        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-        BString fieldKey = StringUtils.fromString("$field$.age");
         BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
-        if (annotations.containsKey(fieldKey)) {
-            BMap annotValue = (BMap) ((BMap) annotations.get(fieldKey)).get(annotKey);
-            Long minValue = (Long) annotValue.get(StringUtils.fromString("minValue"));
-            if (age >= minValue) {
-                return value;
+        for (Field field : ((BRecordType) describingType).getFields().values()) {
+            BMap<BString, Object> annotations = ((AnnotatableType) field.getFieldType()).getAnnotations();
+            if (annotations.containsKey(annotKey)) {
+                Long minValue = (Long) ((BMap) annotations.get(annotKey)).get(StringUtils.fromString("minValue"));
+                if (age < minValue) {
+                    return ErrorCreator.createError(
+                            StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+                }
+            }
+        }
+        return value;
+    }
+
+    public static Object validateArray(Object value, BTypedesc typedesc) {
+        Type describingType = typedesc.getDescribingType();
+        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
+        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+        if (annotations.containsKey(annotKey)) {
+            Object annotValue = annotations.get(annotKey);
+            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            for (Object element : ((BArray) value).getValues()) {
+                if (((Long) element) >= minValue) {
+                    return value;
+                }
             }
         }
         return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
     }
+
 }
