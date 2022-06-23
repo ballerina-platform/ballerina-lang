@@ -85,12 +85,16 @@ type User record {|
     string name;
 |};
 
+type StringType string|int;
+
 type ErrorR1 error<ErrorData1>;
 type ErrorR2 error<ErrorData2>;
+type ErrorR3 error<map<StringType>>;
 
 function customError() {
     ErrorR1 er1 = error ErrorR1("Custom error", errorCode = "104", application = {});
     ErrorR1 er2 = error ErrorR1("Custom error", errorCode = "104", application = {id : "1", user: {}});
     ErrorR1 er3 = error ErrorR1("Custom error", errorCode = "104", application = );
     ErrorR2 er4 = error ErrorR2("Custom error", errorCode = "104", application = [{}]);
+    ErrorR3 er5 = error ErrorR3("Custom error", errorCode = "104", application = {});
 }

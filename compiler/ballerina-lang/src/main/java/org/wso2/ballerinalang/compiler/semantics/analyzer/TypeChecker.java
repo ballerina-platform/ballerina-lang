@@ -3347,7 +3347,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 } else {
                     missingRequiredFields.remove(namedArg.name.value);
-                    if (Types.getReferredType(field.type).tag == TypeTags.UNION && !types.isAssignable(namedArg.expr.getBType(), field.type)) {
+                    if (Types.getReferredType(field.type).tag == TypeTags.UNION &&
+                            !types.isAssignable(namedArg.expr.getBType(), field.type)) {
                         dlog.error(pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_ARG_TYPE,
                                    namedArg.name, field.type, namedArg.expr.getBType());
                     }
