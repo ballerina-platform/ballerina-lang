@@ -116,3 +116,28 @@ function testNestedWhileStmtLoopTerminationWithFail() returns string {
     }
     return result;
 }
+
+function testWhileStmtWithOnFailWithoutVariable() {
+    int a = 0;
+    string str = "";
+
+    while 3 >= a {
+        a = a + 1;
+        str = str.concat(" Value: ", a.toString());
+        if a == 3 {
+            error err = error("Custom Error");
+            fail err;
+        }
+    } on fail {
+        str += "-> error caught.";
+    }
+    str += " -> reached end";
+    assertEquality(" Value: 1 Value: 2 Value: 3-> error caught. -> reached end", str);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if actual == expected {
+        return;
+    }
+    panic error("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
