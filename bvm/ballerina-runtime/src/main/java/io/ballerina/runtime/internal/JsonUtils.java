@@ -103,7 +103,7 @@ public class JsonUtils {
             return null;
         }
 
-        Type elementType = bArray.getElementType();
+        Type elementType = bArray.getElementType().getReferredType();
         if (elementType == PredefinedTypes.TYPE_INT) {
             return convertIntArrayToJSON(bArray);
         } else if (elementType == PredefinedTypes.TYPE_BOOLEAN) {
@@ -549,7 +549,7 @@ public class JsonUtils {
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
-        Type targetElementType = targetArrayType.getElementType();
+        Type targetElementType = targetArrayType.getElementType().getReferredType();
         ArrayValue jsonArray = (ArrayValue) json;
         switch (targetElementType.getTag()) {
             case TypeTags.INT_TAG:

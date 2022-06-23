@@ -193,4 +193,9 @@ public abstract class BType implements Type {
     public long getFlags() {
         return 0;
     }
+
+    public Type getReferredType() {
+        return this;
+    }
+
 }

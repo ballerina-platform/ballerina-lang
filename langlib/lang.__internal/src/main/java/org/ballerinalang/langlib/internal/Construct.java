@@ -32,7 +32,8 @@ import io.ballerina.runtime.api.values.BTypedesc;
 public class Construct {
 
     public static BStream construct(BTypedesc constraintTd, BTypedesc completionTd, BObject iteratorObj) {
-        return ValueCreator.createStreamValue(TypeCreator.createStreamType(
-                constraintTd.getDescribingType(), completionTd.getDescribingType()), iteratorObj);
+        return ValueCreator.createStreamValue(
+                TypeCreator.createStreamType(constraintTd.getDescribingType().getReferredType(),
+                        completionTd.getDescribingType().getReferredType()), iteratorObj);
     }
 }

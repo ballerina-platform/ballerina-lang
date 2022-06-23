@@ -87,6 +87,16 @@ public class BTypeReferenceType extends BAnnotatableType implements Intersectabl
     }
 
     @Override
+    public boolean isAnydata() {
+        return this.referredType.isAnydata();
+    }
+
+    @Override
+    public boolean isPureType() {
+        return this.referredType.isPureType();
+    }
+
+    @Override
     public boolean isReadOnly() {
         return this.referredType.isReadOnly();
     }

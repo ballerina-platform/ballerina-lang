@@ -44,7 +44,7 @@ public class BArrayType extends BType implements ArrayType {
     private Type elementType;
     private int dimensions = 1;
     private int size = -1;
-    private boolean hasFillerValue;
+    private final boolean hasFillerValue;
     private ArrayState state = ArrayState.OPEN;
 
     private final boolean readonly;
@@ -64,8 +64,12 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public BArrayType(Type elemType, int size, boolean readonly) {
-        this(0, size, readonly, TypeChecker.hasFillerValue(elemType));
-        setElementType(elemType);
+        this(elemType, size, readonly, 0);
+    }
+
+    public BArrayType(Type elemType, int size, boolean readonly, int typeFlags) {
+        this(typeFlags, size, readonly, TypeChecker.hasFillerValue(elemType));
+        setElementType(elemType, 1, elemType.isReadOnly());
     }
 
     public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
@@ -79,15 +83,16 @@ public class BArrayType extends BType implements ArrayType {
         this.hasFillerValue = hasFillerValue;
     }
 
-    public void setElementType(Type elementType) {
-        this.elementType = readonly ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
-        if (elementType instanceof BArrayType) {
-            this.dimensions = ((BArrayType) elementType).getDimensions() + 1;
-        }
+    public void setElementType(Type elementType, int dimensions, boolean elementRO) {
+        this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
+        this.dimensions = dimensions;
         setFlagsBasedOnElementType();
     }
 
     private void setFlagsBasedOnElementType() {
+        if (elementType.getReferredType() == null) {
+            return;
+        }
         if (elementType.isNilable()) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
         }

@@ -151,7 +151,7 @@ public class Option {
             return true;
         } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(paramName, (ArrayType) fieldType);
-            Type elementType = bArray.getElementType();
+            Type elementType = bArray.getElementType().getReferredType();
             if (isABoolean(elementType)) {
                 bArray.append(true);
                 return true;
@@ -185,7 +185,7 @@ public class Option {
     private boolean isSupportedArrayType(BString key, Type fieldType) {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(key, (ArrayType) fieldType);
-            Type elementType = bArray.getElementType();
+            Type elementType = bArray.getElementType().getReferredType();
             if (CliUtil.isSupportedType(elementType.getTag())) {
                 if (recordVal.get(key) == null) {
                     recordVal.put(key, bArray);
@@ -233,7 +233,7 @@ public class Option {
 
     private void handleArrayParameter(BString paramName, String val, ArrayType fieldType) {
         BArray bArray = getBArray(paramName, fieldType);
-        Type arrayType = bArray.getElementType();
+        Type arrayType = bArray.getElementType().getReferredType();
         bArray.append(CliUtil.getBValue(arrayType, val, paramName.getValue()));
     }
 

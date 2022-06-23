@@ -146,11 +146,11 @@ public class ConfigValueCreator {
     }
 
     private BArray createArrayValue(TomlNode tomlValue, ArrayType arrayType) {
-        Type elementType = arrayType.getElementType();
+        Type elementType = arrayType.getElementType().getReferredType();
         if (isSimpleType(elementType.getTag())) {
             tomlValue = getValueFromKeyValueNode(tomlValue);
             return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                    arrayType.getElementType());
+                    arrayType.getElementType().getReferredType());
         } else {
             return getNonSimpleTypeArray(tomlValue, arrayType, elementType);
         }
@@ -169,11 +169,11 @@ public class ConfigValueCreator {
             case TypeTags.TUPLE_TAG:
                 tomlValue = getValueFromKeyValueNode(tomlValue);
                 return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                        getEffectiveType(arrayType.getElementType()));
+                        getEffectiveType(arrayType.getElementType().getReferredType()));
             case TypeTags.ARRAY_TAG:
                 tomlValue = getValueFromKeyValueNode(tomlValue);
                 return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                        arrayType.getElementType());
+                        arrayType.getElementType().getReferredType());
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 return getMapValueArray(tomlValue, arrayType, elementType);
@@ -232,7 +232,7 @@ public class ConfigValueCreator {
             case TypeTags.ARRAY_TAG:
                 ArrayType arrayType = (ArrayType) elementType;
                 balValue = createArrayFromSimpleTomlValue(
-                        (TomlArrayValueNode) tomlValueNode, arrayType, arrayType.getElementType());
+                        (TomlArrayValueNode) tomlValueNode, arrayType, arrayType.getElementType().getReferredType());
                 break;
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
