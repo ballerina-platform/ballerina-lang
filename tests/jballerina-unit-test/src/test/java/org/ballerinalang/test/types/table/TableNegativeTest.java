@@ -159,23 +159,23 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int,int]'", 469, 21);
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 478, 21);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                491, 9);
+                491, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                492, 9);
+                492, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                496, 9);
+                496, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                497, 9);
+                497, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                509, 9);
+                509, 5);
         validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
-                509, 9);
+                509, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                510, 9);
+                510, 5);
         validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
-                510, 9);
+                510, 5);
         validateError(compileResult, index++, "value expression of key specifier 'z' must be a constant expression",
-                510, 9);
+                510, 5);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
