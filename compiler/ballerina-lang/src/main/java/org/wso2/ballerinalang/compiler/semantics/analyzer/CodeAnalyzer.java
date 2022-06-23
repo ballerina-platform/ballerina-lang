@@ -3264,7 +3264,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
         analyzeExpr(onConflictClause.expression, data);
         if (!(data.queryToTableWithKey || data.queryToMap)) {
-            dlog.error(onConflictClause.pos, DiagnosticErrorCode.ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER);
+            dlog.error(onConflictClause.pos,
+                    DiagnosticErrorCode.ON_CONFLICT_ONLY_WORKS_WITH_MAPS_OR_TABLES_WITH_KEY_SPECIFIER);
         }
     }
 

@@ -194,25 +194,25 @@ public class QueryExprWithQueryConstructTypeTest {
     public void testSemanticNegativeScenarios() {
         int index = 0;
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                        "tables with key specifiers", 39, 13);
+                        "maps or tables with key specifiers", 39, 13);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 59, 9);
+                "maps or tables with key specifiers", 59, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 71, 9);
+                "maps or tables with key specifiers", 71, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 84, 9);
+                "maps or tables with key specifiers", 84, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 95, 9);
+                "maps or tables with key specifiers", 95, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 103, 14);
+                "maps or tables with key specifiers", 103, 14);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 119, 9);
+                "maps or tables with key specifiers", 119, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 126, 47);
+                "maps or tables with key specifiers", 126, 47);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 131, 9);
+                "maps or tables with key specifiers", 131, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 144, 9);
+                "maps or tables with key specifiers", 144, 9);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), index);
     }
 
@@ -248,6 +248,51 @@ public class QueryExprWithQueryConstructTypeTest {
                 "testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetClause",
                 "testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInWhereClause"
         };
+    }
+
+    @Test
+    public void testMapConstructingQueryExpr() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExpr");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithDuplicateKeys() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithDuplicateKeys");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOnConflict() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOnConflict");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOtherClauses() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOtherClauses");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithJoinClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithJoinClause");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithLimitClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithLimitClause");
+    }
+
+    @Test
+    public void testMapConstructingQueryExpr2() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExpr2");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOrderByClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOrderByClause");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithReferenceTypes() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithReferenceTypes");
     }
 
     @AfterClass
