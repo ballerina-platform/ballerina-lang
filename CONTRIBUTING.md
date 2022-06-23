@@ -17,7 +17,7 @@ We appreciate your help!
 
 - Join the [Ballerina community](https://ballerina.io/community/).
 
-- Submitting a bug is just as important as contributing to code. [Report an issue](https://github.com/ballerina-platform/ballerina-lang/blob/master/README.md#reporting-issues-and-security-flaws) in the relevant repo.
+- Submitting a bug is just as important as contributing to code. [Report an issue](https://github.com/ballerina-platform/ballerina-lang/blob/master/README.md#report-issues-and-security-flaws) in the relevant repo.
 
 -  Start with GitHub issues that can be fixed easily:
     - Browse issues labeled `good first issue` in the source code repo.
@@ -25,7 +25,7 @@ We appreciate your help!
 
 ## Build the source code 
 
-For instructions, see <a href="https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/building-from-source.md/">Building from source</a>.
+For instructions, see <a href="https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/build-ballerina-from-source.md">Building from source</a>.
 
 ## Set up the development environment
 
