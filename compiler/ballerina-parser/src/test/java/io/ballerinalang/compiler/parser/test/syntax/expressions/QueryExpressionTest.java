@@ -68,11 +68,6 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testQueryWithMapKeyword() {
-        test("map from int a in b select e", "query-expr/query_expr_assert_71.json");
-    }
-
-    @Test
     public void testQueryWithOrderByClause() {
         test("from int a in b where c let int d = e order by f select g", "query-expr/query_expr_assert_39.json");
         test("from int a in b where c let int d = e order by f ascending, g select h", "query-expr" +
@@ -280,5 +275,10 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testQueryActionOrExprWithAsyncSendActionInJoinClause() {
         testFile("query-expr/query_expr_source_78.bal", "query-expr/query_expr_assert_78.json");
+    }
+
+    @Test
+    public void testQueryWithMapKeyword() {
+        test("map from int a in b select e", "query-expr/query_expr_assert_79.json");
     }
 }
