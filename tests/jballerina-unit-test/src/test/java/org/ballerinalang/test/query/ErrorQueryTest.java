@@ -176,7 +176,7 @@ public class ErrorQueryTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', " +
                 "found '(table<Customer> key(id)|error)'", 148, 36);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(CustomerTable|CustomError)', " +
-                "found '(table<Customer> key(id)|error|CustomError)'", 152, 48);
+                "found '(table<Customer> key(id)|CustomError|error)'", 152, 48);
 
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
                 "found '(int[]|CustomError)'", 161, 18);
@@ -185,7 +185,7 @@ public class ErrorQueryTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
                 "found '(int[]|CustomError)'", 175, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
-                "found '(CustomError|int[])'", 179, 15);
+                "found '(int[]|CustomError)'", 179, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
                 "found '(int[]|error)'", 192, 15);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
