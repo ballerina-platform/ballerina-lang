@@ -172,6 +172,8 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_TEXT:
                 return visit((BXMLSubType) type);
+            case TypeTags.TYPEREFDESC:
+                return visit((BTypeReferenceType) type);
             case TypeTags.NONE:
                 return 0;
             default: {
@@ -436,7 +438,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), visit(type.referredType));
+        Integer hash = hash(baseHash(type), visit(type.referredType), type.definitionName);
         return addToVisited(type, hash);
     }
 

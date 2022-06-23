@@ -29,6 +29,8 @@ public interface DiffBuilder {
 
     Optional<? extends Diff> build();
 
+    DiffBuilder withKind(DiffKind diffKind);
+
     DiffBuilder withType(DiffType diffType);
 
     DiffBuilder withVersionImpact(SemverImpact versionImpact);
