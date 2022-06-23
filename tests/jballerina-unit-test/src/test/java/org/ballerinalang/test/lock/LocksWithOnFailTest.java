@@ -35,18 +35,18 @@ import static org.testng.Assert.assertTrue;
  * @since 0.961.0
  */
 public class LocksWithOnFailTest {
+    CompileResult compileResult = BCompileUtil.compile("test-src/lock/lock-on-fail.bal");
 
     @Test(description = "Tests lock within a lock")
     public void testLockWithinLock() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/lock-on-fail.bal");
-
         Object val = BRunUtil.invoke(compileResult, "failLockWithinLock");
         BArray returnsWithFail = (BArray) val;
         assertEquals(returnsWithFail.size(), 2);
         assertSame(returnsWithFail.get(0).getClass(), Long.class);
         assertTrue(returnsWithFail.get(1) instanceof BString);
 
-        BRunUtil.invoke(compileResult, "onFailLockWithinLockWithoutVariable");
+        assertEquals(returnsWithFail.get(0), 100L);
+        assertEquals(returnsWithFail.get(1).toString(), "Error caught");
 
         Object val2 = BRunUtil.invoke(compileResult, "checkLockWithinLock");
         BArray returnsWithCheck = (BArray) val2;
@@ -56,6 +56,10 @@ public class LocksWithOnFailTest {
 
         assertEquals(returnsWithCheck.get(0), 100L);
         assertEquals(returnsWithCheck.get(1).toString(), "Error caught");
+    }
 
+    @Test
+    public void testOnFailLockWithinLockWithoutVariable() {
+        BRunUtil.invoke(compileResult, "onFailLockWithinLockWithoutVariable");
     }
 }

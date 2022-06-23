@@ -77,11 +77,11 @@ function onFailLockWithinLockWithoutVariable() {
         }
     } on fail {
         lockWithinLockInt1 = 100;
-        lockWithinLockString1 = "Error caught";
+        lockWithinLockString1 = "Error handled";
     }
 
     assertEquality(100, lockWithinLockInt1);
-    assertEquality("Error caught", lockWithinLockString1);
+    assertEquality("Error handled", lockWithinLockString1);
 }
 
 function getError()  returns int|error {
