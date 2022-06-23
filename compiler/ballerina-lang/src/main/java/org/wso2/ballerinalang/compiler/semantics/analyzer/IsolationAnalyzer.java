@@ -2027,6 +2027,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         boolean isolatedFunctionCall = isIsolated(symbol.type.flags);
 
+        boolean inStartAction = invocationExpr.async && !invocationExpr.functionPointerInvocation;
+
+        if (inStartAction) {
+            analyzeFunctionInStartActionForInference(env, requiredArgs, restArgs, expr, symbol);
+        }
+
         if (isolatedFunctionCall) {
             analyzeArgIsolatedness(invocationExpr, requiredArgs, restArgs, symbol, expectsIsolation);
             return;
@@ -2043,7 +2049,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        analyzeFunctionForInference(symbol);
+        if (!inStartAction) {
+            analyzeFunctionForInference(symbol);
+        }
 
         inferredIsolated = false;
 
@@ -2064,6 +2072,21 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 markInitMethodDependentlyIsolatedOnFunction(initFunction, symbol);
             }
         }
+    }
+
+    private void markFunctionDependentlyIsolatedOnStartAction(BInvokableSymbol enclInvokableSymbol,
+                                                              Set<BLangExpression> argsList, BInvokableSymbol symbol) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
+            markDependsOnIsolationNonInferableConstructs();
+            return;
+        }
+
+        if (!this.isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+            return;
+        }
+
+        this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFunctions.add(symbol);
+        this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnFuncCallArgExprs.addAll(argsList);
     }
 
     private boolean isInIsolatedFunction(SymbolEnv env) {
@@ -3277,6 +3300,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         this.isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnInferableConstructs = false;
     }
 
+    private void analyzeFunctionInStartActionForInference(SymbolEnv env, List<BLangExpression> requiredArgs,
+                                                          List<BLangExpression> restArgs, BLangExpression expr,
+                                                          BInvokableSymbol symbol) {
+        Set<BLangExpression> argsList = new HashSet<>();
+        argsList.addAll(requiredArgs);
+        argsList.addAll(restArgs);
+        if (expr != null) {
+            argsList.add(expr);
+        }
+
+        markFunctionDependentlyIsolatedOnStartAction(env.enclInvokable.symbol, argsList, symbol);
+    }
+
     private void analyzeFunctionForInference(BInvokableSymbol symbol) {
         if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
             markDependsOnIsolationNonInferableConstructs();
@@ -3378,14 +3414,6 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         for (BLangClassDefinition classDefinition : classDefinitions) {
             populateInferableClass(classDefinition);
         }
-    }
-
-    private void visitWorkerLambdaFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
-        functions.forEach(function -> {
-            if (isWorkerLambda(function)) {
-                analyzeNode(function, pkgEnv);
-            }
-        });
     }
 
     private boolean isWorkerLambda(BLangFunction function) {
@@ -3850,6 +3878,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
+        for (BLangExpression dependsOnArg : functionIsolationInferenceInfo.dependsOnFuncCallArgExprs) {
+            if (!isIsolatedExpression(dependsOnArg)) {
+                return false;
+            }
+        }
+
         if (unresolvedSymbols.size() == 1) {
             // Mark as isolated only when the function is directly being analyzed as opposed to analysis due to calls
             // from other functions for which inference is attempted.
@@ -3943,6 +3977,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean dependsOnlyOnInferableConstructs = true;
         Set<BInvokableSymbol> dependsOnFunctions = new HashSet<>();
         Set<BSymbol> dependsOnVariablesAndClasses = new HashSet<>();
+        Set<BLangExpression> dependsOnFuncCallArgExprs = new HashSet<>();
         boolean inferredIsolated = false;
 
         IsolationInferenceKind getKind() {
