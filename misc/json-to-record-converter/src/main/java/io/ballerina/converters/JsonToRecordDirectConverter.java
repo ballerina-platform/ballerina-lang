@@ -37,15 +37,12 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.converters.diagnostic.DiagnosticMessages;
 import io.ballerina.converters.diagnostic.JsonToRecordDirectConverterDiagnostic;
-import io.ballerina.converters.exception.ExceptionMessages;
-import io.ballerina.converters.exception.JsonToRecordDirectConverterException;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
@@ -62,6 +59,8 @@ import java.util.stream.Collectors;
 import static io.ballerina.converters.util.ConverterUtils.escapeIdentifier;
 import static io.ballerina.converters.util.ConverterUtils.getPrimitiveTypeName;
 import static io.ballerina.converters.util.ConverterUtils.sortTypeDescriptorNodes;
+import static io.ballerina.converters.diagnostic.DiagnosticUtils.getDiagnosticResponse;
+import static io.ballerina.converters.diagnostic.DiagnosticUtils.transformJsonSyntaxErrorMessage;
 import static io.ballerina.converters.util.ListOperationUtils.difference;
 import static io.ballerina.converters.util.ListOperationUtils.intersection;
 
@@ -92,19 +91,12 @@ public class JsonToRecordDirectConverter {
                 generateRecords(object, recordName, isClosed, isRecordTypeDesc, recordToTypeDefNodes, jsonFieldToElements);
             } else {
                 DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_101;
-                JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(message.getCode(),
-                        message.getDescription(), message.getSeverity(), null, null);
-                diagnostics.add(diagnostic);
-                response.setDiagnostics(diagnostics);
-                return response;
+                return getDiagnosticResponse(message, diagnostics, response, null);
             }
         } catch (JsonSyntaxException e) {
             DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_100;
-            JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(message.getCode(),
-                    message.getDescription(), message.getSeverity(), null, null);
-            diagnostics.add(diagnostic);
-            response.setDiagnostics(diagnostics);
-            return response;
+            message.setDescription(transformJsonSyntaxErrorMessage(e.getLocalizedMessage()));
+            return getDiagnosticResponse(message, diagnostics, response, null);
         }
 
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
@@ -122,11 +114,7 @@ public class JsonToRecordDirectConverter {
             return response;
         } catch (FormatterException e) {
             DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_102;
-            JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(message.getCode(),
-                    message.getDescription(), message.getSeverity(), null, null);
-            diagnostics.add(diagnostic);
-            response.setDiagnostics(diagnostics);
-            return response;
+            return getDiagnosticResponse(message, diagnostics, response, null);
         }
     }
 
