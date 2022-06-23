@@ -52,6 +52,7 @@ public class ListenerObj {
 
     public function gracefulStop() returns error? {
         if (self.name == "ModDyncListener") {
+            runtime:sleep(1.5);
             incrementCount();
             assertCount(4);
             return error("listener in main stopped");

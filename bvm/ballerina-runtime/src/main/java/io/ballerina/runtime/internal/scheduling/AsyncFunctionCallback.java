@@ -43,13 +43,6 @@ public abstract class AsyncFunctionCallback implements Callback {
         strand.scheduler.unblockStrand(strand);
     }
 
-    public void unblockStrand() {
-        if (strand.scheduler == null) {
-            return;
-        }
-        strand.scheduler.unblockStrand(strand);
-    }
-
     public Object getFutureResult() {
         return future.result;
     }

@@ -33,7 +33,7 @@ function init() {
 
 public function stopHandlerFunc1() returns error? {
     moduleB:incrementAndAssertInt(8);
-    panic error("Stopped current module");
+    moduleB:println("Stopped current module");
 }
 
 public function stopHandlerFunc2() returns error? {
