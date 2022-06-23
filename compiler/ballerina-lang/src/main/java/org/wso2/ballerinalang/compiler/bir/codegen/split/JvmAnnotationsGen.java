@@ -130,18 +130,12 @@ public class JvmAnnotationsGen {
         String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, JvmSignatures.GET_MAP_VALUE);
-        loadLocalType(mv, typeDef, jvmTypeGen);
+        BType refType = typeDef.referenceType == null || typeDef.type.tag == TypeTags.RECORD ? typeDef.type :
+                typeDef.referenceType;
+        jvmTypeGen.loadLocalType(mv, refType);
         mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "processAnnotations",
                 JvmSignatures.PROCESS_ANNOTATIONS, false);
-    }
 
-    void loadLocalType(MethodVisitor mv, BIRNode.BIRTypeDefinition typeDefinition, JvmTypeGen jvmTypeGen) {
-        if (typeDefinition.type.tag == TypeTags.TYPEREFDESC) {
-            jvmConstantsGen.generateGetBTypeRefType(mv, jvmConstantsGen.getTypeConstantsVar(typeDefinition.type,
-                                                                                            jvmPackageGen.symbolTable));
-        } else {
-            jvmTypeGen.loadType(mv, typeDefinition.type);
-        }
     }
 
 }

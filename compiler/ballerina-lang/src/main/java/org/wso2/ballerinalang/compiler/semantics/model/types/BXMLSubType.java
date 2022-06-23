@@ -72,7 +72,7 @@ public class BXMLSubType extends BType implements SelectivelyImmutableReferenceT
         return Names.XML.value + Names.ALIAS_SEPARATOR + name;
     }
 
-    protected String getQualifiedTypeName() {
+    public String getQualifiedTypeName() {
 
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.XML.value + Names.ALIAS_SEPARATOR + name;
