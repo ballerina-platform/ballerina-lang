@@ -112,6 +112,11 @@ public class InnerQueryTest {
         BRunUtil.invoke(result, "testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction");
     }
 
+    @Test
+    public void testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() {
+        BRunUtil.invoke(result, "testQueryConstructingTableHavingInnerQueriesWithOnConflictClause");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Base representation of changes in Ballerina syntax tree node lists.
+ * Base representation for changes in Ballerina syntax tree node lists.
  *
  * @param <T> node type
  * @since 2201.2.0

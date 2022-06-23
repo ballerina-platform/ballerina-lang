@@ -32,13 +32,15 @@ public interface Diff {
 
     DiffType getType();
 
+    DiffKind getKind();
+
     SemverImpact getVersionImpact();
 
     void computeVersionImpact();
 
-    List<? extends Diff> getChildDiffs();
+    List<Diff> getChildDiffs();
 
-    List<? extends Diff> getChildDiffs(SemverImpact versionImpact);
+    List<Diff> getChildDiffs(SemverImpact versionImpact);
 
     String getAsString();
 

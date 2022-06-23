@@ -19,11 +19,13 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
 import java.util.Optional;
 
-import static io.ballerina.semver.checker.util.PackageUtils.QUALIFIER_PUBLIC;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.REMOTE_KEYWORD;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.RESOURCE_KEYWORD;
 
 /**
  * Represents the diff in between two versions of a Ballerina function definition.
@@ -38,30 +40,60 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
 
     @Override
     public void computeVersionImpact() {
+        if (isRemote() || isResource()) {
+            super.computeVersionImpact();
+            return;
+        }
+
+        boolean isPublic = isPublic();
         if (newNode != null && oldNode == null) {
             // if the function is newly added
-            versionImpact = isPrivateFunction() ? SemverImpact.PATCH : SemverImpact.MINOR;
+            versionImpact = isPublic ? SemverImpact.MINOR : SemverImpact.PATCH;
         } else if (newNode == null && oldNode != null) {
             // if the function is removed
-            versionImpact = isPrivateFunction() ? SemverImpact.PATCH : SemverImpact.MAJOR;
+            versionImpact = isPublic ? SemverImpact.MAJOR : SemverImpact.PATCH;
         } else {
-            // if the function is modified, checks if function definition is non-public and if so all the
-            // children-level incompatibilities can be discarded.
-            if (isPrivateFunction()) {
-                versionImpact = SemverImpact.PATCH;
-            } else {
+            // if the function is modified, checks if function definition is public and if its not, all the
+            // children-level changes can be considered as patch-compatible changes.
+            if (isPublic) {
                 super.computeVersionImpact();
+            } else {
+                versionImpact = SemverImpact.PATCH;
             }
         }
     }
 
-    private boolean isPrivateFunction() {
-        boolean isNewPrivate = newNode != null && newNode.qualifierList().stream().noneMatch(qualifier ->
-                qualifier.text().equals(QUALIFIER_PUBLIC));
-        boolean isOldPrivate = oldNode != null && oldNode.qualifierList().stream().noneMatch(qualifier ->
-                qualifier.text().equals(QUALIFIER_PUBLIC));
+    private boolean isPublic() {
+        boolean isNewPublic = newNode != null && newNode.qualifierList().stream().anyMatch(qualifier ->
+                qualifier.kind() == SyntaxKind.PUBLIC_KEYWORD);
+        boolean isOldPublic = oldNode != null && oldNode.qualifierList().stream().anyMatch(qualifier ->
+                qualifier.kind() == SyntaxKind.PUBLIC_KEYWORD);
 
-        return (isNewPrivate && isOldPrivate) || (newNode == null && isOldPrivate) || (oldNode == null && isNewPrivate);
+        return isNewPublic || isOldPublic;
+    }
+
+    /**
+     * Indicates whether the counterpart function is a Ballerina resource function.
+     */
+    public boolean isResource() {
+        boolean isNewResource = newNode != null && newNode.qualifierList().stream().anyMatch(qualifier ->
+                qualifier.kind() == RESOURCE_KEYWORD);
+        boolean isOldResource = oldNode != null && oldNode.qualifierList().stream().anyMatch(qualifier ->
+                qualifier.kind() == RESOURCE_KEYWORD);
+
+        return isNewResource || isOldResource;
+    }
+
+    /**
+     * Indicates whether the counterpart function is a Ballerina remote function.
+     */
+    public boolean isRemote() {
+        boolean isNewRemote = newNode != null && newNode.qualifierList().stream().anyMatch(qualifier ->
+                qualifier.kind() == REMOTE_KEYWORD);
+        boolean isOldRemote = oldNode != null && oldNode.qualifierList().stream().anyMatch(qualifier ->
+                qualifier.kind() == REMOTE_KEYWORD);
+
+        return isNewRemote || isOldRemote;
     }
 
     /**
@@ -81,6 +113,13 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
             if (!functionDiff.getChildDiffs().isEmpty()) {
                 functionDiff.computeVersionImpact();
                 functionDiff.setType(DiffType.MODIFIED);
+                if (functionDiff.isRemote()) {
+                    functionDiff.setKind(DiffKind.REMOTE_FUNCTION);
+                } else if (functionDiff.isResource()) {
+                    functionDiff.setKind(DiffKind.RESOURCE_FUNCTION);
+                } else {
+                    functionDiff.setKind(DiffKind.FUNCTION);
+                }
                 return Optional.of(functionDiff);
             } else if (functionDiff.getType() == DiffType.NEW || functionDiff.getType() == DiffType.REMOVED) {
                 return Optional.of(functionDiff);
@@ -92,6 +131,12 @@ public class FunctionDiff extends NodeDiffImpl<FunctionDefinitionNode> {
         @Override
         public NodeDiffBuilder withType(DiffType diffType) {
             functionDiff.setType(diffType);
+            return this;
+        }
+
+        @Override
+        public NodeDiffBuilder withKind(DiffKind diffKind) {
+            functionDiff.setKind(diffKind);
             return this;
         }
 

@@ -38,6 +38,7 @@ import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
@@ -393,6 +394,8 @@ public class JsonUtils {
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);
             case TypeTags.MAP_TAG:
                 return jsonToMap(jsonValue, (BMapType) targetType);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return convertJSON(jsonValue, ((BTypeReferenceType) targetType).getReferredType());
             case TypeTags.NULL_TAG:
                 if (jsonValue == null) {
                     return null;
