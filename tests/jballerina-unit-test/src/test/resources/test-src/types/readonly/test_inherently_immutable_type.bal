@@ -106,6 +106,16 @@ function testSimpleAssignmentForInherentlyImmutableBasicTypes() {
     readonly n = xmlText;
     assertTrue(n is 'xml:Text);
     assertEquality(n, xml `xml text`);
+
+    readonly roInt = 1;
+    readonly|string o = roInt;
+    assertTrue(o is int);
+    assertEquality(o, 1);
+
+    readonly roStr = "s";
+    any|error p = roStr;
+    assertTrue(p is string);
+    assertEquality(p, "s");
 }
 
 function testRuntimeIsTypeForInherentlyImmutableBasicTypes() {
