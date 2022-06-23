@@ -109,11 +109,11 @@ public class JsonToRecordDirectConverterTests {
     @Test(description = "Test all sample JSON values")
     public void testSamples() throws IOException, FormatterException, JsonToRecordDirectConverterException {
         Map<Path, Path> samples = new HashMap<>();
-//        samples.put(sample0Json, sample0Bal);
+        samples.put(sample0Json, sample0Bal);
 //        samples.put(sample1Json, sample1Bal);
 //        samples.put(sample2Json, sample2Bal);
 //        samples.put(sample3Json, sample3Bal);
-        samples.put(sample4Json, sample4Bal);
+//        samples.put(sample4Json, sample4Bal);
 //        samples.put(sample5Json, sample5Bal);
 //        samples.put(sample6Json, sample6Bal);
 //        samples.put(sample7Json, sample7Bal);
@@ -126,8 +126,30 @@ public class JsonToRecordDirectConverterTests {
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
             String generatedCodeBlock =
-                    JsonToRecordDirectConverter.convert(jsonFileContent, null, true, false).getCodeBlock().
+                    JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false).getCodeBlock().
                     replaceAll("\\s+", "");
+            String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
+            Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+        }
+    }
+
+    @Test(description = "Test Choreo Transformation and Data Mapping Payloads")
+    public void testChoreoTransPayloads() throws IOException, FormatterException, JsonToRecordDirectConverterException {
+        Map<Path, Path> samples = new HashMap<>();
+        for (int i = 0; i <= 1; i++) {
+            Path jsonInputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_input.json", i));
+            Path balInputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_input.bal", i));
+            Path jsonOutputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_output.json", i));
+            Path balOutputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_output.bal", i));
+            samples.put(jsonInputPath, balInputPath);
+            samples.put(jsonOutputPath, balOutputPath);
+        }
+        for (Map.Entry<Path, Path> sample : samples.entrySet()) {
+            String jsonFileContent = Files.readString(sample.getKey());
+            String generatedCodeBlock =
+                    JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false).getCodeBlock()
+                                    .
+                            replaceAll("\\s+", "");
             String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
             Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
         }
