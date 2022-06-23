@@ -614,6 +614,12 @@ function testErrorReturnedFromTableConstruction() {
     CustomerTable|CustomError|error customerTable4 = table key(id) from int i in numGenWithError
         select check getCustomerOrError();
     assertTrue(customerTable4 is error);
+
+    CustomError onConflictError = error ("key conflict");
+    CustomerTable|CustomError customerTable5 = table key(id) from int i in [1, 2, 1]
+        select {id: i, name: "Jake", noOfItems: 2}
+        on conflict onConflictError;
+    assertTrue(customerTable5 is CustomError);
 }
 
 xml theXml = xml `<book>the book</book>`;
