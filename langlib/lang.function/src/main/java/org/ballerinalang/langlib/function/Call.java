@@ -57,8 +57,8 @@ public class Call {
         List<Type> argTypes = new LinkedList<>();
         List<Object> argsList = new java.util.ArrayList<>(List.of(Scheduler.getStrand()));
 
-        if (validatePositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
-                validateRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
+        if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
+                 checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_TYPES),
                         BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_TYPE,
@@ -68,8 +68,8 @@ public class Call {
         return func.asyncCall(argsList.toArray(), METADATA);
     }
 
-    private static boolean validatePositionalArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
-                                                  List<Type> paramTypes, List<Type> argTypes) {
+    private static boolean checkIsValidPositionalArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
+                                                      List<Type> paramTypes, List<Type> argTypes) {
         boolean errored = false;
         Parameter[] parameters = functionType.parameters;
         int numOfParams = parameters.length;
@@ -78,29 +78,27 @@ public class Call {
             Parameter parameter = parameters[i];
             Type paramType = parameter.type;
             paramTypes.add(paramType);
-            if (i >= numOfArgs) {
-                if (parameter.isDefault) {
-                    argsList.add(0);
-                    argsList.add(false);
-                } else {
+            if (i < numOfArgs) {
+                Object arg = args[i];
+                Type argType = TypeChecker.getType(arg);
+                argTypes.add(argType);
+                if (!TypeChecker.checkIsType(null, arg, argType, paramType)) {
                     errored = true;
                 }
-                continue;
-            }
-            Object arg = args[i];
-            Type argType = TypeChecker.getType(arg);
-            argTypes.add(argType);
-            if (!TypeChecker.checkIsType(null, arg, argType, paramType)) {
+                argsList.add(arg);
+                argsList.add(true);
+            } else if (parameter.isDefault) {
+                argsList.add(0);
+                argsList.add(false);
+            } else {
                 errored = true;
             }
-            argsList.add(arg);
-            argsList.add(true);
         }
         return errored;
     }
 
-    private static boolean validateRestArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
-                                            List<Type> paramTypes, List<Type> argTypes) {
+    private static boolean checkIsValidRestArgs(Object[] args, List<Object> argsList, BFunctionType functionType,
+                                                List<Type> paramTypes, List<Type> argTypes) {
         boolean errored = false;
         int numOfArgs = args.length;
         int numOfRestArgs = Math.max(numOfArgs - functionType.parameters.length, 0);
@@ -109,10 +107,10 @@ public class Call {
             ListInitialValueEntry.ExpressionEntry[] initialValues =
                                                     new ListInitialValueEntry.ExpressionEntry[numOfRestArgs];
             Type elementType = restType.getElementType();
+            paramTypes.add(restType);
             for (int i = 0; i < numOfRestArgs; i++) {
                 Object arg = args[numOfArgs - numOfRestArgs + i];
                 Type argType = TypeChecker.getType(arg);
-                paramTypes.add(elementType);
                 argTypes.add(argType);
                 if (!TypeChecker.checkIsType(null, arg, argType, elementType)) {
                     errored = true;
