@@ -944,7 +944,8 @@ public class ProjectUtils {
             try {
                 BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
                 long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
-                if (!buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                if (buildJson.getLastModifiedTime() != null
+                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
                     long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
                             .get(project.currentPackage().packageName().value());
                     return lastProjectUpdatedTime > defaultModuleLastModifiedTime;

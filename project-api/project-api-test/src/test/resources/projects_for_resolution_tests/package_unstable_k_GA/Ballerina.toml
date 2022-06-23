@@ -2,3 +2,4 @@
 org = "samjs"
 name = "package_k"
 version = "1.0.0"
+export = ["package_k", "package_k.mod_k1"]

@@ -92,6 +92,7 @@ import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.REPO_BIR_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -2064,6 +2065,45 @@ public class TestBuildProject extends BaseTest {
         // Clean project directory
         writeContent(projectPath.resolve(BALLERINA_TOML), "");
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+    }
+
+    @Test(description = "test accessing semantic model after first build", dependsOnMethods = "testGetSemanticModel")
+    public void testAccessSemanticModelAfterFirstBuild() throws IOException {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        // Delete build file if already exists
+        if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
+            Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        }
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+        BuildOptions buildOptions = buildOptionsBuilder.build();
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
+        // Get compilation
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        compilation.diagnosticResult().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+        // Call `JBallerinaBackend`
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        // Check bir is generated for default module
+        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME)
+                .resolve("sameera").resolve("myproject").resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME)
+                .resolve("myproject.bir").toFile().exists());
+
+        // 2) Build project again with build file
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
+        projectSecondBuild.save();
+        // Get compilation
+        PackageCompilation compilationSecondBuild = projectSecondBuild.currentPackage().getCompilation();
+        compilationSecondBuild.diagnosticResult().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(compilationSecondBuild.diagnosticResult().hasErrors());
+        // Call `JBallerinaBackend`
+        JBallerinaBackend.from(compilationSecondBuild, JvmTarget.JAVA_11);
+        // Get semantic model of the default module
+        Module defaultModule = projectSecondBuild.currentPackage().getDefaultModule();
+        SemanticModel semanticModel = compilationSecondBuild.getSemanticModel(defaultModule.moduleId());
     }
 
     @AfterClass (alwaysRun = true)
