@@ -32,15 +32,18 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -268,15 +271,16 @@ public abstract class BalaWriter {
     }
 
     private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
-        // TODO: use patterns. Take the relative path from the project root and add the entire structure from there
-        // TODO: add the includes to the relevant repositories
+        // TBD: add the includes to the relevant repositories
         // The current implementation adds all the includes to the doc/ dir
         Path docsDirInBala = Paths.get(BALA_DOCS_DIR);
         List<String> includes = this.packageContext.packageManifest().includes();
-        for (String include : includes) {
-            Path includePath = this.packageContext.project().sourceRoot().resolve(include);
-            Path includeInBala = docsDirInBala.resolve(include);
-            putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includePath)));
+
+        List<Path> includesPaths = filterFilesFromPatterns(includes);
+        for (Path includeAbsolutePath : includesPaths) {
+            Path includeRelativePath = getPathRelativeToPackageRoot(includeAbsolutePath);
+            Path includeInBala = docsDirInBala.resolve(includeRelativePath);
+            putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includeAbsolutePath)));
         }
     }
 
@@ -297,6 +301,25 @@ public abstract class BalaWriter {
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
+    }
+
+    private List<Path> filterFilesFromPatterns(List<String> includes) {
+        List<Path> filePaths = new ArrayList<>();
+        for (String include : includes) {
+            File rootDir = this.packageContext.project().sourceRoot().toFile();
+            FileFilter fileFilter = new WildcardFileFilter(include);
+            File[] files = rootDir.listFiles(fileFilter);
+            for (File file : files) {
+                filePaths.add(file.toPath());
+            }
+        }
+        return filePaths;
+    }
+
+    private Path getPathRelativeToPackageRoot(Path absolutePath) {
+        URI packagePathURI = this.packageContext.project().sourceRoot().toUri();
+        URI relativePathURI = packagePathURI.relativize(absolutePath.toUri());
+        return Paths.get(relativePathURI.getPath());
     }
 
     private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
