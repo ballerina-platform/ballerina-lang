@@ -1180,10 +1180,9 @@ public class Types {
             return true;
         }
         TypePair pair = new TypePair(source, target);
-        if (unresolvedTypes.contains(pair)) {
+        if (!unresolvedTypes.add(pair)) {
             return true;
         }
-        unresolvedTypes.add(pair);
         return isAssignable(source.detailType, target.detailType, unresolvedTypes);
     }
 
@@ -3549,7 +3548,7 @@ public class Types {
             targetTypes.addAll(getEffectiveMemberTypes((BUnionType) target));
             allTargetTypesErrors = allTypesErrors(targetTypes);
             if (allTargetTypesErrors) {
-                targetUnionIsDistinctError = isUnionDistinctError(targetTypes);
+                targetUnionIsDistinctError = containsDistinctError(targetTypes);
             }
         } else {
             targetTypes.add(target);
@@ -3639,15 +3638,13 @@ public class Types {
                     if (targetUnionIsDistinctError) {
                         sourceTypeIsNotAssignableToAnyTargetType = !isErrorTypeAssignable((BErrorType) sourceMember,
                                 (BErrorType) targetMember, unresolvedTypes);
+                    } else if (targetMember.tag == TypeTags.ERROR && allTargetTypesErrors) {
+                        sourceTypeIsNotAssignableToAnyTargetType =
+                                !isErrorTypeAssignableWithNoTypeIds((BErrorType) sourceMember,
+                                        (BErrorType) targetMember, unresolvedTypes);
                     } else {
-                        if (targetMember.tag == TypeTags.ERROR && allTargetTypesErrors) {
-                            sourceTypeIsNotAssignableToAnyTargetType =
-                                    !isErrorTypeAssignableWithNoTypeIds((BErrorType) sourceMember,
-                                            (BErrorType) targetMember, unresolvedTypes);
-                        } else {
-                            sourceTypeIsNotAssignableToAnyTargetType = !isAssignable(sourceMember, targetMember,
-                                    unresolvedTypes);
-                        }
+                        sourceTypeIsNotAssignableToAnyTargetType = !isAssignable(sourceMember, targetMember,
+                                unresolvedTypes);
                     }
                 } else {
                     sourceTypeIsNotAssignableToAnyTargetType = !isAssignable(sourceMember, targetMember,
@@ -3667,15 +3664,13 @@ public class Types {
         return true;
     }
 
-    private boolean isUnionDistinctError(Set<BType> memberTypesSet) {
-        List<BType> memberTypes = new ArrayList<>(memberTypesSet);
-        int size = memberTypes.size();
-        for (int i = 0; i < size - 1; i++) {
-            BErrorType t1 = (BErrorType) memberTypes.get(i);
-            BErrorType t2 = (BErrorType) memberTypes.get(i + 1);
-            Set<BTypeIdSet.BTypeId> t1TypeIds = t1.typeIdSet.getAll();
-            Set<BTypeIdSet.BTypeId> t2TypeIds = t2.typeIdSet.getAll();
-            if (!t1TypeIds.containsAll(t2TypeIds) || !t2TypeIds.containsAll(t1TypeIds)) {
+    private boolean containsDistinctError(Set<BType> errorTypesSet) {
+        List<BType> errorTypes = new ArrayList<>(errorTypesSet);
+        int size = errorTypes.size();
+        Set<BTypeIdSet.BTypeId> t1TypeIds = ((BErrorType) errorTypes.get(0)).typeIdSet.getAll();
+        for (int i = 1; i < size; i++) {
+            Set<BTypeIdSet.BTypeId> t2TypeIds = ((BErrorType) errorTypes.get(i)).typeIdSet.getAll();
+            if (!t1TypeIds.equals(t2TypeIds)) {
                 return false;
             }
         }
@@ -3688,7 +3683,7 @@ public class Types {
                 return false;
             }
         }
-        return true;
+        return !memberTypes.isEmpty();
     }
 
     public boolean isSelfReferencedStructuredType(BType source, BType s) {
