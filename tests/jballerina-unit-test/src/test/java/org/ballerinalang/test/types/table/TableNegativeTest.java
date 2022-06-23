@@ -108,6 +108,8 @@ public class TableNegativeTest {
                 "is not found in table constraint type 'CustomerDetail'", 230, 35);
         validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
                 "a constant expression", 237, 9);
+        validateError(compileResult, index++, "value expression of key specifier 'id' must be " +
+                "a constant expression", 240, 9);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>',"
                 + " found 'table<record {| (string|int|boolean) name?; (int|boolean)...; |}>'", 254, 41);
         validateError(compileResult, index++, "incompatible types: expected 'table<record {| string name?; |}>'," +
@@ -155,7 +157,26 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,string,string]'",
                 462, 21);
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int,int]'", 469, 21);
-        validateError(compileResult, index, "incompatible types: expected 'int', found '[int,int,int]'", 478, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 478, 21);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                491, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                492, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                496, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                497, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                509, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
+                509, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
+                510, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
+                510, 5);
+        validateError(compileResult, index++, "value expression of key specifier 'z' must be a constant expression",
+                510, 5);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
