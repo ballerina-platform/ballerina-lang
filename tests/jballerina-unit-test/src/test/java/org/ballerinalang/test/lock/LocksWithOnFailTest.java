@@ -23,6 +23,8 @@ import io.ballerina.runtime.api.values.BString;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -35,7 +37,13 @@ import static org.testng.Assert.assertTrue;
  * @since 0.961.0
  */
 public class LocksWithOnFailTest {
-    CompileResult compileResult = BCompileUtil.compile("test-src/lock/lock-on-fail.bal");
+
+    private CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/lock/lock-on-fail.bal");
+    }
 
     @Test(description = "Tests lock within a lock")
     public void testLockWithinLock() {
@@ -61,5 +69,10 @@ public class LocksWithOnFailTest {
     @Test
     public void testOnFailLockWithinLockWithoutVariable() {
         BRunUtil.invoke(compileResult, "onFailLockWithinLockWithoutVariable");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = null;
     }
 }
