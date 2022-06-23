@@ -5581,7 +5581,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BType> selectTypes = new ArrayList<>();
         List<BType> resolvedTypes = new ArrayList<>();
         BType selectType, resolvedType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(data.commonAnalyzerData.checkedErrorList);
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
 
         for (BType type : safeResultTypes) {
             switch (type.tag) {
@@ -5589,7 +5589,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     BType elementType = ((BArrayType) type).eType;
                     if (data.commonAnalyzerData.checkWithinQueryExpr) {
                         selectType = checkExpr(selectExp, env, elementType, data);
-                        memberTypes.add(new BArrayType(selectType));
+                        BType queryResultType = new BArrayType(selectType);
+                        memberTypes.add(queryResultType);
+                        memberTypes.addAll(data.commonAnalyzerData.checkedErrorList);
                         resolvedType = BUnionType.create(null, memberTypes);
                     } else {
                         selectType = checkExpr(selectExp, env, elementType, data);
@@ -5661,7 +5663,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
-            return BUnionType.create(null, tableType, symTable.errorType);
         }
         return tableType;
     }
@@ -5895,8 +5896,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
-        checkExpr(onConflictClause.expression, data.commonAnalyzerData.queryEnvs.peek(),
+        Types.CommonAnalyzerData typeCheckerData = data.commonAnalyzerData;
+        BType type = checkExpr(onConflictClause.expression, data.commonAnalyzerData.queryEnvs.peek(),
                 symTable.errorOrNilType, data);
+        if (types.containsErrorType(type)) {
+            data.commonAnalyzerData.checkWithinQueryExpr = true;
+            if (typeCheckerData.checkedErrorList != null) {
+                BType possibleErrorType = type.tag == TypeTags.UNION ?
+                        types.getErrorType((BUnionType) type) :
+                        types.getErrorType(BUnionType.create(null, type));
+                typeCheckerData.checkedErrorList.add(possibleErrorType);
+            }
+        }
     }
 
     @Override
