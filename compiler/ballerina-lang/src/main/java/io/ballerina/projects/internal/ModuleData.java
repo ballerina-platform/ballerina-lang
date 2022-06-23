@@ -18,7 +18,6 @@
 package io.ballerina.projects.internal;
 
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 

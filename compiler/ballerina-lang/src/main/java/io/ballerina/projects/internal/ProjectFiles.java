@@ -294,19 +294,35 @@ public class ProjectFiles {
         }
     }
 
+    /**
+     * Add resources matching 'include' field patterns to a package.
+     *
+     * @param packageData package data
+     * @param includes list of patterns to match against files and directories
+     */
     public static void addResourcesToPackage(PackageData packageData, List<String> includes) {
-        packageData.defaultModule().setResources(loadResourcesFromIncludes(includes, packageData.packagePath()));
-        for(ModuleData subModule: packageData.otherModules()) {
-            subModule.setResources(loadResourcesFromIncludes(includes, subModule.moduleDirectoryPath()));
+        ModuleData defaultModule = packageData.defaultModule();
+        defaultModule.setResources(loadResourcesOfModule(includes, defaultModule, packageData.packagePath()));
+        for (ModuleData subModule: packageData.otherModules()) {
+            subModule.setResources(loadResourcesOfModule(includes, subModule, packageData.packagePath()));
         }
     }
 
-    private static List<Path> loadResourcesFromIncludes(List<String> includes, Path modulePath) {
+    /**
+     * Add resources matching 'include' field patterns to a module.
+     *
+     * @param includes list of patterns to match against files and directories
+     * @param module path to the root of the module
+     * @param packagePath path to the root of the package
+     * @return list of files to add as resources to the module
+     */
+    public static List<Path> loadResourcesOfModule(List<String> includes, ModuleData module, Path packagePath) {
+        Path modulePath = module.moduleDirectoryPath();
+        String moduleName = module.moduleName();
         List<Path> resources = new ArrayList<>();
         // TODO: introduce patterns instead of file/dir paths
         for (String include: includes) {
-            // TODO: merge submodule file names correctly.
-            Path resourcesPath = modulePath.resolve(include).normalize();
+            Path resourcesPath = packagePath.resolve(include).normalize();
             if (Files.notExists(resourcesPath)) {
                 // TODO: should an error be thrown?
                 continue;
@@ -319,6 +335,10 @@ public class ProjectFiles {
                     && !include.contains(ProjectConstants.MODULES_ROOT)) {
                 continue;
             }
+            // TODO: exclude other modules
+//            if(include.) {
+//
+//            }
             try {
             checkReadPermission(modulePath);
             } catch (UnsupportedOperationException ignore) {
