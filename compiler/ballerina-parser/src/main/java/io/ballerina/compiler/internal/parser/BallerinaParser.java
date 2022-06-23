@@ -9951,6 +9951,7 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_KEYWORD:
             case ERROR_KEYWORD:
             case FLOAT_KEYWORD:
+            case FUNCTION_KEYWORD:
             case FUTURE_KEYWORD:
             case INT_KEYWORD:
             case MAP_KEYWORD:
