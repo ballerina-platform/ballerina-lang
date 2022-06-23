@@ -138,11 +138,139 @@ function f8(string[] & readonly arr) {
     }
 }
 
+function f9() {
+    int[] tt = [];
+    worker A {
+        future<()> _ = start g2(tt);
+    }
+}
+
+function f10() {
+    int[] tt = [];
+    worker A {
+        future<()> _ = start g2([1, 2]);
+    }
+
+    worker B {
+        future<()> _ = start g2(tt);
+    }
+}
+
+function f11() {
+    int[] tt = [];
+    fork {
+        worker A {
+            future<()> _ = start g2([1, 2]);
+        }
+
+        worker B {
+            future<()> _ = start g2(tt);
+        }
+    }
+}
+
+function g2(int[] arr) {
+}
+
+function f12() {
+    int[] tt = [];
+    worker A {
+        future<()> _ = start g3([], tt);
+    }
+}
+
+function f13() {
+    int[] tt = [];
+    worker A {
+        future<()> _ = start g3([1, 2]);
+    }
+
+    worker B {
+        future<()> _ = start g3([], tt);
+    }
+}
+
+function f14() {
+    int[] tt = [];
+    fork {
+        worker A {
+            future<()> _ = start g2([1, 2]);
+        }
+
+        worker B {
+            future<()> _ = start g2(tt);
+        }
+    }
+}
+
+function g3(int[] arr, int[]... v) {
+}
+
+isolated client class NonPublicIsolatedClass2 {
+    private string str = "hello";
+
+    remote function foo(int[] str) returns int {
+        _ = hello();
+        future<int> _ = start g1();
+        return 1;
+    }
+
+    function bar(int[] str, int[]... m) returns int {
+        future<int> _ = start g1();
+        return 2;
+    }
+}
+
+function f15() {
+    int[] tt = [];
+    worker A {
+        NonPublicIsolatedClass2 cl = new;
+        future<int> _ = start cl->foo(tt);
+    }
+}
+
+function f16() {
+    int[] tt = [];
+    worker A {
+        NonPublicIsolatedClass2 cl = new;
+        future<int> _ = start cl->foo([]);
+    }
+
+    worker B {
+        NonPublicIsolatedClass2 cl = new;
+        future<int> _ = start cl.bar([], tt);
+    }
+}
+
+function f17() {
+    int[] tt = [];
+    fork {
+        worker A {
+            NonPublicIsolatedClass2 cl = new;
+            future<int> _ = start cl->foo(tt);
+        }
+
+        worker B {
+            NonPublicIsolatedClass2 cl = new;
+            future<int> _ = start cl.bar([]);
+        }
+    }
+}
+
 function testNonIsolationInferenceWithNamedWorkersWithStrandAnnotation() {
     assertFalse(<any>f5 is isolated function);
     assertFalse(<any>f6 is isolated function);
     assertFalse(<any>f7 is isolated function);
     assertFalse(<any>f8 is isolated function);
+    assertFalse(<any>f9 is isolated function);
+    assertFalse(<any>f10 is isolated function);
+    assertFalse(<any>f11 is isolated function);
+    assertFalse(<any>f12 is isolated function);
+    assertFalse(<any>f13 is isolated function);
+    assertFalse(<any>f14 is isolated function);
+    assertFalse(<any>f15 is isolated function);
+    assertFalse(<any>f16 is isolated function);
+    assertFalse(<any>f17 is isolated function);
 }
 
 function hello() returns string => "hello";
