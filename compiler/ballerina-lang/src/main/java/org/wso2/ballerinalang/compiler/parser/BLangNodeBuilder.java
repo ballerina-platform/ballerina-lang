@@ -3694,12 +3694,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         boolean isTable = false;
         boolean isStream = false;
+        boolean isMap = false;
 
         Optional<QueryConstructTypeNode> optionalQueryConstructTypeNode = queryExprNode.queryConstructType();
         if (optionalQueryConstructTypeNode.isPresent()) {
             QueryConstructTypeNode queryConstructTypeNode = optionalQueryConstructTypeNode.get();
             isTable = queryConstructTypeNode.keyword().kind() == SyntaxKind.TABLE_KEYWORD;
             isStream = queryConstructTypeNode.keyword().kind() == SyntaxKind.STREAM_KEYWORD;
+            isMap = queryConstructTypeNode.keyword().kind() == SyntaxKind.MAP_KEYWORD;
             if (queryConstructTypeNode.keySpecifier().isPresent()) {
                 for (IdentifierToken fieldNameNode : queryConstructTypeNode.keySpecifier().get().fieldNames()) {
                     queryExpr.fieldNameIdentifierList.add(createIdentifier(getPosition(fieldNameNode), fieldNameNode));
@@ -3708,6 +3710,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         }
         queryExpr.isStream = isStream;
         queryExpr.isTable = isTable;
+        queryExpr.isMap = isMap;
         return queryExpr;
     }
 
