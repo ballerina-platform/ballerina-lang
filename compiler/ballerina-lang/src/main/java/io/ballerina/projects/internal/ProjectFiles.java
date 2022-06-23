@@ -32,7 +32,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -119,16 +118,15 @@ public class ProjectFiles {
         }
 
         DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-//        List<Path> resources = loadResources(moduleDirPath);
-        List<Path> testResources = loadTestResources(moduleDirPath);
+        List<Path> resources = loadResources(moduleDirPath);
+        List<Path> testResources = loadResources(moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME));
         // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
         return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd,
-                Collections.emptyList(), testResources);
+                resources, testResources);
     }
 
-    public static List<Path> loadTestResources(Path modulePath) {
-        Path resourcesPath = modulePath.resolve(ProjectConstants.TEST_DIR_NAME)
-                .resolve(ProjectConstants.RESOURCE_DIR_NAME);
+    public static List<Path> loadResources(Path modulePath) {
+        Path resourcesPath = modulePath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         if (Files.notExists(resourcesPath)) {
             return Collections.emptyList();
         }
@@ -292,67 +290,6 @@ public class ProjectFiles {
         if (!balaPath.toFile().canRead()) {
             throw new ProjectException("insufficient privileges to bala: " + balaPath);
         }
-    }
-
-    /**
-     * Add resources matching 'include' field patterns to a package.
-     *
-     * @param packageData package data
-     * @param includes list of patterns to match against files and directories
-     */
-    public static void addResourcesToPackage(PackageData packageData, List<String> includes) {
-        ModuleData defaultModule = packageData.defaultModule();
-        defaultModule.setResources(loadResourcesOfModule(includes, defaultModule, packageData.packagePath()));
-        for (ModuleData subModule: packageData.otherModules()) {
-            subModule.setResources(loadResourcesOfModule(includes, subModule, packageData.packagePath()));
-        }
-    }
-
-    /**
-     * Add resources matching 'include' field patterns to a module.
-     *
-     * @param includes list of patterns to match against files and directories
-     * @param module path to the root of the module
-     * @param packagePath path to the root of the package
-     * @return list of files to add as resources to the module
-     */
-    public static List<Path> loadResourcesOfModule(List<String> includes, ModuleData module, Path packagePath) {
-        Path modulePath = module.moduleDirectoryPath();
-        String moduleName = module.moduleName();
-        List<Path> resources = new ArrayList<>();
-        // TODO: introduce patterns instead of file/dir paths
-        for (String include: includes) {
-            Path resourcesPath = packagePath.resolve(include).normalize();
-            if (Files.notExists(resourcesPath)) {
-                // TODO: should an error be thrown?
-                continue;
-            }
-            if (!modulePath.toString().contains(ProjectConstants.MODULES_ROOT)
-                    && include.contains(ProjectConstants.MODULES_ROOT)) {
-                continue;
-            }
-            if (modulePath.toString().contains(ProjectConstants.MODULES_ROOT)
-                    && !include.contains(ProjectConstants.MODULES_ROOT)) {
-                continue;
-            }
-            // TODO: exclude other modules
-//            if(include.) {
-//
-//            }
-            try {
-            checkReadPermission(modulePath);
-            } catch (UnsupportedOperationException ignore) {
-                // ignore for zip entries
-            }
-            try (Stream<Path> pathStream = Files.walk(resourcesPath, 10)) {
-                resources.addAll(pathStream
-                        .filter(Files::isRegularFile)
-                        .collect(Collectors.toList()));
-            } catch (IOException e) {
-                throw new ProjectException(e);
-            }
-        }
-        return resources;
     }
 
     private static boolean isValidBalaDir(Path balaPath) {

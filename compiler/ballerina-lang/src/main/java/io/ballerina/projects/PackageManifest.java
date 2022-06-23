@@ -42,7 +42,7 @@ public class PackageManifest {
     private final List<String> keywords;
     private final String repository;
     private final List<String> exportedModules;
-    private final List<String> includedResources;
+    private final List<String> includes;
     private final String ballerinaVersion;
     private final String visibility;
     private boolean template;
@@ -68,7 +68,7 @@ public class PackageManifest {
         this.authors = Collections.emptyList();
         this.keywords = Collections.emptyList();
         this.exportedModules = Collections.emptyList();
-        this.includedResources = Collections.emptyList();
+        this.includes = Collections.emptyList();
         this.repository = "";
         this.ballerinaVersion = "";
         this.visibility = "";
@@ -85,7 +85,7 @@ public class PackageManifest {
                             List<String> authors,
                             List<String> keywords,
                             List<String> exportedModules,
-                            List<String> includedResources,
+                            List<String> includes,
                             String repository,
                             String ballerinaVersion,
                             String visibility,
@@ -101,7 +101,7 @@ public class PackageManifest {
         this.authors = authors;
         this.keywords = keywords;
         this.exportedModules = getExport(packageDesc, exportedModules);
-        this.includedResources = includedResources;
+        this.includes = includes;
         this.repository = repository;
         this.ballerinaVersion = ballerinaVersion;
         this.visibility = visibility;
@@ -132,14 +132,14 @@ public class PackageManifest {
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
-                                       List<String> include,
+                                       List<String> includes,
                                        String repository,
                                        String ballerinaVersion,
                                        String visibility,
                                        boolean template,
                                        String icon) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, include, repository, ballerinaVersion, visibility, template, icon);
+                license, authors, keywords, export, includes, repository, ballerinaVersion, visibility, template, icon);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -150,14 +150,14 @@ public class PackageManifest {
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
-                                       List<String> include,
+                                       List<String> includes,
                                        String repository,
                                        String ballerinaVersion,
                                        String visibility,
                                        boolean template) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                export, include, repository, ballerinaVersion, visibility, template, "");
+                export, includes, repository, ballerinaVersion, visibility, template, "");
     }
 
     public PackageName name() {
@@ -205,8 +205,8 @@ public class PackageManifest {
         return exportedModules;
     }
 
-    public List<String> includedResources() {
-        return includedResources;
+    public List<String> includes() {
+        return includes;
     }
 
     public String repository() {

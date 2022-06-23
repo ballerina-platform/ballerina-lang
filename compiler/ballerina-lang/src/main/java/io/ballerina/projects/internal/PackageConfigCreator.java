@@ -76,8 +76,6 @@ public class PackageConfigCreator {
                 DependencyManifestBuilder.from(dependenciesToml, packageManifest.descriptor());
         DependencyManifest dependencyManifest = dependencyManifestBuilder.dependencyManifest();
 
-        ProjectFiles.addResourcesToPackage(packageData, packageManifest.includedResources());
-
         return createPackageConfig(packageData, packageManifest, dependencyManifest);
     }
 

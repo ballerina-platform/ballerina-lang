@@ -33,8 +33,8 @@ public class ModuleData {
     private final List<DocumentData> srcDocs;
     private final List<DocumentData> testSrcDocs;
     private final DocumentData moduleMd;
-    private List<Path> resources;
-    private List<Path> testResources;
+    private final List<Path> resources;
+    private final List<Path> testResources;
 
     // TODO do we need to maintain resources and test resources
 
@@ -82,10 +82,6 @@ public class ModuleData {
 
     public Optional<DocumentData> moduleMd() {
         return Optional.ofNullable(this.moduleMd);
-    }
-
-    public void setResources (List<Path> resources) {
-        this.resources = resources;
     }
 
     public List<Path> resources () {
