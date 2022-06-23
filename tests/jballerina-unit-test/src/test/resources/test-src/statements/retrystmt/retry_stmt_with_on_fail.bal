@@ -23,6 +23,14 @@ function testRetryStatement() {
          panic error("Expected a  string");
     }
 
+    string|error retryErrorWithFailWithoutVariableResOne = checkpanic retryErrorWithFailWithoutVariableVariationOne();
+    assertEquality("start attempt 1:error, attempt 2:error, attempt 3:result returned end.",
+                   retryErrorWithFailWithoutVariableResOne);
+
+    string|error retryErrorWithFailWithoutVariableResTwo = checkpanic retryErrorWithFailWithoutVariableVariationTwo();
+    assertEquality("start attempt 1:error, attempt 2:error, attempt 3:error, attempt 4:error,-> error handled",
+                   retryErrorWithFailWithoutVariableResTwo);
+
     string|error retryErrorWithCheckRes = retryErrorWithCheck();
     if(retryErrorWithCheckRes is string) {
         assertEquality("start attempt 1:error, attempt 2:error, attempt 3:error, attempt 4:error,-> error handled",
@@ -92,6 +100,39 @@ function retryErrorWithFail() returns string|error {
         return str;
     } on fail error e {
         str += "-> error handled";
+    }
+}
+
+function retryErrorWithFailWithoutVariableVariationOne() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry<MyRetryManager> (3) {
+        count = count + 1;
+        if count < 3 {
+            str += (" attempt " + count.toString() + ":error,");
+            fail trxError();
+        }
+        str += (" attempt "+ count.toString() + ":result returned end.");
+        return str;
+    } on fail {
+        str += "-> error handled";
+    }
+}
+
+function retryErrorWithFailWithoutVariableVariationTwo() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry<MyRetryManager> (3) {
+        count = count + 1;
+        if count < 5 {
+            str += (" attempt " + count.toString() + ":error,");
+            string ignoreString = check trxErrorOrString();
+        }
+        str += (" attempt "+ count.toString() + ":result returned end.");
+        return str;
+    } on fail {
+        str += "-> error handled";
+        return str;
     }
 }
 

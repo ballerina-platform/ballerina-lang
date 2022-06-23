@@ -662,9 +662,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NON_ISOLATED_INIT_EXPRESSION_AS_OBJECT_DEFAULT(
             "BCE3952", "invalid.non.isolated.init.expression.as.object.default"),
 
-    INVALID_ASYNC_INVOCATION_IN_ISOLATED_FUNCTION("BCE3953", "invalid.async.invocation.in.isolated.function"),
-    INVALID_WORKER_DECLARATION_IN_ISOLATED_FUNCTION("BCE3954", "invalid.worker.declaration.in.isolated.function"),
-    INVALID_FORK_STATEMENT_IN_ISOLATED_FUNCTION("BCE3955", "invalid.fork.statement.in.isolated.function"),
+    INVALID_STRAND_ANNOTATION_IN_ISOLATED_FUNCTION("BCE3953", "invalid.strand.annotation.in.isolated.function"),
+    INVALID_ASYNC_INVOCATION_OF_NON_ISOLATED_FUNCTION_IN_ISOLATED_FUNCTION("BCE3954",
+            "invalid.async.invocation.of.non.isolated.function.in.isolated.function"),
+    INVALID_ACCESS_OF_NON_ISOLATED_EXPR_IN_ARGS_OF_ASYNC_INV_OF_ISOLATED_FUNC("BCE3955",
+            "invalid.access.of.non.isolated.expression.in.argument.of.async.invocation.of.isolated.function"),
 
     INVALID_NON_PRIVATE_MUTABLE_FIELD_IN_ISOLATED_OBJECT(
             "BCE3956", "invalid.non.private.mutable.field.in.isolated.object"),

@@ -1354,11 +1354,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 dlog.error(recordLiteral.pos,
                         DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
                 data.resultType = symTable.semanticError;
-                return false;
             }
         }
 
-        return true;
+        return data.resultType != symTable.semanticError;
     }
 
     private boolean isConstExpression(BLangExpression expression) {
@@ -1398,19 +1397,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 if (fieldName.equals(((BLangRecordVarNameField) recordField).variableName.value)) {
                     return (BLangRecordLiteral.BLangRecordVarNameField) recordField;
-                }
-            } else if (recordField.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
-                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
-                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
-                BType spreadOpExprType = Types.getReferredType(spreadOperatorField.expr.getBType());
-                if (spreadOpExprType.tag != TypeTags.RECORD) {
-                    continue;
-                }
-                BRecordType recordType = (BRecordType) spreadOpExprType;
-                for (BField recField : recordType.fields.values()) {
-                    if (fieldName.equals(recField.name.value)) {
-                        return recordLiteral;
-                    }
                 }
             }
         }
@@ -3318,7 +3304,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (Types.getReferredType(detailType).tag == TypeTags.MAP) {
             BType errorDetailTypeConstraint = ((BMapType) Types.getReferredType(detailType)).constraint;
             for (BLangNamedArgsExpression namedArgExpr: namedArgs) {
-                if (!types.isAssignable(namedArgExpr.expr.getBType(), errorDetailTypeConstraint)) {
+                if (Types.getReferredType(errorDetailTypeConstraint).tag == TypeTags.UNION &&
+                        !types.isAssignable(namedArgExpr.expr.getBType(), errorDetailTypeConstraint)) {
                     dlog.error(namedArgExpr.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_ARG_TYPE,
                                namedArgExpr.name, errorDetailTypeConstraint, namedArgExpr.expr.getBType());
                 }
@@ -3346,7 +3333,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 } else {
                     missingRequiredFields.remove(namedArg.name.value);
-                    if (!types.isAssignable(namedArg.expr.getBType(), field.type)) {
+                    if (Types.getReferredType(field.type).tag == TypeTags.UNION &&
+                            !types.isAssignable(namedArg.expr.getBType(), field.type)) {
                         dlog.error(pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_ARG_TYPE,
                                    namedArg.name, field.type, namedArg.expr.getBType());
                     }
@@ -6518,12 +6506,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
             BType target = checkErrCtrTargetTypeAndSetSymbol(namedArgsExpression, expectedType);
 
-            BLangNamedArgsExpression clone = nodeCloner.cloneNode(namedArgsExpression);
-            BType type = checkExpr(clone, target, data);
-            if (type == symTable.semanticError) {
-                checkExpr(namedArgsExpression, data);
-            } else {
+            if (Types.getReferredType(target).tag != TypeTags.UNION) {
                 checkExpr(namedArgsExpression, target, data);
+            } else {
+                checkExpr(namedArgsExpression, data);
             }
 
             namedArgs.add(namedArgsExpression);

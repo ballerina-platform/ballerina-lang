@@ -356,7 +356,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                 QUERY_CONSUME_STREAM_FUNCTION, returnType, Lists.of(streamRef), pos);
         BLangStatementExpression stmtExpr;
-        if (!containsCheckExpr && queryAction.returnsWithinDoClause) {
+        if (queryAction.returnsWithinDoClause) {
             BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(pos, result);
             BLangBlockStmt ifBody = ASTBuilderUtil.createBlockStmt(pos);
             ifBody.stmts.add(returnStmt);

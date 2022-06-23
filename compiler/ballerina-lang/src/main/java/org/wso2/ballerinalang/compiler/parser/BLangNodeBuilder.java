@@ -3716,29 +3716,31 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     public BLangNode transform(OnFailClauseNode onFailClauseNode) {
         Location pos = getPosition(onFailClauseNode);
-        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) TreeBuilder.
-                createSimpleVariableDefinitionNode();
-        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
-        boolean isDeclaredWithVar = onFailClauseNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-        var.isDeclaredWithVar = isDeclaredWithVar;
-        if (!isDeclaredWithVar) {
-            var.setTypeNode(createTypeNode(onFailClauseNode.typeDescriptor()));
-        }
-        var.pos = getPosition(onFailClauseNode);
-        var.setName(this.createIdentifier(onFailClauseNode.failErrorName()));
-        var.name.pos = getPosition(onFailClauseNode.failErrorName());
-        variableDefinitionNode.setVariable(var);
-        variableDefinitionNode.pos = getPosition(onFailClauseNode.typeDescriptor(), onFailClauseNode.failErrorName());
-
-
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         onFailClause.pos = pos;
-
-        onFailClause.isDeclaredWithVar = isDeclaredWithVar;
-        markVariableWithFlag(variableDefinitionNode.getVariable(), Flag.FINAL);
-        onFailClause.variableDefinitionNode = variableDefinitionNode;
+        onFailClauseNode.typeDescriptor().ifPresent(typeDescriptorNode -> {
+            BLangSimpleVariableDef variableDefinitionNode =
+                    (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+            BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+            boolean isDeclaredWithVar = typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC;
+            var.isDeclaredWithVar = isDeclaredWithVar;
+            if (!isDeclaredWithVar) {
+                var.setTypeNode(createTypeNode(typeDescriptorNode));
+            }
+            var.pos = pos;
+            onFailClauseNode.failErrorName().ifPresent(identifierToken -> {
+                var.setName(this.createIdentifier(identifierToken));
+                var.name.pos = getPosition(identifierToken);
+                variableDefinitionNode.setVariable(var);
+                variableDefinitionNode.pos = getPosition(typeDescriptorNode,
+                        identifierToken);
+            });
+            onFailClause.isDeclaredWithVar = isDeclaredWithVar;
+            markVariableWithFlag(variableDefinitionNode.getVariable(), Flag.FINAL);
+            onFailClause.variableDefinitionNode = variableDefinitionNode;
+        });
         BLangBlockStmt blockNode = (BLangBlockStmt) transform(onFailClauseNode.blockStatement());
-        blockNode.pos = getPosition(onFailClauseNode);
+        blockNode.pos = pos;
         onFailClause.body = blockNode;
         return onFailClause;
     }
