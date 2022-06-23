@@ -18,6 +18,10 @@
 
 package io.ballerina.converters;
 
+import io.ballerina.converters.diagnostic.JsonToRecordDirectConverterDiagnostic;
+
+import java.util.List;
+
 /**
  * Response format for JsonToBalRecord endpoint.
  *
@@ -26,6 +30,7 @@ package io.ballerina.converters;
 public class JsonToRecordResponse {
 
     private String codeBlock;
+    private List<JsonToRecordDirectConverterDiagnostic> diagnostics;
 
     public String getCodeBlock() {
         return codeBlock;
@@ -34,4 +39,8 @@ public class JsonToRecordResponse {
     public void setCodeBlock(String codeBlock) {
         this.codeBlock = codeBlock;
     }
+
+    public List<JsonToRecordDirectConverterDiagnostic> getDiagnostics() { return diagnostics; }
+
+    public void setDiagnostics(List<JsonToRecordDirectConverterDiagnostic> diagnostic) { this.diagnostics = diagnostic; }
 }
