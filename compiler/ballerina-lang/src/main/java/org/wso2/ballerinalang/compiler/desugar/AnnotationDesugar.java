@@ -1089,7 +1089,7 @@ public class AnnotationDesugar {
         annotAttachment.expr = strandDataRecord;
         strandDataRecord.pos = position;
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symTable.rootPkgSymbol);
-        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(STRAND_DATA));
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, Names.fromString(STRAND_DATA));
         BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) annTypeSymbol.type.tsymbol;
         strandDataRecord.setBType(bStructSymbol.type);
         strandDataRecord.typeChecked = true;
@@ -1110,7 +1110,7 @@ public class AnnotationDesugar {
         threadValue.typeChecked = true;
 
         threadFieldKeyValue.key = new BLangRecordLiteral.BLangRecordKey(threadKey);
-        BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv, names.fromString(THREAD),
+        BSymbol fieldSymbol = symResolver.resolveStructField(position, pkgEnv, Names.fromString(THREAD),
                 bStructSymbol);
         threadFieldKeyValue.key.fieldSymbol = (BVarSymbol) fieldSymbol;
         threadFieldKeyValue.valueExpr = threadValue;
