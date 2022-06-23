@@ -65,8 +65,6 @@ public class RuntimeRegistry {
     }
 
     public synchronized void gracefulStop(Strand strand) {
-
-        System.out.println("Listener stop called");
         if (!listenerSet.isEmpty()) {
             invokeMethodAsync(strand, Scheduler.getStrand().scheduler);
         } else {
