@@ -613,10 +613,10 @@ public class TypeConverter {
             return false;
         }
         ArrayValue source = (ArrayValue) sourceValue;
-        Type targetTypeElementType = targetType.getElementType();
+        Type targetTypeElementType = targetType.getElementType().getReferredType();
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = ((BArrayType) sourceType).getElementType();
+            Type sourceElementType = ((BArrayType) sourceType).getElementType().getReferredType();
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
@@ -1237,7 +1237,7 @@ public class TypeConverter {
     }
 
     private static boolean isDeepConversionRequiredForArray(Type sourceType) {
-        Type elementType = ((BArrayType) sourceType).getElementType();
+        Type elementType = ((BArrayType) sourceType).getElementType().getReferredType();
 
         if (elementType != null) {
             if (TypeUtils.isValueType(elementType)) {

@@ -439,7 +439,7 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         for (Type member : unionType.getMemberTypes()) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
-                if (arrayType.getElementType() == unionType) {
+                if (arrayType.getElementType().getReferredType() == unionType) {
                     BArrayType newArrayType = new BArrayType(this);
                     this.addMember(newArrayType);
                     continue;

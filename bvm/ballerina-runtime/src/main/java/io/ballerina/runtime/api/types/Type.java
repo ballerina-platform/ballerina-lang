@@ -91,5 +91,7 @@ public interface Type {
     @Deprecated
     void setImmutableType(IntersectionType immutableType);
 
+    Type getReferredType();
+
     Module getPkg();
 }

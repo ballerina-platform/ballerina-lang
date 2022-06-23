@@ -291,7 +291,23 @@ public class Values {
         return value;
     }
 
-    public static Object validateArray(Object value, BTypedesc typedesc) {
+    public static Object validateArrayElements(Object value, BTypedesc typedesc) {
+//        Type describingType = typedesc.getDescribingType();
+//        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
+//        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+//        if (annotations.containsKey(annotKey)) {
+//            Object annotValue = annotations.get(annotKey);
+//            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+//            for (Object element : ((BArray) value).getValues()) {
+//                if (((Long) element) >= minValue) {
+//                    return value;
+//                }
+//            }
+//        }
+//        return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+    }
+
+    public static Object validateArrayConstraint(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");

@@ -20,10 +20,16 @@ import testorg/runtime_api_types.objects as o;
 
 public annotation IntConstraints Int on type, record field;
 
+public annotation ArrayConstraints Array on type, record field;
+
 public annotation X on type;
 
 type IntConstraints record {|
     int minValue?;
+|};
+
+public type ArrayConstraints record {|
+    int maxLength?;
 |};
 
 @Int {minValue: 0}
@@ -69,6 +75,7 @@ public function validateTypeRef() {
     validateRecordField();
     validateTypeAnnotations();
     testRuntimeTypeRef();
+    validateArray();
 }
 
 function testRuntimeTypeRef() {
@@ -350,7 +357,7 @@ function validateType() {
     }
 
     anydata[] a = [1, 2, 3];
-    Foo|error val = validateArray(a);
+    Foo|error val = validateArrayElements(a);
     if val is Foo {
         test:assertEquals(val, [1, 2, 3]);
     } else {
@@ -384,6 +391,18 @@ function validateRecordField() {
     }
 }
 
+type CustomInt PositiveInt;
+
+@Array {
+    maxLength: 10
+}
+type CustomIntArray CustomInt[];
+
+function validateArray() {
+    CustomIntArray arr = [1,2,-5];
+    CustomIntArray|error a = validateArrayConstraint(arr);
+}
+
 # Validates the provided value against the configured annotations.
 #
 # + value - The `anydata` type value to be constrained
@@ -407,6 +426,15 @@ public isolated function validateRecord(anydata value, typedesc<anydata> td = <>
 # + value - The `anydata` type value to be constrained
 # + td - The type descriptor of the value to be constrained
 # + return - The type descriptor of the value which is validated or else an `constraint:Error` in case of an error
-public isolated function validateArray(anydata value, typedesc<anydata> td = <>) returns td|error = @java:Method {
+public isolated function validateArrayElements(anydata value, typedesc<anydata> td = <>) returns td|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+# Validates the provided array value against the configured annotations for field.
+#
+# + value - The `anydata` type value to be constrained
+# + td - The type descriptor of the value to be constrained
+# + return - The type descriptor of the value which is validated or else an `constraint:Error` in case of an error
+public isolated function validateArrayConstraint(anydata value, typedesc<anydata> td = <>) returns td|error = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

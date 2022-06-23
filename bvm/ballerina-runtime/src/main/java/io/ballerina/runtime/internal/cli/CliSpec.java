@@ -81,7 +81,7 @@ public class CliSpec {
             if (typeOp.getTag() == TypeTags.ARRAY_TAG) {
                 ArrayType arrayType = (ArrayType) typeOp;
                 BArray bArray = ValueCreator.createArrayValue(arrayType, -1);
-                Type elementType = arrayType.getElementType();
+                Type elementType = arrayType.getElementType().getReferredType();
                 int elementCount = getElementCount(operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
                     try {
@@ -126,7 +126,7 @@ public class CliSpec {
 
     private boolean isSupportedArrayType(Type opType) {
         if (opType.getTag() == TypeTags.ARRAY_TAG) {
-            Type elementType = ((ArrayType) opType).getElementType();
+            Type elementType = ((ArrayType) opType).getElementType().getReferredType();
             return CliUtil.isSupportedType(elementType.getTag());
         }
         return false;
