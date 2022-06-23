@@ -3318,7 +3318,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (Types.getReferredType(detailType).tag == TypeTags.MAP) {
             BType errorDetailTypeConstraint = ((BMapType) Types.getReferredType(detailType)).constraint;
             for (BLangNamedArgsExpression namedArgExpr: namedArgs) {
-                if (!types.isAssignable(namedArgExpr.expr.getBType(), errorDetailTypeConstraint)) {
+                if (Types.getReferredType(errorDetailTypeConstraint).tag == TypeTags.UNION &&
+                        !types.isAssignable(namedArgExpr.expr.getBType(), errorDetailTypeConstraint)) {
                     dlog.error(namedArgExpr.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_ARG_TYPE,
                                namedArgExpr.name, errorDetailTypeConstraint, namedArgExpr.expr.getBType());
                 }
@@ -3346,7 +3347,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     }
                 } else {
                     missingRequiredFields.remove(namedArg.name.value);
-                    if (!types.isAssignable(namedArg.expr.getBType(), field.type)) {
+                    if (Types.getReferredType(field.type).tag == TypeTags.UNION &&
+                            !types.isAssignable(namedArg.expr.getBType(), field.type)) {
                         dlog.error(pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_ARG_TYPE,
                                    namedArg.name, field.type, namedArg.expr.getBType());
                     }
@@ -6459,12 +6461,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         for (BLangNamedArgsExpression namedArgsExpression : errorConstructorExpr.namedArgs) {
             BType target = checkErrCtrTargetTypeAndSetSymbol(namedArgsExpression, expectedType);
 
-            BLangNamedArgsExpression clone = nodeCloner.cloneNode(namedArgsExpression);
-            BType type = checkExpr(clone, target, data);
-            if (type == symTable.semanticError) {
-                checkExpr(namedArgsExpression, data);
-            } else {
+            if (Types.getReferredType(target).tag != TypeTags.UNION) {
                 checkExpr(namedArgsExpression, target, data);
+            } else {
+                checkExpr(namedArgsExpression, data);
             }
 
             namedArgs.add(namedArgsExpression);
