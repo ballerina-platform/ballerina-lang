@@ -37,11 +37,11 @@ public class BResourceFunction extends BAttachedFunction {
     public BVarSymbol restPathParam;
     public List<Name> resourcePath;
     public Name accessor;
-    public BType resourcePathType;
+    public BTupleType resourcePathType;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
                              List<Name> resourcePath, Name accessor, List<BVarSymbol> pathParams,
-                             BVarSymbol restPathParam, BType resourcePathType, Location pos) {
+                             BVarSymbol restPathParam, BTupleType resourcePathType, Location pos) {
         super(funcName, symbol, type, pos);
         this.resourcePath = resourcePath;
         this.accessor = accessor;
@@ -58,9 +58,9 @@ public class BResourceFunction extends BAttachedFunction {
         for (int i = 0; i < resourcePath.size(); i++) {
             Name resourcePath = this.resourcePath.get(i);
             if (resourcePath.value.equals("*")) {
-                resourcePathStrings.add("[" + ((BTupleType) resourcePathType).tupleTypes.get(i) + "]");
+                resourcePathStrings.add("[" + resourcePathType.tupleTypes.get(i) + "]");
             } else if (resourcePath.value.equals("**")) {
-                resourcePathStrings.add("[" + ((BTupleType) resourcePathType).restType + "...]");
+                resourcePathStrings.add("[" + resourcePathType.restType + "...]");
             } else {
                 resourcePathStrings.add(resourcePath.value);
             }
