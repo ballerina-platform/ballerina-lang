@@ -42,10 +42,6 @@ public function foo() returns int:c {
     int:sum(4, 5);
 }
 
-function value(int a, int b) returns int {
-  return a + b;
-}
-
 transaction:Info info2;
 
 // Predeclared module prefix in conditional expression
