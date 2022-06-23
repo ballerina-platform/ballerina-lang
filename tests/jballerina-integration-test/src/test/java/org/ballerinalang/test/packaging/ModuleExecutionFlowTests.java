@@ -186,7 +186,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         LogLeecher logLeecherC = new LogLeecher("StopHandlerFunc5 in current module");
         LogLeecher logLeecherD = new LogLeecher("StopHandlerFunc5 in current module");
         LogLeecher logLeecherE = new LogLeecher("StopHandlerFunc2 in current module");
-        LogLeecher logLeecherF = new LogLeecher("Stopped current module", LogLeecher.LeecherType.ERROR);
+        LogLeecher logLeecherF = new LogLeecher("Stopped current module");
         LogLeecher logLeecherG = new LogLeecher("stopHandlerFunc1 in moduleA");
         LogLeecher logLeecherH = new LogLeecher("Stopped moduleB", LogLeecher.LeecherType.ERROR);
         serverInstance.addLogLeecher(logLeecherA);
@@ -194,7 +194,7 @@ public class ModuleExecutionFlowTests extends BaseTest {
         serverInstance.addLogLeecher(logLeecherC);
         serverInstance.addLogLeecher(logLeecherD);
         serverInstance.addLogLeecher(logLeecherE);
-        serverInstance.addErrorLogLeecher(logLeecherF);
+        serverInstance.addLogLeecher(logLeecherF);
         serverInstance.addLogLeecher(logLeecherG);
         serverInstance.addErrorLogLeecher(logLeecherH);
         serverInstance.shutdownServer();
