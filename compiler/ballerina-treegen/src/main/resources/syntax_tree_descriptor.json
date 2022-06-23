@@ -4195,11 +4195,13 @@
                 },
                 {
                     "name": "typeDescriptor",
-                    "type": "TypeDescriptorNode"
+                    "type": "TypeDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "failErrorName",
-                    "type": "IdentifierToken"
+                    "type": "IdentifierToken",
+                    "isOptional": true
                 },
                 {
                     "name": "blockStatement",
