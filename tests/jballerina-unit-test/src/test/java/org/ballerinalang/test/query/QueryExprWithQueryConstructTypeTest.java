@@ -228,8 +228,33 @@ public class QueryExprWithQueryConstructTypeTest {
     }
 
     @Test
-    public void testReadonlyTable2() {
-        BRunUtil.invoke(result, "testReadonlyTable2");
+    public void testConstructingListOfTablesUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfTablesUsingQueryWithReadonly");
+    }
+
+    @Test
+    public void testConstructingListOfXMLsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfXMLsUsingQueryWithReadonly");
+    }
+
+    @Test
+    public void testConstructingListOfRecordsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfRecordsUsingQueryWithReadonly");
+    }
+
+    @Test
+    public void testConstructingListOfListsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfListsUsingQueryWithReadonly");
+    }
+
+    @Test
+    public void testConstructingListOfMapsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfMapsUsingQueryWithReadonly");
+    }
+
+    @Test
+    public void testConstructingListInRecordsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListInRecordsUsingQueryWithReadonly");
     }
 
     @AfterClass
