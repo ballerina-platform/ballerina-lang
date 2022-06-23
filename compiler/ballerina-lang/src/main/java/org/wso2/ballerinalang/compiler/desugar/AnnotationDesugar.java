@@ -1072,7 +1072,6 @@ public class AnnotationDesugar {
     }
 
     public BLangAnnotationAttachment createStrandAnnotationWithThreadAny(Location position, SymbolEnv env) {
-        // Create annotation attachment.
         BLangAnnotationAttachment annotAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         annotAttachment.annotationSymbol = symResolver.getStrandAnnotationSymbol();
 
@@ -1086,7 +1085,6 @@ public class AnnotationDesugar {
         annotAttachment.pkgAlias = pkgAlias;
         annotAttachment.attachPoints.add(AttachPoint.Point.WORKER);
 
-        // Create record literal related to annotation node.
         BLangRecordLiteral strandDataRecord = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         annotAttachment.expr = strandDataRecord;
         strandDataRecord.pos = position;
@@ -1096,18 +1094,15 @@ public class AnnotationDesugar {
         strandDataRecord.setBType(bStructSymbol.type);
         strandDataRecord.typeChecked = true;
 
-        // Add key/value pair for `thread` field in `StrandData` record.
         BLangRecordLiteral.BLangRecordKeyValueField threadFieldKeyValue =
                 (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         strandDataRecord.fields.add(threadFieldKeyValue);
 
-        // Create annotation field key for `thread`.
         BLangLiteral threadKey = (BLangLiteral) TreeBuilder.createLiteralExpression();
         threadKey.value = THREAD;
         threadKey.setBType(symTable.stringType);
         threadKey.typeChecked = true;
 
-        // Create annotation field value for `thread`.
         BLangLiteral threadValue = (BLangLiteral) TreeBuilder.createLiteralExpression();
         threadValue.setBType(symTable.stringType);
         threadValue.value = "any";
