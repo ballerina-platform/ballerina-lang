@@ -83,13 +83,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -1410,6 +1404,18 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY,
                 data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 finiteTypeNode.pos, SOURCE);
+
+        // Replacing unary expressions with numeric literal types for + and - numeric values
+        BLangExpression value;
+        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
+            value = finiteTypeNode.valueSpace.get(i);
+
+            if (types.isExpressionAnAllowedUnaryType(value, value.getKind())) {
+                BLangNumericLiteral newNumericLiteral =
+                        Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+                finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+            }
+        }
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {

@@ -80,12 +80,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPat
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.*;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
@@ -498,8 +493,25 @@ public class Types {
         return symTable.noType;
     }
 
+    public boolean isExpressionInUnaryValid(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.GROUP_EXPR) {
+            // To resolve ex: -(45) kind of scenarios
+            return ((BLangGroupExpr) expr).expression.getKind() == NodeKind.NUMERIC_LITERAL;
+        } else {
+            return expr.getKind() == NodeKind.NUMERIC_LITERAL;
+        }
+    }
+
+    public static BLangExpression getExpressionInUnary(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.GROUP_EXPR) {
+            return ((BLangGroupExpr) expr).expression;
+        } else {
+            return expr;
+        }
+    }
+
     public static void setValueOfNumericLiteral(BLangNumericLiteral newNumericLiteral, BLangUnaryExpr unaryExpr) {
-        Object objectValueInUnary = ((BLangNumericLiteral) (unaryExpr.expr)).value;
+        Object objectValueInUnary = ((BLangNumericLiteral) (getExpressionInUnary(unaryExpr.expr))).value;
         String strValueInUnary = String.valueOf(objectValueInUnary);
         OperatorKind unaryOperatorKind = unaryExpr.operator;
 
@@ -523,7 +535,7 @@ public class Types {
 
     public boolean isLiteralInUnaryAllowed(BLangUnaryExpr unaryExpr) {
         OperatorKind unaryOperator = unaryExpr.operator;
-        return unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL &&
+        return isExpressionInUnaryValid(unaryExpr.expr) &&
                 (OperatorKind.SUB.equals(unaryOperator) ||
                         OperatorKind.ADD.equals(unaryOperator));
     }
@@ -536,7 +548,7 @@ public class Types {
     }
 
     public static BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
-        BLangExpression exprInUnary = unaryExpr.expr;
+        BLangExpression exprInUnary = getExpressionInUnary(unaryExpr.expr);
 
         BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         setValueOfNumericLiteral(newNumericLiteral, unaryExpr);

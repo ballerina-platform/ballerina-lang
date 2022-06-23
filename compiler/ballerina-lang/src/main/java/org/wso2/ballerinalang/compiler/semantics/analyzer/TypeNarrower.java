@@ -70,7 +70,6 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private SymbolTable symTable;
-    private SemanticAnalyzer semanticAnalyzer;
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
@@ -79,7 +78,6 @@ public class TypeNarrower extends BLangNodeVisitor {
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
-        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
@@ -269,9 +267,6 @@ public class TypeNarrower extends BLangNodeVisitor {
 
         final TypeChecker.AnalyzerData data = new TypeChecker.AnalyzerData();
         data.env = env;
-        // If typeNode has finite types with unary expressions in the value space, we need to
-        // convert them into numeric literals.
-        semanticAnalyzer.analyzeNode(typeTestExpr.typeNode, data.env);
 
         typeChecker.markAndRegisterClosureVariable(symbol, lhsExpression.pos, env, data);
         if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {

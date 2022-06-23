@@ -18,11 +18,14 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -78,6 +81,9 @@ public class BFiniteType extends BType implements FiniteType {
     public String toString() {
         StringJoiner joiner = new StringJoiner("|");
         for (BLangExpression value : this.valueSpace) {
+            if (value.getKind() == NodeKind.UNARY_EXPR) {
+                value = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+            }
             switch (value.getBType().tag) {
                 case TypeTags.FLOAT:
                     joiner.add(value + "f");

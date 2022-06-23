@@ -5059,9 +5059,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         // Explicitly set actual type
-        if (isAddOrSubOperator && exprType != symTable.semanticError &&
-                unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL && (referredTypeTag == TypeTags.FINITE ||
-                referredTypeTag == TypeTags.UNION)) {
+        if (isAddOrSubOperator && exprType != symTable.semanticError && types.isExpressionInUnaryValid(unaryExpr.expr)
+                && (referredTypeTag == TypeTags.FINITE || referredTypeTag == TypeTags.UNION)) {
             if (referredTypeTag == TypeTags.FINITE) {
                 actualType = createFiniteTypeForNumericUnaryExpr(unaryExpr, data);
             } else {
@@ -5092,7 +5091,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public BType checkCompatibilityWithConstructedNumericLiteral(BLangUnaryExpr unaryExpr, BType referredType,
                                                                  AnalyzerData data) {
-        if (unaryExpr.expr.getKind() != NodeKind.NUMERIC_LITERAL) {
+        if (!types.isExpressionInUnaryValid(unaryExpr.expr)) {
             return silentTypeCheckExpr(unaryExpr.expr, referredType, data);
         }
         BLangNumericLiteral numericLiteral = Types.constructNumericLiteralFromUnaryExpr(unaryExpr);

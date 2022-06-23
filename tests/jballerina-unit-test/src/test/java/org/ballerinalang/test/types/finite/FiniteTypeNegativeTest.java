@@ -65,7 +65,7 @@ public class FiniteTypeNegativeTest {
         validateError(result, i++, "incompatible types: expected 'Foo2', found 'int'", 117, 15);
         validateError(result, i++, "incompatible types: expected 'Foo4', found 'int'", 118, 15);
         validateError(result, i++, "incompatible types: expected '\"chiran\"', found 'int'", 119, 18);
-        validateError(result, i++, "incompatible types: expected '1f', found 'int'", 123, 12);
+        validateError(result, i++, "incompatible types: expected '1.0f', found 'int'", 123, 12);
         validateError(result, i++, "incompatible types: expected '1.0f', found 'int'", 124, 13);
         validateError(result, i++, "incompatible types: expected '1.121f', found 'int'", 125, 15);
         validateError(result, i++, "incompatible types: expected '1.2e12f', found 'float'", 126, 16);

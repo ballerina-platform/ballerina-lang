@@ -253,7 +253,6 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -485,8 +484,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
 
-    private Types types;
-
     /* To keep track of additional statements produced from multi-BLangNode resultant transformations */
     private Stack<BLangStatement> additionalStatements = new Stack<>();
     /* To keep track if we are inside a block statment for the use of type definition creation */
@@ -505,7 +502,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         this.currentCompUnitName = entryName;
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-        this.types = Types.getInstance(context);
     }
 
     public List<org.ballerinalang.model.tree.Node> accept(Node node) {
@@ -789,8 +785,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     private void createAnonymousTypeDefForConstantDeclaration(BLangConstant constantNode, Location pos,
                                                                Location identifierPos) {
-        NodeKind nodeKind = constantNode.expr.getKind();
+        // Create a new finite type node.
+        BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
 
+        NodeKind nodeKind = constantNode.expr.getKind();
         // Create a new literal.
         BLangLiteral literal;
         if (nodeKind == NodeKind.LITERAL) {
@@ -802,18 +800,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             literal.setValue(((BLangLiteral) constantNode.expr).value);
             literal.setOriginalValue(((BLangLiteral) constantNode.expr).originalValue);
             literal.setBType(constantNode.expr.getBType());
+            literal.isConstant = true;
+            finiteTypeNode.valueSpace.add(literal);
         } else {
-            // Since we only allow literals and unary expressions to come to this point we can straightaway
-            // cast to unary.
+            // Since we only allow unary expressions to come to this point we can straightaway cast to unary
             BLangUnaryExpr unaryConstant = (BLangUnaryExpr) constantNode.expr;
-            Types.setValueOfNumericLiteral((BLangNumericLiteral) literal, unaryConstant);
-            literal.setBType(unaryConstant.expr.getBType());
+            BLangUnaryExpr unaryExpr = createBLangUnaryExpr(unaryConstant.pos, unaryConstant.operator,
+                    unaryConstant.expr);
+            unaryExpr.setBType(unaryConstant.expr.getBType());
+            unaryExpr.isConstant = true;
+            finiteTypeNode.valueSpace.add(unaryExpr);
         }
-        literal.isConstant = true;
-
-        // Create a new finite type node.
-        BLangFiniteTypeNode finiteTypeNode = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
-        finiteTypeNode.valueSpace.add(literal);
         finiteTypeNode.pos = identifierPos;
 
         // Create a new anonymous type definition.
@@ -856,10 +853,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         NodeKind nodeKind = constantNode.expr.getKind();
 
-        // Check whether the value is a literal or a unary expression with `+` or `-` numeric literal
-        // If it is not any one of the above, it is an invalid case, so we don't need to consider it.
+        // Check whether the value is a literal or a unary expression and if it is not any one of the before mentioned
+        // kinds it is an invalid case, so we don't need to consider it.
         if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
-                types.isExpressionAnAllowedUnaryType(constantNode.expr, nodeKind)) {
+                nodeKind == NodeKind.UNARY_EXPR) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
             // in type definitions.h
             createAnonymousTypeDefForConstantDeclaration(constantNode, pos, identifierPos);

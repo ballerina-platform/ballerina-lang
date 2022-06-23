@@ -713,45 +713,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
-        boolean foundUnaryExpr = false;
         boolean isErroredExprInFiniteType = false;
-        NodeKind valueKind;
-        BLangExpression value;
-
-        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
-            value = finiteTypeNode.valueSpace.get(i);
-            valueKind = value.getKind();
-
-            if (valueKind == NodeKind.UNARY_EXPR) {
-                foundUnaryExpr = true;
-                BType resultType = typeChecker.checkExpr(value, data.env, symTable.noType, data.prevEnvs);
-                if (resultType == symTable.semanticError) {
-                    isErroredExprInFiniteType = true;
-                    continue;
-                }
-                // Replacing unary expression with numeric literal type for + and - numeric values
-                BLangNumericLiteral newNumericLiteral =
-                        Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
-                finiteTypeNode.valueSpace.set(i, newNumericLiteral);
-            } else if ((valueKind == NodeKind.LITERAL || valueKind == NodeKind.NUMERIC_LITERAL) &&
-                    ((BLangLiteral) value).originalValue == null) {
-                // To handle enums
-                continue;
-            } else {
-                analyzeNode(value, data);
+        for (BLangExpression expr : finiteTypeNode.valueSpace) {
+            analyzeNode(expr, data);
+            BType resultType = typeChecker.checkExpr(expr, data.env, symTable.noType, data.prevEnvs);
+            if (resultType == symTable.semanticError) {
+                isErroredExprInFiniteType = true;
             }
         }
 
-        // Modify BType if Unary expressions were found
-        BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
-        if (foundUnaryExpr && finiteType != null) {
-            if (isErroredExprInFiniteType) {
-                finiteTypeNode.setBType(symTable.semanticError);
-            } else {
-                finiteType.setValueSpace(new LinkedHashSet<>(finiteTypeNode.valueSpace));
-            }
+        if (isErroredExprInFiniteType) {
+            finiteTypeNode.setBType(symTable.semanticError);
         }
-
     }
 
     @Override
@@ -4096,13 +4069,17 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     private boolean isNodeKindAllowedForConstants(BLangExpression expression, BLangConstant constant) {
-        return ((expression.getKind() == NodeKind.UNARY_EXPR &&
-                ((BLangUnaryExpr) constant.expr).expr.getKind() != NodeKind.NUMERIC_LITERAL) &&
+        if ((expression.getKind() == NodeKind.UNARY_EXPR &&
+                ((BLangUnaryExpr) constant.expr).expr.getKind() != NodeKind.NUMERIC_LITERAL)  &&
                 (!OperatorKind.SUB.equals(((BLangUnaryExpr) constant.expr).operator) ||
-                        !OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator)) ||
-                !(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
-                        expression.getKind() != NodeKind.UNARY_EXPR) &&
-                constant.typeNode == null;
+                !OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator))) {
+            return constant.typeNode == null;
+        }
+        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
+                expression.getKind() != NodeKind.UNARY_EXPR) {
+            return constant.typeNode == null;
+        }
+        return false;
     }
 
     // TODO: 7/10/19 Remove this once const support is added for lists. A separate method is introduced temporarily
