@@ -38,7 +38,7 @@ import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INCOMPATIBLE_TYPES;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INCOMPATIBLE_ARGUMENTS;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
@@ -61,10 +61,10 @@ public class Call {
                  checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
             Type restType =
                     functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
-                throw ErrorCreator.createError(
-                        getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_TYPES),
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                                      new BTupleType(paramTypes, restType), new BTupleType(argTypes)));
+            throw ErrorCreator.createError(
+                        getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
+                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_ARGUMENTS,
+                        new BTupleType(paramTypes, restType, 0, false), new BTupleType(argTypes)));
         }
 
         return func.asyncCall(argsList.toArray(), METADATA);
