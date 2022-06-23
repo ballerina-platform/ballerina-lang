@@ -1424,8 +1424,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangResourceAccessInvocation rAInvocation) {
-        analyzeInvocation(rAInvocation);
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        analyzeNode(resourceAccessInvocation.resourceAccessPathSegments, env);
+        analyzeInvocation(resourceAccessInvocation);
     }
     
     @Override
