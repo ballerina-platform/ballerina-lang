@@ -516,8 +516,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3312", "key.constraint.not.supported.for.table.with.map.constraint"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY("BCE3313", "cannot.infer.member.type.for.table.due.ambiguity"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("BCE3314", "cannot.infer.member.type.for.table"),
-    ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER(
-            "BCE3315", "on.conflict.only.works.with.tables.with.key.specifier"),
+    ON_CONFLICT_ONLY_WORKS_WITH_MAPS_OR_TABLES_WITH_KEY_SPECIFIER(
+            "BCE3315", "on.conflict.only.works.with.map.or.tables.with.key.specifier"),
     CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS("BCE3316", "cannot.update.table.using.member.access.lvexpr"),
     KEY_SPECIFIER_EMPTY_FOR_PROVIDED_KEY_CONSTRAINT("BCE3317", "key.specifier.empty.with.key.constraint"),
     KEY_SPECIFIER_NOT_ALLOWED_FOR_TARGET_ANY("BCE3318", "key.specifier.not.allowed.for.target.any"),
