@@ -1,0 +1,139 @@
+[
+  {
+    "description": "Add new object field , add new parameter in method.\n",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tremote function hello() {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic int x = 5;\n\tremote function hello(int x) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "kind": "remote function",
+                  "childDiffs": [
+                    {
+                      "type": "new",
+                      "versionImpact": "major",
+                      "kind": "unknown",
+                      "message": "new required parameter 'x' is added"
+                    }
+                  ]
+                },
+                {
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "kind": "service field"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove object field , add new method, Change the port number",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic int x = 5;\n}",
+    "newCode": "service /demo on new http:Listener(8000){\n\tremote function hello() {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "kind": "unknown",
+                  "message": "service listener expression is modified"
+                },
+                {
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "kind": "remote function"
+                },
+                {
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "kind": "service field"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add isolated qualifier , Change the method qualifier, Add method parameter.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tfunction hello() {} \n}",
+    "newCode": "isolated service /demo on new http:Listener(8080){\n\tpublic function hello(int x) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "kind": "unknown",
+                  "message": "'isolated' qualifier is added"
+                },
+                {
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "kind": "function",
+                  "childDiffs": [
+                    {
+                      "type": "new",
+                      "versionImpact": "minor",
+                      "kind": "unknown",
+                      "message": "'public' qualifier is added"
+                    },
+                    {
+                      "type": "new",
+                      "versionImpact": "major",
+                      "kind": "unknown",
+                      "message": "new required parameter 'x' is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

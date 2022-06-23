@@ -615,6 +615,83 @@ function testTableOnConflict() {
     assertEqual(customerTable7, table key(id) [{"id":1,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}]);
 }
 
+type Token record {|
+    readonly int idx;
+    string value;
+|};
+
+type TokenTable table<Token> key(idx);
+
+function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetClause() {
+    TokenTable|error tbl1 = table key(idx) from int i in 1 ... 3
+        let int[] arr = from var j in 1 ... 3 select j
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    TokenTable expectedTbl = table [
+            {"idx": 1, "value": "A1"},
+            {"idx": 2, "value": "A2"},
+            {"idx": 3, "value": "A3"}
+        ];
+
+    assertEqual(true, tbl1 is TokenTable);
+    if tbl1 is TokenTable {
+        assertEqual(expectedTbl, tbl1);
+    }
+
+    TokenTable|error tbl2 = table key(idx) from int i in [1, 2, 1]
+        let int[] arr = from var j in 1 ... 3 select j
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    assertEqual(true, tbl2 is error);
+    if tbl2 is error {
+        assertEqual("Duplicate Key", tbl2.message());
+    }
+}
+
+function testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInWhereClause() {
+    TokenTable|error tbl1 = table key(idx) from int i in 1 ... 3
+        let int[] arr = [1, 2, 3]
+        where arr == from int j in 1...3 select j
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    TokenTable expectedTbl = table [
+            {"idx": 1, "value": "A1"},
+            {"idx": 2, "value": "A2"},
+            {"idx": 3, "value": "A3"}
+        ];
+
+    assertEqual(true, tbl1 is TokenTable);
+    if tbl1 is TokenTable {
+        assertEqual(expectedTbl, tbl1);
+    }
+
+    TokenTable|error tbl2 = table key(idx) from int i in [1, 2, 1]
+        let int[] arr = [1, 2, 3]
+        where arr == from int j in 1...3 select j
+        select {
+            idx: i,
+            value: "A" + i.toString()
+        }
+        on conflict error("Duplicate Key");
+
+    assertEqual(true, tbl2 is error);
+    if tbl2 is error {
+        assertEqual("Duplicate Key", tbl2.message());
+    }
+}
+
 function testMapConstructingQueryExpr() {
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
     Customer c2 = {id: 2, name: "James", noOfItems: 5};
