@@ -93,6 +93,9 @@ public class ManifestBuilder {
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
     private static final String TEMPLATE = "template";
+    public static final String ICON = "icon";
+    public static final String DISTRIBUTION = "distribution";
+    public static final String VISIBILITY = "visibility";
 
     private ManifestBuilder(TomlDocument ballerinaToml,
                             TomlDocument compilerPluginToml,
@@ -176,40 +179,13 @@ public class ManifestBuilder {
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
                 includes = getStringArrayFromPackageNode(pkgNode, INCLUDES);
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
-                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, "distribution", "");
-                visibility = getStringValueFromTomlTableNode(pkgNode, "visibility", "");
+                ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, DISTRIBUTION, "");
+                visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
                 template = getBooleanFromTemplateNode(pkgNode, TEMPLATE);
-                icon = getStringValueFromTomlTableNode(pkgNode, "icon", "");
+                icon = getStringValueFromTomlTableNode(pkgNode, ICON, "");
 
-                // validate icon path for only png files
-                // we ignore other file types here, since file type error will be shown
-                if (icon != null && hasPngExtension(icon)) {
-                    Path iconPath = Paths.get(icon);
-                    if (!iconPath.isAbsolute()) {
-                        iconPath = this.projectPath.resolve(iconPath);
-                    }
-
-                    if (Files.notExists(iconPath)) {
-                        // validate icon path
-                        // if file path does not exist, throw this error
-                        reportDiagnostic(pkgNode.entries().get("icon"),
-                                "could not locate icon path '" + icon + "'",
-                                "error.invalid.path", DiagnosticSeverity.ERROR);
-                    } else {
-                        // validate file content
-                        // if other file types renamed as png, throw this error
-                        try {
-                            if (!FileUtils.isValidPng(iconPath)) {
-                                reportDiagnostic(pkgNode.entries().get("icon"),
-                                        "invalid 'icon' under [package]: 'icon' can only have 'png' images",
-                                        "error.invalid.icon", DiagnosticSeverity.ERROR);
-                            }
-                        } catch (IOException e) {
-                            // should not reach to this line
-                            throw new ProjectException("failed to read icon: '" + icon + "'");
-                        }
-                    }
-                }
+                // we ignore file types except png here, since file type error will be shown
+                validateIconPathForPng(icon, pkgNode);
             }
         }
 
@@ -317,6 +293,36 @@ public class ManifestBuilder {
         }
 
         return PackageDescriptor.from(PackageOrg.from(org), PackageName.from(name), PackageVersion.from(version));
+    }
+
+    private void validateIconPathForPng(String icon, TomlTableNode pkgNode) {
+        if (icon != null && hasPngExtension(icon)) {
+            Path iconPath = Paths.get(icon);
+            if (!iconPath.isAbsolute()) {
+                iconPath = this.projectPath.resolve(iconPath);
+            }
+
+            if (Files.notExists(iconPath)) {
+                // validate icon path
+                // if file path does not exist, throw this error
+                reportDiagnostic(pkgNode.entries().get("icon"),
+                        "could not locate icon path '" + icon + "'",
+                        "error.invalid.path", DiagnosticSeverity.ERROR);
+            } else {
+                // validate file content
+                // if other file types renamed as png, throw this error
+                try {
+                    if (!FileUtils.isValidPng(iconPath)) {
+                        reportDiagnostic(pkgNode.entries().get("icon"),
+                                "invalid 'icon' under [package]: 'icon' can only have 'png' images",
+                                "error.invalid.icon", DiagnosticSeverity.ERROR);
+                    }
+                } catch (IOException e) {
+                    // should not reach to this line
+                    throw new ProjectException("failed to read icon: '" + icon + "'");
+                }
+            }
+        }
     }
 
     private BuildOptions parseBuildOptions() {

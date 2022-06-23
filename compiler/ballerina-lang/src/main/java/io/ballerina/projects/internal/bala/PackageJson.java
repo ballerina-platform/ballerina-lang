@@ -121,12 +121,12 @@ public class PackageJson {
         return export;
     }
 
-    public List<String> getIncludes() {
-        return includes;
-    }
-
     public void setExport(List<String> export) {
         this.export = export;
+    }
+
+    public List<String> getIncludes() {
+        return includes;
     }
 
     public void setIncludes(List<String> include) {

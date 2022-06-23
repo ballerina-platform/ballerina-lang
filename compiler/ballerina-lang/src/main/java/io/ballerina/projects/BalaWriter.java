@@ -120,6 +120,7 @@ public abstract class BalaWriter {
                       this.packageContext.project().sourceRoot(),
                       this.packageContext.packageName().toString());
         addPackageSource(balaOutputStream);
+        addIncludes(balaOutputStream);
         Optional<JsonArray> platformLibs = addPlatformLibs(balaOutputStream);
         addPackageJson(balaOutputStream, platformLibs);
 
@@ -149,6 +150,7 @@ public abstract class BalaWriter {
         packageJson.setSourceRepository(packageManifest.repository());
         packageJson.setKeywords(packageManifest.keywords());
         packageJson.setExport(packageManifest.exportedModules());
+        packageJson.setIncludes(packageManifest.includes());
         packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
 
@@ -161,7 +163,7 @@ public abstract class BalaWriter {
             packageJson.setPlatformDependencies(platformLibs.get());
         }
 
-        // Set icon in bala path ion the package.json
+        // Set icon in bala path in the package.json
         if (packageManifest.icon() != null && !packageManifest.icon().isEmpty()) {
             Path iconPath = getIconPath(packageManifest.icon());
             packageJson.setIcon(String.valueOf(Paths.get(BALA_DOCS_DIR).resolve(iconPath.getFileName())));
@@ -262,6 +264,19 @@ public abstract class BalaWriter {
                                 new ByteArrayInputStream(new String(documentContent).getBytes(StandardCharsets.UTF_8)));
                 }
             }
+        }
+    }
+
+    private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
+        // TODO: use patterns. Take the relative path from the project root and add the entire structure from there
+        // TODO: add the includes to the relevant repositories
+        // The current implementation adds all the includes to the doc/ dir
+        Path docsDirInBala = Paths.get(BALA_DOCS_DIR);
+        List<String> includes = this.packageContext.packageManifest().includes();
+        for (String include : includes) {
+            Path includePath = this.packageContext.project().sourceRoot().resolve(include);
+            Path includeInBala = docsDirInBala.resolve(include);
+            putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includePath)));
         }
     }
 
