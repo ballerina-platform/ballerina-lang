@@ -136,7 +136,7 @@ function testWhileStmtWithOnFailWithoutVariable() {
 }
 
 function assertEquality(anydata expected, anydata actual) {
-    if (actual == expected) {
+    if actual == expected {
         return;
     }
     panic error("AssertionError", message = "expected '" + expected.toString() + "', found '" + actual.toString() + "'");
