@@ -404,4 +404,9 @@ public class ObjectTypeReferenceTest {
     public void testCreatingObjectWithOverriddenMethods() {
         BRunUtil.invoke(compileResult, "testCreatingObjectWithOverriddenMethods");
     }
+
+    @Test
+    public void testObjectReferenceRecordUpdate() {
+        BRunUtil.invoke(compileResult, "testObjectReferenceRecordUpdate");
+    }
 }
