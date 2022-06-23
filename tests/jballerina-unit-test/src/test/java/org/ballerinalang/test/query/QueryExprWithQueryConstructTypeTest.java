@@ -194,25 +194,25 @@ public class QueryExprWithQueryConstructTypeTest {
     public void testSemanticNegativeScenarios() {
         int index = 0;
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                        "tables with key specifiers", 39, 13);
+                        "maps or tables with key specifiers", 39, 13);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 59, 9);
+                "maps or tables with key specifiers", 59, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 71, 9);
+                "maps or tables with key specifiers", 71, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 84, 9);
+                "maps or tables with key specifiers", 84, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 95, 9);
+                "maps or tables with key specifiers", 95, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 103, 14);
+                "maps or tables with key specifiers", 103, 14);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 119, 9);
+                "maps or tables with key specifiers", 119, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 126, 47);
+                "maps or tables with key specifiers", 126, 47);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 131, 9);
+                "maps or tables with key specifiers", 131, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 144, 9);
+                "maps or tables with key specifiers", 144, 9);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), index);
     }
 
