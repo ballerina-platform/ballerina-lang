@@ -4799,6 +4799,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ENUM_MEMBER_NAME;
             case RELATIVE_RESOURCE_PATH:
                 return ParserRuleContext.TYPE_DESC_IN_PATH_PARAM;
+            case TUPLE_MEMBERS:
+                return ParserRuleContext.TUPLE_MEMBER;
             default:
                 if (isParameter(parentCtx)) {
                     return ParserRuleContext.TYPE_DESC_IN_PARAM;
@@ -5040,7 +5042,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.PATH_PARAM_OPTIONAL_ANNOTS;
             default:
                 if (isInTypeDescContext()) {
-                    return ParserRuleContext.TYPE_DESC_IN_TUPLE;
+                    return ParserRuleContext.TUPLE_MEMBERS;
                 }
                 return ParserRuleContext.EXPRESSION;
         }
