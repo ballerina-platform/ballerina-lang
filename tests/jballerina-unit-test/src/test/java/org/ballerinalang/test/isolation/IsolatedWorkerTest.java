@@ -53,7 +53,7 @@ public class IsolatedWorkerTest {
     private static final String ERROR_INVALID_STRAND_ANNOTATION_IN_WORKER_IN_ISOLATED_FUNCTION =
             "'strand' annotation not allowed in a worker declaration in an 'isolated' function";
     private static final String WARNING_USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED =
-            "usage of 'strand' annotation will be deprecated";
+            "the 'strand' annotation will be deprecated";
 
     @BeforeClass
     public void setup() {
