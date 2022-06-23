@@ -37,10 +37,13 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
+import io.ballerina.converters.diagnostic.DiagnosticMessages;
+import io.ballerina.converters.diagnostic.JsonToRecordDirectConverterDiagnostic;
 import io.ballerina.converters.exception.ExceptionMessages;
 import io.ballerina.converters.exception.JsonToRecordDirectConverterException;
 import org.apache.commons.lang3.StringUtils;
@@ -72,57 +75,59 @@ public class JsonToRecordDirectConverter {
     private JsonToRecordDirectConverter() {}
 
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
-                                               boolean isClosed) throws FormatterException,
-            JsonToRecordDirectConverterException {
-        Map<String, NonTerminalNode> typeDefinitionNodes = new LinkedHashMap<>();
-        Map<String, JsonElement> jsonNodes = new LinkedHashMap<>();
+                                               boolean isClosed) {
+        Map<String, NonTerminalNode> recordToTypeDefNodes = new LinkedHashMap<>();
+        Map<String, JsonElement> jsonFieldToElements = new LinkedHashMap<>();
+        List<JsonToRecordDirectConverterDiagnostic> diagnostics = new ArrayList<>();
+        JsonToRecordResponse response = new JsonToRecordResponse();
+
         try {
             JsonElement parsedJson = JsonParser.parseString(jsonString);
             if (parsedJson.isJsonObject()) {
                 generateRecords(parsedJson.getAsJsonObject(), recordName, isClosed, isRecordTypeDesc,
-                        typeDefinitionNodes, jsonNodes);
+                        recordToTypeDefNodes, jsonFieldToElements);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
                 object.add(recordName == null ? "newRecord" : StringUtils.uncapitalize(recordName), parsedJson);
-                generateRecords(object, recordName, isClosed, isRecordTypeDesc, typeDefinitionNodes, jsonNodes);
+                generateRecords(object, recordName, isClosed, isRecordTypeDesc, recordToTypeDefNodes, jsonFieldToElements);
             } else {
-                throw new JsonToRecordDirectConverterException(ExceptionMessages.unsupportedJson());
+                DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_101;
+                JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(message.getCode(),
+                        message.getDescription(), message.getSeverity(), null, null);
+                diagnostics.add(diagnostic);
+                response.setDiagnostics(diagnostics);
+                return response;
             }
         } catch (JsonSyntaxException e) {
-            throw new JsonToRecordDirectConverterException(ExceptionMessages.syntaxException(e.getMessage()));
+            DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_100;
+            JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(message.getCode(),
+                    message.getDescription(), message.getSeverity(), null, null);
+            diagnostics.add(diagnostic);
+            response.setDiagnostics(diagnostics);
+            return response;
         }
-        JsonToRecordResponse response = new JsonToRecordResponse();
 
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
+        List<TypeDefinitionNode> typeDefNodes = recordToTypeDefNodes.values().stream()
+                .map(entry -> (TypeDefinitionNode) entry).collect(Collectors.toList());
+        TypeDefinitionNode lastTypeDefNode = typeDefNodes.get(typeDefNodes.size() - 1);
+        NodeList<ModuleMemberDeclarationNode> moduleMembers = isRecordTypeDesc ?
+                AbstractNodeFactory.createNodeList(lastTypeDefNode) :
+                AbstractNodeFactory.createNodeList(new ArrayList(typeDefNodes));
 
-        if (isRecordTypeDesc) {
-            // Sets generated type definition code block when sub field of type descriptor kind
-            TypeDefinitionNode typeDescriptorNode = (TypeDefinitionNode) typeDefinitionNodes.entrySet()
-                    .iterator().next().getValue();
-            while (typeDefinitionNodes.entrySet().iterator().hasNext()) {
-                typeDescriptorNode = (TypeDefinitionNode) typeDefinitionNodes.entrySet().iterator().next().getValue();
-            }
-            Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-            Token typeKeyWord = AbstractNodeFactory.createToken(SyntaxKind.TYPE_KEYWORD);
-            IdentifierToken typeName = AbstractNodeFactory.createIdentifierToken(
-                    escapeIdentifier(recordName == null ? "NewRecord" : recordName));
-            TypeDefinitionNode typeDefinitionNode = NodeFactory.createTypeDefinitionNode(null,
-                    null, typeKeyWord, typeName, typeDescriptorNode, semicolon);
-            NodeList<ModuleMemberDeclarationNode> moduleMembers = AbstractNodeFactory.
-                    createNodeList(typeDefinitionNode);
-            Token eofToken = AbstractNodeFactory.createIdentifierToken("");
-            ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
+        Token eofToken = AbstractNodeFactory.createIdentifierToken("");
+        ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
+        try {
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
-        } else {
-            // Sets generated type definition code block
-            NodeList<ModuleMemberDeclarationNode> moduleMembers =
-                    AbstractNodeFactory.createNodeList(new ArrayList(typeDefinitionNodes.values()));
-            Token eofToken = AbstractNodeFactory.createIdentifierToken("");
-            ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
-            response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
+            return response;
+        } catch (FormatterException e) {
+            DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_102;
+            JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(message.getCode(),
+                    message.getDescription(), message.getSeverity(), null, null);
+            diagnostics.add(diagnostic);
+            response.setDiagnostics(diagnostics);
+            return response;
         }
-//        analyzeTypeDefNodes(typeDefinitionNodes);
-        return response;
     }
 
     private static void generateRecords(JsonObject jsonObject, String recordName, boolean isClosed,
