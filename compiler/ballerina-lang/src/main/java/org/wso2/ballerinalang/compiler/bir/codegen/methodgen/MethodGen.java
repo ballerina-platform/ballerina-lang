@@ -493,20 +493,20 @@ public class MethodGen {
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
 
+            String fullyQualifiedFuncName = getFullyQualifiedFuncName(func.type.tsymbol, funcName);
             BIRTerminator terminator = bb.terminator;
             pushShort(mv, stateVarIndex, caseIndex);
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator);
             termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
-                                  returnVarRefIndex, attachedType);
+                                  returnVarRefIndex, attachedType, yieldLocationVarIndex, fullyQualifiedFuncName);
 
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
-            String fullyQualifiedFuncName = getFullyQualifiedFuncName(func.type.tsymbol, funcName);
             String yieldStatus = getYieldStatusByTerminator(terminator);
 
             BIRBasicBlock thenBB = terminator.thenBB;
