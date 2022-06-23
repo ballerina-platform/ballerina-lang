@@ -3375,6 +3375,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_CONSTRUCTOR_RHS;
             case LIST_BINDING_PATTERN_RHS:
                 return getNextRuleForBindingPattern();
+            case TUPLE_MEMBERS:
+                return ParserRuleContext.TUPLE_MEMBER;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -3590,7 +3592,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SIGNED_INT_OR_FLOAT_RHS:
                 return getNextRuleForExpr();
             case TUPLE_TYPE_DESC_START:
-                return ParserRuleContext.TYPE_DESC_IN_TUPLE;
+                return ParserRuleContext.TUPLE_MEMBER;
             case WORKER_NAME_OR_METHOD_NAME:
                 return ParserRuleContext.WORKER_NAME_OR_METHOD_NAME;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
@@ -4130,6 +4132,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_CONSTRUCTOR:
             case CLASS_DESCRIPTOR_IN_NEW_EXPR:
             case BRACED_EXPRESSION:
+            case TUPLE_MEMBERS:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -4143,9 +4146,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_EXPRESSION:
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
             case TYPE_DESC_IN_PARENTHESIS:
+            case TYPE_DESC_IN_TUPLE:
             case TYPE_DESC_IN_SERVICE:
             case TYPE_DESC_IN_PATH_PARAM:
-            case TUPLE_MEMBERS:
                 startContext(currentCtx);
                 break;
             default:
@@ -4518,9 +4521,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
                 return ParserRuleContext.CLOSE_PARENTHESIS;
             case TYPE_DESC_IN_TUPLE:
+                endContext();
+                return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
             case STMT_START_BRACKETED_LIST:
-            case TUPLE_MEMBERS:
-                return ParserRuleContext.TUPLE_MEMBER;
+                return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 endContext();
                 return ParserRuleContext.SEMICOLON;
