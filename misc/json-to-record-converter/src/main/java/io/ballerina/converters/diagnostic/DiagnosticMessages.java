@@ -31,8 +31,8 @@ public enum DiagnosticMessages {
     JSON_TO_RECORD_CONVERTER_101("JSON_TO_RECORD_CONVERTER_101", "Provided JSON is unsupported. It may be null or have missing types", DiagnosticSeverity.ERROR),
     JSON_TO_RECORD_CONVERTER_102("JSON_TO_RECORD_CONVERTER_102", "Error occurred while formatting the Ballerina syntax tree", DiagnosticSeverity.ERROR);
     private final String code;
-    private final String description;
-    private final DiagnosticSeverity severity;
+    private String description;
+    private DiagnosticSeverity severity;
 
     DiagnosticMessages(String code, String description, DiagnosticSeverity severity) {
         this.code = code;
@@ -50,5 +50,13 @@ public enum DiagnosticMessages {
 
     public DiagnosticSeverity getSeverity() {
         return this.severity;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setSeverity(DiagnosticSeverity severity) {
+        this.severity = severity;
     }
 }
