@@ -993,6 +993,43 @@ function testMapConstructingQueryExprWithOrderByClause() {
     assertEqual(sorted4, error("Error"));
 }
 
+type Error error;
+type Json json;
+type IntOrString int|string;
+type ZeroOrOne 1|0;
+
+type MapOfJsonOrError map<Json>|Error;
+type MapOfIntOrError map<int>|Error;
+type ErrorOrMapOfZeroOrOne Error|map<ZeroOrOne>;
+
+function testMapConstructingQueryExprWithReferenceTypes() {
+    map<ZeroOrOne>|error sorted1 = map from var e in [1, 0, 1, 0, 1, 1]
+                                    order by e ascending
+                                    select [e.toString(), <ZeroOrOne> e];
+    assertEqual(sorted1, {"0":0,"1":1});
+
+    ErrorOrMapOfZeroOrOne sorted2 = map from var e in [1, 0, 1, 0, 0, 0]
+                                    order by e ascending
+                                    select [e.toString(), <ZeroOrOne> e];
+    assertEqual(sorted2, {"0":0,"1":1});
+
+    map<Json>|error sorted3 = map from var e in ["1", "2", "10", "3", "5", "20"]
+                                        order by e ascending
+                                        select [e, e] on conflict ();
+    assertEqual(sorted3, {"1":"1","10":"10","2":"2","20":"20","3":"3","5":"5"});
+
+    MapOfJsonOrError sorted4 = map from var e in ["1", "2", "10", "3", "5", "20"]
+                                        order by e ascending
+                                        select [e, e] on conflict ();
+    assertEqual(sorted4, {"1":"1","10":"10","2":"2","20":"20","3":"3","5":"5"});
+
+    MapOfIntOrError sorted5 = map from var e in [1, 2, 5, 4]
+                    let int f = e / 2
+                    order by f ascending
+                    select [f.toString(), e] on conflict error("Error");
+    assertEqual(sorted5, error("Error"));
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;

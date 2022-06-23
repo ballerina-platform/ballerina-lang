@@ -290,6 +290,11 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testMapConstructingQueryExprWithOrderByClause");
     }
 
+    @Test
+    public void testMapConstructingQueryExprWithReferenceTypes() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithReferenceTypes");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
