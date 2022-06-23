@@ -19,6 +19,16 @@ function testStaticMatchPatternsWithFailStmt() {
     assertEquals("Default", fooWithFail(a7));
 }
 
+function testStaticMatchPatternsWithOnFailStmtWithoutVariable() {
+    string|int|boolean a1 = 12;
+    string|int|boolean a2 = "fail";
+    string|int|boolean a3 = "NothingToMatch";
+
+    assertEquals("12", onFailWithoutVariable(a1));
+    assertEquals("Failed!", onFailWithoutVariable(a2));
+    assertEquals("Default", onFailWithoutVariable(a3));
+}
+
 function testStaticMatchPatternsWithCheckExpr() {
     string|int|boolean a1 = 12;
     string|int|boolean a2 = "Hello";
@@ -37,6 +47,21 @@ function testStaticMatchPatternsWithCheckExpr() {
     assertEquals("error(\"Check Error\")", fooWithCheck(a5));
     assertEquals("false", fooWithCheck(a6));
     assertEquals("Default", fooWithCheck(a7));
+}
+
+function onFailWithoutVariable(string|int|boolean a) returns string {
+    match a {
+        12 => {
+            return "12";
+        }
+        "fail" => {
+            error err = error("custom error", message = "error value");
+            fail err;
+        }
+    } on fail {
+        return "Failed!";
+    }
+    return "Default";
 }
 
 function fooWithFail(string|int|boolean a) returns string {

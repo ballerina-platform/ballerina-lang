@@ -64,6 +64,11 @@ public class MatchStatementTest extends AbstractStatementTest {
     }
 
     @Test
+    public void testSimpleMatchStatementWithOnFailClauseWithoutVariable() {
+        testFile("match-stmt/match_stmt_source_23.bal", "match-stmt/match_stmt_assert_23.json");
+    }
+
+    @Test
     public void testConstPatternWithPreDeclaredPrefix() {
         testFile("match-stmt/match_stmt_source_22.bal", "match-stmt/match_stmt_assert_22.json");
     }
