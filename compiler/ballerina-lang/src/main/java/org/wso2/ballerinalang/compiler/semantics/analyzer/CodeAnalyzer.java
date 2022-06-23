@@ -3182,6 +3182,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
     @Override
     public void visit(BLangQueryExpr queryExpr, AnalyzerData data) {
+        boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
         boolean prevWithinQuery = data.withinQuery;
         data.withinQuery = true;
@@ -3200,6 +3201,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             analyzeNode(clause, data);
         }
         data.withinQuery = prevWithinQuery;
+        data.queryToTableWithKey = prevQueryToTableWithKey;
     }
 
     @Override
