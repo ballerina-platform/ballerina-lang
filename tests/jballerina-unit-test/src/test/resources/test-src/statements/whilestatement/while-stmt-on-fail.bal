@@ -124,7 +124,7 @@ function testWhileStmtWithOnFailWithoutVariable() {
     while 3 >= a {
         a = a + 1;
         str = str.concat(" Value: ", a.toString());
-        if (a == 3) {
+        if a == 3 {
             error err = error("Custom Error");
             fail err;
         }

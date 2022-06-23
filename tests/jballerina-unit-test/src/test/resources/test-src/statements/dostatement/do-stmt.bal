@@ -113,12 +113,12 @@ function testOnFailWithoutVariable() returns string  {
 
 function testOnFailWithoutVariableWithoutOnFailExecution() returns string {
     string str = "";
-       do {
-         str += "Before failure";
-       } on fail {
-          str += "-> Error caught !";
-       }
-       return str;
+    do {
+        str += "Before failure";
+    } on fail {
+        str += "-> Error caught !";
+    }
+    return str;
 }
 
 function testOnFailWithCheckExpr () returns string|error {

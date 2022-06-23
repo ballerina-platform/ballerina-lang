@@ -409,9 +409,9 @@ function testSimpleOnFailWithoutVariable() {
         error err = error("Custom error thrown explicitly.");
         fail err;
     } on fail {
-        str += "Error caught";
+        str += "On Fail Executed";
     }
-     assertEquality("Error caught", str);
+     assertEquality("On Fail Executed", str);
 }
 
 function getCheckError()  returns int|error {

@@ -3716,8 +3716,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         onFailClause.pos = pos;
         onFailClauseNode.typeDescriptor().ifPresent(typeDescriptorNode -> {
-            BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) TreeBuilder.
-                    createSimpleVariableDefinitionNode();
+            BLangSimpleVariableDef variableDefinitionNode =
+                    (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
             BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
             boolean isDeclaredWithVar = typeDescriptorNode.kind() == SyntaxKind.VAR_TYPE_DESC;
             var.isDeclaredWithVar = isDeclaredWithVar;
