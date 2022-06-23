@@ -1,0 +1,32 @@
+{
+  "Assets":[
+    {
+      "Type":1,
+      "Id":"SAMSUNG"
+    }
+  ],
+  "ContentType":"TMWSystems.MobileConnect.Shared.Models.Messages.PositionStatus",
+  "CreateDate":"2021-12-06T13:35:00+00:00",
+  "Content":{
+    "StatusDate":"2021-11-29T13:35:00+00:00",
+    "Position":{
+      "Latitude":41.495724,
+      "Longitude":-81.54241
+    },
+    "Speed":0,
+    "Heading":0,
+    "IgnitionStatus":"off",
+    "Odometer":1.0,
+    "Description":"0 mi WSW of University Heights, OH",
+    "AdditionalDataElements":null,
+    "TripInformation":null,
+    "HeaderInformation":{
+      "CreateDateUtc":"2021-11-29T13:35:00+00:00"
+    }
+  },
+  "MessageProperties":{
+    "EventType":"com.trimble.transportation.telematics.inbound.position-status",
+    "AuditId":"{{$guid}}",
+    "MessageId":"{{$guid}}"
+  }
+}
