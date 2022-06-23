@@ -218,7 +218,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Types types;
     private SymbolEnv env;
     private SymbolEnv queryEnv;
-    private boolean containsCheckExpr;
     private boolean withinLambdaFunc = false;
     private HashSet<BType> checkedErrorList;
 
@@ -249,7 +248,6 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangStatementExpression desugar(BLangQueryExpr queryExpr, SymbolEnv env,
                                      List<BLangStatement> stmtsToBePropagated) {
-        containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
 
@@ -314,7 +312,6 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     BLangStatementExpression desugar(BLangQueryAction queryAction, SymbolEnv env,
                                      List<BLangStatement> stmtsToBePropagated) {
-        containsCheckExpr = false;
         HashSet<BType> prevCheckedErrorList = this.checkedErrorList;
         this.checkedErrorList = new HashSet<>();
         List<BLangNode> clauses = queryAction.getQueryClauses();
@@ -1375,13 +1372,18 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     private BLangExpression unwrapCheckedExpression(BLangExpression collectionExp) {
-        if (collectionExp.getKind() == NodeKind.GROUP_EXPR &&
-                ((BLangGroupExpr) collectionExp).expression.getKind() == NodeKind.CHECK_EXPR) {
-            return ((BLangCheckedExpr) ((BLangGroupExpr) collectionExp).expression).expr;
-        } else if (collectionExp.getKind() == NodeKind.CHECK_EXPR) {
-            return ((BLangCheckedExpr) collectionExp).expr;
+        BLangExpression expression = unwrapGroupExpression(collectionExp);
+        if (expression.getKind() == NodeKind.CHECK_EXPR) {
+            return ((BLangCheckedExpr) expression).expr;
         }
         return collectionExp;
+    }
+
+    private BLangExpression unwrapGroupExpression(BLangExpression exp) {
+        if (exp.getKind() == NodeKind.GROUP_EXPR) {
+            return unwrapGroupExpression(((BLangGroupExpr) exp).expression);
+        }
+        return exp;
     }
 
     /**
@@ -1874,7 +1876,6 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        containsCheckExpr = true;
         if (checkedExpr.equivalentErrorTypeList != null) {
             this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
         }

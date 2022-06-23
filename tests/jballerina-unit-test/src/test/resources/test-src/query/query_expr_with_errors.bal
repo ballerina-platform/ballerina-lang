@@ -669,6 +669,11 @@ function testErrorReturnedFromArrayConstruction() {
         where i == check getIntOrCustomError()
         select i;
     assertTrue(arr5 is error);
+
+    int[]|error arr6 = from int i in ((check from int j in [1, 2]
+                            select check getIntOrCustomError()))
+                        select i;
+    assertTrue(arr6 is error);
 }
 
 // Utils ---------------------------------------------------------------------------------------------------------
