@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - map-query-expr
   workflow_dispatch:
 
 jobs:

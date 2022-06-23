@@ -10,7 +10,6 @@ on:
       - stage-swan-lake
       - ballerina-[0-9]+.[0-9]+.x
       - 2201.[0-9]+.x
-      - map-query-expr
 
 jobs:
   windows_build:
