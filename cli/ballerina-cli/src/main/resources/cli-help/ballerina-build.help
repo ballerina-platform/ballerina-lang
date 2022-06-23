@@ -28,15 +28,6 @@ OPTIONS
            Generate cloud artifacts: '--cloud=k8s' for Kubernetes
            and '--cloud=docker' for Docker.
 
-       --dump-graph
-           Print the dependency graph. This produces the textual representation
-           of the dependency graph using the DOT graph description language.
-
-       --dump-raw-graphs
-           Print all the dependency graphs created in each attempt to update.
-           This produces the textual representation of the dependency graph
-           using the DOT graph description language.
-
        --list-conflicted-classes
            List the conflicting classes of conflicting JARs in the package.
 

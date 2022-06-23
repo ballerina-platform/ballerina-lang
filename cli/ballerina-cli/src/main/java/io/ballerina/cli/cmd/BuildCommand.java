@@ -119,11 +119,11 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir-file", hidden = true)
     private Boolean dumpBIRFile;
 
-    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.")
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
     @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all dependency graphs created in each " +
-            "attempt to update.")
+            "attempt to update.", hidden = true)
     private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
