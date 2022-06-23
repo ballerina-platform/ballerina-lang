@@ -6,6 +6,9 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Tests calling of a client resource access action.
+ */
 public class ClientServiceDeclTest {
     CompileResult clientResourceDeclarationNegative, clientResourceCallNegative,
             clientResourcePathNegative, clientResourceParamsNegative;
