@@ -59,10 +59,12 @@ public class Call {
 
         if (checkIsValidPositionalArgs(args, argsList, functionType, paramTypes, argTypes) ||
                  checkIsValidRestArgs(args, argsList, functionType, paramTypes, argTypes)) {
+            Type restType =
+                    functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
                 throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_TYPES),
                         BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                                             new BTupleType(paramTypes), new BTupleType(argTypes)));
+                                                      new BTupleType(paramTypes, restType), new BTupleType(argTypes)));
         }
 
         return func.asyncCall(argsList.toArray(), METADATA);
@@ -107,7 +109,6 @@ public class Call {
             ListInitialValueEntry.ExpressionEntry[] initialValues =
                                                     new ListInitialValueEntry.ExpressionEntry[numOfRestArgs];
             Type elementType = restType.getElementType();
-            paramTypes.add(restType);
             for (int i = 0; i < numOfRestArgs; i++) {
                 Object arg = args[numOfArgs - numOfRestArgs + i];
                 Type argType = TypeChecker.getType(arg);

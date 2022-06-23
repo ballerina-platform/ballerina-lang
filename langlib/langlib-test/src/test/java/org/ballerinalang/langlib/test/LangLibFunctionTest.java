@@ -52,7 +52,7 @@ public class LangLibFunctionTest {
                 {"testCallFunctionWithDefaultParameters"},
                 {"testCallFunctionWithRestParameters"},
                 {"testCallFunctionWithIncludedRecordParameters"},
-                {"testCallFunctionWithInvalidOutput"}
+                {"testCallFunctionWithInvalidArguments"}
         };
     }
 }

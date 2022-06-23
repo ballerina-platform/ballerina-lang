@@ -184,59 +184,72 @@ function testCallFunctionWithFunctionPointers() {
     assertEquality(test19(), "hello world.");
 }
 
-function testCallFunctionWithInvalidOutput() {
+function testCallFunctionWithInvalidArguments() {
     any|error a1 = trap function:call(value1, 10);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[int,int,int]', found '[int]'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value1, 10, "10");
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[int,int,int]', found '[int,string]'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value2, 10, 10, 10, 10);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[int,int,int]', found '[int,int,int,int]'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value2, 10, 10);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[int,int,int]', found '[int,int]'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value4, 10, 10);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.array}IndexOutOfRange", (<error> a1).message());
+    assertEquality("array index out of range: index: 0, size: 0", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value4, 10, 10, 10);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.array}IndexOutOfRange", (<error> a1).message());
+    assertEquality("array index out of range: index: 1, size: 1", (<error> a1).detail()["message"]);
     
     a1 = trap function:call(value5, 10);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.array}IndexOutOfRange", (<error> a1).message());
+    assertEquality("array index out of range: index: 0, size: 0", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value8);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.array}IndexOutOfRange", (<error> a1).message());
+    assertEquality("array index out of range: index: 0, size: 0", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value8, "");
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[int...]', found '[string]'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value8, "", "");
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[int...]', found '[string,string]'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(value1, 10);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[int,int,int]', found '[int]'", (<error> a1).detail()["message"]);
 
     NewPerson person = {firstName: "chiran", secondName: "sachintha"};
     a1 = trap function:call(test10, person);
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[string,NewPerson]', found '[NewPerson]'", (<error> a1).detail()["message"]);
 
     a1 = trap function:call(test11, {});
     assertEquality(true, a1 is error);
     assertEquality("{ballerina/lang.function}IncompatibleTypes", (<error> a1).message());
+    assertEquality("incompatible types: expected '[NewStudent]', found '[map<(any|error)>]'", (<error> a1).detail()["message"]);
 }
 
 function assertEquality(any|error expected, any|error actual) {

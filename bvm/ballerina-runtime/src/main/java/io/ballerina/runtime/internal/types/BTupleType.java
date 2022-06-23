@@ -63,6 +63,14 @@ public class BTupleType extends BType implements TupleType {
         this.readonly = false;
     }
 
+    public BTupleType(List<Type> typeList, Type restType) {
+        super(null, null, Object.class);
+        this.tupleTypes = typeList;
+        this.restType = restType;
+        checkAllMembers();
+        this.readonly = false;
+    }
+
     public BTupleType(List<Type> typeList, int typeFlags) {
         this(typeList, null, typeFlags, false, false);
     }
