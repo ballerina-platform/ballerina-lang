@@ -262,3 +262,26 @@ function testWithReadonlyContextualTypeForQueryConstructingLists() {
     xml[] & readonly _ = from var user in a
                                  select user;
 }
+
+type Department record {
+    string dept;
+};
+
+type ImmutableMapOfDept map<Department> & readonly;
+
+type ImmutableMapOfInt map<int> & readonly;
+
+type ErrorOrImmutableMapOfInt ImmutableMapOfInt|error;
+
+function testConstructingInvalidReadonlyMap() {
+    int[][2] arr = [[1, 2], [3, 4], [9, 10]];
+    map<int[2]> & readonly|error mp1 = map from var item in arr
+                                        select [item[0].toString(), item];
+
+    ImmutableMapOfDept|error mp3 = map from var item in ["ABC", "DEF", "XY"]
+                                        let Department dept = {dept: item}
+                                        select [item, dept];
+
+    map<string> & readonly|error mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item on conflict error("Error");
+}

@@ -1164,6 +1164,67 @@ function testConstructingListInRecordsUsingQueryWithReadonly() {
     assertEqual(rec1, {"params":["a","b","c","abc"]});
 }
 
+type DepartmentDetails record {
+    string dept;
+};
+
+type ImmutableMapOfDept map<DepartmentDetails> & readonly;
+
+type ImmutableMapOfInt map<int> & readonly;
+
+type ErrorOrImmutableMapOfInt ImmutableMapOfInt|error;
+
+function testReadonlyMap1() {
+    map<int> & readonly|error mp1 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item;
+    any _ = <readonly> (checkpanic mp1);
+    assertEqual((typeof(mp1)).toString(), "typedesc {\"1\":1,\"2\":2,\"3\":3,\"4\":4}");
+    assertEqual(mp1, {"1":1,"2":2,"3":3,"4":4});
+
+    ImmutableMapOfInt|error mp2 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item;
+    any _ = <readonly> (checkpanic mp2);
+    assertEqual((typeof(mp2)).toString(), "typedesc {\"1\":1,\"2\":2,\"3\":3,\"4\":4}");
+    assertEqual(mp2, {"1":1,"2":2,"3":3,"4":4});
+
+
+    ImmutableMapOfDept|error mp3 = map from var item in ["ABC", "DEF", "XY"]
+                                        let DepartmentDetails & readonly dept = {dept: item}
+                                        select [item, dept];
+    any _ = <readonly> (checkpanic mp3);
+    assertEqual((typeof(mp3)).toString(), "typedesc {\"ABC\":{\"dept\":\"ABC\"},\"DEF\":{\"dept\":\"DEF\"},\"XY\":{\"dept\":\"XY\"}}");
+    assertEqual(mp3, {"ABC":{"dept":"ABC"},"DEF":{"dept":"DEF"},"XY":{"dept":"XY"}});
+
+    ErrorOrImmutableMapOfInt mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        where item[1] > 1
+                                        select item;
+    any _ = <readonly> (checkpanic mp4);
+    assertEqual((typeof(mp4)).toString(), "typedesc {\"2\":2,\"3\":3,\"4\":4}");
+    assertEqual(mp4, {"2":2,"3":3,"4":4});
+}
+
+function testReadonlyMap2() {
+    map<int> & readonly|error mp1 = map from var item in [["1", 1], ["2", 2], ["2", 3], ["4", 4]]
+                                        select [item[0], item[1] * 2] on conflict ();
+    assertEqual(mp1, {"1":2,"2":6,"4":8});
+
+    ImmutableMapOfInt|error mp2 = map from var item in [["1", 1], ["2", 2], ["2", 3], ["4", 4]]
+                                        select item on conflict error("Error 1");
+    assertEqual(mp2, error("Error 1"));
+
+    error? conflictMsg = error("Error 2");
+    ImmutableMapOfDept|error mp3 = map from var item in ["ABC", "DEF", "XY", "ABC"]
+                                        let DepartmentDetails & readonly dept = {dept: item}
+                                        select [item, dept] on conflict conflictMsg;
+    assertEqual(mp3, error("Error 2"));
+
+    conflictMsg = null;
+    ErrorOrImmutableMapOfInt mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["1", 4]]
+                                        where item[1] > 1
+                                        select item on conflict conflictMsg;
+    assertEqual(mp4, {"2":2,"3":3,"1":4});
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;

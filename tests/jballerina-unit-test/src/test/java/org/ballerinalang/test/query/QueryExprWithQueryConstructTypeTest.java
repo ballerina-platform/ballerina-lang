@@ -185,22 +185,28 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 222, 29);
         validateError(negativeResult, index++,
                 "incompatible types: expected '([string,int]|[string,string])', found '(string|int)'", 227, 56);
-        validateError(negativeResult, index,
+        validateError(negativeResult, index++,
                 "incompatible types: expected 'map<string>', found '(map<(int|string)>|error)'", 229, 21);
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'",
-                118, 16);
+                236, 16);
         validateError(negativeResult, index++,
-                "incompatible types: expected '(Customer & readonly)', found 'Customer'", 124, 16);
+                "incompatible types: expected '(Customer & readonly)', found 'Customer'", 242, 16);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'string', found '(int|string)'", 134, 63);
+                "incompatible types: expected 'string', found '(int|string)'", 252, 63);
         validateError(negativeResult, index++,
-                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 137, 44);
+                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 255, 44);
         validateError(negativeResult, index++,
-                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 140, 51);
+                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
                      "& readonly)> & readonly', found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'",
-                145, 41);
+                263, 41);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'int[2] & readonly', found 'int[2]'", 279, 69);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
+        validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
+                "found '([string,int]|[string,int]|[string,int]|[string,int])'", 286, 48);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -297,6 +303,16 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testConstructingListInRecordsUsingQueryWithReadonly() {
         BRunUtil.invoke(result, "testConstructingListInRecordsUsingQueryWithReadonly");
+    }
+
+    @Test
+    public void testReadonlyMap1() {
+        BRunUtil.invoke(result, "testReadonlyMap1");
+    }
+
+    @Test
+    public void testReadonlyMap2() {
+        BRunUtil.invoke(result, "testReadonlyMap2");
     }
 
     @AfterClass
