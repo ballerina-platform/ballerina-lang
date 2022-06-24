@@ -39,6 +39,10 @@ public class ObjectMethodsCallClass {
         }
     }
 
+    function getFieldValWithMultipleOptionalArgs(int a = 3, int b = a, int c = a + b) returns int {
+        return a + b+ c;
+    }
+
     public function callGetFieldValWithNoArgs() returns int = @java:Method {
         name: "getFieldValWithNoArgs",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
@@ -51,6 +55,11 @@ public class ObjectMethodsCallClass {
 
     public function callGetFieldValWithOptionalArgDefaultVal() returns int = @java:Method {
         name: "getFieldValWithOptionalArgDefaultVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithMultipleOptionalArgsDefaultVal() returns int = @java:Method {
+        name: "getFieldValWithMultipleOptionalArgsDefaultVal",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 
@@ -267,7 +276,8 @@ public function main() {
     ObjectMethodsCallClass objectMethodsCallClass = new ();
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithNoArgs(), 5);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithRequiredArg(10), 15);
-    test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), -1);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithOptionalArgDefaultVal(), 15);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultVal(), 12);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedOptionalArgVal("not a field"), -1);
 
     IsolatedClass isolatedClass = new ();

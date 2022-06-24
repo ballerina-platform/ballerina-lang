@@ -797,7 +797,7 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen);
 

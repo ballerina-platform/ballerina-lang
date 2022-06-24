@@ -70,6 +70,8 @@ public class Values {
     private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
     private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
+    private static final Module functionModule = new Module("testorg", "runtime_api.functions", "1");
+
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
