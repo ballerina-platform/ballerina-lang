@@ -18,7 +18,6 @@ import ballerina/lang.runtime;
 
 public function main() {
     ListenerObject1 ep = new ListenerObject1("ModDynA");
-    ListenerObj2 lo = new ListenerObj2();
     runtime:registerListener(ep);
     runtime:registerListener(lo);
     checkpanic ep.gracefulStop();
@@ -58,6 +57,8 @@ public class ListenerObject1 {
 
 listener ListenerObject1 ep = new ListenerObject1("ModA");
 
+final ListenerObj2 lo = new ListenerObj2();
+
 
 public class ListenerObj2 {
     public function init() {}
@@ -69,4 +70,10 @@ public class ListenerObj2 {
     }
 
     public function immediateStop() returns error? {}
+
+    public function attach(service object {} s, string[]|string? name = ()) returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
 }

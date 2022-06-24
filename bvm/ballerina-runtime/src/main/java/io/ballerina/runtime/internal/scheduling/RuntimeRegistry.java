@@ -16,7 +16,6 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
@@ -65,28 +64,30 @@ public class RuntimeRegistry {
     }
 
     public synchronized void gracefulStop(Strand strand) {
-        if (!listenerSet.isEmpty()) {
-            invokeMethodAsync(strand, Scheduler.getStrand().scheduler);
+        Scheduler scheduler = strand.scheduler;
+        if (listenerSet.isEmpty() && stopHandlerStack.isEmpty()) {
+            return;
+        }
+
+        if (listenerSet.isEmpty()) {
+            invokeStopHandlerFunction(strand, scheduler);
         } else {
-            if (stopHandlerStack.isEmpty()) {
-                return;
-            }
-            scheduleNextStopHandlerFunction(strand, Scheduler.getStrand().scheduler);
+            invokeListenerGracefulStop(strand, scheduler);
         }
     }
 
-    private synchronized void invokeMethodAsync(Strand strand, Scheduler scheduler) {
+    private void invokeListenerGracefulStop(Strand strand, Scheduler scheduler) {
         Iterator<BObject> itr = listenerSet.iterator();
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
             public void notifySuccess(Object result) {
                 if (itr.hasNext()) {
-                    invokeMethodAsync(strand, scheduler);
+                    invokeListenerGracefulStop(strand, scheduler);
                 } else {
                     if (stopHandlerStack.isEmpty()) {
                         return;
                     }
-                    scheduleNextStopHandlerFunction(strand, scheduler);
+                    invokeStopHandlerFunction(strand, scheduler);
                 }
             }
 
@@ -98,13 +99,12 @@ public class RuntimeRegistry {
 
         BObject listener = itr.next();
         Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
-        FutureValue future = scheduler.createFuture(null, callback, null, PredefinedTypes.TYPE_NULL,
-                null, strand.getMetadata());
         callback.setStrand(strand);
-        scheduler.schedule(new Object[1], func, future);
+        scheduler.schedule(new Object[1], func, null, callback, null, null,
+                null, strand.getMetadata());
     }
 
-    private synchronized void scheduleNextStopHandlerFunction(Strand strand, Scheduler scheduler) {
+    private void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
         BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
         AsyncFunctionCallback callback = new AsyncFunctionCallback() {
             @Override
@@ -112,7 +112,7 @@ public class RuntimeRegistry {
                 if (stopHandlerStack.isEmpty()) {
                     return;
                 }
-                scheduleNextStopHandlerFunction(strand, scheduler);
+                invokeStopHandlerFunction(strand, scheduler);
             }
 
             @Override
@@ -122,7 +122,6 @@ public class RuntimeRegistry {
         };
         final FutureValue future = scheduler.createFuture(strand, callback, null,
                 ((BFunctionType) bFunctionPointer.getType()).retType, null, strand.getMetadata());
-        callback.setFuture(future);
         callback.setStrand(strand);
         scheduler.scheduleLocal(new Object[]{strand}, bFunctionPointer, strand, future);
     }
