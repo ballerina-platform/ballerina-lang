@@ -49,6 +49,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FLOAT_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
@@ -193,6 +194,8 @@ public class JvmSignatures {
     public static final String ERROR_CALL = "(L" + BAL_ENV + ";L" + ERROR_VALUE + ";)V";
     public static final String ERROR_INIT = "(L" + TYPE + ";L" + B_STRING_VALUE + ";L" + BERROR + ";L" + OBJECT + ";)V";
     public static final String FP_INIT = "(L" + FUNCTION + ";L" + TYPE + ";L" + STRING_VALUE + ";Z)V";
+    public static final String FUNCTION_CALL =
+            "(L" + STRAND_CLASS + ";L" + STRING_VALUE + ";[L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String FROM_STRING = "(L" + STRING_VALUE + ";)L" + B_STRING_VALUE + ";";
     public static final String GET_ANNOTATION_VALUE =
             "(L" + TYPEDESC_VALUE + ";L" + B_STRING_VALUE + ";)L" + OBJECT + ";";
@@ -209,6 +212,8 @@ public class JvmSignatures {
     public static final String GET_ERROR_VALUE = "L" + ERROR_VALUE + ";";
     public static final String GET_FUNCTION = "()L" + FUNCTION + ";";
     public static final String GET_FUNCTION_POINTER = "L" + FUNCTION_POINTER + ";";
+    public static final String GET_FUNCTION_TYPE = "L" + FUNCTION_TYPE + ";";
+    public static final String GET_FUNCTION_TYPE_FOR_STRING = "(L" + STRING_VALUE + ";)" + GET_FUNCTION_TYPE;
     public static final String GET_FUTURE_VALUE = "L" + FUTURE_VALUE + ";";
     public static final String GET_HANDLE_VALUE = "L" + HANDLE_VALUE + ";";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
@@ -270,7 +275,7 @@ public class JvmSignatures {
     public static final String INIT_ERROR_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
     public static final String INIT_FIELD_IMPL = "(L" + TYPE + ";L" + STRING_VALUE + ";J)V";
     public static final String INIT_FINITE_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + SET + ";I)V";
-    public static final String INIT_FUCNTION_PARAM = "(L" + STRING_VALUE + ";L" + BOOLEAN_VALUE + ";L" + TYPE + ";)V";
+    public static final String INIT_FUNCTION_PARAM = "(L" + STRING_VALUE + ";ZL" + STRING_VALUE + ";L" + TYPE + ";)V";
     public static final String INIT_FUNCTION_TYPE_IMPL = "([L" + FUNCTION_PARAMETER + ";L" + TYPE + ";L" + TYPE + ";" +
             "J)V";
     public static final String INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE =

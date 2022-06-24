@@ -166,6 +166,7 @@ public class JvmConstants {
     public static final String TYPEREF_TYPE_VAR_PREFIX = "$typeRefType$";
     public static final String TUPLE_TYPE_VAR_PREFIX = "$tupleType";
     public static final String ARRAY_TYPE_VAR_PREFIX = "$arrayType";
+    public static final String FUNCTION_TYPE_VAR_PREFIX = "$functionType";
     public static final String MODULE_VAR_PREFIX = "$module";
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
@@ -279,6 +280,7 @@ public class JvmConstants {
     public static final String TUPLE_TYPE_CONSTANT_CLASS_NAME = "constants/$_tuple_type_constants";
     public static final String ARRAY_TYPE_CONSTANT_CLASS_NAME = "constants/$_array_type_constants";
     public static final String TYPEREF_TYPE_CONSTANT_CLASS_NAME = "constants/$_typeref_type_constants";
+    public static final String FUNCTION_TYPE_CONSTANT_CLASS_NAME = "constants/$_function_type_constants";
     public static final String MODULE_STRING_CONSTANT_CLASS_NAME = "constants/$_string_constants";
     public static final String MODULE_SURROGATES_CLASS_NAME = "constants/$_surrogate_methods";
     public static final String MODULE_CONSTANT_CLASS_NAME = "constants/$_module_constants";
@@ -290,8 +292,10 @@ public class JvmConstants {
     public static final String MODULE_UNION_TYPES_CLASS_NAME = "types/$_union_types";
     public static final String MODULE_TUPLE_TYPES_CLASS_NAME = "types/$_tuple_types";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
+    public static final String MODULE_FUNCTION_TYPES_CLASS_NAME = "types/$_function_types";
     public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
+    public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
     public static final String MODULE_ANNOTATIONS_CLASS_NAME = "annotations/$_annotations";
     public static final String B_STRING_INIT_METHOD_PREFIX = "$string_init";
@@ -299,6 +303,7 @@ public class JvmConstants {
     public static final String B_TUPLE_TYPE_INIT_METHOD_PREFIX = "$tuple_type_init";
     public static final String B_ARRAY_TYPE_INIT_METHOD_PREFIX = "$array_type_init";
     public static final String B_TYPEREF_TYPE_INIT_METHOD_PREFIX = "$typeref_type_init";
+    public static final String B_FUNCTION_TYPE_INIT_METHOD_PREFIX = "$function_type_init";
     public static final String MODULE_INIT_METHOD_PREFIX = "$module_init";
     public static final String CONSTANT_INIT_METHOD_PREFIX = "$constant_init";
     public static final String ANNOTATIONS_METHOD_PREFIX = "$process_annotations";
@@ -357,7 +362,9 @@ public class JvmConstants {
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
+    public static final String CALL_FUNCTION = "call";
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
+    public static final String GET_FUNCTION_TYPE_METHOD = "getFunctionType";
 
     // strand data related constants
     public static final String STRAND = "strand";
@@ -397,11 +404,12 @@ public class JvmConstants {
     public static final String TYPE_NOT_SUPPORTED_MESSAGE = "JVM generation is not supported for type ";
 
     public static final int MAX_MEMBERS_PER_METHOD = 100;
-    public static final int MAX_TYPES_PER_METHOD = 100;
-    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 500;
+    public static final int MAX_TYPES_PER_METHOD = 3;
+    public static final int MAX_FIELDS_PER_SPLIT_METHOD = 3;
     public static final int MAX_MODULES_PER_METHOD = 100;
     public static final int MAX_CALLS_PER_CLIENT_METHOD = 100;
     public static final int MAX_CONSTANTS_PER_METHOD = 100;
+    public static final int MAX_CALLS_PER_FUNCTION_CALL_METHOD = 3;
     /*
     MAX_STRINGS_PER_METHOD is calculated as below.
     No of instructions required for create ballerina string constant object = 12
@@ -409,9 +417,6 @@ public class JvmConstants {
     Max strings constant initializations per method = 64000/12 -> 5000
     */
     public static final int MAX_STRINGS_PER_METHOD = 5000;
-
-    public static final int BALLERINA_MAX_YIELD_DEPTH = 256;
-
 
     private JvmConstants() {
     }

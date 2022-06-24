@@ -95,11 +95,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_FUNCTION_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_FIELDS_PER_SPLIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ANON_TYPES_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_FUNCTION_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
@@ -108,6 +110,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_TYPE_ID;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUNCTION_TYPE_FOR_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIELD_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
@@ -135,6 +138,7 @@ public class JvmCreateTypeGen {
     public final TypeDefHashComparator typeDefHashComparator;
     private final String typesClass;
     private final String anonTypesClass;
+    private final String functionTypesClass;
     private final ClassWriter typesCw;
 
     public JvmCreateTypeGen(JvmTypeGen jvmTypeGen, JvmConstantsGen jvmConstantsGen, PackageID packageID,
@@ -143,6 +147,7 @@ public class JvmCreateTypeGen {
         this.jvmConstantsGen = jvmConstantsGen;
         this.typesClass = getModuleLevelClassName(packageID, MODULE_TYPES_CLASS_NAME);
         this.anonTypesClass = getModuleLevelClassName(packageID, MODULE_ANON_TYPES_CLASS_NAME);
+        this.functionTypesClass = getModuleLevelClassName(packageID, MODULE_FUNCTION_TYPES_CLASS_NAME);
         this.jvmRecordTypeGen = new JvmRecordTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmObjectTypeGen = new JvmObjectTypeGen(this, typesClass, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmErrorTypeGen = new JvmErrorTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
@@ -597,6 +602,96 @@ public class JvmCreateTypeGen {
         }
     }
 
+    // -------------------------------------------------------
+    //              getFunctionType() generation methods
+    // -------------------------------------------------------
+    public void generateFunctionTypeClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
+                                          Map<String, byte[]> jarEntries,
+                                          List<BIRNode.BIRFunction> sortedFunctions) {
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, functionTypesClass, null, OBJECT, null);
+        generateGetFunctionTypeMainMethod(cw, sortedFunctions);
+        cw.visitEnd();
+        byte[] bytes = jvmPackageGen.getBytes(cw, module);
+        jarEntries.put(functionTypesClass + ".class", bytes);
+    }
+
+    private void generateGetFunctionTypeMainMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, GET_FUNCTION_TYPE_METHOD,
+                GET_FUNCTION_TYPE_FOR_STRING, null, null);
+        mv.visitCode();
+        if (functions.isEmpty()) {
+            Label defaultCaseLabel = new Label();
+            createDefaultCase(mv, defaultCaseLabel, 1, "No such function type: ");
+        } else {
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitMethodInsn(INVOKESTATIC, functionTypesClass, GET_FUNCTION_TYPE_METHOD + 0,
+                    GET_FUNCTION_TYPE_FOR_STRING, false);
+            mv.visitInsn(ARETURN);
+            generateGetFunctionTypeSplitMethods(cw, functions);
+        }
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    void generateGetFunctionTypeSplitMethods(ClassWriter cw, List<BIRNode.BIRFunction> functions) {
+
+        int bTypesCount = 0;
+        int methodCount = 0;
+        MethodVisitor mv = null;
+        int funcNameRegIndex = 0;
+        Label defaultCaseLabel = new Label();
+
+        // case body
+        int i = 0;
+
+        List<Label> targetLabels = new ArrayList<>();
+        for (BIRNode.BIRFunction func : functions) {
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                mv = cw.visitMethod(ACC_PRIVATE + ACC_STATIC, GET_FUNCTION_TYPE_METHOD + methodCount++,
+                        GET_FUNCTION_TYPE_FOR_STRING, null, null);
+                mv.visitCode();
+                defaultCaseLabel = new Label();
+                int remainingCases = functions.size() - bTypesCount;
+                if (remainingCases > MAX_TYPES_PER_METHOD) {
+                    remainingCases = MAX_TYPES_PER_METHOD;
+                }
+                List<Label> labels = JvmCreateTypeGen.createLabelsForSwitch(mv, funcNameRegIndex, functions,
+                        bTypesCount, remainingCases, defaultCaseLabel, false);
+                targetLabels = JvmCreateTypeGen.createLabelsForEqualCheck(mv, funcNameRegIndex, functions,
+                        bTypesCount, remainingCases, labels, defaultCaseLabel, false);
+                i = 0;
+            }
+            Label targetLabel = targetLabels.get(i);
+            mv.visitLabel(targetLabel);
+
+            mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getFunctionTypeConstantClass(),
+                    jvmConstantsGen.getFunctionTypeVar(func.name.value), JvmSignatures.GET_FUNCTION_TYPE);
+            mv.visitInsn(ARETURN);
+            i += 1;
+            bTypesCount++;
+            if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
+                if (bTypesCount == (functions.size())) {
+                    createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function type: ");
+                } else {
+                    mv.visitLabel(defaultCaseLabel);
+                    mv.visitVarInsn(ALOAD, 0);
+                    mv.visitMethodInsn(INVOKESTATIC, functionTypesClass, GET_FUNCTION_TYPE_METHOD + methodCount,
+                            GET_FUNCTION_TYPE_FOR_STRING, false);
+                    mv.visitInsn(ARETURN);
+                }
+                mv.visitMaxs(i + 10, i + 10);
+                mv.visitEnd();
+            }
+        }
+
+        if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
+            createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such function type: ");
+            mv.visitMaxs(i + 10, i + 10);
+            mv.visitEnd();
+        }
+    }
+
     public void splitAddFields(ClassWriter cw, String typeClassName, String methodName, Map<String, BField> fields) {
         int fieldMapIndex = 0;
         MethodVisitor mv = null;
@@ -676,8 +771,11 @@ public class JvmCreateTypeGen {
         return jvmArrayTypeGen;
     }
 
+
     public JvmRefTypeGen getJvmRefTypeGen() {
         return jvmRefTypeGen;
     }
-
+    public JvmTypeGen getJvmTypeGen() {
+        return jvmTypeGen;
+    }
 }
