@@ -820,6 +820,14 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

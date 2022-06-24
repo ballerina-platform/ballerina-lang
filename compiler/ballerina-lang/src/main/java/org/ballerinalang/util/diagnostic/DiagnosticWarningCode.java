@@ -66,7 +66,9 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
 
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE20404", "checked.expr.invalid.usage.no.error.type.rhs"),
 
-    INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER("BCE20405", "invalid.metadata.on.duplicate.enum.member")
+    INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER("BCE20405", "invalid.metadata.on.duplicate.enum.member"),
+
+    USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED("BCE20406", "strand.annotation.will.be.deprecated")
     ;
 
     private String diagnosticId;

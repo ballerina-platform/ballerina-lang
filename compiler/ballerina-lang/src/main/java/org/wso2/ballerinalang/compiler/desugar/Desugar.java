@@ -406,6 +406,8 @@ public class Desugar extends BLangNodeVisitor {
     private Map<String, BLangSimpleVarRef> declaredVarDef = new HashMap<>();
     private List<BLangXMLNS> inlineXMLNamespaces;
     private Map<Name, BLangStatement> stmtsToBePropagatedToQuery = new HashMap<>();
+    // Reuse the strand annotation in isolated workers and start action
+    private BLangAnnotationAttachment strandAnnotAttachement;
 
     public static Desugar getInstance(CompilerContext context) {
         Desugar desugar = context.get(DESUGAR_KEY);
@@ -812,6 +814,11 @@ public class Desugar extends BLangNodeVisitor {
 
         annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
+        addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+    }
+
+    private void addInitFunctionForRecordTypeNodeInTypeDef(BLangPackage pkgNode,
+                                                         List<BLangTypeDefinition> prevTypeDefinitions) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             if (prevTypeDefinitions.contains(typeDef)) {
                 continue;
@@ -6362,7 +6369,30 @@ public class Desugar extends BLangNodeVisitor {
         if (!actionInvocation.async && actionInvocation.invokedInsideTransaction) {
             transactionDesugar.startTransactionCoordinatorOnce(env, actionInvocation.pos);
         }
+
+        // Add `@strand {thread: "any"}` annotation to an isolated start-action or
+        // isolated named worker declaration.
+        if (actionInvocation.async && Symbols.isFlagOn(actionInvocation.symbol.type.flags, Flags.ISOLATED)) {
+            addStrandAnnotationWithThreadAny(actionInvocation);
+        }
+
         rewriteInvocation(actionInvocation, actionInvocation.async);
+    }
+
+    private void addStrandAnnotationWithThreadAny(BLangInvocation.BLangActionInvocation actionInvocation) {
+        if (this.strandAnnotAttachement == null) {
+            BLangPackage pkgNode = env.enclPkg;
+            List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
+            // Create strand annotation once and reuse it for all isolated start-actions and named workers.
+            this.strandAnnotAttachement =
+                    annotationDesugar.createStrandAnnotationWithThreadAny(actionInvocation.pos, env);
+            // Add init function for record type node in type def introduced for internally added strand annotation.
+            addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+        }
+
+        actionInvocation.addAnnotationAttachment(this.strandAnnotAttachement);
+        ((BInvokableSymbol) actionInvocation.symbol)
+                .addAnnotation(this.strandAnnotAttachement.annotationAttachmentSymbol);
     }
 
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {

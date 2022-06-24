@@ -182,6 +182,29 @@ function createImmutableTable(table<map<Type>> arr) returns table<map<Type>> & r
     name: "createImmutableTable"
 } external;
 
+function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err) returns map<Type>|error {
+// Here, `err` is used to get the expression of on-conflict clause
+    record {| Type value; |}|CompletionType v = strm.next();
+    while (v is record {| Type value; |}) {
+        [string, Type]|error value = trap (<[string, Type]> checkpanic v.value);
+        if value !is error {
+            string key = value[0];
+            if mp.hasKey(key) && err is error {
+                return err;
+            }
+            mp[key] = value[1];
+        } else {
+            return value;
+        }
+
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+    return mp;
+}
+
 function consumeStream(stream<Type, CompletionType> strm) returns any|error {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {

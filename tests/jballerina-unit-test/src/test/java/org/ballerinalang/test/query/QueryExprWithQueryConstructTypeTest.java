@@ -145,6 +145,48 @@ public class QueryExprWithQueryConstructTypeTest {
                 86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error?', found 'boolean'",
                 107, 21);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'User'", 126, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found '[int,User]'", 130, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 135, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'string[]'", 140, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'User'", 148, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found '[int,User]'", 152, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 157, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'string[]'", 162, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'string[3]'", 167, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found '[string]'", 171, 25);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 180, 50);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 182, 20);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 186, 22);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 193, 50);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 195, 20);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 199, 22);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,string]', found '(string[2]|[string,int])'", 207, 29);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2] & readonly'", 217, 29);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 222, 29);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '([string,int]|[string,string])', found '(string|int)'", 227, 56);
+        validateError(negativeResult, index,
+                "incompatible types: expected 'map<string>', found '(map<(int|string)>|error)'", 229, 21);
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'",
                 118, 16);
         validateError(negativeResult, index++,
@@ -166,25 +208,25 @@ public class QueryExprWithQueryConstructTypeTest {
     public void testSemanticNegativeScenarios() {
         int index = 0;
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                        "tables with key specifiers", 39, 13);
+                        "maps or tables with key specifiers", 39, 13);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 59, 9);
+                "maps or tables with key specifiers", 59, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 71, 9);
+                "maps or tables with key specifiers", 71, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 84, 9);
+                "maps or tables with key specifiers", 84, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 95, 9);
+                "maps or tables with key specifiers", 95, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 103, 14);
+                "maps or tables with key specifiers", 103, 14);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 119, 9);
+                "maps or tables with key specifiers", 119, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 126, 47);
+                "maps or tables with key specifiers", 126, 47);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 131, 9);
+                "maps or tables with key specifiers", 131, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 144, 9);
+                "maps or tables with key specifiers", 144, 9);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), index);
     }
 
