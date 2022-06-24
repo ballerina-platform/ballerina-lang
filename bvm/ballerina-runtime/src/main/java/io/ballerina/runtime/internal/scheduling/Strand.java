@@ -480,8 +480,8 @@ public class Strand {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
-        if (frameStackTrace.length() == 0) {
-            // this means no frames were available, so the state has changed to runnable
+        if (!this.isYielded() || (frameStackTrace.length() == 0)) {
+            // if frames were not available too, the state has changed to runnable
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
