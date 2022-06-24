@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.util;
 import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.PackageCompilation;
 import org.ballerinalang.langserver.LSClientLogger;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -53,34 +51,12 @@ public class LSClientUtil {
     private LSClientUtil() {
 
     }
-
-    /**
-     * Calculates the commands dynamically added by compiler plugins of imported modules and register the new ones in
-     * LS client side.
-     *
-     * @param context Document service context
-     */
-    public static void chekAndRegisterCommands(DocumentServiceContext context) {
-        LanguageServerContext serverContext = context.languageServercontext();
-        LSClientLogger clientLogger = LSClientLogger.getInstance(serverContext);
-
-        ServerCapabilities serverCapabilities = serverContext.get(ServerCapabilities.class);
-        if (serverCapabilities.getExecuteCommandProvider() == null) {
-            clientLogger.logTrace("Not registering commands: server isn't a execute commands provider");
-            return;
-        }
-
-        if (!isDynamicCommandRegistrationSupported(serverContext)) {
-            clientLogger.logTrace("Not registering commands: client doesn't support dynamic commands registration");
-            return;
-        }
-
-        Optional<PackageCompilation> compilation = context.workspace().waitAndGetPackageCompilation(context.filePath());
-        if (compilation.isEmpty()) {
-            return;
-        }
-
-        CodeActionManager codeActionManager = compilation.get().getCodeActionManager();
+    
+    public static void compileAndRegisterCommands(LanguageServerContext serverContext, 
+                                                   LSClientLogger clientLogger, 
+                                                   ServerCapabilities serverCapabilities,
+                                                   PackageCompilation compilation) {
+        CodeActionManager codeActionManager = compilation.getCodeActionManager();
         Set<String> commands = codeActionManager.getPossibleProviderNames();
 
         Set<String> supportedCommands = new HashSet<>(serverCapabilities.getExecuteCommandProvider().getCommands());
@@ -189,7 +165,7 @@ public class LSClientUtil {
     }
 
     /**
-     * Whether the client supports the prepare rename operation.
+     * Whether the client supports the prepare-rename operation.
      * 
      * @param clientCapabilities {@link ClientCapabilities}
      * @return whether the client supports prepareRename or not
