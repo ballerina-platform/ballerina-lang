@@ -1,4 +1,4 @@
-# Language Server Code Action Extension via Compiler Plugins
+# Compiler Plugin Code Actions
 
 ## Overview
 
