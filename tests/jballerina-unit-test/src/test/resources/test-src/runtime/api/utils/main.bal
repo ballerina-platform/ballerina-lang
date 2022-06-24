@@ -18,4 +18,5 @@ import testorg/utils_api.jsons;
 
 public function main() {
     jsons:validateAPI();
+    jsons:validateStringAPI();
 }
