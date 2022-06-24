@@ -18,12 +18,29 @@
 
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.MethodType;
+import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.api.types.RemoteMethodType;
+import io.ballerina.runtime.api.types.ResourceMethodType;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -155,6 +172,96 @@ public class AsyncUtils {
             }
         };
         invokeFunctionPointerAsync(func, strand, strandName, metadata, argsSupplier.get(), callback, scheduler);
+    }
+
+    public static void getArgsWithDefaultValues(Scheduler scheduler, BObject object,
+                                                String methodName, Callback callback, Object... args) {
+        if (args.length == 0) {
+            callback.notifySuccess(args);
+            return;
+        }
+        ObjectType objectType = object.getType();
+        Module module = objectType.getPackage();
+        ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(module, false));
+        MethodType methodType = getMethodType(methodName, objectType);
+        if (methodType == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("No such method: " + methodName));
+        }
+        Parameter[] parameters = methodType.getParameters();
+        getArgsWithDefaultValues(scheduler, callback, valueCreator, 0, args, parameters, new ArrayList<>());
+    }
+
+    private static void getArgsWithDefaultValues(Scheduler scheduler, Callback callback, ValueCreator valueCreator,
+                                                 int startArg, Object[] args, Parameter[] parameters,
+                                                 List<Object> argsWithDefaultValues) {
+        int paramCount = startArg / 2;
+        Parameter parameter = parameters[paramCount];
+        if (!((boolean) args[startArg + 1]) && parameter.isDefault) {
+            // If argument not provided and parameter has default value we call default value function to get the value
+            callDefaultValueFunction(scheduler, callback, valueCreator, startArg, args, parameters,
+                    argsWithDefaultValues, parameter);
+            return;
+        }
+        // else use user given argument value.
+        argsWithDefaultValues.add(args[startArg]);
+        getNextDefaultParamValue(scheduler, callback, valueCreator, startArg, args, parameters, argsWithDefaultValues);
+    }
+
+    private static void getNextDefaultParamValue(Scheduler scheduler, Callback callback, ValueCreator valueCreator,
+                                                 int startArg, Object[] args, Parameter[] parameters,
+                                                 List<Object> argsWithDefaultValues) {
+        int nextArgCount = startArg + 2;
+        if (nextArgCount == args.length) {
+            // Once all arguments are processed notify the call back
+            callback.notifySuccess(argsWithDefaultValues.toArray());
+        } else {
+            // Process next parameter with arguments
+            getArgsWithDefaultValues(scheduler, callback, valueCreator, nextArgCount, args, parameters,
+                    argsWithDefaultValues);
+        }
+    }
+
+    private static void callDefaultValueFunction(Scheduler scheduler, Callback callback, ValueCreator valueCreator,
+                                                 int startArg, Object[] args, Parameter[] parameters,
+                                                 List<Object> argsWithDefaultValues,
+                                                 Parameter parameter) {
+        String funcName = parameter.defaultFunctionName;
+        Function<?, ?> defaultFunc = o -> valueCreator.call((Strand) (((Object[]) o)[0]), funcName,
+                argsWithDefaultValues.toArray());
+        Callback defaultFunctionCallback = new Callback() {
+            @Override
+            public void notifySuccess(Object result) {
+                argsWithDefaultValues.add(result);
+                getNextDefaultParamValue(scheduler, callback, valueCreator, startArg, args, parameters,
+                        argsWithDefaultValues);
+            }
+            @Override
+            public void notifyFailure(BError error) {
+                callback.notifyFailure(error);
+            }
+        };
+        FutureValue future = scheduler.createFuture(null, defaultFunctionCallback, null, null, funcName, null);
+        scheduler.schedule(args, defaultFunc, future);
+    }
+
+    private static MethodType getMethodType(String methodName, ObjectType objectType) {
+        Map<String, MethodType> methodTypesMap = new HashMap<>();
+        if (objectType.getTag() == TypeTags.SERVICE_TAG) {
+            BServiceType serviceType = (BServiceType) objectType;
+            ResourceMethodType[] resourceMethods = serviceType.getResourceMethods();
+            for (ResourceMethodType resourceMethodType : resourceMethods) {
+                methodTypesMap.put(resourceMethodType.getName(), resourceMethodType);
+            }
+            RemoteMethodType[] remoteMethodTypes = serviceType.getRemoteMethods();
+            for (RemoteMethodType remoteMethodType : remoteMethodTypes) {
+                methodTypesMap.put(remoteMethodType.getName(), remoteMethodType);
+            }
+        }
+        MethodType[] objectTypeMethods = objectType.getMethods();
+        for (MethodType methodType : objectTypeMethods) {
+            methodTypesMap.put(methodType.getName(), methodType);
+        }
+        return methodTypesMap.get(methodName);
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
