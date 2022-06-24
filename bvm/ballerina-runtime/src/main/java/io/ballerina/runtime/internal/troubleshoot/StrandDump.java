@@ -50,7 +50,7 @@ public class StrandDump {
         infoStr.append("Current no. of strands      \t:\t").append(availableStrandCount).append("\n\n");
         availableStrandGroups.forEach((strandGroupId, strandList) -> {
             infoStr.append("group ").append(strandGroupId).append(" [").append(strandList.get(0)).append("]: [")
-                    .append(strandList.size()).append("]\n");
+                    .append(strandList.size() - 1).append("]\n");
             strandList.subList(1, strandList.size()).forEach(infoStr::append);
         });
         availableStrandGroups.clear();

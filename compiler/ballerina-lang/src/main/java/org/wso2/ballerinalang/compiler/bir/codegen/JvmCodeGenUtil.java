@@ -619,11 +619,11 @@ public class JvmCodeGenUtil {
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset, int yieldLocationVarIndex,
                                      Location terminatorPos, String fullyQualifiedFuncName,
-                                     String yieldStatus) {
+                                     String yieldStatus, int yieldStatusVarIndex) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
-        generateSetYieldedStatus(mv, labelGen, funcName, localVarOffset, yieldLocationVarIndex, terminatorPos,
-                fullyQualifiedFuncName, yieldStatus);
+        generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
+                fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
 
         // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
@@ -631,8 +631,9 @@ public class JvmCodeGenUtil {
     }
 
     protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                                int localVarOffset, int yieldLocationVarIndex, Location terminatorPos,
-                                                String fullyQualifiedFuncName, String yieldStatus) {
+                                                   int yieldLocationVarIndex, Location terminatorPos,
+                                                   String fullyQualifiedFuncName, String yieldStatus,
+                                                   int yieldStatusVarIndex) {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 
@@ -644,9 +645,8 @@ public class JvmCodeGenUtil {
             }
             mv.visitLdcInsn(yieldLocationData.toString());
             mv.visitVarInsn(ASTORE, yieldLocationVarIndex);
-            mv.visitVarInsn(ALOAD, localVarOffset);
             mv.visitLdcInsn(yieldStatus);
-            mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "setYieldStatus", INIT_WITH_STRING, false);
+            mv.visitVarInsn(ASTORE, yieldStatusVarIndex);
         }
 
         Label yieldLabel = labelGen.getLabel(funcName + "yield");

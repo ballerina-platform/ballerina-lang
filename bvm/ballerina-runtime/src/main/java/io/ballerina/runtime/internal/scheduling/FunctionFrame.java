@@ -10,4 +10,6 @@ public interface FunctionFrame {
 
     String getYieldLocation();
 
+    String getYieldStatus();
+
 }
