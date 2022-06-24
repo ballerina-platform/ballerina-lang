@@ -133,17 +133,14 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 25);
+        Assert.assertEquals(negativeResult.getErrorCount(), 24);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
                 54, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'Customer[]', " +
-                        "found '(table<Customer> key(id, name)|error)'",
+                        "found 'table<Customer> key(id, name)'",
                 71, 32);
-        validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'CustomerTable', found '(table<Customer> key(id, name)|error)'",
-                86, 35);
         validateError(negativeResult, index++, "incompatible types: expected 'error?', found 'boolean'",
                 107, 21);
         validateError(negativeResult, index++,
