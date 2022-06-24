@@ -1117,7 +1117,7 @@ function testConstructingListOfTablesUsingQueryWithReadonly() {
     assertEqual(result, [table key(id) [{"id":1,"firstName":"John","lastName":"Doe","age":25}]]);
 }
 
-function testConstructingListOfXMLsUsingQueryWithReadonly() {
+function testConstructingListOfRecordsUsingQueryWithReadonly() {
     Employee emp1 = {firstName: "A1", lastName: "B1", dept: "C1"};
     Employee emp2 = {firstName: "A2", lastName: "B2", dept: "C2"};
     Employee emp3 = {firstName: "A3", lastName: "B3", dept: "C3"};
@@ -1128,7 +1128,7 @@ function testConstructingListOfXMLsUsingQueryWithReadonly() {
     assertEqual(result, [{"firstName":"A1","lastName":"B1","dept":"C1"},{"firstName":"A2","lastName":"B2","dept":"C2"},{"firstName":"A3","lastName":"B3","dept":"C3"}]);
 }
 
-function testConstructingListOfRecordsUsingQueryWithReadonly() {
+function testConstructingListOfXMLsUsingQueryWithReadonly() {
     xml a = xml `<id> 1 </id> <name> John </name>`;
 
     xml[] & readonly result = from var user in a
