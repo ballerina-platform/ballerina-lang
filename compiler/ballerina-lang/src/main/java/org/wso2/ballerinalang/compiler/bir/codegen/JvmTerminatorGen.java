@@ -222,13 +222,13 @@ public class JvmTerminatorGen {
     }
 
     private static void genYieldCheckForLock(MethodVisitor mv, LabelGenerator labelGen, String funcName,
-                                             int localVarOffset, int yieldLocationVarIndex,
+                                             int localVarOffset, int yieldLocationVarIndex, int yieldStatusVarIndex,
                                              String fullyQualifiedFuncName, Location terminatorPos) {
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
-        JvmCodeGenUtil.generateSetYieldedStatus(mv, labelGen, funcName, localVarOffset, yieldLocationVarIndex,
-                terminatorPos, fullyQualifiedFuncName, "WAITING FOR LOCK");
+        JvmCodeGenUtil.generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex,
+                terminatorPos, fullyQualifiedFuncName, "WAITING FOR LOCK", yieldStatusVarIndex);
     }
 
     private void loadDefaultValue(MethodVisitor mv, BType type) {
@@ -319,12 +319,12 @@ public class JvmTerminatorGen {
 
     public void genTerminator(BIRTerminator terminator, String moduleClassName, BIRNode.BIRFunction func,
                               String funcName, int localVarOffset, int returnVarRefIndex, BType attachedType,
-                              int yieldLocationVarIndex, String fullyQualifiedFuncName) {
+                              int yieldLocationVarIndex, int yieldStatusVarIndex, String fullyQualifiedFuncName) {
 
         switch (terminator.kind) {
             case LOCK:
                 this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset, yieldLocationVarIndex,
-                        terminator.pos, fullyQualifiedFuncName);
+                        terminator.pos, fullyQualifiedFuncName, yieldStatusVarIndex);
                 return;
             case UNLOCK:
                 this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName);
@@ -392,7 +392,7 @@ public class JvmTerminatorGen {
     }
 
     private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset, int yieldLocationVarIndex,
-                             Location terminatorPos, String fullyQualifiedFuncName) {
+                             Location terminatorPos, String fullyQualifiedFuncName, int yieldStatusVarIndex) {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
         String lockStore = "L" + LOCK_STORE + ";";
@@ -405,7 +405,7 @@ public class JvmTerminatorGen {
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", LOCK, false);
         this.mv.visitInsn(POP);
         genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset, yieldLocationVarIndex,
-                fullyQualifiedFuncName, terminatorPos);
+                yieldStatusVarIndex, fullyQualifiedFuncName, terminatorPos);
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 

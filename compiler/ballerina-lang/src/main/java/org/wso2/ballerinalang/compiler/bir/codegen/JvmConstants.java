@@ -370,6 +370,7 @@ public class JvmConstants {
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String YIELD_LOCATION = "yieldLocation";
+    public static final String YIELD_STATUS = "yieldStatus";
 
     // observability related constants
     public static final String OBSERVE_UTILS = "io/ballerina/runtime/observability/ObserveUtils";

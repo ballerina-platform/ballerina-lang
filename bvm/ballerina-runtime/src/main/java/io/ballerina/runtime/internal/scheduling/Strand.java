@@ -87,7 +87,6 @@ public class Strand {
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
-    private String yieldStatus;
     private final ReentrantLock strandLock;
 
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
@@ -362,10 +361,6 @@ public class Strand {
         return dataChannel;
     }
 
-    public void setYieldStatus(String yieldStatus) {
-        this.yieldStatus = yieldStatus;
-    }
-
     public void setState(State state) {
         this.lock();
         this.state = state;
@@ -467,8 +462,14 @@ public class Strand {
 
         StringBuilder frameStackTrace = new StringBuilder();
         String stringPrefix = "\t\tat\t";
+        String yieldStatus = "BLOCKED";
+        boolean noPickedYieldStatus = true;
         try {
             for (FunctionFrame frame : strandFrames) {
+                if (noPickedYieldStatus) {
+                    yieldStatus = frame.getYieldStatus();
+                    noPickedYieldStatus = false;
+                }
                 String yieldLocation = frame.getYieldLocation();
                 frameStackTrace.append(stringPrefix).append(yieldLocation);
                 frameStackTrace.append("\n");
@@ -480,12 +481,12 @@ public class Strand {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
-        if (!this.isYielded() || (frameStackTrace.length() == 0)) {
-            // if frames were not available too, the state has changed to runnable
+        if (!this.isYielded() || noPickedYieldStatus) {
+            // if frames have got empty, noPickedYieldStatus is true, then the state has changed to runnable
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
-        strandInfo.append(this.yieldStatus).append("]:\n");
+        strandInfo.append(yieldStatus).append("]:\n");
         strandInfo.append(frameStackTrace).append("\n");
     }
 

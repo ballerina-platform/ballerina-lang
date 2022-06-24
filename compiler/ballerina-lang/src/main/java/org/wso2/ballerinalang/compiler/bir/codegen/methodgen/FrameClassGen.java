@@ -38,6 +38,7 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_FRAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 
@@ -103,8 +104,11 @@ public class FrameClassGen {
         fv.visitEnd();
         fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_LOCATION, GET_STRING, null, null);
         fv.visitEnd();
+        fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_STATUS, GET_STRING, null, null);
+        fv.visitEnd();
 
         generateGetStringFieldMethod(cw, frameClassName, "getYieldLocation", YIELD_LOCATION);
+        generateGetStringFieldMethod(cw, frameClassName, "getYieldStatus", YIELD_STATUS);
 
         cw.visitEnd();
 
