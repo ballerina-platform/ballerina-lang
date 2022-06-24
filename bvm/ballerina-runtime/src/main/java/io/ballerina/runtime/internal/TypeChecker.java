@@ -2169,8 +2169,9 @@ public class TypeChecker {
                         unresolvedValues, allowNumericConversion, varName);
             case TypeTags.PARAMETERIZED_TYPE_TAG:
                 if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
-                    return checkIsLikeOnValue(errors, sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
-                            targetType, unresolvedValues, allowNumericConversion, varName);
+                    return checkIsLikeOnValue(errors, sourceValue,
+                            ((BParameterizedType) sourceType).getParamValueType(), targetType, unresolvedValues,
+                            allowNumericConversion, varName);
                 }
                 return checkIsLikeOnValue(errors, sourceValue, ((BParameterizedType) sourceType).getParamValueType(),
                         ((BParameterizedType) targetType).getParamValueType(), unresolvedValues,
