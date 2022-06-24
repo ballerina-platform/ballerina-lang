@@ -59,3 +59,25 @@ function convertJSONToRecord(anydata v, typedesc<anydata> t) returns map<anydata
 public function validateAPI() {
     testConvertJSONToRecord();
 }
+
+public function validateStringAPI() {
+    json j = {
+        "val": "a\"b\\c\td",
+        "arr": ["a\"b\\c\td", 12],
+        "map": {"value": "a\"b\\c\td"},
+        "arr_map": ["foo", {"value": "a\"b\\c\td"}, 87]
+    };
+    string result = convertJSONToString(j);
+    json|error jValue = checkpanic  result.fromJsonString();
+    test:assertTrue(jValue is json);
+    test:assertTrue(jValue is map<json>);
+    map<json> mapResult = checkpanic jValue.ensureType();
+    test:assertEquals(mapResult.toString(), "{\"val\":\"a\"b\\c\td\",\"arr\":[\"a\"b\\c\td\",12]," +
+    "\"map\":{\"value\":\"a\"b\\c\td\"},\"arr_map\":[\"foo\",{\"value\":\"a\"b\\c\td\"},87]}");
+}
+
+function convertJSONToString(anydata v) returns string = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Jsons",
+    name: "convertJSONToString"
+} external;
+
