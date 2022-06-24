@@ -163,7 +163,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_W
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WORKER_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DECIMAL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
@@ -228,22 +227,8 @@ public class JvmTerminatorGen {
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
-
-        Label yieldLocationLabel = new Label();
-        mv.visitJumpInsn(IFEQ, yieldLocationLabel);
-
-        if (yieldLocationVarIndex != -1) {
-            String yieldLocationData = fullyQualifiedFuncName + "(" + terminatorPos.lineRange().filePath() + ":" +
-                    (terminatorPos.lineRange().startLine().line() + 1) + ")";
-            mv.visitLdcInsn(yieldLocationData);
-            mv.visitVarInsn(ASTORE, yieldLocationVarIndex);
-            mv.visitVarInsn(ALOAD, localVarOffset);
-            mv.visitLdcInsn("LOCK");
-            mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "setYieldStatus", INIT_WITH_STRING, false);
-        }
-        Label yieldLabel = labelGen.getLabel(funcName + "yield");
-        mv.visitJumpInsn(GOTO, yieldLabel);
-        mv.visitLabel(yieldLocationLabel);
+        JvmCodeGenUtil.generateSetYieldedStatus(mv, labelGen, funcName, localVarOffset, yieldLocationVarIndex,
+                terminatorPos, fullyQualifiedFuncName, "WAITING FOR LOCK");
     }
 
     private void loadDefaultValue(MethodVisitor mv, BType type) {

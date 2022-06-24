@@ -443,24 +443,25 @@ public class Strand {
         if (this.parent != null) {
             strandInfo.append("][").append(this.parent.getId());
         }
-        strandInfo.append("]");
+        strandInfo.append("] [");
 
+        String closingBracketWithNewLines = "]\n\n";
         if (this.isYielded()) {
-            getInfoFromYieldedState(strandInfo);
+            getInfoFromYieldedState(strandInfo, closingBracketWithNewLines);
         } else if (this.getState().toString().equals("DONE")) {
-            strandInfo.append(" [").append(DONE).append("]\n\n");
+            strandInfo.append(DONE).append(closingBracketWithNewLines);
         } else {
-            strandInfo.append(" [").append(RUNNABLE).append("]\n\n");
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
         }
 
         return strandInfo.toString();
     }
 
-    private void getInfoFromYieldedState(StringBuilder strandInfo) {
+    private void getInfoFromYieldedState(StringBuilder strandInfo, String closingBracketWithNewLines) {
         Stack<FunctionFrame> strandFrames = this.frames;
         if ((strandFrames == null) || (strandFrames.isEmpty())) {
             // this means the strand frames is changed, hence the state is runnable
-            strandInfo.append(" [").append(RUNNABLE).append("]\n\n");
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
 
@@ -476,10 +477,15 @@ public class Strand {
         } catch (ConcurrentModificationException ce) {
             // this exception can be thrown when frames get added or removed while it is being iterated
             // that means now the strand state is changed from yielded state to runnable state
-            strandInfo.append(" [").append(RUNNABLE).append("]\n\n");
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
             return;
         }
-        strandInfo.append(" [").append(this.yieldStatus).append("]:\n");
+        if (frameStackTrace.length() == 0) {
+            // this means no frames were available, so the state has changed to runnable
+            strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);
+            return;
+        }
+        strandInfo.append(this.yieldStatus).append("]:\n");
         strandInfo.append(frameStackTrace).append("\n");
     }
 
