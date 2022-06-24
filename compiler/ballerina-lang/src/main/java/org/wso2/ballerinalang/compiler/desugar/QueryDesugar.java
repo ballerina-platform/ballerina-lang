@@ -292,8 +292,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                     .findFirst().orElse(symTable.mapType);
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
+            BLangLiteral isReadonly = new BLangLiteral(false, symTable.booleanType);
+            if (Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY)) {
+                isReadonly.value = true;
+            }
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
-                    QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr), pos);
+                    QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
                     addTypeConversionExpr(result, queryExpr.getBType()));
             streamStmtExpr.setBType(queryExpr.getBType());

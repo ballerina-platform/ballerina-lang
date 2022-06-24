@@ -182,8 +182,16 @@ function createImmutableTable(table<map<Type>> arr) returns table<map<Type>> & r
     name: "createImmutableTable"
 } external;
 
-function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err) returns map<Type>|error {
+function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err, boolean isReadOnly) returns map<Type>|error {
 // Here, `err` is used to get the expression of on-conflict clause
+    if isReadOnly {
+        map<Type> mp2 = {};
+        return createImmutableMap(check updateMap(strm, mp2, err));
+    }
+    return updateMap(strm, mp, err);
+}
+
+function updateMap(stream<Type, CompletionType> strm, map<Type> mp, error? err) returns map<Type>|error {
     record {| Type value; |}|CompletionType v = strm.next();
     while (v is record {| Type value; |}) {
         [string, Type]|error value = trap (<[string, Type]> checkpanic v.value);
@@ -204,6 +212,11 @@ function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err) r
     }
     return mp;
 }
+
+function createImmutableMap(map<Type> arr) returns map<Type> & readonly = @java:Method {
+    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
+    name: "createImmutableMap"
+} external;
 
 function consumeStream(stream<Type, CompletionType> strm) returns any|error {
     any|error? v = strm.next();

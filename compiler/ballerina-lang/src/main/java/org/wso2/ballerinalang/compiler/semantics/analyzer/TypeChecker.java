@@ -5544,8 +5544,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType mapConstraintType = getTypeOfTypeParameter(selectType,
                         queryExpr.getSelectClause().expression.pos);
                 if (mapConstraintType != symTable.semanticError) {
-                    actualType = BUnionType.create(null, new BMapType(TypeTags.MAP, mapConstraintType, null),
-                            symTable.errorType);
+                    BType mapType = new BMapType(TypeTags.MAP, mapConstraintType, null);
+                    if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
+                        mapType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, mapType, env,
+                                symTable, anonymousModelHelper, names, null);
+                    }
+                    actualType = BUnionType.create(null, mapType, symTable.errorType);
                 }
             } else {
                 actualType = resolvedTypes.get(0);
@@ -5606,6 +5610,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BTupleType newExpType = new BTupleType(null, memberTypes);
                 selectType = checkExpr(selectExp, env, newExpType, data);
                 resolvedType = selectType;
+                if (resolvedType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
+                        Symbols.isFlagOn(type.flags, Flags.READONLY))) {
+                    resolvedType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, resolvedType, env,
+                            symTable, anonymousModelHelper, names, null);
+                }
                 break;
             case TypeTags.STRING:
             case TypeTags.XML:
