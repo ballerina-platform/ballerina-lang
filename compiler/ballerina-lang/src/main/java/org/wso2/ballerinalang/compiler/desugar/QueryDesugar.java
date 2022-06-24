@@ -272,7 +272,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
-            BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(null, symTable.booleanType,
+            BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
                     Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
@@ -306,10 +306,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                     TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag == TypeTags.INTERSECTION ?
                             ((BIntersectionType) Types.getReferredType(memType)).effectiveType.tag :
                             Types.getReferredType(memType).tag)))) {
-                BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(null, symTable.booleanType, false);
-                if (Symbols.isFlagOn(refType.flags, Flags.READONLY)) {
-                    isReadonly.value = true;
-                } else if (refType.tag == TypeTags.UNION) {
+                BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
+                        Symbols.isFlagOn(refType.flags, Flags.READONLY));
+                if (refType.tag == TypeTags.UNION) {
                     for (BType type : ((BUnionType) refType).getMemberTypes()) {
                         if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
                             isReadonly.value = true;
@@ -859,9 +858,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (refType.tag == TypeTags.UNION) {
             tableType = symTable.tableType;
             for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
-                if (Types.getReferredType(memberType).tag == TypeTags.TABLE) {
+                int memberTypeTag = Types.getReferredType(memberType).tag;
+                if (memberTypeTag == TypeTags.TABLE) {
                     tableType = memberType;
-                } else if (Types.getReferredType(memberType).tag == TypeTags.INTERSECTION &&
+                } else if (memberTypeTag == TypeTags.INTERSECTION &&
                         ((BIntersectionType) memberType).effectiveType.tag == TypeTags.TABLE) {
                     tableType = ((BIntersectionType) memberType).effectiveType;
                 }
