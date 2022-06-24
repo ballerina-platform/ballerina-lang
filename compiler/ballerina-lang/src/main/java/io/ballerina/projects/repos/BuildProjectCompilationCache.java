@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
-import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 
 /**
  * Default {@code CompilationCache} linked with the {@code BuildProject}.
@@ -74,7 +73,7 @@ public class BuildProjectCompilationCache extends FileSystemCache {
         }
         Package currentPkg = project.currentPackage();
         PackageManifest pkgDescriptor = currentPkg.manifest();
-        Path targetCachePath = currentPkg.project().sourceRoot().resolve(TARGET_DIR_NAME).resolve(CACHES_DIR_NAME);
+        Path targetCachePath = project.targetDir().resolve(CACHES_DIR_NAME);
         birPath = targetCachePath.resolve(pkgDescriptor.org().value())
                 .resolve(pkgDescriptor.name().value())
                 .resolve(pkgDescriptor.version().value().toString())

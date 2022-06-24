@@ -71,6 +71,8 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  */
 public class BuildProject extends Project {
 
+    private Path targetDir;
+
     /**
      * Loads a BuildProject from the provided path.
      *
@@ -123,6 +125,9 @@ public class BuildProject extends Project {
 
     private BuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath, BuildOptions buildOptions) {
         super(ProjectKind.BUILD_PROJECT, projectPath, environmentBuilder, buildOptions);
+
+        targetDir = targetDir();
+
         populateCompilerContext();
     }
 
@@ -450,10 +455,17 @@ public class BuildProject extends Project {
 
     @Override
     public Path targetDir() {
-        if (this.buildOptions().getTargetPath() == null) {
-            return this.sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
-        } else {
-            return Paths.get(this.buildOptions().getTargetPath());
+        if (targetDir == null) {
+            if (this.buildOptions().getTargetPath() == null) {
+                try {
+                    targetDir = Files.createTempDirectory("ballerina-cache" + System.nanoTime());
+                } catch (IOException e) {
+                    // ignore
+                }
+            } else {
+                targetDir = Paths.get(this.buildOptions().getTargetPath());
+            }
         }
+        return targetDir;
     }
 }

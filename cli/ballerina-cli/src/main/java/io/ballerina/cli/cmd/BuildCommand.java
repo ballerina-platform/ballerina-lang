@@ -19,7 +19,6 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
@@ -281,6 +280,8 @@ public class BuildCommand implements BLauncherCmd {
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
+        } else {
+            buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(ProjectConstants.TARGET_DIR_NAME)));
         }
 
         return buildOptionsBuilder.setConfigSchemaGen(configSchemaGen)
