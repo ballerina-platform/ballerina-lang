@@ -26,11 +26,13 @@ package io.ballerina.runtime.api.types;
 public class Parameter {
     public final String name;
     public final boolean isDefault;
+    public final String defaultFunctionName;
     public Type type;
 
-    public Parameter(String name, Boolean isDefault, Type type) {
+    public Parameter(String name, boolean isDefault, String defaultFunctionName, Type type) {
         this.name = name;
         this.isDefault = isDefault;
+        this.defaultFunctionName = defaultFunctionName;
         this.type = type;
     }
 }
