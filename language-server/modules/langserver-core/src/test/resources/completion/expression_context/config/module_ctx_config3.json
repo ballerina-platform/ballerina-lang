@@ -410,7 +410,7 @@
     {
       "label": "mod1:TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "HELLO WORLD",
+      "detail": "\"HELLO WORLD\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -944,6 +944,14 @@
       "sortText": "P",
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

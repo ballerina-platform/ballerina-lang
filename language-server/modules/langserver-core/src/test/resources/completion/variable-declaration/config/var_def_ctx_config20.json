@@ -792,6 +792,14 @@
       "filterText": "function",
       "insertText": "function (int i) returns string {\n    return \"\";\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
