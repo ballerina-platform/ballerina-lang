@@ -5801,9 +5801,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
                 BIntersectionType immutableTableType = ImmutableTypeCloner.getImmutableIntersectionType(null, types,
                         tableType, env, symTable, anonymousModelHelper, names, null);
-                return BUnionType.create(null, immutableTableType, symTable.errorType);
+                return immutableTableType;
             }
-            return BUnionType.create(null, tableType, symTable.errorType);
         }
         return tableType;
     }
