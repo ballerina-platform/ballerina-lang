@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Convert 'Test' to public",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

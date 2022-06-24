@@ -4,7 +4,7 @@
   "expected": [
     {
       "title": "Optimize all imports",
-      "kind": "quickfix",
+      "kind": "source.organizeImports",
       "diagnostics": [],
       "edit": {
         "documentChanges": [

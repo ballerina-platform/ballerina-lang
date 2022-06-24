@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Add Explicit Return Statement",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

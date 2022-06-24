@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'getTestRecord(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'getTestRecord(...)'",
         "command": "CREATE_FUNC",

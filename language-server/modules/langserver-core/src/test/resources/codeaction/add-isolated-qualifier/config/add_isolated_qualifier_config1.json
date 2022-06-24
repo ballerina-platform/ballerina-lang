@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Add isolated qualifier to 'testFunction'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

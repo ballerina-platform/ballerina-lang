@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Create variable with 'Person[]'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Change variable 'a' type to 'boolean'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

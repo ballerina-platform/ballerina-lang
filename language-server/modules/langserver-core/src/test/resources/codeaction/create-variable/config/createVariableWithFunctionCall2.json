@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create variable with 'record {|int a;|}'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +23,7 @@
     },
     {
       "title": "Create variable with 'json'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -40,6 +42,7 @@
     },
     {
       "title": "Create variable with \u0027map\u003cint\u003e\u0027",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

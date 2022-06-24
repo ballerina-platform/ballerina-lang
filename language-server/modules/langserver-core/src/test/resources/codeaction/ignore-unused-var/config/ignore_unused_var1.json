@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Ignore unused variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

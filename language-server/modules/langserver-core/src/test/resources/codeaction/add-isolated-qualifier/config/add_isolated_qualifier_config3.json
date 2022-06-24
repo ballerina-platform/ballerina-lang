@@ -11,6 +11,7 @@
               "version": null,
               "uri": "publicCodeAction/modules/module2/add_isolated_qualifier_source2_test.bal"
             },
+            "kind": "quickfix",
             "edits": [
               {
                 "range": {

@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Create variable with 'record {|string firstName; string lastName; string deptAccess; int age;|}[]'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

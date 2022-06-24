@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Document all",
+      "kind": "source",
       "command": {
         "title": "Document all",
         "command": "ADD_ALL_DOC",

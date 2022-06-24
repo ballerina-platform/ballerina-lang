@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Change return type to 'module1:TestRecord1'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

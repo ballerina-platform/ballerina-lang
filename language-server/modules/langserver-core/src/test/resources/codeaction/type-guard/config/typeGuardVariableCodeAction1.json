@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Type guard variable 'val'",
+            "kind": "source",
             "edits": [
                 {
                     "range": {

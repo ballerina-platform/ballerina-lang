@@ -4,6 +4,7 @@
     "expected": [
         {
             "title": "Change variable 'b' type to 'float'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {

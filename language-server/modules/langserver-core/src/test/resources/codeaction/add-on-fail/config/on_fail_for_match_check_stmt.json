@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create on fail clause",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

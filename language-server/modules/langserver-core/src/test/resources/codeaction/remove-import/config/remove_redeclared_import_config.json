@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Remove all unused imports",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +23,7 @@
     },
     {
       "title": "Remove re-declared import 'ballerina/module1'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

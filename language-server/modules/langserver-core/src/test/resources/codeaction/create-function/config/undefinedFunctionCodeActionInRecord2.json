@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'createListener(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'createListener(...)'",
         "command": "CREATE_FUNC",

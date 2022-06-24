@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Create function 'addTwoIntegers3(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'addTwoIntegers3(...)'",
         "command": "CREATE_FUNC",
