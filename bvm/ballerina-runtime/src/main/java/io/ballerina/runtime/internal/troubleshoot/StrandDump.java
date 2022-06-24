@@ -49,9 +49,9 @@ public class StrandDump {
         infoStr.append("Current no. of strand groups\t:\t").append(availableStrandGroups.size()).append("\n");
         infoStr.append("Current no. of strands      \t:\t").append(availableStrandCount).append("\n\n");
         availableStrandGroups.forEach((strandGroupId, strandList) -> {
-            infoStr.append("group ").append(strandGroupId).append(": [")
+            infoStr.append("group ").append(strandGroupId).append(" [").append(strandList.get(0)).append("]: [")
                     .append(strandList.size()).append("]\n");
-            strandList.forEach(infoStr::append);
+            strandList.subList(1, strandList.size()).forEach(infoStr::append);
         });
         availableStrandGroups.clear();
         infoStr.append("===========================================\n");
@@ -63,7 +63,19 @@ public class StrandDump {
         for (Strand strand : availableStrands.values()) {
             int strandGroupId = strand.getStrandGroupId();
             String strandState = strand.dumpState();
-            availableStrandGroups.computeIfAbsent(strandGroupId, k -> new ArrayList<>()).add(strandState);
+            availableStrandGroups.computeIfAbsent(strandGroupId, k -> {
+                ArrayList<String> strandDataList = new ArrayList<>();
+                strandDataList.add(getStrandGroupStatus(strand.isStrandGroupScheduled()));
+                return strandDataList;
+            }).add(strandState);
+        }
+    }
+
+    private static String getStrandGroupStatus(boolean isStrandGroupScheduled) {
+        if (isStrandGroupScheduled) {
+            return "RUNNABLE";
+        } else {
+            return "QUEUED";
         }
     }
 
