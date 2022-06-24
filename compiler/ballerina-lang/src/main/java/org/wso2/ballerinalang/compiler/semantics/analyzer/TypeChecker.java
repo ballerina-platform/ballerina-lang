@@ -5602,10 +5602,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     resolvedType = selectType;
                     break;
                 case TypeTags.MAP:
-                    List<BType> memberTypes = new ArrayList<>(2);
-                    memberTypes.add(symTable.stringType);
-                    memberTypes.add(((BMapType) type).getConstraint());
-                    BTupleType newExpType = new BTupleType(null, memberTypes);
+                    List<BType> memberTypeList = new ArrayList<>(2);
+                    memberTypeList.add(symTable.stringType);
+                    memberTypeList.add(((BMapType) type).getConstraint());
+                    BTupleType newExpType = new BTupleType(null, memberTypeList);
                     selectType = checkExpr(selectExp, env, newExpType, data);
                     resolvedType = selectType;
                     break;
