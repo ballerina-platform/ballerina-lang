@@ -1310,11 +1310,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(recordLiteral.pos,
                         DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
                 resultType = symTable.semanticError;
-                return false;
             }
         }
 
-        return true;
+        return resultType != symTable.semanticError;
     }
 
     private boolean isConstExpression(BLangExpression expression) {
