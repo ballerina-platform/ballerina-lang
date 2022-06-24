@@ -1,9 +1,13 @@
 package org.ballerinalang.langlib.query;
 
+import io.ballerina.runtime.api.types.ArrayType;
+import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 
 /**
  * Implementation of lang.query:CreateImmutableType().
@@ -13,23 +17,23 @@ import io.ballerina.runtime.api.values.BXml;
 
 public class CreateImmutableType {
 
-    public static BArray createImmutableArray(BArray arr) {
-        arr.freezeDirect();
-        return arr;
+    public static void createImmutableType(BRefValue type) {
+        type.freezeDirect();
     }
 
-    public static BMap createImmutableMap(BMap map) {
-        map.freezeDirect();
-        return map;
+    public static BTable createImmutableTable(BTable tbl, BArray arr) {
+        TableType type = (TableType) tbl.getType();
+        BTable immutableTable = new TableValueImpl(type,
+                new ArrayValueImpl(arr.getValues(), (ArrayType) arr.getType()),
+                new ArrayValueImpl(((TableType) tbl.getType()).getFieldNames(), true));
+        immutableTable.freezeDirect();
+        return immutableTable;
     }
 
-    public static BTable createImmutableTable(BTable tbl) {
-        tbl.freezeDirect();
+    public static BTable createTableWithKeySpecifier(BTable immutableTable, BTypedesc tableType) {
+        TableType type = (TableType) tableType.getDescribingType();
+        BTable tbl = new TableValueImpl(type,
+                new ArrayValueImpl(((TableType) immutableTable.getType()).getFieldNames(), false));
         return tbl;
-    }
-
-    public static BXml createImmutableXml(BXml xml) {
-        xml.freezeDirect();
-        return xml;
     }
 }

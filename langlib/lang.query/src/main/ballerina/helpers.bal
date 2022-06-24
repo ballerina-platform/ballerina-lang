@@ -87,7 +87,8 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, Co
 function toArray(stream<Type, CompletionType> strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
         Type[] arr2 = [];
-        return createImmutableArray(check createArray(strm, arr2));
+        createImmutableType(check createArray(strm, arr2));
+        return arr2;
     }
     return createArray(strm, arr);
 }
@@ -119,7 +120,7 @@ function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xm
     }
 
     if isReadOnly {
-        return createImmutableXml(result);
+        createImmutableType(result);
     }
 
     return result;
@@ -143,8 +144,10 @@ function toString(stream<Type, CompletionType> strm) returns string|error {
 
 function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err, boolean isReadOnly) returns table<map<Type>>|error {
     if isReadOnly {
-        table<map<Type>> tbl2 = table [];
-        return createImmutableTable(check createTable(strm, tbl2, err));
+        table<map<Type>> tempTbl = table [];
+        table<map<Type>> tbl2 = createTableWithKeySpecifier(tbl, typeof(tempTbl));
+        table<map<Type>> tempTable = check createTable(strm, tbl2, err);
+        return createImmutableTable(tbl, tempTable.toArray());
     }
     return createTable(strm, tbl, err);
 }
@@ -171,7 +174,8 @@ function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err, b
 // Here, `err` is used to get the expression of on-conflict clause
     if isReadOnly {
         map<Type> mp2 = {};
-        return createImmutableMap(check createMap(strm, mp2, err));
+        createImmutableType(check createMap(strm, mp2, err));
+        return mp2;
     }
     return createMap(strm, mp, err);
 }
@@ -211,22 +215,17 @@ function consumeStream(stream<Type, CompletionType> strm) returns any|error {
     }
 }
 
-function createImmutableArray(Type[] arr) returns Type[] & readonly = @java:Method {
-    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
-    name: "createImmutableArray"
-} external;
-
-function createImmutableXml(xml inputXml) returns xml & readonly = @java:Method {
-    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
-    name: "createImmutableXml"
-} external;
-
-function createImmutableTable(table<map<Type>> arr) returns table<map<Type>> & readonly = @java:Method {
+function createImmutableTable(table<map<Type>> tbl, Type[] arr) returns table<map<Type>> & readonly = @java:Method {
     'class: "org.ballerinalang.langlib.query.CreateImmutableType",
     name: "createImmutableTable"
 } external;
 
-function createImmutableMap(map<Type> arr) returns map<Type> & readonly = @java:Method {
+function createTableWithKeySpecifier(table<map<Type>> tbl, typedesc tableType) returns table<map<Type>> = @java:Method {
     'class: "org.ballerinalang.langlib.query.CreateImmutableType",
-    name: "createImmutableMap"
+    name: "createTableWithKeySpecifier"
+} external;
+
+function createImmutableType(any mutableType) = @java:Method {
+    'class: "org.ballerinalang.langlib.query.CreateImmutableType",
+    name: "createImmutableType"
 } external;
