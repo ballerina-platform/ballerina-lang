@@ -948,6 +948,7 @@ function testCastOfFiniteTypeWithIntersectingBuiltInSubType() {
     Baz c = "foo";
     assertTypeCastFailureWithMessage(trap <int:Signed16|float> c, "incompatible types: 'string' cannot be cast to '(lang.int:Signed16|float)'");
 }
+
 const NIL = ();
 const int Interger = 1;
 const string String = "Ballerina";
