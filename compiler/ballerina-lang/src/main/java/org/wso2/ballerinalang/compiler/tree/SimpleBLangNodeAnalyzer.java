@@ -716,6 +716,11 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visit((BLangInvocation) node, data);
     }
 
+    public void visit(BLangInvocation.BLangResourceAccessInvocation node, T data) {
+        analyzeNode(node, data);
+        visit((BLangInvocation) node, data);
+    }
+
     public void visit(BLangIsAssignableExpr node, T data) {
         analyzeNode(node, data);
         visitNode(node.lhsExpr, data);

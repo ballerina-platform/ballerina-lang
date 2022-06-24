@@ -54,12 +54,7 @@ public class ClassDefContextTest extends CompletionTest {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList(
-                "config33.json",
-                "config34.json",
-                "config29.json", // Issue: #36382
-                "config30.json" // Issue: #36382
-        );
+        return Arrays.asList("config33.json", "config34.json");
     }
 
     @Override
