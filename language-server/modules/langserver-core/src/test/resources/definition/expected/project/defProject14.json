@@ -1,24 +1,15 @@
 {
   "source": {
-<<<<<<< HEAD
     "file": "projectls/defmodsource5.bal"
   },
   "position": {
     "line": 3,
     "character": 22
-=======
-    "file": "defThread.bal"
-  },
-  "position": {
-    "line": 1,
-    "character": 8
->>>>>>> upstream/2201.1.x
   },
   "result": [
     {
       "range": {
         "start": {
-<<<<<<< HEAD
           "line": 0,
           "character": 0
         },
@@ -28,17 +19,6 @@
         }
       },
       "uri": "repo/bala/ballerina/module1/0.1.0/any/modules/module1/variables.bal"
-=======
-          "line": 79,
-          "character": 0
-        },
-        "end": {
-          "line": 79,
-          "character": 36
-        }
-      },
-      "uri": "repo/bala/ballerina/lang.annotations/0.0.0/any/modules/lang.annotations/annotations.bal"
->>>>>>> upstream/2201.1.x
     }
   ]
 }

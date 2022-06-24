@@ -159,7 +159,8 @@ public class DefinitionTest {
                 {"defProject8.json", "project"},
                 {"def_error_config2.json", "project"},
                 {"def_retry_spec_config1.json", "project"},
-                {"defProject13.json", "project"}
+                {"defProject14.json", "project"},
+                {"defProject14.json", "project"}
         };
     }
 
