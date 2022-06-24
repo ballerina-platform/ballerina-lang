@@ -33,6 +33,8 @@ import java.util.Set;
 
 
 /**
+ * {@code BLangUnionTypeNode} represents a non-rest member of a tuple
+ *
  * @since 2201.2.0
  */
 public class BLangMemberTypeNode extends BLangType implements AnnotatableNode {
@@ -68,7 +70,7 @@ public class BLangMemberTypeNode extends BLangType implements AnnotatableNode {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.MEMBER_TYPE;
+        return NodeKind.TUPLE_MEMBER;
     }
 
     @Override

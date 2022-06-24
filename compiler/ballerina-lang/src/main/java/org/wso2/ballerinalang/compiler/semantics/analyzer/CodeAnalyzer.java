@@ -225,6 +225,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -3049,8 +3050,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
 
-        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeTypeNode(memberType, data));
+        tupleTypeNode.memberTypeNodes.forEach(memberType -> analyzeNode(memberType, data));
         analyzeTypeNode(tupleTypeNode.restParamType, data);
+    }
+
+    @Override
+    public void visit(BLangMemberTypeNode memberTypeNode, AnalyzerData data) {
+
+        analyzeTypeNode(memberTypeNode.typeNode, data);
+        memberTypeNode.annAttachments.forEach(annot -> analyzeNode(annot, data));
     }
 
     @Override

@@ -57,6 +57,7 @@ public enum NodeKind {
     TABLE_KEY_TYPE_CONSTRAINT,
     RETRY_SPEC,
     CLASS_DEFN,
+    TUPLE_MEMBER,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -244,7 +245,6 @@ public enum NodeKind {
     ERROR_TYPE,
     STREAM_TYPE,
     TABLE_TYPE,
-    MEMBER_TYPE,
 
     /* Internal */
     NODE_ENTRY
