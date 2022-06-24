@@ -1104,6 +1104,25 @@ function testReadonlyTable2() {
     assertEqual((checkpanic customerTable3).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
 }
 
+type IdRec record {|
+    readonly int id;
+|};
+
+function testReadonlyTable3() {
+  table<IdRec> key(id) & readonly|error tbl = table key(id) from var i in [1, 2, 3, 4, 2, 3]
+                                                select {
+                                                    id: i
+                                                } on conflict ();
+
+  assertEqual((typeof(tbl)).toString(), "typedesc [{\"id\":1},{\"id\":2},{\"id\":3},{\"id\":4}]");
+  assertEqual(tbl, table key(id) [{"id":1},{"id":2},{"id":3},{"id":4}]);
+
+  if tbl !is error {
+    IdRec? member1 = tbl[1];
+    assertEqual(member1, {"id":1});
+  }
+}
+
 function testConstructingListOfTablesUsingQueryWithReadonly() {
     table<User> key(id) & readonly users1 = table [
         {id: 1, firstName: "John", lastName: "Doe", age: 25}

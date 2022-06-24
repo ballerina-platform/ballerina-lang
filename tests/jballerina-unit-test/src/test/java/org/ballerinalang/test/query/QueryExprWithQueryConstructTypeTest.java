@@ -276,6 +276,16 @@ public class QueryExprWithQueryConstructTypeTest {
     }
 
     @Test
+    public void testReadonlyTable2() {
+        BRunUtil.invoke(result, "testReadonlyTable2");
+    }
+
+    @Test
+    public void testReadonlyTable3() {
+        BRunUtil.invoke(result, "testReadonlyTable3");
+    }
+
+    @Test
     public void testConstructingListOfTablesUsingQueryWithReadonly() {
         BRunUtil.invoke(result, "testConstructingListOfTablesUsingQueryWithReadonly");
     }
