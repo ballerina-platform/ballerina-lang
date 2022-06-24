@@ -276,4 +276,9 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     public void testQueryActionOrExprWithAsyncSendActionInJoinClause() {
         testFile("query-expr/query_expr_source_78.bal", "query-expr/query_expr_assert_78.json");
     }
+
+    @Test
+    public void testQueryWithMapKeyword() {
+        test("map from int a in b select e", "query-expr/query_expr_assert_79.json");
+    }
 }

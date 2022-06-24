@@ -3188,6 +3188,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         data.errorTypes.push(new LinkedHashSet<>());
         boolean prevQueryToTableWithKey = data.queryToTableWithKey;
         data.queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
+        data.queryToMap = queryExpr.isMap;
         boolean prevWithinQuery = data.withinQuery;
         data.withinQuery = true;
         int fromCount = 0;
@@ -3281,8 +3282,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangOnConflictClause onConflictClause, AnalyzerData data) {
         analyzeExpr(onConflictClause.expression, data);
-        if (!data.queryToTableWithKey) {
-            dlog.error(onConflictClause.pos, DiagnosticErrorCode.ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER);
+        if (!(data.queryToTableWithKey || data.queryToMap)) {
+            dlog.error(onConflictClause.pos,
+                    DiagnosticErrorCode.ON_CONFLICT_ONLY_WORKS_WITH_MAPS_OR_TABLES_WITH_KEY_SPECIFIER);
         }
     }
 
@@ -4107,6 +4109,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         boolean failVisited;
         boolean queryToTableWithKey;
         boolean withinQuery;
+        boolean queryToMap;
         Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
         Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
         DefaultValueState defaultValueState = DefaultValueState.NOT_IN_DEFAULT_VALUE;

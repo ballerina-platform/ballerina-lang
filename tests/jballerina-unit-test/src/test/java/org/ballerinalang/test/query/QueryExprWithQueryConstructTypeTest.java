@@ -133,7 +133,7 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        Assert.assertEquals(negativeResult.getErrorCount(), 24);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
@@ -143,31 +143,73 @@ public class QueryExprWithQueryConstructTypeTest {
                 71, 32);
         validateError(negativeResult, index++, "incompatible types: expected 'error?', found 'boolean'",
                 107, 21);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'User'", 126, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found '[int,User]'", 130, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 135, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'string[]'", 140, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'User'", 148, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found '[int,User]'", 152, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 157, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'string[]'", 162, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'string[3]'", 167, 25);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found '[string]'", 171, 25);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 180, 50);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 182, 20);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 186, 22);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'int', found 'string'", 193, 50);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 195, 20);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 199, 22);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '[string,string]', found '(string[2]|[string,int])'", 207, 29);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2] & readonly'", 217, 29);
+        validateError(negativeResult, index++,
+                "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 222, 29);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '([string,int]|[string,string])', found '(string|int)'", 227, 56);
+        validateError(negativeResult, index,
+                "incompatible types: expected 'map<string>', found '(map<(int|string)>|error)'", 229, 21);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
     public void testSemanticNegativeScenarios() {
         int index = 0;
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                        "tables with key specifiers", 39, 13);
+                        "maps or tables with key specifiers", 39, 13);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 59, 9);
+                "maps or tables with key specifiers", 59, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 71, 9);
+                "maps or tables with key specifiers", 71, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 84, 9);
+                "maps or tables with key specifiers", 84, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 95, 9);
+                "maps or tables with key specifiers", 95, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 103, 14);
+                "maps or tables with key specifiers", 103, 14);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 119, 9);
+                "maps or tables with key specifiers", 119, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 126, 47);
+                "maps or tables with key specifiers", 126, 47);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 131, 9);
+                "maps or tables with key specifiers", 131, 9);
         validateError(semanticsNegativeResult, index++, "on conflict can only be used with queries which produce " +
-                "tables with key specifiers", 144, 9);
+                "maps or tables with key specifiers", 144, 9);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), index);
     }
 
@@ -203,6 +245,51 @@ public class QueryExprWithQueryConstructTypeTest {
                 "testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInLetClause",
                 "testQueryConstructingTableWithOnConflictClauseHavingNonTableQueryInWhereClause"
         };
+    }
+
+    @Test
+    public void testMapConstructingQueryExpr() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExpr");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithDuplicateKeys() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithDuplicateKeys");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOnConflict() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOnConflict");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOtherClauses() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOtherClauses");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithJoinClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithJoinClause");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithLimitClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithLimitClause");
+    }
+
+    @Test
+    public void testMapConstructingQueryExpr2() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExpr2");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithOrderByClause() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOrderByClause");
+    }
+
+    @Test
+    public void testMapConstructingQueryExprWithReferenceTypes() {
+        BRunUtil.invoke(result, "testMapConstructingQueryExprWithReferenceTypes");
     }
 
     @AfterClass

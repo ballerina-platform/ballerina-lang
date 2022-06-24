@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -203,6 +204,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
     private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
+    private static final Name QUERY_ADD_TO_MAP_FUNCTION = new Name("addToMap");
     private static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
@@ -271,6 +273,21 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addTypeConversionExpr(result,
                             queryExpr.getBType()));
             streamStmtExpr.setBType(tableRef.getBType());
+            onConflictExpr = null;
+        } else if (queryExpr.isMap) {
+            onConflictExpr = (onConflictExpr == null)
+                    ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
+                    : onConflictExpr;
+            BMapType mapType = (BMapType) ((BUnionType) queryExpr.getBType()).getMemberTypes()
+                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.MAP)
+                    .findFirst().orElse(symTable.mapType);
+            BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
+                    mapType, new ArrayList<>());
+            BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
+                    QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr), pos);
+            streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
+                    addTypeConversionExpr(result, queryExpr.getBType()));
+            streamStmtExpr.setBType(queryExpr.getBType());
             onConflictExpr = null;
         } else {
             BLangVariableReference result;
