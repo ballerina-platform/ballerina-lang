@@ -5599,6 +5599,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         true, true), data);
                 resolvedType = symTable.streamType;
                 break;
+            case TypeTags.MAP:
+                List<BType> memberTypes = new ArrayList<>(2);
+                memberTypes.add(symTable.stringType);
+                memberTypes.add(((BMapType) type).getConstraint());
+                BTupleType newExpType = new BTupleType(null, memberTypes);
+                selectType = checkExpr(selectExp, env, newExpType, data);
+                resolvedType = selectType;
+                break;
             case TypeTags.STRING:
             case TypeTags.XML:
             case TypeTags.XML_COMMENT:
@@ -5617,7 +5625,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             default:
                 // contextually expected type not given (i.e var).
                 selectType = checkExpr(selectExp, env, type, data);
-                resolvedType = getNonContextualQueryType(selectType, collectionType);
+                if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
+                    resolvedType = symTable.mapType;
+                } else {
+                    resolvedType = getNonContextualQueryType(selectType, collectionType);
+                }
                 break;
         }
         if (selectType != symTable.semanticError) {
