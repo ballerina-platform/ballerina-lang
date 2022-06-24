@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1424,8 +1425,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     @Override
     public BType transform(BLangTupleTypeNode tupleTypeNode, AnalyzerData data) {
         List<BType> memberTypes = new ArrayList<>();
-        for (BLangType memTypeNode : tupleTypeNode.memberTypeNodes) {
-            BType type = resolveTypeNode(memTypeNode, data, data.env);
+        for (BLangMemberTypeNode memTypeNode : tupleTypeNode.memberTypeNodes) {
+            BType type = resolveTypeNode(memTypeNode.typeNode, data, data.env);
 
             // If at least one member is undefined, return noType as the type.
             if (type == symTable.noType) {
