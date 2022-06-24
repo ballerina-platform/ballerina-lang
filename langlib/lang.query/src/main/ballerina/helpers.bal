@@ -144,6 +144,7 @@ function toString(stream<Type, CompletionType> strm) returns string|error {
 
 function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err, boolean isReadOnly) returns table<map<Type>>|error {
     if isReadOnly {
+        // TODO: Properly fix readonly scenario - Issue lang/#36721
         table<map<Type>> tempTbl = table [];
         table<map<Type>> tbl2 = createTableWithKeySpecifier(tbl, typeof(tempTbl));
         table<map<Type>> tempTable = check createTable(strm, tbl2, err);
