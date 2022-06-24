@@ -56,6 +56,7 @@ public class ConsoleOutCollector extends OutputStream {
         if (!buffered.isEmpty()) {
             lines.add(buffered);
         }
+
         return lines;
     }
 
@@ -68,9 +69,10 @@ public class ConsoleOutCollector extends OutputStream {
         Byte[] byteObjects = buffer.toArray(new Byte[0]);
         byte[] bytes = new byte[buffer.size()];
         int idx = 0;
-        for (Byte b: byteObjects) {
-            bytes[idx++] = b;
+        for (Byte byt: byteObjects) {
+            bytes[idx++] = byt;
         }
+
         String buffered = new String(bytes, StandardCharsets.UTF_8);
         buffer.clear();
         return buffered.trim();
