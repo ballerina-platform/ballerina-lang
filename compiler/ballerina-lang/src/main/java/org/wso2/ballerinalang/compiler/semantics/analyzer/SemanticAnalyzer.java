@@ -4837,7 +4837,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             for (Map.Entry<String, BField> includedFieldEntry : includedStructureType.fields.entrySet()) {
                 String fieldName = includedFieldEntry.getKey();
 
-                if (!explicitlySpecifiedFieldLocations.containsKey(fieldName)) {
+                if (!explicitlySpecifiedFieldLocations.containsKey(fieldName) ||
+                        // Happens when the type cannot be resolved.
+                        !fieldsOfIncludingType.containsKey(fieldName)) {
                     continue;
                 }
 
