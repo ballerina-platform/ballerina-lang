@@ -180,6 +180,7 @@ import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUNCTION;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
@@ -3605,6 +3606,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(FLOAT)) {
             symTable.langFloatModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(FUNCTION)) {
+            symTable.langFunctionModuleSymbol = packageSymbol;
             return;
         }
         if (langLib.equals(FUTURE)) {

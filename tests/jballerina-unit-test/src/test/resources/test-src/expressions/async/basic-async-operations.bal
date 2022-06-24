@@ -65,8 +65,8 @@ function testAsyncNonNativeBasic7() returns int {
 }
 
 function testAsyncNonNativeBasic8() returns int {
-    future<int> f1 = start subtract(8, 3);
-    future<int> f2 = start subtract(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start subtract(8, 3);
+    future<int> f2 = @strand{thread:"parent"} start subtract(5, 2);
     f1.cancel();
     f2.cancel();
     int result = checkpanic wait f1 | f2;
@@ -74,24 +74,24 @@ function testAsyncNonNativeBasic8() returns int {
 }
 
 function testAsyncNonNativeBasic9() returns int {
-    future<int> f1 = start subtract(5, 2);
-    future<int> f2 = start addNum(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start subtract(5, 2);
+    future<int> f2 = @strand{thread:"parent"} start addNum(5, 2);
     f1.cancel();
     int result = checkpanic wait f1 | f2;
     return result;
 }
 
 function testAsyncNonNativeBasic10() returns any {
-    future<int> f1 = start addNum(5, 2);
-    future<int> f2 = start subtract(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start addNum(5, 2);
+    future<int> f2 = @strand{thread:"parent"} start subtract(5, 2);
     f2.cancel();
     record {| int|error f1; int|error f2; |} result = wait {f1,f2};
     return result;
 }
 
 function testAsyncNonNativeBasic11() returns any {
-    future<int> f1 = start subtract(7, 2);
-    future<int> f2 = start subtract(5, 2);
+    future<int> f1 = @strand{thread:"parent"} start subtract(7, 2);
+    future<int> f2 = @strand{thread:"parent"} start subtract(5, 2);
     f1.cancel();
     f2.cancel();
     record {| int|error f1; int|error f2; |} result = wait {f1,f2};

@@ -86,7 +86,7 @@ public class InnerQueryTest {
         validateError(negativeResult, i++, "undefined symbol 'deptName'", 71, 29);
         validateError(negativeResult, i++, "undefined symbol 'psn'", 88, 16);
         validateError(negativeResult, i++, "undefined symbol 'emp'", 88, 30);
-        validateError(negativeResult, i++, "redeclared symbol 'item'", 105, 28);
+        validateError(negativeResult, i++, "redeclared symbol 'item'", 105, 20);
         validateError(negativeResult, i++, "redeclared symbol 'item'", 117, 27);
         validateError(negativeResult, i, "redeclared symbol 'item'", 130, 26);
     }
@@ -110,6 +110,11 @@ public class InnerQueryTest {
     @Test
     public void testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction() {
         BRunUtil.invoke(result, "testDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction");
+    }
+
+    @Test
+    public void testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() {
+        BRunUtil.invoke(result, "testQueryConstructingTableHavingInnerQueriesWithOnConflictClause");
     }
 
     @AfterClass

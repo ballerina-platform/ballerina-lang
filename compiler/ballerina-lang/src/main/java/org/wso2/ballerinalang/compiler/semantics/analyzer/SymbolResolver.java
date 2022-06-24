@@ -2587,6 +2587,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
     }
 
+    public BAnnotationSymbol getStrandAnnotationSymbol() {
+        return (BAnnotationSymbol) lookupSymbolInAnnotationSpace(
+                symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
+    }
+
     private static class ParameterizedTypeInfo {
         BType paramValueType;
         int index = -1;
