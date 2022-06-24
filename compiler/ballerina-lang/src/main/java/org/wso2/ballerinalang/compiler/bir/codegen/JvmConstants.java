@@ -183,7 +183,6 @@ public class JvmConstants {
     public static final String BAL_FUTURE = "io/ballerina/runtime/api/Future";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";
     public static final String STRAND_STATE = "io/ballerina/runtime/internal/scheduling/State";
-    public static final String RUNTIME_STATUS = "io/ballerina/runtime/internal/scheduling/Status";
     public static final String FUNCTION_FRAME = "io/ballerina/runtime/internal/scheduling/FunctionFrame";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
