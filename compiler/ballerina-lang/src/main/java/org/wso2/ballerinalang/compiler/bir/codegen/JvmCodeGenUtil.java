@@ -622,6 +622,17 @@ public class JvmCodeGenUtil {
                                      String yieldStatus) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
+        generateSetYieldedStatus(mv, labelGen, funcName, localVarOffset, yieldLocationVarIndex, terminatorPos,
+                fullyQualifiedFuncName, yieldStatus);
+
+        // goto thenBB
+        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
+        mv.visitJumpInsn(GOTO, gotoLabel);
+    }
+
+    protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
+                                                int localVarOffset, int yieldLocationVarIndex, Location terminatorPos,
+                                                String fullyQualifiedFuncName, String yieldStatus) {
         Label yieldLocationLabel = new Label();
         mv.visitJumpInsn(IFEQ, yieldLocationLabel);
 
@@ -641,10 +652,6 @@ public class JvmCodeGenUtil {
         Label yieldLabel = labelGen.getLabel(funcName + "yield");
         mv.visitJumpInsn(GOTO, yieldLabel);
         mv.visitLabel(yieldLocationLabel);
-
-        // goto thenBB
-        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
-        mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     public static PackageID cleanupPackageID(PackageID pkgID) {

@@ -540,9 +540,7 @@ public class MethodGen {
             case WAIT_ALL:
                 return "WAITING";
             case LOCK:
-                return "LOCK";
-            case UNLOCK:
-                return "UNLOCK";
+                return "WAITING FOR LOCK";
             default:
                 return "BLOCKED";
         }
