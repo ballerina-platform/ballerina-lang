@@ -4126,7 +4126,7 @@ public class Types {
                 BigDecimal candidateDecimalVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     if (candidateLiteral.value instanceof String) {
-                        // out of range value for int but in range for decimal
+                        // out of range value for float but in range for decimal
                         candidateDecimalVal = NumericLiteralSupport.parseBigDecimal(candidateValue);
                         return baseDecimalVal.compareTo(candidateDecimalVal) == 0;
                     } else if (candidateLiteral.value instanceof Double) {

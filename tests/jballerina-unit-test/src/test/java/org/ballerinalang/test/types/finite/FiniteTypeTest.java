@@ -380,6 +380,11 @@ public class FiniteTypeTest {
     }
 
     @Test
+    public void testOutOfRangeFiniteType() {
+        BRunUtil.invoke(result, "testOutOfRangeFiniteType");
+    }
+
+    @Test
     public void testRecordStringEquality() {
         BRunUtil.invoke(result, "testRecordStringEquality");
     }

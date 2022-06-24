@@ -713,17 +713,42 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode, AnalyzerData data) {
+        boolean foundUnaryExpr = false;
         boolean isErroredExprInFiniteType = false;
-        for (BLangExpression expr : finiteTypeNode.valueSpace) {
-            analyzeNode(expr, data);
-            BType resultType = typeChecker.checkExpr(expr, data.env, symTable.noType, data.prevEnvs);
-            if (resultType == symTable.semanticError) {
-                isErroredExprInFiniteType = true;
+        NodeKind valueKind;
+        BLangExpression value;
+
+        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
+            value = finiteTypeNode.valueSpace.get(i);
+            valueKind = value.getKind();
+
+            if (valueKind == NodeKind.UNARY_EXPR) {
+                foundUnaryExpr = true;
+                BType resultType = typeChecker.checkExpr(value, data.env, symTable.noType, data.prevEnvs);
+                if (resultType == symTable.semanticError) {
+                    isErroredExprInFiniteType = true;
+                }
+                // Replacing unary expression with numeric literal type for + and - numeric values
+                BLangNumericLiteral newNumericLiteral =
+                        Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
+                finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+            } else if ((valueKind == NodeKind.LITERAL || valueKind == NodeKind.NUMERIC_LITERAL) &&
+                    ((BLangLiteral) value).originalValue == null) {
+                // To handle enums when the visit is being called from symbol resolver
+                continue;
+            } else {
+                analyzeNode(value, data);
             }
         }
 
-        if (isErroredExprInFiniteType) {
-            finiteTypeNode.setBType(symTable.semanticError);
+        // Modify BType if Unary expressions were found
+        BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
+        if (foundUnaryExpr && finiteType != null) {
+            if (isErroredExprInFiniteType) {
+                finiteTypeNode.setBType(symTable.semanticError);
+            } else {
+                finiteType.setValueSpace(new LinkedHashSet<>(finiteTypeNode.valueSpace));
+            }
         }
     }
 

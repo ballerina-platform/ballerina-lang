@@ -5933,9 +5933,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         try {
             return Long.parseLong(processedNodeValue, radix);
         } catch (NumberFormatException e) {
-            try {
-                return Double.parseDouble(processedNodeValue);
-            } catch (NumberFormatException f) {
+            Double val = Double.parseDouble(processedNodeValue);
+            if (!Double.isInfinite(val)) {
+                return val;
+            } else {
                 // Out of range values for Java Long and Double will be returned as a string and evaluated in
                 // the TypeChecker
                 return originalNodeValue;

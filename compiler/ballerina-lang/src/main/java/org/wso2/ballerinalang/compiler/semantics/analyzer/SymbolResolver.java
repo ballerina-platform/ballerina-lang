@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -149,6 +150,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final BLangMissingNodesHelper missingNodesHelper;
     private final Unifier unifier;
+    private final SemanticAnalyzer semanticAnalyzer;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -169,6 +171,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.unifier = new Unifier();
     }
 
@@ -1405,17 +1408,9 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 finiteTypeNode.pos, SOURCE);
 
-        // Replacing unary expressions with numeric literal types for + and - numeric values
-        BLangExpression value;
-        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
-            value = finiteTypeNode.valueSpace.get(i);
-
-            if (types.isExpressionAnAllowedUnaryType(value, value.getKind())) {
-                BLangNumericLiteral newNumericLiteral =
-                        Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
-                finiteTypeNode.valueSpace.set(i, newNumericLiteral);
-            }
-        }
+        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
+        // Note: calling semanticAnalyzer form symbolResolver is a temporary fix.
+        semanticAnalyzer.analyzeNode(finiteTypeNode, data.env);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {

@@ -588,6 +588,11 @@ function testFiniteTypeWithUnaryMinus() {
     assertEquality(x9, -3);
 }
 
+function testOutOfRangeFiniteType() {
+    9223372036854775808f x1 = 9223372036854775808;
+    assertEquality(x1, 9223372036854775808f);
+}
+
 const ASSERTION_ERROR_REASON = "TypeAssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
