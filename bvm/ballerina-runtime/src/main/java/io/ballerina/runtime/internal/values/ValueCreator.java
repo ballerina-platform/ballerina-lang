@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
@@ -102,6 +103,10 @@ public abstract class ValueCreator {
     public abstract BError createErrorValue(String errorTypeName, BString message, BError cause, Object details)
             throws BError;
 
+    public abstract Object call(Strand strand, String funcName, Object... args) throws BError;
+
     public abstract Type getAnonType(int typeHash, String typeShape) throws BError;
+
+    public abstract FunctionType getFunctionType(String functionName) throws BError;
 
 }
