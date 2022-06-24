@@ -58,7 +58,6 @@ public class CyclicDependenciesTest {
         return new Object[][]{
                 {"case001", List.of(
                         Arrays.asList(PACKAGE_01, PACKAGE_02, PACKAGE_04, PACKAGE_01),
-                        Arrays.asList(PACKAGE_06, PACKAGE_06),
                         Arrays.asList(PACKAGE_01, PACKAGE_04, PACKAGE_01)
                 )},
                 {"case002", List.of(

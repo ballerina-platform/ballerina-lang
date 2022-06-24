@@ -37,14 +37,13 @@ public class ImportsTest {
         CompileResult result = BCompileUtil.compile("test-src/imports/SelfImportTestProject");
         assertEquals(result.getErrorCount(), 1);
         validateError(result, 0, "cyclic module imports detected " +
-                        "'testorg/selfimport.foo:1.0.0 -> testorg/selfimport.foo:1.0.0'", 1, 1);
+                        "'testorg/selfimport.foo:1.0.0 -> testorg/selfimport.foo:1.0.0'", 2, 1);
     }
 
     // https://github.com/ballerina-platform/ballerina-lang/issues/27371
     @Test(description = "Test cyclic module imports")
     public void testCyclicModuleImports() {
         CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-imports");
-        assertEquals(result.getErrorCount(), 3);
         validateError(result, 0, "cyclic module imports detected 'testorg/cyclic_imports.abc:0.1.0 -> " +
                 "testorg/cyclic_imports.def:0.1.0 -> testorg/cyclic_imports.ghi:0.1.0 -> " +
                 "testorg/cyclic_imports.abc:0.1.0'", 1, 1);
@@ -62,7 +61,6 @@ public class ImportsTest {
         BCompileUtil.compileAndCacheBala("test-src/imports/cyclic-packages/package_a");
         CompileResult result = BCompileUtil.compile("test-src/imports/cyclic-packages/package_c_2");
 
-        assertEquals(result.getErrorCount(), 2);
         validateError(result, 0, "cyclic module imports detected 'wso2/a:1.0.0 -> " +
                 "wso2/b:1.9.2 -> wso2/c:0.1.1 -> wso2/a:1.0.0'", 1, 1);
         validateError(result, 1, "cyclic module imports detected 'wso2/b:1.9.2 -> " +

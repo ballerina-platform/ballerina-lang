@@ -397,7 +397,7 @@ public class PackageResolution {
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
         List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedListWithCycles();
-        if (sortedPackages == null) {
+        if (dependencyGraph.findCycles().size() > 0) {
             for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
@@ -410,8 +410,6 @@ public class PackageResolution {
                         rootPackageContext.descriptor().name().toString());
                 diagnosticList.add(diagnostic);
             }
-            this.topologicallySortedModuleList = Collections.unmodifiableList(sortedModuleList);
-            return;
         }
         for (ResolvedPackageDependency pkgDependency : sortedPackages) {
             Package resolvedPackage = pkgDependency.packageInstance();
@@ -419,7 +417,7 @@ public class PackageResolution {
             DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
             List<ModuleDescriptor> sortedModuleDescriptors
                     = moduleDependencyGraph.toTopologicallySortedListWithCycles();
-            if (sortedModuleDescriptors == null) {
+            if (moduleDependencyGraph.findCycles().size() > 0) {
                 for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
@@ -433,11 +431,10 @@ public class PackageResolution {
                             resolvedPackage.descriptor().name().toString());
                     diagnosticList.add(diagnostic);
                 }
-            } else {
-                for (ModuleDescriptor moduleDescriptor : sortedModuleDescriptors) {
-                    ModuleContext moduleContext = resolvedPackage.module(moduleDescriptor.name()).moduleContext();
-                    sortedModuleList.add(moduleContext);
-                }
+            }
+            for (ModuleDescriptor moduleDescriptor : sortedModuleDescriptors) {
+                ModuleContext moduleContext = resolvedPackage.module(moduleDescriptor.name()).moduleContext();
+                sortedModuleList.add(moduleContext);
             }
         }
         this.topologicallySortedModuleList = Collections.unmodifiableList(sortedModuleList);
