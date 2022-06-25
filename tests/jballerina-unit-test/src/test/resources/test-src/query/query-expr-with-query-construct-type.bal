@@ -1121,6 +1121,14 @@ function testReadonlyTable3() {
     IdRec? member1 = tbl[1];
     assertEqual(member1, {"id":1});
   }
+
+  table<IdRec> & readonly|error tbl2 = table key() from var i in [1, 2, 3, 4, 2, 3]
+                                             select {
+                                                  id: i
+                                             };
+
+  assertEqual((typeof(tbl2)).toString(), "typedesc [{\"id\":1},{\"id\":2},{\"id\":3},{\"id\":4},{\"id\":2},{\"id\":3}]");
+  assertEqual(tbl2, table key() [{"id":1},{"id":2},{"id":3},{"id":4},{"id":2},{"id":3}]);
 }
 
 function testConstructingListOfTablesUsingQueryWithReadonly() {
