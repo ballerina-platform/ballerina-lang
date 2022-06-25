@@ -5798,11 +5798,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
-            if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
-                BIntersectionType immutableTableType = ImmutableTypeCloner.getImmutableIntersectionType(null, types,
-                        tableType, env, symTable, anonymousModelHelper, names, null);
-                return immutableTableType;
-            }
+        }
+        if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
+            BIntersectionType immutableTableType = ImmutableTypeCloner.getImmutableIntersectionType(null, types,
+                    tableType, env, symTable, anonymousModelHelper, names, null);
+            return immutableTableType;
         }
         return tableType;
     }
