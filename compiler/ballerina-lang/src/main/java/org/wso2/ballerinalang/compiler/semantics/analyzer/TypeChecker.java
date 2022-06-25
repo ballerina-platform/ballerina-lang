@@ -561,15 +561,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     private BType silentIntTypeCheck(BLangLiteral literalExpr, Object literalValue, BType expType,
                                        AnalyzerData data) {
-        boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-        data.nonErrorLoggingCheck = true;
+        boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
+        data.commonAnalyzerData.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
         this.dlog.resetErrorCount();
         this.dlog.mute();
 
         BType exprCompatibleType = getIntegerLiteralType(nodeCloner.cloneNode(literalExpr), literalValue, expType,
                 data);
-        data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         this.dlog.setErrorCount(prevErrorCount);
 
         if (!prevNonErrorLoggingCheck) {
@@ -5113,8 +5113,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     public boolean silentCompatibleFiniteMembersInUnionTypeCheck(BLangUnaryExpr unaryExpr, BUnionType expectedType,
                                                               AnalyzerData data) {
-        boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-        data.nonErrorLoggingCheck = true;
+        boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
+        data.commonAnalyzerData.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
         this.dlog.resetErrorCount();
         this.dlog.mute();
@@ -5133,7 +5133,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void unmuteDlog(AnalyzerData data, boolean prevNonErrorLoggingCheck, int prevErrorCount) {
-        data.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         this.dlog.setErrorCount(prevErrorCount);
         if (!prevNonErrorLoggingCheck) {
             this.dlog.unmute();
@@ -5141,8 +5141,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     public BType silentTypeCheckExpr(BLangExpression expr, BType referredType, AnalyzerData data) {
-        boolean prevNonErrorLoggingCheck = data.nonErrorLoggingCheck;
-        data.nonErrorLoggingCheck = true;
+        boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
+        data.commonAnalyzerData.nonErrorLoggingCheck = true;
         int prevErrorCount = this.dlog.errorCount();
         this.dlog.resetErrorCount();
         this.dlog.mute();
