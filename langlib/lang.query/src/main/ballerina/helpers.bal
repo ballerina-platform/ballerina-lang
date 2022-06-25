@@ -87,7 +87,7 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, Co
 function toArray(stream<Type, CompletionType> strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
         Type[] arr2 = [];
-        createImmutableType(check createArray(strm, arr2));
+        createImmutableValue(check createArray(strm, arr2));
         return arr2;
     }
     return createArray(strm, arr);
@@ -120,7 +120,7 @@ function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xm
     }
 
     if isReadOnly {
-        createImmutableType(result);
+        createImmutableValue(result);
     }
 
     return result;
@@ -175,7 +175,7 @@ function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err, b
 // Here, `err` is used to get the expression of on-conflict clause
     if isReadOnly {
         map<Type> mp2 = {};
-        createImmutableType(check createMap(strm, mp2, err));
+        createImmutableValue(check createMap(strm, mp2, err));
         return mp2;
     }
     return createMap(strm, mp, err);
@@ -226,7 +226,7 @@ function createTableWithKeySpecifier(table<map<Type>> tbl, typedesc tableType) r
     name: "createTableWithKeySpecifier"
 } external;
 
-function createImmutableType(any mutableType) = @java:Method {
+function createImmutableValue(any mutableValue) = @java:Method {
     'class: "org.ballerinalang.langlib.query.CreateImmutableType",
-    name: "createImmutableType"
+    name: "createImmutableValue"
 } external;
