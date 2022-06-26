@@ -56,8 +56,8 @@ public class GraphCommand implements BLauncherCmd {
     @CommandLine.Parameters(arity = "0..1")
     private final Path projectPath;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all dependency graphs created in each " +
-            "attempt to update.", defaultValue = "false")
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", defaultValue = "false")
     private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true, defaultValue = "false")
@@ -180,7 +180,7 @@ public class GraphCommand implements BLauncherCmd {
         out.append("Resolve the dependencies of the current package and print the final \n");
         out.append("dependency graph into the console. \n");
         out.append("This produces the textual representation of the dependency graph \n");
-        out.append("using the DOT graph description. \n");
+        out.append("using the DOT graph language. \n");
     }
 
     @Override

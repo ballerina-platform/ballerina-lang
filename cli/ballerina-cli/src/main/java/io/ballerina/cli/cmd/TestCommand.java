@@ -158,8 +158,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all dependency graphs created in each " +
-            "attempt to update.", hidden = true)
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
     private static final String testCmd = "bal test [--offline]\n" +

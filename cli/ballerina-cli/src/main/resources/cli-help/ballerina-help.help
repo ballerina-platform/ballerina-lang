@@ -33,6 +33,7 @@ COMMANDS
         search          Search Ballerina Central for packages
         semver          Show SemVer compatibility and local package changes against
                         published packages in Ballerina Central
+        graph           Print the dependency graph
 
    Other Commands:
         clean           Clean the artifacts generated during the build
@@ -44,4 +45,3 @@ COMMANDS
         bindgen         Generate the Ballerina bindings for Java APIs
         shell           Run Ballerina interactive REPL
         version         Print the Ballerina version
-        graph           Print the dependency graph

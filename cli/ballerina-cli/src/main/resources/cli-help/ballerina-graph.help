@@ -6,18 +6,18 @@ SYNOPSIS
 
 
 DESCRIPTION
-       Resolve the dependencies of the current package and print the final
+       Resolve the dependencies of the current package and print the
        dependency graph into the console.
 
        This produces the textual representation of the dependency graph
-       using the DOT graph description.
+       using the DOT graph language.
 
 
 OPTIONS
        --dump-raw-graphs
-          Print all the dependency graphs created in each attempt to update.
+          Print all intermediate graphs created in the dependency resolution process.
           This produces the textual representation of the dependency graph
-          using the DOT graph description language.
+          using the DOT graph language.
 
        --offline
            Proceed without accessing the network. Attempt to proceed with the
