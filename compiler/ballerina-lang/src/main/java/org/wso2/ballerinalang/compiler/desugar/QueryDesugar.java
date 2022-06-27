@@ -262,6 +262,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.getBType(), env,
                 queryBlock, stmtsToBePropagated);
         BLangStatementExpression streamStmtExpr;
+        BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
+                Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.setBType(streamRef.getBType());
@@ -270,8 +272,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
             BLangVariableReference tableRef = addTableConstructor(queryExpr, queryBlock);
-            BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
-                    Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_TABLE_FUNCTION, Lists.of(streamRef, tableRef, onConflictExpr, isReadonly), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
@@ -288,8 +288,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                     .findFirst().orElse(symTable.mapType);
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
-            BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(null, symTable.booleanType,
-                    Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock,
@@ -304,8 +302,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                     TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag == TypeTags.INTERSECTION ?
                             ((BIntersectionType) Types.getReferredType(memType)).effectiveType.tag :
                             Types.getReferredType(memType).tag)))) {
-                BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(pos, symTable.booleanType,
-                        Symbols.isFlagOn(refType.flags, Flags.READONLY));
                 if (refType.tag == TypeTags.UNION) {
                     for (BType type : ((BUnionType) refType).getMemberTypes()) {
                         if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
@@ -329,8 +325,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
                 arr.exprs = new ArrayList<>();
-                BLangLiteral isReadonly = ASTBuilderUtil.createLiteral(null, symTable.booleanType,
-                        Symbols.isFlagOn(queryExpr.getBType().flags, Flags.READONLY));
                 arr.setBType(arrayType);
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
                         Lists.of(streamRef, arr, isReadonly), pos);
