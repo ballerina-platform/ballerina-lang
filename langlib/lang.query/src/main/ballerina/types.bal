@@ -79,7 +79,7 @@ class _StreamPipeline {
     typedesc<CompletionType> completionTd;
 
     function init(
-            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable|error collection,
             typedesc<Type> constraintTd, typedesc<CompletionType> completionTd) {
         self.streamFunction = new _InitFunction(collection);
         self.constraintTd = constraintTd;
@@ -116,17 +116,26 @@ class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection;
+    Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable|error collection;
 
     function init(
-            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection) {
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable|error collection) {
         self.prevFunc = ();
         self.itr = ();
-        self.collection = collection;
-        self.itr = self._getIterator(collection);
+        if (collection is error) {
+            self.collection = collection;
+            self.itr = self._getIterator([]);
+        } else {
+            self.collection = collection;
+            self.itr = self._getIterator(collection);
+        }
     }
 
     public function process() returns _Frame|error? {
+        any|error collection = self.collection;
+        if(collection is error) {
+            return collection;
+        }
         _Iterator i = <_Iterator>self.itr;
         record {|(any|error) value;|}|error? v = i.next();
         if (v is record {|(any|error) value;|}) {
@@ -145,7 +154,7 @@ class _InitFunction {
     }
 
     function _getIterator(
-            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection)
+            Type[]|map<Type>|record {}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable|error collection)
                 returns _Iterator {
         if (collection is Type[]) {
             return lang_array:iterator(collection);
@@ -161,6 +170,8 @@ class _InitFunction {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.iterator();
+        } else if (collection is error) {
+            return [].iterator();
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;

@@ -529,6 +529,14 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

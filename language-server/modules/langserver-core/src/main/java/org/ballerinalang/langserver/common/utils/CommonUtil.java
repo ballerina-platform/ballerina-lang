@@ -113,8 +113,8 @@ public class CommonUtil {
     public static final String EXPR_SCHEME = "expr";
 
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
-            "lang.error", "lang.float", "lang.future", "lang.int", "lang.map", "lang.object", "lang.stream",
-            "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
+            "lang.error", "lang.float", "lang.function", "lang.future", "lang.int", "lang.map", "lang.object",
+            "lang.stream", "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
 
     public static final List<String> BALLERINA_KEYWORDS = SyntaxInfo.keywords();
 
@@ -264,7 +264,7 @@ public class CommonUtil {
         return Optional.ofNullable(((ModulePartNode) syntaxTree.rootNode())
                 .findNode(TextRange.from(start, end - start), true));
     }
-    
+
     /**
      * Get the raw type of the type descriptor. If the type descriptor is a type reference then return the associated
      * type descriptor.
