@@ -1,5 +1,7 @@
 {
   "people" : [
+    10,
+    12.5,
     {
        "firstName": "Joe",
        "lastName": "Jackson",

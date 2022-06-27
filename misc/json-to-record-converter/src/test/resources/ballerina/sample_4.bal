@@ -7,5 +7,5 @@ type PeopleItem record {
 };
 
 type NewRecord record {
-	PeopleItem[] people;
+	(PeopleItem|decimal|int)[] people;
 };

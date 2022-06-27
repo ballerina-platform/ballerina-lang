@@ -30,34 +30,31 @@ public class ListOperationUtils {
 
     private ListOperationUtils() {}
 
-    public static Map intersection(Map mapOne, Map mapTwo) {
-        Map intersection = new HashMap();
-        for (Object key: mapOne.entrySet()) {
-            if (mapTwo.containsKey(((Map.Entry) key).getKey())) {
-                intersection.put(((Map.Entry) key).getKey(), mapOne.get(((Map.Entry) key).getKey()));
+    public static <K, V> Map<K, V> intersection(Map<K, V> mapOne, Map<K, V> mapTwo) {
+        Map<K, V> intersection = new HashMap<>();
+        for (Map.Entry<K, V> key: mapOne.entrySet()) {
+            if (mapTwo.containsKey(key.getKey())) {
+                intersection.put(key.getKey(), mapOne.get(key.getKey()));
             }
         }
         return intersection;
     }
 
-    public static Map union(Map mapOne, Map mapTwo) {
-        Map union = new HashMap();
-        union.putAll(mapOne);
-        for (Object key: mapTwo.entrySet()) {
-            if (!mapOne.containsKey(((Map.Entry) key).getKey())) {
-                union.put(((Map.Entry) key).getKey(), mapTwo.get(((Map.Entry) key).getKey()));
+    public static <K, V> Map<K, V> union(Map<K, V> mapOne, Map<K, V> mapTwo) {
+        Map<K, V> union = new HashMap<>(mapOne);
+        for (Map.Entry<K, V> key: mapTwo.entrySet()) {
+            if (!mapOne.containsKey(key.getKey())) {
+                union.put(key.getKey(), mapTwo.get(key.getKey()));
             }
         }
         return union;
     }
 
-    public static Map difference(Map mapOne, Map mapTwo) {
-        Map unionMap = union(mapOne, mapTwo);
-        Map intersectionMap = intersection(mapOne, mapTwo);
-        for (Object key: intersectionMap.entrySet()) {
-            if (unionMap.containsKey(((Map.Entry) key).getKey())) {
-                unionMap.remove(((Map.Entry) key).getKey());
-            }
+    public static <K, V> Map<K, V> difference(Map<K, V> mapOne, Map<K, V> mapTwo) {
+        Map<K, V> unionMap = union(mapOne, mapTwo);
+        Map<K, V> intersectionMap = intersection(mapOne, mapTwo);
+        for (Map.Entry<K, V> key: intersectionMap.entrySet()) {
+            unionMap.remove(key.getKey());
         }
         return unionMap;
     }
