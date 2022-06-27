@@ -86,6 +86,11 @@ type Foo4 record {
     never d?;
 };
 
+type Foo5 record {
+    never a?;
+    int b;
+};
+
 public type KeyValues record {|int[]...;|};
 public type Pairs record {|float[]...;|};
 
@@ -334,6 +339,14 @@ function testFuctionWithIncludedRecordParameters22() {
     float[] x = [1, 2];
     float[] val = functionOfFunctionTypedParamWithIncludedRecordParam22(a = [1, 2]);
     assertEquality(x, val);
+}
+
+function functionWithIncludedRecordParamWhichHasNeverField(int a, *Foo5 foo) returns int {
+    return a + foo.b;
+}
+
+function testFuctionWithIncludedRecordParameters24() {
+    assertEquality(functionWithIncludedRecordParamWhichHasNeverField(a = 2, foo = {b: 4}), 6);
 }
 
 public class TestClass {

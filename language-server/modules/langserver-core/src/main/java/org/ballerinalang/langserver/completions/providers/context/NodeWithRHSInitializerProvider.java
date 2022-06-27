@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -54,7 +55,8 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        Optional<TypeSymbol> contextType = context.getContextType();
+        ContextTypeResolver resolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> contextType = node.apply(resolver);
         for (LSCompletionItem lsCItem : completionItems) {
             String sortText;
             if (contextType.isEmpty()) {
@@ -63,12 +65,11 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
             } else {
                 sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
             }
-
             lsCItem.getCompletionItem().setSortText(sortText);
         }
     }
 
-    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context, Node typeDesc,
+    protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context,
                                                                    Node initializer) {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
@@ -129,7 +130,7 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
         return completionItems;
     }
 
-    private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context) {
+    protected List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Optional<TypeSymbol> contextType = context.getContextType();
         if (contextType.isEmpty()) {

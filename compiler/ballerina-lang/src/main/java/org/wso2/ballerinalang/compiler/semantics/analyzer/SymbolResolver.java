@@ -1543,19 +1543,27 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         BType constraintType = Types.getReferredType(type);
         int constrainedTag = constraintType.tag;
 
+        if (constrainedTag == TypeTags.INTERSECTION) {
+            constraintType = ((BIntersectionType) constraintType).getEffectiveType();
+            constrainedTag = constraintType.tag;
+        }
+
         if (constrainedTag == TypeTags.UNION) {
             checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
             return;
         }
 
         if (!TypeTags.isXMLTypeTag(constrainedTag) && constrainedTag != TypeTags.NEVER) {
-            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintType);
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, type);
         }
     }
 
     private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, Location pos) {
         for (BType memberType : constraintUnionType.getMemberTypes()) {
             memberType = Types.getReferredType(memberType);
+            if (memberType.tag == TypeTags.INTERSECTION) {
+                memberType = ((BIntersectionType) memberType).getEffectiveType();
+            }
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
@@ -2580,6 +2588,11 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
                 }
             }
         }
+    }
+
+    public BAnnotationSymbol getStrandAnnotationSymbol() {
+        return (BAnnotationSymbol) lookupSymbolInAnnotationSpace(
+                symTable.pkgEnvMap.get(symTable.rootPkgSymbol), names.fromString("strand"));
     }
 
     private static class ParameterizedTypeInfo {

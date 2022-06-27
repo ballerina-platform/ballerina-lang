@@ -28,7 +28,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction performAction(int result) returns json {\n    \n}"
+                "newText": "\n\nfunction performAction(int result) returns json {\n    return ();\n}"
               }
             ]
           }
