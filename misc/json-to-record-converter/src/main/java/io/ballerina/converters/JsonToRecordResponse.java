@@ -40,7 +40,11 @@ public class JsonToRecordResponse {
         this.codeBlock = codeBlock;
     }
 
-    public List<JsonToRecordDirectConverterDiagnostic> getDiagnostics() { return diagnostics; }
+    public List<JsonToRecordDirectConverterDiagnostic> getDiagnostics() {
+        return diagnostics;
+    }
 
-    public void setDiagnostics(List<JsonToRecordDirectConverterDiagnostic> diagnostic) { this.diagnostics = diagnostic; }
+    public void setDiagnostics(List<JsonToRecordDirectConverterDiagnostic> diagnostic) {
+        this.diagnostics = diagnostic;
+    }
 }
