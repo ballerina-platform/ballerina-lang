@@ -10,4 +10,5 @@ module io.ballerina.testerina.runtime {
     requires org.jacoco.report;
     requires io.ballerina.identifier;
     requires org.objectweb.asm;
+    requires io.github.javadiffutils;
 }
