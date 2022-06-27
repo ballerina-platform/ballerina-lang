@@ -66,7 +66,7 @@ listener ListenerObj1 lo1 = new ListenerObj1("ModC");
 public function main() {
     ListenerObj1 lo1 = new ListenerObj1("ModDynC");
     runtime:registerListener(lo1);
-    checkpanic lo1.gracefulStop();
+    runtime:sleep(2);
     runtime:deregisterListener(lo1);
     moduleA:main();
 }

@@ -24,7 +24,6 @@ int count = 0;
 function init() {
     initCount += 1;
     incrementAndAssertInt(1);
-
     runtime:onGracefulStop(stopHandlerFunc);
 }
 
