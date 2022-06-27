@@ -1589,8 +1589,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case COMPUTED_SEGMENT_OR_REST_SEGMENT:    
             case RESOURCE_ACCESS_SEGMENT_RHS:    
             case OPTIONAL_RESOURCE_ACCESS_METHOD:
-            case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:    
-            case ON_FAIL_OPTIONAL_BINDING_PATTERN:
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:
                 return true;
             default:
