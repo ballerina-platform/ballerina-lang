@@ -41,9 +41,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_IMPORT_MODULE;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_MODULE_PREFIX;
-
 /**
  * Code Action for optimizing all imports.
  *
@@ -53,9 +50,7 @@ import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_MODUL
 public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Optimize Imports";
-
-    private static final String ALIAS_SEPARATOR = "as";
-
+    public static final String DIAGNOSTIC_CODE = "BCE2002";
 
     public OptimizeImportsCodeAction() {
         super(Collections.singletonList(CodeActionNodeType.IMPORTS));
@@ -75,8 +70,7 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
         List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> UNUSED_MODULE_PREFIX.diagnosticId().equals(diag.diagnosticInfo().code()) ||
-                        REDECLARED_IMPORT_MODULE.diagnosticId().equals(diag.diagnosticInfo().code()))
+                .filter(diag -> DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
                 .collect(Collectors.toList());
 
@@ -118,34 +112,24 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         }
 
         // Re-create imports list text
-        StringBuilder editText = new StringBuilder("");
-        sortImports(fileImports).forEach(importNode -> {
-            MinutiaeList leadingMinutiae = NodeFactory.createEmptyMinutiaeList();
-            MinutiaeList trailingMinutiae = importNode.importKeyword().trailingMinutiae();
-            Token modifiedImportKeyword = importNode.importKeyword().modify(leadingMinutiae, trailingMinutiae);
-
-            ImportDeclarationNode.ImportDeclarationNodeModifier importModifier = importNode.modify();
-            importModifier.withImportKeyword(modifiedImportKeyword);
-            if (importNode.orgName().isPresent()) {
-                importModifier.withOrgName(importNode.orgName().get());
-            }
-            importModifier.withModuleName(importNode.moduleName());
-            if (importNode.prefix().isPresent()) {
-                importModifier.withPrefix(importNode.prefix().get());
-            }
-            importNode.semicolon();
-            importModifier.withSemicolon(importNode.semicolon());
-
-            editText.append(importModifier.apply().toSourceCode());
-        });
+        StringBuilder editText = new StringBuilder();
+        organizeFileImports(fileImports).forEach(importNode -> buildEditText(editText, importNode));
 
         Position importStart = new Position(importSLine, 0);
         Position importEnd = new Position(importELine + 1, 0);
         TextEdit textEdit = new TextEdit(new Range(importStart, importEnd), editText.toString());
         List<TextEdit> edits = Collections.singletonList(textEdit);
-        actions.add(createCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri,
-                CodeActionKind.SourceOrganizeImports));
+        actions.add(createCodeAction(getCodeActionTitle(), edits, uri,
+                getCodeActionKind()));
         return actions;
+    }
+
+    protected String getCodeActionKind() {
+        return CodeActionKind.SourceOrganizeImports;
+    }
+
+    protected String getCodeActionTitle() {
+        return CommandConstants.OPTIMIZE_IMPORTS_TITLE;
     }
 
     @Override
@@ -153,7 +137,11 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         return NAME;
     }
 
-    private List<ImportDeclarationNode> sortImports(List<ImportDeclarationNode> fileImports) {
+    /**
+     * @param fileImports list of file imports
+     * @return sorted file imports list
+     */
+    protected List<ImportDeclarationNode> organizeFileImports(List<ImportDeclarationNode> fileImports) {
         return fileImports.stream()
                 .sorted(Comparator.comparing((Function<ImportDeclarationNode, String>) o -> o.orgName().isPresent() ?
                         o.orgName().get().orgName().text()
@@ -162,5 +150,25 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
                                         o -> o.moduleName().stream().map(Token::text).collect(Collectors.joining(".")))
                                 .thenComparing(o -> o.prefix().isPresent() ? o.prefix().get().prefix().text() : ""))
                 .collect(Collectors.toList());
+    }
+
+    protected static void buildEditText(StringBuilder editText, ImportDeclarationNode importNode) {
+        MinutiaeList leadingMinutiae = NodeFactory.createEmptyMinutiaeList();
+        MinutiaeList trailingMinutiae = importNode.importKeyword().trailingMinutiae();
+        Token modifiedImportKeyword = importNode.importKeyword().modify(leadingMinutiae, trailingMinutiae);
+
+        ImportDeclarationNode.ImportDeclarationNodeModifier importModifier = importNode.modify();
+        importModifier.withImportKeyword(modifiedImportKeyword);
+        if (importNode.orgName().isPresent()) {
+            importModifier.withOrgName(importNode.orgName().get());
+        }
+        importModifier.withModuleName(importNode.moduleName());
+        if (importNode.prefix().isPresent()) {
+            importModifier.withPrefix(importNode.prefix().get());
+        }
+        importNode.semicolon();
+        importModifier.withSemicolon(importNode.semicolon());
+
+        editText.append(importModifier.apply().toSourceCode());
     }
 }

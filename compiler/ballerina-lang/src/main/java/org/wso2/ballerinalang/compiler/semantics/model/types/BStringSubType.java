@@ -63,7 +63,7 @@ public class BStringSubType extends BType {
         return Names.STRING.value + Names.ALIAS_SEPARATOR + name;
     }
 
-    protected String getQualifiedTypeName() {
+    public String getQualifiedTypeName() {
 
         return Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value
                 + Names.LANG.value + Names.DOT.value + Names.STRING.value + Names.ALIAS_SEPARATOR + name;

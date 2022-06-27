@@ -147,8 +147,11 @@ public class TypeNarrower extends BLangNodeVisitor {
         } else {
             originalType = varRef.getBType();
         }
+        if (originalType == symTable.semanticError) {
+            return env;
+        }
         BType remainingType = types.getRemainingMatchExprType(originalType, typeToRemove, env);
-        if (remainingType == symTable.semanticError) {
+        if (remainingType == symTable.nullSet) {
             return env;
         }
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);

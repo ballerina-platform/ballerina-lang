@@ -3038,15 +3038,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             BlockStatementNode blockStatement) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(failKeyword, "failKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-        Objects.requireNonNull(failErrorName, "failErrorName must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
 
         STNode stOnFailClauseNode = STNodeFactory.createOnFailClauseNode(
                 onKeyword.internalNode(),
                 failKeyword.internalNode(),
-                typeDescriptor.internalNode(),
-                failErrorName.internalNode(),
+                getOptionalSTNode(typeDescriptor),
+                getOptionalSTNode(failErrorName),
                 blockStatement.internalNode());
         return stOnFailClauseNode.createUnlinkedFacade();
     }
