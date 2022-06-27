@@ -20,24 +20,25 @@ package io.ballerina.converters.diagnostic;
 
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.Arrays;
+
 /**
  * Contains diagnostic messages of the JSON to Record converter.
  *
  * @since 2.0.0
  */
-public enum DiagnosticMessages {
+public class DiagnosticMessages {
 
-    JSON_TO_RECORD_CONVERTER_100("JSON_TO_RECORD_CONVERTER_100", "Provided JSON is has syntax errors and invalid", DiagnosticSeverity.ERROR),
-    JSON_TO_RECORD_CONVERTER_101("JSON_TO_RECORD_CONVERTER_101", "Provided JSON is unsupported. It may be null or have missing types", DiagnosticSeverity.ERROR),
-    JSON_TO_RECORD_CONVERTER_102("JSON_TO_RECORD_CONVERTER_102", "Error occurred while formatting the Ballerina syntax tree", DiagnosticSeverity.ERROR);
     private final String code;
-    private String description;
-    private DiagnosticSeverity severity;
+    private final String description;
+    private final DiagnosticSeverity severity;
+    private final Object[] args;
 
-    DiagnosticMessages(String code, String description, DiagnosticSeverity severity) {
+    private DiagnosticMessages(String code, String description, DiagnosticSeverity severity, Object[] args) {
         this.code = code;
         this.description = description;
         this.severity = severity;
+        this.args = args;
     }
 
     public String getCode() {
@@ -52,11 +53,26 @@ public enum DiagnosticMessages {
         return this.severity;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public Object[] getArgs() {
+        return this.args.clone();
     }
 
-    public void setSeverity(DiagnosticSeverity severity) {
-        this.severity = severity;
+    public static DiagnosticMessages jsonToRecordConverter100(Object[] args) {
+        if (args != null) {
+            return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_100",
+                    String.format("Provided JSON is invalid : %s", DiagnosticUtils.
+                            transformJsonSyntaxErrorMessage((String) args[0])), DiagnosticSeverity.ERROR,
+                    Arrays.copyOfRange(args, 1, args.length));
+        }
+        return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_100",
+                 "Provided JSON is invalid", DiagnosticSeverity.ERROR, null);
+    }
+    public static DiagnosticMessages jsonToRecordConverter101(Object[] args) {
+        return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_101",
+                "Provided JSON is unsupported. It may be null or have missing types", DiagnosticSeverity.ERROR, args);
+    }
+    public static DiagnosticMessages jsonToRecordConverter102(Object[] args) {
+        return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_102",
+                "Error occurred while formatting the Ballerina syntax tree", DiagnosticSeverity.ERROR, args);
     }
 }

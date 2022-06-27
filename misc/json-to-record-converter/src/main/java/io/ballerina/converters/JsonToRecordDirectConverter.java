@@ -56,11 +56,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.ballerina.converters.diagnostic.DiagnosticUtils.getDiagnosticResponse;
 import static io.ballerina.converters.util.ConverterUtils.escapeIdentifier;
 import static io.ballerina.converters.util.ConverterUtils.getPrimitiveTypeName;
 import static io.ballerina.converters.util.ConverterUtils.sortTypeDescriptorNodes;
-import static io.ballerina.converters.diagnostic.DiagnosticUtils.getDiagnosticResponse;
-import static io.ballerina.converters.diagnostic.DiagnosticUtils.transformJsonSyntaxErrorMessage;
 import static io.ballerina.converters.util.ListOperationUtils.difference;
 import static io.ballerina.converters.util.ListOperationUtils.intersection;
 
@@ -88,14 +87,14 @@ public class JsonToRecordDirectConverter {
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
                 object.add(recordName == null ? "newRecord" : StringUtils.uncapitalize(recordName), parsedJson);
-                generateRecords(object, recordName, isClosed, isRecordTypeDesc, recordToTypeDefNodes, jsonFieldToElements);
+                generateRecords(object, recordName, isClosed, isRecordTypeDesc,
+                        recordToTypeDefNodes, jsonFieldToElements);
             } else {
-                DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_101;
+                DiagnosticMessages message = DiagnosticMessages.jsonToRecordConverter101(null);
                 return getDiagnosticResponse(message, diagnostics, response, null);
             }
         } catch (JsonSyntaxException e) {
-            DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_100;
-            message.setDescription(transformJsonSyntaxErrorMessage(e.getLocalizedMessage()));
+            DiagnosticMessages message = DiagnosticMessages.jsonToRecordConverter100(new String[]{e.getMessage()});
             return getDiagnosticResponse(message, diagnostics, response, null);
         }
 
@@ -113,7 +112,7 @@ public class JsonToRecordDirectConverter {
             response.setCodeBlock(Formatter.format(modulePartNode.syntaxTree()).toSourceCode());
             return response;
         } catch (FormatterException e) {
-            DiagnosticMessages message = DiagnosticMessages.JSON_TO_RECORD_CONVERTER_102;
+            DiagnosticMessages message = DiagnosticMessages.jsonToRecordConverter102(null);
             return getDiagnosticResponse(message, diagnostics, response, null);
         }
     }
