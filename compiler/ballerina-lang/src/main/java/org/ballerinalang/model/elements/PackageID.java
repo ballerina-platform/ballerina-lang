@@ -56,6 +56,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.ERROR), DEFAULT_VERSION);
     public static final PackageID FLOAT = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.FLOAT), DEFAULT_VERSION);
+    public static final PackageID FUNCTION = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.FUNCTION), DEFAULT_VERSION);
     public static final PackageID FUTURE = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.FUTURE), DEFAULT_VERSION);
     public static final PackageID INT = new PackageID(Names.BALLERINA_ORG,

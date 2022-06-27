@@ -522,6 +522,14 @@
       "filterText": "Annotation",
       "insertText": "annotation ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

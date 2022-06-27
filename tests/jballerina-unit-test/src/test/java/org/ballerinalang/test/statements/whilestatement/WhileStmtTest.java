@@ -183,6 +183,11 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test
+    public void testWhileStmtWithOnFailWithoutVariable() {
+        BRunUtil.invoke(onfailCompileResult, "testWhileStmtWithOnFailWithoutVariable");
+    }
+
     @Test(description = "Test while loop with a condition which evaluates to true")
     public void testWhileStmtWithOnFail() {
         Object[] args = {(5)};

@@ -62,7 +62,36 @@ function checkLockWithinLock() returns [int, string] {
     return [lockWithinLockInt1, lockWithinLockString1];
 }
 
+function onFailLockWithinLockWithoutVariable() {
+    lock {
+        lockWithinLockInt1 = 50;
+        lockWithinLockString1 = "sample value";
+        lock {
+            lockWithinLockString1 = "second sample value";
+            lockWithinLockInt1 = 99;
+            lock {
+                lockWithinLockInt1 = 90;
+            }
+            error err = error("custom error", message = "error value");
+            fail err;
+        }
+    } on fail {
+        lockWithinLockInt1 = 100;
+        lockWithinLockString1 = "Error handled";
+    }
+
+    assertEquality(100, lockWithinLockInt1);
+    assertEquality("Error handled", lockWithinLockString1);
+}
+
 function getError()  returns int|error {
     error err = error("Custom Error");
     return err;
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

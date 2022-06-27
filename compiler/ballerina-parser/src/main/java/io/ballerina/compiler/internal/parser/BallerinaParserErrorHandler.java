@@ -195,6 +195,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_FIELD_INITIALIZER =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
+    private static final ParserRuleContext[] ON_FAIL_OPTIONAL_BINDING_PATTERN =
+            { ParserRuleContext.BLOCK_STMT, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
+
     private static final ParserRuleContext[] CLASS_MEMBER_OR_OBJECT_MEMBER_START =
             { ParserRuleContext.ASTERISK, ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE,
                     ParserRuleContext.DOC_STRING, ParserRuleContext.ANNOTATIONS };
@@ -424,7 +427,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.EXPRESSION_RHS };
 
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_START =
-            { ParserRuleContext.TABLE_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.QUERY_EXPRESSION };
+            { ParserRuleContext.TABLE_KEYWORD, ParserRuleContext.STREAM_KEYWORD, ParserRuleContext.QUERY_EXPRESSION,
+                    ParserRuleContext.MAP_KEYWORD };
 
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_RHS =
             { ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.QUERY_EXPRESSION };
@@ -1585,6 +1589,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RESOURCE_ACCESS_SEGMENT_RHS:    
             case OPTIONAL_RESOURCE_ACCESS_METHOD:
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:    
+            case ON_FAIL_OPTIONAL_BINDING_PATTERN:
                 return true;
             default:
                 return false;
@@ -1660,6 +1665,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.CLOSE_BRACE;
             case OPTIONAL_FIELD_INITIALIZER:
                 return ParserRuleContext.SEMICOLON;
+            case ON_FAIL_OPTIONAL_BINDING_PATTERN:
+                return ParserRuleContext.BLOCK_STMT;
             case OBJECT_METHOD_START:
                 return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
             case OBJECT_FUNC_OR_FIELD:
@@ -2155,6 +2162,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OPTIONAL_FIELD_INITIALIZER:
                 alternativeRules = OPTIONAL_FIELD_INITIALIZER;
+                break;
+            case ON_FAIL_OPTIONAL_BINDING_PATTERN:
+                alternativeRules = ON_FAIL_OPTIONAL_BINDING_PATTERN;
                 break;
             case OBJECT_METHOD_START:
                 alternativeRules = OBJECT_METHOD_START;
@@ -3902,7 +3912,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case FAIL_KEYWORD:
                 if (getParentContext() == ParserRuleContext.ON_FAIL_CLAUSE) {
-                    return ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN;
+                    return ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN;
                 }
                 return ParserRuleContext.EXPRESSION;
             case PANIC_KEYWORD:
@@ -4089,6 +4099,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OUTER_KEYWORD:
                 return ParserRuleContext.JOIN_KEYWORD;
             case MAP_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION) {
+                    return ParserRuleContext.QUERY_EXPRESSION;
+                }
                 return ParserRuleContext.LT;
             default:
                 throw new IllegalStateException("getNextRuleForKeywords found: " + currentCtx);
