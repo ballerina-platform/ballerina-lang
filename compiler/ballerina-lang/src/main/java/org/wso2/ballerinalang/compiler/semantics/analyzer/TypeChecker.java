@@ -3554,8 +3554,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = symTable.semanticError;
         } else {
             BResourceFunction targetResourceFunc = resourceFunctions.get(0);
-            resourceAccessInvocation.symbol = targetResourceFunc.symbol;
             checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
+            resourceAccessInvocation.symbol = targetResourceFunc.symbol;
+            resourceAccessInvocation.targetResourceFunc = targetResourceFunc;
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
     }

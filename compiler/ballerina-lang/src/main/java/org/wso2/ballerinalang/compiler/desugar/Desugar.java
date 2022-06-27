@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -6359,6 +6360,105 @@ public class Desugar extends BLangNodeVisitor {
         rewriteInvocation(actionInvocation, actionInvocation.async);
     }
 
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        // `BLangResourceAccessInvocation` will be desugared into a `BLangInvocation`
+        // ex: 1
+        // Target resource function
+        // resource function get [string a]/[int b](string c) returns int {
+        //      return 3;
+        // }
+        //
+        // before desugar -
+        // a->/path/[1].get("hello")
+        //
+        // after desugar -
+        // a.get("path", 1, "hello")
+        //
+        // ex: 2
+        // Target resource function
+        // resource function get4 path/[int a]/[int... b](string c) returns int {
+        //      return 3;
+        // }
+        //
+        // before desugar -
+        // a->/path/[...list].get("hello")
+        //
+        // after desugar -
+        // a.get4(list[0], list.slice(1), "hello")
+        
+        if (resourceAccessInvocation.invokedInsideTransaction) {
+            transactionDesugar.startTransactionCoordinatorOnce(env, resourceAccessInvocation.pos);
+        }
+
+        // Create virtual invocation to reorder resource path parameters
+        BLangInvocation pathParamInvocation = createInvocationForPathParams(resourceAccessInvocation);
+        reorderArguments(pathParamInvocation);
+
+        BLangInvocation bLangInvocation = new BLangInvocation();
+        bLangInvocation.requiredArgs.addAll(pathParamInvocation.requiredArgs);
+        bLangInvocation.requiredArgs.addAll(pathParamInvocation.restArgs);
+        bLangInvocation.requiredArgs.addAll(resourceAccessInvocation.requiredArgs);
+        bLangInvocation.pkgAlias = resourceAccessInvocation.pkgAlias;
+        bLangInvocation.name = resourceAccessInvocation.name;
+        bLangInvocation.expr = resourceAccessInvocation.expr;
+        bLangInvocation.restArgs = resourceAccessInvocation.restArgs;
+        bLangInvocation.symbol = resourceAccessInvocation.symbol;
+        bLangInvocation.setBType(resourceAccessInvocation.getBType());
+        bLangInvocation.parent = resourceAccessInvocation.parent;
+        bLangInvocation.pos = resourceAccessInvocation.pos;
+
+        rewriteInvocation(bLangInvocation, false);
+    }
+
+    private BLangInvocation createInvocationForPathParams(
+            BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        BLangInvocation bLangInvocation = new BLangInvocation();
+
+        BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
+        List<Name> resourcePath = targetResourceFunc.resourcePath;
+        List<BLangExpression> resourceAccessPathSegments = resourceAccessInvocation.resourceAccessPathSegments.exprs;
+        for (int i = 0; i < resourcePath.size(); i++) {
+            Name resourcePathName = resourcePath.get(i);
+            if (!(resourcePathName.value.equals("*") || resourcePathName.value.equals("**"))) {
+                continue;
+            }
+
+            BLangExpression requiredArg = resourceAccessPathSegments.get(i);
+            if (requiredArg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                BLangExpression expr = ((BLangListConstructorSpreadOpExpr) requiredArg).expr;
+                BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
+                bLangRestArgsExpression.expr = expr;
+                bLangRestArgsExpression.pos = expr.pos;
+                bLangRestArgsExpression.setBType(expr.getBType());
+                bLangRestArgsExpression.expectedType = bLangRestArgsExpression.getBType();
+                bLangInvocation.restArgs.add(bLangRestArgsExpression);
+                break;
+            }
+
+            if (resourcePathName.value.equals("*")) {
+                bLangInvocation.requiredArgs.add(resourceAccessPathSegments.get(i));
+            } else {
+                bLangInvocation.restArgs = resourceAccessPathSegments.subList(i, resourceAccessPathSegments.size());
+            }
+        }
+
+        BInvokableSymbol invokableSymbol = new BInvokableSymbol(
+                resourceAccessInvocation.symbol.tag,
+                resourceAccessInvocation.symbol.flags,
+                resourceAccessInvocation.symbol.name,
+                resourceAccessInvocation.symbol.scope.owner.pkgID,
+                resourceAccessInvocation.symbol.type,
+                resourceAccessInvocation.symbol.scope.owner,
+                resourceAccessInvocation.symbol.pos, VIRTUAL);
+
+        invokableSymbol.params = targetResourceFunc.pathParams;
+        invokableSymbol.restParam = targetResourceFunc.restPathParam;
+        bLangInvocation.symbol = invokableSymbol;
+        
+        return bLangInvocation;
+    }
+    
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
         BLangInvocation invRef = invocation;
 

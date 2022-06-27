@@ -25,6 +25,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -282,6 +283,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
         
         public boolean invokedInsideTransaction = false;
         public BLangListConstructorExpr resourceAccessPathSegments;
+        public BResourceFunction targetResourceFunc;
 
         @Override
         public void accept(BLangNodeVisitor visitor) {
