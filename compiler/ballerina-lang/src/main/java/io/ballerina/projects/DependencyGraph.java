@@ -63,6 +63,9 @@ public class DependencyGraph<T> {
     }
 
     public Set<List<T>> findCycles() {
+        if (cyclicDependencies == null) {
+            toTopologicallySortedList();
+        }
         return cyclicDependencies;
     }
 
@@ -135,17 +138,6 @@ public class DependencyGraph<T> {
             return topologicallySortedNodes;
         }
 
-        List<T> sorted = new ArrayList<>();
-        sortTopologically(new TreeSet<>(dependencies.keySet()), new HashSet<>(), sorted);
-        topologicallySortedNodes = Collections.unmodifiableList(sorted);
-        return topologicallySortedNodes;
-    }
-
-    public List<T> toTopologicallySortedListWithCycles() {
-        if (topologicallySortedNodes != null) {
-            return topologicallySortedNodes;
-        }
-
         cyclicDependencies = new LinkedHashSet<>();
         List<T> visited = new ArrayList<>();
         List<T> ancestors = new ArrayList<>();
@@ -153,7 +145,7 @@ public class DependencyGraph<T> {
 
         for (T node : new TreeSet<>(dependencies.keySet())) {
             if (!visited.contains(node) && !ancestors.contains(node)) {
-                sortTopologicallyWithCycles(node, visited, ancestors, sorted);
+                sortTopologically(node, visited, ancestors, sorted);
             }
         }
 
@@ -166,17 +158,7 @@ public class DependencyGraph<T> {
         return this == EMPTY_GRAPH;
     }
 
-    private void sortTopologically(Collection<T> nodesToSort, Set<T> visited, List<T> sorted) {
-        for (T node : nodesToSort) {
-            if (!visited.contains(node)) {
-                visited.add(node);
-                sortTopologically(new TreeSet<>(dependencies.get(node)), visited, sorted);
-                sorted.add(node);
-            }
-        }
-    }
-
-    private void sortTopologicallyWithCycles(T vertex, List<T> visited, List<T> ancestors, List<T> sorted) {
+    private void sortTopologically(T vertex, List<T> visited, List<T> ancestors, List<T> sorted) {
         ancestors.add(vertex);
 
         for (T node : new TreeSet<>(dependencies.get(vertex))) {
@@ -199,7 +181,7 @@ public class DependencyGraph<T> {
 
                 topologicallySortedNodes = null;
             } else if (!visited.contains(node) || !cyclicDependencies.isEmpty()) {
-                sortTopologicallyWithCycles(node, visited, ancestors, sorted);
+                sortTopologically(node, visited, ancestors, sorted);
             }
         }
 

@@ -396,7 +396,7 @@ public class PackageResolution {
         // Compile the module and collect diagnostics.
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
-        List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedListWithCycles();
+        List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
         if (dependencyGraph.findCycles().size() > 0) {
             for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
@@ -416,7 +416,7 @@ public class PackageResolution {
             resolvedPackage.packageContext().resolveDependencies(dependencyResolution);
             DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
             List<ModuleDescriptor> sortedModuleDescriptors
-                    = moduleDependencyGraph.toTopologicallySortedListWithCycles();
+                    = moduleDependencyGraph.toTopologicallySortedList();
             if (moduleDependencyGraph.findCycles().size() > 0) {
                 for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
