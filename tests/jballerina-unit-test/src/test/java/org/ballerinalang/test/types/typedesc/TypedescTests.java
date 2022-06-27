@@ -41,7 +41,7 @@ public class TypedescTests {
         result = BCompileUtil.compile("test-src/types/typedesc/typedesc_positive.bal");
     }
 
-    @Test(description = "Test basics types", groups = {"disableOnOldParser"})
+    @Test(description = "Test basics types")
     public void testNegative() {
         final CompileResult compileResult = BCompileUtil.compile("test-src/types/typedesc/typedesc_negative.bal");
         int index = 0;
@@ -100,15 +100,15 @@ public class TypedescTests {
     public void testArrayTypes() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testArrayTypes");
         Assert.assertEquals(returns.size(), 2);
-        Assert.assertEquals(returns.get(0).toString(), "typedesc int[]");
-        Assert.assertEquals(returns.get(1).toString(), "typedesc int[][]");
+        Assert.assertEquals(returns.get(0).toString(), "typedesc intArray");
+        Assert.assertEquals(returns.get(1).toString(), "typedesc intArrayArray");
     }
 
     @Test(description = "Test tuple/union types")
     public void testTupleUnionTypes() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testTupleUnionTypes");
         Assert.assertEquals(returns.size(), 2);
-        Assert.assertEquals(returns.get(0).toString(), "typedesc [string,Person]");
+        Assert.assertEquals(returns.get(0).toString(), "typedesc stringOrPerson");
         Assert.assertEquals(returns.get(1).toString(), "typedesc intOrString");
     }
 

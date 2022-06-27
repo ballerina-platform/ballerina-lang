@@ -1,0 +1,24 @@
+{
+    "line": 1,
+    "character": 20,
+    "expected": [
+        {
+            "title": "Change return type to 'error?'",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 0,
+                            "character": 22
+                        },
+                        "end": {
+                            "line": 0,
+                            "character": 22
+                        }
+                    },
+                    "newText": " returns error?"
+                }
+            ]
+        }
+    ]
+}

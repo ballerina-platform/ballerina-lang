@@ -28,6 +28,7 @@ import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.RawTypeSymbolWrapper;
+import org.ballerinalang.langserver.common.utils.RecordUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -98,7 +99,7 @@ public class KeySpecifierNodeContext extends AbstractCompletionProvider<KeySpeci
                 .map(Token::text)
                 .collect(Collectors.toSet());
 
-        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeSymbols = CommonUtil.getRecordTypeSymbols(rowTypeSymbol);
+        List<RawTypeSymbolWrapper<RecordTypeSymbol>> recordTypeSymbols = RecordUtil.getRecordTypeSymbols(rowTypeSymbol);
         List<RecordFieldSymbol> commonFields = recordTypeSymbols.stream()
                 .map(RawTypeSymbolWrapper::getRawType)
                 .map(RecordTypeSymbol::fieldDescriptors)

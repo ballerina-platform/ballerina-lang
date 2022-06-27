@@ -327,7 +327,7 @@ public abstract class BalaWriter {
                 }
                 Package pkgDependency = packageCache.getPackageOrThrow(
                         moduleDependency.packageDependency().packageId());
-                Module moduleInPkgDependency = pkgDependency.module(moduleDependency.moduleId());
+                Module moduleInPkgDependency = pkgDependency.module(moduleDependency.descriptor().name());
                 moduleDependencies.add(createModuleDependencyEntry(pkgDependency, moduleInPkgDependency,
                         Collections.emptyList()));
             }

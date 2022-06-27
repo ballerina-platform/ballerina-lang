@@ -19,8 +19,10 @@
 package io.ballerina.semver.checker.diff;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.projects.Module;
 import io.ballerina.semver.checker.comparator.FunctionComparator;
+import io.ballerina.semver.checker.comparator.ServiceComparator;
 
 import java.util.List;
 import java.util.Optional;
@@ -95,6 +97,12 @@ public class ModuleDiff extends DiffImpl {
         }
 
         @Override
+        public DiffBuilder withKind(DiffKind diffKind) {
+            moduleDiff.setKind(diffKind);
+            return this;
+        }
+
+        @Override
         public DiffBuilder withType(DiffType diffType) {
             moduleDiff.setType(diffType);
             return this;
@@ -108,20 +116,30 @@ public class ModuleDiff extends DiffImpl {
 
         public void withFunctionAdded(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(function, null);
-            funcDiffBuilder.withVersionImpact(SemverImpact.MINOR)
-                    .build()
-                    .ifPresent(moduleDiff.childDiffs::add);
+            funcDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionRemoved(FunctionDefinitionNode function) {
             FunctionDiff.Builder funcDiffBuilder = new FunctionDiff.Builder(null, function);
-            funcDiffBuilder.withVersionImpact(SemverImpact.MAJOR)
-                    .build()
-                    .ifPresent(moduleDiff.childDiffs::add);
+            funcDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
         }
 
         public void withFunctionChanged(FunctionDefinitionNode newFunction, FunctionDefinitionNode oldFunction) {
             new FunctionComparator(newFunction, oldFunction).computeDiff().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withServiceAdded(ServiceDeclarationNode service) {
+            ServiceDiff.Builder serviceDiffBuilder = new ServiceDiff.Builder(service, null);
+            serviceDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withServiceRemoved(ServiceDeclarationNode service) {
+            ServiceDiff.Builder serviceDiffBuilder = new ServiceDiff.Builder(null, service);
+            serviceDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(moduleDiff.childDiffs::add);
+        }
+
+        public void withServiceChanged(ServiceDeclarationNode newService, ServiceDeclarationNode oldService) {
+            new ServiceComparator(newService, oldService).computeDiff().ifPresent(moduleDiff.childDiffs::add);
         }
     }
 }
