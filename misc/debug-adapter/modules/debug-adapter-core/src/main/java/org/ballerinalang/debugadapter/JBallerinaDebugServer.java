@@ -71,6 +71,8 @@ import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.PauseArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalRequestArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalResponse;
 import org.eclipse.lsp4j.debug.Scope;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -95,7 +97,9 @@ import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,6 +116,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -156,6 +161,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
+    private static final String TERMINAL_TITLE = "Ballerina Debug Terminal";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -197,6 +203,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsExceptionInfoRequest(false);
 
         context.setClient(client);
+        context.setSupportsRunInTerminalRequest(args.getSupportsRunInTerminalRequest());
         eventProcessor = new JDIEventProcessor(context);
         client.initialized();
         this.outputLogger = new DebugOutputLogger(client);
@@ -248,8 +255,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
                     new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
-            context.setLaunchedProcess(programRunner.start());
-            startListeningToProgramOutput();
+            if (context.getSupportsRunInTerminalRequest() && clientConfigHolder.getRunInTerminalKind() != null) {
+                launchInTerminal(programRunner);
+            } else {
+                context.setLaunchedProcess(programRunner.start());
+                startListeningToProgramOutput();
+            }
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             outputLogger.sendErrorOutput("Failed to launch the ballerina program due to: " + e);
@@ -582,6 +593,46 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         context.setTerminateRequestReceived(true);
         terminateDebugServer(true, true);
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<RunInTerminalResponse> runInTerminal(RunInTerminalRequestArguments args) {
+        Endpoint endPoint = new GenericEndpoint(context.getClient());
+        endPoint.request("runInTerminal", args);
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private void launchInTerminal(BProgramRunner programRunner) throws ClientConfigurationException {
+        String sourceProjectRoot = context.getSourceProjectRoot();
+        RunInTerminalRequestArguments runInTerminalRequestArguments = new RunInTerminalRequestArguments();
+
+        runInTerminalRequestArguments.setKind(clientConfigHolder.getRunInTerminalKind());
+        runInTerminalRequestArguments.setTitle(TERMINAL_TITLE);
+        runInTerminalRequestArguments.setCwd(sourceProjectRoot);
+
+        String[] command = new String[programRunner.getBallerinaCommand(sourceProjectRoot).size()];
+        programRunner.getBallerinaCommand(sourceProjectRoot).toArray(command);
+        runInTerminalRequestArguments.setArgs(command);
+
+        outputLogger.sendDebugServerOutput("Launching debugger in terminal");
+        context.getAdapter().runInTerminal(runInTerminalRequestArguments).thenApply((resp) -> {
+            outputLogger.sendDebugServerOutput("Connecting to remote VM");
+            while (context.getDebuggeeVM() == null) {
+                try {
+                    attachToRemoteVM("", clientConfigHolder.getDebuggePort());
+                } catch (IOException ignored) {
+                    try {
+                        TimeUnit.SECONDS.sleep(10);
+                    } catch (Exception exception) {
+                        throw new RuntimeException(exception);
+                    }
+                } catch (IllegalConnectorArgumentsException | ClientConfigurationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            outputLogger.sendDebugServerOutput("Attached to remote VM");
+            return null;
+        });
     }
 
     /**
