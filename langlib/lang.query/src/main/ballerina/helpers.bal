@@ -86,9 +86,12 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, Co
 
 function toArray(stream<Type, CompletionType> strm, Type[] arr, boolean isReadOnly) returns Type[]|error {
     if isReadOnly {
-        Type[] arr2 = [];
-        createImmutableValue(check createArray(strm, arr2));
-        return arr2;
+        // In this case arr will be an immutable array. Therefore, we will create a new mutable array and pass it to the
+        // createArray() (because we can't update immutable array). Then it will populate the elements into it and the
+        // resultant array will be passed into createImmutableValue() to make it immutable.
+        Type[] tempArr = [];
+        createImmutableValue(check createArray(strm, tempArr));
+        return tempArr;
     }
     return createArray(strm, arr);
 }
@@ -145,6 +148,10 @@ function toString(stream<Type, CompletionType> strm) returns string|error {
 function addToTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, error? err, boolean isReadOnly) returns table<map<Type>>|error {
     if isReadOnly {
         // TODO: Properly fix readonly scenario - Issue lang/#36721
+        // In this case tbl will be an immutable table. Therefore, we will create a new mutable table. Next, we will
+        // pass the newly created table into createTableWithKeySpecifier() to add the key specifier details from the
+        // original table variable (tbl). Then the newly created table variable will be populated using createTable()
+        // and make it immutable with createImmutableTable().
         table<map<Type>> tempTbl = table [];
         table<map<Type>> tbl2 = createTableWithKeySpecifier(tbl, typeof(tempTbl));
         table<map<Type>> tempTable = check createTable(strm, tbl2, err);
@@ -174,6 +181,9 @@ function createTable(stream<Type, CompletionType> strm, table<map<Type>> tbl, er
 function addToMap(stream<Type, CompletionType> strm, map<Type> mp, error? err, boolean isReadOnly) returns map<Type>|error {
 // Here, `err` is used to get the expression of on-conflict clause
     if isReadOnly {
+        // In this case mp will be an immutable map. Therefore, we will create a new mutable map and pass it to the
+        // createMap() (because we can't update immutable map). Then it will populate the members into it and the
+        // resultant map will be passed into createImmutableValue() to make it immutable.
         map<Type> mp2 = {};
         createImmutableValue(check createMap(strm, mp2, err));
         return mp2;

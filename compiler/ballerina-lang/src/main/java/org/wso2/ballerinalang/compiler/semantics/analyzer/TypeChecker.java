@@ -5677,16 +5677,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         switch (type.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
+                selectType = checkExpr(selectExp, env, elementType, data);
+                BType queryResultType = new BArrayType(selectType);
                 if (data.commonAnalyzerData.checkWithinQueryExpr) {
-                    selectType = checkExpr(selectExp, env, elementType, data);
-                    BType queryResultType = new BArrayType(selectType);
                     memberTypes.add(queryResultType);
                     memberTypes.addAll(data.commonAnalyzerData.checkedErrorList);
-                    resolvedType = getResolvedType(BUnionType.create(null, memberTypes), type, isReadonly, env);
-                } else {
-                    selectType = checkExpr(selectExp, env, elementType, data);
-                    resolvedType = getResolvedType(new BArrayType(selectType), type, isReadonly, env);
+                    queryResultType = BUnionType.create(null, memberTypes);
                 }
+                resolvedType = getResolvedType(queryResultType, type, isReadonly, env);
                 break;
             case TypeTags.TABLE:
                 selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,

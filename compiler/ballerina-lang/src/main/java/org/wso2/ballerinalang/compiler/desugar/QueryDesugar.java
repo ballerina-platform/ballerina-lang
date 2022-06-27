@@ -297,20 +297,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         } else {
             BLangVariableReference result;
             BType refType = Types.getReferredType(queryExpr.getBType());
-            if (TypeTags.isXMLTypeTag(refType.tag) || (refType.tag == TypeTags.UNION
-                    && ((BUnionType) refType).getMemberTypes().stream().allMatch(memType ->
-                    TypeTags.isXMLTypeTag(Types.getReferredType(memType).tag == TypeTags.INTERSECTION ?
-                            ((BIntersectionType) Types.getReferredType(memType)).effectiveType.tag :
-                            Types.getReferredType(memType).tag)))) {
-                if (refType.tag == TypeTags.UNION) {
-                    for (BType type : ((BUnionType) refType).getMemberTypes()) {
-                        if (Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                            isReadonly.value = true;
-                            continue;
-                        }
-                        isReadonly.value = false;
-                        break;
-                    }
+            if (isXml(refType)) {
+                if (types.isSubTypeOfReadOnly(refType, env)) {
+                    isReadonly.value = true;
                 }
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION,
                         Lists.of(streamRef, isReadonly), pos);
@@ -335,6 +324,27 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         this.checkedErrorList = prevCheckedErrorList;
         return streamStmtExpr;
+    }
+
+    private boolean isXml(BType type) {
+        BType refType = Types.getReferredType(type);
+
+        if (TypeTags.isXMLTypeTag(refType.tag)) {
+            return true;
+        }
+        switch (refType.tag) {
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) refType).getMemberTypes()) {
+                    if (!isXml(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.INTERSECTION:
+                return isXml(((BIntersectionType) refType).getEffectiveType());
+            default:
+                return false;
+        }
     }
 
     /**
