@@ -4770,7 +4770,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
                                      accessor, pathParamSymbols, restPathParamSym, 
-                resourceFunction.resourcePathType.getBType(), funcNode.pos);
+                (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {

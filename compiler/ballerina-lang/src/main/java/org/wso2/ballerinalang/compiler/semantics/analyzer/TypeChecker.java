@@ -3600,16 +3600,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         
         // Filter the resource methods in the list by resource access method name
         resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessInvocation.name.value));
-        
-        if (resourceFunctions.size() == 0) {
+        int targetResourceFuncCount = resourceFunctions.size();
+        if (targetResourceFuncCount == 0) {
             dlog.error(resourceAccessInvocation.pos, 
                     DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name, lhsExprType);
             data.resultType = symTable.semanticError;
-        } else if (resourceFunctions.size() > 1) {
+        } else if (targetResourceFuncCount > 1) {
             dlog.error(resourceAccessInvocation.pos, DiagnosticErrorCode.AMBIGUOUS_RESOURCE_ACCESS_NOT_YET_SUPPORTED);
             data.resultType = symTable.semanticError;
         } else {
             BResourceFunction targetResourceFunc = resourceFunctions.get(0);
+            resourceAccessInvocation.symbol = targetResourceFunc.symbol;
             checkExpr(resourceAccessInvocation.resourceAccessPathSegments, targetResourceFunc.resourcePathType, data);
             checkResourceAccessParamAndReturnType(resourceAccessInvocation, targetResourceFunc, data);
         }
@@ -3641,21 +3642,29 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     
     public void checkResourceAccessParamAndReturnType(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvoc,
                                                       BResourceFunction targetResourceFunc, AnalyzerData data) {
-        resourceAccessInvoc.symbol = targetResourceFunc.symbol;
-        // targetResourceFunc params will contain path params and rest path params as well, 
+        // targetResourceFunc symbol params will contain path params and rest path params as well, 
         // hence we need to remove path params from the list before calling to `checkInvocationParamAndReturnType` 
         // method otherwise we get `missing required parameter` error
-        List<BVarSymbol> originalInvocableSymParamTypes =
+        List<BVarSymbol> originalInvocableTSymParams =
                 ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params;
+        List<BType> originalInvocableSymParamTypes = targetResourceFunc.symbol.getType().paramTypes;
         int pathParamCount = targetResourceFunc.pathParams.size() + (targetResourceFunc.restPathParam == null ? 0 : 1);
+        int totalParamsCount = originalInvocableSymParamTypes.size();
+        int functionParamCount = totalParamsCount - pathParamCount;
 
-        List<BVarSymbol> params = new ArrayList<>(originalInvocableSymParamTypes.size() - pathParamCount);
-        params.addAll(originalInvocableSymParamTypes.subList(pathParamCount, originalInvocableSymParamTypes.size()));
+        List<BVarSymbol> params = new ArrayList<>(functionParamCount);
+        List<BType> paramTypes = new ArrayList<>(functionParamCount);
+
+        params.addAll(originalInvocableTSymParams.subList(pathParamCount, totalParamsCount));
+        paramTypes.addAll(originalInvocableSymParamTypes.subList(pathParamCount, totalParamsCount));
+
         ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = params;
+        targetResourceFunc.symbol.getType().paramTypes = paramTypes;
 
         checkInvocationParamAndReturnType(resourceAccessInvoc, data);
 
-        ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = originalInvocableSymParamTypes;
+        ((BInvokableTypeSymbol) targetResourceFunc.symbol.getType().tsymbol).params = originalInvocableTSymParams;
+        targetResourceFunc.symbol.getType().paramTypes = originalInvocableSymParamTypes;
     }
 
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BType type, AnalyzerData data) {
