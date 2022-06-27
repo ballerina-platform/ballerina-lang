@@ -126,7 +126,7 @@ public class JsonToRecordDirectConverterTests {
             JsonToRecordResponse jsonToRecordResponse =
                     JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false);
             if (jsonToRecordResponse.getCodeBlock() == null) {
-
+                //TODO: react when there is a diagnostic message.
             } else {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
