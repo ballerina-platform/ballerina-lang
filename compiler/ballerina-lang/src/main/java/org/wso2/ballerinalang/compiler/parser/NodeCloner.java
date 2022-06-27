@@ -1545,6 +1545,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.fieldNameIdentifierList = cloneList(source.fieldNameIdentifierList);
         clone.isStream = source.isStream;
         clone.isTable = source.isTable;
+        clone.isMap = source.isMap;
     }
 
     @Override

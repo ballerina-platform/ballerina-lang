@@ -750,13 +750,13 @@ public class TypeChecker {
             return checkIsType(sourceType, targetType);
         }
 
-        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
-            targetType = ((BIntersectionType) targetType).getEffectiveType();
+        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            targetType = getReferredType(targetType);
             targetTypeTag = targetType.getTag();
         }
 
-        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            targetType = getReferredType(targetType);
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            targetType = ((BIntersectionType) targetType).getEffectiveType();
             targetTypeTag = targetType.getTag();
         }
 

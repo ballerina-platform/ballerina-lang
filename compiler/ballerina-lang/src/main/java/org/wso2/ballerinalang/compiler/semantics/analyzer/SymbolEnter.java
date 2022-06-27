@@ -178,6 +178,7 @@ import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
+import static org.ballerinalang.model.elements.PackageID.FUNCTION;
 import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
@@ -399,7 +400,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgEnv.scope.define(unresolvedPkgAlias, symbol);
             }
         }
-        initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
+            initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
+        }
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -1152,11 +1155,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                                        List<BLangCompilationUnit> compUnits, SymbolEnv env) {
         SymbolEnv prevEnv = this.env;
         this.env = env;
-        for (Name alias : predeclaredModules.keySet()) {
+        for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
+            Name alias = predeclaredModuleEntry.getKey();
+            BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
             int index = 0;
             ScopeEntry entry = this.env.scope.lookup(alias);
             if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
-                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
                         new Name(compUnits.get(index++).name)));
                 entry = this.env.scope.lookup(alias);
             }
@@ -1174,7 +1179,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     entry = entry.next;
                 }
                 if (isUndefinedModule) {
-                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(predeclaredModules.get(alias),
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(packageSymbol,
                             new Name(compUnitName)), NOT_FOUND_ENTRY);
                 }
             }
@@ -3588,6 +3593,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             symTable.langFloatModuleSymbol = packageSymbol;
             return;
         }
+        if (langLib.equals(FUNCTION)) {
+            symTable.langFunctionModuleSymbol = packageSymbol;
+            return;
+        }
         if (langLib.equals(FUTURE)) {
             symTable.langFutureModuleSymbol = packageSymbol;
             return;
@@ -4761,7 +4770,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         symResolver.resolveTypeNode(resourceFunction.resourcePathType, env);
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
                                      accessor, pathParamSymbols, restPathParamSym, 
-                resourceFunction.resourcePathType.getBType(), funcNode.pos);
+                (BTupleType) resourceFunction.resourcePathType.getBType(), funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {

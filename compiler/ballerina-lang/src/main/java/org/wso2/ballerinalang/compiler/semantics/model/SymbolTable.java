@@ -198,6 +198,7 @@ public class SymbolTable {
     public BPackageSymbol langErrorModuleSymbol;
     public BPackageSymbol langFloatModuleSymbol;
     public BPackageSymbol langFutureModuleSymbol;
+    public BPackageSymbol langFunctionModuleSymbol;
     public BPackageSymbol langIntModuleSymbol;
     public BPackageSymbol langMapModuleSymbol;
     public BPackageSymbol langObjectModuleSymbol;
@@ -412,6 +413,7 @@ public class SymbolTable {
                                                 Map.entry(Names.DECIMAL, this.langDecimalModuleSymbol),
                                                 Map.entry(Names.ERROR, this.langErrorModuleSymbol),
                                                 Map.entry(Names.FLOAT, this.langFloatModuleSymbol),
+                                                Map.entry(Names.FUNCTION, this.langFunctionModuleSymbol),
                                                 Map.entry(Names.FUTURE, this.langFutureModuleSymbol),
                                                 Map.entry(Names.INT, this.langIntModuleSymbol),
                                                 Map.entry(Names.MAP, this.langMapModuleSymbol),

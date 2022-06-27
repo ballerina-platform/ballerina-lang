@@ -434,6 +434,16 @@ function testAssigningKeyedToEmptyKeyedTbl() {
     tbl2[222] = {id: 222, firstName: "Melina", lastName: "Kodel"};
 }
 
+type Student record {|
+    readonly int id;
+    string firstName;
+|};
+
+function testIncompatibleTableTypeInAUnion() {
+    string lastName = "Jayawickrama";
+    table<Student>|int t = table key(id) [{id: 1, firstName: "Lochana", lastName}];
+}
+
 type Person1 record {
     readonly int id;
     string name;
@@ -477,3 +487,35 @@ function testMultipleKeys3() {
 
     Person1? _ = t1[1, 2, 3]; // error
 }
+
+type FooRec record {
+    readonly int x;
+    int y;
+};
+
+FooRec spreadField1 = {x: 1002, y: 30};
+FooRec spreadField2 = {x: 1003, y: 25};
+
+table<FooRec> key(x) tb1 = table [
+    {x: 1001, y: 20},
+    {...spreadField1},
+    {...spreadField2}
+];
+
+table<FooRec> key(x) tb2 = table [
+    {...spreadField1},
+    {...spreadField2}
+];
+
+type BarRec record {
+    readonly int x;
+    readonly int y;
+    readonly string z;
+};
+
+int i = 1;
+BarRec spreadField3 = {x: 1003, y: 25, z: "a"};
+table<BarRec> key(x, y, z) tb3 = table [
+    {x: i, y: i, z: "a"},
+    {...spreadField3}
+];
