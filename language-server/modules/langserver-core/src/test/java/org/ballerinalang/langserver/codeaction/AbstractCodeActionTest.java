@@ -116,6 +116,14 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                 // code actions received.
                 actual.title = actualTitle;
 
+                // Match code action kind
+                actual.kind = right.get("kind") == null ? null : right.get("kind").getAsString();
+                if (expected.kind != null) {
+                    if (!expected.kind.equals(actual.kind)) {
+                        continue;
+                    }
+                }
+
                 // Match edits
                 if (expected.edits != null) {
                     JsonElement editsElement = right.get("edit").getAsJsonObject().get("documentChanges")
@@ -166,14 +174,6 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
 
                     if (!docUriFound) {
                         actual.command = actualCommand;
-                        continue;
-                    }
-                }
-                // Match code action kind
-                JsonElement expKind = expected.get("kind");
-                if (expKind != null) {
-                    String actualKind = right.get("kind").getAsString();
-                    if (!expKind.getAsString().equals(actualKind)) {
                         continue;
                     }
                 }
