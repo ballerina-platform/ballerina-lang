@@ -412,6 +412,11 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
+    public void testObjectReferenceRecordUpdate() {
+        BRunUtil.invoke(compileResult, "testObjectReferenceRecordUpdate");
+    }
+
+    @Test
     public void testOverridingIncludedFieldInClassWithReadOnlyIntersection() {
         BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInClassWithReadOnlyIntersection");
     }
