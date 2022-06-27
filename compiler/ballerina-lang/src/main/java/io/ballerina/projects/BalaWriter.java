@@ -309,6 +309,10 @@ public abstract class BalaWriter {
             File rootDir = this.packageContext.project().sourceRoot().toFile();
             FileFilter fileFilter = new WildcardFileFilter(include);
             File[] files = rootDir.listFiles(fileFilter);
+            if (files == null) {
+                // TODO: should throw an error?
+                continue;
+            }
             for (File file : files) {
                 filePaths.add(file.toPath());
             }
