@@ -56,6 +56,8 @@ public class AddDocumentationTest extends AbstractCodeActionTest {
                 {"singleDocGeneration8.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration9.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration10.json", "singleDocGeneration.bal"},
+                // Within Service
+                {"serviceDocumentation1.json", "serviceDocumentationSource.bal"},
                 // Already documented nodes
                 {"documentAlreadyDocumentedConfig1.json", "alreadyDocumentedSource.bal"},
         };
