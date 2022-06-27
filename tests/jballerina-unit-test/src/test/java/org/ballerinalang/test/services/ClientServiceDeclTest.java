@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  */
 public class ClientServiceDeclTest {
     CompileResult clientResourceDeclarationNegative, clientResourceCallNegative,
-            clientResourcePathNegative, clientResourceParamsNegative;
+            clientResourcePathNegative, clientResourceParamsNegative, clientTransactionalResourceNegative;
 
     @BeforeClass
     public void setup() {
@@ -41,6 +41,8 @@ public class ClientServiceDeclTest {
                 compile("test-src/services/client_resource_path_negative.bal");
         clientResourceParamsNegative = BCompileUtil.
                 compile("test-src/services/client_resource_params_negative.bal");
+        clientTransactionalResourceNegative = BCompileUtil.
+                compile("test-src/services/client_transactional_resource_negative.bal");
     }
 
     @Test
@@ -62,11 +64,11 @@ public class ClientServiceDeclTest {
                 "missing resource path in resource accessor definition",
                 29, 27);
         BAssertUtil.validateError(clientResourceDeclarationNegative, index++,
-                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
-                        "found 'record {| int a; anydata...; |}'", 33, 43);
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as" +
+                        " path params, found 'record {| int a; anydata...; |}'", 33, 43);
         BAssertUtil.validateError(clientResourceDeclarationNegative, index++,
-                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as path params, " +
-                        "found 'record {| int a; anydata...; |}'", 37, 44);
+                "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as" +
+                        " path params, found 'record {| int a; anydata...; |}'", 37, 44);
         BAssertUtil.validateError(clientResourceDeclarationNegative, index++,
                 "only 'int', 'string', 'float', 'boolean', 'decimal' types are supported as rest path " +
                         "param, found 'xml'", 41, 40);
@@ -104,6 +106,8 @@ public class ClientServiceDeclTest {
         BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 37, 51);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "too many arguments in call to 'get()'", 38, 14);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "too many arguments in call to 'get()'", 39, 14);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "incompatible types: expected 'string', found '()'", 40, 43);
@@ -120,11 +124,11 @@ public class ClientServiceDeclTest {
                 "incompatible types: expected 'string', found 'boolean'",
                 46, 50);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
-                "redeclared argument 'name'", 47, 50);
+                "too many arguments in call to 'get()'", 47, 50);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 48, 50);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
-                "redeclared argument 'name'", 48, 54);
+                "too many arguments in call to 'get()'", 48, 54);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "missing required parameter 'name' in call to 'get()'",
                 49, 14);
@@ -144,11 +148,31 @@ public class ClientServiceDeclTest {
         BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "too many arguments in call to 'post()'", 52, 14);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "missing required parameter 'address' in call to 'get()'",
+                53, 14);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "positional argument not allowed after named arguments",
+                53, 65);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "too many arguments in call to 'get()'", 54, 57);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "too many arguments in call to 'get()'", 55, 14);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "too many arguments in call to 'get()'", 56, 14);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "too many arguments in call to 'post()'", 57, 14);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "ambiguous resource access not yet supported", 83, 18);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "ambiguous resource access not yet supported", 84, 14);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
+                "ambiguous resource access not yet supported", 85, 14);
+        BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "resource functions are only allowed in network object types",
-                57, 9);
+                90, 9);
         BAssertUtil.validateError(clientResourceCallNegative, index++,
                 "client resource access action is only allowed on client objects",
-                61, 18);
+                94, 18);
     }
 
     @Test
@@ -323,61 +347,75 @@ public class ClientServiceDeclTest {
     public void testClientResourceParamsNegative() {
         int index = 0;
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
-                "incompatible types: expected 'xml', found 'string'", 47, 24);
+                "incompatible types: expected 'xml', found 'string'", 54, 24);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
-                "incompatible types: expected 'xml', found 'int'", 48, 21);
+                "incompatible types: expected 'xml', found 'int'", 55, 21);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'xml', found 'boolean'",
-                49, 25);
+                56, 25);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
-                "incompatible types: expected 'xml', found 'float'", 50, 23);
+                "incompatible types: expected 'xml', found 'float'", 57, 23);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'xml', found 'decimal'",
-                51, 25);
+                58, 25);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'string', found 'int'",
-                53, 60);
+                60, 60);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'int', found 'string'",
-                54, 51);
+                61, 51);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'boolean', found 'float'",
-                55, 63);
+                62, 63);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'float', found 'decimal'",
-                56, 57);
+                63, 57);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'decimal', found 'boolean'",
-                57, 58);
+                64, 58);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'string', found 'record {| int a; anydata...; |}'",
-                59, 27);
+                66, 27);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'string', found 'xml'",
-                60, 24);
+                67, 24);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'string', found 'map<string>'",
-                61, 24);
+                68, 24);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'string', found 'int[]'",
-                62, 29);
+                69, 29);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'string', found 'CustomRecord'",
-                63, 33);
+                70, 33);
+        BAssertUtil.validateError(clientResourceParamsNegative, index++,
+                "incompatible types: expected 'string', found 'CustomIntegerType'",
+                71, 38);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'record {| int a; anydata...; |}', found 'CustomRecord'",
-                65, 69);
+                73, 69);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "a type compatible with mapping constructor expressions not found in type 'xml'",
-                66, 51);
+                74, 51);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'map<string>', found 'xml:Element'",
-                67, 59);
+                75, 59);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "a type compatible with mapping constructor expressions not found in type 'int[]'",
-                68, 60);
+                76, 60);
         BAssertUtil.validateError(clientResourceParamsNegative, index++,
                 "incompatible types: expected 'CustomRecord', found '[int,int,int]'",
-                69, 76);
+                77, 76);
+        BAssertUtil.validateError(clientResourceParamsNegative, index++,
+                "incompatible types: expected 'int', found '[int,int,int]'",
+                78, 80);
+    }
+
+    @Test
+    public void testClientTransactionalResourceNegative() {
+        int index = 0;
+        BAssertUtil.validateError(clientTransactionalResourceNegative, index++,
+                "invoking transactional function outside transactional scope is prohibited",
+                7, 13);
     }
 }

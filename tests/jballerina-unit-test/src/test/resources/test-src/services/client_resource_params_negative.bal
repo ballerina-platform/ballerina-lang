@@ -1,6 +1,9 @@
 type CustomRecord record { string a; };
 CustomRecord customRecord = { a: "value"};
 
+type CustomIntegerType int;
+CustomIntegerType customIntegerType = 3;
+
 public function testClientResourceReturnValuesAndParamArgumentsError() {
     var successClient = client object {
         resource function get stringParamPath(string a) returns string {
@@ -42,6 +45,10 @@ public function testClientResourceReturnValuesAndParamArgumentsError() {
         resource function get customTypeParamPath(CustomRecord a) returns CustomRecord {
             return customRecord;
         }
+
+        resource function get customIntTypeParamPath(CustomIntegerType a) returns CustomIntegerType {
+            return customIntegerType;
+        }
     };
 
     xml stringResult = successClient->/stringParamPath("string");
@@ -61,10 +68,12 @@ public function testClientResourceReturnValuesAndParamArgumentsError() {
     string mapResult = successClient->/mapParamPath({a: "value"});
     string intArrayResult = successClient->/arrayParamPath([1, 2, 3]);
     string customRecordResult = successClient->/customTypeParamPath(customRecord);
+    string customIntegerTypeResult = successClient->/customIntTypeParamPath(customIntegerType);
 
     record {int a;} recordResult2 = successClient->/recordParamPath(customRecord);
     xml xmlResult2 = successClient->/xmlParamPath({a: 2});
     map<string> mapResult2 = successClient->/mapParamPath(xml `<a></a>`);
     int[] intArrayResult2 = successClient->/arrayParamPath({a: "value"});
     CustomRecord customRecordResult2 = successClient->/customTypeParamPath([1, 2, 3]);
+    CustomIntegerType customIntResult = successClient->/customIntTypeParamPath([1, 2, 3]);
 }

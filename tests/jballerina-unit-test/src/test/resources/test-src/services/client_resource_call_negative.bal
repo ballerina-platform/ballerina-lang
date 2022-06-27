@@ -35,7 +35,7 @@ public function testClientResourceFunctionCallError() {
     };
 
     int result = successClient->/path/[10*11]/foo(123);
-    result = successClient->/path/[1]/foo("x", "y"); // No Error occurred
+    result = successClient->/path/[1]/foo("x", "y");
     result = successClient->/path/[1]/foo("x", "y", "z");
     result = successClient->/path/[1]/foo(nilArgument);
     result = successClient->/path/[1]/foo(stringNilArgument);
@@ -50,6 +50,39 @@ public function testClientResourceFunctionCallError() {
     result = successClient->/path/[1]/foo(b = 23);
     result = successClient->/path/[1]/foo2(address = 23, "name");
     result = successClient->/path.post("a");
+    result = successClient->/path/[1]/foo2(name = customString, 23);
+    result = successClient->/path/[1]/foo(customString, name = 23);
+    result = successClient->/path/[1]/foo(customString, customString);
+    result = successClient->/path/[1]/foo(customString, customString, customString);
+    result = successClient->/path.post(customString);
+}
+
+public function testClientResourceFunctionCallAmbiguousError() {
+    var successClient = client object {
+        resource function get [string pathVar]/path() returns int {
+            return 1;
+        }
+
+        resource function get foo/path() returns int {
+            return 1;
+        }
+
+        resource function get foo/bar/path() returns int {
+            return 1;
+        }
+
+        resource function get foo2/["Path" pathValue]() returns int {
+            return 1;
+        }
+
+        resource function get foo2/path() returns int {
+            return 1;
+        }
+    };
+
+    int result = successClient->/foo/path();
+    result = successClient->/foo2/path();
+    result = successClient->/foo2/["path"]();
 }
 
 public function testResourceCallWithErrorClient() {
