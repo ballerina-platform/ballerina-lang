@@ -6566,13 +6566,13 @@ public class Types {
         }
     }
 
-    public boolean isContainClientObjectOrFunctionType(BType type, boolean isCheckForClient) {
+    public boolean containsClientObjectOrFunctionType(BType type, boolean isCheckForClient) {
         Set<BType> visitedTypeSet = new HashSet<>();
         visitedTypeSet.add(type);
-        return isContainClientObjectOrFunctionType(type, visitedTypeSet, isCheckForClient);
+        return containsClientObjectOrFunctionType(type, visitedTypeSet, isCheckForClient);
     }
 
-    boolean isContainClientObjectOrFunctionType(BType type, Set<BType> visitedTypeSet, boolean isCheckForClient) {
+    boolean containsClientObjectOrFunctionType(BType type, Set<BType> visitedTypeSet, boolean isCheckForClient) {
         if (type == null) {
             return false;
         }
@@ -6588,7 +6588,7 @@ public class Types {
                     if (!visitedTypeSet.add(memberType)) {
                         continue;
                     }
-                    if (isContainClientObjectOrFunctionType(memberType, isCheckForClient)) {
+                    if (containsClientObjectOrFunctionType(memberType, isCheckForClient)) {
                         return true;
                     }
                 }
@@ -6598,7 +6598,7 @@ public class Types {
                     if (!visitedTypeSet.add(memberType)) {
                         continue;
                     }
-                    if (isContainClientObjectOrFunctionType(memberType, isCheckForClient)) {
+                    if (containsClientObjectOrFunctionType(memberType, isCheckForClient)) {
                         return true;
                     }
                 }

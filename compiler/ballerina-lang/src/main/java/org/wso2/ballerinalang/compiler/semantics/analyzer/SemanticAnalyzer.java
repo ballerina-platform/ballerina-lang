@@ -392,13 +392,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
         visit((BLangFunction) funcNode, data);
         BType returnType = Types.getReferredType(funcNode.returnTypeNode.getBType());
-        if (types.isContainClientObjectOrFunctionType(returnType, true)) {
+        if (types.containsClientObjectOrFunctionType(returnType, true)) {
             dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_CLIENT_RESOURCE_RETURN_TYPE,
-                "client object { }");
+                "client object");
         }
-        if (types.isContainClientObjectOrFunctionType(returnType, false)) {
+        if (types.containsClientObjectOrFunctionType(returnType, false)) {
             dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_CLIENT_RESOURCE_RETURN_TYPE,
-                    "function type");
+                    "function");
         }
         for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
             symResolver.resolveTypeNode(pathParamType, data.env);
