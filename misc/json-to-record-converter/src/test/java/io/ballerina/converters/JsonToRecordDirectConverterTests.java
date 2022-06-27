@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Tests for JsonToRecordDirectConverter.
@@ -127,8 +126,7 @@ public class JsonToRecordDirectConverterTests {
             JsonToRecordResponse jsonToRecordResponse =
                     JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false);
             if (jsonToRecordResponse.getCodeBlock() == null) {
-//                System.out.println(jsonToRecordResponse.getDiagnostics()
-//                        .stream().map(diagnostic -> diagnostic.toString()).collect(Collectors.toList()));
+
             } else {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
@@ -141,10 +139,14 @@ public class JsonToRecordDirectConverterTests {
     public void testChoreoTransPayloads() throws IOException {
         Map<Path, Path> samples = new HashMap<>();
         for (int i = 0; i <= 1; i++) {
-            Path jsonInputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_input.json", i));
-            Path balInputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_input.bal", i));
-            Path jsonOutputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_output.json", i));
-            Path balOutputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads").resolve(String.format("sample_%d_output.bal", i));
+            Path jsonInputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads")
+                    .resolve(String.format("sample_%d_input.json", i));
+            Path balInputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads")
+                    .resolve(String.format("sample_%d_input.bal", i));
+            Path jsonOutputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads")
+                    .resolve(String.format("sample_%d_output.json", i));
+            Path balOutputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads")
+                    .resolve(String.format("sample_%d_output.bal", i));
             samples.put(jsonInputPath, balInputPath);
             samples.put(jsonOutputPath, balOutputPath);
         }

@@ -33,13 +33,14 @@ public class DiagnosticUtils {
                                                           List<JsonToRecordDirectConverterDiagnostic> diagnostics,
                                                           JsonToRecordResponse response, Object[] args) {
         JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(
-                message.getCode(), message.getDescription(), message.getSeverity(), null, args);
+                message.getCode(), message.getDescription(), message.getSeverity(), null, message.getArgs());
         diagnostics.add(diagnostic);
         response.setDiagnostics(diagnostics);
         return response;
     }
 
     public static String transformJsonSyntaxErrorMessage(String jsonSyntaxErrorMessage) {
-        return jsonSyntaxErrorMessage;
+        String[] splitMessage = jsonSyntaxErrorMessage.split(":");
+        return splitMessage[1].trim();
     }
 }
