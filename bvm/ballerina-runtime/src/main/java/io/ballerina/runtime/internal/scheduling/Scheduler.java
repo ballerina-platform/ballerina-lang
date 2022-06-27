@@ -664,7 +664,7 @@ class ItemGroup {
     public static final ItemGroup POISON_PILL = new ItemGroup();
 
     public ItemGroup(SchedulerItem item) {
-        this.id = nextItemGroupId.incrementAndGet();
+        this();
         items.push(item);
     }
 

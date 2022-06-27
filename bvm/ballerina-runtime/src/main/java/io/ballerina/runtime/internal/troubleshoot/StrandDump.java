@@ -1,16 +1,17 @@
 /*
  * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -39,7 +40,6 @@ public class StrandDump {
         int availableStrandCount = availableStrands.size();
         Map<Integer, List<String>> availableStrandGroups = new HashMap<>();
         populateAvailableStrandGroups(availableStrands, availableStrandGroups);
-        availableStrands.clear();
 
         StringBuilder infoStr = new StringBuilder("Ballerina Strand Dump [");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -53,8 +53,8 @@ public class StrandDump {
                     .append(strandList.size() - 1).append("]\n");
             strandList.subList(1, strandList.size()).forEach(infoStr::append);
         });
-        availableStrandGroups.clear();
         infoStr.append("===========================================\n");
+        cleanUp(availableStrands, availableStrandGroups);
         return infoStr.toString();
     }
 
@@ -69,6 +69,12 @@ public class StrandDump {
                 return strandDataList;
             }).add(strandState);
         }
+    }
+
+    private static void cleanUp(Map<Integer, Strand> availableStrands,
+                                Map<Integer, List<String>> availableStrandGroups) {
+        availableStrands.clear();
+        availableStrandGroups.clear();
     }
 
     private static String getStrandGroupStatus(boolean isStrandGroupScheduled) {
