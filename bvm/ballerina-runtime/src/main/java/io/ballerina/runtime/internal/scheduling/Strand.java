@@ -443,7 +443,7 @@ public class Strand {
         String closingBracketWithNewLines = "]\n\n";
         if (this.isYielded()) {
             getInfoFromYieldedState(strandInfo, closingBracketWithNewLines);
-        } else if (this.getState().toString().equals("DONE")) {
+        } else if (this.getState().equals(DONE)) {
             strandInfo.append(DONE).append(closingBracketWithNewLines);
         } else {
             strandInfo.append(RUNNABLE).append(closingBracketWithNewLines);

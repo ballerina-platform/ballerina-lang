@@ -261,12 +261,8 @@ public class MethodGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, stateVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, STATE, "I");
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, yieldLocationVarIndex);
-        mv.visitFieldInsn(PUTFIELD, frameName, YIELD_LOCATION, GET_STRING);
-        mv.visitInsn(DUP);
-        mv.visitVarInsn(ALOAD, yieldStatusVarIndex);
-        mv.visitFieldInsn(PUTFIELD, frameName, YIELD_STATUS, GET_STRING);
+        generateFrameStringFieldSet(mv, frameName, yieldLocationVarIndex, YIELD_LOCATION);
+        generateFrameStringFieldSet(mv, frameName, yieldStatusVarIndex, YIELD_STATUS);
 
         generateGetFrame(indexMap, localVarOffset, mv);
 
@@ -279,6 +275,12 @@ public class MethodGen {
 
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, rhsVarIndex);
+        mv.visitFieldInsn(PUTFIELD, frameName, fieldName, GET_STRING);
     }
 
     private BType getReturnType(BIRFunction func) {
