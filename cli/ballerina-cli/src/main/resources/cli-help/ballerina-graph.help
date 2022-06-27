@@ -7,7 +7,7 @@ SYNOPSIS
 
 DESCRIPTION
        Resolve the dependencies of the current package and print the
-       dependency graph into the console.
+       dependency graph in the console.
 
        This produces the textual representation of the dependency graph
        using the DOT graph language.
@@ -21,7 +21,7 @@ OPTIONS
 
        --offline
            Proceed without accessing the network. Attempt to proceed with the
-           previously downloaded dependencies in local caches, will fail
+           previously downloaded dependencies in local caches will fail
            otherwise.
 
        --sticky
