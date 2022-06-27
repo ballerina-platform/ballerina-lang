@@ -617,11 +617,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         outputLogger.sendDebugServerOutput("Launching debugger in terminal");
         context.getAdapter().runInTerminal(runInTerminalRequestArguments).thenApply((resp) -> {
             outputLogger.sendDebugServerOutput("Connecting to remote VM");
-            while (context.getDebuggeeVM() == null) {
+            int tryCounter = 0;
+
+            while (context.getDebuggeeVM() == null && tryCounter < 6) {
                 try {
                     attachToRemoteVM("", clientConfigHolder.getDebuggePort());
                 } catch (IOException ignored) {
                     try {
+                        tryCounter++;
                         TimeUnit.SECONDS.sleep(10);
                     } catch (Exception exception) {
                         throw new RuntimeException(exception);
@@ -630,7 +633,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     throw new RuntimeException(e);
                 }
             }
-            outputLogger.sendDebugServerOutput("Attached to remote VM");
+
+            if (context.getDebuggeeVM() == null) {
+                outputLogger.sendErrorOutput("Could not connect to remote VM");
+                terminateDebugServer(true, true);
+                //Improve: exiting launched terminal
+            } else {
+                outputLogger.sendDebugServerOutput("Attached to remote VM");
+            }
             return null;
         });
     }
