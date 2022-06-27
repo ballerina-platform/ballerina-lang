@@ -1,6 +1,6 @@
 {
-  "line": 2,
-  "character": 16,
+  "line": 3,
+  "character": 27,
   "expected": [
     {
       "title": "Create variable"
