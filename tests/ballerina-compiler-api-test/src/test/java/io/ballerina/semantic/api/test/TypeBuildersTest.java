@@ -407,9 +407,6 @@ public class TypeBuildersTest {
         assertEquals(objTypeWithMethod.signature(), "object {function floatFn(float floatArg) returns json;}");
         assertEquals(objTypeWithFieldsAndMethods.signature(),
                 "object {string aStr; int anInt; function floatFn(float floatArg) returns json;}");
-
-
-
     }
 
     @Test

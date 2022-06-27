@@ -90,8 +90,8 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
     @Override
     public RecordTypeSymbol build() {
 
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol.owner,
-                symTable.builtinPos, symTable.rootPkgSymbol.origin);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, symTable.rootPkgSymbol.pkgID,
+                null, symTable.rootPkgSymbol.owner, symTable.builtinPos, symTable.rootPkgSymbol.origin);
 
         BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;

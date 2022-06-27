@@ -212,8 +212,8 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         }
 
         BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), Names.fromString(objectField.getName()),
-                ownerObjectTypeSymbol.pkgID, getBType(objectField.getType()), ownerObjectTypeSymbol, symTable.builtinPos,
-                ownerObjectTypeSymbol.origin);
+                ownerObjectTypeSymbol.pkgID, getBType(objectField.getType()), ownerObjectTypeSymbol,
+                symTable.builtinPos, ownerObjectTypeSymbol.origin);
 
         return new BField(Names.fromString(objectField.getName()), symTable.builtinPos, fieldSymbol);
     }
