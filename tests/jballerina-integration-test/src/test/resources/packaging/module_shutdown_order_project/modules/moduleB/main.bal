@@ -22,7 +22,6 @@ int initCount = 0;
 function init() {
     initCount += 1;
     moduleC:incrementAndAssertInt(3);
-
     runtime:onGracefulStop(stopHandlerFunc);
 }
 

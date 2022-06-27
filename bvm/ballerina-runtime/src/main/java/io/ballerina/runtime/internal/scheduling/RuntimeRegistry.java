@@ -29,6 +29,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Function;
 
+import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
+
 /**
  * The registry for runtime dynamic listeners and stop handlers.
  *
@@ -41,7 +43,6 @@ public class RuntimeRegistry {
     private final Stack<BFunctionPointer<?, ?>> stopHandlerStack = new Stack<>();
 
     private static final PrintStream outStream = System.err;
-    public static final String ERROR_PRINT_PREFIX = "error: ";
 
     public RuntimeRegistry(Scheduler scheduler) {
         this.scheduler = scheduler;

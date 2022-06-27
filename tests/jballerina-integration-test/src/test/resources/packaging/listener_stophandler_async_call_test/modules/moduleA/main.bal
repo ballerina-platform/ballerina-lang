@@ -91,11 +91,8 @@ public function main() {
     final ListenerA listenerA = new ListenerA("ModDynA");
     runtime:registerListener(listenerA);
     runtime:registerListener(listenerB);
-
-    checkpanic listenerA.gracefulStop();
+    runtime:sleep(2);
     runtime:deregisterListener(listenerA);
-
-    checkpanic listenerB.gracefulStop();
     runtime:deregisterListener(listenerB);
 }
 

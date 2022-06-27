@@ -35,7 +35,6 @@ public class ListenerObject1 {
     }
 
     public function 'start() returns error? {
-
     }
 
     public function gracefulStop() returns error? {
