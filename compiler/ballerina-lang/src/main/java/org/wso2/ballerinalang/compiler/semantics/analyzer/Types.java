@@ -504,7 +504,9 @@ public class Types {
     public boolean isExpressionInUnaryValid(BLangExpression expr) {
         if (expr.getKind() == NodeKind.GROUP_EXPR) {
             // To resolve ex: -(45) kind of scenarios
-            return ((BLangGroupExpr) expr).expression.getKind() == NodeKind.NUMERIC_LITERAL;
+            BLangExpression exprInGroupExpr = ((BLangGroupExpr) expr).expression;
+            return exprInGroupExpr.getKind() == NodeKind.NUMERIC_LITERAL ||
+                    exprInGroupExpr.getKind() == NodeKind.UNARY_EXPR;
         } else {
             return expr.getKind() == NodeKind.NUMERIC_LITERAL;
         }
