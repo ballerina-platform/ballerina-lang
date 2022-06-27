@@ -1030,6 +1030,228 @@ function testMapConstructingQueryExprWithReferenceTypes() {
     assertEqual(sorted5, error("Error"));
 }
 
+function testReadonlyTable() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList1 = [c1, c2, c3];
+
+    CustomerKeyLessTable & readonly|error customerTable1 = table key(id, name) from var customer in customerList1
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
+    any _ = <readonly> (checkpanic customerTable1);
+    assertEqual((typeof(checkpanic customerTable1)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
+    assertEqual((checkpanic customerTable1).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+
+    Customer[] & readonly customerList2 = [c1, c2, c3].cloneReadOnly();
+
+    CustomerKeyLessTable & readonly|error customerTable2 = table key(id, name) from var customer in customerList2
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        } on conflict error("Error");
+    any _ = <readonly> (checkpanic customerTable2);
+    assertEqual((typeof(checkpanic customerTable2)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
+    assertEqual((checkpanic customerTable2).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+
+    CustomerKeyLessTable|error customerTable3 = table key(id, name) from var customer in customerList2
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        } on conflict ();
+    assertEqual((typeof(checkpanic customerTable3)).toString(), "typedesc table<Customer> key(id, name)");
+    assertEqual((checkpanic customerTable3).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+}
+
+function testReadonlyTable2() {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList1 = [c1, c2, c3];
+
+    CustomerTable & readonly|error customerTable1 = table key(id, name) from var customer in customerList1
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
+    any _ = <readonly> (checkpanic customerTable1);
+    assertEqual((typeof(checkpanic customerTable1)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
+    assertEqual((checkpanic customerTable1).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+
+    Customer[] customerList2 = [c1, c2, c3];
+
+    CustomerTable & readonly|error customerTable2 = table key(id, name) from var customer in customerList2
+        select customer.cloneReadOnly() on conflict error("Error");
+    any _ = <readonly> (checkpanic customerTable2);
+    assertEqual((typeof(checkpanic customerTable2)).toString(), "typedesc [{\"id\":1,\"name\":\"Melina\",\"noOfItems\":12},{\"id\":2,\"name\":\"James\",\"noOfItems\":5},{\"id\":3,\"name\":\"Anne\",\"noOfItems\":20}]");
+    assertEqual((checkpanic customerTable2).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+
+    CustomerTable|error customerTable3 = table key(id, name) from var customer in customerList2
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        } on conflict ();
+    assertEqual((typeof(checkpanic customerTable3)).toString(), "typedesc table<Customer> key(id, name)");
+    assertEqual((checkpanic customerTable3).toString(), [{"id":1,"name":"Melina","noOfItems":12},{"id":2,"name":"James","noOfItems":5},{"id":3,"name":"Anne","noOfItems":20}].toString());
+}
+
+type IdRec record {|
+    readonly int id;
+|};
+
+function testReadonlyTable3() {
+  table<IdRec> key(id) & readonly|error tbl = table key(id) from var i in [1, 2, 3, 4, 2, 3]
+                                                select {
+                                                    id: i
+                                                } on conflict ();
+
+  assertEqual((typeof(tbl)).toString(), "typedesc [{\"id\":1},{\"id\":2},{\"id\":3},{\"id\":4}]");
+  assertEqual(tbl, table key(id) [{"id":1},{"id":2},{"id":3},{"id":4}]);
+
+  if tbl !is error {
+    IdRec? member1 = tbl[1];
+    assertEqual(member1, {"id":1});
+  }
+
+  table<IdRec> & readonly|error tbl2 = table key() from var i in [1, 2, 3, 4, 2, 3]
+                                             select {
+                                                  id: i
+                                             };
+
+  assertEqual((typeof(tbl2)).toString(), "typedesc [{\"id\":1},{\"id\":2},{\"id\":3},{\"id\":4},{\"id\":2},{\"id\":3}]");
+  assertEqual(tbl2, table key() [{"id":1},{"id":2},{"id":3},{"id":4},{"id":2},{"id":3}]);
+}
+
+function testConstructingListOfTablesUsingQueryWithReadonly() {
+    table<User> key(id) & readonly users1 = table [
+        {id: 1, firstName: "John", lastName: "Doe", age: 25}
+    ];
+
+    (table<User> key(id))[] uList = [users1];
+
+    (table<User> key(id))[] & readonly result = from var user in uList
+                                    select user.cloneReadOnly();
+    assertEqual((typeof(result)).toString(), "typedesc [[{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":25}]]");
+    assertEqual(result, [table key(id) [{"id":1,"firstName":"John","lastName":"Doe","age":25}]]);
+}
+
+function testConstructingListOfRecordsUsingQueryWithReadonly() {
+    Employee emp1 = {firstName: "A1", lastName: "B1", dept: "C1"};
+    Employee emp2 = {firstName: "A2", lastName: "B2", dept: "C2"};
+    Employee emp3 = {firstName: "A3", lastName: "B3", dept: "C3"};
+
+    Employee[] & readonly result = from var user in [emp1, emp2, emp3]
+                                select user.cloneReadOnly();
+    assertEqual((typeof(result)).toString(), "typedesc [{\"firstName\":\"A1\",\"lastName\":\"B1\",\"dept\":\"C1\"},{\"firstName\":\"A2\",\"lastName\":\"B2\",\"dept\":\"C2\"},{\"firstName\":\"A3\",\"lastName\":\"B3\",\"dept\":\"C3\"}]");
+    assertEqual(result, [{"firstName":"A1","lastName":"B1","dept":"C1"},{"firstName":"A2","lastName":"B2","dept":"C2"},{"firstName":"A3","lastName":"B3","dept":"C3"}]);
+}
+
+function testConstructingListOfXMLsUsingQueryWithReadonly() {
+    xml a = xml `<id> 1 </id> <name> John </name>`;
+
+    xml[] & readonly result = from var user in a
+                                select user.cloneReadOnly();
+    assertEqual((typeof(result)).toString(), "typedesc [`<id> 1 </id>`,` `,`<name> John </name>`]");
+    assertEqual(result, [xml`<id> 1 </id>`,xml` `,xml`<name> John </name>`]);
+}
+
+type Type1 int[]|string;
+
+function testConstructingListOfListsUsingQueryWithReadonly() {
+    Type1[] & readonly result = from var user in [[1, 2], "a", "b", [-1, int:MAX_VALUE]]
+                                select user.cloneReadOnly();
+    assertEqual((typeof(result)).toString(), "typedesc [[1,2],\"a\",\"b\",[-1,9223372036854775807]]");
+    assertEqual(result, [[1,2],"a","b",[-1,9223372036854775807]]);
+}
+
+function testConstructingListOfMapsUsingQueryWithReadonly() {
+    map<Type1>[] & readonly result = from var item in [[1, 2], "a", "b", [-1, int:MAX_VALUE]]
+                                select {item: item}.cloneReadOnly();
+
+    assertEqual((typeof(result)).toString(), "typedesc [{\"item\":[1,2]},{\"item\":\"a\"},{\"item\":\"b\"},{\"item\":[-1,9223372036854775807]}]");
+    assertEqual(result, [{"item":[1,2]},{"item":"a"},{"item":"b"},{"item":[-1,9223372036854775807]}]);
+}
+
+type T readonly & record {
+    string[] params;
+};
+
+function testConstructingListInRecordsUsingQueryWithReadonly() {
+    T rec1 = { params: from var s in ["a", "b", "c", "abc"] select s };
+    assertEqual((typeof(rec1)).toString(), "typedesc {\"params\":[\"a\",\"b\",\"c\",\"abc\"]}");
+    assertEqual(rec1, {"params":["a","b","c","abc"]});
+}
+
+type DepartmentDetails record {
+    string dept;
+};
+
+type ImmutableMapOfDept map<DepartmentDetails> & readonly;
+
+type ImmutableMapOfInt map<int> & readonly;
+
+type ErrorOrImmutableMapOfInt ImmutableMapOfInt|error;
+
+function testReadonlyMap1() {
+    map<int> & readonly|error mp1 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item;
+    any _ = <readonly> (checkpanic mp1);
+    assertEqual((typeof(mp1)).toString(), "typedesc {\"1\":1,\"2\":2,\"3\":3,\"4\":4}");
+    assertEqual(mp1, {"1":1,"2":2,"3":3,"4":4});
+
+    ImmutableMapOfInt|error mp2 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item;
+    any _ = <readonly> (checkpanic mp2);
+    assertEqual((typeof(mp2)).toString(), "typedesc {\"1\":1,\"2\":2,\"3\":3,\"4\":4}");
+    assertEqual(mp2, {"1":1,"2":2,"3":3,"4":4});
+
+
+    ImmutableMapOfDept|error mp3 = map from var item in ["ABC", "DEF", "XY"]
+                                        let DepartmentDetails & readonly dept = {dept: item}
+                                        select [item, dept];
+    any _ = <readonly> (checkpanic mp3);
+    assertEqual((typeof(mp3)).toString(), "typedesc {\"ABC\":{\"dept\":\"ABC\"},\"DEF\":{\"dept\":\"DEF\"},\"XY\":{\"dept\":\"XY\"}}");
+    assertEqual(mp3, {"ABC":{"dept":"ABC"},"DEF":{"dept":"DEF"},"XY":{"dept":"XY"}});
+
+    ErrorOrImmutableMapOfInt mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        where item[1] > 1
+                                        select item;
+    any _ = <readonly> (checkpanic mp4);
+    assertEqual((typeof(mp4)).toString(), "typedesc {\"2\":2,\"3\":3,\"4\":4}");
+    assertEqual(mp4, {"2":2,"3":3,"4":4});
+}
+
+function testReadonlyMap2() {
+    map<int> & readonly|error mp1 = map from var item in [["1", 1], ["2", 2], ["2", 3], ["4", 4]]
+                                        select [item[0], item[1] * 2] on conflict ();
+    assertEqual(mp1, {"1":2,"2":6,"4":8});
+
+    ImmutableMapOfInt|error mp2 = map from var item in [["1", 1], ["2", 2], ["2", 3], ["4", 4]]
+                                        select item on conflict error("Error 1");
+    assertEqual(mp2, error("Error 1"));
+
+    error? conflictMsg = error("Error 2");
+    ImmutableMapOfDept|error mp3 = map from var item in ["ABC", "DEF", "XY", "ABC"]
+                                        let DepartmentDetails & readonly dept = {dept: item}
+                                        select [item, dept] on conflict conflictMsg;
+    assertEqual(mp3, error("Error 2"));
+
+    conflictMsg = null;
+    ErrorOrImmutableMapOfInt mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["1", 4]]
+                                        where item[1] > 1
+                                        select item on conflict conflictMsg;
+    assertEqual(mp4, {"2":2,"3":3,"1":4});
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;
