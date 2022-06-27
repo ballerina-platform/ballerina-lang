@@ -67,29 +67,29 @@ public function testClientResourceReturnValuesAndParamArgumentsError() {
         }
     };
 
-    xml stringResult = successClient->/stringParamPath("string");
-    xml intResult = successClient->/intParamPath(2);
-    xml booleanResult = successClient->/booleanParamPath(true);
-    xml floatResult = successClient->/floatParamPath(2.3f);
-    xml decimalResult = successClient->/decimalPath(3.2d);
+    xml _ = successClient->/stringParamPath("string");
+    xml _ = successClient->/intParamPath(2);
+    xml _ = successClient->/booleanParamPath(true);
+    xml _ = successClient->/floatParamPath(2.3f);
+    xml _ = successClient->/decimalPath(3.2d);
 
-    string stringResult2 = successClient->/stringParamPath(2);
-    int intResult2 = successClient->/intParamPath("string");
-    boolean booleanResult2 = successClient->/booleanParamPath(3.4f);
-    float floatResult2 = successClient->/floatParamPath(2.3d);
-    decimal decimalResult2 = successClient->/decimalPath(true);
+    string _ = successClient->/stringParamPath(2);
+    int _ = successClient->/intParamPath("string");
+    boolean _ = successClient->/booleanParamPath(3.4f);
+    float _ = successClient->/floatParamPath(2.3d);
+    decimal _ = successClient->/decimalPath(true);
 
-    string recordResult = successClient->/recordParamPath({a: 2});
-    string xmlResult = successClient->/xmlParamPath(xml `<a></a>`);
-    string mapResult = successClient->/mapParamPath({a: "value"});
-    string intArrayResult = successClient->/arrayParamPath([1, 2, 3]);
-    string customRecordResult = successClient->/customTypeParamPath(customRecord);
-    string customIntegerTypeResult = successClient->/customIntTypeParamPath(customIntegerType);
+    string _ = successClient->/recordParamPath({a: 2});
+    string _ = successClient->/xmlParamPath(xml `<a></a>`);
+    string _ = successClient->/mapParamPath({a: "value"});
+    string _ = successClient->/arrayParamPath([1, 2, 3]);
+    string _ = successClient->/customTypeParamPath(customRecord);
+    string _ = successClient->/customIntTypeParamPath(customIntegerType);
 
-    record {int a;} recordResult2 = successClient->/recordParamPath(customRecord);
-    xml xmlResult2 = successClient->/xmlParamPath({a: 2});
-    map<string> mapResult2 = successClient->/mapParamPath(xml `<a></a>`);
-    int[] intArrayResult2 = successClient->/arrayParamPath({a: "value"});
-    CustomRecord customRecordResult2 = successClient->/customTypeParamPath([1, 2, 3]);
-    CustomIntegerType customIntResult = successClient->/customIntTypeParamPath([1, 2, 3]);
+    record {int a;} _ = successClient->/recordParamPath(customRecord);
+    xml _ = successClient->/xmlParamPath({a: 2});
+    map<string> _ = successClient->/mapParamPath(xml `<a></a>`);
+    int[] _ = successClient->/arrayParamPath({a: "value"});
+    CustomRecord _ = successClient->/customTypeParamPath([1, 2, 3]);
+    CustomIntegerType _ = successClient->/customIntTypeParamPath([1, 2, 3]);
 }

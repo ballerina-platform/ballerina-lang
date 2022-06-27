@@ -67,27 +67,27 @@ public function testUndefineResourcePath() {
         }
     };
 
-    int result = successClient->/path2.post();
-    result = successClient->/path.put();
-    result = successClient->/path/[...intPathParameters];
-    result = successClient->/path/[...stringPathParameters3]/bar;
-    result = successClient->/path/[stringPathParameters];
-    result = successClient->/path/[...stringPathParameters];
-    result = successClient->/path/[...stringPathParameters2];
-    result = successClient->/path/["abc"];
-    result = successClient->/path/[varString];
-    result = successClient->/path/[varBoolean];
-    result = successClient->/path/[stringConstant];
-    result = successClient->/stringPath/[recordValue.a];
-    result = successClient->/stringPath/[intConstant];
-    result = successClient->/stringPath/[varBoolean];
-    result = successClient->/stringPath/[varInt];
-    result = successClient->/intQuotedPath/[5];
-    result = successClient->/intPath/'5;
-    result = successClient->/intPath/foo/foo2/bar/bar2/foo3;
-    result = successClient->/path/[intNilArgument];
-    result = successClient->/path/[nilArgument];
-    result = successClient->/path/[getIntOrNilArgument()];
+    int _ = successClient->/path2.post();
+    int _ = successClient->/path.put();
+    int _ = successClient->/path/[...intPathParameters];
+    int _ = successClient->/path/[...stringPathParameters3]/bar;
+    int _ = successClient->/path/[stringPathParameters];
+    int _ = successClient->/path/[...stringPathParameters];
+    int _ = successClient->/path/[...stringPathParameters2];
+    int _ = successClient->/path/["abc"];
+    int _ = successClient->/path/[varString];
+    int _ = successClient->/path/[varBoolean];
+    int _ = successClient->/path/[stringConstant];
+    int _ = successClient->/stringPath/[recordValue.a];
+    int _ = successClient->/stringPath/[intConstant];
+    int _ = successClient->/stringPath/[varBoolean];
+    int _ = successClient->/stringPath/[varInt];
+    int _ = successClient->/intQuotedPath/[5];
+    int _ = successClient->/intPath/'5;
+    int _ = successClient->/intPath/foo/foo2/bar/bar2/foo3;
+    int _ = successClient->/path/[intNilArgument];
+    int _ = successClient->/path/[nilArgument];
+    int _ = successClient->/path/[getIntOrNilArgument()];
 }
 
 function getIntOrNilArgument() returns int? {

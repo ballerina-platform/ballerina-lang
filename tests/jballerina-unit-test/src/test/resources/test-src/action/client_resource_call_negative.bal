@@ -50,27 +50,27 @@ public function testClientResourceFunctionCallError() {
         }
     };
 
-    int result = successClient->/path/[10*11]/foo(123);
-    result = successClient->/path/[1]/foo("x", "y");
-    result = successClient->/path/[1]/foo("x", "y", "z");
-    result = successClient->/path/[1]/foo(nilArgument);
-    result = successClient->/path/[1]/foo(stringNilArgument);
+    int _ = successClient->/path/[10*11]/foo(123);
+    int _ = successClient->/path/[1]/foo("x", "y");
+    int _ = successClient->/path/[1]/foo("x", "y", "z");
+    int _ = successClient->/path/[1]/foo(nilArgument);
+    int _ = successClient->/path/[1]/foo(stringNilArgument);
 
-    result = successClient->/path/[1]/foo(name = 23);
-    result = successClient->/path/[1]/foo(name = intConstant);
-    result = successClient->/path/[1]/foo(name = varInt);
-    result = successClient->/path/[1]/foo(name = varBoolean);
-    result = successClient->/path/[1]/foo("arg", name = 23);
-    result = successClient->/path/[1]/foo(name = 23, name = 23);
-    result = successClient->/path/[1]/foo();
-    result = successClient->/path/[1]/foo(b = 23);
-    result = successClient->/path/[1]/foo2(address = 23, "name");
-    result = successClient->/path.post("a");
-    result = successClient->/path/[1]/foo2(name = customString, 23);
-    result = successClient->/path/[1]/foo(customString, name = 23);
-    result = successClient->/path/[1]/foo(customString, customString);
-    result = successClient->/path/[1]/foo(customString, customString, customString);
-    result = successClient->/path.post(customString);
+    int _ = successClient->/path/[1]/foo(name = 23);
+    int _ = successClient->/path/[1]/foo(name = intConstant);
+    int _ = successClient->/path/[1]/foo(name = varInt);
+    int _ = successClient->/path/[1]/foo(name = varBoolean);
+    int _ = successClient->/path/[1]/foo("arg", name = 23);
+    int _ = successClient->/path/[1]/foo(name = 23, name = 23);
+    int _ = successClient->/path/[1]/foo();
+    int _ = successClient->/path/[1]/foo(b = 23);
+    int _ = successClient->/path/[1]/foo2(address = 23, "name");
+    int _ = successClient->/path.post("a");
+    int _ = successClient->/path/[1]/foo2(name = customString, 23);
+    int _ = successClient->/path/[1]/foo(customString, name = 23);
+    int _ = successClient->/path/[1]/foo(customString, customString);
+    int _ = successClient->/path/[1]/foo(customString, customString, customString);
+    int _ = successClient->/path.post(customString);
 }
 
 public function testClientResourceFunctionCallAmbiguousError() {
@@ -96,9 +96,9 @@ public function testClientResourceFunctionCallAmbiguousError() {
         }
     };
 
-    int result = successClient->/foo/path();
-    result = successClient->/foo2/path();
-    result = successClient->/foo2/["path"]();
+    int _ = successClient->/foo/path();
+    int _ = successClient->/foo2/path();
+    int _ = successClient->/foo2/["path"]();
 }
 
 public function testResourceCallWithErrorClient() {
@@ -107,5 +107,5 @@ public function testResourceCallWithErrorClient() {
             return 1;
         }
     };
-    int result = errorClient->/path/["a"];
+    int _ = errorClient->/path/["a"];
 }
