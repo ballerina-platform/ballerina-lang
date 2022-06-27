@@ -24,6 +24,9 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 
+/**
+ * Test cases for return types in resource functions.
+ */
 public class ResourceMethodReturnTypeTest {
     @Test()
     public void testResourceMethodReturnType() {
