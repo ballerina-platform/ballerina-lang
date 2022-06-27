@@ -780,6 +780,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_COMPUTED_RESOURCE_ACCESS_PATH_SEGMENT_TYPE("BCE4031", 
             "unsupported.computed.resource.access.path.segment.type"),
     UNSUPPORTED_RESOURCE_ACCESS_REST_SEGMENT_TYPE("BCE4032", "unsupported.resource.access.rest.segment.type"),
+    INVALID_CLIENT_RESOURCE_RETURN_TYPE("BCE4033", "invalid.client.resource.return.type")
     ;
 
     private String diagnosticId;

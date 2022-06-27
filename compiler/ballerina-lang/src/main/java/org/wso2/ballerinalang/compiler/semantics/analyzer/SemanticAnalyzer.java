@@ -390,10 +390,19 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
         visit((BLangFunction) funcNode, data);
+        BType returnType = Types.getReferredType(funcNode.returnTypeNode.getBType());
+        if (types.isContainClientObjectOrFunctionType(returnType, true)) {
+            dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_CLIENT_RESOURCE_RETURN_TYPE,
+                "client object { }");
+        }
+        if (types.isContainClientObjectOrFunctionType(returnType, false)) {
+            dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_CLIENT_RESOURCE_RETURN_TYPE,
+                    "function type");
+        }
         for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
             symResolver.resolveTypeNode(pathParamType, data.env);
             if (!types.isAssignable(pathParamType.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(pathParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE, 
+                dlog.error(pathParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_PATH_PARAM_TYPE,
                         pathParamType.getBType());
             }
         }
@@ -402,7 +411,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangType restParamType = funcNode.resourcePathType.restParamType;
             symResolver.resolveTypeNode(restParamType, data.env);
             if (!types.isAssignable(restParamType.getBType(), symTable.pathParamAllowedType)) {
-                dlog.error(restParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE, 
+                dlog.error(restParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE,
                         restParamType.getBType());
             }
         }
