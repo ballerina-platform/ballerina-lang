@@ -27,7 +27,7 @@ const int intConstant = 1;
 var varInt = 1;
 var varBoolean = true;
 
-public function testClientResourceFunctionCallError() {
+public function testClientResourceAccessArgumentsError() {
     var successClient = client object {
         resource function get path() returns int {
             return 1;
@@ -73,7 +73,7 @@ public function testClientResourceFunctionCallError() {
     int _ = successClient->/path.post(customString);
 }
 
-public function testClientResourceFunctionCallAmbiguousError() {
+public function testAmbiguousResourceAccessError() {
     var successClient = client object {
         resource function get [string pathVar]/path() returns int {
             return 1;

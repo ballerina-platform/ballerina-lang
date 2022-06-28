@@ -26,20 +26,20 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Tests calling of a client resource access action.
+ * Tests for invalid client resource access action.
  */
 public class ClientResourceAccessActionNegativeTest {
-    CompileResult clientResourceCallNegative, clientResourcePathNegative,
+    CompileResult clientResourceAccessNegative, clientResourcePathNegative,
             clientResourceParamsNegative, clientTransactionalResourceNegative;
 
     @BeforeClass
     public void setup() {
-        clientResourceCallNegative = BCompileUtil.
+        clientResourceAccessNegative = BCompileUtil.
                 compile("test-src/action/client_resource_call_negative.bal");
         clientResourcePathNegative = BCompileUtil.
                 compile("test-src/action/client_resource_path_negative.bal");
         clientResourceParamsNegative = BCompileUtil.
-                compile("test-src/action/client_resource_params_negative.bal");
+                compile("test-src/action/client_resource_access_return_type_negative_test.bal");
         clientTransactionalResourceNegative = BCompileUtil.
                 compile("test-src/action/client_transactional_resource_negative.bal");
     }
@@ -47,77 +47,77 @@ public class ClientResourceAccessActionNegativeTest {
     @Test
     public void testClientResourceCallNegative() {
         int index = 0;
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 53, 46);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 54, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 55, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found '()'", 56, 42);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'string?'",
                 57, 42);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 59, 49);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 60, 49);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 61, 49);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'boolean'",
                 62, 49);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 63, 49);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 64, 49);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 64, 53);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "missing required parameter 'name' in call to 'get()'",
                 65, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "missing required parameter 'name' in call to 'get()'",
                 66, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "undefined defaultable parameter 'b'", 66, 42);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "missing required parameter 'name' in call to 'get()'",
                 67, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'int'", 67, 53);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "positional argument not allowed after named arguments",
                 67, 57);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'post()'", 68, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "missing required parameter 'address' in call to 'get()'",
                 69, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "positional argument not allowed after named arguments",
                 69, 64);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 70, 56);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 71, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'get()'", 72, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "too many arguments in call to 'post()'", 73, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "ambiguous resource access not yet supported", 99, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "ambiguous resource access not yet supported", 100, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "ambiguous resource access not yet supported", 101, 13);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "resource functions are only allowed in network object types",
                 106, 9);
-        BAssertUtil.validateError(clientResourceCallNegative, index++,
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "client resource access action is only allowed on client objects",
                 110, 13);
-        Assert.assertEquals(clientResourceCallNegative.getErrorCount(), index);
+        Assert.assertEquals(clientResourceAccessNegative.getErrorCount(), index);
     }
 
     @Test
