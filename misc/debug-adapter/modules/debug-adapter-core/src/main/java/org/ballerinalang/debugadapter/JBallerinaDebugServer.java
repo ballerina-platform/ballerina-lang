@@ -162,6 +162,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
     private static final String TERMINAL_TITLE = "Ballerina Debug Terminal";
+    private static final String RUN_IN_TERMINAL_REQUEST = "runInTerminal";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -598,25 +599,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<RunInTerminalResponse> runInTerminal(RunInTerminalRequestArguments args) {
         Endpoint endPoint = new GenericEndpoint(context.getClient());
-        endPoint.request("runInTerminal", args);
-        return CompletableFuture.completedFuture(null);
-    }
-
-    private void launchInTerminal(BProgramRunner programRunner) throws ClientConfigurationException {
-        String sourceProjectRoot = context.getSourceProjectRoot();
-        RunInTerminalRequestArguments runInTerminalRequestArguments = new RunInTerminalRequestArguments();
-
-        runInTerminalRequestArguments.setKind(clientConfigHolder.getRunInTerminalKind());
-        runInTerminalRequestArguments.setTitle(TERMINAL_TITLE);
-        runInTerminalRequestArguments.setCwd(sourceProjectRoot);
-
-        String[] command = new String[programRunner.getBallerinaCommand(sourceProjectRoot).size()];
-        programRunner.getBallerinaCommand(sourceProjectRoot).toArray(command);
-        runInTerminalRequestArguments.setArgs(command);
-
-        outputLogger.sendDebugServerOutput("Launching debugger in terminal");
-        context.getAdapter().runInTerminal(runInTerminalRequestArguments).thenApply((resp) -> {
-            outputLogger.sendDebugServerOutput("Connecting to remote VM");
+        endPoint.request(RUN_IN_TERMINAL_REQUEST, args).thenApply((response) -> {
             int tryCounter = 0;
 
             while (context.getDebuggeeVM() == null && tryCounter < 6) {
@@ -635,14 +618,36 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }
 
             if (context.getDebuggeeVM() == null) {
-                outputLogger.sendErrorOutput("Could not connect to remote VM");
-                terminateDebugServer(true, true);
-                //Improve: exiting launched terminal
+                // shut down debug server
+                outputLogger.sendErrorOutput("Failed to attach to the target VM");
+                terminateDebugServer(false, true);
+
+                // shut down client terminal
+                int shellProcessId = ((RunInTerminalResponse) response).getShellProcessId();
+                ProcessHandle.of(shellProcessId).ifPresent(ProcessHandle::destroyForcibly);
             } else {
-                outputLogger.sendDebugServerOutput("Attached to remote VM");
+                outputLogger.sendDebugServerOutput("Attached to target VM");
             }
-            return null;
+            return CompletableFuture.completedFuture(null);
         });
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    private void launchInTerminal(BProgramRunner programRunner) throws ClientConfigurationException {
+        String sourceProjectRoot = context.getSourceProjectRoot();
+        RunInTerminalRequestArguments runInTerminalRequestArguments = new RunInTerminalRequestArguments();
+
+        runInTerminalRequestArguments.setKind(clientConfigHolder.getRunInTerminalKind());
+        runInTerminalRequestArguments.setTitle(TERMINAL_TITLE);
+        runInTerminalRequestArguments.setCwd(sourceProjectRoot);
+
+        String[] command = new String[programRunner.getBallerinaCommand(sourceProjectRoot).size()];
+        programRunner.getBallerinaCommand(sourceProjectRoot).toArray(command);
+        runInTerminalRequestArguments.setArgs(command);
+
+        outputLogger.sendDebugServerOutput("Launching debugger in terminal");
+        context.getAdapter().runInTerminal(runInTerminalRequestArguments);
     }
 
     /**
