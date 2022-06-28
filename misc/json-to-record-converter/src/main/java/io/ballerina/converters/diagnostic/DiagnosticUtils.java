@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Util methods for JSON to record direct converter diagnostics.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class DiagnosticUtils {
 

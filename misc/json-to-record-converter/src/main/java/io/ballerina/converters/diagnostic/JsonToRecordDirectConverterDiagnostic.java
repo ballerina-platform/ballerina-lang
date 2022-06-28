@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Represents a {@code Diagnostic} related to Json to Record direct converter.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class JsonToRecordDirectConverterDiagnostic extends Diagnostic {
 
