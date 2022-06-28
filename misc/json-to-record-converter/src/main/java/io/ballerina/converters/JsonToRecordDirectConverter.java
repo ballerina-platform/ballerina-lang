@@ -139,7 +139,6 @@ public class JsonToRecordDirectConverter {
                     .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
             Map<String, RecordFieldNode> lastRecordFieldMap = lastRecordFieldList.stream()
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
-
             Map<String, RecordFieldNode> newRecordFieldMap = jsonObject.entrySet().stream()
                     .map(entry -> (RecordFieldNode) getRecordField(entry, recordToTypeDescNodes, isRecordTypeDesc,
                             null))
@@ -182,19 +181,15 @@ public class JsonToRecordDirectConverter {
                         }
                     }
                 }
-
                 jsonNodes.put(entry.getKey(), entry.getValue());
                 Node recordField = getRecordField(entry, recordToTypeDescNodes, isRecordTypeDesc, null);
                 recordFieldList.add(recordField);
             }
         }
 
-
         NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
-
         Token bodyEndDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.CLOSE_BRACE_PIPE_TOKEN :
                 SyntaxKind.CLOSE_BRACE_TOKEN);
-
         RecordTypeDescriptorNode recordTypeDescriptorNode =
                 NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                         fieldNodes, null, bodyEndDelimiter);
@@ -214,7 +209,6 @@ public class JsonToRecordDirectConverter {
 
         RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                 fieldTypeName, fieldName, questionMarkToken, semicolonToken);
-
 
         if (entry.getValue().isJsonPrimitive()) {
             typeName = getPrimitiveTypeName(entry.getValue().getAsJsonPrimitive());
@@ -293,9 +287,7 @@ public class JsonToRecordDirectConverter {
         }
 
         List<TypeDescriptorNode> typeDescriptorNodesSorted = sortTypeDescriptorNodes(typeDescriptorNodes);
-
         TypeDescriptorNode fieldTypeName = createUnionTypeDescriptorNode(typeDescriptorNodesSorted);
-
         NodeList<ArrayDimensionNode> arrayDimensions = NodeFactory.createEmptyNodeList();
         ArrayDimensionNode arrayDimension = NodeFactory.createArrayDimensionNode(openSBracketToken, null,
                 closeSBracketToken);
