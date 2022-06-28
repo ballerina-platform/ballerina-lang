@@ -199,6 +199,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         this.initialIdentifiers.clear();
         this.initialized.set(false);
         this.importsManager.reset();
+        this.availableModuleDeclarations.clear();
     }
 
     @Override
