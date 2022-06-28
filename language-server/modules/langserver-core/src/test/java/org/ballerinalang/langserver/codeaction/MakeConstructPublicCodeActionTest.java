@@ -22,15 +22,16 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 /**
- * Test Cases for CodeActions.
+ * Test Cases for make construct public code action.
  *
  * @since 2201.0.4
  */
 public class MakeConstructPublicCodeActionTest extends AbstractCodeActionTest {
+
     @Test(dataProvider = "codeaction-data-provider")
     @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
@@ -42,10 +43,8 @@ public class MakeConstructPublicCodeActionTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {
-                {"convert_to_public_class_config1.json",
-                        "publicCodeAction/modules/module1/convert_to_public_class_source1.bal"},
-                {"convert_to_public_record_config2.json",
-                        "publicCodeAction/modules/module2/convert_to_public_record_source2.bal"}
+                {"convert_to_public_class_config1.json"},
+                {"convert_to_public_record_config2.json"}
         };
     }
 }

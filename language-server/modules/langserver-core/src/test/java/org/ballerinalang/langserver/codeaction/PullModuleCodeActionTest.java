@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class PullModuleCodeActionTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "pull-module";
@@ -36,18 +37,18 @@ public class PullModuleCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"packagePull1.json", "packagePull.bal"},
-                {"packagePull2.json", "packagePull.bal"},
-                {"packagePull3.json", "packagePull2.bal"},
-                {"packagePull4.json", "packagePull2.bal"},
+                {"packagePull1.json"},
+                {"packagePull2.json"},
+                {"packagePull3.json"},
+                {"packagePull4.json"},
         };
     }
 }

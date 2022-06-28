@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "testproject/modAlias.bal",
   "expected": {
     "result": {
       "edit": {

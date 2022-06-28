@@ -1,10 +1,13 @@
 {
-  "line": 7,
-  "character": 10,
+  "position": {
+    "line": 7,
+    "character": 10
+  },
+  "source": "updateDocumentation2.bal",
   "expected": [
     {
       "title": "Update documentation",
-      "kind": "quickfix",
+      "kind": "refactor",
       "command": {
         "title": "Update documentation",
         "command": "UPDATE_DOC",

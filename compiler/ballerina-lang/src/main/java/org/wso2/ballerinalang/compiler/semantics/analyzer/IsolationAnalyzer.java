@@ -2161,7 +2161,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR) {
             BLangRestArgsExpression varArg = (BLangRestArgsExpression) restArgs.get(restArgs.size() - 1);
-            BType varArgType = varArg.getBType();
+            BType varArgType = Types.getReferredType(varArg.getBType());
             Location varArgPos = varArg.pos;
 
             if (varArgType == symTable.semanticError) {

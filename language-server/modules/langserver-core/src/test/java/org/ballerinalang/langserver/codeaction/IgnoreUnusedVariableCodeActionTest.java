@@ -30,37 +30,37 @@ public class IgnoreUnusedVariableCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
     @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
     @Test(dataProvider = "negative-test-data-provider")
-    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.negativeTest(config, source);
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"ignore_unused_var1.json", "ignore_unused_var1.bal"},
-                {"ignore_unused_var2.json", "ignore_unused_var2.bal"},
-                {"ignore_unused_var3.json", "ignore_unused_var3.bal"},
-                {"ignore_unused_var4.json", "ignore_unused_var4.bal"},
-                {"ignore_unused_var5.json", "ignore_unused_var5.bal"},
-                {"ignore_unused_var6.json", "ignore_unused_var6.bal"},
-                {"ignore_unused_var7.json", "ignore_unused_var7.bal"},
-                {"ignore_unused_var_tuple1.json", "ignore_unused_var_tuple1.bal"},
+                {"ignore_unused_var1.json"},
+                {"ignore_unused_var2.json"},
+                {"ignore_unused_var3.json"},
+                {"ignore_unused_var4.json"},
+                {"ignore_unused_var5.json"},
+                {"ignore_unused_var6.json"},
+                {"ignore_unused_var7.json"},
+                {"ignore_unused_var_tuple1.json"},
         };
     }
 
     @DataProvider(name = "negative-test-data-provider")
     public Object[][] negativeDataProvider() {
         return new Object[][]{
-                {"ignore_unused_var8.json", "ignore_unused_var8.bal"},
-                {"ignore_unused_var_assignment1.json", "ignore_unused_var_assignment1.bal"},
-                {"ignore_unused_var_assignment2.json", "ignore_unused_var_assignment2.bal"},
+                {"ignore_unused_var8.json"},
+                {"ignore_unused_var_assignment1.json"},
+                {"ignore_unused_var_assignment2.json"},
         };
     }
 

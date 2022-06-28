@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 7,
+  "position": {
+    "line": 1,
+    "character": 7
+  },
+  "source": "createVariableWithTuple1.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +26,7 @@
     },
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -53,6 +58,7 @@
     },
     {
       "title": "Create variable and check error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

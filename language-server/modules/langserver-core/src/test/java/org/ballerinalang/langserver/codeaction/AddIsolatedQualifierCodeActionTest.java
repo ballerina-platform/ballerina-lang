@@ -27,10 +27,11 @@ import java.io.IOException;
  * @since 2201.1.1
  */
 public class AddIsolatedQualifierCodeActionTest extends AbstractCodeActionTest {
+
     @Test(dataProvider = "codeaction-data-provider")
     @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
@@ -41,15 +42,11 @@ public class AddIsolatedQualifierCodeActionTest extends AbstractCodeActionTest {
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return new Object[][] {
-                {"add_isolated_qualifier_config1.json",
-                        "isolatedFunctionCodeAction/modules/module1/add_isolated_qualifier_source1.bal"},
-                {"add_isolated_qualifier_config2.json",
-                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source2.bal"},
-                {"add_isolated_qualifier_config3.json",
-                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source3.bal"},
-                {"add_isolated_qualifier_config4.json",
-                        "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source4.bal"}
+        return new Object[][]{
+                {"add_isolated_qualifier_config1.json"},
+                {"add_isolated_qualifier_config2.json"},
+                {"add_isolated_qualifier_config3.json"},
+                {"add_isolated_qualifier_config4.json"}
         };
     }
 }
