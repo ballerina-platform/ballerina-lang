@@ -233,6 +233,23 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 310, 16);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(Customer & readonly)> & " + "" +
                 "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 319, 44);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
+                347, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<ResultValue>', " + "" +
+                        "found '(table<ResultValue>|error)'", 350, 33);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+                        "found '(table<NumberRecord> key(id)|error)'", 353, 42);
+        // Enable following tests after fixing issue - lang/#36746
+//        validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
+//                356, 21);
+//        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord>', " +
+//                "found '(table<NumberRecord>|error)'", 361, 40);
+//        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+//                "found '(table<NumberRecord> key(id)|error)'", 366, 42);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<int>', found '(map<int>|error)'",
+                371, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+                "found '(table<NumberRecord> key(id)|error)'", 374, 42);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -347,6 +364,11 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testReadonlyMap2() {
         BRunUtil.invoke(result, "testReadonlyMap2");
+    }
+
+    @Test
+    public void testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError() {
+        BRunUtil.invoke(result, "testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError");
     }
 
     @Test

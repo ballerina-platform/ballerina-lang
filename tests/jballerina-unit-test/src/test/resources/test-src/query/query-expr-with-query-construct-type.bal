@@ -1303,6 +1303,66 @@ function testMapConstructingQueryExprWithStringSubtypes() {
     assertEqual(mp11, {"key1":1.4,"key2":2,"key3":3});
 }
 
+class EvenNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {| int value; |}|error {
+        return error("Gtreater than 20!");
+    }
+}
+
+type ResultValue record {|
+    int value;
+|};
+
+type NumberRecord record {|
+    readonly int id;
+    string value;
+|};
+
+function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError() {
+    EvenNumberGenerator evenGen = new();
+    stream<int, error> evenNumberStream = new(evenGen);
+
+    map<int>|error map1 = map from var item in evenNumberStream
+                        select [item.toBalString(), item];
+    assertEqual(map1, error("Gtreater than 20!"));
+
+    table<ResultValue>|error table1 = table key() from var item in evenNumberStream
+                                    select {value: item};
+    assertEqual(table1, error("Gtreater than 20!"));
+
+    table<NumberRecord> key(id)|error table2 = table key(id) from var item in evenNumberStream
+                                            select {id: item, value: item.toBalString()};
+    assertEqual(table2, error("Gtreater than 20!"));
+
+    // Enable following tests after fixing issue - lang/#36746
+    // map<int>|error map2 = map from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select [secondNo.toBalString(), secondNo];
+    // assertEqual(map2, error("Gtreater than 20!"));
+
+    // table<NumberRecord> key()|error table3 = table key() from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+    // assertEqual(table3, error("Gtreater than 20!"));
+
+    // table<NumberRecord> key(id)|error table4 = table key(id) from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+    // assertEqual(table4, error("Gtreater than 20!"));
+
+    map<int>|error map3 = map from var firstNo in [1, 4, 4, 10]
+                            select [firstNo.toBalString(), firstNo] on conflict error("Error");
+    assertEqual(map3, error("Error"));
+
+    table<NumberRecord> key(id)|error table6 = table key(id) from var firstNo in [1, 4, 4, 10]
+                            select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error");
+    assertEqual(table6, error("Error"));
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;

@@ -356,3 +356,58 @@ function testWithReadonlyContextualTypeForQueryConstructingTablesWithOnConflict(
     CustomerTableKeyless & readonly out3 = table key() from var customer in customerList1
         select customer on conflict onConflictError;
 }
+
+class EvenNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {| int value; |}|error {
+        self.i += 2;
+        if self.i > 20 {
+            return error("Gtreater than 20!");
+        }
+        return { value: self.i };
+    }
+}
+
+type ResultValue record {|
+    int value;
+|};
+
+type NumberRecord record {|
+    readonly int id;
+    string value;
+|};
+
+function testQueryConstructingMapsAndTablesWithClauseMayCompleteSEarlyWithError() {
+    EvenNumberGenerator evenGen = new();
+    stream<int, error> evenNumberStream = new(evenGen);
+
+    map<int> map1 = map from var item in evenNumberStream
+                        select [item.toBalString(), item];
+
+    table<ResultValue> table1 = table key() from var item in evenNumberStream
+                                    select {value: item};
+
+    table<NumberRecord> key(id) table2 = table key(id) from var item in evenNumberStream
+                                            select {id: item, value: item.toBalString()};
+    // Enable following tests after fixing issue - lang/#36746
+    // map<int> map2 = map from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select [secondNo.toBalString(), secondNo];
+
+    // table<NumberRecord> key() table3 = table key() from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+
+    // table<NumberRecord> key(id) table4 = table key(id) from var firstNo in [1, 4, 9, 10]
+    //                         join var secondNo in evenNumberStream
+    //                         on firstNo equals secondNo
+    //                         select {id: secondNo, value: secondNo.toBalString()};
+
+    map<int> map3 = map from var firstNo in [1, 4, 9, 10]
+                            select [firstNo.toBalString(), firstNo] on conflict error("Error");
+
+    table<NumberRecord> key(id) table6 = table key(id) from var firstNo in [1, 4, 9, 10]
+                            select {id: firstNo, value: firstNo.toBalString()} on conflict error("Error");
+}
