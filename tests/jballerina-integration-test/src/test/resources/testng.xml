@@ -302,4 +302,10 @@
             <class name="org.ballerinalang.test.async.AsyncFunctionsTest" />
         </classes>
     </test>
+    <test name="ballerina-strand-dump-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.troubleshoot.StrandDumpTest" />
+        </classes>
+    </test>
 </suite>
