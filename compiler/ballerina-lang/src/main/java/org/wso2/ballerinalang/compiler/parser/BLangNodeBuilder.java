@@ -4202,6 +4202,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
         BLangInvocation.BLangResourceAccessInvocation resourceInvocation = TreeBuilder.createResourceAccessInvocation();
+        resourceInvocation.pos = getPosition(clientResourceAccessActionNode);
         resourceInvocation.expr = createExpression(clientResourceAccessActionNode.expression());
 
         SeparatedNodeList<Node> resourceAccessPath = clientResourceAccessActionNode.resourceAccessPath();
@@ -4240,7 +4241,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         if (clientResourceAccessActionNode.methodName().isPresent()) {
             resourceInvocation.name = createIdentifier(clientResourceAccessActionNode.methodName().get().name());
         } else {
-            resourceInvocation.name = createIdentifier(null, "get");
+            resourceInvocation.name = createIdentifier(resourceInvocation.pos, "get");
         }
 
         if (clientResourceAccessActionNode.arguments().isPresent()) {
@@ -4255,7 +4256,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             resourceInvocation.pkgAlias = this.createIdentifier(symTable.builtinPos, "");
         }
         
-        resourceInvocation.pos = getPosition(clientResourceAccessActionNode);
         return resourceInvocation;
     }
 

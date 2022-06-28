@@ -3546,7 +3546,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         resourceFunctions.removeIf(func -> !func.accessor.value.equals(resourceAccessInvocation.name.value));
         int targetResourceFuncCount = resourceFunctions.size();
         if (targetResourceFuncCount == 0) {
-            dlog.error(resourceAccessInvocation.pos, 
+            dlog.error(resourceAccessInvocation.name.pos, 
                     DiagnosticErrorCode.UNDEFINED_RESOURCE_METHOD, resourceAccessInvocation.name, lhsExprType);
             data.resultType = symTable.semanticError;
         } else if (targetResourceFuncCount > 1) {
