@@ -1,0 +1,41 @@
+Ballerina Strand Dump \[\d*/\d*/\d* \d*:\d*:\d*\]
+===========================================
+
+Current no. of strand groups\t:\t3
+Current no. of strands      \t:\t9
+
+group \d* \[QUEUED\]: \[7\]
+\tstrand \d* "main" \[\$anon...0:main\] \[BLOCKED\]:
+\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
+\t\t  \t\$anon...0.0.0:bar\(balProgram1.bal:76\)
+\t\t  \t\$anon...0.0.0:foo\(balProgram1.bal:26\)
+\t\t  \t\$anon...0.0.0:main\(balProgram1.bal:22\)
+
+\tstrand \d* "w3" \[\$anon...0:bar\]\[\d*\] \[BLOCKED ON WORKER MESSAGE SEND\]:
+\t\tat\t\$anon...0.0.0:\$lambda\$_2\(balProgram1.bal:49\)
+
+\tstrand \d* "w4" \[\$anon...0:bar\]\[\d*\] \[BLOCKED\]:
+\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
+\t\t  \t\$anon...0.0.0:\$lambda\$_3\(balProgram1.bal:53\)
+
+\tstrand \d* "w5" \[\$anon...0:bar\]\[\d*\] \[BLOCKED ON WORKER MESSAGE FLUSH\]:
+\t\tat\t\$anon...0.0.0:\$lambda\$_4\(balProgram1.bal:59\)
+
+\tstrand \d* "w6" \[\$anon...0:bar\]\[\d*\] \[BLOCKED\]:
+\t\tat\tballerina.lang.runtime.\d*.\d*.\d*:sleep\(runtime.bal:\d*\)
+\t\t  \t\$anon...0.0.0:\$lambda\$_5\(balProgram1.bal:63\)
+
+\tstrand \d* \[\$anon...0:bar\]\[\d*\] \[BLOCKED ON WORKER MESSAGE RECEIVE\]:
+\t\tat\t\$anon...0.0.0:\$lambda\$_6\(balProgram1.bal:68\)
+
+\tstrand \d* "w8" \[\$anon...0:bar\]\[\d*\] \[WAITING\]:
+\t\tat\t\$anon...0.0.0:\$lambda\$_7\(balProgram1.bal:73\)
+
+group \d* \[RUNNABLE\]: \[1\]
+\tstrand \d* "w1" \[\$anon...0:bar\]\[\d*\] \[RUNNABLE\]
+
+group \d* \[QUEUED\]: \[1\]
+\tstrand \d* "w2" \[\$anon...0:bar\]\[\d*\] \[WAITING FOR LOCK\]:
+\t\tat\t\$anon...0.0.0:\$lambda\$_1\(balProgram1.bal:43\)
+
+===========================================
