@@ -1,6 +1,9 @@
 {
-  "line": 13,
-  "character": 37,
+  "position": {
+    "line": 13,
+    "character": 37
+  },
+  "source": "createUndefinedFunctionInLet.bal",
   "expected": [
     {
       "title": "Create function 'getYear(...)'",

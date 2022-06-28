@@ -1,6 +1,9 @@
 {
-  "line": 10,
-  "character": 8,
+  "position": {
+    "line": 10,
+    "character": 8
+  },
+  "source": "singleDocGeneration.bal",
   "expected": [
     {
       "title": "Document this",

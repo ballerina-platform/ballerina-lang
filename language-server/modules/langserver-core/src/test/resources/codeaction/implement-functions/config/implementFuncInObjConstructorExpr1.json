@@ -1,6 +1,9 @@
 {
-  "line": 7,
-  "character": 29,
+  "position": {
+    "line": 7,
+    "character": 29
+  },
+  "source": "implementFuncInObjConstructorExpr1.bal",
   "expected": [
     {
       "title": "Implement method 'getName'",

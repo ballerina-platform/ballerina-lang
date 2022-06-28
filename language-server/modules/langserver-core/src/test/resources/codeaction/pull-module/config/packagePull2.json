@@ -1,6 +1,9 @@
 {
-  "line": 0,
-  "character": 10,
+  "position": {
+    "line": 0,
+    "character": 10
+  },
+  "source": "packagePull.bal",
   "expected": [
     {
       "title": "Pull unresolved modules",

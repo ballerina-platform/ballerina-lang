@@ -1,6 +1,9 @@
 {
-  "line": 3,
-  "character": 11,
+  "position": {
+    "line": 3,
+    "character": 11
+  },
+  "source": "typeCastInMemberAccess1.bal",
   "expected": [
     {
       "title": "Add type cast",
@@ -17,7 +20,7 @@
               "character": 10
             }
           },
-          "newText": "<string>"
+          "newText": "\u003cstring\u003e"
         }
       ]
     }

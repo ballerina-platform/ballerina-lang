@@ -38,18 +38,18 @@ public class GetterSetterCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"getterSetterCodeAction1.json", "getterSetter1.bal"},
-                {"getterSetterCodeAction2.json", "getterSetter2.bal"},
-                {"getterSetterCodeAction3.json", "getterSetter3.bal"},
-                {"getterSetterCodeAction4.json", "getterSetter4.bal"}
+                {"getterSetterCodeAction1.json"},
+                {"getterSetterCodeAction2.json"},
+                {"getterSetterCodeAction3.json"},
+                {"getterSetterCodeAction4.json"}
         };
     }
 }

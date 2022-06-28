@@ -1,6 +1,9 @@
 {
-  "line": 1,
-  "character": 11,
+  "position": {
+    "line": 1,
+    "character": 11
+  },
+  "source": "on_fail_for_while_condition_check_stmt.bal",
   "expected": [
     {
       "title": "Surround with do/on-fail",

@@ -1,6 +1,9 @@
 {
-  "line": 5,
-  "character": 37,
+  "position": {
+    "line": 5,
+    "character": 37
+  },
+  "source": "updateDocumentation1.bal",
   "expected": [
     {
       "title": "Update documentation",

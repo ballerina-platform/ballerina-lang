@@ -1,6 +1,9 @@
 {
-  "line": 7,
-  "character": 17,
+  "position": {
+    "line": 7,
+    "character": 17
+  },
+  "source": "extract_type_in_fn_body2.bal",
   "expected": [
     {
       "title": "Extract type",

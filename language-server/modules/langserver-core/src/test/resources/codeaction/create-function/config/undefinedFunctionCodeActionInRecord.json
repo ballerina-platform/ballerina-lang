@@ -1,6 +1,9 @@
 {
-  "line": 18,
-  "character": 22,
+  "position": {
+    "line": 18,
+    "character": 22
+  },
+  "source": "createUndefinedFunctionInRecord.bal",
   "expected": [
     {
       "title": "Create function 'getManufacturer(...)'",

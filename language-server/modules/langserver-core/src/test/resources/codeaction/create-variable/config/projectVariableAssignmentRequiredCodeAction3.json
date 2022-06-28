@@ -1,6 +1,9 @@
 {
-  "line": 11,
-  "character": 4,
+  "position": {
+    "line": 11,
+    "character": 4
+  },
+  "source": "testproject/modules/module1/module1.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country country = "
+          "newText": "module2:Country country \u003d "
         }
       ]
     },
@@ -36,7 +39,7 @@
               "character": 4
             }
           },
-          "newText": "_ = "
+          "newText": "_ \u003d "
         }
       ]
     }

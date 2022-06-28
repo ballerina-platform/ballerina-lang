@@ -1,6 +1,9 @@
 {
-  "line": 5,
-  "character": 4,
+  "position": {
+    "line": 5,
+    "character": 4
+  },
+  "source": "createVariableWithUnionType.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "int|float number = "
+          "newText": "int|float number \u003d "
         }
       ]
     }

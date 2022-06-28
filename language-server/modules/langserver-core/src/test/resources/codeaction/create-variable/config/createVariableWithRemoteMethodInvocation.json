@@ -1,6 +1,9 @@
 {
-  "line": 22,
-  "character": 12,
+  "position": {
+    "line": 22,
+    "character": 12
+  },
+  "source": "createVariable9.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
@@ -43,7 +46,7 @@
               "character": 4
             }
           },
-          "newText": "HelloReply|E1 sayHello = "
+          "newText": "HelloReply|E1 sayHello \u003d "
         }
       ]
     },
@@ -62,7 +65,7 @@
               "character": 4
             }
           },
-          "newText": "HelloReply sayHello = "
+          "newText": "HelloReply sayHello \u003d "
         },
         {
           "range": {
@@ -107,7 +110,7 @@
               "character": 4
             }
           },
-          "newText": "HelloReply|E1 sayHello = "
+          "newText": "HelloReply|E1 sayHello \u003d "
         }
       ]
     },
@@ -126,7 +129,7 @@
               "character": 4
             }
           },
-          "newText": "_ = "
+          "newText": "_ \u003d "
         }
       ]
     }

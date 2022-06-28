@@ -1,6 +1,9 @@
 {
-  "line": 22,
-  "character": 20,
+  "position": {
+    "line": 22,
+    "character": 20
+  },
+  "source": "createUndefinedFunctionInRecord.bal",
   "expected": [
     {
       "title": "Create function 'createListener(...)'",

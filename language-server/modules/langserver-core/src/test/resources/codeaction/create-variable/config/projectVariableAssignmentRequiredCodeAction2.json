@@ -1,6 +1,9 @@
 {
-  "line": 7,
-  "character": 4,
+  "position": {
+    "line": 7,
+    "character": 4
+  },
+  "source": "testproject/main.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
@@ -43,7 +46,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country|error countryWithError = "
+          "newText": "module2:Country|error countryWithError \u003d "
         }
       ]
     },
@@ -75,7 +78,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country countryWithError = "
+          "newText": "module2:Country countryWithError \u003d "
         },
         {
           "range": {
@@ -120,7 +123,7 @@
               "character": 4
             }
           },
-          "newText": "module2:Country|error countryWithError = "
+          "newText": "module2:Country|error countryWithError \u003d "
         },
         {
           "range": {

@@ -1,6 +1,9 @@
 {
-  "line": 2,
-  "character": 18,
+  "position": {
+    "line": 2,
+    "character": 18
+  },
+  "source": "getterSetter1.bal",
   "expected": [
     {
       "title": "Create a setter for 'count'",

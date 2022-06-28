@@ -1,6 +1,9 @@
 {
-  "line": 6,
-  "character": 4,
+  "position": {
+    "line": 6,
+    "character": 4
+  },
+  "source": "createVariableForOptionalFieldAccess1.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "int? unionResult = "
+          "newText": "int? unionResult \u003d "
         }
       ]
     }

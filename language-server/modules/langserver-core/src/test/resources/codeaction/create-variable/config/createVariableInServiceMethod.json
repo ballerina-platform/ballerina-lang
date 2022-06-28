@@ -1,6 +1,9 @@
 {
-  "line": 10,
-  "character": 8,
+  "position": {
+    "line": 10,
+    "character": 8
+  },
+  "source": "createVariableInServiceMethod.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
@@ -30,7 +33,7 @@
               "character": 8
             }
           },
-          "newText": "int|error intWithError = "
+          "newText": "int|error intWithError \u003d "
         }
       ]
     },
@@ -49,7 +52,7 @@
               "character": 8
             }
           },
-          "newText": "int intWithError = "
+          "newText": "int intWithError \u003d "
         },
         {
           "range": {
@@ -94,7 +97,7 @@
               "character": 8
             }
           },
-          "newText": "int|error intWithError = "
+          "newText": "int|error intWithError \u003d "
         }
       ]
     }

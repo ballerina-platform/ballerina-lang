@@ -1,6 +1,9 @@
 {
-  "line": 7,
-  "character": 4,
+  "position": {
+    "line": 7,
+    "character": 4
+  },
+  "source": "createVariableWithIntersectionType.bal",
   "expected": [
     {
       "title": "Create variable",
@@ -17,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "(Foo & readonly)|int|(string[] & readonly) recordIntersectionResult = "
+          "newText": "(Foo \u0026 readonly)|int|(string[] \u0026 readonly) recordIntersectionResult \u003d "
         }
       ]
     }

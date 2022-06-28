@@ -1,6 +1,9 @@
 {
-  "line": 7,
-  "character": 7,
+  "position": {
+    "line": 7,
+    "character": 7
+  },
+  "source": "remove_unreachable_code1.bal",
   "expected": [
     {
       "title": "Remove unreachable code",

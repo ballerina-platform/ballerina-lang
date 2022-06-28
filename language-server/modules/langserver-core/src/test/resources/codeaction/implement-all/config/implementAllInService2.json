@@ -1,6 +1,9 @@
 {
-  "line": 8,
-  "character": 4,
+  "position": {
+    "line": 8,
+    "character": 4
+  },
+  "source": "implementAllInService.bal",
   "expected": [
     {
       "title": "Implement all",

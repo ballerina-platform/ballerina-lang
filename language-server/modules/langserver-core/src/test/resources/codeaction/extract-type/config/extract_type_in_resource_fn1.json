@@ -1,6 +1,9 @@
 {
-  "line": 9,
-  "character": 54,
+  "position": {
+    "line": 9,
+    "character": 54
+  },
+  "source": "extract_type_in_resource_fn1.bal",
   "expected": [
     {
       "title": "Extract type",

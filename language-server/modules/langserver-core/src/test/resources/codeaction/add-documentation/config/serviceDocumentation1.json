@@ -1,6 +1,9 @@
 {
-  "line": 4,
-  "character": 8,
+  "position": {
+    "line": 4,
+    "character": 8
+  },
+  "source": "serviceDocumentationSource.bal",
   "expected": [
     {
       "title": "Document this",

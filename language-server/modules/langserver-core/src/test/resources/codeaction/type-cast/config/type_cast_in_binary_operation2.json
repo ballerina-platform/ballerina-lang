@@ -1,6 +1,9 @@
 {
-  "line": 5,
-  "character": 15,
+  "position": {
+    "line": 5,
+    "character": 15
+  },
+  "source": "type_cast_in_binary_operation.bal",
   "expected": [
     {
       "title": "Add type cast to 'f1'",

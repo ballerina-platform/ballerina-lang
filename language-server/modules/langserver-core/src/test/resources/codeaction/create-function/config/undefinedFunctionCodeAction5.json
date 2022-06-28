@@ -1,6 +1,9 @@
 {
-  "line": 4,
-  "character": 29,
+  "position": {
+    "line": 4,
+    "character": 29
+  },
+  "source": "createUndefinedFunction4.bal",
   "expected": [
     {
       "title": "Create function 'getInt(...)'",

@@ -1,6 +1,9 @@
 {
-  "line": 15,
-  "character": 31,
+  "position": {
+    "line": 15,
+    "character": 31
+  },
+  "source": "createUndefinedFunctionInLet.bal",
   "expected": [
     {
       "title": "Create function 'getTestRecord(...)'",

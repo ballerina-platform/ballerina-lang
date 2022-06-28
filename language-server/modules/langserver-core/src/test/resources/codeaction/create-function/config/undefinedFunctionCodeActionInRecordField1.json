@@ -1,6 +1,9 @@
 {
-  "line": 2,
-  "character": 15,
+  "position": {
+    "line": 2,
+    "character": 15
+  },
+  "source": "createUndefinedFunctionInRecordField.bal",
   "expected": [
     {
       "title": "Create function 'fn(...)'",
@@ -13,7 +16,7 @@
             "key": "node.range",
             "value": {
               "start": {
-                "line":2,
+                "line": 2,
                 "character": 13
               },
               "end": {
