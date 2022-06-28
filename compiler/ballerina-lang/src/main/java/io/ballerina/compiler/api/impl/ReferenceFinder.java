@@ -1287,6 +1287,20 @@ public class ReferenceFinder extends BaseVisitor {
         addIfSameSymbol(restMatchPattern.symbol, restMatchPattern.variableName.pos);
     }
 
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        find(resourceAccessInvocation.expr);
+        find(resourceAccessInvocation.requiredArgs);
+        find(resourceAccessInvocation.annAttachments);
+        find(resourceAccessInvocation.restArgs);
+        find(resourceAccessInvocation.resourceAccessPathSegments);
+
+        if (!resourceAccessInvocation.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
+        }
+        addIfSameSymbol(resourceAccessInvocation.symbol, resourceAccessInvocation.pos);
+    }
+
     // Private methods
 
     private void visitNamedArgWithoutAddingSymbol(List<BLangNamedArgsExpression> args) {

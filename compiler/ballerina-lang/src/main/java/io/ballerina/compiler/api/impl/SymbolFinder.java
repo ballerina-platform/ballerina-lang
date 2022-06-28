@@ -1589,6 +1589,18 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(xmlNavigation.filters);
     }
 
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        if (setEnclosingNode(resourceAccessInvocation.symbol, resourceAccessInvocation.pos)) {
+            return;
+        }
+        lookupNodes(resourceAccessInvocation.annAttachments);
+        lookupNode(resourceAccessInvocation.resourceAccessPathSegments);
+        lookupNodes(resourceAccessInvocation.requiredArgs);
+        lookupNodes(resourceAccessInvocation.restArgs);
+        lookupNode(resourceAccessInvocation.expr);
+    }
+
     private boolean setEnclosingNode(BSymbol symbol, Location pos) {
         if (PositionUtil.withinBlock(this.cursorPos, pos)) {
             this.symbolAtCursor = symbol;

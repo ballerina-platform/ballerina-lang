@@ -213,6 +213,10 @@ public class EnvironmentResolver extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+    }
+
+    @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         if (PositionUtil.withinBlock(this.linePosition, objectTypeNode.getPosition())
                 && isNarrowerEnclosure(objectTypeNode.getPosition())) {
