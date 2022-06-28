@@ -61,7 +61,7 @@ group \d* \[QUEUED\]: \[1\]
 \tstrand \d* "w2" \[testOrg.testPackageWithModules.0:balfunc\]\[\d*\] \[WAITING FOR LOCK\]:
 \t\tat\ttestOrg.testPackageWithModules.0.1.0:\$lambda\$_3\(main.bal:74\)
 
-group 8 \[QUEUED\]: \[3\]
+group \d* \[QUEUED\]: \[3\]
 \tstrand \d* "futureResult3" \[testOrg.testPackageWithModules.0:main\]\[\d*\] \[WAITING\]:
 \t\tat\ttestOrg.testPackageWithModules.anotherutils.0.1.0:func3\(anotherutils.bal:44\)
 \t\t  \ttestOrg.testPackageWithModules.anotherutils.0.1.0:func2\(anotherutils.bal:28\)
