@@ -6572,12 +6572,12 @@ public class Types {
         return containsClientObjectOrFunctionType(type, visitedTypeSet, isCheckForClient);
     }
 
-    boolean containsClientObjectOrFunctionType(BType type, Set<BType> visitedTypeSet, boolean isCheckForClient) {
+    private boolean containsClientObjectOrFunctionType(
+            BType type, Set<BType> visitedTypeSet, boolean isCheckForClient) {
         if (type == null) {
             return false;
         }
-        type = Types.getReferredType(type);
-        if (isCheckForClient && Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT)) {
+        if (isCheckForClient && type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT)) {
             return true;
         }
         switch (type.tag) {

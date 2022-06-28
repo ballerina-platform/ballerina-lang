@@ -27,30 +27,29 @@ function testFunction(int a, string b) returns int|string {
 
 public function testErrorInResourceMethodReturningObjectType() {
     var successClientObject = client object {
-        resource function get .() returns client object {} {
+        resource function get clientReturnPath() returns client object {} {
             return successClient;
         }
 
-        resource function get clientUnionFunctionReturnPath/[int a]/foo(string name) returns int|client object {}|
+        resource function get clientUnionFunctionReturnPath() returns int|client object {}|
                 (function (int a, string b) returns int|string)|string|record{int a;} {
             return testFunction;
         }
 
-        resource function get readonlyClientReturnPath/[int a]/foo(string name) returns client object {} & readonly {
+        resource function get readonlyClientReturnPath() returns client object {} & readonly {
             return successClient;
         }
 
-        resource function get nullableClientReturnPath/[int a]/foo(string name) returns client object {}? {
+        resource function get nullableClientReturnPath() returns client object {}? {
             return successClient;
         }
 
-        resource function get nullableClientUnionFunctionReturnPath/[int a]/foo(string name)
-            returns (int|client object {} |
-                (function (int a, string b) returns int|string)|xml)? {
+        resource function get nullableClientUnionFunctionReturnPath()
+            returns (int|client object {}|(function (int a, string b) returns int|string)|xml)? {
             return testFunction;
         }
 
-        resource function get nullableReadonlyClientReturnPath/[int a]/foo(string name)
+        resource function get nullableReadonlyClientReturnPath()
             returns client object {}? & readonly {
             return successClient;
         }
@@ -59,21 +58,21 @@ public function testErrorInResourceMethodReturningObjectType() {
 
 public function testErrorInResourceMethodReturningFunctionType() {
     var successClientObject = client object {
-        resource function get .() returns function (int a, string b) returns int|string {
+        resource function get functionReturnPath() returns function (int a, string b) returns int|string {
             return testFunction;
         }
 
-        resource function get readonlyFunctionReturnPath/[int a]/foo(string name) returns
+        resource function get readonlyFunctionReturnPath() returns
                 function (int a, string b) returns int|string & readonly {
             return testFunction;
         }
 
-        resource function get nullableFunctionReturnPath/[int a]/foo(string name) returns
+        resource function get nullableFunctionReturnPath() returns
                 (function (int a, string b) returns int|string)? {
             return testFunction;
         }
 
-        resource function get nullableReadonlyFunctionReturnPath/[int a]/foo(string name) returns
+        resource function get nullableReadonlyFunctionReturnPath() returns
                 (function (int a, string b) returns int|string)? & readonly {
             return testFunction;
         }
@@ -82,16 +81,16 @@ public function testErrorInResourceMethodReturningFunctionType() {
 
 public function testErrorInResourceMethodReturningCustomObjectType() {
     var successClientObject = client object {
-        resource function get .() returns CustomType1 {
+        resource function get clientReturnPath() returns CustomType1 {
             return successClient;
         }
 
-        resource function get clientUnionFunctionReturnPath/[int a]/foo(string name)
+        resource function get clientUnionFunctionReturnPath()
                 returns int|CustomType1|CustomType2 {
             return testFunction;
         }
 
-        resource function get readonlyClientReturnPath/[int a]/foo(string name) returns CustomType1 & readonly {
+        resource function get readonlyClientReturnPath() returns CustomType1 & readonly {
             return successClient;
         }
     };
@@ -99,20 +98,24 @@ public function testErrorInResourceMethodReturningCustomObjectType() {
 
 public function testErrorInResourceMethodReturningCustomFunctionType() {
     var successClientObject = client object {
-        resource function get .() returns CustomType2 {
+        resource function get functionReturnPath() returns CustomType2 {
             return testFunction;
         }
 
-        resource function get readonlyFunctionReturnPath/[int a]/foo(string name) returns CustomType2 & readonly {
+        resource function get readonlyFunctionReturnPath() returns CustomType2 & readonly {
             return testFunction;
         }
 
-        resource function get nullableFunctionReturnPath/[int a]/foo(string name) returns CustomType2? {
+        resource function get nullableFunctionReturnPath() returns CustomType2? {
             return testFunction;
         }
 
-        resource function get nullableReadonlyFunctionReturnPath/[int a]/foo(string name)
+        resource function get nullableReadonlyFunctionReturnPath()
                 returns CustomType2? & readonly {
+            return testFunction;
+        }
+
+        resource function get functionAndClientObjectUnionReturnPath() returns CustomType1|CustomType2 {
             return testFunction;
         }
     };

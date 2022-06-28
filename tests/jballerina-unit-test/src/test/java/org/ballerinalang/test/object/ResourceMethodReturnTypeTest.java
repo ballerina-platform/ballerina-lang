@@ -31,48 +31,52 @@ public class ResourceMethodReturnTypeTest {
     @Test()
     public void testResourceMethodReturnType() {
         CompileResult compileResult = BCompileUtil.
-                compile("test-src/object/client_resource_return_negative.bal");
+                compile("test-src/object/resource_method_return_type_negative.bal");
         int i = 0;
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 30, 43);
+                "'client object' types", 30, 58);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 34, 94);
+                "'client object' types", 34, 71);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 34, 94);
+                "'function' types", 34, 71);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 39, 89);
+                "'client object' types", 39, 66);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 43, 89);
+                "'client object' types", 43, 66);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
                 "'client object' types", 48, 21);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
                 "'function' types", 48, 21);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 54, 21);
+                "'client object' types", 53, 21);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 62, 43);
+                "'function' types", 61, 60);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 67, 17);
+                "'function' types", 66, 17);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 72, 17);
+                "'function' types", 71, 17);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 77, 17);
+                "'function' types", 76, 17);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 85, 43);
+                "'client object' types", 84, 58);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 90, 25);
+                "'client object' types", 89, 25);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 90, 25);
+                "'function' types", 89, 25);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 94, 89);
+                "'client object' types", 93, 66);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 102, 43);
+                "'function' types", 101, 60);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 106, 91);
+                "'function' types", 105, 68);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 110, 91);
+                "'function' types", 109, 68);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 115, 25);
+                "'function' types", 114, 25);
+        validateError(compileResult, i++, "return type of the resource function does not allow " +
+                "'client object' types", 118, 80);
+        validateError(compileResult, i++, "return type of the resource function does not allow " +
+                "'function' types", 118, 80);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 }
