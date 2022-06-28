@@ -520,8 +520,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         for (GlobalVariableSymbol globalVariableSymbol : globalVarSymbols) {
             Identifier variableName = globalVariableSymbol.getName();
-            Identifier variableNameConverted = new Identifier(
-                    StringUtils.convertUnicodeToCharacter(variableName.getName()));
+            Identifier variableNameConverted = new Identifier(variableName.getUnicodeConvertedName());
             TypeSymbol typeSymbol = globalVariableSymbol.getTypeSymbol();
 
             // Is a built-in variable/function
