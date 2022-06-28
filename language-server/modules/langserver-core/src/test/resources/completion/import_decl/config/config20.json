@@ -156,6 +156,14 @@
       "sortText": "C",
       "insertText": "lang.runtime;",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'function;",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

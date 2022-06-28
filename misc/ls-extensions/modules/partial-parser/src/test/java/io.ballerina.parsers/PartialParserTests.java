@@ -43,6 +43,7 @@ public class PartialParserTests {
     private static final String EXPRESSION = "partialParser/getSTForExpression";
     private static final String MODULE_MEMBER = "partialParser/getSTForModuleMembers";
     private static final String MODULE_PART = "partialParser/getSTForModulePart";
+    private static final String RESOURCE = "partialParser/getSTForResource";
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
     private static final Path ST_WINDOWS = RES_DIR.resolve("syntax-tree").resolve("windows");
@@ -50,6 +51,7 @@ public class PartialParserTests {
 
     private final Path sampleRecord = RES_DIR.resolve("ballerina").resolve("sample_record.bal");
     private final Path sampleServiceNListener = RES_DIR.resolve("ballerina").resolve("sample_service_and_listener.bal");
+    private final Path sampleResource = RES_DIR.resolve("ballerina").resolve("sample_resource.bal");
 
     private Endpoint serviceEndpoint;
 
@@ -183,6 +185,19 @@ public class PartialParserTests {
         String modulePart =  Files.readString(sampleServiceNListener);;
         PartialSTRequest request = new PartialSTRequest(modulePart);
         CompletableFuture<?> result = serviceEndpoint.request(MODULE_PART, request);
+        STResponse json = (STResponse) result.get();
+        BufferedReader br = new BufferedReader(getFileReader(file));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
+    @Test(description = "Test getting ST for a resource")
+    public void testSTForResource() throws ExecutionException, InterruptedException, IOException {
+        String file = "sample_resource.json";
+
+        String modulePart =  Files.readString(sampleResource);;
+        PartialSTRequest request = new PartialSTRequest(modulePart);
+        CompletableFuture<?> result = serviceEndpoint.request(RESOURCE, request);
         STResponse json = (STResponse) result.get();
         BufferedReader br = new BufferedReader(getFileReader(file));
         JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
