@@ -1,9 +1,13 @@
 {
-  "line": 24,
-  "character": 3,
+  "position": {
+    "line": 24,
+    "character": 3
+  },
+  "source": "createVariable.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 3
             }
           },
-          "newText": "Grapes grapes = "
+          "newText": "Grapes grapes \u003d "
         }
       ]
     }

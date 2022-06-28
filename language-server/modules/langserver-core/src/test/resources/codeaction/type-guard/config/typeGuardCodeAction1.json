@@ -1,24 +1,27 @@
 {
+  "position": {
     "line": 3,
-    "character": 6,
-    "expected": [
+    "character": 6
+  },
+  "source": "typeGuard.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "edits": [
         {
-            "title": "Create variable",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 3,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 3,
-                            "character": 4
-                        }
-                    },
-                    "newText": "int|string|error fooResult \u003d "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 4
+            }
+          },
+          "newText": "int|string|error fooResult \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

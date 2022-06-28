@@ -1,9 +1,13 @@
 {
-    "line": 1,
-    "character": 20,
+    "position": {
+        "line": 1,
+        "character": 20
+    },
+    "source": "fixReturnTypeWithCheckExpr3.bal",
     "expected": [
         {
             "title": "Change return type to 'int|error'",
+            "kind": "quickfix",
             "edits": [
                 {
                     "range": {
