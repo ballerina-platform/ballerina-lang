@@ -285,9 +285,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = (onConflictExpr == null)
                     ? ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE)
                     : onConflictExpr;
-            BMapType mapType = (BMapType) ((BUnionType) queryExpr.getBType()).getMemberTypes()
-                    .stream().filter(m -> Types.getReferredType(m).tag == TypeTags.MAP)
-                    .findFirst().orElse(symTable.mapType);
+            BMapType mapType = (BMapType) getMapType(queryExpr.getBType());
             BLangRecordLiteral.BLangMapLiteral mapLiteral = new BLangRecordLiteral.BLangMapLiteral(queryExpr.pos,
                     mapType, new ArrayList<>());
             BLangVariableReference result = getStreamFunctionVariableRef(queryBlock,
@@ -336,6 +334,24 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         this.checkedErrorList = prevCheckedErrorList;
         return streamStmtExpr;
+    }
+
+    private BType getMapType(BType type) {
+        BType refType = Types.getReferredType(type);
+        if (refType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                BType resultType = getMapType(memberType);
+                if (resultType != symTable.mapType) {
+                    return resultType;
+                }
+            }
+            return symTable.mapType;
+        } else if(refType.tag == TypeTags.INTERSECTION) {
+            return getMapType(((BIntersectionType) refType).effectiveType);
+        } else if(refType.tag == TypeTags.MAP) {
+            return refType;
+        }
+        return symTable.mapType;
     }
 
     private boolean isXml(BType type) {

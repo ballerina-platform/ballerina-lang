@@ -5770,12 +5770,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 BType mapConstraintType = getTypeOfTypeParameter(selectType,
                         queryExpr.getSelectClause().expression.pos);
                 if (mapConstraintType != symTable.semanticError) {
-                    BType mapType = new BMapType(TypeTags.MAP, mapConstraintType, null);
+                    actualType = new BMapType(TypeTags.MAP, mapConstraintType, null);
                     if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
-                        mapType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, mapType, env,
+                        actualType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, actualType, env,
                                 symTable, anonymousModelHelper, names, null);
                     }
-                    actualType = BUnionType.create(null, mapType, symTable.errorType);
                 }
             } else {
                 actualType = resolvedTypes.get(0);
