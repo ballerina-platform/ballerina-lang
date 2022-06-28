@@ -312,14 +312,14 @@ public abstract class BalaWriter {
     }
 
     private Path updateModuleDirectory(Path relativePath) {
-        Path moduleDirPath = Path.of("modules");
-        String packageName = this.packageContext.packageName().toString();
-        if (relativePath.startsWith(moduleDirPath)) {
-            Path modulePath = moduleDirPath.resolve(moduleDirPath.relativize(relativePath).subpath(0, 1));
+        Path moduleRootPath = Path.of(MODULES_ROOT);
+        if (relativePath.startsWith(moduleRootPath)) {
+            String packageName = this.packageContext.packageName().toString();
+            Path modulePath = moduleRootPath.resolve(moduleRootPath.relativize(relativePath).subpath(0, 1));
             Path pathInsideModule = modulePath.relativize(relativePath);
             String moduleName = Optional.ofNullable(modulePath.getFileName()).orElse(Paths.get("")).toString();
             String updatedModuleName = packageName + "." + moduleName;
-            Path updatedModulePath = moduleDirPath.resolve(updatedModuleName);
+            Path updatedModulePath = moduleRootPath.resolve(updatedModuleName);
             return updatedModulePath.resolve(pathInsideModule);
         }
         return relativePath;

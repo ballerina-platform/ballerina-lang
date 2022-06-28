@@ -19,7 +19,13 @@
 package io.ballerina.projects.test;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.*;
+import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.EmitResult;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
