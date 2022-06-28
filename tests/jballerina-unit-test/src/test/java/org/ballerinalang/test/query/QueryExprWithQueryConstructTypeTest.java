@@ -165,15 +165,15 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found 'string'", 180, 50);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 182, 20);
+                "incompatible types: expected 'User', found 'int'", 184, 46);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 186, 22);
+                "incompatible types: expected 'string', found 'int'", 188, 59);
         validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found 'string'", 193, 50);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<User>', found '(map<User>|error)'", 195, 20);
+                "incompatible types: expected 'string', found 'User'", 197, 46);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<string>', found '(map<string>|error)'", 199, 22);
+                "incompatible types: expected '[string,User]', found 'string[2]'", 202, 29);
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,string]', found '(string[2]|[string,int])'", 207, 29);
         validateError(negativeResult, index++,
@@ -183,7 +183,7 @@ public class QueryExprWithQueryConstructTypeTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected '([string,int]|[string,string])', found '(string|int)'", 227, 56);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'map<string>', found '(map<(int|string)>|error)'", 229, 21);
+                "incompatible types: expected 'map<string>', found 'map<(int|string)>'", 229, 21);
         validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'",
                 236, 16);
         validateError(negativeResult, index++,

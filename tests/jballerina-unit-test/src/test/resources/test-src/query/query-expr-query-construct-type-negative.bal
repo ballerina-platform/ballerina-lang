@@ -181,22 +181,22 @@ function testInvalidStaticTypeWithQueryConstructingMap() {
 
     map<User> a2 = map from var user in users1
                      where user.age > 21 && user.age < 60
-                     select [user.firstName, user];
+                     select [user.firstName, user.age];
 
     map<string> a3 = map from var user in users1
                      where user.age > 21 && user.age < 60
-                     let string[2] arr = [user.firstName, user.lastName]
+                     let string[2] arr = [user.firstName, user.age]
                      select arr;
 
     map<int>|error a4 = map from var user in users2
                          where user.age > 21 && user.age < 60
                          select [user.firstName, user.lastName];
 
-    map<User> a5 = map from var user in users2
+    map<string> a5 = map from var user in users2
                      where user.age > 21 && user.age < 60
                      select [user.firstName, user];
 
-    map<string> a6 = map from var user in users2
+    map<User> a6 = map from var user in users2
                      where user.age > 21 && user.age < 60
                      let string[2] arr = [user.firstName, user.lastName]
                      select arr;
