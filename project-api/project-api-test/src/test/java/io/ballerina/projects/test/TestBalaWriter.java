@@ -19,12 +19,7 @@
 package io.ballerina.projects.test;
 
 import com.google.gson.Gson;
-import io.ballerina.projects.DiagnosticResult;
-import io.ballerina.projects.EmitResult;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
+import io.ballerina.projects.*;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
@@ -140,6 +135,12 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getExport().get(0), "winery");
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
+            Assert.assertFalse(packageJson.getIncludes().isEmpty());
+            Assert.assertEquals(packageJson.getIncludes().get(0), "default-module-include/file");
+            Assert.assertEquals(packageJson.getIncludes().get(1), "default-module-include-dir");
+            Assert.assertEquals(packageJson.getIncludes().get(2), "modules/services/non-default-module-include/file");
+            Assert.assertEquals(packageJson.getIncludes().get(3), "modules/services/non-default-module-include-dir");
+
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
             Assert.assertEquals(packageJson.getPlatform(), "java11");
@@ -182,6 +183,24 @@ public class TestBalaWriter {
         // check icon
         Path iconPath = balaExportPath.resolve("docs").resolve("samplePng01.png");
         Assert.assertTrue(iconPath.toFile().exists());
+
+        // check for includes
+        Path defaultModuleIncludeFile = balaExportPath.resolve("default-module-include/file");
+        Assert.assertTrue(defaultModuleIncludeFile.toFile().exists());
+        Path defaultModuleIncludeTextFile = balaExportPath.resolve("default-module-include-dir/include_text_file.txt");
+        Assert.assertTrue(defaultModuleIncludeTextFile.toFile().exists());
+        Path defaultModuleIncludeImageFile = balaExportPath.resolve("default-module-include-dir/include_image.png");
+        Assert.assertTrue(defaultModuleIncludeImageFile.toFile().exists());
+
+        Path nonDefaultModuleIncludeFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include/file");
+        Assert.assertTrue(nonDefaultModuleIncludeFile.toFile().exists());
+        Path nonDefaultModuleIncludeTextFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include-dir/include_text_file.txt");
+        Assert.assertTrue(nonDefaultModuleIncludeTextFile.toFile().exists());
+        Path nonDefaultModuleIncludeImageFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include-dir/include_image.png");
+        Assert.assertTrue(nonDefaultModuleIncludeImageFile.toFile().exists());
 
         // module sources
         // default module
@@ -430,7 +449,7 @@ public class TestBalaWriter {
         Assert.assertTrue(balaExportPath.resolve(BALA_DOCS_DIR).resolve("samplePng01.png").toFile().exists());
     }
 
-    @Test(description = "tests build project with a invalid svg icon renamed as png")
+    @Test(description = "tests build project with an invalid svg icon renamed as png")
     public void testBuildProjectWithInvalidIcon(ITestContext ctx) {
         Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithInvalidIcon");
         ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
@@ -443,6 +462,24 @@ public class TestBalaWriter {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
         Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
                 "invalid 'icon' under [package]: 'icon' can only have 'png' images");
+    }
+
+    @Test(description = "tests build project with non existing includes")
+    public void testBuildProjectWithNonExistingIncludes(ITestContext ctx) throws IOException {
+        Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithNonExistingIncludes");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
+
+        BuildProject buildProject = BuildProject.load(packagePath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        Target target = new Target(buildProject.sourceRoot());
+
+        try {
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
+            Assert.fail("Should recieve a ProjectException due to non existing path for includes");
+        } catch (ProjectException e) {
+            Assert.assertEquals(e.getMessage(), "Non existing path for include: include-dir");
+        }
     }
 
     @AfterMethod(alwaysRun = true)

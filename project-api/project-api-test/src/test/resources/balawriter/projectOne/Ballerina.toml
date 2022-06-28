@@ -9,6 +9,7 @@ keywords = ["ballerina", "security", "crypto"]
 export = ["winery", "winery.services"]
 visibility = "private"
 icon = "./resources/samplePng01.png"
+includes = ["default-module-include/file", "default-module-include-dir", "modules/services/non-default-module-include/file", "modules/services/non-default-module-include-dir"]
 
 [[platform.java11.dependency]]
 artifactId = "ldap"

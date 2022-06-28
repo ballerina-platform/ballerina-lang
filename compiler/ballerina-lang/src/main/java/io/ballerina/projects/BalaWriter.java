@@ -32,13 +32,11 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.compress.utils.IOUtils;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -271,16 +269,19 @@ public abstract class BalaWriter {
     }
 
     private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
-        // TBD: add the includes to the relevant repositories
-        // The current implementation adds all the includes to the doc/ dir
-        Path docsDirInBala = Paths.get(BALA_DOCS_DIR);
+        // adds all the includes to the root dir
         List<String> includes = this.packageContext.packageManifest().includes();
-
-        List<Path> includesPaths = filterFilesFromPatterns(includes);
-        for (Path includeAbsolutePath : includesPaths) {
-            Path includeRelativePath = getPathRelativeToPackageRoot(includeAbsolutePath);
-            Path includeInBala = docsDirInBala.resolve(includeRelativePath);
-            putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includeAbsolutePath)));
+        for (String include : includes) {
+            Path includeAbsolutePath = this.packageContext.project().sourceRoot().resolve(include);
+            if (Files.notExists(includeAbsolutePath)) {
+                throw new ProjectException("Non existing path for include: " + include);
+            }
+            Path includeInBala = getPathRelativeToPackageRoot(includeAbsolutePath);
+            if (includeAbsolutePath.toFile().isDirectory()) {
+                putDirectoryToZipFile(includeAbsolutePath, includeInBala, balaOutputStream);
+            } else {
+                putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includeAbsolutePath)));
+            }
         }
     }
 
@@ -303,27 +304,25 @@ public abstract class BalaWriter {
         }
     }
 
-    private List<Path> filterFilesFromPatterns(List<String> includes) {
-        List<Path> filePaths = new ArrayList<>();
-        for (String include : includes) {
-            File rootDir = this.packageContext.project().sourceRoot().toFile();
-            FileFilter fileFilter = new WildcardFileFilter(include);
-            File[] files = rootDir.listFiles(fileFilter);
-            if (files == null) {
-                // TODO: should throw an error?
-                continue;
-            }
-            for (File file : files) {
-                filePaths.add(file.toPath());
-            }
-        }
-        return filePaths;
-    }
-
     private Path getPathRelativeToPackageRoot(Path absolutePath) {
         URI packagePathURI = this.packageContext.project().sourceRoot().toUri();
         URI relativePathURI = packagePathURI.relativize(absolutePath.toUri());
-        return Paths.get(relativePathURI.getPath());
+        Path relativePath = Paths.get(relativePathURI.getPath());
+        return updateModuleDirectory(relativePath);
+    }
+
+    private Path updateModuleDirectory(Path relativePath) {
+        Path moduleDirPath = Path.of("modules");
+        String packageName = this.packageContext.packageName().toString();
+        if (relativePath.startsWith(moduleDirPath)) {
+            Path modulePath = moduleDirPath.resolve(moduleDirPath.relativize(relativePath).subpath(0, 1));
+            Path pathInsideModule = modulePath.relativize(relativePath);
+            String moduleName = Optional.ofNullable(modulePath.getFileName()).orElse(Paths.get("")).toString();
+            String updatedModuleName = packageName + "." + moduleName;
+            Path updatedModulePath = moduleDirPath.resolve(updatedModuleName);
+            return updatedModulePath.resolve(pathInsideModule);
+        }
+        return relativePath;
     }
 
     private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
