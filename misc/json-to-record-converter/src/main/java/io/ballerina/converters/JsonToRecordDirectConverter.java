@@ -66,7 +66,7 @@ import static io.ballerina.converters.util.ListOperationUtils.intersection;
 /**
  * API for converting JSON string to Ballerina Records directly.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class JsonToRecordDirectConverter {
 

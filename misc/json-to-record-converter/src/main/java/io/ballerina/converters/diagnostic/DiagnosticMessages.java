@@ -25,7 +25,7 @@ import java.util.Arrays;
 /**
  * Contains diagnostic messages of the JSON to Record converter.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class DiagnosticMessages {
 
