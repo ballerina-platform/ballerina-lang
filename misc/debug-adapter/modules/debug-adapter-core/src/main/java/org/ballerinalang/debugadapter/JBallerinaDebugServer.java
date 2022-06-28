@@ -602,6 +602,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         endPoint.request(RUN_IN_TERMINAL_REQUEST, args).thenApply((response) -> {
             int tryCounter = 0;
 
+            // attach to target VM
             while (context.getDebuggeeVM() == null && tryCounter < 6) {
                 try {
                     attachToRemoteVM("", clientConfigHolder.getDebuggePort());
@@ -617,6 +618,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 }
             }
 
+            // if the VM is not attached within 60 seconds
             if (context.getDebuggeeVM() == null) {
                 // shut down debug server
                 outputLogger.sendErrorOutput("Failed to attach to the target VM");
@@ -634,6 +636,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return CompletableFuture.completedFuture(null);
     }
 
+    /**
+     * Launches the debug process in a separate terminal by setting the required request params and calling the request.
+     *
+     * @param programRunner - the instantiated Ballerina program runner for the source
+     */
     private void launchInTerminal(BProgramRunner programRunner) throws ClientConfigurationException {
         String sourceProjectRoot = context.getSourceProjectRoot();
         RunInTerminalRequestArguments runInTerminalRequestArguments = new RunInTerminalRequestArguments();
@@ -646,7 +653,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         programRunner.getBallerinaCommand(sourceProjectRoot).toArray(command);
         runInTerminalRequestArguments.setArgs(command);
 
-        outputLogger.sendDebugServerOutput("Launching debugger in terminal");
+        outputLogger.sendConsoleOutput("Launching debugger in terminal");
         context.getAdapter().runInTerminal(runInTerminalRequestArguments);
     }
 
