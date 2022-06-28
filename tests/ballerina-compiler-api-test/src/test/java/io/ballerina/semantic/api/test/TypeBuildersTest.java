@@ -79,7 +79,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * Test cases for the builders in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class TypeBuildersTest {
     private Types types;
@@ -270,7 +270,7 @@ public class TypeBuildersTest {
     @Test(dataProvider = "arrayTypeBuilderProvider")
     public void testArrayTypeBuilder(TypeSymbol memberType, Integer size, String signature) {
         TypeBuilder builder = types.builder();
-        ArrayTypeSymbol arrayTypeSymbol = builder.ARRAY_TYPE.withType(memberType).ofSize(size).build();
+        ArrayTypeSymbol arrayTypeSymbol = builder.ARRAY_TYPE.withType(memberType).withSize(size).build();
         assertEquals(arrayTypeSymbol.typeKind(), ARRAY);
         if (size != null) {
             assertTrue(arrayTypeSymbol.size().isPresent());
@@ -343,10 +343,10 @@ public class TypeBuildersTest {
         TypeSymbol empRecordType = ((TypeDefinitionSymbol) employeeRecord.get()).typeDescriptor();
 
         TableTypeSymbol empTableWithKeyFields =
-                tableTypeBuilder.withRowType(empRecordType).withKeyConstraint("name").build();
+                tableTypeBuilder.withRowType(empRecordType).withKeySpecifiers("name").build();
 
         TableTypeSymbol empTableWithKeyType =
-                tableTypeBuilder.withRowType(empRecordType).withKeyConstraint(types.STRING).build();
+                tableTypeBuilder.withRowType(empRecordType).withKeyConstraints(types.STRING).build();
 
         assertEquals(empTableWithKeyFields.signature(), "table<Employee> key(name)");
         assertEquals(empTableWithKeyType.signature(), "table<Employee> key<string>");
@@ -357,13 +357,13 @@ public class TypeBuildersTest {
         TypeSymbol cusRecordType = ((TypeDefinitionSymbol) customerRecord.get()).typeDescriptor();
 
         TableTypeSymbol cusTableWithKeyFields =
-                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraint("id", "name").build();
+                tableTypeBuilder.withRowType(cusRecordType).withKeySpecifiers("id", "name").build();
 
         TableTypeSymbol cusTableWithKeyType =
-                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraint(types.INT).build();
+                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraints(types.INT, types.STRING).build();
 
         assertEquals(cusTableWithKeyFields.signature(), "table<Customer> key(id,name)");
-        assertEquals(cusTableWithKeyType.signature(), "table<Customer> key<int>");
+        assertEquals(cusTableWithKeyType.signature(), "table<Customer> key<[int, string]>");
 
     }
 

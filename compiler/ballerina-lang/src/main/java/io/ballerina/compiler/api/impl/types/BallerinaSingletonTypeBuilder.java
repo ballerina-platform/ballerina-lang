@@ -40,7 +40,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 /**
  * The implementation of the methods used to build the Singleton type descriptor.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
 
@@ -64,6 +64,7 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
     @Override
     public SingletonTypeSymbol build() {
         // TODO: Validate if the valueTypeSymbol is matching the value's type.
+        // TODO: Need further discussion on how to proceed on this case.
         BLangLiteral valueLiteral = new BLangLiteral(value, getValueBType(valueTypeSymbol));
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString(value.toString()), symTable.rootPkgSymbol.pkgID, null,
@@ -75,14 +76,14 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
     }
 
     private BType getValueBType(TypeSymbol typeSymbol) {
-        if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
-            }
-
-            return symTable.anyType;
+        if (typeSymbol == null) {
+            return symTable.noType;
         }
 
-        return symTable.noType;
+        if (typeSymbol instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        return symTable.anyType;
     }
 }

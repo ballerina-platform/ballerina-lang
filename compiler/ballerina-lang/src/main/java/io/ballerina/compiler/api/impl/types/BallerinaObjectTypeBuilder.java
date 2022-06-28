@@ -53,7 +53,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 /**
  * The implementation of the methods used to build the Object type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 

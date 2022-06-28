@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * The implementation of the methods used to build the XML type descriptor.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
 

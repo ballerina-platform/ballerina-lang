@@ -40,7 +40,7 @@ import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 /**
  * Represents the set of type builder interfaces which are used to generate complex types in a single semantic context.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public abstract class TypeBuilder {
 
@@ -149,7 +149,7 @@ public abstract class TypeBuilder {
     public interface ARRAY {
         ARRAY withType(TypeSymbol type);
 
-        ARRAY ofSize(Integer size);
+        ARRAY withSize(Integer size);
 
         ArrayTypeSymbol build();
     }
@@ -178,8 +178,8 @@ public abstract class TypeBuilder {
     public interface TABLE {
 
         TABLE withRowType(TypeSymbol rowType);
-        TABLE withKeyConstraint(TypeSymbol keyType);
-        TABLE withKeyConstraint(String... fieldNames);
+        TABLE withKeyConstraints(TypeSymbol... keyTypes);
+        TABLE withKeySpecifiers(String... fieldNames);
         TableTypeSymbol build();
     }
 
@@ -198,7 +198,7 @@ public abstract class TypeBuilder {
         interface PARAMETER_BUILDER {
             PARAMETER_BUILDER withName(String name);
             PARAMETER_BUILDER withType(TypeSymbol type);
-            PARAMETER_BUILDER ofKind(ParameterKind kind);
+            PARAMETER_BUILDER withKind(ParameterKind kind);
             ParameterSymbol build();
         }
     }
