@@ -35,7 +35,7 @@ import java.util.stream.Stream;
 /**
  * Util methods for JSON to record direct converter.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class ConverterUtils {
 
