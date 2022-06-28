@@ -555,7 +555,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE
                 || typeDefinition.typeNode.getKind() == NodeKind.TABLE_TYPE
-                || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE) {
+                || typeDefinition.typeNode.getKind() == NodeKind.FINITE_TYPE_NODE
+                || typeDefinition.typeNode.getKind() == NodeKind.TUPLE_TYPE_NODE) {
             analyzeDef(typeDefinition.typeNode, data);
         }
 
@@ -904,7 +905,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeDef(memberTypeNode.typeNode, data);
         for (BLangAnnotationAttachment annotationAttachment : memberTypeNode.annAttachments) {
             annotationAttachment.attachPoints.add(AttachPoint.Point.FIELD);
-            this.analyzeDef(annotationAttachment, data);
+            annotationAttachment.accept(this, data);
         }
     }
 

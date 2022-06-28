@@ -232,3 +232,7 @@ public function testTupleParamWithExistingArg4() {
 
 function testFunc3(string i, int... i) {
 }
+
+function testTupleMemberAnnotations() {
+     [@typeParam int, string] T = [1, "d"];
+}

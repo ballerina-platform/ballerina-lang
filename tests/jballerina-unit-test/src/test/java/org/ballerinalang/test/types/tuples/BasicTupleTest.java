@@ -325,6 +325,15 @@ public class BasicTupleTest {
         BRunUtil.invoke(result, "testTupleAsTupleFirstMember");
     }
 
+    @Test(description = "Test the tuple annotations")
+    public void testTupleAnnotations() {
+        int i = 44;
+        BAssertUtil.validateError(resultNegative, i,
+                "annotation 'ballerina/lang.annotations:0.0.0:typeParam' is not allowed on object_field, field",
+                237, 7);
+        // TODO fix other errors thrown here
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

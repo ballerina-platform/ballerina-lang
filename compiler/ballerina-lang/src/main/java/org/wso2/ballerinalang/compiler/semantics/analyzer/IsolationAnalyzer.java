@@ -239,6 +239,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangMemberTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -1838,6 +1839,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(tupleTypeNode.restParamType, env);
+    }
+
+    public void visit(BLangMemberTypeNode tupleTypeNode) {
+        analyzeNode(tupleTypeNode.typeNode, env);
     }
 
     @Override
