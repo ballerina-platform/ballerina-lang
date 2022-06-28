@@ -81,7 +81,7 @@ public class TestBirAndJarCache {
 
         int numOfModules = currentPackage.moduleIds().size();
         TestCompilationCache testCompilationCache = testCompCacheFactory.compilationCache();
-        Assert.assertEquals(testCompilationCache.birCachedCount, 0);
+        Assert.assertEquals(testCompilationCache.birCachedCount, numOfModules * 2);
         // numOfModules * 2 : This includes testable jars as well
         Assert.assertEquals(testCompilationCache.jarCachedCount, numOfModules * 2);
 

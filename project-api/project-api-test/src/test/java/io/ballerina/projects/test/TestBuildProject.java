@@ -2089,6 +2089,7 @@ public class TestBuildProject extends BaseTest {
         // Set sticky false, to imitate the default build command behavior
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
+        buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(TARGET_DIR_NAME)));
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
@@ -2109,7 +2110,6 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilationSecondBuild = projectSecondBuild.currentPackage().getCompilation();
         compilationSecondBuild.diagnosticResult().diagnostics().forEach(OUT::println);
         Assert.assertFalse(compilationSecondBuild.diagnosticResult().hasErrors());
-        // Call `JBallerinaBackend`
         // Get semantic model of the default module
         Module defaultModule = projectSecondBuild.currentPackage().getDefaultModule();
         compilationSecondBuild.getSemanticModel(defaultModule.moduleId());

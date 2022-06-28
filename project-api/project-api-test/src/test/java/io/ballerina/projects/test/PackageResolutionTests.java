@@ -145,19 +145,19 @@ public class PackageResolutionTests extends BaseTest {
 
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
         buildOptionsBuilder.setSticky(false);
+        buildOptionsBuilder.targetDir(String.valueOf(projectDirPath.resolve(ProjectConstants.TARGET_DIR_NAME)));
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         Project loadProject = TestUtils.loadBuildProject(projectDirPath, buildOptions);
 
         // Delete the build file
-        if (loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile().exists()) {
-            TestUtils.deleteDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME).toFile());
+        if (loadProject.targetDir().toFile().exists()) {
+            TestUtils.deleteDirectory(loadProject.targetDir().toFile());
         }
 
         // Create empty build file
-        Files.createDirectory(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME));
-        Files.createFile(loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE));
+        Files.createDirectory(loadProject.targetDir());
+        Files.createFile(loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE));
 
         PackageCompilation compilation = loadProject.currentPackage().getCompilation();
         Assert.assertEquals(compilation.diagnosticResult().errorCount(), 0);
@@ -232,8 +232,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithEmptyBuildFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
-        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE);
+        Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
 
         Files.deleteIfExists(buildPath);
         Files.createFile(buildPath); // Empty build file
@@ -249,8 +248,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectSaveWithNewlineBuildFile() throws IOException {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
-        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE);
+        Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
 
         Files.deleteIfExists(buildPath);
         Files.createFile(buildPath);
@@ -272,8 +270,7 @@ public class PackageResolutionTests extends BaseTest {
         }
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
-        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE);
+        Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
 
         Files.deleteIfExists(buildPath);
         Files.createFile(buildPath);
@@ -295,8 +292,7 @@ public class PackageResolutionTests extends BaseTest {
         }
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
-        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE);
+        Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
         boolean readable = buildPath.toFile().setReadable(false, false);
         if (!readable) {
             Assert.fail("could not set readable permission");
@@ -324,8 +320,7 @@ public class PackageResolutionTests extends BaseTest {
         }
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
-        Path buildPath = loadProject.sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
-                .resolve(ProjectConstants.BUILD_FILE);
+        Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
         boolean writable = buildPath.toFile().setWritable(false, false);
         if (!writable) {
             Assert.fail("could not set writable permission");

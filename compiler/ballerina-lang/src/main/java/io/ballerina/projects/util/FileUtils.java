@@ -185,10 +185,12 @@ public class FileUtils {
                 long fileModifiedDate = latestDate;
                 String filename = file.toPath().getFileName().toString();
                 if (file.isDirectory()) {
-                    if (isChild(projectRoot.resolve(MODULES_ROOT), file.toPath())
-                            && isChild(projectRoot.resolve(TEST_DIR_NAME), file.toPath())
+                    if (isChild(projectRoot.resolve(TEST_DIR_NAME), file.toPath())
                             && isChild(projectRoot.resolve(RESOURCE_DIR_NAME), file.toPath())) {
                         fileModifiedDate = lastModifiedTimeOfBalProject(file.toPath());
+                    } else if (file.toPath().equals(projectRoot.resolve(MODULES_ROOT))) {
+                        // modules directory, not considering files inside
+                        fileModifiedDate = file.lastModified();
                     }
                 } else {
                     if (file.toPath().equals(projectRoot.resolve(BALLERINA_TOML))) {
@@ -197,10 +199,6 @@ public class FileUtils {
                     } else if (filename.endsWith(BLANG_SOURCE_EXT)
                             && file.toPath().equals(projectRoot.resolve(filename))) {
                         // default module ballerina source files
-                        fileModifiedDate = file.lastModified();
-                    } else if (isChild(projectRoot.resolve(MODULES_ROOT), file.toPath())
-                            && filename.endsWith(BLANG_SOURCE_EXT)) {
-                        // modules projectRoot ballerina source files
                         fileModifiedDate = file.lastModified();
                     } else if (isChild(projectRoot.resolve(TEST_DIR_NAME), file.toPath())
                             && filename.endsWith(BLANG_SOURCE_EXT)) {
