@@ -80,6 +80,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
@@ -701,6 +702,21 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 //    public Optional<TypeSymbol> transform(InterpolationNode interpolationNode) {
 //        return super.transform(interpolationNode);
 //    }
+
+    @Override
+    public Optional<TypeSymbol> transform(FromClauseNode fromClauseNode) {
+        if (context.currentSemanticModel().isEmpty()) {
+            return Optional.empty();
+        }
+        Optional<Symbol> optionalSymbol = context.currentSemanticModel().get()
+                .symbol(fromClauseNode.typedBindingPattern().bindingPattern());
+
+        if(optionalSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(optionalSymbol.get());
+    }
 
     @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
