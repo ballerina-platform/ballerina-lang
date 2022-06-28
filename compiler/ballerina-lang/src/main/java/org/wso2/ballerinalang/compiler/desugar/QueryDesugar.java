@@ -346,9 +346,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
             }
             return symTable.mapType;
-        } else if(refType.tag == TypeTags.INTERSECTION) {
+        } else if (refType.tag == TypeTags.INTERSECTION) {
             return getMapType(((BIntersectionType) refType).effectiveType);
-        } else if(refType.tag == TypeTags.MAP) {
+        } else if (refType.tag == TypeTags.MAP) {
             return refType;
         }
         return symTable.mapType;
