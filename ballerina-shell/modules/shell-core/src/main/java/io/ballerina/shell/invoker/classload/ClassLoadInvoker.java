@@ -513,6 +513,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         for (GlobalVariableSymbol globalVariableSymbol : globalVarSymbols) {
             Identifier variableName = globalVariableSymbol.getName();
+            Identifier variableNameConverted = new Identifier(
+                    StringUtils.convertUnicodeToCharacter(variableName.getName()));
             TypeSymbol typeSymbol = globalVariableSymbol.getTypeSymbol();
 
             // Is a built-in variable/function
@@ -520,7 +522,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 continue;
             }
             // Is not a variable defined by the snippet in question
-            if (!definedVariables.contains(variableName)) {
+            if (!definedVariables.contains(variableName) && !definedVariables.contains(variableNameConverted)) {
                 continue;
             }
 
@@ -606,7 +608,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             String objStr = StringUtils.getExpressionStringValue(obj);
             String value = StringUtils.shortenedString(objStr);
             String varString = String.format("(%s) %s %s = %s",
-                    entry.getVariableName(), entry.getType(), entry.getVariableName(), value);
+                    entry.getVariableName().getUnicodeConvertedName(), entry.getType(),
+                    entry.getVariableName().getUnicodeConvertedName(), value);
             varStrings.add(varString);
         }
         return varStrings;
@@ -619,7 +622,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             String type = entry.getType();
             Object obj = InvokerMemory.recall(contextId, entry.getVariableName().getName());
             String objStr = StringUtils.getExpressionStringValue(obj);
-            AvailableVariable varObject = new AvailableVariable(entry.getVariableName().toString(), type, objStr);
+            AvailableVariable varObject = new AvailableVariable(
+                    entry.getVariableName().getUnicodeConvertedName(), type, objStr);
             varMap.add(varObject);
         }
         return varMap;

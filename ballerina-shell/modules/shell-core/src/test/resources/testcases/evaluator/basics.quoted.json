@@ -114,5 +114,14 @@
     "description": "Use unicode with escape in name - get value.",
     "code": "'unicode_\\u{2324}\\u{2324}_name",
     "expr": "\"Jane doe\""
+  },
+  {
+    "description": "Use unicode with escape in name.",
+    "code": "string 'unicode_\\u{1F600} = \"John doe\";"
+  },
+  {
+    "description": "Get unicode with escape in name - get value.",
+    "code": "'unicode_\\u{1F600}",
+    "expr": "\"John doe\""
   }
 ]
