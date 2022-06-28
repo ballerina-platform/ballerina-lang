@@ -17,6 +17,8 @@
  */
 package io.ballerina.tools.text;
 
+import java.util.List;
+
 /**
  * This is an abstract representation of a Ballerina source file (.bal).
  *
@@ -48,6 +50,14 @@ public abstract class TextDocument {
 
     public int textPositionFrom(LinePosition linePosition) {
         return lines().textPositionFrom(linePosition);
+    }
+
+    public List<String> textLines() {
+        if (lineMap != null) {
+            return lineMap.textLines();
+        }
+        lineMap = populateTextLineMap();
+        return lineMap.textLines();
     }
 
     protected LineMap lines() {
