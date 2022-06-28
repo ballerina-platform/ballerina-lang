@@ -1,0 +1,87 @@
+digraph "Initial" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+digraph "Version update attempt 1" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+digraph "Version update attempt 2" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+digraph "Final" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+digraph "Initial" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+digraph "Version update attempt 1" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+digraph "Version update attempt 2" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
+
+digraph "Final" {
+	node [shape=record]
+	"foo/package_a" [label="<0.1.0> foo/package_a:0.1.0"];
+	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
+	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+
+	// Edges
+	"foo/package_a":"0.1.0" -> "foo/package_b":"0.1.0";
+	"foo/package_b":"0.1.0" -> "foo/package_c":"0.1.0";
+}
