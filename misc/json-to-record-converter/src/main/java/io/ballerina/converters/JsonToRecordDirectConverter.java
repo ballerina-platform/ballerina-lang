@@ -111,7 +111,7 @@ public class JsonToRecordDirectConverter {
         TypeDefinitionNode lastTypeDefNode = typeDefNodes.get(typeDefNodes.size() - 1);
         NodeList<ModuleMemberDeclarationNode> moduleMembers = isRecordTypeDesc ?
                 AbstractNodeFactory.createNodeList(lastTypeDefNode) :
-                AbstractNodeFactory.createNodeList(new ArrayList(typeDefNodes));
+                AbstractNodeFactory.createNodeList(new ArrayList<>(typeDefNodes));
 
         Token eofToken = AbstractNodeFactory.createIdentifierToken("");
         ModulePartNode modulePartNode = NodeFactory.createModulePartNode(imports, moduleMembers, eofToken);
