@@ -374,25 +374,19 @@ public class TypeChecker {
                     }
                 }
                 return true;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return isSameType(((BTypeReferenceType) sourceType).getReferredType(), targetType);
             default:
                 break;
         }
 
-        switch (targetTypeTag) {
-            case TypeTags.FINITE_TYPE_TAG:
-                for (Object value : ((BFiniteType) targetType).valueSpace) {
-                    if (!isSameType(getType(value), sourceType)) {
-                        return false;
-                    }
+        if (targetTypeTag == TypeTags.FINITE_TYPE_TAG) {
+            for (Object value : ((BFiniteType) targetType).valueSpace) {
+                if (!isSameType(getType(value), sourceType)) {
+                    return false;
                 }
-                return true;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return isSameType(sourceType, ((BTypeReferenceType) targetType).getReferredType());
-            default:
-                return false;
+            }
+            return true;
         }
+        return false;
     }
 
     public static Type getType(Object value) {
@@ -2161,11 +2155,6 @@ public class TypeChecker {
                 return checkIsLikeOnValue(errors, sourceValue, ((BIntersectionType) sourceType).getEffectiveType(),
                         targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
                                 ((BIntersectionType) targetType).getEffectiveType(),
-                        unresolvedValues, allowNumericConversion, varName);
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return checkIsLikeOnValue(errors, sourceValue, ((BTypeReferenceType) sourceType).getReferredType(),
-                        targetTypeTag != TypeTags.TYPE_REFERENCED_TYPE_TAG ? targetType :
-                                ((BTypeReferenceType) targetType).getReferredType(),
                         unresolvedValues, allowNumericConversion, varName);
             case TypeTags.PARAMETERIZED_TYPE_TAG:
                 if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
