@@ -67,10 +67,12 @@ public class DiagnosticMessages {
         return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_100",
                  "Provided JSON is invalid", DiagnosticSeverity.ERROR, null);
     }
+
     public static DiagnosticMessages jsonToRecordConverter101(Object[] args) {
         return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_101",
                 "Provided JSON is unsupported. It may be null or have missing types", DiagnosticSeverity.ERROR, args);
     }
+
     public static DiagnosticMessages jsonToRecordConverter102(Object[] args) {
         return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_102",
                 "Error occurred while formatting the Ballerina syntax tree", DiagnosticSeverity.ERROR, args);
