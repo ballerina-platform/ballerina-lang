@@ -322,3 +322,37 @@ function testInvalidTypeInSelectWithQueryConstructingMap5() {
     [FooBar5, int|float][] list8 = [];
     map<int|float>|error mp8 = map from var item in list8 select item;
 }
+
+function testConstructingInvalidReadonlyMapWithOnConflict() {
+    int[][2] & readonly arr = [[1, 2], [3, 4], [9, 10]];
+    error? onConflictError = null;
+    map<int[2]> & readonly mp1 = map from var item in arr
+                                        select [item[0].toString(), item] on conflict error("Duplicate Key!");
+
+    ImmutableMapOfDept mp3 = map from var item in ["ABC", "DEF", "XY"]
+                                        let Department dept = {dept: item}
+                                        select [item, dept] on conflict null;
+
+    map<string> & readonly mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item on conflict onConflictError;
+}
+
+type CustomerTableKeyless table<Customer>;
+
+function testWithReadonlyContextualTypeForQueryConstructingTablesWithOnConflict() {
+    Customer[] & readonly customerList1 = [];
+    error? onConflictError = null;
+
+    CustomerTable & readonly out1 = table key(id, name) from var customer in customerList1
+        select {
+            id: customer.id,
+            name: customer.name
+        } on conflict onConflictError;
+
+    Customer[] customerList2 = [];
+    CustomerTable out2 = table key(id, name) from var customer in customerList2
+        select customer on conflict null;
+
+    CustomerTableKeyless & readonly out3 = table key() from var customer in customerList1
+        select customer on conflict onConflictError;
+}

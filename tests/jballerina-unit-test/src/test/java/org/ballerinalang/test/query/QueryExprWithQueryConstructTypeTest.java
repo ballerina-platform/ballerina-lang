@@ -224,6 +224,15 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar4,(int|float)]'", 320, 66);
         validateError(negativeResult, index++,
                 "incompatible types: expected '[string,(int|float)]', found '[FooBar5,(int|float)]'", 323, 66);
+        validateError(negativeResult, index++, "incompatible types: expected 'map<(int[2] & readonly)> & readonly'," +
+                " found '((map<(int[2] & readonly)> & readonly)|error)'", 292, 34);
+        validateError(negativeResult, index++, "incompatible types: expected '(Department & readonly)'," +
+                " found 'Department'", 297, 55);
+        validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
+                "found '([string,int]|[string,int]|[string,int]|[string,int])'", 300, 48);
+        validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'", 310, 16);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(Customer & readonly)> & " + "" +
+                "readonly', found '((table<(Customer & readonly)> & readonly)|error)'", 319, 44);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
