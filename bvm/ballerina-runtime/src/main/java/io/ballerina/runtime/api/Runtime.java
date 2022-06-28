@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
@@ -214,10 +215,14 @@ public class Runtime {
     }
 
     public void registerListener(BObject listener) {
-        scheduler.getListenerRegistry().registerListener(listener);
+        scheduler.getRuntimeRegistry().registerListener(listener);
     }
 
     public void deregisterListener(BObject listener) {
-        scheduler.getListenerRegistry().deregisterListener(listener);
+        scheduler.getRuntimeRegistry().deregisterListener(listener);
+    }
+
+    public void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {
+        scheduler.getRuntimeRegistry().registerStopHandler(stopHandler);
     }
 }

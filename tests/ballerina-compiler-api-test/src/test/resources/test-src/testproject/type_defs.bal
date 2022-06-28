@@ -132,3 +132,6 @@ public function testAnonTypeDefSymbolsIsNotVisible() {
     ApplicationResponseError err = error("",  severity = 1);
     Detail _ = err.detail();
 }
+
+public type Service distinct service object {
+};
