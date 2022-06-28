@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -28,9 +31,12 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -105,7 +111,6 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
-
         return completionItems;
     }
 
@@ -123,11 +128,46 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                 TypeDescKind.STRING, TypeDescKind.ARRAY,
                 TypeDescKind.MAP, TypeDescKind.TABLE,
                 TypeDescKind.STREAM, TypeDescKind.XML);
-        
+
+        Optional<TypeSymbol> optionalTypeSymbol = Optional.empty();
+        Optional<Integer> optionalInKeyword = Optional.empty();
+        if (context.getNodeAtCursor() instanceof FromClauseNode) {
+            FromClauseNode fromClauseNode = (FromClauseNode) context.getNodeAtCursor();
+            optionalTypeSymbol = fromClauseNode.apply(new ContextTypeResolver(context));
+            optionalInKeyword = Optional.of(fromClauseNode.inKeyword().textRange().endOffset());
+        }
+        Optional<Integer> finalOptionalInKeyword = optionalInKeyword;
+        Optional<TypeSymbol> finalOptionalTypeSymbol = optionalTypeSymbol;
+
         completionItems.forEach(lsCItem -> {
             String sortText = SortingUtil.genSortText(3) + 
                     SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
-            if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
+            if (finalOptionalInKeyword.isPresent() && context.getCursorPositionInTree() > finalOptionalInKeyword.get()
+                    && finalOptionalTypeSymbol.isPresent()
+                    && finalOptionalTypeSymbol.get().typeKind() != TypeDescKind.COMPILATION_ERROR
+                    && lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL ) {
+                Optional<Symbol> optionalSymbol = ((SymbolCompletionItem)lsCItem).getSymbol();
+                if (optionalSymbol.isPresent()) {
+                    Optional<TypeSymbol> lsCItemTypeSymbol = SymbolUtil.getTypeDescriptor(optionalSymbol.get());
+                    if (lsCItemTypeSymbol.isPresent() && lsCItemTypeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
+                        ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) lsCItemTypeSymbol.get();
+                        if (arrayTypeSymbol.memberTypeDescriptor().subtypeOf(finalOptionalTypeSymbol.get())) {
+                            sortText = SortingUtil.genSortText(1);
+                        }
+                    }
+                    if (lsCItemTypeSymbol.isPresent() && lsCItemTypeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
+                        Optional<TypeSymbol> returnTypeSymbol = ((FunctionTypeSymbol) lsCItemTypeSymbol.get())
+                                .returnTypeDescriptor();
+                        if (returnTypeSymbol.isPresent() && returnTypeSymbol.get().typeKind() == TypeDescKind.ARRAY) {
+                            ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) returnTypeSymbol.get();
+                            if (arrayTypeSymbol.memberTypeDescriptor().subtypeOf(finalOptionalTypeSymbol.get())) {
+                                sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (CommonUtil.isCompletionItemOfType(lsCItem, iterables)) {
                 sortText = SortingUtil.genSortText(1)
                         + SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem));
             } else if (lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL &&
