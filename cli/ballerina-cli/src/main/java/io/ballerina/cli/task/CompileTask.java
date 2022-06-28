@@ -23,6 +23,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -77,7 +78,17 @@ public class CompileTask implements Task {
                 start = System.currentTimeMillis();
             }
 
-            project.currentPackage().getResolution();
+            if (project.currentPackage().compilationOptions().dumpGraph()
+                    || project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                this.out.println();
+                this.out.println("Resolving dependencies");
+            }
+
+            PackageResolution packageResolution = project.currentPackage().getResolution();
+
+            if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                packageResolution.dumpGraphs(out);
+            }
 
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
@@ -89,9 +100,8 @@ public class CompileTask implements Task {
             // Errors in package resolution denotes version incompatibility errors. Hence we do not continue further.
             if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
                 if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
-                    // SingleFileProject cannot hold additional sources or resources
-                    // and BalaProjects is a read-only project.
-                    // Hence we run the code generators only for BuildProject
+                    // BalaProject is a read-only project.
+                    // Hence, we run the code generators/ modifiers only for BuildProject and SingleFileProject
                     if (isProjectUpdated(project)) {
                         // Run code gen and modify plugins, if project has updated only
                         DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
@@ -103,7 +113,17 @@ public class CompileTask implements Task {
                 }
             }
 
-            project.currentPackage().getCompilation();
+            // We dump the raw graphs twice only if code generator/modifier plugins are engaged
+            // since the package has changed now
+            if (packageResolution != project.currentPackage().getResolution()) {
+                packageResolution = project.currentPackage().getResolution();
+                if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
+                    packageResolution.dumpGraphs(out);
+                }
+            }
+            if (project.currentPackage().compilationOptions().dumpGraph()) {
+                packageResolution.dumpGraphs(out);
+            }
 
             // Print diagnostics and exit when version incompatibility issues are found in package resolution.
             if (project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
