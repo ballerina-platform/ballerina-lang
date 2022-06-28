@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 /**
  * The implementation of the methods used to build the Array type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
 
@@ -49,7 +49,7 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
     }
 
     @Override
-    public TypeBuilder.ARRAY ofSize(Integer size) {
+    public TypeBuilder.ARRAY withSize(Integer size) {
         if (size != null && size >= 0) {
             this.size = size;
         }
@@ -60,9 +60,7 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
     @Override
     public ArrayTypeSymbol build() {
         BArrayType arrayType = new BArrayType(getBType(type));
-        if (size != null) {
-            arrayType.size = size;
-        }
+        arrayType.size = size;
 
         return (ArrayTypeSymbol) typesFactory.getTypeDescriptor(arrayType);
     }
@@ -72,6 +70,7 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
             if (type.typeKind() == TypeDescKind.ARRAY) {
                 throw new IllegalArgumentException("Invalid array member type descriptor provided");
             }
+
             if (type instanceof AbstractTypeSymbol) {
                 return ((AbstractTypeSymbol) type).getBType();
             }

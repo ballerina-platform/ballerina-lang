@@ -1,19 +1,21 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
+
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
@@ -32,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -45,7 +48,7 @@ import java.util.Map;
 /**
  * The implementation of the methods used to build the Table type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
@@ -53,7 +56,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     private final SymbolTable symTable;
     private final Types types;
     private TypeSymbol rowType;
-    private TypeSymbol keyType;
+    private final List<TypeSymbol> keyTypes = new ArrayList<>();
     private final List<String> fieldNames = new ArrayList<>();
 
     public BallerinaTableTypeBuilder(CompilerContext context) {
@@ -69,18 +72,17 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     }
 
     @Override
-    public TypeBuilder.TABLE withKeyConstraint(TypeSymbol keyType) {
-        this.keyType = keyType;
+    public TypeBuilder.TABLE withKeyConstraints(TypeSymbol... keyTypes) {
+        this.keyTypes.clear();
+        this.keyTypes.addAll(Arrays.asList(keyTypes));
         return this;
     }
 
     @Override
-    public TypeBuilder.TABLE withKeyConstraint(String... fieldNames) {
-        if (!this.fieldNames.isEmpty()) {
-            this.fieldNames.clear();
-        }
-
+    public TypeBuilder.TABLE withKeySpecifiers(String... fieldNames) {
+        this.fieldNames.clear();
         this.fieldNames.addAll(Arrays.asList(fieldNames));
+
         return this;
     }
 
@@ -88,15 +90,15 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     public TableTypeSymbol build() {
         BType rowBType = getRowBType(rowType);
         BTableType tableType = new BTableType(TypeTags.TABLE, rowBType, symTable.tableType.tsymbol);
-        if (keyType != null) {
-            tableType.keyTypeConstraint = getKeyConstraintBType(keyType, rowType);
+        if (!keyTypes.isEmpty()) {
+            tableType.keyTypeConstraint = getKeyConstraintBType(keyTypes, rowType);
         } else if (!fieldNames.isEmpty() && isValidFieldNameList(fieldNames, rowType)) {
             tableType.fieldNameList = new ArrayList<>(fieldNames);
         }
 
         TableTypeSymbol tableTypeSymbol = (TableTypeSymbol) typesFactory.getTypeDescriptor(tableType);
         rowType = null;
-        keyType = null;
+        keyTypes.clear();
         fieldNames.clear();
 
         return tableTypeSymbol;
@@ -134,7 +136,20 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
         return false;
     }
 
-    private BType getKeyConstraintBType(TypeSymbol keyType, TypeSymbol rowType) {
+    private BType getKeyConstraintBType(List<TypeSymbol> keyTypes, TypeSymbol rowType) {
+        if (keyTypes.size() == 1) {
+            return checkKeyConstraintBType(keyTypes.get(0), rowType);
+        }
+
+        List<BType> tupleMemberTypes = new ArrayList<>();
+        for (TypeSymbol keyType : keyTypes) {
+            tupleMemberTypes.add(checkKeyConstraintBType(keyType, rowType));
+        }
+
+        return new BTupleType(tupleMemberTypes);
+    }
+
+    private BType checkKeyConstraintBType(TypeSymbol keyType, TypeSymbol rowType) {
         // if map type, check if field names equivalent to key type is readonly & required.
         // if record type check same with field descriptors.
         BType keyBType = getKeyBType(keyType);

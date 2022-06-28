@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 /**
  * The implementation of the methods used to build the Error type descriptor.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
 
@@ -65,15 +65,15 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
-        if (typeSymbol != null) {
-            if (isValidTypeParam(typeSymbol)) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
-            }
-
-            throw new IllegalArgumentException("Valid error detail mapping should be provided");
+        if (typeSymbol == null) {
+            return symTable.errorType.detailType;
         }
 
-        return symTable.errorType.detailType;
+        if (isValidTypeParam(typeSymbol)) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        throw new IllegalArgumentException("Valid error detail mapping should be provided");
     }
 
     private boolean isValidTypeParam(TypeSymbol typeSymbol) {
