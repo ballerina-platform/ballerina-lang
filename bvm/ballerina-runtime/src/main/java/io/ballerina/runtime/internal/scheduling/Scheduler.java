@@ -57,7 +57,7 @@ import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-    private static PrintStream err = System.err;
+    private static final PrintStream err = System.err;
 
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -67,13 +67,13 @@ public class Scheduler {
     /**
      * Strands that are ready for execution.
      */
-    private BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
+    private final BlockingQueue<ItemGroup> runnableList = new LinkedBlockingDeque<>();
 
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
     private static final ConcurrentHashMap<Integer, Strand> currentStrands = new ConcurrentHashMap<>();
     private final Strand previousStrand;
 
-    private AtomicInteger totalStrands = new AtomicInteger();
+    private final AtomicInteger totalStrands = new AtomicInteger();
 
     private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
 
