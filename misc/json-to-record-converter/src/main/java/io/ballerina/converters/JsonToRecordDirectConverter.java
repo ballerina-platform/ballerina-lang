@@ -186,7 +186,6 @@ public class JsonToRecordDirectConverter {
                 recordFieldList.add(recordField);
             }
         }
-
         NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
         Token bodyEndDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.CLOSE_BRACE_PIPE_TOKEN :
                 SyntaxKind.CLOSE_BRACE_TOKEN);
