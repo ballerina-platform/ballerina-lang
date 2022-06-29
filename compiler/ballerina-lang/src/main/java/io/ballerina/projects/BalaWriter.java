@@ -272,15 +272,15 @@ public abstract class BalaWriter {
         // adds all the includes to the root dir
         List<String> includes = this.packageContext.packageManifest().includes();
         for (String include : includes) {
-            Path includeAbsolutePath = this.packageContext.project().sourceRoot().resolve(include);
-            if (Files.notExists(includeAbsolutePath)) {
-                throw new ProjectException("Non existing path for include: " + include);
+            Path includePath = Path.of(include);
+            if (!includePath.isAbsolute()) {
+                includePath = this.packageContext.project().sourceRoot().resolve(include);
             }
-            Path includeInBala = getPathRelativeToPackageRoot(includeAbsolutePath);
-            if (includeAbsolutePath.toFile().isDirectory()) {
-                putDirectoryToZipFile(includeAbsolutePath, includeInBala, balaOutputStream);
+            Path includeInBala = getPathRelativeToPackageRoot(includePath);
+            if (includePath.toFile().isDirectory()) {
+                putDirectoryToZipFile(includePath, includeInBala, balaOutputStream);
             } else {
-                putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includeAbsolutePath)));
+                putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includePath)));
             }
         }
     }

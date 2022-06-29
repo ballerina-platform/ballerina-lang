@@ -25,7 +25,6 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
@@ -471,21 +470,18 @@ public class TestBalaWriter {
     }
 
     @Test(description = "tests build project with non existing includes")
-    public void testBuildProjectWithNonExistingIncludes(ITestContext ctx) throws IOException {
+    public void testBuildProjectWithNonExistingIncludes(ITestContext ctx) {
         Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithNonExistingIncludes");
         ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
 
         BuildProject buildProject = BuildProject.load(packagePath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
-        Target target = new Target(buildProject.sourceRoot());
 
-        try {
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, target.getBalaPath());
-            Assert.fail("Should recieve a ProjectException due to non existing path for includes");
-        } catch (ProjectException e) {
-            Assert.assertEquals(e.getMessage(), "Non existing path for include: include-dir");
-        }
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
+                "could not locate includes path 'include-dir'");
     }
 
     @AfterMethod(alwaysRun = true)
