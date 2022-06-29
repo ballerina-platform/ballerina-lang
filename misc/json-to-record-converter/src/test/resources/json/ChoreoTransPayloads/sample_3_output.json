@@ -1,0 +1,35 @@
+{
+  "dtos":[
+    {
+      "type":"com.trimble.transportation.telematics.inbound.free-form",
+      "data":{
+        "MessageGuid":"76a2a233-ad8a-4b5c-9b03-32a5745b6c74",
+        "ParentMessageGuid":"5d1b9511-0a21-4076-aaab-2b7e3914253b",
+        "MessageContentType":"com.trimble.transportation.telematics.inbound.free-form",
+        "MessageContent":{
+          "Odometer":0,
+          "UnitTrips":"",
+          "Position":"",
+          "TripInformation":{
+            "TripName":"",
+            "Move":0.0,
+            "Leg":0.0,
+            "Stop":0.0,
+            "OrderHeader":0,
+            "Assets":[
+              {
+                "Type":2,
+                "Id":"TheJoshTruck",
+                "Confirmed":false
+              }
+            ],
+            "AdditionalDataElements":""
+          },
+          "HeaderInformation":{
+            "CreateDateUtc":"2021-11-22T23:01:20+00:00"
+          }
+        }
+      }
+    }
+  ]
+}
