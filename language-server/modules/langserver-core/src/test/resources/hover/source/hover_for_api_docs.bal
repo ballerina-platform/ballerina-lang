@@ -1,5 +1,5 @@
 import ballerina/module1;
-
+import ballerina/lang.value as vl;
 //function
 int min = int:max(10, 20, 30);
 
@@ -40,4 +40,8 @@ public function main() {
 }
 function testAnnotation() {
     
+}
+
+public function testModAlias() {
+    string balStrinst = vl:toBalString(10);
 }

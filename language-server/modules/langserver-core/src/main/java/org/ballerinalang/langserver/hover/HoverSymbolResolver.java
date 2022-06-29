@@ -26,8 +26,8 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.projects.Module;
-import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.HoverContext;
 
@@ -42,6 +42,7 @@ import java.util.Optional;
  */
 public class HoverSymbolResolver extends NodeTransformer<Optional<Symbol>> {
 
+    //Todo: use a set instead
     private final List<Node> visitedNodes = new ArrayList<>();
 
     private final SemanticModel semanticModel;
@@ -141,19 +142,15 @@ public class HoverSymbolResolver extends NodeTransformer<Optional<Symbol>> {
     }
 
     public void setSymbolReferable(Symbol symbol) {
-        Optional<Module> currentModule = context.currentModule();
+        Optional<Package> currentPackage = context.workspace().project(context.filePath()).map(Project::currentPackage);
         Optional<ModuleID> moduleID = symbol.getModule().map(ModuleSymbol::id);
-        if (currentModule.isEmpty() || moduleID.isEmpty()) {
+        if (currentPackage.isEmpty() || moduleID.isEmpty()) {
             this.isSymbolReferable = false;
             return;
         }
 
-        String currentOrg = currentModule.get().packageInstance().descriptor().org().value();
-        String currentModuleName = currentModule.get().descriptor().name().toString();
-        String currentVersion = currentModule.get().packageInstance().descriptor().version().value().toString();
-        ModuleID currentModuleID = CodeActionModuleId.from(currentOrg, currentModuleName, currentVersion);
-
-        if (moduleID.get().equals(currentModuleID)) {
+        if (moduleID.get().packageName().equals(currentPackage.get().packageName().toString())
+                && moduleID.get().orgName().equals(currentPackage.get().packageOrg().value())) {
             this.isSymbolReferable = false;
             return;
         }
