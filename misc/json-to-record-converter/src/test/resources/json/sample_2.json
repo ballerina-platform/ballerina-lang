@@ -1,12 +1,30 @@
 {
-   "firstName": "Joe",
-   "lastName": "Jackson",
-   "gender": "male",
-   "age": 28,
-   "address": {
-       "streetAddress": "101",
-       "city": "San Diego",
-       "state": "CA"
-   },
-  "testList": [["string"], ["string", 12], "string", 123, 12.4, [[123, "string"]], []]
+  "firstName": "Joe",
+  "lastName": "Jackson",
+  "gender": "male",
+  "age": 28,
+  "address": {
+    "streetAddress": "101",
+    "city": "San Diego",
+    "state": "CA"
+  },
+  "testList": [
+    [
+      "string"
+    ],
+    [
+      "string",
+      12
+    ],
+    "string",
+    123,
+    12.4,
+    [
+      [
+        123,
+        "string"
+      ]
+    ],
+    []
+  ]
 }

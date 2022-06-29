@@ -20,6 +20,7 @@ package io.ballerina.converters;
 
 import io.ballerina.converters.diagnostic.JsonToRecordDirectConverterDiagnostic;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,7 +31,7 @@ import java.util.List;
 public class JsonToRecordResponse {
 
     private String codeBlock;
-    private List<JsonToRecordDirectConverterDiagnostic> diagnostics;
+    private List<JsonToRecordDirectConverterDiagnostic> diagnostics = new ArrayList<>();
 
     public String getCodeBlock() {
         return codeBlock;
