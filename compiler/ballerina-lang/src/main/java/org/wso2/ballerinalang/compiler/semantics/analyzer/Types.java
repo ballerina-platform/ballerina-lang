@@ -504,24 +504,21 @@ public class Types {
     public boolean isExpressionInUnaryValid(BLangExpression expr) {
         if (expr.getKind() == NodeKind.GROUP_EXPR) {
             // To resolve ex: -(45) kind of scenarios
-            BLangExpression exprInGroupExpr = ((BLangGroupExpr) expr).expression;
-            return exprInGroupExpr.getKind() == NodeKind.NUMERIC_LITERAL ||
-                    exprInGroupExpr.getKind() == NodeKind.UNARY_EXPR;
+            return ((BLangGroupExpr) expr).expression.getKind() == NodeKind.NUMERIC_LITERAL;
         } else {
             return expr.getKind() == NodeKind.NUMERIC_LITERAL;
         }
     }
 
-    public static BLangExpression getExpressionInUnary(BLangExpression expr) {
+    static BLangExpression checkAndReturnExpressionInUnary(BLangExpression expr) {
         if (expr.getKind() == NodeKind.GROUP_EXPR) {
             return ((BLangGroupExpr) expr).expression;
-        } else {
-            return expr;
         }
+        return expr;
     }
 
     public static void setValueOfNumericLiteral(BLangNumericLiteral newNumericLiteral, BLangUnaryExpr unaryExpr) {
-        Object objectValueInUnary = ((BLangNumericLiteral) (getExpressionInUnary(unaryExpr.expr))).value;
+        Object objectValueInUnary = ((BLangNumericLiteral) (checkAndReturnExpressionInUnary(unaryExpr.expr))).value;
         String strValueInUnary = String.valueOf(objectValueInUnary);
         OperatorKind unaryOperatorKind = unaryExpr.operator;
 
@@ -543,11 +540,12 @@ public class Types {
         newNumericLiteral.originalValue = strValueInUnary;
     }
 
+    public boolean isOperatorKindInUnaryValid(OperatorKind unaryOperator) {
+        return OperatorKind.SUB.equals(unaryOperator) || OperatorKind.ADD.equals(unaryOperator);
+    }
+
     public boolean isLiteralInUnaryAllowed(BLangUnaryExpr unaryExpr) {
-        OperatorKind unaryOperator = unaryExpr.operator;
-        return isExpressionInUnaryValid(unaryExpr.expr) &&
-                (OperatorKind.SUB.equals(unaryOperator) ||
-                        OperatorKind.ADD.equals(unaryOperator));
+        return isExpressionInUnaryValid(unaryExpr.expr) && isOperatorKindInUnaryValid(unaryExpr.operator);
     }
 
     public boolean isExpressionAnAllowedUnaryType(BLangExpression expr, NodeKind nodeKind) {
@@ -558,7 +556,7 @@ public class Types {
     }
 
     public static BLangNumericLiteral constructNumericLiteralFromUnaryExpr(BLangUnaryExpr unaryExpr) {
-        BLangExpression exprInUnary = getExpressionInUnary(unaryExpr.expr);
+        BLangExpression exprInUnary = checkAndReturnExpressionInUnary(unaryExpr.expr);
 
         BLangNumericLiteral newNumericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         setValueOfNumericLiteral(newNumericLiteral, unaryExpr);

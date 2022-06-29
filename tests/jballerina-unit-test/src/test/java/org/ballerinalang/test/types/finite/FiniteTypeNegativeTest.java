@@ -54,7 +54,7 @@ public class FiniteTypeNegativeTest {
 
     @Test()
     public void testInvalidLiteralAssignment() {
-        Assert.assertEquals(resultNegativeTwo.getErrorCount(), 91, "Error count mismatch");
+        Assert.assertEquals(resultNegativeTwo.getErrorCount(), 94, "Error count mismatch");
         int i = 0;
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'Finite', found 'string'",
                 33, 16);
@@ -236,8 +236,14 @@ public class FiniteTypeNegativeTest {
                 "found 'decimal'", 277, 34);
         validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
                 280, 21);
-        validateError(resultNegativeTwo, i, "'9223372036854775808' is out of range for 'int'",
+        validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
                 285, 30);
+        validateError(resultNegativeTwo, i++, "'9223372036854775808' is out of range for 'int'",
+                290, 20);
+        validateError(resultNegativeTwo, i++, "incompatible types: expected '1f', found 'float'",
+                296, 12);
+        validateError(resultNegativeTwo, i, "incompatible types: expected '1f', found 'int'",
+                297, 12);
     }
 
     @AfterClass

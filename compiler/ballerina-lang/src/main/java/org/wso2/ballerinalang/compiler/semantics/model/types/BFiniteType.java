@@ -81,9 +81,6 @@ public class BFiniteType extends BType implements FiniteType {
     public String toString() {
         StringJoiner joiner = new StringJoiner("|");
         for (BLangExpression value : this.valueSpace) {
-            if (value.getKind() == NodeKind.UNARY_EXPR) {
-                value = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) value);
-            }
             switch (value.getBType().tag) {
                 case TypeTags.FLOAT:
                     joiner.add(value + "f");
@@ -112,9 +109,5 @@ public class BFiniteType extends BType implements FiniteType {
         if (!this.nullable && value.getBType() != null &&  value.getBType().isNullable()) {
             this.nullable = true;
         }
-    }
-
-    public void setValueSpace(Set<BLangExpression> valueSpace) {
-        this.valueSpace = valueSpace;
     }
 }

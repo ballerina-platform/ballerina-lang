@@ -565,6 +565,7 @@ type UnaryType2 -2;
 type UnaryType3 string|-3|int;
 type UnaryType4 UnaryType2|-3;
 type UnaryType5 anydata;
+type UnaryType6 -1f|-1|-1d|"string";
 
 function testFiniteTypeWithUnaryMinus() {
     UnaryType1 x1 = -3;
@@ -576,6 +577,7 @@ function testFiniteTypeWithUnaryMinus() {
     UnaryType5 x6 = -3;
     UnaryType1 x8 = -(3);
     UnaryType1 x9 = (-3);
+    UnaryType6 x10 = -1;
 
     assertEquality(x1, -3);
     assertEquality(x2, -2);
@@ -586,6 +588,7 @@ function testFiniteTypeWithUnaryMinus() {
     assertEquality(x7, -5);
     assertEquality(x8, -3);
     assertEquality(x9, -3);
+    assertEquality(x10, -1);
 }
 
 function testOutOfRangeFiniteType() {

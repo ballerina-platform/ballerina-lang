@@ -286,3 +286,13 @@ function foo() returns 3|-4|-9223372036854775808 {
     testType val = 3;
     return val;
 }
+
+type InvalidTest1 -9223372036854775808|-1|-1d|"string";
+function testInvalidLiteralInFiniteType() {
+    InvalidTest1 x = -1;
+}
+
+function testFiniteTypeFloatWithIntegers() {
+    1f a = 9223372036854775808;
+    1f b = 340;
+}

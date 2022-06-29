@@ -742,14 +742,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         }
 
-        // Modify BType if Unary expressions were found
-        BFiniteType finiteType = (BFiniteType) finiteTypeNode.getBType();
-        if (foundUnaryExpr && finiteType != null) {
-            if (isErroredExprInFiniteType) {
-                finiteTypeNode.setBType(symTable.semanticError);
-            } else {
-                finiteType.setValueSpace(new LinkedHashSet<>(finiteTypeNode.valueSpace));
-            }
+        if (foundUnaryExpr && isErroredExprInFiniteType) {
+            finiteTypeNode.setBType(symTable.semanticError);
         }
     }
 
@@ -4127,15 +4121,18 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         constantAnalyzer.visit(constant);
     }
 
+    private boolean isLiteralInUnaryFromConstantNotAllowed(BLangUnaryExpr unaryExpr) {
+        return unaryExpr.expr.getKind() != NodeKind.NUMERIC_LITERAL &&
+                !types.isOperatorKindInUnaryValid(unaryExpr.operator);
+    }
+
     private boolean isNodeKindAllowedForConstants(BLangExpression expression, BLangConstant constant) {
-        if ((expression.getKind() == NodeKind.UNARY_EXPR &&
-                ((BLangUnaryExpr) constant.expr).expr.getKind() != NodeKind.NUMERIC_LITERAL)  &&
-                (!OperatorKind.SUB.equals(((BLangUnaryExpr) constant.expr).operator) ||
-                !OperatorKind.ADD.equals(((BLangUnaryExpr) constant.expr).operator))) {
+        NodeKind exprNodeKind = expression.getKind();
+        if (exprNodeKind == NodeKind.UNARY_EXPR &&
+                isLiteralInUnaryFromConstantNotAllowed((BLangUnaryExpr) expression)) {
             return constant.typeNode == null;
         }
-        if (!(expression.getKind() == LITERAL || expression.getKind() == NUMERIC_LITERAL) &&
-                expression.getKind() != NodeKind.UNARY_EXPR) {
+        if (!(exprNodeKind == LITERAL || exprNodeKind == NUMERIC_LITERAL) && exprNodeKind != NodeKind.UNARY_EXPR) {
             return constant.typeNode == null;
         }
         return false;

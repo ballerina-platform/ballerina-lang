@@ -920,8 +920,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         this.isInFiniteContext = true;
         for (TypeDescriptorNode finiteTypeEl : finiteTypeElements) {
             SingletonTypeDescriptorNode singletonTypeNode = (SingletonTypeDescriptorNode) finiteTypeEl;
-            BLangExpression literalOrExpression = createLiteralOrExpression(singletonTypeNode.simpleContExprNode(),
-                    true);
+            BLangExpression literalOrExpression = createLiteralOrExpression(singletonTypeNode.simpleContExprNode());
             bLangFiniteTypeNode.addValue(literalOrExpression);
         }
         this.isInFiniteContext = false;
@@ -1376,7 +1375,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
         BLangExpression literalOrExpression =
-                createLiteralOrExpression(singletonTypeDescriptorNode.simpleContExprNode(), true);
+                createLiteralOrExpression(singletonTypeDescriptorNode.simpleContExprNode());
         bLangFiniteTypeNode.pos = literalOrExpression.pos;
         bLangFiniteTypeNode.valueSpace.add(literalOrExpression);
         return bLangFiniteTypeNode;
@@ -5340,17 +5339,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     private BLangLiteral createSimpleLiteral(Node literal) {
-        if (this.isInFiniteContext) {
-            return createSimpleLiteral(literal, true);
-        }
-        return createSimpleLiteral(literal, false);
+        return createSimpleLiteral(literal, this.isInFiniteContext);
     }
 
-    private BLangExpression createLiteralOrExpression(Node literal, boolean isFiniteType) {
+    private BLangExpression createLiteralOrExpression(Node literal) {
         if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
             return createExpression(literal);
         }
-        return createSimpleLiteral(literal, isFiniteType);
+        return createSimpleLiteral(literal, true);
     }
 
     private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {

@@ -83,9 +83,6 @@ public class BLangFiniteTypeNode extends BLangType implements FiniteTypeNode {
     public String toString() {
         StringJoiner stringJoiner = new StringJoiner("|");
         for (BLangExpression memberTypeNode : valueSpace) {
-            if (memberTypeNode.getKind() == NodeKind.UNARY_EXPR) {
-                memberTypeNode = Types.constructNumericLiteralFromUnaryExpr((BLangUnaryExpr) memberTypeNode);
-            }
             switch (memberTypeNode.getBType().tag) {
                 case TypeTags.FLOAT:
                     stringJoiner.add(memberTypeNode + NumericLiteralSupport.FLOAT_DISCRIMINATOR);
