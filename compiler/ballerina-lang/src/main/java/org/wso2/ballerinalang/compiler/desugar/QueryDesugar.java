@@ -341,9 +341,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType resultantType = symTable.mapType;
         if (refType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                BType resultType = getMapType(memberType);
-                if (resultType != symTable.mapType) {
-                    resultantType = resultType;
+                BType tempType = getMapType(memberType);
+                if (tempType != symTable.mapType && tempType.tag == TypeTags.MAP) {
+                    resultantType = tempType;
                     break;
                 }
             }
