@@ -47,7 +47,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 
-import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -160,11 +159,10 @@ public class JsonToRecordDirectConverter {
             Map<String, RecordFieldNode> lastRecordFieldMap = lastRecordFieldList.stream()
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
             Map<String, RecordFieldNode> newRecordFieldMap = jsonObject.entrySet().stream()
-                    .map(entry -> (RecordFieldNode) getRecordField(entry, isRecordTypeDesc,null,
+                    .map(entry -> (RecordFieldNode) getRecordField(entry, isRecordTypeDesc, null,
                             recordToTypeDescNodes))
                     .collect(Collectors.toList()).stream()
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
-
             Map<String, RecordFieldNode> intersectingRecordFields = intersection(lastRecordFieldMap, newRecordFieldMap);
             Map<String, RecordFieldNode> differencingRecordFields = difference(lastRecordFieldMap, newRecordFieldMap);
 
@@ -226,7 +224,7 @@ public class JsonToRecordDirectConverter {
      * @return {@link Node} Record field node for the corresponding JSON field
      */
     private static Node getRecordField(Map.Entry<String, JsonElement> entry, boolean isRecordTypeDesc,
-                                       Boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes ) {
+                                       Boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes) {
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
         IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
