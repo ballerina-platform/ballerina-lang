@@ -17086,7 +17086,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 return parseAnonFuncExprOrFuncTypeDesc(qualifiers);
             case AT_TOKEN:
-                STNode annot = parseAnnotation();
+                STNode annot = parseAnnotations();
                 STNode typedesc = parseTypeDescriptor(qualifiers, ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 return STNodeFactory.createMemberTypeDescriptorNode(annot, typedesc);
             default:
@@ -17227,7 +17227,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseTypeDescOrExpr();
             case AT_TOKEN:
-                STNode annot = parseAnnotation();
+                STNode annot = parseAnnotations();
                 STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 return STNodeFactory.createMemberTypeDescriptorNode(annot, typedesc);
             default:
