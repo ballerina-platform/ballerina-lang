@@ -47,6 +47,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 
+import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -72,6 +73,15 @@ public class JsonToRecordDirectConverter {
 
     private JsonToRecordDirectConverter() {}
 
+    /**
+     * This method returns the Ballerina code for the provided JSON value or the diagnostics.
+     *
+     * @param jsonString JSON string of the JSON value to be converted to Ballerina record
+     * @param recordName Name of the generated record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
+     * @param isClosed To denote whether the response record is closed or not
+     * @return {@link JsonToRecordResponse} Ballerina code block or the Diagnostics
+     */
     public static JsonToRecordResponse convert(String jsonString, String recordName, boolean isRecordTypeDesc,
                                                boolean isClosed) {
         Map<String, NonTerminalNode> recordToTypeDescNodes = new LinkedHashMap<>();
@@ -124,8 +134,18 @@ public class JsonToRecordDirectConverter {
         }
     }
 
-    private static void generateRecords(JsonObject jsonObject, String recordName, boolean isClosed,
-                                        boolean isRecordTypeDesc, Map<String, NonTerminalNode> recordToTypeDescNodes,
+    /**
+     * This method generates the TypeDescriptorNodes for the parsed JSON value.
+     *
+     * @param jsonObject JSON object node that has to be generated as Ballerina record
+     * @param recordName Name of the generated record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
+     * @param isClosed To denote whether the response record is closed or not
+     * @param recordToTypeDescNodes The map of recordNames and the TypeDescriptorNodes already generated
+     * @param jsonNodes The map of JSON field names and the JSON nodes for already created TypeDescriptorNodes
+     */
+    private static void generateRecords(JsonObject jsonObject, String recordName, boolean isRecordTypeDesc,
+                                        boolean isClosed, Map<String, NonTerminalNode> recordToTypeDescNodes,
                                         Map<String, JsonElement> jsonNodes) {
         Token recordKeyWord = AbstractNodeFactory.createToken(SyntaxKind.RECORD_KEYWORD);
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
@@ -140,8 +160,8 @@ public class JsonToRecordDirectConverter {
             Map<String, RecordFieldNode> lastRecordFieldMap = lastRecordFieldList.stream()
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
             Map<String, RecordFieldNode> newRecordFieldMap = jsonObject.entrySet().stream()
-                    .map(entry -> (RecordFieldNode) getRecordField(entry, recordToTypeDescNodes, isRecordTypeDesc,
-                            null))
+                    .map(entry -> (RecordFieldNode) getRecordField(entry, isRecordTypeDesc,null,
+                            recordToTypeDescNodes))
                     .collect(Collectors.toList()).stream()
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
 
@@ -153,14 +173,14 @@ public class JsonToRecordDirectConverter {
                 Boolean isOptional = entry.getValue().questionMarkToken().isPresent();
                 Map.Entry<String, JsonElement> jsonEntry =
                         new AbstractMap.SimpleEntry<>(entry.getKey(), jsonNodes.get(entry.getKey()));
-                Node recordField = getRecordField(jsonEntry, recordToTypeDescNodes, isRecordTypeDesc, isOptional);
+                Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
                 recordFieldList.add(recordField);
             }
 
             for (Map.Entry<String, RecordFieldNode> entry : differencingRecordFields.entrySet()) {
                 Map.Entry<String, JsonElement> jsonEntry =
                         new AbstractMap.SimpleEntry<>(entry.getKey(), jsonNodes.get(entry.getKey()));
-                Node recordField = getRecordField(jsonEntry, recordToTypeDescNodes, isRecordTypeDesc, true);
+                Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, true, recordToTypeDescNodes);
                 recordFieldList.add(recordField);
             }
         } else {
@@ -182,7 +202,7 @@ public class JsonToRecordDirectConverter {
                     }
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
-                Node recordField = getRecordField(entry, recordToTypeDescNodes, isRecordTypeDesc, null);
+                Node recordField = getRecordField(entry, isRecordTypeDesc, null, recordToTypeDescNodes);
                 recordFieldList.add(recordField);
             }
         }
@@ -196,9 +216,17 @@ public class JsonToRecordDirectConverter {
         recordToTypeDescNodes.put(recordName == null ? "NewRecord" : recordName, recordTypeDescriptorNode);
     }
 
-    private static Node getRecordField(Map.Entry<String, JsonElement> entry,
-                                       Map<String, NonTerminalNode> recordToTypeDescNodes, boolean isRecordTypeDesc,
-                                       Boolean optionalField) {
+    /**
+     * This method generates the record fields for the corresponding JSON fields.
+     *
+     * @param entry Map entry of a JSON field name and the corresponding JSON element
+     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
+     * @param optionalField To denote whether the record field is optional or not
+     * @param recordToTypeDescNodes The map of recordNames and the TypeDescriptorNodes already generated
+     * @return {@link Node} Record field node for the corresponding JSON field
+     */
+    private static Node getRecordField(Map.Entry<String, JsonElement> entry, boolean isRecordTypeDesc,
+                                       Boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes ) {
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
         IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
@@ -228,7 +256,7 @@ public class JsonToRecordDirectConverter {
             Map.Entry<String, JsonArray> jsonArrayEntry =
                     new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().getAsJsonArray());
             ArrayTypeDescriptorNode arrayTypeName =
-                    createArrayTypeDescriptorNode(jsonArrayEntry, recordToTypeDescNodes, isRecordTypeDesc);
+                    createArrayTypeDescriptorNode(jsonArrayEntry, isRecordTypeDesc, recordToTypeDescNodes);
 
             recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                     arrayTypeName, fieldName,
@@ -237,9 +265,17 @@ public class JsonToRecordDirectConverter {
         return recordFieldNode;
     }
 
+    /**
+     * This method generates the record fields for the corresponding JSON fields it it's an array.
+     *
+     * @param entry Map entry of a JSON field name and the corresponding JSON element
+     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
+     * @param recordToTypeDescNodes The map of recordNames and the TypeDescriptorNodes already generated
+     * @return {@link ArrayTypeDescriptorNode} Record field node for the corresponding JSON array field
+     */
     private static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
-            Map.Entry<String, JsonArray> entry, Map<String, NonTerminalNode> recordToTypeDescNodes,
-            boolean isRecordTypeDesc) {
+            Map.Entry<String, JsonArray> entry, boolean isRecordTypeDesc,
+            Map<String, NonTerminalNode> recordToTypeDescNodes) {
         Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
         Token closeSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
 
@@ -277,7 +313,7 @@ public class JsonToRecordDirectConverter {
                 Map.Entry<String, JsonArray> arrayEntry =
                         new AbstractMap.SimpleEntry<>(entry.getKey(), element.getAsJsonArray());
                 TypeDescriptorNode tempTypeNode =
-                        createArrayTypeDescriptorNode(arrayEntry, recordToTypeDescNodes, isRecordTypeDesc);
+                        createArrayTypeDescriptorNode(arrayEntry, isRecordTypeDesc, recordToTypeDescNodes);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
                         .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
@@ -295,6 +331,12 @@ public class JsonToRecordDirectConverter {
         return NodeFactory.createArrayTypeDescriptorNode(fieldTypeName, arrayDimensions);
     }
 
+    /**
+     * This method generates the Union of all provided TypeDescriptorNodes.
+     *
+     * @param typeNames List of TypeDescriptorNodes to be unionized
+     * @return {@link TypeDescriptorNode} Union TypeDescriptorNode of provided TypeDescriptorNodes
+     */
     private static TypeDescriptorNode createUnionTypeDescriptorNode(List<TypeDescriptorNode> typeNames) {
         if (typeNames.size() == 0) {
             Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
