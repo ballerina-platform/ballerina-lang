@@ -27,14 +27,14 @@ import java.util.Arrays;
  *
  * @since 2201.2.0
  */
-public class DiagnosticMessages {
+public class DiagnosticMessage {
 
     private final String code;
     private final String description;
     private final DiagnosticSeverity severity;
     private final Object[] args;
 
-    private DiagnosticMessages(String code, String description, DiagnosticSeverity severity, Object[] args) {
+    private DiagnosticMessage(String code, String description, DiagnosticSeverity severity, Object[] args) {
         this.code = code;
         this.description = description;
         this.severity = severity;
@@ -57,24 +57,30 @@ public class DiagnosticMessages {
         return this.args.clone();
     }
 
-    public static DiagnosticMessages jsonToRecordConverter100(Object[] args) {
+    public static DiagnosticMessage jsonToRecordConverter100(Object[] args) {
         if (args != null) {
-            return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_100",
+            return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_100",
                     String.format("Provided JSON is invalid : %s", DiagnosticUtils.
                             transformJsonSyntaxErrorMessage((String) args[0])), DiagnosticSeverity.ERROR,
                     Arrays.copyOfRange(args, 1, args.length));
         }
-        return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_100",
-                 "Provided JSON is invalid", DiagnosticSeverity.ERROR, null);
+        return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_100",
+                 "Provided JSON is invalid.", DiagnosticSeverity.ERROR, null);
     }
 
-    public static DiagnosticMessages jsonToRecordConverter101(Object[] args) {
-        return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_101",
-                "Provided JSON is unsupported. It may be null or have missing types", DiagnosticSeverity.ERROR, args);
+    public static DiagnosticMessage jsonToRecordConverter101(Object[] args) {
+        return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_101",
+                "Provided JSON is unsupported. It may be null or have missing types.", DiagnosticSeverity.ERROR, args);
     }
 
-    public static DiagnosticMessages jsonToRecordConverter102(Object[] args) {
-        return new DiagnosticMessages("JSON_TO_RECORD_CONVERTER_102",
-                "Error occurred while formatting the Ballerina syntax tree", DiagnosticSeverity.ERROR, args);
+    public static DiagnosticMessage jsonToRecordConverter102(Object[] args) {
+        return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_102",
+                "Error occurred while formatting the Ballerina syntax tree.", DiagnosticSeverity.ERROR, args);
+    }
+
+    public static DiagnosticMessage jsonToRecordConverter103(Object[] args) {
+        return new DiagnosticMessage("JSON_TO_RECORD_CONVERTER_103",
+                "There is no JSON entry be found for the field name %s. This is a serious issue.",
+                DiagnosticSeverity.WARNING, args);
     }
 }

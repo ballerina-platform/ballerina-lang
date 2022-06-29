@@ -29,13 +29,14 @@ import java.util.List;
  */
 public class DiagnosticUtils {
 
-    public static JsonToRecordResponse getDiagnosticResponse(DiagnosticMessages message,
-                                                          List<JsonToRecordDirectConverterDiagnostic> diagnostics,
-                                                          JsonToRecordResponse response, Object[] args) {
-        JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(
-                message.getCode(), message.getDescription(), message.getSeverity(), null, message.getArgs());
-        diagnostics.add(diagnostic);
-        response.setDiagnostics(diagnostics);
+    public static JsonToRecordResponse getDiagnosticResponse(List<DiagnosticMessage> diagnosticMessages,
+                                                             JsonToRecordResponse response) {
+        List<JsonToRecordDirectConverterDiagnostic> diagnostics = response.getDiagnostics();
+        for (DiagnosticMessage message : diagnosticMessages) {
+            JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(
+                    message.getCode(), message.getDescription(), message.getSeverity(), null, message.getArgs());
+            diagnostics.add(diagnostic);
+        }
         return response;
     }
 
