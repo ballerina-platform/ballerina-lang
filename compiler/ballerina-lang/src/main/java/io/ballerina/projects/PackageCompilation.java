@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
@@ -103,7 +102,7 @@ public class PackageCompilation {
         compilation.setCompilerPluginManager(compilerPluginManager);
 
         // Run code analyzers, if project has updated only
-        if (!isProjectUpdated(compilation.packageContext().project())) {
+        if (compilation.packageContext().defaultModuleContext().compilationState() != ModuleCompilationState.COMPILED) {
             return compilation;
         }
         // Do not run code analyzers, if the code generators are enabled.
@@ -117,7 +116,6 @@ public class PackageCompilation {
         // We can run SyntaxNodeAnalysis for each module compilation in the future.
         List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
         addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
-
         return compilation;
     }
 

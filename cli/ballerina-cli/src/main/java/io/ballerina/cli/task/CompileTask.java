@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
  * Task for compiling a package.
@@ -47,10 +46,12 @@ import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 public class CompileTask implements Task {
     private final transient PrintStream out;
     private final transient PrintStream err;
+    private final boolean isPackageModified;
 
-    public CompileTask(PrintStream out, PrintStream err) {
+    public CompileTask(PrintStream out, PrintStream err, boolean isPackageModified) {
         this.out = out;
         this.err = err;
+        this.isPackageModified = isPackageModified;
     }
 
     @Override
@@ -97,12 +98,12 @@ public class CompileTask implements Task {
 
             // run built-in code generator compiler plugins
             // We only continue with next steps if package resolution does not have errors.
-            // Errors in package resolution denotes version incompatibility errors. Hence we do not continue further.
+            // Errors in package resolution denotes version incompatibility errors. Hence, we do not continue further.
             if (!project.currentPackage().getResolution().diagnosticResult().hasErrors()) {
                 if (!project.kind().equals(ProjectKind.BALA_PROJECT)) {
                     // BalaProject is a read-only project.
                     // Hence, we run the code generators/ modifiers only for BuildProject and SingleFileProject
-                    if (isProjectUpdated(project)) {
+                    if (this.isPackageModified) {
                         // Run code gen and modify plugins, if project has updated only
                         DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
                                 .runCodeGenAndModifyPlugins();

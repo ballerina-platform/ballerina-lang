@@ -36,8 +36,8 @@ import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
  * @since 2.0.0
  */
 public class BuildProjectCompilationCache extends FileSystemCache {
-    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
     private Path birPath;
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     private BuildProjectCompilationCache(Project project, Path cacheDirPath) {
         super(project, cacheDirPath.resolve(CACHES_DIR_NAME));
@@ -50,18 +50,13 @@ public class BuildProjectCompilationCache extends FileSystemCache {
 
     @Override
     public byte[] getBir(ModuleName moduleName) {
-//        // Do not return the cached BIR in the target directory
-//        // We can improve this implementation to cache the BIR later to enable incremental compilation.
-//        return EMPTY_BYTE_ARRAY;
-
         Path birFilePath = getBirPath().resolve(moduleName.toString()
                 + ProjectConstants.BLANG_COMPILED_PKG_BIR_EXT);
         if (Files.exists(birFilePath)) {
             try {
                 return FileUtils.readFileToByteArray(birFilePath.toFile());
             } catch (IOException e) {
-                // TODO proper error handling
-                throw new RuntimeException("Failed to read the cached bir of module: " + moduleName, e);
+                return EMPTY_BYTE_ARRAY;
             }
         }
         return new byte[0];

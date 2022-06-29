@@ -940,10 +940,17 @@ public class ProjectUtils {
         }
     }
 
+    /**
+     * Check project files are updated.
+     *
+     * @param project project instance
+     * @return is project files are updated
+     */
     public static boolean isProjectUpdated(Project project) {
-        if (project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
+        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        if (buildFile.toFile().exists()) {
             try {
-                BuildJson buildJson = readBuildJson(project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+                BuildJson buildJson = readBuildJson(buildFile);
                 long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
                 if (buildJson != null
                         && buildJson.getLastModifiedTime() != null
@@ -953,10 +960,27 @@ public class ProjectUtils {
                     return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
                 }
             } catch (IOException e) {
-                throw new ProjectException("Reading 'build' file failed: " + e.getMessage());
+                // if reading `build` file fails
+                // delete `build` file and return true
+                try {
+                    Files.deleteIfExists(buildFile);
+                } catch (IOException ex) {
+                    // ignore
+                }
+                return true;
             }
         }
         return true; // return true if `build` file does not exist
+    }
+
+    /**
+     * Get temporary target path.
+     *
+     * @return temporary target path
+     */
+    public static String getTemporaryTargetPath() {
+        return Paths.get(System.getProperty("java.io.tmpdir"))
+                .resolve("ballerina-cache" + System.nanoTime()).toString();
     }
 
     /**

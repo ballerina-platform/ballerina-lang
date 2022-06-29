@@ -1360,7 +1360,6 @@ public class TestBuildProject extends BaseTest {
         // Set sticky false, to imitate the default build command behavior
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
-        buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(TARGET_DIR_NAME)));
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
@@ -1410,7 +1409,6 @@ public class TestBuildProject extends BaseTest {
         // Set sticky false, to imitate the default build command behavior
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
-        buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(TARGET_DIR_NAME)));
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
@@ -1461,7 +1459,6 @@ public class TestBuildProject extends BaseTest {
         // Set sticky false, to imitate the default build command behavior
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
-        buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(TARGET_DIR_NAME)));
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
@@ -1884,7 +1881,6 @@ public class TestBuildProject extends BaseTest {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
-        buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(TARGET_DIR_NAME)));
         BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
         Path targetDirPath = project.targetDir();
         Path expectedPath = projectPath.resolve("target");
@@ -2061,7 +2057,6 @@ public class TestBuildProject extends BaseTest {
         // 1) Initialize the project instance
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
-        buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(TARGET_DIR_NAME)));
 
         BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
         project.save();
@@ -2094,7 +2089,6 @@ public class TestBuildProject extends BaseTest {
         // Set sticky false, to imitate the default build command behavior
         BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
-        buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(TARGET_DIR_NAME)));
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
@@ -2109,7 +2103,9 @@ public class TestBuildProject extends BaseTest {
                 .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
 
         // 2) Build project again with build file
-        BuildProject projectSecondBuild = loadBuildProject(projectPath);
+        // Set temp dir as the target
+        buildOptionsBuilder.targetDir(ProjectUtils.getTemporaryTargetPath());
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptionsBuilder.build());
         projectSecondBuild.save();
         // Get compilation
         PackageCompilation compilationSecondBuild = projectSecondBuild.currentPackage().getCompilation();

@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
@@ -334,7 +335,7 @@ public class BuildCommandTest extends BaseCommandTest {
      *         ├── Sample3.class ---> conflicted class file
      *         └── Sample4.class ---> conflicted class file
      */
-    @Test(description = "Build a valid ballerina project")
+    @Test(description = "Build a ballerina project with conflicted jars")
     public void testBuildBalProjectWithJarConflicts() throws IOException {
         Path projectPath = this.testResources.resolve("projectWithConflictedJars");
         System.setProperty("user.dir", projectPath.toString());
@@ -825,6 +826,24 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Test bir cached project build performance")
+    public void testBirCachedProjectBuildPerformance() {
+        Path projectPath = this.testResources.resolve("noClassDefProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        long firstCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        BuildCommand secondBuildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+        new CommandLine(secondBuildCommand).parse();
+        secondBuildCommand.execute();
+        long secondCodeGenDuration = BuildTime.getInstance().codeGenDuration;
+
+        Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
+                "second code gen duration is greater than the expected value");
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

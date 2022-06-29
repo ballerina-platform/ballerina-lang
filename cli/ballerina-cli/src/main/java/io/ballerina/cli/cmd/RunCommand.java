@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -192,10 +193,13 @@ public class RunCommand implements BLauncherCmd {
             }
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
+                .addTask(new CleanTargetDirTask(isPackageModified), isSingleFileBuild) // clean target dir for projects
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
+                .addTask(new CompileTask(outStream, errStream, isPackageModified)) // compile the modules
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .build();

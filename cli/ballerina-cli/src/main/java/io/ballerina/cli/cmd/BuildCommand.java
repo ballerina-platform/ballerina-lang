@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
  * This class represents the "bal build" command.
@@ -235,13 +236,16 @@ public class BuildCommand implements BLauncherCmd {
             this.outStream.println("warning: " + e.getMessage());
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream))
+                .addTask(new CompileTask(outStream, errStream, isPackageModified))
                 .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -271,8 +275,6 @@ public class BuildCommand implements BLauncherCmd {
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
-        } else {
-            buildOptionsBuilder.targetDir(String.valueOf(projectPath.resolve(ProjectConstants.TARGET_DIR_NAME)));
         }
 
         return buildOptionsBuilder.setConfigSchemaGen(configSchemaGen)
