@@ -92,11 +92,13 @@ public class ClientConfigHolder {
     }
 
     public RunInTerminalRequestArgumentsKind getRunInTerminalKind() {
-        String terminalConfig = clientRequestArgs.get(ARG_TERMINAL_KIND).toString();
-        if (terminalConfig.equals(INTEGRATED_TERMINAL_KIND)) {
-            return RunInTerminalRequestArgumentsKind.INTEGRATED;
-        } else if (terminalConfig.equals(EXTERNAL_TERMINAL_KIND)) {
-            return RunInTerminalRequestArgumentsKind.EXTERNAL;
+        if (clientRequestArgs.get(ARG_TERMINAL_KIND) != null) {
+            String terminalConfig = clientRequestArgs.get(ARG_TERMINAL_KIND).toString();
+            if (terminalConfig.equals(INTEGRATED_TERMINAL_KIND)) {
+                return RunInTerminalRequestArgumentsKind.INTEGRATED;
+            } else if (terminalConfig.equals(EXTERNAL_TERMINAL_KIND)) {
+                return RunInTerminalRequestArgumentsKind.EXTERNAL;
+            }
         }
         return null;
     }

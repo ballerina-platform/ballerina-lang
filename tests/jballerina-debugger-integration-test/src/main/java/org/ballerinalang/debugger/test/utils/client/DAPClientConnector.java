@@ -128,6 +128,7 @@ public class DAPClientConnector {
 
             InitializeRequestArguments initParams = new InitializeRequestArguments();
             initParams.setAdapterID("BallerinaDebugClient");
+            initParams.setSupportsRunInTerminalRequest(true);
 
             debugServer.initialize(initParams).thenApply(res -> {
                 initializeResult = res;
