@@ -248,6 +248,10 @@
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
                                             {
@@ -261,6 +265,10 @@
                                     {
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
                                         {
                                           "kind": "COMMA_TOKEN",
                                           "trailingMinutiae": [
@@ -276,6 +284,10 @@
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "TUPLE_TYPE_DESC",
                                           "children": [
                                             {
@@ -287,6 +299,10 @@
                                                 {
                                                   "kind": "MEMBER_TYPE_DESC",
                                                   "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    },
                                                     {
                                                       "kind": "SIMPLE_NAME_REFERENCE",
                                                       "children": [
@@ -311,6 +327,10 @@
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "COMMA_TOKEN",
                                           "trailingMinutiae": [
                                             {
@@ -324,6 +344,10 @@
                                     {
                                       "kind": "MEMBER_TYPE_DESC",
                                       "children": [
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
                                         {
                                           "kind": "SIMPLE_NAME_REFERENCE",
                                           "children": [
@@ -442,6 +466,10 @@
                                           "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
                                               "kind": "SIMPLE_NAME_REFERENCE",
                                               "children": [
                                                 {
@@ -455,6 +483,10 @@
                                         {
                                           "kind": "MEMBER_TYPE_DESC",
                                           "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
                                             {
                                               "kind": "COMMA_TOKEN",
                                               "trailingMinutiae": [
@@ -470,6 +502,10 @@
                                           "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
                                               "kind": "TUPLE_TYPE_DESC",
                                               "children": [
                                                 {
@@ -481,6 +517,10 @@
                                                     {
                                                       "kind": "MEMBER_TYPE_DESC",
                                                       "children": [
+                                                        {
+                                                          "kind": "LIST",
+                                                          "children": []
+                                                        },
                                                         {
                                                           "kind": "SIMPLE_NAME_REFERENCE",
                                                           "children": [
@@ -505,6 +545,10 @@
                                           "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
                                               "kind": "COMMA_TOKEN",
                                               "trailingMinutiae": [
                                                 {
@@ -518,6 +562,10 @@
                                         {
                                           "kind": "MEMBER_TYPE_DESC",
                                           "children": [
+                                            {
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
                                             {
                                               "kind": "SIMPLE_NAME_REFERENCE",
                                               "children": [

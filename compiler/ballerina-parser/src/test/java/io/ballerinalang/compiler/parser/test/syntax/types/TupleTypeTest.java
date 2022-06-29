@@ -80,4 +80,9 @@ public class TupleTypeTest extends AbstractTypesTest {
     public void testInvalidAnnotRestMember() {
         testFile("tuple-type/tuple_type_source_11.bal", "tuple-type/tuple_type_assert_11.json");
     }
+
+    @Test
+    public void testTupleTypeMemberAnnotRecovery() {
+        testTopLevelNode("tuple-type/tuple_type_source_12.bal", "tuple-type/tuple_type_assert_12.json");
+    }
 }

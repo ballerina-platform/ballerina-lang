@@ -808,7 +808,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ANNOTATION_DECL_START =
             { ParserRuleContext.ANNOTATION_KEYWORD, ParserRuleContext.CONST_KEYWORD };
 
-    private static final ParserRuleContext[] TUPLE_MEMBER_OPTIONAL_ANNOTATIONS =
+    private static final ParserRuleContext[] TUPLE_MEMBER =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_TUPLE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
@@ -1205,7 +1205,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return fixAndContinue(currentCtx, lookahead, currentDepth, matchingRulesCount, isEntryPoint);
             }
 
-            currentCtx = getNextRule(currentCtx, lookahead + 1);
             if (!skipRule) {
                 // Try the next token with the next rule
                 currentDepth++;
@@ -1213,6 +1212,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 lookahead++;
                 isEntryPoint = false;
             }
+          
+            currentCtx = getNextRule(currentCtx, lookahead);
         }
 
         Result result = new Result(new ArrayDeque<>(), matchingRulesCount);
@@ -1557,7 +1558,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PARAM_RHS:
             case FUNC_TYPE_PARAM_RHS:
             case ANNOTATION_DECL_START:
-            case TUPLE_MEMBER_OPTIONAL_ANNOTATIONS:
+            case TUPLE_MEMBER:
                 return true;
             default:
                 return false;
@@ -2004,7 +2005,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.PARAM_END;
             case ANNOTATION_DECL_START:
                 return ParserRuleContext.ANNOTATION_KEYWORD;
-            case TUPLE_MEMBER_OPTIONAL_ANNOTATIONS:
+            case TUPLE_MEMBER:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
@@ -2348,8 +2349,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ANNOTATION_DECL_START:
                 alternativeRules = ANNOTATION_DECL_START;
                 break;
-            case TUPLE_MEMBER_OPTIONAL_ANNOTATIONS:
-                alternativeRules = TUPLE_MEMBER_OPTIONAL_ANNOTATIONS;
+            case TUPLE_MEMBER:
+                alternativeRules = TUPLE_MEMBER;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -3118,10 +3119,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case LIST_CONSTRUCTOR:
                     case ARG_LIST:
                         return ParserRuleContext.EXPRESSION;
-                    case TYPE_DESC_IN_TUPLE:
                     case STMT_START_BRACKETED_LIST:
                     case BRACKETED_LIST:
-                    case TUPLE_MEMBER_OPTIONAL_ANNOTATIONS:
+                    case TUPLE_MEMBERS:
                         return ParserRuleContext.CLOSE_BRACKET;
                     case REST_MATCH_PATTERN:
                         return ParserRuleContext.VAR_KEYWORD;
@@ -3376,6 +3376,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_CONSTRUCTOR_RHS;
             case LIST_BINDING_PATTERN_RHS:
                 return getNextRuleForBindingPattern();
+            case TUPLE_MEMBERS:
+                return ParserRuleContext.TUPLE_MEMBER;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -3591,7 +3593,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SIGNED_INT_OR_FLOAT_RHS:
                 return getNextRuleForExpr();
             case TUPLE_TYPE_DESC_START:
-                return ParserRuleContext.TYPE_DESC_IN_TUPLE;
+                return ParserRuleContext.TUPLE_MEMBER;
             case WORKER_NAME_OR_METHOD_NAME:
                 return ParserRuleContext.WORKER_NAME_OR_METHOD_NAME;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
@@ -4131,6 +4133,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_CONSTRUCTOR:
             case CLASS_DESCRIPTOR_IN_NEW_EXPR:
             case BRACED_EXPRESSION:
+            case TUPLE_MEMBERS:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -4379,9 +4382,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case BRACED_EXPR_OR_ANON_FUNC_PARAMS:
                 return ParserRuleContext.IMPLICIT_ANON_FUNC_PARAM;
-            case TYPE_DESC_IN_TUPLE:
-            case TUPLE_MEMBER_OPTIONAL_ANNOTATIONS:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case TUPLE_MEMBERS:
+                return ParserRuleContext.TUPLE_MEMBER;
             case LIST_BINDING_PATTERN:
                 return ParserRuleContext.LIST_BINDING_PATTERN_MEMBER;
             case MAPPING_BINDING_PATTERN:
@@ -4520,8 +4522,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
                 return ParserRuleContext.CLOSE_PARENTHESIS;
             case TYPE_DESC_IN_TUPLE:
+                endContext();
+                return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
             case STMT_START_BRACKETED_LIST:
-            case TUPLE_MEMBER_OPTIONAL_ANNOTATIONS:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 endContext();
@@ -4797,6 +4800,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ENUM_MEMBER_NAME;
             case RELATIVE_RESOURCE_PATH:
                 return ParserRuleContext.TYPE_DESC_IN_PATH_PARAM;
+            case TUPLE_MEMBERS:
+                return ParserRuleContext.TUPLE_MEMBER;
             default:
                 if (isParameter(parentCtx)) {
                     return ParserRuleContext.TYPE_DESC_IN_PARAM;
@@ -5038,7 +5043,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.PATH_PARAM_OPTIONAL_ANNOTS;
             default:
                 if (isInTypeDescContext()) {
-                    return ParserRuleContext.TYPE_DESC_IN_TUPLE;
+                    return ParserRuleContext.TUPLE_MEMBERS;
                 }
                 return ParserRuleContext.EXPRESSION;
         }
@@ -5053,8 +5058,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
-            case TYPE_DESC_IN_TUPLE:
-            case TUPLE_MEMBER_OPTIONAL_ANNOTATIONS:
+            case TUPLE_MEMBERS:
                 endContext(); // End array/tuple type descriptor context
                 return ParserRuleContext.TYPE_DESC_RHS;
             case COMPUTED_FIELD_NAME:
