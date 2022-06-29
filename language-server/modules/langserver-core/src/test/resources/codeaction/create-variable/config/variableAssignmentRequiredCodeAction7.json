@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 25,
-    "character": 33,
-    "expected": [
+    "character": 33
+  },
+  "source": "createVariable2.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Create variable",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 25,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 25,
-                            "character": 4
-                        }
-                    },
-                    "newText": "string print \u003d "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 25,
+              "character": 4
+            },
+            "end": {
+              "line": 25,
+              "character": 4
+            }
+          },
+          "newText": "string print \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

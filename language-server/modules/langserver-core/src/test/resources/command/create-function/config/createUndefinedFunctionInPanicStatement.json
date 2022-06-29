@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "createUndefinedFunctionInPanicStatement.bal",
   "expected": {
     "result": {
       "edit": {

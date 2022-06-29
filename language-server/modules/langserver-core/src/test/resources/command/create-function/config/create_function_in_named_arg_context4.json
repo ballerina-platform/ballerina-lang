@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "create_function_in_named_arg_context4.bal",
   "expected": {
     "result": {
       "edit": {

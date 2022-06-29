@@ -161,23 +161,24 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int,int]'", 479, 21);
         validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 488, 21);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                501, 5);
+                457, 9);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                502, 5);
+                458, 9);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                506, 5);
+                462, 9);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                507, 5);
+                463, 9);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                519, 5);
+                475, 9);
         validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
-                519, 5);
+                475, 9);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                520, 5);
+                476, 9);
         validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
-                520, 5);
+                476, 9);
         validateError(compileResult, index++, "value expression of key specifier 'z' must be a constant expression",
-                520, 5);
+                476, 9);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

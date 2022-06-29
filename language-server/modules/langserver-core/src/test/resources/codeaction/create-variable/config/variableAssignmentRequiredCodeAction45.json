@@ -1,9 +1,13 @@
 {
-  "line": 2,
-  "character": 4,
+  "position": {
+    "line": 2,
+    "character": 4
+  },
+  "source": "createVariable8.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "byte[] listResult = "
+          "newText": "byte[] listResult \u003d "
         }
       ]
     }
