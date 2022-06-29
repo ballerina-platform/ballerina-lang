@@ -214,6 +214,7 @@ public class EnvironmentResolver extends BaseVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        this.acceptNode(resourceAccessInvocation.expr, this.symbolEnv);
     }
 
     @Override
