@@ -53,6 +53,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -176,10 +177,18 @@ public class JsonToRecordDirectConverter {
             }
 
             for (Map.Entry<String, RecordFieldNode> entry : differencingRecordFields.entrySet()) {
-                Map.Entry<String, JsonElement> jsonEntry =
-                        new AbstractMap.SimpleEntry<>(entry.getKey(), jsonNodes.get(entry.getKey()));
-                Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, true, recordToTypeDescNodes);
-                recordFieldList.add(recordField);
+                String jsonField = entry.getKey();
+                JsonElement jsonElement = jsonNodes.get(jsonField);
+                Map.Entry<String, JsonElement> jsonEntry = jsonElement != null ?
+                        new AbstractMap.SimpleEntry<>(jsonField, jsonElement) :
+                        jsonObject.entrySet().stream().filter(elementEntry -> elementEntry.getKey() == entry.getKey())
+                                .findFirst().orElse(null);
+                if (jsonEntry != null) {
+                    Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, true, recordToTypeDescNodes);
+                    recordFieldList.add(recordField);
+                } else {
+                    // Diagnostics
+                }
             }
         } else {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
