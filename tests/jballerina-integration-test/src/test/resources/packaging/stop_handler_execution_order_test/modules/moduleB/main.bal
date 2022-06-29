@@ -28,41 +28,13 @@ function init() {
 }
 
 public function stopHandlerFunc() returns error? {
-    incrementAndAssertInt(10);
+    incrementAndAssertInt(9);
     panic error("Stopped moduleB");
 }
 
 public function getInitCount() returns int {
     return initCount;
 }
-
-public class TestListener {
-
-    private string name = "";
-
-    public function init(string name){
-        self.name = name;
-    }
-
-    public function 'start() returns error? {
-        incrementAndAssert(self.name, "moduleB", 5);
-    }
-
-    public function gracefulStop() returns error? {
-        incrementAndAssert(self.name, "moduleB", 11);
-    }
-
-    public function immediateStop() returns error? {
-    }
-
-    public function attach(service object {} s, string[]|string? name = ()) returns error? {
-    }
-
-    public function detach(service object {} s) returns error? {
-    }
-}
-
-listener TestListener ep = new TestListener("moduleB");
 
 public function incrementAndAssertInt(int val) {
     count += 1;

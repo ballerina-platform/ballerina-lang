@@ -32,17 +32,17 @@ function init() {
 }
 
 public function stopHandlerFunc1() returns error? {
-    moduleB:incrementAndAssertInt(8);
+    moduleB:incrementAndAssertInt(7);
     moduleB:println("Stopped current module");
 }
 
 public function stopHandlerFunc2() returns error? {
-    moduleB:incrementAndAssertInt(7);
+    moduleB:incrementAndAssertInt(6);
     moduleB:println("StopHandlerFunc2 in current module");
 }
 
 public function stopHandlerFunc3() returns error? {
-    moduleB:incrementAndAssertInt(6);
+    moduleB:incrementAndAssertInt(5);
     moduleB:println("StopHandlerFunc3 in current module");
     runtime:onGracefulStop(stopHandlerFunc4);
 }
@@ -65,4 +65,5 @@ public function main() {
     test:assertEquals(initCount, 1, errorMsg + "current" );
     test:assertEquals(moduleA:getInitCount(), 1, errorMsg + "moduleA");
     test:assertEquals(moduleB:getInitCount(), 1, errorMsg + "moduleB");
+    runtime:sleep(3);
 }
