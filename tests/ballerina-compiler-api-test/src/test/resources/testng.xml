@@ -113,6 +113,9 @@
 
             <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
 
+            <!--Expected Type-->
+            <class name="io.ballerina.semantic.api.test.expectedtype.ExpectedTypeTest" />
+
             <!--Expressions-->
             <class name="io.ballerina.semantic.api.test.expressions.QueryExpressionTest" />
 
