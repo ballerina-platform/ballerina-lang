@@ -140,11 +140,11 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getExport().get(0), "winery");
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
-            Assert.assertFalse(packageJson.getIncludes().isEmpty());
-            Assert.assertEquals(packageJson.getIncludes().get(0), "default-module-include/file");
-            Assert.assertEquals(packageJson.getIncludes().get(1), "default-module-include-dir");
-            Assert.assertEquals(packageJson.getIncludes().get(2), "modules/services/non-default-module-include/file");
-            Assert.assertEquals(packageJson.getIncludes().get(3), "modules/services/non-default-module-include-dir");
+            Assert.assertFalse(packageJson.getInclude().isEmpty());
+            Assert.assertEquals(packageJson.getInclude().get(0), "default-module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(1), "default-module-include-dir");
+            Assert.assertEquals(packageJson.getInclude().get(2), "modules/services/non-default-module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(3), "modules/services/non-default-module-include-dir");
 
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
@@ -481,7 +481,7 @@ public class TestBalaWriter {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
         Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
-                "could not locate includes path 'include-dir'");
+                "could not locate include path 'include-dir'");
     }
 
     @AfterMethod(alwaysRun = true)

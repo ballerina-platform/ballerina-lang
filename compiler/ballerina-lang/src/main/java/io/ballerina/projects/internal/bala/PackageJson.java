@@ -37,7 +37,7 @@ public class PackageJson {
     private String source_repository; //?
     private List<String> keywords; //?
     private List<String> export; //?
-    private List<String> includes;
+    private List<String> include;
     private String visibility;
     private String icon;
 
@@ -125,12 +125,12 @@ public class PackageJson {
         this.export = export;
     }
 
-    public List<String> getIncludes() {
-        return includes;
+    public List<String> getInclude() {
+        return include;
     }
 
-    public void setIncludes(List<String> include) {
-        this.includes = include;
+    public void setInclude(List<String> include) {
+        this.include = include;
     }
 
     public String getVisibility() {

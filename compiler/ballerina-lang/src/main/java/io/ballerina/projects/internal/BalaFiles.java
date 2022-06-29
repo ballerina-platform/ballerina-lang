@@ -401,13 +401,13 @@ public class BalaFiles {
         return compilerPluginJson.map(pluginJson -> PackageManifest
                         .from(pkgDesc, CompilerPluginDescriptor.from(pluginJson), platforms, dependencies,
                                 packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
-                                packageJson.getExport(), packageJson.getIncludes(), packageJson.getSourceRepository(),
+                                packageJson.getExport(), packageJson.getInclude(), packageJson.getSourceRepository(),
                                 packageJson.getBallerinaVersion(), packageJson.getVisibility(),
                                 packageJson.getTemplate()))
                 .orElseGet(() -> PackageManifest
                         .from(pkgDesc, null, platforms, dependencies, packageJson.getLicenses(),
                                 packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
-                                packageJson.getIncludes(), packageJson.getSourceRepository(),
+                                packageJson.getInclude(), packageJson.getSourceRepository(),
                                 packageJson.getBallerinaVersion(), packageJson.getVisibility(),
                                 packageJson.getTemplate()));
     }

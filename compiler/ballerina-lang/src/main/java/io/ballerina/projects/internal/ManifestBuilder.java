@@ -89,7 +89,7 @@ public class ManifestBuilder {
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
     private static final String EXPORT = "export";
-    private static final String INCLUDES = "includes";
+    private static final String INCLUDE = "include";
     private static final String PLATFORM = "platform";
     private static final String SCOPE = "scope";
     private static final String TEMPLATE = "template";
@@ -177,7 +177,7 @@ public class ManifestBuilder {
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
                 exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
-                includes = getStringArrayFromPackageNode(pkgNode, INCLUDES);
+                includes = getStringArrayFromPackageNode(pkgNode, INCLUDE);
                 repository = getStringValueFromTomlTableNode(pkgNode, REPOSITORY, "");
                 ballerinaVersion = getStringValueFromTomlTableNode(pkgNode, DISTRIBUTION, "");
                 visibility = getStringValueFromTomlTableNode(pkgNode, VISIBILITY, "");
@@ -333,8 +333,8 @@ public class ManifestBuilder {
                 includePath = this.projectPath.resolve(include);
             }
             if (Files.notExists(includePath)) {
-                reportDiagnostic(pkgNode.entries().get(INCLUDES),
-                        "could not locate includes path '" + include + "'",
+                reportDiagnostic(pkgNode.entries().get(INCLUDE),
+                        "could not locate include path '" + include + "'",
                         "error.invalid.path", DiagnosticSeverity.ERROR);
             }
         }

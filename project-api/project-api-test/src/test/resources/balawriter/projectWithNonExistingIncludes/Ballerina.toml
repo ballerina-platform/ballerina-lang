@@ -2,4 +2,4 @@
 org = "sameera"
 name = "myproject"
 version = "0.1.0"
-includes = ["include-file.txt", "include-dir"]
+include = ["include-file.txt", "include-dir"]

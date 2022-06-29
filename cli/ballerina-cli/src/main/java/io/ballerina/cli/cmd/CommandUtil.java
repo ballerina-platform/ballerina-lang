@@ -294,8 +294,8 @@ public class CommandUtil {
         }
 
         // Copy include files
-        if (templatePackageJson.getIncludes() != null) {
-            for (String includeFileString : templatePackageJson.getIncludes()) {
+        if (templatePackageJson.getInclude() != null) {
+            for (String includeFileString : templatePackageJson.getInclude()) {
                 Path fromIncludeFilePath = balaPath.resolve(includeFileString);
                 Path toIncludeFilePath = projectPath.resolve(includeFileString);
                 if (Files.notExists(toIncludeFilePath)) {

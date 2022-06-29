@@ -121,7 +121,7 @@
             "type": "string"
           }
         },
-        "includes": {
+        "include": {
           "type": "array",
           "items": {
             "type": "string"

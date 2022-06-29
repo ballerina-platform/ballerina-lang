@@ -132,14 +132,14 @@ public class PackageManifest {
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
-                                       List<String> includes,
+                                       List<String> include,
                                        String repository,
                                        String ballerinaVersion,
                                        String visibility,
                                        boolean template,
                                        String icon) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, otherEntries, diagnostics,
-                license, authors, keywords, export, includes, repository, ballerinaVersion, visibility, template, icon);
+                license, authors, keywords, export, include, repository, ballerinaVersion, visibility, template, icon);
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
@@ -150,14 +150,14 @@ public class PackageManifest {
                                        List<String> authors,
                                        List<String> keywords,
                                        List<String> export,
-                                       List<String> includes,
+                                       List<String> include,
                                        String repository,
                                        String ballerinaVersion,
                                        String visibility,
                                        boolean template) {
         return new PackageManifest(packageDesc, compilerPluginDesc, platforms, dependencies, Collections.emptyMap(),
                 new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
-                export, includes, repository, ballerinaVersion, visibility, template, "");
+                export, include, repository, ballerinaVersion, visibility, template, "");
     }
 
     public PackageName name() {
