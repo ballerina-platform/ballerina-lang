@@ -1012,6 +1012,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 if (types.isUnsigned8LiteralValue((Long) literalValue)) {
                     return symTable.unsigned8IntType;
                 }
+                break;
             default:
         }
         return symTable.intType;
