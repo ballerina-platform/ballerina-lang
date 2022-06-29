@@ -49,8 +49,10 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 36, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 39, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 40, 17);
-        BAssertUtil.validateError(compileResult, index++, "float '9.99E+6111' too large", 44, 17);
-        BAssertUtil.validateError(compileResult, index++, "float '9.99E+6111' too large", 45, 26);
+        BAssertUtil.validateError(compileResult, index++, "'9.99E+6111' is out of range for 'float'",
+                44, 17);
+        BAssertUtil.validateError(compileResult, index++, "'9.99E+6111' is out of range for 'float'",
+                45, 26);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

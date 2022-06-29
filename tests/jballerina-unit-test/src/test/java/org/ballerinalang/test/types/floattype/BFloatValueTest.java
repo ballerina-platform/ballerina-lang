@@ -164,7 +164,7 @@ public class BFloatValueTest {
 
     @Test()
     public void testIntegerValue() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeResult.getErrorCount(), 17);
         BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals",
                 3, 9);
         BAssertUtil.validateError(negativeResult, 1, "'999e9999999999' is out of range " +
@@ -189,13 +189,16 @@ public class BFloatValueTest {
                 "of range for 'float'", 23, 1);
         BAssertUtil.validateError(negativeResult, 11, "'0x999.9p999999999999999' is out " +
                 "of range for 'float'", 23, 29);
-
-
-        BAssertUtil.validateError(negativeResult, 12, "float '9.99E6111' too large", 25, 16);
-        BAssertUtil.validateError(negativeResult, 13, "float '9.99E+6111' too large", 28, 15);
-        BAssertUtil.validateError(negativeResult, 14, "float '9.99E6111' too large", 29, 5);
-        BAssertUtil.validateError(negativeResult, 15, "float '9.99E+6111' too large", 29, 21);
-        BAssertUtil.validateError(negativeResult, 16, "float '9.99E+6111' too large", 30, 15);
+        BAssertUtil.validateError(negativeResult, 12, "'9.99E6111' is out of range " +
+                "for 'float'", 25, 16);
+        BAssertUtil.validateError(negativeResult, 13, "'9.99E+6111' is out of range " +
+                "for 'float'", 28, 15);
+        BAssertUtil.validateError(negativeResult, 14, "'9.99E6111' is out of range " +
+                "for 'float'", 29, 5);
+        BAssertUtil.validateError(negativeResult, 15, "'9.99E+6111' is out of range " +
+                "for 'float'", 29, 21);
+        BAssertUtil.validateError(negativeResult, 16, "'9.99E+6111' is out of range " +
+                "for 'float'", 30, 15);
     }
 
     @Test(description = "Test float literal discrimination error")
