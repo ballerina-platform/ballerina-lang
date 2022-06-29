@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "module_shutdown_order_project"
+version = "0.1.0"
