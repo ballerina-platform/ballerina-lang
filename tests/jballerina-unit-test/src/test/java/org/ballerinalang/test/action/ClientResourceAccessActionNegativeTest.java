@@ -48,75 +48,106 @@ public class ClientResourceAccessActionNegativeTest {
     public void testClientResourceCallNegative() {
         int index = 0;
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "incompatible types: expected 'string', found 'int'", 53, 46);
+                "incompatible types: expected 'string', found 'int'", 65, 38);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'get()'", 54, 13);
+                "too many arguments in call to 'get()'", 66, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'get()'", 55, 13);
+                "too many arguments in call to 'get()'", 67, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "incompatible types: expected 'string', found '()'", 56, 42);
+                "incompatible types: expected 'string', found '()'", 68, 38);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'string?'",
-                57, 42);
+                69, 38);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "incompatible types: expected 'string', found 'int'", 59, 49);
+                "incompatible types: expected 'string', found 'int'", 71, 45);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "incompatible types: expected 'string', found 'int'", 60, 49);
+                "incompatible types: expected 'string', found 'int'", 72, 45);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "incompatible types: expected 'string', found 'int'", 61, 49);
+                "incompatible types: expected 'string', found 'int'", 73, 45);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "incompatible types: expected 'string', found 'boolean'",
-                62, 49);
+                74, 45);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'get()'", 63, 49);
+                "too many arguments in call to 'get()'", 75, 45);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "incompatible types: expected 'string', found 'int'", 64, 49);
+                "incompatible types: expected 'string', found 'int'", 76, 45);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'get()'", 64, 53);
-        BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "missing required parameter 'name' in call to 'get()'",
-                65, 13);
+                "too many arguments in call to 'get()'", 76, 49);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "missing required parameter 'name' in call to 'get()'",
-                66, 13);
-        BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "undefined defaultable parameter 'b'", 66, 42);
+                77, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "missing required parameter 'name' in call to 'get()'",
-                67, 13);
+                78, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "incompatible types: expected 'string', found 'int'", 67, 53);
+                "undefined defaultable parameter 'b'",
+                78, 38);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "too many arguments in call to 'get()'", 79, 52);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "too many arguments in call to 'get()'", 80, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "too many arguments in call to 'get()'", 81, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "missing required parameter 'name' in call to 'get()'",
+                82, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "incompatible types: expected 'string', found 'int'",
+                82, 49);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "positional argument not allowed after named arguments",
-                67, 57);
-        BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'post()'", 68, 13);
+                82, 53);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "missing required parameter 'address' in call to 'get()'",
-                69, 13);
+                83, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "positional argument not allowed after named arguments",
-                69, 64);
+                83, 60);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'get()'", 70, 56);
+                "incompatible types: expected 'string', found 'int'",
+                84, 46);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'get()'", 71, 13);
+                "too many arguments in call to 'get()'", 85, 47);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'get()'", 72, 13);
+                "missing required parameter 'address' in call to 'get()'",
+                86, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "too many arguments in call to 'post()'", 73, 13);
+                "incompatible types: expected 'string', found 'int'",
+                87, 57);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 99, 13);
+                "too many arguments in call to 'get()'", 88, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 100, 13);
+                "too many arguments in call to 'get()'", 89, 79);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
-                "ambiguous resource access not yet supported", 101, 13);
+                "too many arguments in call to 'post()'", 90, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "too many arguments in call to 'post()'", 91, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 145, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 146, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 147, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 148, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 149, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 150, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 151, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 152, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 153, 13);
+        BAssertUtil.validateError(clientResourceAccessNegative, index++,
+                "ambiguous resource access not yet supported", 154, 13);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "resource functions are only allowed in network object types",
-                106, 9);
+                159, 9);
         BAssertUtil.validateError(clientResourceAccessNegative, index++,
                 "client resource access action is only allowed on client objects",
-                110, 13);
+                163, 13);
         Assert.assertEquals(clientResourceAccessNegative.getErrorCount(), index);
     }
 
@@ -124,168 +155,615 @@ public class ClientResourceAccessActionNegativeTest {
     public void testClientResourcePathNegative() {
         int index = 0;
         BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource path in object 'isolated object { resource function get path() " +
-                        "returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string) " +
-                        "returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int); " +
-                        "resource function get intPath/[int]() returns (int); }'", 70, 29);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource method 'put' on target resource in object 'isolated object " +
-                        "{ resource function get path() returns (int); resource function get path/[int]() returns " +
-                        "(int); resource function get path/[int]/foo(string) returns (int); resource function get " +
-                        "path/[int]/foo2(string,string) returns (int); resource function get path/foo/bar() " +
-                        "returns (); resource function get stringPath/[string]() returns (int); resource function " +
-                        "get intQuotedPath/5() returns (int); resource function get intPath/[int]() returns (int); }'",
-                        71, 13);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource path in object 'isolated object { resource function get path() " +
-                        "returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 72, 29);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource path in object 'isolated object { resource function get path() " +
-                        "returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
                         " returns (int); resource function get path/foo/bar() returns (); resource function get" +
-                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 73, 29);
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                111, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource method 'put' on target resource in object 'isolated object" +
+                        " { resource function get path() returns (int); resource function get path/[int]() " +
+                        "returns (int); resource function get path/[int]/foo(string) returns (int); resource" +
+                        " function get path/[int]/foo2(string,string) returns (int); resource function get" +
+                        " path/foo/bar() returns (); resource function get stringPath/[string]() returns (int);" +
+                        " resource function get intQuotedPath/5() returns (int); resource function get " +
+                        "intPath/[int]() returns (int); resource function get booleanPath/[boolean]() " +
+                        "returns (int); resource function get stringRestPath/[string...]() returns (int);" +
+                        " resource function get intRestPath/[int...]() returns (int); resource function get " +
+                        "booleanRestPath/[boolean...]() returns (int); resource function get x(int) " +
+                        "returns (string); resource function get y(int?) returns (string?); resource " +
+                        "function get 5(string) returns (string); resource function get 6(string?) " +
+                        "returns (string?); }'",
+                112, 13);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                113, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                114, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "resource access path segment is not allowed after resource access rest segment",
-                73, 61);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource path in object 'isolated object { resource function get path() " +
-                        "returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string) " +
-                        "returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 74, 29);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "unsupported computed resource access path segment type: expected 'int', 'string', " +
-                        "'float', 'boolean','decimal' but found 'string[]'", 74, 35);
+                114, 61);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 75, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                115, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource path in object 'isolated object { resource function get path() " +
-                        "returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int); " +
-                        "resource function get intPath/[int]() returns (int); }'", 76, 29);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource path in object 'isolated object { resource function get path() " +
-                        "returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int); " +
-                        "resource function get intPath/[int]() returns (int); }'", 77, 29);
+                "unsupported computed resource access path segment type: expected 'int', " +
+                        "'string', 'float', 'boolean','decimal' but found 'string[]'",
+                115, 35);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 78, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                116, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 79, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                117, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 80, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                118, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 81, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                119, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 82, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                120, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 83, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                121, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 84, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                122, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 85, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                123, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 86, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                124, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 87, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                125, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 88, 29);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "unsupported computed resource access path segment type: expected 'int', 'string', " +
-                        "'float', 'boolean','decimal' but found 'int?'", 88, 35);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 89, 29);
-        BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "unsupported computed resource access path segment type: expected 'int', 'string', " +
-                        "'float', 'boolean','decimal' but found '()'", 89, 35);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                126, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
                 "undefined resource path in object 'isolated object { resource function get path()" +
-                        " returns (int); resource function get path/[int]() returns (int); resource function get " +
-                        "path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
-                        " returns (int); resource function get path/foo/bar() returns (); resource function get " +
-                        "stringPath/[string]() returns (int); resource function get intQuotedPath/5() returns (int);" +
-                        " resource function get intPath/[int]() returns (int); }'", 90, 29);
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                127, 29);
         BAssertUtil.validateError(clientResourcePathNegative, index++,
-                "unsupported computed resource access path segment type: expected 'int', 'string', " +
-                        "'float', 'boolean','decimal' but found 'int?'", 90, 35);
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                128, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                129, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                130, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                131, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                132, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                133, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                134, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                135, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                136, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                137, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                138, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                139, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                140, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                141, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                142, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "unsupported computed resource access path segment type: expected 'int', 'string'," +
+                        " 'float', 'boolean','decimal' but found 'int?'",
+                142, 35);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                143, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "unsupported computed resource access path segment type: expected 'int', 'string'," +
+                        " 'float', 'boolean','decimal' but found '()'",
+                143, 35);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                144, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "unsupported computed resource access path segment type: expected 'int', 'string'," +
+                        " 'float', 'boolean','decimal' but found 'int?'",
+                144, 35);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                145, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                146, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                147, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                148, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                149, 29);
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                150, 29);
+
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                151, 29);
+
+        BAssertUtil.validateError(clientResourcePathNegative, index++,
+                "undefined resource path in object 'isolated object { resource function get path()" +
+                        " returns (int); resource function get path/[int]() returns (int); resource function get" +
+                        " path/[int]/foo(string) returns (int); resource function get path/[int]/foo2(string,string)" +
+                        " returns (int); resource function get path/foo/bar() returns (); resource function get" +
+                        " stringPath/[string]() returns (int); resource function get intQuotedPath/5()" +
+                        " returns (int); resource function get intPath/[int]() returns (int); resource function" +
+                        " get booleanPath/[boolean]() returns (int); resource function get " +
+                        "stringRestPath/[string...]() returns (int); resource function get intRestPath/[int...]()" +
+                        " returns (int); resource function get booleanRestPath/[boolean...]() returns (int);" +
+                        " resource function get x(int) returns (string); resource function get y(int?) " +
+                        "returns (string?); resource function get 5(string) returns (string); resource" +
+                        " function get 6(string?) returns (string?); }'",
+                152, 29);
         Assert.assertEquals(clientResourcePathNegative.getErrorCount(), index);
     }
 

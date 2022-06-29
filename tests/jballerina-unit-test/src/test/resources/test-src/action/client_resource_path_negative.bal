@@ -25,12 +25,21 @@ string[] stringPathParameters = ["foo", "bar"];
 string[] stringPathParameters2 = ["foo", "bar", "foo2"];
 string[] stringPathParameters3 = ["foo"];
 int[] intPathParameters = [1, 2, 3];
+boolean[] booleanPathParameters = [true, false];
 
 int? intNilArgument = ();
 () nilArgument = ();
 int? intOrNilArgument = 3;
+decimal decimalExpression = 10 + (12 - 15) / 3;
+boolean booleanExpression = true;
 
 record {int a;} recordValue = {a: 3};
+
+type XY "x" | "y";
+XY xy = "x";
+
+type IntFiveOrSix 5 | 6;
+IntFiveOrSix five = 5;
 
 public function testUndefineResourcePath() {
     var successClient = client object {
@@ -65,6 +74,38 @@ public function testUndefineResourcePath() {
         resource function get intPath/[int]() returns int {
             return 1;
         }
+
+        resource function get booleanPath/[boolean]() returns int {
+            return 1;
+        }
+
+        resource function get stringRestPath/[string...]() returns int {
+            return 1;
+        }
+
+        resource function get intRestPath/[int...]() returns int {
+            return 1;
+        }
+
+        resource function get booleanRestPath/[boolean...]() returns int {
+            return 1;
+        }
+
+        resource function get x(int a) returns string {
+            return "x";
+        }
+
+        resource function get y(int? a) returns string? {
+            return "y";
+        }
+
+        resource function get '5(string a) returns string {
+            return "x";
+        }
+
+        resource function get '6(string? a) returns string? {
+            return "y";
+        }
     };
 
     int _ = successClient->/path2.post();
@@ -80,14 +121,35 @@ public function testUndefineResourcePath() {
     int _ = successClient->/path/[stringConstant];
     int _ = successClient->/stringPath/[recordValue.a];
     int _ = successClient->/stringPath/[intConstant];
+    int _ = successClient->/stringPath/[10 * 10 - 3];
+    int _ = successClient->/stringPath/[decimalExpression];
+    int _ = successClient->/stringPath/[booleanExpression];
     int _ = successClient->/stringPath/[varBoolean];
     int _ = successClient->/stringPath/[varInt];
+    int _ = successClient->/stringPath/[5];
+    int _ = successClient->/stringPath/[false];
+    int _ = successClient->/intPath/[varBoolean];
+    int _ = successClient->/intPath/[varString];
+    int _ = successClient->/intPath/["string"];
+    int _ = successClient->/intPath/[true];
+    int _ = successClient->/booleanPath/[varInt];
+    int _ = successClient->/booleanPath/[varString];
+    int _ = successClient->/booleanPath/["string"];
+    int _ = successClient->/booleanPath/[1];
     int _ = successClient->/intQuotedPath/[5];
     int _ = successClient->/intPath/'5;
     int _ = successClient->/intPath/foo/foo2/bar/bar2/foo3;
     int _ = successClient->/path/[intNilArgument];
     int _ = successClient->/path/[nilArgument];
     int _ = successClient->/path/[getIntOrNilArgument()];
+    int _ = successClient->/stringRestSegmentPath/[...booleanPathParameters];
+    int _ = successClient->/stringRestSegmentPath/[...intPathParameters];
+    int _ = successClient->/intRestPath/[...booleanPathParameters];
+    int _ = successClient->/intRestPath/[...stringPathParameters];
+    int _ = successClient->/booleanRestPath/[...stringPathParameters];
+    int _ = successClient->/booleanRestPath/[...intPathParameters];
+    var _ = successClient->/[xy].get(1);
+    var _ = successClient->/[five].get("test");
 }
 
 function getIntOrNilArgument() returns int? {
