@@ -18,6 +18,7 @@
 
 package io.ballerina.converters;
 
+import io.ballerina.converters.diagnostic.JsonToRecordDirectConverterDiagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -26,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -125,12 +127,14 @@ public class JsonToRecordDirectConverterTests {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
                     JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false);
-            if (jsonToRecordResponse.getCodeBlock() == null) {
-                //TODO: react when there is a diagnostic message.
-            } else {
+            if (jsonToRecordResponse.getCodeBlock() != null) {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
                 Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+            }
+            List<JsonToRecordDirectConverterDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
+            for (JsonToRecordDirectConverterDiagnostic diagnostic : diagnostics) {
+                //TODO: react when there is a diagnostic message.
             }
         }
     }
@@ -152,12 +156,17 @@ public class JsonToRecordDirectConverterTests {
         }
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
-            String generatedCodeBlock =
-                    JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false).getCodeBlock()
-                                    .
-                            replaceAll("\\s+", "");
-            String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
-            Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+            JsonToRecordResponse jsonToRecordResponse =
+                    JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false);
+            if (jsonToRecordResponse.getCodeBlock() != null) {
+                String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
+                String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
+                Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+            }
+            List<JsonToRecordDirectConverterDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
+            for (JsonToRecordDirectConverterDiagnostic diagnostic : diagnostics) {
+                //TODO: react when there is a diagnostic message.
+            }
         }
     }
 }
