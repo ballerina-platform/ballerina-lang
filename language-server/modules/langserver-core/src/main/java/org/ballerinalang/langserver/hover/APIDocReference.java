@@ -22,19 +22,19 @@ import java.util.Set;
  *
  * @since 2201.2.0
  */
-public class APIDocReferenceBuilder {
+public class APIDocReference {
 
     private static final String BASE_URL = "https://lib.ballerina.io/";
 
     private static final Set<HoverConstructKind> MD_NAVIGATED_SET = Set.of(HoverConstructKind.Function,
             HoverConstructKind.Variable, HoverConstructKind.Type, HoverConstructKind.Annotation, 
             HoverConstructKind.Constant, HoverConstructKind.Error);
-
-    public static String build(String orgName,
-                               String moduleName,
-                               String version,
-                               HoverConstructKind constructType,
-                               String constructReference) {
+    
+    public static String from(String orgName,
+                              String moduleName,
+                              String version,
+                              HoverConstructKind constructType,
+                              String constructReference) {
         StringBuilder url = new StringBuilder(BASE_URL)
                 .append(String.join("\\/", orgName, moduleName, version, constructType.value()));
         if (MD_NAVIGATED_SET.contains(constructType)) {

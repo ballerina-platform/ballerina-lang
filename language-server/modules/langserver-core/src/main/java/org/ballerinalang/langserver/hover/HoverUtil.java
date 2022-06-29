@@ -108,7 +108,7 @@ public class HoverUtil {
             if (moduleID.isEmpty() || symbol.get().getName().isEmpty() || constructKind.isEmpty()) {
                 return hoverObj;
             }
-            String url = APIDocReferenceBuilder.build(moduleID.get().orgName(),
+            String url = APIDocReference.from(moduleID.get().orgName(),
                     moduleID.get().moduleName(), moduleID.get().version(), constructKind.get(),
                     symbol.get().getName().get());
             markupContent.setValue((content.isEmpty() ? "" : content + MarkupUtils.getHorizontalSeparator())

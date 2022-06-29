@@ -172,7 +172,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Ignore the cancellation exception
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
-                String msg = "Operation 'text/hover' failed!";      
+                String msg = "Operation 'text/hover' failed!";
                 this.clientLogger.logError(LSContextOperation.TXT_HOVER, msg, e, params.getTextDocument(),
                         params.getPosition());
             }
