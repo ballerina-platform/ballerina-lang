@@ -71,10 +71,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withQualifier(Qualifier... qualifiers) {
-        if (!this.qualifiers.isEmpty()) {
-            this.qualifiers = new ArrayList<>();
-        }
-
+        this.qualifiers.clear();
         this.qualifiers.addAll(Arrays.asList(qualifiers));
 
         return this;
@@ -82,10 +79,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withFields(OBJECT_FIELD... fields) {
-        if (!objectFieldList.isEmpty()) {
-            objectFieldList.clear();
-        }
-
+        objectFieldList.clear();
         objectFieldList.addAll(Arrays.asList(fields));
 
         return this;
@@ -93,10 +87,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withMethods(OBJECT_METHOD... methods) {
-        if (!objectMethodList.isEmpty()) {
-            objectMethodList.clear();
-        }
-
+        objectMethodList.clear();
         objectMethodList.addAll(getObjectMethods(Arrays.asList(methods)));
 
         return this;
@@ -104,10 +95,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withTypeInclusions(TypeReferenceTypeSymbol... inclusions) {
-        if (!typeInclusions.isEmpty()) {
-            typeInclusions.clear();
-        }
-
+        typeInclusions.clear();
         typeInclusions.addAll(Arrays.asList(inclusions));
 
         return this;

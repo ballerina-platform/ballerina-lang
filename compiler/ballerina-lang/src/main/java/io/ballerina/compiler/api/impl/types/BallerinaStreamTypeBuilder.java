@@ -62,11 +62,18 @@ public class BallerinaStreamTypeBuilder implements TypeBuilder.STREAM {
         BStreamType streamType = new BStreamType(TypeTags.STREAM, getValueBType(this.valueType),
                 getCompletionBType(this.completionType), symTable.streamType.tsymbol);
 
-        // TODO: Clear the parameters.
-        return (StreamTypeSymbol) typesFactory.getTypeDescriptor(streamType);
+        StreamTypeSymbol streamTypeSymbol = (StreamTypeSymbol) typesFactory.getTypeDescriptor(streamType);
+        this.valueType = null;
+        this.completionType = null;
+
+        return streamTypeSymbol;
     }
 
     private BType getValueBType(TypeSymbol valueType) {
+        if (valueType == null) {
+            return symTable.anyType;
+        }
+
         if (valueType instanceof AbstractTypeSymbol) {
             return ((AbstractTypeSymbol) valueType).getBType();
         }

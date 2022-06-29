@@ -194,6 +194,10 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     }
 
     private BType getRowBType(TypeSymbol rowType) {
+        if (rowType == null) {
+            throw new IllegalArgumentException("Row type parameter can not be null");
+        }
+
         BType rowBType = getBType(rowType);
         if (types.isAssignable(rowBType, symTable.mapType)) {
             if (rowBType.getKind() == TypeKind.RECORD) {

@@ -53,7 +53,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     private final CompilerContext context;
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
-    private List<ParameterSymbol> parameterSymbols = new ArrayList<>();
+    private final List<ParameterSymbol> parameterSymbols = new ArrayList<>();
     private ParameterSymbol restParam;
     private TypeSymbol returnTypeSymbol;
 
@@ -194,12 +194,18 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
             }
 
             long flags = Flags.REQUIRED_PARAM;
-            if (kind == ParameterKind.DEFAULTABLE) {
-                flags = Flags.DEFAULTABLE_PARAM;
-            } else if (kind == ParameterKind.REST) {
-                flags = Flags.REST_PARAM;
-            } else if (kind == ParameterKind.INCLUDED_RECORD) {
-                flags = Flags.INCLUDED;
+            if (kind != null) {
+                switch (kind) {
+                    case DEFAULTABLE:
+                        flags = Flags.DEFAULTABLE_PARAM;
+                        break;
+                    case REST:
+                        flags = Flags.REST_PARAM;
+                        break;
+                    case INCLUDED_RECORD:
+                        flags = Flags.INCLUDED;
+                        break;
+                }
             }
 
             BVarSymbol bVarSymbol = new BVarSymbol(flags, Names.fromString(name),
