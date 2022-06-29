@@ -6566,48 +6566,6 @@ public class Types {
         }
     }
 
-    public boolean containsClientObjectOrFunctionType(BType type, boolean isCheckForClient) {
-        Set<BType> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(type);
-        return containsClientObjectOrFunctionType(type, visitedTypeSet, isCheckForClient);
-    }
-
-    private boolean containsClientObjectOrFunctionType(
-            BType type, Set<BType> visitedTypeSet, boolean isCheckForClient) {
-        if (type == null) {
-            return false;
-        }
-        if (isCheckForClient && type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT)) {
-            return true;
-        }
-        switch (type.tag) {
-            case TypeTags.INVOKABLE:
-                return !isCheckForClient;
-            case UNION:
-                for (BType memberType: ((BUnionType) type).getMemberTypes()) {
-                    if (!visitedTypeSet.add(memberType)) {
-                        continue;
-                    }
-                    if (containsClientObjectOrFunctionType(memberType, isCheckForClient)) {
-                        return true;
-                    }
-                }
-                return false;
-            case TypeTags.INTERSECTION:
-                for (BType memberType: ((BIntersectionType) type).getConstituentTypes()) {
-                    if (!visitedTypeSet.add(memberType)) {
-                        continue;
-                    }
-                    if (containsClientObjectOrFunctionType(memberType, isCheckForClient)) {
-                        return true;
-                    }
-                }
-                return false;
-            default:
-                return false;
-        }
-    }
-
     boolean isSingletonType(BType bType) {
         BType type = getReferredType(bType);
         return type.tag == TypeTags.FINITE && ((BFiniteType) type).getValueSpace().size() == 1;

@@ -391,15 +391,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangResourceFunction funcNode, AnalyzerData data) {
         visit((BLangFunction) funcNode, data);
-        BType returnType = Types.getReferredType(funcNode.returnTypeNode.getBType());
-        if (types.containsClientObjectOrFunctionType(returnType, true)) {
-            dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE,
-                    "client object");
-        }
-        if (types.containsClientObjectOrFunctionType(returnType, false)) {
-            dlog.error(funcNode.returnTypeNode.getPosition(), DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE,
-                    "function");
-        }
+        checkForClientObjectTypeOrFunctionType(Types.getReferredType(funcNode.returnTypeNode.getBType()),
+                funcNode.returnTypeNode.getPosition());
         for (BLangType pathParamType : funcNode.resourcePathType.memberTypeNodes) {
             symResolver.resolveTypeNode(pathParamType, data.env);
             if (!types.isAssignable(pathParamType.getBType(), symTable.pathParamAllowedType)) {
@@ -415,6 +408,29 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 dlog.error(restParamType.getPosition(), DiagnosticErrorCode.UNSUPPORTED_REST_PATH_PARAM_TYPE,
                         restParamType.getBType());
             }
+        }
+    }
+
+    private void checkForClientObjectTypeOrFunctionType(BType type, Location pos) {
+        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.CLIENT)) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE, "client object");
+        }
+        switch (type.tag) {
+            case TypeTags.INVOKABLE:
+                dlog.error(pos, DiagnosticErrorCode.INVALID_RESOURCE_METHOD_RETURN_TYPE, "function");
+                break;
+            case TypeTags.UNION:
+                for (BType memberType: ((BUnionType) type).getMemberTypes()) {
+                    checkForClientObjectTypeOrFunctionType(memberType, pos);
+                }
+                break;
+            case TypeTags.INTERSECTION:
+                for (BType memberType: ((BIntersectionType) type).getConstituentTypes()) {
+                    checkForClientObjectTypeOrFunctionType(memberType, pos);
+                }
+                break;
+            default:
+                break;
         }
     }
 
