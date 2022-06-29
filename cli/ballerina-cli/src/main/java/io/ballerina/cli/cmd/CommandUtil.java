@@ -292,6 +292,18 @@ public class CommandUtil {
                     false);
             getRuntime().exit(1);
         }
+
+        // Copy include files
+        if (templatePackageJson.getIncludes() != null) {
+            for (String includeFileString : templatePackageJson.getIncludes()) {
+                Path fromIncludeFilePath = balaPath.resolve(includeFileString);
+                Path toIncludeFilePath = projectPath.resolve(includeFileString);
+                if (Files.notExists(toIncludeFilePath)) {
+                    Files.createDirectories(toIncludeFilePath);
+                    Files.walkFileTree(fromIncludeFilePath, new FileUtils.Copy(fromIncludeFilePath, toIncludeFilePath));
+                }
+            }
+        }
     }
 
     /**
