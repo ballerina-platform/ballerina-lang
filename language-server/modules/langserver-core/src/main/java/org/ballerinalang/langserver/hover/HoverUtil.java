@@ -115,6 +115,7 @@ public class HoverUtil {
                     + "[View API Docs](" + url + ")");
             hoverObj.setContents(markupContent);
         }
+        
         return hoverObj;
     }
 
