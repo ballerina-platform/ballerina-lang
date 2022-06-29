@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * @since 2201.2.0
  */
-public class ListOperationUtils {
+public final class ListOperationUtils {
 
     private ListOperationUtils() {}
 

@@ -27,7 +27,7 @@ import java.util.Arrays;
  *
  * @since 2201.2.0
  */
-public class DiagnosticMessage {
+public final class DiagnosticMessage {
 
     private final String code;
     private final String description;

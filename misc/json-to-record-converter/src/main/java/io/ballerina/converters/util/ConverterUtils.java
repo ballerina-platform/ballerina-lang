@@ -37,7 +37,7 @@ import java.util.stream.Stream;
  *
  * @since 2201.2.0
  */
-public class ConverterUtils {
+public final class ConverterUtils {
 
     private ConverterUtils() {}
 

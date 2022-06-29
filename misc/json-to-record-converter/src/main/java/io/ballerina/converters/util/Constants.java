@@ -23,7 +23,7 @@ package io.ballerina.converters.util;
  *
  * @since 2201.2.0
  */
-public class Constants {
+public final class Constants {
 
     private Constants() {}
 

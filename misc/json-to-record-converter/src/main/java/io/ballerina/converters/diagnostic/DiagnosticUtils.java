@@ -27,7 +27,9 @@ import java.util.List;
  *
  * @since 2201.2.0
  */
-public class DiagnosticUtils {
+public final class DiagnosticUtils {
+
+    private DiagnosticUtils() {}
 
     public static JsonToRecordResponse getDiagnosticResponse(List<DiagnosticMessage> diagnosticMessages,
                                                              JsonToRecordResponse response) {
