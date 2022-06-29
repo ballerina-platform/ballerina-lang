@@ -151,6 +151,7 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"createUndefinedFunctionInPanicStatement.json"},
                 {"createUndefinedFunctionInCheckpanicExpression1.json"},
                 {"createUndefinedFunctionInCheckpanicExpression2.json"},
+                {"create_function_in_conditional_expression.json"},
         };
     }
 

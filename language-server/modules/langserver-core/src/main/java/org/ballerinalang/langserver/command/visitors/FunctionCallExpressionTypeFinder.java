@@ -67,6 +67,7 @@ import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 
 import java.util.List;
@@ -85,12 +86,15 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     private TypeSymbol returnTypeSymbol;
     private TypeDescKind returnTypeDescKind;
     private boolean resultFound = false;
+    private FunctionCallExpressionNode functionCallExpressionNode;
 
     public FunctionCallExpressionTypeFinder(SemanticModel semanticModel) {
         this.semanticModel = semanticModel;
     }
 
+
     public void findTypeOf(FunctionCallExpressionNode functionCallExpressionNode) {
+        this.functionCallExpressionNode = functionCallExpressionNode;
         functionCallExpressionNode.accept(this);
     }
 
@@ -424,6 +428,13 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(ConditionalExpressionNode conditionalExpressionNode) {
+
+        if (this.functionCallExpressionNode != null &&
+                PositionUtil.isWithinLineRange(this.functionCallExpressionNode.lineRange(),
+                conditionalExpressionNode.lhsExpression().lineRange())) {
+            checkAndSetTypeDescResult(TypeDescKind.BOOLEAN);
+            return;
+        }
         Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(conditionalExpressionNode.middleExpression())
                 .filter(type -> type.typeKind() != TypeDescKind.COMPILATION_ERROR)
                 .or(() -> semanticModel.typeOf(conditionalExpressionNode.endExpression())
@@ -449,7 +460,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     public void visit(PanicStatementNode panicStatementNode) {
         checkAndSetTypeDescResult(TypeDescKind.ERROR);
     }
-    
+
     @Override
     protected void visitSyntaxNode(Node node) {
         // Do nothing
