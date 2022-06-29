@@ -138,7 +138,7 @@ public class JsonToRecordDirectConverterTests {
     @Test(description = "Test Choreo Transformation and Data Mapping Payloads")
     public void testChoreoTransPayloads() throws IOException {
         Map<Path, Path> samples = new HashMap<>();
-        for (int i = 0; i <= 1; i++) {
+        for (int i = 0; i <= 3; i++) {
             Path jsonInputPath = RES_DIR.resolve("json").resolve("ChoreoTransPayloads")
                     .resolve(String.format("sample_%d_input.json", i));
             Path balInputPath = RES_DIR.resolve("ballerina").resolve("ChoreoTransPayloads")
