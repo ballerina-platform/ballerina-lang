@@ -16,6 +16,7 @@
 
 type CustomType1 float|int[]|client object{}|int|string;
 type CustomType2 float|int[]|(function (int a, string b) returns int|string)|int|string;
+type CustomType3 CustomType1|CustomType2;
 
 client object{} & readonly successClient = client object {
 
@@ -116,6 +117,10 @@ public function testErrorInResourceMethodReturningCustomFunctionType() {
         }
 
         resource function get functionAndClientObjectUnionReturnPath() returns CustomType1|CustomType2 {
+            return testFunction;
+        }
+
+        resource function get functionAndClientObjectUnionReturnPath2() returns CustomType3 {
             return testFunction;
         }
     };

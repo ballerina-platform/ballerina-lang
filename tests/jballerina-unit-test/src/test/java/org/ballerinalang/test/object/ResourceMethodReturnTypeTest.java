@@ -34,49 +34,61 @@ public class ResourceMethodReturnTypeTest {
                 compile("test-src/object/resource_method_return_type_negative.bal");
         int i = 0;
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 30, 58);
+                "'client object' type: 'object { }'", 31, 58);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 34, 71);
+                "'client object' type: '(int|object { }|function (int,string) returns ((int|string))|string|record" +
+                " {| int a; anydata...; |})'", 35, 71);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 34, 71);
+                "'function' type: '(int|object { }|function (int,string) returns ((int|string))|string|record " +
+                "{| int a; anydata...; |})'", 35, 71);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 39, 66);
+                "'client object' type: '(object { } & readonly)'", 40, 66);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 43, 66);
+                "'client object' type: 'object { }?'", 44, 66);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 48, 21);
+                "'client object' type: '(int|object { }|function (int,string) returns ((int|string))|xml)?'",
+                49, 21);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 48, 21);
+                "'function' type: '(int|object { }|function (int,string) returns ((int|string))|xml)?'",
+                49, 21);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 53, 21);
+                "'client object' type: '(object { }? & readonly)'", 54, 21);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 61, 60);
+                "'function' type: 'function (int,string) returns ((int|string))'",
+                62, 60);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 66, 17);
+                "'function' type: 'function (int,string) returns ((int|string))'",
+                67, 17);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 71, 17);
+                "'function' type: 'function (int,string) returns ((int|string))?'",
+                72, 17);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 76, 17);
+                "'function' type: '(function (int,string) returns ((int|string))? & readonly)'",
+                77, 17);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 84, 58);
+                "'client object' type: 'CustomType1'", 85, 58);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 89, 25);
+                "'client object' type: '(int|CustomType1|CustomType2)'", 90, 25);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 89, 25);
+                "'function' type: '(int|CustomType1|CustomType2)'", 90, 25);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 93, 66);
+                "'client object' type: '(CustomType1 & readonly)'", 94, 66);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 101, 60);
+                "'function' type: 'CustomType2'", 102, 60);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 105, 68);
+                "'function' type: '(CustomType2 & readonly)'", 106, 68);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 109, 68);
+                "'function' type: 'CustomType2?'", 110, 68);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 114, 25);
+                "'function' type: '(CustomType2? & readonly)'", 115, 25);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'client object' types", 118, 80);
+                "'client object' type: '(CustomType1|CustomType2)'", 119, 80);
         validateError(compileResult, i++, "return type of the resource function does not allow " +
-                "'function' types", 118, 80);
+                "'function' type: '(CustomType1|CustomType2)'", 119, 80);
+        validateError(compileResult, i++, "return type of the resource function does not allow " +
+                "'client object' type: 'CustomType3'", 123, 81);
+        validateError(compileResult, i++, "return type of the resource function does not allow " +
+                "'function' type: 'CustomType3'", 123, 81);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 }
