@@ -52,7 +52,10 @@ public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
     @Override
     public TypeDescTypeSymbol build() {
         BTypedescType typedescType = new BTypedescType(getBType(typeParam), symTable.typeDesc.tsymbol);
-        return (TypeDescTypeSymbol) typesFactory.getTypeDescriptor(typedescType);
+        TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) typesFactory.getTypeDescriptor(typedescType);
+        this.typeParam = null;
+
+        return typeDescTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {

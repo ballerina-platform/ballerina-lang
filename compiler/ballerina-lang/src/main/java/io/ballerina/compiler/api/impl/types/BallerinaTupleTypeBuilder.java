@@ -72,26 +72,26 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
             tupleType.restType = restBType;
         }
 
-        return (TupleTypeSymbol) typesFactory.getTypeDescriptor(tupleType);
+        TupleTypeSymbol tupleTypeSymbol = (TupleTypeSymbol) typesFactory.getTypeDescriptor(tupleType);
+        this.memberTypes.clear();
+        this.restType = null;
+
+        return tupleTypeSymbol;
     }
 
     private BType getMemberType(TypeSymbol memberType) {
-        if (memberType != null) {
-            if (memberType instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) memberType).getBType();
-            }
+        if (memberType == null) {
+            throw new IllegalArgumentException("Member type provided to the Tuple type descriptor can not be null.");
+        }
+
+        if (memberType instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) memberType).getBType();
         }
 
         return symTable.noType;
     }
 
     private BType getRestType(TypeSymbol restType) {
-        if (restType != null) {
-            if (restType instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) restType).getBType();
-            }
-        }
-
-        return null;
+        return restType instanceof AbstractTypeSymbol ? ((AbstractTypeSymbol) restType).getBType() : null;
     }
 }

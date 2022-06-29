@@ -53,7 +53,10 @@ public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
     @Override
     public FutureTypeSymbol build() {
         BFutureType futureType = new BFutureType(TypeTags.FUTURE, getBType(typeParam), symTable.futureType.tsymbol);
-        return (FutureTypeSymbol) typesFactory.getTypeDescriptor(futureType);
+        FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) typesFactory.getTypeDescriptor(futureType);
+        this.typeParam = null;
+
+        return futureTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {

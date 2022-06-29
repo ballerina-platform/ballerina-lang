@@ -53,19 +53,22 @@ public class BallerinaMapTypeBuilder implements TypeBuilder.MAP {
     @Override
     public MapTypeSymbol build() {
         BMapType mapType = new BMapType(TypeTags.MAP, getBType(typeParam), symTable.mapType.tsymbol);
-        return (MapTypeSymbol) typesFactory.getTypeDescriptor(mapType);
+        MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typesFactory.getTypeDescriptor(mapType);
+        this.typeParam = null;
+
+        return mapTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
-        if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol
-                    && typeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
-            }
-
-            throw new IllegalArgumentException("Valid type parameter of Map type should be provided");
+        if (typeSymbol == null) {
+            return null;
         }
 
-        return null;
+        if (typeSymbol instanceof AbstractTypeSymbol
+                && typeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        throw new IllegalArgumentException("Valid type parameter of Map type should be provided");
     }
 }

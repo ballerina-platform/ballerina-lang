@@ -36,7 +36,7 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
 
     private final TypesFactory typesFactory;
     private TypeSymbol type;
-    private Integer size;
+    private int size;
 
     public BallerinaArrayTypeBuilder(CompilerContext context) {
         typesFactory = TypesFactory.getInstance(context);
@@ -52,6 +52,8 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
     public TypeBuilder.ARRAY withSize(Integer size) {
         if (size != null && size >= 0) {
             this.size = size;
+        } else {
+            this.size = -1;
         }
 
         return this;
@@ -61,8 +63,11 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
     public ArrayTypeSymbol build() {
         BArrayType arrayType = new BArrayType(getBType(type));
         arrayType.size = size;
+        ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typesFactory.getTypeDescriptor(arrayType);
+        this.size = -1;
+        this.type = null;
 
-        return (ArrayTypeSymbol) typesFactory.getTypeDescriptor(arrayType);
+        return arrayTypeSymbol;
     }
 
     private BType getBType(TypeSymbol type) {

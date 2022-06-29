@@ -63,6 +63,10 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
 
     @Override
     public SingletonTypeSymbol build() {
+        if (value == null) {
+            throw new IllegalArgumentException("The value provided to the singleton type can not be null");
+        }
+
         // TODO: Validate if the valueTypeSymbol is matching the value's type.
         // TODO: Need further discussion on how to proceed on this case.
         BLangLiteral valueLiteral = new BLangLiteral(value, getValueBType(valueTypeSymbol));
@@ -71,8 +75,13 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
                 symTable.rootPkgNode.symbol.owner, symTable.builtinPos, COMPILED_SOURCE);
 
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, Set.of(valueLiteral));
+        SingletonTypeSymbol singletonTypeSymbol = (SingletonTypeSymbol) typesFactory.getTypeDescriptor(finiteType,
+                finiteTypeSymbol, true);
 
-        return (SingletonTypeSymbol) typesFactory.getTypeDescriptor(finiteType, finiteTypeSymbol, true);
+        this.value = null;
+        this.valueTypeSymbol = null;
+
+        return singletonTypeSymbol;
     }
 
     private BType getValueBType(TypeSymbol typeSymbol) {

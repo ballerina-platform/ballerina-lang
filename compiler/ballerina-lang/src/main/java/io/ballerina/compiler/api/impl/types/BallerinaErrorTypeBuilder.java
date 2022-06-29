@@ -61,7 +61,10 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
     @Override
     public ErrorTypeSymbol build() {
         BErrorType errorType = new BErrorType(symTable.errorType.tsymbol, getBType(typeParam));
-        return (ErrorTypeSymbol) typesFactory.getTypeDescriptor(errorType);
+        ErrorTypeSymbol errorTypeSymbol = (ErrorTypeSymbol) typesFactory.getTypeDescriptor(errorType);
+        this.typeParam = null;
+
+        return errorTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
@@ -90,9 +93,11 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
                         && recordFieldSymbol.isOptional()) {
                     hasError = true;
                 }
-            }
 
-            return hasString && hasError;
+                if (hasString && hasError) {
+                    return true;
+                }
+            }
         }
 
         return false;
