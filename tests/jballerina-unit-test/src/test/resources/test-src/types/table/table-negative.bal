@@ -434,6 +434,16 @@ function testAssigningKeyedToEmptyKeyedTbl() {
     tbl2[222] = {id: 222, firstName: "Melina", lastName: "Kodel"};
 }
 
+type Student record {|
+    readonly int id;
+    string firstName;
+|};
+
+function testIncompatibleTableTypeInAUnion() {
+    string lastName = "Jayawickrama";
+    table<Student>|int t = table key(id) [{id: 1, firstName: "Lochana", lastName}];
+}
+
 type Person1 record {
     readonly int id;
     string name;

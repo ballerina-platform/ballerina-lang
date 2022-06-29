@@ -189,13 +189,19 @@ public class BFloatValueTest {
                 "of range for 'float'", 23, 1);
         BAssertUtil.validateError(negativeResult, 11, "'0x999.9p999999999999999' is out " +
                 "of range for 'float'", 23, 29);
+
+
+        BAssertUtil.validateError(negativeResult, 12, "float '9.99E6111' too large", 25, 16);
+        BAssertUtil.validateError(negativeResult, 13, "float '9.99E+6111' too large", 28, 15);
+        BAssertUtil.validateError(negativeResult, 14, "float '9.99E6111' too large", 29, 5);
+        BAssertUtil.validateError(negativeResult, 15, "float '9.99E+6111' too large", 29, 21);
+        BAssertUtil.validateError(negativeResult, 16, "float '9.99E+6111' too large", 30, 15);
     }
 
     @Test(description = "Test float literal discrimination error")
     public void testFloatLiteralDiscriminationError() {
         Assert.assertEquals(negativeDiscrimination.getErrorCount(), 1);
-        BAssertUtil.validateError(negativeDiscrimination, 0, "incompatible types: expected " +
-                        "'float', found 'decimal'",
+        BAssertUtil.validateError(negativeDiscrimination, 0, "incompatible types: expected 'float', found 'decimal'",
                 18, 15);
     }
 

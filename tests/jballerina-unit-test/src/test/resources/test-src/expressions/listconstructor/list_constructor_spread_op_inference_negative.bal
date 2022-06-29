@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type STR string;
+
 function testSpreadOpInferenceWithVar() {
     var _ = [...a]; // error
 
@@ -21,13 +23,8 @@ function testSpreadOpInferenceWithVar() {
     var _ = [...n]; // error
     var _ = [1, 2, ...n, 3]; // error
 
-    int[] a1 = [];
-    var _ = [...a1]; // error
-    var _ = [1, 2, ...a1, 3]; // error
-
-    [int, int...] a2 = [1];
-    var _ = [...a2]; // error
-    var _ = [1, 2, ...a2, 3]; // error
+    STR s = "s";
+    var _ = [...s]; // error
 
     int[2] a3 = [];
     var v1 = [...a3]; // OK
@@ -42,9 +39,16 @@ function testSpreadOpInferenceWithVar() {
 
     int _ = v3; // error: expected 'int', found '[int,int]'
     int _ = v4; // error: expected 'int', found '[int,int,int,int,int]'
+
+    int[] a5 = [];
+    var v5 = [...a5, ...a4]; // OK
+
+    int _ = v5; // error: expected 'int', found '[(string|int|boolean)...]'
+
+    var _ = [...a5, ...n]; // error
 }
 
-function testSpreadOpInferenceWithReadonly1() {
+function testSpreadOpInferenceWithReadonly() {
     readonly v1 = [...a]; // error
 
     int n = 3;
@@ -70,16 +74,6 @@ function testSpreadOpInferenceWithReadonly1() {
     [string, (int|boolean)] a5 = ["s", true];
     readonly v12 = [...a5]; // error
     readonly v13 = [1, "y", ...a5, true]; // error
-}
-
-function testSpreadOpInferenceWithReadonly2() {
-    int[] & readonly a1 = [];
-    readonly v1 = [...a1]; // error
-    readonly v2 = [1, 2, ...a1, 3]; // error
-
-    [int, int...] & readonly a2 = [1];
-    readonly v3 = [...a2]; // error
-    readonly v4 = [1, 2, ...a2, 3]; // error
 }
 
 type ReadonlyIntArr readonly & int[3];
@@ -158,7 +152,8 @@ function testInferenceViaSpreadOpWithTypeRef() {
     boolean _ = v4; // error: expected 'boolean', found '[anydata,string,int]'
 
     IntArr c = [];
-    var v5 = ["s", ...c]; // error
+    var v5 = ["s", ...c]; // OK
+    boolean _ = v5; // error: expected 'boolean', found '[string,int...]'
 }
 
 function testSpreadOpWithTypedesc() {
@@ -166,10 +161,4 @@ function testSpreadOpWithTypedesc() {
 
     int n = 3;
     typedesc _ = [string, int, ...n, boolean]; // error
-
-    int[] a1 = [];
-    typedesc _ = [int, ...a1, boolean]; // error
-
-    [int, int...] a2 = [1];
-    typedesc _ = [any, boolean, ...a2, int]; // error
 }

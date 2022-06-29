@@ -1,0 +1,76 @@
+{
+  "position": {
+    "line": 9,
+    "character": 11
+  },
+  "source": "expression_context/source/mapping_expr_ctx_json_any_nil_default_values1.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...a",
+      "kind": "Variable",
+      "detail": "A",
+      "sortText": "AB",
+      "filterText": "a",
+      "insertText": "...a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field1",
+      "kind": "Field",
+      "detail": "A.field1",
+      "sortText": "K",
+      "insertText": "field1: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "field2",
+      "kind": "Field",
+      "detail": "A.field2",
+      "sortText": "K",
+      "insertText": "field2: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "data",
+      "kind": "Field",
+      "detail": "A.data",
+      "sortText": "K",
+      "insertText": "data: ${1:()}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anyData",
+      "kind": "Field",
+      "detail": "A.anyData",
+      "sortText": "K",
+      "insertText": "anyData: ${1:()}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "nilValue",
+      "kind": "Field",
+      "detail": "A.nilValue",
+      "sortText": "K",
+      "insertText": "nilValue: ${1:()}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill A Required Fields",
+      "kind": "Property",
+      "detail": "A",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "field1: ${1:0},\ndata: ${2:()},\nnilValue: ${3:()},\nfield2: ${4:\"\"},\nanyData: ${5:()}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

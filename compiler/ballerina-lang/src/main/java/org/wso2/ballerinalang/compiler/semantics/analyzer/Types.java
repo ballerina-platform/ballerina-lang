@@ -1825,7 +1825,10 @@ public class Types {
                     case TypeTags.NEVER:
                         varType = symTable.neverType;
                         break;
-                    default:
+                    case TypeTags.INTERSECTION:
+                        varType = getReferredType(((BIntersectionType) constraint).getEffectiveType());
+                        break;
+                    case TypeTags.UNION:
                         Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                         Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
                                 ((BUnionType) ((BXMLType) symTable.xmlType).constraint);
@@ -1848,10 +1851,15 @@ public class Types {
                                         collectionTypesInSymTable.add(symTable.xmlPIType);
                                         break;
                                 }
-
                             }
                             varType = BUnionType.create(null, collectionTypesInSymTable);
                         }
+                        break;
+                    default:
+                        foreachNode.varType = symTable.semanticError;
+                        foreachNode.resultType = symTable.semanticError;
+                        foreachNode.nillableResultType = symTable.semanticError;
+                        return;
                 }
                 break;
             case TypeTags.XML_TEXT:
@@ -4990,7 +4998,7 @@ public class Types {
         return originalType;
     }
 
-    private boolean isSubTypeOfReadOnly(BType type, SymbolEnv env) {
+    public boolean isSubTypeOfReadOnly(BType type, SymbolEnv env) {
         return isInherentlyImmutableType(type) ||
                 (isSelectivelyImmutableType(type, env.enclPkg.packageID) &&
                         Symbols.isFlagOn(type.flags, Flags.READONLY));

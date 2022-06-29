@@ -1,0 +1,34 @@
+{
+  "line": 6,
+  "character": 29,
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'Anonymous function expression'",
+      "edit": {
+        "documentChanges": [
+          {
+            "textDocument": {
+              "version": null,
+              "uri": "publicCodeAction/modules/module2/add_isolated_qualifier_source2_test.bal"
+            },
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "isolated "
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
