@@ -51,17 +51,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -379,6 +375,25 @@ public class BallerinaSemanticModel implements SemanticModel {
     @Override
     public List<Diagnostic> diagnostics() {
         return this.bLangPackage.getDiagnostics();
+    }
+
+    @Override
+    public Optional<TypeSymbol> expectedType(LineRange lineRange) {
+        BLangCompilationUnit compilationUnit = getCompilationUnit(lineRange.filePath());
+        NodeFinder nodeFinder = new NodeFinder(false);
+        BLangNode node = nodeFinder.lookup(compilationUnit, lineRange);
+        if (node instanceof BLangVariable) {
+            return Optional.ofNullable((typesFactory.getTypeDescriptor(((BLangVariable) node).expr.expectedType)));
+        } else if (node instanceof BLangExpression) {
+            return Optional.ofNullable((typesFactory.getTypeDescriptor(((BLangExpression) node).expectedType)));
+        } else if (node instanceof BLangAssignment) {
+            return Optional.ofNullable((typesFactory.getTypeDescriptor(((BLangAssignment) node).expr.expectedType)));
+        } else if (node instanceof BLangIf) {
+            return Optional.ofNullable((typesFactory.getTypeDescriptor(((BLangIf) node).expr.expectedType)));
+        }
+
+        // TODO add services, finite type
+        return Optional.empty();
     }
 
     // Private helper methods for the public APIs above.

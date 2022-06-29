@@ -26,6 +26,7 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
 import java.util.Optional;
@@ -211,4 +212,12 @@ public interface SemanticModel {
      * @return {@link List} of diagnostics for the module
      */
     List<Diagnostic> diagnostics();
+
+    /**
+     * Get the expected type.
+     *
+     * @param lineRange LineRange to get expected type
+     * @return the type symbol if available, if not, returns empty
+     */
+    Optional<TypeSymbol> expectedType(LineRange lineRange);
 }
