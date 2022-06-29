@@ -65,6 +65,7 @@ public class HoverSymbolResolver extends NodeTransformer<Optional<Symbol>> {
             return Optional.empty();
         }
         visitedNodes.add(node);
+        
         return node.apply(this);
     }
 
@@ -73,6 +74,7 @@ public class HoverSymbolResolver extends NodeTransformer<Optional<Symbol>> {
         Optional<Symbol> symbol = semanticModel.symbol(qualifiedNameReferenceNode);
         symbol.ifPresent(this::findAndSetSymbolConstructKind);
         symbol.ifPresent(this::setSymbolReferable);
+        
         return symbol;
     }
 

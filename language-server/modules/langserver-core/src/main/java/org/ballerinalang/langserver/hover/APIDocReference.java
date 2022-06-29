@@ -40,6 +40,7 @@ public class APIDocReference {
         if (MD_NAVIGATED_SET.contains(constructType)) {
             return url + "#" + constructReference;
         }
+        
         return url.append("\\/").append(constructReference).toString();
     }
 }
