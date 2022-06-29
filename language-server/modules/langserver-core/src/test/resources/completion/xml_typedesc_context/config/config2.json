@@ -364,6 +364,14 @@
       "sortText": "AN",
       "insertText": "NEW_XML_TYPE",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

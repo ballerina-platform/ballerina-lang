@@ -18,12 +18,22 @@
 
 package org.ballerinalang.test.bala.globalvar;
 
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.Map;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -67,5 +77,21 @@ public class PublicVariableBalaTest {
         validateError(compileResultNegetive, index++, "attempt to refer to non-accessible symbol 'number'", 20, 20);
         validateError(compileResultNegetive, index++, "undefined symbol 'number'", 20, 20);
         assertEquals(compileResultNegetive.getErrorCount(), index);
+    }
+
+    @Test(description = "Test the position of global variable available in a module.")
+    public void testModulePublicVariablePos() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/globalvar/test_public_variable_pos.bal");
+        BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+        BVarSymbol globalVarSymbol = (BVarSymbol) importedModuleEntries.get(Names.fromString("name")).symbol;
+        LineRange lineRange = globalVarSymbol.pos.lineRange();
+        LinePosition startLine = lineRange.startLine();
+        Assert.assertEquals(startLine.line(), 22);
+        Assert.assertEquals(startLine.offset(), 0);
+        LinePosition endLine = lineRange.endLine();
+        Assert.assertEquals(endLine.line(), 22);
+        Assert.assertEquals(endLine.offset(), 33);
     }
 }

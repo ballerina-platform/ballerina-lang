@@ -19,12 +19,14 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -56,6 +58,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -151,7 +154,7 @@ public class SymbolBIRTest {
         
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
                 "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
-                "Annot", "Detail"));
+                "Annot", "Detail", "Service"));
         
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
@@ -234,6 +237,28 @@ public class SymbolBIRTest {
         };
     }
 
+    @Test
+    public void testServiceDecl() {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(46, 0));
+        assertTrue(optionalSymbol.isPresent());
+        assertEquals(optionalSymbol.get().kind(), SERVICE_DECLARATION);
+        ServiceDeclarationSymbol symbol = (ServiceDeclarationSymbol) optionalSymbol.get();
+
+        // Annotations
+        assertEquals(symbol.annotations().size(), 1);
+        AnnotationSymbol annotationSymbol = symbol.annotations().get(0);
+        assertEquals(annotationSymbol.getName().get(), "ServiceAnnot");
+        assertTrue(annotationSymbol.typeDescriptor().isPresent());
+        assertEquals(annotationSymbol.typeDescriptor().get().typeKind(), TYPE_REFERENCE);
+        TypeReferenceTypeSymbol typeRefSymbol = (TypeReferenceTypeSymbol) annotationSymbol.typeDescriptor().get();
+        assertEquals(typeRefSymbol.typeDescriptor().typeKind(), RECORD);
+        assertTrue(((RecordTypeSymbol) typeRefSymbol.typeDescriptor()).fieldDescriptors().containsKey("serviceName"));
+
+        // Fields and methods
+        assertTrue(symbol.fieldDescriptors().containsKey("count"));
+        assertTrue(symbol.methods().isEmpty());
+    }
+
     // util methods
 
     public static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {
@@ -269,7 +294,7 @@ public class SymbolBIRTest {
                 new Object[][]{
                         {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
                         {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
-                        {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
+                        {"function", MODULE}, {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
                         {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
                 });
     }

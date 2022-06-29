@@ -33,7 +33,6 @@ public class BDecimalValueNegativeTest {
     @Test
     public void testDecimalValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 18);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 21, 1);
         BAssertUtil.validateError(compileResult, index++, "missing binary operator", 23, 21);
@@ -52,7 +51,10 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0x' too large", 39, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 39, 17);
         BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0X' too large", 40, 17);
-        BAssertUtil.validateError(compileResult, index, "missing hex number after hex indicator", 40, 17);
+        BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 40, 17);
+        BAssertUtil.validateError(compileResult, index++, "float '9.99E+6111' too large", 44, 17);
+        BAssertUtil.validateError(compileResult, index++, "float '9.99E+6111' too large", 45, 26);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
