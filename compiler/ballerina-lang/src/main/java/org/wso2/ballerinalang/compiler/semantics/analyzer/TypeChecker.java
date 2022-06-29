@@ -1350,10 +1350,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 dlog.error(recordLiteral.pos,
                         DiagnosticErrorCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT_EXPR, fieldName);
                 data.resultType = symTable.semanticError;
+                return false;
             }
         }
 
-        return data.resultType != symTable.semanticError;
+        return true;
     }
 
     private boolean isConstExpression(BLangExpression expression) {
@@ -1393,6 +1394,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else if (recordField.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 if (fieldName.equals(((BLangRecordVarNameField) recordField).variableName.value)) {
                     return (BLangRecordLiteral.BLangRecordVarNameField) recordField;
+                }
+            } else if (recordField.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
+                BType spreadOpExprType = Types.getReferredType(spreadOperatorField.expr.getBType());
+                if (spreadOpExprType.tag != TypeTags.RECORD) {
+                    continue;
+                }
+                BRecordType recordType = (BRecordType) spreadOpExprType;
+                for (BField recField : recordType.fields.values()) {
+                    if (fieldName.equals(recField.name.value)) {
+                        return recordLiteral;
+                    }
                 }
             }
         }
