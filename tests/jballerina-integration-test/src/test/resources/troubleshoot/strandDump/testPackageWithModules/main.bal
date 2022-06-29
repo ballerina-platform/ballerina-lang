@@ -70,7 +70,7 @@ function balfunc() {
 
     @strand {thread: "any"}
     worker w2 {
-        runtime:sleep(1);
+        runtime:sleep(2);
         lock {
             globalVar = !globalVar;
         }
