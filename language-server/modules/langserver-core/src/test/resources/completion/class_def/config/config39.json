@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 12,
+    "character": 16
+  },
+  "source": "class_def/source/source36.bal",
+  "items": [
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "distinct",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
