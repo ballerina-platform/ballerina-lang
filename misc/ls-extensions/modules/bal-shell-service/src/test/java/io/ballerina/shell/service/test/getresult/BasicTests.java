@@ -30,12 +30,17 @@ import java.util.concurrent.ExecutionException;
 public class BasicTests extends AbstractGetResultTest {
     @Test(description = "Test with variable definitions")
     public void testBasicVariables() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("basic.values.json");
+        runGetResultTest("basics.values.json");
+    }
+
+    @Test(description = "Test with quoted")
+    public void testBasicQuoted() throws ExecutionException, IOException, InterruptedException {
+        runGetResultTest("basics.quoted.json");
     }
 
     @Test(description = "Test with variable definitions with arrays")
     public void testArrays() throws ExecutionException, IOException, InterruptedException {
-        runGetResultTest("basic.arrays.json");
+        runGetResultTest("basics.arrays.json");
     }
 
     @Test(description = "Test with functions and their invocation")
