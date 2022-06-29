@@ -141,10 +141,11 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
             Assert.assertFalse(packageJson.getInclude().isEmpty());
-            Assert.assertEquals(packageJson.getInclude().get(0), "default-module-include/file");
-            Assert.assertEquals(packageJson.getInclude().get(1), "default-module-include-dir");
-            Assert.assertEquals(packageJson.getInclude().get(2), "modules/services/non-default-module-include/file");
-            Assert.assertEquals(packageJson.getInclude().get(3), "modules/services/non-default-module-include-dir");
+            Assert.assertEquals(packageJson.getInclude().get(0), "include-file.json");
+            Assert.assertEquals(packageJson.getInclude().get(1), "default-module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(2), "default-module-include-dir");
+            Assert.assertEquals(packageJson.getInclude().get(3), "modules/services/non-default-module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(4), "modules/services/non-default-module-include-dir");
 
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
@@ -190,6 +191,8 @@ public class TestBalaWriter {
         Assert.assertTrue(iconPath.toFile().exists());
 
         // check for includes
+        Path defaultModuleIncludeJson = balaExportPath.resolve("include-file.json");
+        Assert.assertTrue(defaultModuleIncludeJson.toFile().exists());
         Path defaultModuleIncludeFile = balaExportPath.resolve("default-module-include/file");
         Assert.assertTrue(defaultModuleIncludeFile.toFile().exists());
         Path defaultModuleIncludeTextFile = balaExportPath.resolve("default-module-include-dir/include_text_file.txt");

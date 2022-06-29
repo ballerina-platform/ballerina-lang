@@ -484,12 +484,15 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
 
         // Check if the include files are copied
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-file.json")));
         Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include/file")));
         Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_text_file.txt")));
         Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_image.png")));
         Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/non-default-module-include/file")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/non-default-module-include-dir/include_text_file.txt")));
-        Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/non-default-module-include-dir/include_image.png")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_text_file.txt")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_image.png")));
     }
 
     @Test(description = "Test new command without arguments")
