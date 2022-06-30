@@ -67,36 +67,29 @@ public class RuntimeRegistry {
 
     public synchronized void gracefulStop(Strand strand) {
         Scheduler currentScheduler = strand.scheduler;
-        if (listenerSet.isEmpty() && stopHandlerStack.isEmpty()) {
-            return;
-        }
-
-        if (listenerSet.isEmpty()) {
-            invokeStopHandlerFunction(strand, currentScheduler);
-        } else {
-            Iterator<BObject> iterator = listenerSet.iterator();
-            invokeListenerGracefulStop(strand, currentScheduler, iterator);
-        }
+        Iterator<BObject> iterator = listenerSet.iterator();
+        invokeListenerGracefulStop(strand, currentScheduler, iterator);
     }
 
     private void invokeListenerGracefulStop(Strand strand, Scheduler scheduler, Iterator<BObject> iterator) {
-        ListenerCallback callback = new ListenerCallback();
+        if (listenerSet.isEmpty()) {
+            invokeStopHandlerFunction(strand, scheduler);
+        }
+        ListenerCallback callback = new ListenerCallback(strand, scheduler, iterator);
         BObject listener = iterator.next();
         Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
-        callback.setIterator(iterator);
-        callback.setStrand(strand);
-        callback.setScheduler(scheduler);
         scheduler.schedule(new Object[1], func, null, callback, null, null,
                 null, strand.getMetadata());
     }
 
     private void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
+        if (stopHandlerStack.isEmpty()) {
+            return;
+        }
         BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
-        StopHandlerCallback callback = new StopHandlerCallback();
+        StopHandlerCallback callback = new StopHandlerCallback(strand, scheduler);
         final FutureValue future = scheduler.createFuture(strand, callback, null,
                 ((BFunctionType) bFunctionPointer.getType()).retType, null, strand.getMetadata());
-        callback.setStrand(strand);
-        callback.setScheduler(scheduler);
         scheduler.scheduleLocal(new Object[]{strand}, bFunctionPointer, strand, future);
     }
 
@@ -105,18 +98,21 @@ public class RuntimeRegistry {
      */
     public class ListenerCallback implements Callback {
 
-        private Iterator<BObject> iterator;
-        private Strand strand;
-        private Scheduler scheduler;
+        private final Iterator<BObject> iterator;
+        private final Strand strand;
+        private final Scheduler scheduler;
+
+        ListenerCallback(Strand strand, Scheduler scheduler, Iterator<BObject> iterator) {
+            this.strand = strand;
+            this.scheduler = scheduler;
+            this.iterator = iterator;
+        }
 
         @Override
         public void notifySuccess(Object result) {
             if (iterator.hasNext()) {
                 invokeListenerGracefulStop(strand, scheduler, iterator);
             } else {
-                if (stopHandlerStack.isEmpty()) {
-                    return;
-                }
                 invokeStopHandlerFunction(strand, scheduler);
             }
         }
@@ -125,18 +121,6 @@ public class RuntimeRegistry {
         public void notifyFailure(BError error) {
             outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
         }
-
-        public void setStrand(Strand strand) {
-            this.strand = strand;
-        }
-
-        public void setIterator(Iterator<BObject> iterator) {
-            this.iterator = iterator;
-        }
-
-        public void setScheduler(Scheduler scheduler) {
-            this.scheduler = scheduler;
-        }
     }
 
     /**
@@ -144,28 +128,22 @@ public class RuntimeRegistry {
      */
     public class StopHandlerCallback implements Callback {
 
-        private Strand strand;
-        private Scheduler scheduler;
+        private final Strand strand;
+        private final Scheduler scheduler;
+
+        StopHandlerCallback(Strand strand, Scheduler scheduler) {
+            this.strand = strand;
+            this.scheduler = scheduler;
+        }
 
         @Override
         public void notifySuccess(Object result) {
-            if (stopHandlerStack.isEmpty()) {
-                return;
-            }
             invokeStopHandlerFunction(strand, scheduler);
         }
 
         @Override
         public void notifyFailure(BError error) {
             outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
-        }
-
-        public void setStrand(Strand strand) {
-            this.strand = strand;
-        }
-
-        public void setScheduler(Scheduler scheduler) {
-            this.scheduler = scheduler;
         }
     }
 }
