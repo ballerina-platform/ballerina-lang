@@ -155,9 +155,11 @@ public class JBallerinaBackend extends CompilerBackend {
             // If modules from the current package are being processed
             // we do an overall check on the diagnostics of the package
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
-                if (packageCompilation.diagnosticResult().hasErrors()) {
+                if (!packageCompilation.diagnosticResult().diagnostics().isEmpty()) {
                     moduleDiagnostics.addAll(packageCompilation.diagnosticResult().diagnostics());
-                    break;
+                    if (packageCompilation.diagnosticResult().hasErrors()) {
+                        break;
+                    }
                 }
             }
 
