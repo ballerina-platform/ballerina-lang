@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 9,
-    "character": 4,
-    "expected": [
+    "character": 4
+  },
+  "source": "createVariable4.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Create variable",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 9,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 9,
-                            "character": 4
-                        }
-                    },
-                    "newText": "[[int, string, int], [boolean, float]] listResult = "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "[[int, string, int], [boolean, float]] listResult \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

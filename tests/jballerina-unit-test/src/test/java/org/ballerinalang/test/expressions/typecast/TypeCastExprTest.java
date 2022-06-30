@@ -462,7 +462,7 @@ public class TypeCastExprTest {
         BError error = (BError) returns;
         String errorMsg =
                 ((BMap<String, BString>) error.getDetails()).get(StringUtils.fromString("message")).toString();
-        Assert.assertEquals(errorMsg, "'B' value cannot be converted to 'A': " +
+        Assert.assertEquals(errorMsg, "'B' value cannot be converted to 'ATypedesc': " +
                 "\n\t\tmissing required field 'y' of type 'int' in record 'A'");
     }
 

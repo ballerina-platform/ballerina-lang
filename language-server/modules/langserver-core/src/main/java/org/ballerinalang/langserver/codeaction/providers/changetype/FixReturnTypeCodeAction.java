@@ -28,7 +28,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -52,7 +52,7 @@ import java.util.Set;
 public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
     public static final String NAME = "Fix Return Type";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068", "BCE3032");
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
@@ -64,7 +64,8 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         //Suggest the code action only if the immediate parent of the matched node is a return statement 
         // and the return statement corresponds to the enclosing function's signature. 
         NonTerminalNode parentNode = positionDetails.matchedNode().parent();
-        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT) {
+        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT && 
+                positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION) {
             return false;
         }
 
@@ -79,16 +80,17 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         
-        Optional<TypeSymbol> foundType;
+        Optional<TypeSymbol> foundType = Optional.empty();
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
             foundType = positionDetails.diagnosticProperty(CodeActionUtil
                     .getDiagPropertyFilterFunction(DiagBasedPositionDetails
                             .DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
-        } else {
+        } else if ("BCE2066".equals(diagnostic.diagnosticInfo().code())) {
             foundType = positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
         }
-        if (foundType.isEmpty()) {
+        boolean checkExprDiagnostic = "BCE3032".equals(diagnostic.diagnosticInfo().code());
+        if (foundType.isEmpty() && !checkExprDiagnostic) {
             return Collections.emptyList();
         }
 
@@ -97,28 +99,41 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
+        List<TextEdit> importEdits = new ArrayList<>();
+        List<String> types = new ArrayList<>();
+        boolean returnTypeDescPresent = funcDef.get().functionSignature().returnTypeDesc().isPresent();
+
+        if (checkExprDiagnostic) {
+            // Add error return type for check expression
+            if (returnTypeDescPresent) {
+                types.add(funcDef.get().functionSignature().returnTypeDesc().get().type().toString().trim().concat("|")
+                        .concat("error"));
+            } else {
+                types.add("error?");
+            }
+        } else {
+            // Get all possible return types including ambiguous scenarios
+            types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
+        }
+
         // Where to insert the edit: Depends on if a return statement already available or not
         Position start;
         Position end;
-        if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
-            // eg. function test() {...}
-            Position funcBodyStart = CommonUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
-            start = funcBodyStart;
-            end = funcBodyStart;
-        } else {
+        if (returnTypeDescPresent) {
             // eg. function test() returns () {...}
             ReturnTypeDescriptorNode returnTypeDesc = funcDef.get().functionSignature().returnTypeDesc().get();
             LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
             LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
             start = new Position(retStart.line(), retStart.offset());
             end = new Position(retEnd.line(), retEnd.offset());
+        } else {
+            // eg. function test() {...}
+            Position funcBodyStart = PositionUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
+            start = funcBodyStart;
+            end = funcBodyStart;
         }
 
         List<CodeAction> codeActions = new ArrayList<>();
-        List<TextEdit> importEdits = new ArrayList<>();
-        // Get all possible return types including ambiguous scenarios
-        List<String> types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
-
         types.forEach(type -> {
             List<TextEdit> edits = new ArrayList<>();
 

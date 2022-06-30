@@ -202,6 +202,8 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
         debugTestRunner.assertExpression(context, RECORD_VAR + ".grades.maths", "80", "int");
         // optional field access
         debugTestRunner.assertExpression(context, RECORD_VAR + "?.undefined", "()", "nil");
+        // additional field access
+        debugTestRunner.assertExpression(context, RECORD_VAR + ".course", "\"ballerina\"", "string");
     }
 
     @Override

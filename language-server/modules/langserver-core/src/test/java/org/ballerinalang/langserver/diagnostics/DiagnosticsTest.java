@@ -21,7 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.LSContextOperation;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
@@ -130,7 +130,7 @@ public class DiagnosticsTest {
     JsonObject unifyResponse(JsonObject response) {
         JsonObject unifiedJson = new JsonObject();
         for (String key : response.keySet()) {
-            Optional<Path> path = CommonUtil.getPathFromURI(key);
+            Optional<Path> path = PathUtil.getPathFromURI(key);
             if (path.isEmpty()) {
                 throw new InvalidPathException("Invalid path found", key);
             }

@@ -547,11 +547,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "FuncType1",
-      "kind": "TypeParameter",
-      "detail": "Function",
-      "sortText": "AN",
-      "insertText": "FuncType1",
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

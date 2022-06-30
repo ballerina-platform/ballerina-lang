@@ -384,11 +384,11 @@
     {
       "label": "iterator()",
       "kind": "Function",
-      "detail": "object {public isolated function next() returns record {|xml:ItemType value;|}?;}",
+      "detail": "object {public isolated function next() returns record {|xml:Element value;|}?;}",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|xml:ItemType value;|}?;}`   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|xml:Element value;|}?;}`   \n- iterator object  \n  \n"
         }
       },
       "sortText": "CD",
@@ -774,6 +774,14 @@
           "newText": "import test/local_project2;\n"
         }
       ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "CR",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

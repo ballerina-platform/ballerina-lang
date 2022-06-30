@@ -164,7 +164,7 @@ public class BFloatValueTest {
 
     @Test()
     public void testIntegerValue() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
+        Assert.assertEquals(negativeResult.getErrorCount(), 17);
         BAssertUtil.validateError(negativeResult, 0, "leading zeros in numeric literals", 3, 9);
         BAssertUtil.validateError(negativeResult, 1, "float '999e9999999999' too large", 8, 15);
         BAssertUtil.validateError(negativeResult, 2, "float '999e-9999999999' too small", 9, 15);
@@ -177,6 +177,11 @@ public class BFloatValueTest {
         BAssertUtil.validateError(negativeResult, 9, "float '9999999999e-9999999999999999999' too small", 21, 11);
         BAssertUtil.validateError(negativeResult, 10, "float '0x999.9p999999999999999' too large", 23, 1);
         BAssertUtil.validateError(negativeResult, 11, "float '0x999.9p999999999999999' too large", 23, 29);
+        BAssertUtil.validateError(negativeResult, 12, "float '9.99E6111' too large", 25, 16);
+        BAssertUtil.validateError(negativeResult, 13, "float '9.99E+6111' too large", 28, 15);
+        BAssertUtil.validateError(negativeResult, 14, "float '9.99E6111' too large", 29, 5);
+        BAssertUtil.validateError(negativeResult, 15, "float '9.99E+6111' too large", 29, 21);
+        BAssertUtil.validateError(negativeResult, 16, "float '9.99E+6111' too large", 30, 15);
     }
 
     @Test(description = "Test float literal discrimination error")

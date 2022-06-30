@@ -770,6 +770,14 @@
       "filterText": "function",
       "insertText": "function (int[] a) returns int {\n    return 0;\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "BR",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

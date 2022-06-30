@@ -1,0 +1,104 @@
+[
+  {
+    "source": "import ballerina/lang.'int;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int a = 4; 'int:Unsigned8 b = 127; 'int:Signed16 c = -32700; 'int:Unsigned8 d = 128; int e = 4; 'int:Signed32 f = 123167; 'int:Unsigned16 g = 32001;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["a","b","c","d","e","f","g"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "a << 2",
+    "result": {
+      "shellValue": {
+        "value":"16",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "b << 3",
+    "result": {
+      "shellValue": {
+        "value":"1016",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "c >> 2",
+    "result": {
+      "shellValue": {
+        "value":"-8175",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "d >> e",
+    "result": {
+      "shellValue": {
+        "value":"8",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "f >>> 3",
+    "result": {
+      "shellValue": {
+        "value":"15395",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "g >> 2",
+    "result": {
+      "shellValue": {
+        "value":"8000",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

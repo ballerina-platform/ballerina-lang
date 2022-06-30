@@ -380,3 +380,36 @@ function removeIfHasKeyRest() {
          panic error("Returned value should be nil.");
     }
 }
+
+public type Qux readonly & record {|
+    string a;
+    string b;
+|};
+
+type Quux record {|
+    anydata body;
+|};
+
+public type Corge record {|
+    *Quux;
+    Qux body;
+|};
+
+function testOverridingIncludedFieldInRecordWithReadOnlyIntersection() {
+    Corge corge = {
+        body: {
+            a: "hello",
+            b: "world"
+        }
+    };
+    assertEquality("hello", corge.body.a);
+    assertEquality("world", corge.body.b);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(string `expected ${expected.toBalString()}, found ${actual.toBalString()}`);
+}

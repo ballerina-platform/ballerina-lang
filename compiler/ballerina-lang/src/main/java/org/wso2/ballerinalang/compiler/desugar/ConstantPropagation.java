@@ -95,7 +95,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -140,7 +139,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -530,22 +528,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchNode) {
-        matchNode.expr = rewrite(matchNode.expr);
-        rewrite(matchNode.patternClauses);
-        matchNode.onFailClause = rewrite(matchNode.onFailClause);
-        result = matchNode;
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        patternClauseNode.variable = rewrite(patternClauseNode.variable);
-        patternClauseNode.body = rewrite(patternClauseNode.body);
-        patternClauseNode.matchExpr = rewrite(patternClauseNode.matchExpr);
-        result = patternClauseNode;
-    }
-
-    @Override
     public void visit(BLangForeach foreach) {
         foreach.collection = rewrite(foreach.collection);
         foreach.body = rewrite(foreach.body);
@@ -648,12 +630,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
         indexAccessExpr.expr = rewrite(indexAccessExpr.expr);
         indexAccessExpr.indexExpr = rewrite(indexAccessExpr.indexExpr);
         result = indexAccessExpr;
-    }
-
-    @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        rewrite(tableMultiKeyExpr.multiKeyIndexExprs);
-        result = tableMultiKeyExpr;
     }
 
     @Override
@@ -806,21 +782,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangErrorVariable bLangErrorVariable) {
         bLangErrorVariable.expr = rewrite(bLangErrorVariable.expr);
         result = bLangErrorVariable;
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
-        bLangMatchStmtStaticBindingPatternClause.literal =
-                rewrite(bLangMatchStmtStaticBindingPatternClause.literal);
-        bLangMatchStmtStaticBindingPatternClause.body =
-                rewrite(bLangMatchStmtStaticBindingPatternClause.body);
-        result = bLangMatchStmtStaticBindingPatternClause;
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause
-                                  bLangMatchStmtStructuredBindingPatternClause) {
-        result = bLangMatchStmtStructuredBindingPatternClause;
     }
 
     @Override

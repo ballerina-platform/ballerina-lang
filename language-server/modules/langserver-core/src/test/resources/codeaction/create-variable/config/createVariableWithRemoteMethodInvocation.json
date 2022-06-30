@@ -1,9 +1,13 @@
 {
-  "line": 22,
-  "character": 12,
+  "position": {
+    "line": 22,
+    "character": 12
+  },
+  "source": "createVariable9.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -42,12 +46,13 @@
               "character": 4
             }
           },
-          "newText": "HelloReply|E1 sayHello = "
+          "newText": "HelloReply|E1 sayHello \u003d "
         }
       ]
     },
     {
       "title": "Create variable and check error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -60,7 +65,7 @@
               "character": 4
             }
           },
-          "newText": "HelloReply sayHello = "
+          "newText": "HelloReply sayHello \u003d "
         },
         {
           "range": {
@@ -92,6 +97,7 @@
     },
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -104,12 +110,13 @@
               "character": 4
             }
           },
-          "newText": "HelloReply|E1 sayHello = "
+          "newText": "HelloReply|E1 sayHello \u003d "
         }
       ]
     },
     {
       "title": "Ignore return value",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -122,7 +129,7 @@
               "character": 4
             }
           },
-          "newText": "_ = "
+          "newText": "_ \u003d "
         }
       ]
     }

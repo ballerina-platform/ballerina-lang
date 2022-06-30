@@ -37,23 +37,27 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"fixReturnType1.json", "fixReturnType.bal"},
-                {"fixReturnType2.json", "fixReturnType.bal"},
-                {"fixReturnType3.json", "fixReturnType.bal"},
-                {"fixReturnType4.json", "fixReturnType.bal"},
-                {"fixReturnTypeWithImports1.json", "fixReturnTypeWithImports.bal"},
-                {"fixReturnTypeWithClass1.json", "fixReturnTypeInClass.bal"},
-                {"fixReturnTypeWithClass2.json", "fixReturnTypeInClass.bal"},
-                {"fixReturnTypeWithClass3.json", "fixReturnTypeInClass.bal"},
-                {"fixReturnTypeWithService1.json", "fixReturnTypeInService.bal"},
+                {"fixReturnType1.json"},
+                {"fixReturnType2.json"},
+                {"fixReturnType3.json"},
+                {"fixReturnType4.json"},
+                {"fixReturnTypeWithImports1.json"},
+                {"fixReturnTypeWithClass1.json"},
+                {"fixReturnTypeWithClass2.json"},
+                {"fixReturnTypeWithClass3.json"},
+                {"fixReturnTypeWithService1.json"},
+                {"fixReturnTypeWithCheckExpr1.json"},
+                {"fixReturnTypeWithCheckExpr2.json"},
+                {"fixReturnTypeWithCheckExpr3.json"},
+                {"fixReturnTypeWithCheckExpr4.json"}
         };
     }
 }

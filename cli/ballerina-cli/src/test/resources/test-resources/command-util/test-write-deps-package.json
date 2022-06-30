@@ -1,0 +1,13 @@
+{
+  "organization": "pramodya",
+  "name": "hello_template",
+  "version": "3.1.0",
+  "export": [
+    "hello_template"
+  ],
+  "ballerina_version": "2201.1.0-rc1.12-SNAPSHOT",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2022R2",
+  "platform": "any",
+  "template": true
+}

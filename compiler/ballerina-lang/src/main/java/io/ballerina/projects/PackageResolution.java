@@ -33,6 +33,7 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.PackageResolutionDiagnostic;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -42,10 +43,12 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -74,6 +77,7 @@ public class PackageResolution {
     private final List<Diagnostic> diagnosticList;
     private DiagnosticResult diagnosticResult;
     private boolean autoUpdate;
+    private String dependencyGraphDump;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
@@ -126,6 +130,15 @@ public class PackageResolution {
                 .filter(resolvedPkg -> resolvedPkg.packageId() != rootPackageContext.packageId())
                 .collect(Collectors.toList());
         return dependenciesWithTransitives;
+    }
+
+    /**
+     * Print the final dependency graph to the provided print stream.
+     *
+     * @param printStream print stream
+     */
+    public void dumpGraphs(PrintStream printStream) {
+        printStream.append(this.dependencyGraphDump);
     }
 
     PackageContext packageContext() {
@@ -270,6 +283,7 @@ public class PackageResolution {
                 blendedManifest, packageResolver, moduleResolver, resolutionOptions);
         DependencyGraph<DependencyNode> dependencyNodeGraph =
                 resolutionEngine.resolveDependencies(moduleLoadRequests);
+        this.dependencyGraphDump = resolutionEngine.dumpGraphs();
 
         diagnosticList.addAll(resolutionEngine.diagnosticResult().allDiagnostics);
 
@@ -395,13 +409,43 @@ public class PackageResolution {
         // Repeat this for each module in each package in the package dependency graph.
         List<ModuleContext> sortedModuleList = new ArrayList<>();
         List<ResolvedPackageDependency> sortedPackages = dependencyGraph.toTopologicallySortedList();
+        if (dependencyGraph.findCycles().size() > 0) {
+            for (List<ResolvedPackageDependency> cycle: dependencyGraph.findCycles()) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
+                        "cyclic module imports detected ''"
+                                + cycle.stream()
+                                .map(dependency -> dependency.packageInstance().descriptor().toString())
+                                .collect(Collectors.joining(" -> ")) + "''",
+                        DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
+                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                        rootPackageContext.descriptor().name().toString());
+                diagnosticList.add(diagnostic);
+            }
+        }
         for (ResolvedPackageDependency pkgDependency : sortedPackages) {
             Package resolvedPackage = pkgDependency.packageInstance();
             resolvedPackage.packageContext().resolveDependencies(dependencyResolution);
-            DependencyGraph<ModuleId> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
-            List<ModuleId> sortedModuleIds = moduleDependencyGraph.toTopologicallySortedList();
-            for (ModuleId moduleId : sortedModuleIds) {
-                ModuleContext moduleContext = resolvedPackage.module(moduleId).moduleContext();
+            DependencyGraph<ModuleDescriptor> moduleDependencyGraph = resolvedPackage.moduleDependencyGraph();
+            List<ModuleDescriptor> sortedModuleDescriptors
+                    = moduleDependencyGraph.toTopologicallySortedList();
+            if (moduleDependencyGraph.findCycles().size() > 0) {
+                for (List<ModuleDescriptor> cycle: moduleDependencyGraph.findCycles()) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                            DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.diagnosticId(),
+                            "cyclic module imports detected ''"
+                                    + cycle.stream()
+                                    .map(desc -> desc.org().toString() + "/" + desc.name().toString() + ":"
+                                            + desc.version().toString())
+                                    .collect(Collectors.joining(" -> ")) + "''",
+                            DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
+                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                            resolvedPackage.descriptor().name().toString());
+                    diagnosticList.add(diagnostic);
+                }
+            }
+            for (ModuleDescriptor moduleDescriptor : sortedModuleDescriptors) {
+                ModuleContext moduleContext = resolvedPackage.module(moduleDescriptor.name()).moduleContext();
                 sortedModuleList.add(moduleContext);
             }
         }

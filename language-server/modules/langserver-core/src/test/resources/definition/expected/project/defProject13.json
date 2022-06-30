@@ -1,0 +1,25 @@
+
+{
+  "source": {
+    "file": "defThread.bal"
+  },
+  "position": {
+    "line": 1,
+    "character": 8
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 79,
+          "character": 0
+        },
+        "end": {
+          "line": 79,
+          "character": 36
+        }
+      },
+      "uri": "repo/bala/ballerina/lang.annotations/0.0.0/any/modules/lang.annotations/annotations.bal"
+    }
+  ]
+}

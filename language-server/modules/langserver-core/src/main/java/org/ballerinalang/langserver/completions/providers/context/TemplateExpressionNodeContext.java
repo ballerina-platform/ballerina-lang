@@ -29,12 +29,12 @@ import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -67,10 +67,10 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         }
         
         // If the node at cursor is an interpolation, show expression suggestions
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> moduleContent =
-                    QNameReferenceUtil.getModuleContent(context, qNameRef, this.symbolFilterPredicate());
+                    QNameRefCompletionUtil.getModuleContent(context, qNameRef, this.symbolFilterPredicate());
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));

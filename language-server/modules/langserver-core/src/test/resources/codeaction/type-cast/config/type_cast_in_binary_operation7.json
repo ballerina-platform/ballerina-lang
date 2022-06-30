@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 15,
+    "character": 25
+  },
+  "source": "type_cast_in_binary_operation.bal",
+  "expected": [
+    {
+      "title": "Add type cast to 'f1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 21
+            },
+            "end": {
+              "line": 15,
+              "character": 21
+            }
+          },
+          "newText": "<decimal>"
+        }
+      ]
+    }
+  ]
+}

@@ -1,9 +1,13 @@
 {
-  "line": 18,
-  "character": 22,
+  "position": {
+    "line": 18,
+    "character": 22
+  },
+  "source": "createUndefinedFunctionInRecord.bal",
   "expected": [
     {
       "title": "Create function 'getManufacturer(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'getManufacturer(...)'",
         "command": "CREATE_FUNC",
