@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.RemoteMethodType;
 import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
@@ -320,9 +321,8 @@ public class Values {
                 return ErrorCreator.createError(
                         StringUtils.fromString("Validation failed for 'maxLength' constraint(s)."));
             }
-            AnnotatableType eType =
-                    (AnnotatableType) ((BArrayType) describingType.getReferredType()).getElementType()
-                            .getReferredType();
+            AnnotatableType eType = (AnnotatableType) ((ReferenceType) ((BArrayType) ((ReferenceType) describingType)
+                    .getReferredType()).getElementType()).getReferredType();
             annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
             annotations = eType.getAnnotations();
             if (!annotations.containsKey(annotKey)) {
@@ -331,8 +331,8 @@ public class Values {
             }
             annotValue = annotations.get(annotKey);
             Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
-            for (Object element : array.getValues()) {
-                if (((Long) element) < minValue) {
+            for (int i = 0; i < array.getLength(); i++) {
+                if (((Long) array.get(i)) < minValue) {
                     return ErrorCreator.createError(
                             StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
                 }

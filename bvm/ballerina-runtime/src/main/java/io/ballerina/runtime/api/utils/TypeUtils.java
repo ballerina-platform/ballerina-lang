@@ -19,6 +19,7 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -147,7 +148,7 @@ public class TypeUtils {
     public static Type getReferredType(Type type) {
         Type constraint = type;
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            constraint = getReferredType(type.getReferredType());
+            constraint = getReferredType(((ReferenceType) type).getReferredType());
         }
         return constraint;
     }

@@ -401,7 +401,7 @@ public class TypeConverter {
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors) {
 
-        int targetTypeTag = targetType.getReferredType().getTag();
+        int targetTypeTag = TypeUtils.getReferredType(targetType).getTag();
 
         List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
                 varName, true, unresolvedValues, errors, false));
@@ -612,10 +612,10 @@ public class TypeConverter {
             return false;
         }
         ArrayValue source = (ArrayValue) sourceValue;
-        Type targetTypeElementType = targetType.getElementType().getReferredType();
+        Type targetTypeElementType = TypeUtils.getReferredType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = ((BArrayType) sourceType).getElementType().getReferredType();
+            Type sourceElementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
@@ -1236,7 +1236,7 @@ public class TypeConverter {
     }
 
     private static boolean isDeepConversionRequiredForArray(Type sourceType) {
-        Type elementType = ((BArrayType) sourceType).getElementType().getReferredType();
+        Type elementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
 
         if (elementType != null) {
             if (TypeUtils.isValueType(elementType)) {

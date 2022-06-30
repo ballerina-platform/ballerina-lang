@@ -194,8 +194,4 @@ public abstract class BType implements Type {
         return 0;
     }
 
-    public Type getReferredType() {
-        return this;
-    }
-
 }

@@ -70,6 +70,7 @@ public class BArrayType extends BType implements ArrayType {
     public BArrayType(Type elemType, int size, boolean readonly, int typeFlags) {
         this(typeFlags, size, readonly, TypeChecker.hasFillerValue(elemType));
         setElementType(elemType, 1, elemType.isReadOnly());
+        setFlagsBasedOnElementType();
     }
 
     public BArrayType(int typeFlags, int size, boolean readonly, boolean hasFillerValue) {
@@ -86,13 +87,9 @@ public class BArrayType extends BType implements ArrayType {
     public void setElementType(Type elementType, int dimensions, boolean elementRO) {
         this.elementType = readonly && !elementRO ? ReadOnlyUtils.getReadOnlyType(elementType) : elementType;
         this.dimensions = dimensions;
-        setFlagsBasedOnElementType();
     }
 
     private void setFlagsBasedOnElementType() {
-        if (elementType.getReferredType() == null) {
-            return;
-        }
         if (elementType.isNilable()) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
         }
