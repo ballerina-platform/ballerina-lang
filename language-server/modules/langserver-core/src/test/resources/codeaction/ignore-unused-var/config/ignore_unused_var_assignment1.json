@@ -1,6 +1,11 @@
 {
-  "line": 1,
-  "character": 9,
+  "line": 0,
+  "character": 0,
+  "position": {
+    "line": 1,
+    "character": 9
+  },
+  "source": "ignore_unused_var_assignment1.bal",
   "expected": [
     {
       "title": "Ignore unused variable"

@@ -59,7 +59,7 @@ public class EventSyncPubSubHolder {
             for (EventSubscriber eventSubscriber: eventSubscribersMap.get(eventPublisher.getKind())) {
                 publisherMap.put(eventPublisher.getKind(), eventPublisher);
                 eventPublisher.subscribe(eventSubscriber);
-                lsClientLogger.logMessage(String.format("%s subscribed to %s", eventSubscriber.getName(),
+                lsClientLogger.logTrace(String.format("%s subscribed to %s", eventSubscriber.getName(),
                         eventPublisher.getName()));
             }
         });

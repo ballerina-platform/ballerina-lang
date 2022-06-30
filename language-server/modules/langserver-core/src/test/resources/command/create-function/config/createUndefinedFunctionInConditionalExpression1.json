@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "createUndefinedFunctionInConditionalExpression.bal",
   "expected": {
     "result": {
       "edit": {

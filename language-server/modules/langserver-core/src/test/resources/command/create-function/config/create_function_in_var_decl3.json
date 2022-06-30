@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "create_function_in_var_decl3.bal",
   "expected": {
     "result": {
       "edit": {

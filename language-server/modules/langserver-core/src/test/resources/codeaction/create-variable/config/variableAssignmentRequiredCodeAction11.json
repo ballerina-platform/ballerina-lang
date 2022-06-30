@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 4,
-    "character": 4,
-    "expected": [
+    "character": 4
+  },
+  "source": "createVariable3.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Create variable",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 4,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 4,
-                            "character": 4
-                        }
-                    },
-                    "newText": "xml:Element element = "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 4
+            }
+          },
+          "newText": "xml:Element element \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }
