@@ -789,9 +789,9 @@ public class ValueCreator {
     }
 
     /**
-     * Create a record value using the given package id and record type name.
+     * Create a record value using the given package ID and record type name.
      *
-     * @param packageId      the package id that the record type resides.
+     * @param packageId      the package ID that the record type resides.
      * @param recordTypeName name of the record type.
      * @return value of the record.
      * @throws BError if given record type is not defined in the ballerina module.
@@ -801,10 +801,10 @@ public class ValueCreator {
     }
 
     /**
-     * Create a record value that populates record fields using the given package id, record type name and a map of
+     * Create a record value that populates record fields using the given package ID, record type name and a map of
      * field names and associated values for fields.
      *
-     * @param packageId      the package id that the record type resides.
+     * @param packageId      the package ID that the record type resides.
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
@@ -812,16 +812,15 @@ public class ValueCreator {
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
-
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
         return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
     }
 
     /**
-     * Create a readonly record value that populates record fields using the given package id, record type name and a
+     * Create a readonly record value that populates record fields using the given package ID, record type name and a
      * map of field names and associated values for fields.
      *
-     * @param packageId      the package id that the record type resides.
+     * @param packageId      the package ID that the record type resides.
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
@@ -830,10 +829,45 @@ public class ValueCreator {
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
                                                                   Map<String, Object> valueMap) {
         valueMap = RuntimeUtils.validateBMapValues(valueMap);
-        MapValueImpl<BString, Object> bmap = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
+        MapValueImpl<BString, Object> bMapValue = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
                 packageId, recordTypeName, valueMap);
-        bmap.freezeDirect();
-        return bmap;
+        bMapValue.freezeDirect();
+        return bMapValue;
+    }
+
+    /**
+     * Create a record value that populates record fields using the given package ID, record type name and
+     * a {@link BMap} of field names and associated values for fields.
+     *
+     * @param packageId      the package ID that the record type resides.
+     * @param recordTypeName name of the record type.
+     * @param valueMap       {@link BMap} of fields and values to be used when creating the record.
+     * @return value of the populated record.
+     * @throws BError if given record type is not defined in the ballerina module.
+     */
+    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
+                                                          BMap<BString, Object> valueMap) {
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
+        return ValueUtils.createRecordValue(packageId, recordTypeName, valueMap);
+    }
+
+    /**
+     * Create a readonly record value that populates record fields using the given package ID, record type name and
+     * a {@link BMap} of field names and associated values for fields.
+     *
+     * @param packageId      the package ID that the record type resides.
+     * @param recordTypeName name of the record type.
+     * @param valueMap       {@link BMap} of fields and values to be used when creating the record.
+     * @return value of the populated record.
+     * @throws BError if given record type is not defined in the ballerina module.
+     */
+    public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
+                                                                  BMap<BString, Object> valueMap) {
+        valueMap = RuntimeUtils.validateBMapValues(valueMap);
+        MapValueImpl<BString, Object> bMapValue = (MapValueImpl<BString, Object>) ValueUtils.createRecordValue(
+                packageId, recordTypeName, valueMap);
+        bMapValue.freezeDirect();
+        return bMapValue;
     }
 
     /**
@@ -849,9 +883,9 @@ public class ValueCreator {
     }
 
     /**
-     * Create an object value using the given package id and object type name.
+     * Create an object value using the given package ID and object type name.
      *
-     * @param packageId      the package id that the object type resides.
+     * @param packageId      the package ID that the object type resides.
      * @param objectTypeName name of the object type.
      * @param fieldValues    values to be used for fields when creating the object value instance.
      * @return value of the object.
