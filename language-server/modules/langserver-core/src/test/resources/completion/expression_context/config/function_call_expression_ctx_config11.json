@@ -495,7 +495,7 @@
       "label": "MyType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "AM",
+      "sortText": "Q",
       "insertText": "MyType",
       "insertTextFormat": "Snippet"
     },
@@ -658,12 +658,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "a = ...",
+      "label": "a \u003d ...",
       "kind": "Snippet",
-      "detail": "a = {a: 0, b: 0\\}",
+      "detail": "a \u003d {a: 0, b: 0\\}",
       "sortText": "AR",
       "filterText": "a",
-      "insertText": "a = ${1:{a: 0, b: 0\\}}",
+      "insertText": "a \u003d ${1:{a: 0, b: 0\\}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -759,6 +759,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

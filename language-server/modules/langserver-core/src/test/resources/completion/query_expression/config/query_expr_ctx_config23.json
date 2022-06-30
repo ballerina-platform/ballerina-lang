@@ -440,7 +440,7 @@
     {
       "label": "medalStats",
       "kind": "Variable",
-      "detail": "stream<MedalStats, error?>",
+      "detail": "stream\u003cMedalStats, error?\u003e",
       "sortText": "F",
       "insertText": "medalStats",
       "insertTextFormat": "Snippet"
@@ -495,7 +495,7 @@
     {
       "label": "athletesByCountry",
       "kind": "Variable",
-      "detail": "map<int>",
+      "detail": "map\u003cint\u003e",
       "sortText": "F",
       "insertText": "athletesByCountry",
       "insertTextFormat": "Snippet"
@@ -657,6 +657,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

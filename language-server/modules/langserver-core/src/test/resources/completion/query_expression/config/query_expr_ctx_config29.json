@@ -517,11 +517,11 @@
     {
       "label": "getMedalStats()",
       "kind": "Function",
-      "detail": "stream<MedalStatsRecord, error?>|error",
+      "detail": "stream\u003cMedalStatsRecord, error?\u003e|error",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream<MedalStatsRecord, error?>|error`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `stream\u003cMedalStatsRecord, error?\u003e|error`   \n  \n"
         }
       },
       "sortText": "B",
@@ -540,7 +540,7 @@
     {
       "label": "tsvStream",
       "kind": "Variable",
-      "detail": "stream<string[], error?>",
+      "detail": "stream\u003cstring[], error?\u003e",
       "sortText": "AB",
       "insertText": "tsvStream",
       "insertTextFormat": "Snippet"
@@ -694,6 +694,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

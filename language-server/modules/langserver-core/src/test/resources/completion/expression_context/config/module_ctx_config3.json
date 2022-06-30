@@ -312,12 +312,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stream<> streamName = new;",
+      "label": "stream\u003c\u003e streamName \u003d new;",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "stream",
-      "insertText": "stream<${1}> ${2:streamName} = new;",
+      "insertText": "stream\u003c${1}\u003e ${2:streamName} \u003d new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -372,7 +372,7 @@
     {
       "label": "mod1:TEST_FUTURE_INT",
       "kind": "Variable",
-      "detail": "future<int>",
+      "detail": "future\u003cint\u003e",
       "sortText": "B",
       "insertText": "mod1:TEST_FUTURE_INT",
       "insertTextFormat": "Snippet"
@@ -945,6 +945,30 @@
       "filterText": "worker",
       "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
+        }
+      ]
     }
   ]
 }

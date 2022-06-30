@@ -556,21 +556,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cause = ...",
+      "label": "cause \u003d ...",
       "kind": "Snippet",
-      "detail": "cause = error (\"\")",
+      "detail": "cause \u003d error (\"\")",
       "sortText": "AR",
       "filterText": "cause",
-      "insertText": "cause = ${1:error (\"\")}",
+      "insertText": "cause \u003d ${1:error (\"\")}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "errID = ...",
+      "label": "errID \u003d ...",
       "kind": "Snippet",
-      "detail": "errID = 0",
+      "detail": "errID \u003d 0",
       "sortText": "AR",
       "filterText": "errID",
-      "insertText": "errID = ${1:0}",
+      "insertText": "errID \u003d ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -702,6 +702,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "BR",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

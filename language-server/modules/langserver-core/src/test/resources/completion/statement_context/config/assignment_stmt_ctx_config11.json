@@ -519,7 +519,7 @@
       "label": "MyType",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "AM",
+      "sortText": "Q",
       "insertText": "MyType",
       "insertTextFormat": "Snippet"
     },
@@ -762,6 +762,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

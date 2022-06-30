@@ -276,7 +276,11 @@ public class SortingUtil {
      * @return True if assignable
      */
     public static boolean isCompletionItemAssignable(LSCompletionItem completionItem, TypeSymbol typeSymbol) {
-        if (completionItem.getCompletionItem().getKind() == CompletionItemKind.TypeParameter) {
+        CompletionItemKind kind = completionItem.getCompletionItem().getKind();
+        boolean isTypeCompletionItem = kind == CompletionItemKind.TypeParameter || kind == CompletionItemKind.Struct;
+
+        if ((typeSymbol.typeKind() == TypeDescKind.TYPEDESC && !isTypeCompletionItem) ||
+                (typeSymbol.typeKind() != TypeDescKind.TYPEDESC && isTypeCompletionItem)) {
             return false;
         }
         Optional<TypeSymbol> optionalTypeSymbol = getSymbolFromCompletionItem(completionItem);

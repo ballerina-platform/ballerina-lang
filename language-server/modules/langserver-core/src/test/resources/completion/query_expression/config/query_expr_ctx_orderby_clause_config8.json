@@ -478,7 +478,7 @@
     {
       "label": "myMap",
       "kind": "Variable",
-      "detail": "map<int>",
+      "detail": "map\u003cint\u003e",
       "sortText": "CB",
       "insertText": "myMap",
       "insertTextFormat": "Snippet"
@@ -712,6 +712,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "CR",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

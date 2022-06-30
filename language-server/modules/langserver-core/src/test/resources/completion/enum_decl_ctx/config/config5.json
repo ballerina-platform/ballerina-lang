@@ -159,7 +159,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> record {}",
+      "label": "type \u003cRecordName\u003e record {}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -177,7 +177,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <ObjectName> object",
+      "label": "type \u003cObjectName\u003e object",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -204,7 +204,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <RecordName> record {||}",
+      "label": "type \u003cRecordName\u003e record {||}",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
@@ -213,39 +213,39 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type <ErrorName> error<?>",
+      "label": "type \u003cErrorName\u003e error\u003c?\u003e",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
       "filterText": "type_error",
-      "insertText": "type ${1:ErrorName} error<${2:map<anydata>}>;",
+      "insertText": "type ${1:ErrorName} error\u003c${2:map\u003canydata\u003e}\u003e;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type TypeName table<>;",
+      "label": "type TypeName table\u003c\u003e;",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
       "filterText": "type_table",
-      "insertText": "type ${1:TypeName} table<${2}>;",
+      "insertText": "type ${1:TypeName} table\u003c${2}\u003e;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "type TypeName table<> key",
+      "label": "type TypeName table\u003c\u003e key",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
       "filterText": "type_table_key",
-      "insertText": "type ${1:TypeName} table<${2}> key${3}",
+      "insertText": "type ${1:TypeName} table\u003c${2}\u003e key${3}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "stream<> streamName = new;",
+      "label": "stream\u003c\u003e streamName \u003d new;",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "A",
       "filterText": "stream",
-      "insertText": "stream<${1}> ${2:streamName} = new;",
+      "insertText": "stream\u003c${1}\u003e ${2:streamName} \u003d new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -807,6 +807,30 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
+        }
+      ]
     }
   ]
 }

@@ -24,7 +24,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "remote function <name>();",
+      "label": "remote function \u003cname\u003e();",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
@@ -33,7 +33,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function <name>();",
+      "label": "function \u003cname\u003e();",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "P",
@@ -567,6 +567,30 @@
       "filterText": "null",
       "insertText": "null",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
+        }
+      ]
     }
   ]
 }

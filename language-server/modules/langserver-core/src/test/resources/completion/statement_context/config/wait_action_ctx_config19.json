@@ -567,7 +567,7 @@
     {
       "label": "testFutureChar",
       "kind": "Variable",
-      "detail": "future<string:Char>",
+      "detail": "future\u003cstring:Char\u003e",
       "sortText": "A",
       "insertText": "testFutureChar",
       "insertTextFormat": "Snippet"
@@ -598,7 +598,7 @@
     {
       "label": "testFutureInt",
       "kind": "Variable",
-      "detail": "future<int>",
+      "detail": "future\u003cint\u003e",
       "sortText": "B",
       "insertText": "testFutureInt",
       "insertTextFormat": "Snippet"
@@ -606,10 +606,34 @@
     {
       "label": "testFutureString",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future\u003cstring\u003e",
       "sortText": "A",
       "insertText": "testFutureString",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
+        }
+      ]
     }
   ]
 }

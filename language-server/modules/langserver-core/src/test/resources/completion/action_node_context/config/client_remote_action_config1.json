@@ -577,30 +577,30 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "path = ...",
+      "label": "path \u003d ...",
       "kind": "Snippet",
-      "detail": "path = \"\"",
+      "detail": "path \u003d \"\"",
       "sortText": "AR",
       "filterText": "path",
-      "insertText": "path = ${1:\"\"}",
+      "insertText": "path \u003d ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "message = ...",
+      "label": "message \u003d ...",
       "kind": "Snippet",
-      "detail": "message = \"\"",
+      "detail": "message \u003d \"\"",
       "sortText": "AR",
       "filterText": "message",
-      "insertText": "message = ${1:\"\"}",
+      "insertText": "message \u003d ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "targetType = ...",
+      "label": "targetType \u003d ...",
       "kind": "Snippet",
-      "detail": "targetType = \"\"",
+      "detail": "targetType \u003d \"\"",
       "sortText": "AR",
       "filterText": "targetType",
-      "insertText": "targetType = ${1:\"\"}",
+      "insertText": "targetType \u003d ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -696,6 +696,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

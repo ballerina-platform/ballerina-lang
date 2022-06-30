@@ -16,7 +16,7 @@
     {
       "label": "fint",
       "kind": "Variable",
-      "detail": "future<int>",
+      "detail": "future\u003cint\u003e",
       "sortText": "F",
       "insertText": "fint",
       "insertTextFormat": "Snippet"
@@ -32,7 +32,7 @@
     {
       "label": "fstr",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future\u003cstring\u003e",
       "sortText": "F",
       "insertText": "fstr",
       "insertTextFormat": "Snippet"
@@ -40,7 +40,7 @@
     {
       "label": "myVar",
       "kind": "Variable",
-      "detail": "map<string|error>",
+      "detail": "map\u003cstring|error\u003e",
       "sortText": "F",
       "insertText": "myVar",
       "insertTextFormat": "Snippet"
@@ -394,6 +394,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

@@ -106,7 +106,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'float;",
+      "insertText": "ballerina/lang.\u0027float;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -122,7 +122,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'stream;",
+      "insertText": "ballerina/lang.\u0027stream;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -130,7 +130,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'object;",
+      "insertText": "ballerina/lang.\u0027object;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -138,7 +138,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'string;",
+      "insertText": "ballerina/lang.\u0027string;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -146,7 +146,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'future;",
+      "insertText": "ballerina/lang.\u0027future;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -154,7 +154,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'error;",
+      "insertText": "ballerina/lang.\u0027error;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -170,7 +170,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'decimal;",
+      "insertText": "ballerina/lang.\u0027decimal;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -178,7 +178,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'boolean;",
+      "insertText": "ballerina/lang.\u0027boolean;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -186,7 +186,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'table;",
+      "insertText": "ballerina/lang.\u0027table;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -194,7 +194,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'transaction;",
+      "insertText": "ballerina/lang.\u0027transaction;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -210,7 +210,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'map;",
+      "insertText": "ballerina/lang.\u0027map;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -218,7 +218,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'int;",
+      "insertText": "ballerina/lang.\u0027int;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -226,7 +226,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'xml;",
+      "insertText": "ballerina/lang.\u0027xml;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -234,7 +234,15 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'typedesc;",
+      "insertText": "ballerina/lang.\u0027typedesc;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.function;",
       "insertTextFormat": "Snippet"
     }
   ]

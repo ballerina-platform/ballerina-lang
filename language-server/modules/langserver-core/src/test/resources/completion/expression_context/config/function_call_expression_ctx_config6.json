@@ -228,8 +228,15 @@
     {
       "label": "TEST_FUTURE_INT",
       "kind": "Variable",
-      "detail": "future<int>",
+      "detail": "future\u003cint\u003e",
       "insertText": "TEST_FUTURE_INT",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "GLOBAL_VAR",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "GLOBAL_VAR",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -10,7 +10,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'object;",
+      "insertText": "lang.\u0027object;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -18,7 +18,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'boolean;",
+      "insertText": "lang.\u0027boolean;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'xml;",
+      "insertText": "lang.\u0027xml;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -50,7 +50,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'transaction;",
+      "insertText": "lang.\u0027transaction;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -66,7 +66,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'string;",
+      "insertText": "lang.\u0027string;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -74,7 +74,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'future;",
+      "insertText": "lang.\u0027future;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -90,7 +90,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'float;",
+      "insertText": "lang.\u0027float;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -98,7 +98,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'decimal;",
+      "insertText": "lang.\u0027decimal;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -106,7 +106,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'table;",
+      "insertText": "lang.\u0027table;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -114,7 +114,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'stream;",
+      "insertText": "lang.\u0027stream;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -122,7 +122,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'error;",
+      "insertText": "lang.\u0027error;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -130,7 +130,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'typedesc;",
+      "insertText": "lang.\u0027typedesc;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -146,7 +146,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'map;",
+      "insertText": "lang.\u0027map;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -154,7 +154,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "B",
-      "insertText": "lang.'int;",
+      "insertText": "lang.\u0027int;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -163,6 +163,14 @@
       "detail": "Module",
       "sortText": "B",
       "insertText": "lang.runtime;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "lang.function;",
       "insertTextFormat": "Snippet"
     }
   ]

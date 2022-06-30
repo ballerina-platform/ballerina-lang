@@ -454,11 +454,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'if",
+      "label": "\u0027if",
       "kind": "Variable",
       "detail": "string",
       "sortText": "F",
-      "insertText": "'if",
+      "insertText": "\u0027if",
       "insertTextFormat": "Snippet"
     },
     {
@@ -470,21 +470,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'from",
+      "label": "\u0027from",
       "kind": "Variable",
       "detail": "Currency",
       "sortText": "AB",
-      "insertText": "'from",
+      "insertText": "\u0027from",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "example(Currency 'from, string 'to)",
+      "label": "example(Currency \u0027from, string \u0027to)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` 'from  \n- `string` 'to"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `Currency` \u0027from  \n- `string` \u0027to"
         }
       },
       "sortText": "G",
@@ -505,7 +505,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'function()",
+      "label": "\u0027function()",
       "kind": "Function",
       "detail": "string",
       "documentation": {
@@ -515,8 +515,8 @@
         }
       },
       "sortText": "G",
-      "filterText": "'function",
-      "insertText": "'function()",
+      "filterText": "\u0027function",
+      "insertText": "\u0027function()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -534,7 +534,7 @@
       "label": "Currency",
       "kind": "Struct",
       "detail": "Record",
-      "sortText": "AM",
+      "sortText": "Q",
       "insertText": "Currency",
       "insertTextFormat": "Snippet"
     },
@@ -595,11 +595,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'to",
+      "label": "\u0027to",
       "kind": "Variable",
       "detail": "string",
       "sortText": "F",
-      "insertText": "'to",
+      "insertText": "\u0027to",
       "insertTextFormat": "Snippet"
     },
     {
@@ -704,6 +704,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

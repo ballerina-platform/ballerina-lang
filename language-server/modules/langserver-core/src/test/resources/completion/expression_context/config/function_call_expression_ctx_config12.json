@@ -639,12 +639,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myStr = ...",
+      "label": "myStr \u003d ...",
       "kind": "Snippet",
-      "detail": "myStr = \"\"",
+      "detail": "myStr \u003d \"\"",
       "sortText": "AR",
       "filterText": "myStr",
-      "insertText": "myStr = ${1:\"\"}",
+      "insertText": "myStr \u003d ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -740,6 +740,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

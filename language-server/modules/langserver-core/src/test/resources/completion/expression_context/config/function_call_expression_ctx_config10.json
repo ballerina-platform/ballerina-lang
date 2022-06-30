@@ -646,21 +646,21 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "num1 = ...",
+      "label": "num1 \u003d ...",
       "kind": "Snippet",
-      "detail": "num1 = 0",
+      "detail": "num1 \u003d 0",
       "sortText": "AR",
       "filterText": "num1",
-      "insertText": "num1 = ${1:0}",
+      "insertText": "num1 \u003d ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "num2 = ...",
+      "label": "num2 \u003d ...",
       "kind": "Snippet",
-      "detail": "num2 = 0",
+      "detail": "num2 \u003d 0",
       "sortText": "AR",
       "filterText": "num2",
-      "insertText": "num2 = ${1:0}",
+      "insertText": "num2 \u003d ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -756,6 +756,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }

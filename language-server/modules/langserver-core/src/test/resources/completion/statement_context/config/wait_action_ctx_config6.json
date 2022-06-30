@@ -8,7 +8,7 @@
     {
       "label": "fs2",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future\u003cstring\u003e",
       "sortText": "B",
       "insertText": "fs2",
       "insertTextFormat": "Snippet"
@@ -16,7 +16,7 @@
     {
       "label": "fs",
       "kind": "Variable",
-      "detail": "future<string>",
+      "detail": "future\u003cstring\u003e",
       "sortText": "B",
       "insertText": "fs",
       "insertTextFormat": "Snippet"
@@ -370,6 +370,30 @@
             }
           },
           "newText": "import test/local_project1;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "R",
+      "filterText": "function",
+      "insertText": "function",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.function;\n"
         }
       ]
     }
