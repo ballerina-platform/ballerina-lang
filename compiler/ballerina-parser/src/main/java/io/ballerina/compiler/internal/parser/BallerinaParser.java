@@ -284,11 +284,11 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Completely parses a given input as a service member declaration.
+     * Completely parses a given input as an object member.
      *
      * @return Parsed node
      */
-    public STNode parseAsServiceMemberDeclaration() {
+    public STNode parseAsObjectMember() {
         startContext(ParserRuleContext.COMP_UNIT);
         STNode serviceMemberDeclaration = parseObjectMember(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
 
