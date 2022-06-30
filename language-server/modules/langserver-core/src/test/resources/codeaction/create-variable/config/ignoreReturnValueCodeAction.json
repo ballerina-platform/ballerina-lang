@@ -1,9 +1,13 @@
 {
-  "line": 20,
-  "character": 3,
+  "position": {
+    "line": 20,
+    "character": 3
+  },
+  "source": "createVariable.bal",
   "expected": [
     {
       "title": "Ignore return value",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 3
             }
           },
-          "newText": "_ = "
+          "newText": "_ \u003d "
         }
       ]
     }

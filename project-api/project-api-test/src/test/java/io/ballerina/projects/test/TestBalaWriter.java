@@ -140,6 +140,13 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getExport().get(0), "winery");
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
+            Assert.assertFalse(packageJson.getInclude().isEmpty());
+            Assert.assertEquals(packageJson.getInclude().get(0), "include-file.json");
+            Assert.assertEquals(packageJson.getInclude().get(1), "default-module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(2), "default-module-include-dir");
+            Assert.assertEquals(packageJson.getInclude().get(3), "modules/services/non-default-module-include/file");
+            Assert.assertEquals(packageJson.getInclude().get(4), "modules/services/non-default-module-include-dir");
+
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
             Assert.assertEquals(packageJson.getPlatform(), "java11");
@@ -182,6 +189,26 @@ public class TestBalaWriter {
         // check icon
         Path iconPath = balaExportPath.resolve("docs").resolve("samplePng01.png");
         Assert.assertTrue(iconPath.toFile().exists());
+
+        // check for includes
+        Path defaultModuleIncludeJson = balaExportPath.resolve("include-file.json");
+        Assert.assertTrue(defaultModuleIncludeJson.toFile().exists());
+        Path defaultModuleIncludeFile = balaExportPath.resolve("default-module-include/file");
+        Assert.assertTrue(defaultModuleIncludeFile.toFile().exists());
+        Path defaultModuleIncludeTextFile = balaExportPath.resolve("default-module-include-dir/include_text_file.txt");
+        Assert.assertTrue(defaultModuleIncludeTextFile.toFile().exists());
+        Path defaultModuleIncludeImageFile = balaExportPath.resolve("default-module-include-dir/include_image.png");
+        Assert.assertTrue(defaultModuleIncludeImageFile.toFile().exists());
+
+        Path nonDefaultModuleIncludeFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include/file");
+        Assert.assertTrue(nonDefaultModuleIncludeFile.toFile().exists());
+        Path nonDefaultModuleIncludeTextFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include-dir/include_text_file.txt");
+        Assert.assertTrue(nonDefaultModuleIncludeTextFile.toFile().exists());
+        Path nonDefaultModuleIncludeImageFile = balaExportPath
+                .resolve("modules/winery.services/non-default-module-include-dir/include_image.png");
+        Assert.assertTrue(nonDefaultModuleIncludeImageFile.toFile().exists());
 
         // module sources
         // default module
@@ -430,7 +457,7 @@ public class TestBalaWriter {
         Assert.assertTrue(balaExportPath.resolve(BALA_DOCS_DIR).resolve("samplePng01.png").toFile().exists());
     }
 
-    @Test(description = "tests build project with a invalid svg icon renamed as png")
+    @Test(description = "tests build project with an invalid svg icon renamed as png")
     public void testBuildProjectWithInvalidIcon(ITestContext ctx) {
         Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithInvalidIcon");
         ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
@@ -443,6 +470,21 @@ public class TestBalaWriter {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
         Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
                 "invalid 'icon' under [package]: 'icon' can only have 'png' images");
+    }
+
+    @Test(description = "tests build project with non existing includes")
+    public void testBuildProjectWithNonExistingIncludes(ITestContext ctx) {
+        Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithNonExistingIncludes");
+        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
+
+        BuildProject buildProject = BuildProject.load(packagePath);
+        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+        Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
+                "could not locate include path 'include-dir'");
     }
 
     @AfterMethod(alwaysRun = true)

@@ -46,6 +46,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -103,7 +104,8 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
         if (edits.isEmpty()) {
             return Collections.emptyList();
         }
-        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri()));
+        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(), 
+                CodeActionKind.Source));
     }
 
     @Override

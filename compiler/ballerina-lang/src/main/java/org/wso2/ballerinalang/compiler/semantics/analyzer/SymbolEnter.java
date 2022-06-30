@@ -836,10 +836,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
                     }
-                    if (!types.isAssignable(existingVariable.getBType(), field.type)) {
-                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                                field.name, field.getType(), existingVariable.getBType());
-                    }
                     continue;
                 }
 
@@ -5009,10 +5005,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                         dlog.error(existingVariable.pos,
                                 DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                 existingVariable.name.value);
-                    }
-                    if (!types.isAssignable(existingVariable.getBType(), f.type)) {
-                        dlog.error(existingVariable.pos, DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
-                                f.name, f.getType(), existingVariable.getBType());
                     }
                     return false;
                 }

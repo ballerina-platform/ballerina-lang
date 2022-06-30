@@ -5708,7 +5708,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return;
             }
         }
-        
+
         //re-assign common analyzer data
         typeCheckerData.checkWithinQueryExpr = prevCheckWithinQueryExpr;
         typeCheckerData.checkedErrorList = prevCheckedErrorList;
@@ -5736,69 +5736,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType actualType = symTable.semanticError;
         List<BType> selectTypes = new ArrayList<>();
         List<BType> resolvedTypes = new ArrayList<>();
-        BType selectType, resolvedType;
+        BType selectType;
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
 
         for (BType type : safeResultTypes) {
-            switch (type.tag) {
-                case TypeTags.ARRAY:
-                    BType elementType = ((BArrayType) type).eType;
-                    if (data.commonAnalyzerData.checkWithinQueryExpr) {
-                        selectType = checkExpr(selectExp, env, elementType, data);
-                        BType queryResultType = new BArrayType(selectType);
-                        memberTypes.add(queryResultType);
-                        memberTypes.addAll(data.commonAnalyzerData.checkedErrorList);
-                        resolvedType = BUnionType.create(null, memberTypes);
-                    } else {
-                        selectType = checkExpr(selectExp, env, elementType, data);
-                        resolvedType = new BArrayType(selectType);
-                    }
-                    break;
-                case TypeTags.TABLE:
-                    selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
-                            true, true), data);
-                    resolvedType = symTable.tableType;
-                    break;
-                case TypeTags.STREAM:
-                    selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
-                            true, true), data);
-                    resolvedType = symTable.streamType;
-                    break;
-                case TypeTags.STRING:
-                case TypeTags.XML:
-                    selectType = checkExpr(selectExp, env, type, data);
-                    resolvedType = selectType;
-                    break;
-                case TypeTags.MAP:
-                    List<BType> memberTypeList = new ArrayList<>(2);
-                    memberTypeList.add(symTable.stringType);
-                    memberTypeList.add(((BMapType) type).getConstraint());
-                    BTupleType newExpType = new BTupleType(null, memberTypeList);
-                    selectType = checkExpr(selectExp, env, newExpType, data);
-                    resolvedType = selectType;
-                    break;
-                case TypeTags.NONE:
-                default:
-                    // contextually expected type not given (i.e var).
-                    selectType = checkExpr(selectExp, env, type, data);
-
-                    if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
-                        resolvedType = symTable.mapType;
-                    } else {
-                        resolvedType = getNonContextualQueryType(selectType, collectionType);
-                    }
-                    break;
-            }
-            if (selectType != symTable.semanticError) {
-                if (resolvedType.tag == TypeTags.STREAM) {
-                    queryExpr.isStream = true;
-                }
-                if (resolvedType.tag == TypeTags.TABLE) {
-                    queryExpr.isTable = true;
-                }
-                selectTypes.add(selectType);
-                resolvedTypes.add(resolvedType);
-            }
+            solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes, resolvedTypes, env,
+                    data, false, memberTypes);
         }
 
         if (selectTypes.size() == 1) {
@@ -5807,13 +5750,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
             } else if (queryExpr.isTable) {
-                actualType = getQueryTableType(queryExpr, selectType);
+                actualType = getQueryTableType(queryExpr, selectType, resolvedTypes.get(0), env);
             } else if (queryExpr.isMap) {
                 BType mapConstraintType = getTypeOfTypeParameter(selectType,
                         queryExpr.getSelectClause().expression.pos);
                 if (mapConstraintType != symTable.semanticError) {
-                    actualType = BUnionType.create(null, new BMapType(TypeTags.MAP, mapConstraintType, null),
-                            symTable.errorType);
+                    BType mapType = new BMapType(TypeTags.MAP, mapConstraintType, null);
+                    if (Symbols.isFlagOn(resolvedTypes.get(0).flags, Flags.READONLY)) {
+                        mapType = ImmutableTypeCloner.getImmutableIntersectionType(null, types, mapType, env,
+                                symTable, anonymousModelHelper, names, null);
+                    }
+                    actualType = BUnionType.create(null, mapType, symTable.errorType);
                 }
             } else {
                 actualType = resolvedTypes.get(0);
@@ -5830,6 +5777,88 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         } else {
             return actualType;
         }
+    }
+
+    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType type,
+                                       BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
+                                       SymbolEnv env, AnalyzerData data, boolean isReadonly,
+                                       LinkedHashSet<BType> memberTypes) {
+        BType selectType, resolvedType;
+        type = Types.getReferredType(type);
+        switch (type.tag) {
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                selectType = checkExpr(selectExp, env, elementType, data);
+                BType queryResultType = new BArrayType(selectType);
+                if (data.commonAnalyzerData.checkWithinQueryExpr) {
+                    memberTypes.add(queryResultType);
+                    memberTypes.addAll(data.commonAnalyzerData.checkedErrorList);
+                    queryResultType = BUnionType.create(null, memberTypes);
+                }
+                resolvedType = getResolvedType(queryResultType, type, isReadonly, env);
+                break;
+            case TypeTags.TABLE:
+                selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
+                        true, true), data);
+                resolvedType = getResolvedType(symTable.tableType, type, isReadonly, env);
+                break;
+            case TypeTags.STREAM:
+                selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
+                        true, true), data);
+                resolvedType = symTable.streamType;
+                break;
+            case TypeTags.MAP:
+                List<BType> memberTypeList = new ArrayList<>(2);
+                memberTypeList.add(symTable.stringType);
+                memberTypeList.add(((BMapType) type).getConstraint());
+                BTupleType newExpType = new BTupleType(null, memberTypeList);
+                selectType = checkExpr(selectExp, env, newExpType, data);
+                resolvedType = getResolvedType(selectType, type, isReadonly, env);
+                break;
+            case TypeTags.STRING:
+            case TypeTags.XML:
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_PI:
+            case TypeTags.XML_TEXT:
+                selectType = checkExpr(selectExp, env, type, data);
+                resolvedType = selectType;
+                break;
+            case TypeTags.INTERSECTION:
+                type = ((BIntersectionType) type).effectiveType;
+                solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionType, selectTypes,
+                        resolvedTypes, env, data, Symbols.isFlagOn(type.flags, Flags.READONLY), memberTypes);
+                return;
+            case TypeTags.NONE:
+            default:
+                // contextually expected type not given (i.e var).
+                selectType = checkExpr(selectExp, env, type, data);
+                if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
+                    resolvedType = symTable.mapType;
+                } else {
+                    resolvedType = getNonContextualQueryType(selectType, collectionType);
+                }
+                break;
+        }
+        if (selectType != symTable.semanticError) {
+            if (resolvedType.tag == TypeTags.STREAM) {
+                queryExpr.isStream = true;
+            }
+            if (resolvedType.tag == TypeTags.TABLE) {
+                queryExpr.isTable = true;
+            }
+            selectTypes.add(selectType);
+            resolvedTypes.add(resolvedType);
+        }
+    }
+
+    private BType getResolvedType(BType initType, BType expType, boolean isReadonly, SymbolEnv env) {
+        if (initType.tag != TypeTags.SEMANTIC_ERROR && (isReadonly ||
+                Symbols.isFlagOn(expType.flags, Flags.READONLY))) {
+            return ImmutableTypeCloner.getImmutableIntersectionType(null, types, initType, env,
+                    symTable, anonymousModelHelper, names, null);
+        }
+        return initType;
     }
 
     private BType getTypeOfTypeParameter(BType selectType, Location pos) {
@@ -5871,13 +5900,18 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return symTable.semanticError;
     }
 
-    private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType) {
+    private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
         final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
             validateKeySpecifier(queryExpr.fieldNameIdentifierList, constraintType);
             markReadOnlyForConstraintType(constraintType);
             tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
                     .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
+        }
+        if (Symbols.isFlagOn(resolvedType.flags, Flags.READONLY)) {
+            BIntersectionType immutableTableType = ImmutableTypeCloner.getImmutableIntersectionType(null, types,
+                    tableType, env, symTable, anonymousModelHelper, names, null);
+            return immutableTableType;
         }
         return tableType;
     }

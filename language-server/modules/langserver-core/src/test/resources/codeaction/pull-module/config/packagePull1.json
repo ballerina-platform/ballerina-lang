@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 10,
+  "position": {
+    "line": 1,
+    "character": 10
+  },
+  "source": "packagePull.bal",
   "expected": [
     {
       "title": "Pull unresolved modules",
+      "kind": "quickfix",
       "command": {
         "title": "Pull unresolved modules",
         "command": "PULL_MODULE",

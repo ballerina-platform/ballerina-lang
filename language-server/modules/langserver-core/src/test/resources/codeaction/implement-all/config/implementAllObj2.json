@@ -1,50 +1,54 @@
 {
+  "position": {
     "line": 14,
-    "character": 19,
-    "expected": [
+    "character": 19
+  },
+  "source": "implementAllObj.bal",
+  "expected": [
+    {
+      "title": "Implement all",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Implement all",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 15,
-                            "character": 0
-                        },
-                        "end": {
-                            "line": 15,
-                            "character": 0
-                        }
-                    },
-                    "newText": "\n    public function pushText1(string text) returns error? {\n        return;\n    }\n"
-                },
-                {
-                    "range": {
-                        "start": {
-                            "line": 15,
-                            "character": 0
-                        },
-                        "end": {
-                            "line": 15,
-                            "character": 0
-                        }
-                    },
-                    "newText": "\n    public function pushText2(string text) returns error? {\n        return;\n    }\n"
-                },
-                {
-                    "range": {
-                        "start": {
-                            "line": 15,
-                            "character": 0
-                        },
-                        "end": {
-                            "line": 15,
-                            "character": 0
-                        }
-                    },
-                    "newText": "\n    public function pushText3(string text) returns error? {\n        return;\n    }\n"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 0
+            },
+            "end": {
+              "line": 15,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function pushText1(string text) returns error? {\n        return;\n    }\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 0
+            },
+            "end": {
+              "line": 15,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function pushText2(string text) returns error? {\n        return;\n    }\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 0
+            },
+            "end": {
+              "line": 15,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function pushText3(string text) returns error? {\n        return;\n    }\n"
         }
-    ]
+      ]
+    }
+  ]
 }
