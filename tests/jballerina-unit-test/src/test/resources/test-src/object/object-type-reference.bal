@@ -286,31 +286,6 @@ function testObjectReferenceRecordUpdate() {
     assertEquality(matched.groups.get(8), 8);
 }
 
-public type Groups readonly & object {
-    isolated function get(int index) returns int?;
-};
-
-public type Match record {|
-    Groups groups;
-|};
-
-readonly class MatchGroups {
-    *Groups;
-
-    isolated function get(int index) returns int? {
-        return index;
-    }
-}
-
-function testObjectReferenceRecordUpdate() {
-    Match matched = {
-        groups: new MatchGroups()
-    };
-    assertEquality(matched.groups is MatchGroups, true);
-    assertEquality(matched.groups is Groups, true);
-    assertEquality(matched.groups.get(8), 8);
-}
-
 class C1 {
     int i = 0;
 }
