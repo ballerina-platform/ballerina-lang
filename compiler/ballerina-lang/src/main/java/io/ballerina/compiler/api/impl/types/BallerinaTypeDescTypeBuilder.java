@@ -30,7 +30,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 /**
  * The implementation of the methods used to build the Typedesc type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
 
@@ -52,7 +52,10 @@ public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
     @Override
     public TypeDescTypeSymbol build() {
         BTypedescType typedescType = new BTypedescType(getBType(typeParam), symTable.typeDesc.tsymbol);
-        return (TypeDescTypeSymbol) typesFactory.getTypeDescriptor(typedescType);
+        TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) typesFactory.getTypeDescriptor(typedescType);
+        this.typeParam = null;
+
+        return typeDescTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {

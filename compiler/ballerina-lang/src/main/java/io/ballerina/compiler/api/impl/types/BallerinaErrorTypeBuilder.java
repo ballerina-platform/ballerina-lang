@@ -33,7 +33,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 /**
  * The implementation of the methods used to build the Error type descriptor.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
 
@@ -61,19 +61,22 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
     @Override
     public ErrorTypeSymbol build() {
         BErrorType errorType = new BErrorType(symTable.errorType.tsymbol, getBType(typeParam));
-        return (ErrorTypeSymbol) typesFactory.getTypeDescriptor(errorType);
+        ErrorTypeSymbol errorTypeSymbol = (ErrorTypeSymbol) typesFactory.getTypeDescriptor(errorType);
+        this.typeParam = null;
+
+        return errorTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
-        if (typeSymbol != null) {
-            if (isValidTypeParam(typeSymbol)) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
-            }
-
-            throw new IllegalArgumentException("Valid error detail mapping should be provided");
+        if (typeSymbol == null) {
+            return symTable.errorType.detailType;
         }
 
-        return symTable.errorType.detailType;
+        if (isValidTypeParam(typeSymbol)) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        throw new IllegalArgumentException("Valid error detail mapping should be provided");
     }
 
     private boolean isValidTypeParam(TypeSymbol typeSymbol) {
@@ -90,9 +93,11 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
                         && recordFieldSymbol.isOptional()) {
                     hasError = true;
                 }
-            }
 
-            return hasString && hasError;
+                if (hasString && hasError) {
+                    return true;
+                }
+            }
         }
 
         return false;

@@ -23,7 +23,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 /**
  * Initialize and provide the set of builders required for certain complex types within a single semantic context.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaTypeBuilder extends TypeBuilder {
 

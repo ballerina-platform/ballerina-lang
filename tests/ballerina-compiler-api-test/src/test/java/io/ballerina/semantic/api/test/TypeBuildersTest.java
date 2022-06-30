@@ -79,7 +79,7 @@ import static org.testng.Assert.assertTrue;
 /**
  * Test cases for the builders in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class TypeBuildersTest {
     private Types types;
@@ -247,7 +247,7 @@ public class TypeBuildersTest {
         TypeBuilder builder = types.builder();
         TypeBuilder.TUPLE tupleType = builder.TUPLE_TYPE.withRestType(restType);
         for (TypeSymbol memberType : memberTypes) {
-            tupleType.withMemberType(memberType);
+            tupleType = tupleType.withMemberType(memberType);
         }
 
         TupleTypeSymbol tupleTypeSymbol = tupleType.build();
@@ -270,12 +270,18 @@ public class TypeBuildersTest {
     @Test(dataProvider = "arrayTypeBuilderProvider")
     public void testArrayTypeBuilder(TypeSymbol memberType, Integer size, String signature) {
         TypeBuilder builder = types.builder();
-        ArrayTypeSymbol arrayTypeSymbol = builder.ARRAY_TYPE.withType(memberType).ofSize(size).build();
+        TypeBuilder.ARRAY arrayBuilder = builder.ARRAY_TYPE.withType(memberType).withSize(size);
+        if (size != null && size < 0) {
+            arrayBuilder = arrayBuilder.withInferredSize();
+        }
+
+        ArrayTypeSymbol arrayTypeSymbol = arrayBuilder.build();
         assertEquals(arrayTypeSymbol.typeKind(), ARRAY);
-        if (size != null) {
+        if (size != null && size >= 0) {
             assertTrue(arrayTypeSymbol.size().isPresent());
             assertEquals(arrayTypeSymbol.size().get(), size);
         }
+
         assertEquals(arrayTypeSymbol.signature(), signature);
     }
 
@@ -285,6 +291,7 @@ public class TypeBuildersTest {
                 {types.STRING, 5, "string[5]"},
                 {types.INT, null, "int[]"},
                 {types.BYTE, 24, "byte[24]"},
+//                {types.FLOAT, -1, "float[*]"}, // TODO: Enable after fixing #36786
         };
     }
 
@@ -293,7 +300,7 @@ public class TypeBuildersTest {
         TypeBuilder builder = types.builder();
         TypeBuilder.ERROR errorType = builder.ERROR_TYPE;
         if (line != null && column != null) {
-            errorType.withTypeParam(getTypeDefSymbol(line, column));
+            errorType = errorType.withTypeParam(getTypeDefSymbol(line, column));
         }
 
         ErrorTypeSymbol errorTypeSymbol = errorType.build();
@@ -343,10 +350,10 @@ public class TypeBuildersTest {
         TypeSymbol empRecordType = ((TypeDefinitionSymbol) employeeRecord.get()).typeDescriptor();
 
         TableTypeSymbol empTableWithKeyFields =
-                tableTypeBuilder.withRowType(empRecordType).withKeyConstraint("name").build();
+                tableTypeBuilder.withRowType(empRecordType).withKeySpecifiers("name").build();
 
         TableTypeSymbol empTableWithKeyType =
-                tableTypeBuilder.withRowType(empRecordType).withKeyConstraint(types.STRING).build();
+                tableTypeBuilder.withRowType(empRecordType).withKeyConstraints(types.STRING).build();
 
         assertEquals(empTableWithKeyFields.signature(), "table<Employee> key(name)");
         assertEquals(empTableWithKeyType.signature(), "table<Employee> key<string>");
@@ -357,13 +364,13 @@ public class TypeBuildersTest {
         TypeSymbol cusRecordType = ((TypeDefinitionSymbol) customerRecord.get()).typeDescriptor();
 
         TableTypeSymbol cusTableWithKeyFields =
-                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraint("id", "name").build();
+                tableTypeBuilder.withRowType(cusRecordType).withKeySpecifiers("id", "name").build();
 
         TableTypeSymbol cusTableWithKeyType =
-                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraint(types.INT).build();
+                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraints(types.INT, types.STRING).build();
 
         assertEquals(cusTableWithKeyFields.signature(), "table<Customer> key(id,name)");
-        assertEquals(cusTableWithKeyType.signature(), "table<Customer> key<int>");
+        assertEquals(cusTableWithKeyType.signature(), "table<Customer> key<[int, string]>");
 
     }
 
@@ -407,9 +414,6 @@ public class TypeBuildersTest {
         assertEquals(objTypeWithMethod.signature(), "object {function floatFn(float floatArg) returns json;}");
         assertEquals(objTypeWithFieldsAndMethods.signature(),
                 "object {string aStr; int anInt; function floatFn(float floatArg) returns json;}");
-
-
-
     }
 
     @Test

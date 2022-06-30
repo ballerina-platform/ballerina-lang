@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 /**
  * The implementation of the methods used to build the Stream type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaStreamTypeBuilder implements TypeBuilder.STREAM {
 
@@ -62,24 +62,28 @@ public class BallerinaStreamTypeBuilder implements TypeBuilder.STREAM {
         BStreamType streamType = new BStreamType(TypeTags.STREAM, getValueBType(this.valueType),
                 getCompletionBType(this.completionType), symTable.streamType.tsymbol);
 
-        return (StreamTypeSymbol) typesFactory.getTypeDescriptor(streamType);
+        StreamTypeSymbol streamTypeSymbol = (StreamTypeSymbol) typesFactory.getTypeDescriptor(streamType);
+        this.valueType = null;
+        this.completionType = null;
+
+        return streamTypeSymbol;
     }
 
     private BType getValueBType(TypeSymbol valueType) {
-        if (valueType != null) {
-            if (valueType instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) valueType).getBType();
-            }
+        if (valueType == null) {
+            return symTable.anyType;
+        }
+
+        if (valueType instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) valueType).getBType();
         }
 
         return symTable.noType;
     }
 
     private BType getCompletionBType(TypeSymbol completionType) {
-        if (completionType != null) {
-            if (completionType instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) completionType).getBType();
-            }
+        if (completionType instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) completionType).getBType();
         }
 
         return symTable.nilType;

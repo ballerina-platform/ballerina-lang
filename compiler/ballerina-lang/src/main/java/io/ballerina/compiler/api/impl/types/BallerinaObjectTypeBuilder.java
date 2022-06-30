@@ -53,7 +53,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 /**
  * The implementation of the methods used to build the Object type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
@@ -71,10 +71,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withQualifier(Qualifier... qualifiers) {
-        if (!this.qualifiers.isEmpty()) {
-            this.qualifiers = new ArrayList<>();
-        }
-
+        this.qualifiers.clear();
         this.qualifiers.addAll(Arrays.asList(qualifiers));
 
         return this;
@@ -82,10 +79,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withFields(OBJECT_FIELD... fields) {
-        if (!objectFieldList.isEmpty()) {
-            objectFieldList.clear();
-        }
-
+        objectFieldList.clear();
         objectFieldList.addAll(Arrays.asList(fields));
 
         return this;
@@ -93,10 +87,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withMethods(OBJECT_METHOD... methods) {
-        if (!objectMethodList.isEmpty()) {
-            objectMethodList.clear();
-        }
-
+        objectMethodList.clear();
         objectMethodList.addAll(getObjectMethods(Arrays.asList(methods)));
 
         return this;
@@ -104,10 +95,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
 
     @Override
     public TypeBuilder.OBJECT withTypeInclusions(TypeReferenceTypeSymbol... inclusions) {
-        if (!typeInclusions.isEmpty()) {
-            typeInclusions.clear();
-        }
-
+        typeInclusions.clear();
         typeInclusions.addAll(Arrays.asList(inclusions));
 
         return this;
@@ -212,8 +200,8 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         }
 
         BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(flags), Names.fromString(objectField.getName()),
-                ownerObjectTypeSymbol.pkgID, getBType(objectField.getType()), ownerObjectTypeSymbol, symTable.builtinPos,
-                ownerObjectTypeSymbol.origin);
+                ownerObjectTypeSymbol.pkgID, getBType(objectField.getType()), ownerObjectTypeSymbol,
+                symTable.builtinPos, ownerObjectTypeSymbol.origin);
 
         return new BField(Names.fromString(objectField.getName()), symTable.builtinPos, fieldSymbol);
     }

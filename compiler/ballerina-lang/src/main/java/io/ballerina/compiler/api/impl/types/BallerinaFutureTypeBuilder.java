@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 /**
  * The implementation of the methods used to build the Future type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
 
@@ -53,17 +53,21 @@ public class BallerinaFutureTypeBuilder implements TypeBuilder.FUTURE {
     @Override
     public FutureTypeSymbol build() {
         BFutureType futureType = new BFutureType(TypeTags.FUTURE, getBType(typeParam), symTable.futureType.tsymbol);
-        return (FutureTypeSymbol) typesFactory.getTypeDescriptor(futureType);
+        FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) typesFactory.getTypeDescriptor(futureType);
+        this.typeParam = null;
+
+        return futureTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
-        if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
-            }
-            return symTable.noType;
+        if (typeSymbol == null) {
+            return null;
         }
 
-        return null;
+        if (typeSymbol instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
+        }
+
+        return symTable.noType;
     }
 }

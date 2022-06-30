@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.ballerina.compiler.api.impl.types;
 
 import io.ballerina.compiler.api.impl.SymbolFactory;
@@ -28,14 +46,14 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 /**
  * The implementation of the methods used to build the Function type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
 
     private final CompilerContext context;
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
-    private List<ParameterSymbol> parameterSymbols = new ArrayList<>();
+    private final List<ParameterSymbol> parameterSymbols = new ArrayList<>();
     private ParameterSymbol restParam;
     private TypeSymbol returnTypeSymbol;
 
@@ -50,10 +68,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
 
     @Override
     public TypeBuilder.FUNCTION withParams(ParameterSymbol... parameters) {
-        if (!parameterSymbols.isEmpty()) {
-            parameterSymbols = new ArrayList<>();
-        }
-
+        parameterSymbols.clear();
         parameterSymbols.addAll(Arrays.asList(parameters));
 
         return this;
@@ -117,27 +132,25 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
-        if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
-            }
+        if (typeSymbol instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
         }
 
         throw new IllegalArgumentException("Invalid type provided");
     }
 
     private BType getReturnBType(TypeSymbol returnTypeSymbol) {
-        if (returnTypeSymbol != null) {
-            if (returnTypeSymbol instanceof AbstractTypeSymbol
-                    && (returnTypeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))
-                    || returnTypeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.nilType)))) {
-                return ((AbstractTypeSymbol) returnTypeSymbol).getBType();
-            }
-
-            throw new IllegalArgumentException("Invalid return type provided");
+        if (returnTypeSymbol == null) {
+            return null;
         }
 
-        return null;
+        if (returnTypeSymbol instanceof AbstractTypeSymbol
+                && (returnTypeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))
+                || returnTypeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.nilType)))) {
+            return ((AbstractTypeSymbol) returnTypeSymbol).getBType();
+        }
+
+        throw new IllegalArgumentException("Invalid return type provided");
     }
 
     /**
@@ -169,7 +182,7 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         }
 
         @Override
-        public PARAMETER_BUILDER ofKind(ParameterKind kind) {
+        public PARAMETER_BUILDER withKind(ParameterKind kind) {
             this.kind = kind;
             return this;
         }
@@ -181,12 +194,18 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
             }
 
             long flags = Flags.REQUIRED_PARAM;
-            if (kind == ParameterKind.DEFAULTABLE) {
-                flags = Flags.DEFAULTABLE_PARAM;
-            } else if (kind == ParameterKind.REST) {
-                flags = Flags.REST_PARAM;
-            } else if (kind == ParameterKind.INCLUDED_RECORD) {
-                flags = Flags.INCLUDED;
+            if (kind != null) {
+                switch (kind) {
+                    case DEFAULTABLE:
+                        flags = Flags.DEFAULTABLE_PARAM;
+                        break;
+                    case REST:
+                        flags = Flags.REST_PARAM;
+                        break;
+                    case INCLUDED_RECORD:
+                        flags = Flags.INCLUDED;
+                        break;
+                }
             }
 
             BVarSymbol bVarSymbol = new BVarSymbol(flags, Names.fromString(name),
@@ -197,10 +216,8 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         }
 
         private BType getBType(TypeSymbol typeSymbol) {
-            if (typeSymbol != null) {
-                if (typeSymbol instanceof AbstractTypeSymbol) {
+            if (typeSymbol instanceof AbstractTypeSymbol) {
                     return ((AbstractTypeSymbol) typeSymbol).getBType();
-                }
             }
 
             throw new IllegalArgumentException("Invalid type provided");

@@ -44,7 +44,7 @@ import java.util.List;
 /**
  * The implementation of the methods used to build the Record type descriptor in Types API.
  *
- * @since 2.0.0
+ * @since 2201.2.0
  */
 public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
 
@@ -90,8 +90,8 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
     @Override
     public RecordTypeSymbol build() {
 
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol.owner,
-                symTable.builtinPos, symTable.rootPkgSymbol.origin);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, symTable.rootPkgSymbol.pkgID,
+                null, symTable.rootPkgSymbol.owner, symTable.builtinPos, symTable.rootPkgSymbol.origin);
 
         BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;
