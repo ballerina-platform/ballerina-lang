@@ -1,9 +1,13 @@
 {
-  "line": 0,
-  "character": 25,
+  "position": {
+    "line": 0,
+    "character": 25
+  },
+  "source": "remove_unused_import_source4.bal",
   "expected": [
     {
       "title": "Remove all unused imports",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +26,7 @@
     },
     {
       "title": "Remove unused import 'ballerina/lang.array'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

@@ -1,5 +1,8 @@
 {
-  "line": 1,
-  "character": 6,
+  "position": {
+    "line": 1,
+    "character": 6
+  },
+  "source": "importModule2.bal",
   "expected": []
 }

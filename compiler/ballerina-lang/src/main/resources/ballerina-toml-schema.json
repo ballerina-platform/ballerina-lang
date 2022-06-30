@@ -121,6 +121,12 @@
             "type": "string"
           }
         },
+        "include": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
         "distribution": {
           "type": "string"
         },

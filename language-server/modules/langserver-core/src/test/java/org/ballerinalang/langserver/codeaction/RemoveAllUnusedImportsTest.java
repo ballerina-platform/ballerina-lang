@@ -36,17 +36,16 @@ public class RemoveAllUnusedImportsTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"remove_all_unused_imports_config1.json", "remove_all_unused_imports_source1.bal"},
-                {"remove_all_unused_imports_config2.json", "remove_all_unused_imports_source2.bal"},
-                {"remove_all_unused_imports_config2.json", "remove_all_unused_imports_source2.bal"},
+                {"remove_all_unused_imports_config1.json"},
+                {"remove_all_unused_imports_config2.json"},
         };
     }
 }

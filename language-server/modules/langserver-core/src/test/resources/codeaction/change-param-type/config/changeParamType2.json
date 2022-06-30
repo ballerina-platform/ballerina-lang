@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 5,
-    "character": 12,
-    "expected": [
+    "character": 12
+  },
+  "source": "changeParamType.bal",
+  "expected": [
+    {
+      "title": "Change parameter \u0027b\u0027 type to \u0027int\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Change parameter 'b' type to 'int'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 4,
-                            "character": 21
-                        },
-                        "end": {
-                            "line": 4,
-                            "character": 28
-                        }
-                    },
-                    "newText": "int"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 21
+            },
+            "end": {
+              "line": 4,
+              "character": 28
+            }
+          },
+          "newText": "int"
         }
-    ]
+      ]
+    }
+  ]
 }

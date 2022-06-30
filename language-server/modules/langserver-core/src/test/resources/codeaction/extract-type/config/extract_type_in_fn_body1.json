@@ -1,9 +1,13 @@
 {
-  "line": 2,
-  "character": 15,
+  "position": {
+    "line": 2,
+    "character": 15
+  },
+  "source": "extract_type_in_fn_body1.bal",
   "expected": [
     {
       "title": "Extract type",
+      "kind": "refactor.extract",
       "edits": [
         {
           "range": {

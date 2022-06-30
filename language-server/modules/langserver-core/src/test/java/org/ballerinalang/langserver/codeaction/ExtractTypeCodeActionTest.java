@@ -30,20 +30,20 @@ public class ExtractTypeCodeActionTest extends AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
     @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"extract_type_in_return_type_desc1.json", "extract_type_in_return_type_desc1.bal"},
-                {"extract_type_in_return_type_desc2.json", "extract_type_in_return_type_desc1.bal"},
-                {"extract_type_in_fn_body1.json", "extract_type_in_fn_body1.bal"},
-                {"extract_type_in_fn_body2.json", "extract_type_in_fn_body2.bal"},
-                {"extract_type_in_fn_body3.json", "extract_type_in_fn_body3.bal"},
-                {"extract_type_in_resource_fn1.json", "extract_type_in_resource_fn1.bal"}
+                {"extract_type_in_return_type_desc1.json"},
+                {"extract_type_in_return_type_desc2.json"},
+                {"extract_type_in_fn_body1.json"},
+                {"extract_type_in_fn_body2.json"},
+                {"extract_type_in_fn_body3.json"},
+                {"extract_type_in_resource_fn1.json"}
         };
     }
 
