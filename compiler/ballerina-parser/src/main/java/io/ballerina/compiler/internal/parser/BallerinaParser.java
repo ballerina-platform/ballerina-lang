@@ -11388,8 +11388,11 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseMemberDescriptor() {
         STNode annot = parseOptionalAnnotations();
         STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-        STNode tupleMemberRhs = parseTypeDescInTupleRhs();
+        return createMemberOrRestNode(annot, typeDesc);
+    }
 
+    private STNode createMemberOrRestNode(STNode annot, STNode typeDesc) {
+        STNode tupleMemberRhs = parseTypeDescInTupleRhs();
         if (tupleMemberRhs != null) {
             if (!((STNodeList) annot).isEmpty()) {
                 typeDesc = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typeDesc, annot,
@@ -11399,7 +11402,6 @@ public class BallerinaParser extends AbstractParser {
         }
         return STNodeFactory.createMemberTypeDescriptorNode(annot, typeDesc);
     }
-
     private STNode invalidateTypeDescAfterRestDesc(STNode restDescriptor) {
         while (!isEndOfTypeList(peek().kind)) {
             STNode tupleMemberRhs = parseTupleMemberRhs();
@@ -16974,8 +16976,7 @@ public class BallerinaParser extends AbstractParser {
                 case TUPLE_TYPE_DESC:
                     // If the member type was figured out as a tuple-type-desc member, then parse the
                     // remaining members as tuple type members and be done with it.
-                    member = STNodeFactory.createMemberTypeDescriptorNode(STNodeFactory.createEmptyNodeList(),
-                            member);
+                    member = createMemberOrRestNode(STNodeFactory.createEmptyNodeList(), member);
                     return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
                 case MEMBER_TYPE_DESC:
                     return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
@@ -17086,9 +17087,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 return parseAnonFuncExprOrFuncTypeDesc(qualifiers);
             case AT_TOKEN:
-                STNode annot = parseAnnotation();
-                STNode typedesc = parseTypeDescriptor(qualifiers, ParserRuleContext.TYPE_DESC_IN_TUPLE);
-                return STNodeFactory.createMemberTypeDescriptorNode(annot, typedesc);
+                return parseMemberDescriptor();
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     reportInvalidQualifierList(qualifiers);
@@ -17162,8 +17161,7 @@ public class BallerinaParser extends AbstractParser {
                 case TUPLE_TYPE_DESC:
                     // If the member type was figured out as a tuple-type-desc member, then parse the
                     // remaining members as tuple type members and be done with it.
-                    member = STNodeFactory.createMemberTypeDescriptorNode(STNodeFactory.createEmptyNodeList(),
-                            member);
+                    member = createMemberOrRestNode(STNodeFactory.createEmptyNodeList(), member);
                     return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
                 case MEMBER_TYPE_DESC:
                     return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
@@ -17227,9 +17225,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseTypeDescOrExpr();
             case AT_TOKEN:
-                STNode annot = parseAnnotation();
-                STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-                return STNodeFactory.createMemberTypeDescriptorNode(annot, typedesc);
+                return parseMemberDescriptor();
             default:
                 if (isValidExpressionStart(nextToken.kind, 1)) {
                     return parseExpression(false);
