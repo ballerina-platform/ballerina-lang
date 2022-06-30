@@ -16,6 +16,7 @@
  */
 package io.ballerina.runtime.internal.scheduling;
 
+import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
@@ -65,65 +66,106 @@ public class RuntimeRegistry {
     }
 
     public synchronized void gracefulStop(Strand strand) {
-        Scheduler scheduler = strand.scheduler;
+        Scheduler currentScheduler = strand.scheduler;
         if (listenerSet.isEmpty() && stopHandlerStack.isEmpty()) {
             return;
         }
 
         if (listenerSet.isEmpty()) {
-            invokeStopHandlerFunction(strand, scheduler);
+            invokeStopHandlerFunction(strand, currentScheduler);
         } else {
-            invokeListenerGracefulStop(strand, scheduler);
+            Iterator<BObject> iterator = listenerSet.iterator();
+            invokeListenerGracefulStop(strand, currentScheduler, iterator);
         }
     }
 
-    private void invokeListenerGracefulStop(Strand strand, Scheduler scheduler) {
-        Iterator<BObject> itr = listenerSet.iterator();
-        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
-            @Override
-            public void notifySuccess(Object result) {
-                if (itr.hasNext()) {
-                    invokeListenerGracefulStop(strand, scheduler);
-                } else {
-                    if (stopHandlerStack.isEmpty()) {
-                        return;
-                    }
-                    invokeStopHandlerFunction(strand, scheduler);
-                }
-            }
-
-            @Override
-            public void notifyFailure(BError error) {
-                outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
-            }
-        };
-
-        BObject listener = itr.next();
+    private void invokeListenerGracefulStop(Strand strand, Scheduler scheduler, Iterator<BObject> iterator) {
+        ListenerCallback callback = new ListenerCallback();
+        BObject listener = iterator.next();
         Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
+        callback.setIterator(iterator);
         callback.setStrand(strand);
+        callback.setScheduler(scheduler);
         scheduler.schedule(new Object[1], func, null, callback, null, null,
                 null, strand.getMetadata());
     }
 
     private void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
         BFunctionPointer<?, ?> bFunctionPointer = stopHandlerStack.pop();
-        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
-            @Override
-            public void notifySuccess(Object result) {
+        StopHandlerCallback callback = new StopHandlerCallback();
+        final FutureValue future = scheduler.createFuture(strand, callback, null,
+                ((BFunctionType) bFunctionPointer.getType()).retType, null, strand.getMetadata());
+        callback.setStrand(strand);
+        callback.setScheduler(scheduler);
+        scheduler.scheduleLocal(new Object[]{strand}, bFunctionPointer, strand, future);
+    }
+
+    /**
+     * The callback implementation for runtime dynamic listeners.
+     */
+    public class ListenerCallback implements Callback {
+
+        private Iterator<BObject> iterator;
+        private Strand strand;
+        private Scheduler scheduler;
+
+        @Override
+        public void notifySuccess(Object result) {
+            if (iterator.hasNext()) {
+                invokeListenerGracefulStop(strand, scheduler, iterator);
+            } else {
                 if (stopHandlerStack.isEmpty()) {
                     return;
                 }
                 invokeStopHandlerFunction(strand, scheduler);
             }
+        }
 
-            @Override
-            public void notifyFailure(BError error) {
-                outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+        @Override
+        public void notifyFailure(BError error) {
+            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+        }
+
+        public void setStrand(Strand strand) {
+            this.strand = strand;
+        }
+
+        public void setIterator(Iterator<BObject> iterator) {
+            this.iterator = iterator;
+        }
+
+        public void setScheduler(Scheduler scheduler) {
+            this.scheduler = scheduler;
+        }
+    }
+
+    /**
+     * The callback implementation for stop handlers.
+     */
+    public class StopHandlerCallback implements Callback {
+
+        private Strand strand;
+        private Scheduler scheduler;
+
+        @Override
+        public void notifySuccess(Object result) {
+            if (stopHandlerStack.isEmpty()) {
+                return;
             }
-        };
-        final FutureValue future = scheduler.createFuture(strand, callback, null,
-                ((BFunctionType) bFunctionPointer.getType()).retType, null, strand.getMetadata());
-        callback.setStrand(strand);
-        scheduler.scheduleLocal(new Object[]{strand}, bFunctionPointer, strand, future);
+            invokeStopHandlerFunction(strand, scheduler);
+        }
+
+        @Override
+        public void notifyFailure(BError error) {
+            outStream.println(ERROR_PRINT_PREFIX + error.getPrintableStackTrace());
+        }
+
+        public void setStrand(Strand strand) {
+            this.strand = strand;
+        }
+
+        public void setScheduler(Scheduler scheduler) {
+            this.scheduler = scheduler;
+        }
     }
 }
