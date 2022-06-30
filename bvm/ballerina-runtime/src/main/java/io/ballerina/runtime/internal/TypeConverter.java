@@ -62,7 +62,6 @@ import java.util.function.Supplier;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
@@ -402,7 +401,7 @@ public class TypeConverter {
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors) {
 
-        int targetTypeTag = getReferredType(targetType).getTag();
+        int targetTypeTag = targetType.getReferredType().getTag();
 
         List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
                 varName, true, unresolvedValues, errors, false));
