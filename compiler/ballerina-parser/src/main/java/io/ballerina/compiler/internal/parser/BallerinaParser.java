@@ -290,10 +290,10 @@ public class BallerinaParser extends AbstractParser {
      */
     public STNode parseAsObjectMember() {
         startContext(ParserRuleContext.COMP_UNIT);
-        STNode serviceMemberDeclaration = parseObjectMember(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
+        STNode objectMember = parseObjectMember(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
 
-        serviceMemberDeclaration = invalidateRestAndAddToTrailingMinutiae(serviceMemberDeclaration);
-        return serviceMemberDeclaration;
+        objectMember = invalidateRestAndAddToTrailingMinutiae(objectMember);
+        return objectMember;
     }
 
     /**
