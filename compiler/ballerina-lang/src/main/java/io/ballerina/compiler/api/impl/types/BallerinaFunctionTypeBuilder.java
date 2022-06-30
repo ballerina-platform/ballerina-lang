@@ -28,6 +28,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -57,13 +58,10 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     private ParameterSymbol restParam;
     private TypeSymbol returnTypeSymbol;
 
-    public PARAMETER_BUILDER PARAM_BUILDER;
-
     public BallerinaFunctionTypeBuilder(CompilerContext context) {
         this.context = context;
         typesFactory = TypesFactory.getInstance(context);
         symTable = SymbolTable.getInstance(context);
-        PARAM_BUILDER = new ParameterBuilder(context);
     }
 
     @Override
@@ -103,7 +101,14 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
                 symTable.builtinPos, COMPILED_SOURCE);
         tSymbol.returnType = returnType;
         tSymbol.params = getBParamSymbols(parameterSymbols);
-        tSymbol.restParam = restParam != null ? (BVarSymbol) ((BallerinaSymbol) restParam).getInternalSymbol() : null;
+        tSymbol.restParam = null;
+        if (restParam != null) {
+            BSymbol internalSymbol = ((BallerinaSymbol) restParam).getInternalSymbol();
+            if (internalSymbol instanceof BVarSymbol) {
+                tSymbol.restParam = (BVarSymbol) internalSymbol;
+            }
+        }
+
         BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, returnType, tSymbol);
         FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typesFactory.getTypeDescriptor(bInvokableType);
         parameterSymbols.clear();
@@ -116,7 +121,10 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     private List<BVarSymbol> getBParamSymbols(List<ParameterSymbol> parameterSymbols) {
         List<BVarSymbol> params = new ArrayList<>();
         for (ParameterSymbol parameterSymbol : parameterSymbols) {
-            params.add((BVarSymbol) ((BallerinaSymbol) parameterSymbol).getInternalSymbol());
+            BSymbol internalSymbol = ((BallerinaSymbol) parameterSymbol).getInternalSymbol();
+            if (internalSymbol instanceof BVarSymbol) {
+                params.add((BVarSymbol) internalSymbol);
+            }
         }
 
         return params;
@@ -204,6 +212,8 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
                         break;
                     case INCLUDED_RECORD:
                         flags = Flags.INCLUDED;
+                        break;
+                    default:
                         break;
                 }
             }

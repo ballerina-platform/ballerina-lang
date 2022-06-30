@@ -26,7 +26,6 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -200,11 +199,11 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
         BType rowBType = getBType(rowType);
         if (types.isAssignable(rowBType, symTable.mapType)) {
-            if (rowBType.getKind() == TypeKind.RECORD) {
+            if (rowBType instanceof BRecordType) {
                 if (isValidRowRecordType((BRecordType) rowBType)) {
                     return rowBType;
                 }
-            } else if (rowBType.getKind() == TypeKind.MAP) {
+            } else if (rowBType instanceof BMapType) {
                 BMapType rowMapType = (BMapType) rowBType;
                 BType mapTypeConstraint = rowMapType.getConstraint();
                 if (types.isAssignable(mapTypeConstraint, symTable.pureType)) {
