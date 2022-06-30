@@ -41,6 +41,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -120,6 +121,7 @@ public abstract class BalaWriter {
                       this.packageContext.project().sourceRoot(),
                       this.packageContext.packageName().toString());
         addPackageSource(balaOutputStream);
+        addIncludes(balaOutputStream);
         Optional<JsonArray> platformLibs = addPlatformLibs(balaOutputStream);
         addPackageJson(balaOutputStream, platformLibs);
 
@@ -149,6 +151,7 @@ public abstract class BalaWriter {
         packageJson.setSourceRepository(packageManifest.repository());
         packageJson.setKeywords(packageManifest.keywords());
         packageJson.setExport(packageManifest.exportedModules());
+        packageJson.setInclude(packageManifest.includes());
         packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
 
@@ -161,7 +164,7 @@ public abstract class BalaWriter {
             packageJson.setPlatformDependencies(platformLibs.get());
         }
 
-        // Set icon in bala path ion the package.json
+        // Set icon in bala path in the package.json
         if (packageManifest.icon() != null && !packageManifest.icon().isEmpty()) {
             Path iconPath = getIconPath(packageManifest.icon());
             packageJson.setIcon(String.valueOf(Paths.get(BALA_DOCS_DIR).resolve(iconPath.getFileName())));
@@ -265,6 +268,23 @@ public abstract class BalaWriter {
         }
     }
 
+    private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
+        // adds all the includes to the root dir
+        List<String> includes = this.packageContext.packageManifest().includes();
+        for (String include : includes) {
+            Path includePath = Path.of(include);
+            if (!includePath.isAbsolute()) {
+                includePath = this.packageContext.project().sourceRoot().resolve(include);
+            }
+            Path includeInBala = getPathRelativeToPackageRoot(includePath);
+            if (includePath.toFile().isDirectory()) {
+                putDirectoryToZipFile(includePath, includeInBala, balaOutputStream);
+            } else {
+                putZipEntry(balaOutputStream, includeInBala, new FileInputStream(String.valueOf(includePath)));
+            }
+        }
+    }
+
     private void addDependenciesJson(ZipOutputStream balaOutputStream) {
         PackageCache packageCache = this.packageContext.project().projectEnvironmentContext()
                 .getService(PackageCache.class);
@@ -282,6 +302,27 @@ public abstract class BalaWriter {
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
+    }
+
+    private Path getPathRelativeToPackageRoot(Path absolutePath) {
+        URI packagePathURI = this.packageContext.project().sourceRoot().toUri();
+        URI relativePathURI = packagePathURI.relativize(absolutePath.toUri());
+        Path relativePath = Paths.get(relativePathURI.getPath());
+        return updateModuleDirectory(relativePath);
+    }
+
+    private Path updateModuleDirectory(Path relativePath) {
+        Path moduleRootPath = Path.of(MODULES_ROOT);
+        if (relativePath.startsWith(moduleRootPath)) {
+            String packageName = this.packageContext.packageName().toString();
+            Path modulePath = moduleRootPath.resolve(moduleRootPath.relativize(relativePath).subpath(0, 1));
+            Path pathInsideModule = modulePath.relativize(relativePath);
+            String moduleName = Optional.ofNullable(modulePath.getFileName()).orElse(Paths.get("")).toString();
+            String updatedModuleName = packageName + "." + moduleName;
+            Path updatedModulePath = moduleRootPath.resolve(updatedModuleName);
+            return updatedModulePath.resolve(pathInsideModule);
+        }
+        return relativePath;
     }
 
     private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
