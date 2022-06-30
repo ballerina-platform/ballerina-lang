@@ -23,9 +23,18 @@ import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
 /**
  * The implementation of the methods used to build the Array type descriptor in Types API.
@@ -35,11 +44,14 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
 
     private final TypesFactory typesFactory;
+    private final SymbolTable symTable;
     private TypeSymbol type;
     private int size;
+    private BArrayState state = BArrayState.OPEN;
 
     public BallerinaArrayTypeBuilder(CompilerContext context) {
         typesFactory = TypesFactory.getInstance(context);
+        symTable = SymbolTable.getInstance(context);
     }
 
     @Override
@@ -52,35 +64,47 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
     public TypeBuilder.ARRAY withSize(Integer size) {
         if (size != null && size >= 0) {
             this.size = size;
+            state = BArrayState.CLOSED;
         } else {
             this.size = -1;
+            state = BArrayState.OPEN;
         }
 
         return this;
     }
 
     @Override
+    public TypeBuilder.ARRAY withInferredSize() {
+        state = BArrayState.INFERRED;
+        size = -2;
+
+        return this;
+    }
+
+    @Override
     public ArrayTypeSymbol build() {
-        BArrayType arrayType = new BArrayType(getBType(type));
-        arrayType.size = size;
+        BTypeSymbol arraytSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+
+        BArrayType arrayType = new BArrayType(getBType(type), arraytSymbol, size, state);
+        arraytSymbol.type = arrayType;
         ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typesFactory.getTypeDescriptor(arrayType);
         this.size = -1;
         this.type = null;
+        this.state = BArrayState.OPEN;
 
         return arrayTypeSymbol;
     }
 
     private BType getBType(TypeSymbol type) {
-        if (type != null) {
-            if (type.typeKind() == TypeDescKind.ARRAY) {
-                throw new IllegalArgumentException("Invalid array member type descriptor provided");
-            }
-
-            if (type instanceof AbstractTypeSymbol) {
-                return ((AbstractTypeSymbol) type).getBType();
-            }
+        if (type == null) {
+            throw new IllegalArgumentException("Array member type descriptor can not be null");
         }
 
-        throw new IllegalArgumentException("Array member type descriptor can not be null");
+        if (type.typeKind() == TypeDescKind.ARRAY || !(type instanceof AbstractTypeSymbol)) {
+            throw new IllegalArgumentException("Invalid array member type descriptor provided");
+        }
+
+        return ((AbstractTypeSymbol) type).getBType();
     }
 }
