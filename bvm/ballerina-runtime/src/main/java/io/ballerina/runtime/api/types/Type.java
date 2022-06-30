@@ -91,6 +91,10 @@ public interface Type {
     @Deprecated
     void setImmutableType(IntersectionType immutableType);
 
+    /**
+     * Get the referred type of the type if it is a type-reference type.
+     * @return the referred type
+     */
     Type getReferredType();
 
     Module getPkg();
