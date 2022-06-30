@@ -126,7 +126,7 @@
 
             <!--Actions-->
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInQueryActionsTest" />
-            <class name="io.ballerina.semantic.api.test.actions.SymbolsInResourceAccessAction" />
+            <class name="io.ballerina.semantic.api.test.actions.SymbolsInResourceAccessActionTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInSendReceiveFlushActionsTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInStartActionsTest" />
             <class name="io.ballerina.semantic.api.test.actions.SymbolsInTypeCastActionsTest" />

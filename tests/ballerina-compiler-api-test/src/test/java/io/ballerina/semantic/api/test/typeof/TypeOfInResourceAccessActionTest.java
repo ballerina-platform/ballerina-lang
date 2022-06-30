@@ -37,6 +37,8 @@ import static org.testng.Assert.assertTrue;
 
 /**
  * Tests cases for testing typeOf() with resource access action.
+ *
+ * @since 2201.2.0
  */
 public class TypeOfInResourceAccessActionTest {
 
