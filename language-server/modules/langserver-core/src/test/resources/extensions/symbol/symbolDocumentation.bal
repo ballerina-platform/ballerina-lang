@@ -1,4 +1,5 @@
 import ballerina/module1;
+import ballerina/lang.'string;
 
 # Adds two integers.
 
@@ -20,6 +21,10 @@ public function main() returns error? {
     Counter counter = new (12);
     File f = check new File("test.txt", "Hello World");
     Person pr = new;
+    int leng = "test".length();
+    int length2 = 'string:length("test");
+    Student student = new("Ballerina");
+    int stId = student -> setId(1);
 }
 
 # Creates and returns a `Person` object given the parameters.
@@ -70,5 +75,22 @@ class Person {
 
     function getName() returns string {
         return self.name;
+    }
+}
+
+public client class Student {
+    string name;
+    int id;
+
+    function init(string name) {
+        self.name = name;
+    }
+    # Set the Id of the student
+    #
+    # + id - Id of the student
+    # + return - Student id
+    remote function setId(int id) returns int {
+        self.id = id;
+        return self.id;
     }
 }
