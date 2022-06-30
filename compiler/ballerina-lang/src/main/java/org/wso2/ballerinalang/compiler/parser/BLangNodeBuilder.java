@@ -746,8 +746,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     if (!param.name.value.equals(Names.EMPTY.value)) {
                         params.add(param);
                         bLFunction.addPathParam(param);
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+                    } else {
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment),
+                                param.typeNode.toString()));
                     }
-                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
+
                     tupleTypeNode.memberTypeNodes.add(param.typeNode);
                     break;
                 case RESOURCE_PATH_REST_PARAM:
@@ -755,8 +759,12 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                     if (!restParam.name.value.equals(Names.EMPTY.value)) {
                         params.add(restParam);
                         bLFunction.setRestPathParam(restParam);
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                    } else {
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment),
+                                restParam.typeNode.toString()));
                     }
-                    bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
+                    
                     tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
                     break;
                 case DOT_TOKEN:

@@ -28,6 +28,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -6395,9 +6396,62 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation pathParamInvocation = createInvocationForPathParams(resourceAccessInvocation);
         reorderArguments(pathParamInvocation);
 
+        BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
+        List<Name> resourcePath = targetResourceFunc.resourcePath;
+
+        int pathParamInvocationRequiredArgCount = pathParamInvocation.requiredArgs.size();
+
         BLangInvocation bLangInvocation = new BLangInvocation();
-        bLangInvocation.requiredArgs.addAll(pathParamInvocation.requiredArgs);
-        bLangInvocation.requiredArgs.addAll(pathParamInvocation.restArgs);
+
+        // After reordering we have one to one mapping from resource access segments to resource path segments
+        // We need to select only the arguments that are required as path parameters from the pathParamInvocation and
+        // add them to final bLangInvocation.
+        // In the case that the rest arg provides value(requiredArg) for required parameter, 
+        // `reorderArguments` logic will create statement expression which contains a virtual variable referring to 
+        // rest arg inside that value. 
+        // If that value is not needed by the path parameters, we need to make sure that virtual variable is 
+        // included in an argument that is needed by path parameters. Otherwise we will get NPE in later stages.
+        BLangStatementExpression firstRequiredArgFromRestArg = null;
+        boolean isFirstRequiredArgFromRestArgIncluded = false;
+        for (int i = 0; i < pathParamInvocationRequiredArgCount; i++) {
+            BLangExpression requiredArg = pathParamInvocation.requiredArgs.get(i);
+            // Resource path size is always >= pathParamInvocationRequiredArgCount
+            Name resourcePathName = resourcePath.get(i);
+            if (firstRequiredArgFromRestArg == null && requiredArg.getKind() == NodeKind.STATEMENT_EXPRESSION) {
+                firstRequiredArgFromRestArg = (BLangStatementExpression) requiredArg;
+                if (resourcePathName.value.equals("*")) {
+                    isFirstRequiredArgFromRestArgIncluded = true;
+                }
+            }
+
+            if (resourcePathName.value.equals("*")) {
+                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded && 
+                        requiredArg.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+                    BLangStatementExpression statementExpression = new BLangStatementExpression();
+                    statementExpression.expr = requiredArg;
+                    statementExpression.stmt = firstRequiredArgFromRestArg.stmt;
+                    statementExpression.setBType(requiredArg.getBType());
+                    bLangInvocation.requiredArgs.add(statementExpression);
+                } else {
+                    bLangInvocation.requiredArgs.add(requiredArg);
+                }
+            }
+        }
+
+        Name lastResourcePathName = resourcePath.get(resourcePath.size() - 1);
+        if (lastResourcePathName.value.equals("**")) {
+            // After reordering pathParamInvocation.restArgs size will always be 0 or 1
+            for (BLangExpression restArg : pathParamInvocation.restArgs) {
+                if (firstRequiredArgFromRestArg != null && !isFirstRequiredArgFromRestArgIncluded &&
+                        restArg.getKind() == NodeKind.STATEMENT_EXPRESSION) {
+                    BLangStatementExpression restArgStmtExpr = (BLangStatementExpression) restArg;
+                    ((BLangBlockStmt) restArgStmtExpr.stmt).stmts.add(0, 
+                            ((BLangBlockStmt) firstRequiredArgFromRestArg.stmt).stmts.get(0));
+                }
+                bLangInvocation.requiredArgs.add(restArg);
+            }
+        }
+        
         bLangInvocation.requiredArgs.addAll(resourceAccessInvocation.requiredArgs);
         bLangInvocation.pkgAlias = resourceAccessInvocation.pkgAlias;
         bLangInvocation.name = resourceAccessInvocation.name;
@@ -6413,35 +6467,30 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangInvocation createInvocationForPathParams(
             BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        // This method will create an invocation in which all the resource path types will be a parameter of the 
+        // invokable symbol and all the path segments will be the arguments.
+        // ex: 1
+        // Target resource function
+        // resource function get path/[int b](string c) returns int {
+        //      return 3;
+        // }
+        // a->/path/[1].get("hello")
+        // 
+        // Generated invokable symbol params: ("path" _, int _)
+        // Generated invocation requiredArgs: ("path, 1)
+        //
+        // ex:2
+        // Target resource function
+        // resource function post books/["books"... a]() returns string[] {
+        //      return a;
+        // }
+        // "books"[2] booksArray = ["books", "books"];
+        // string[] b7 = myClient->/[...booksArray].post;
+        //
+        // Generated invokable symbol params: ("books" _)
+        // Generated invokable symbol restParam: "books"[]
+        // Generated invocation restArgs: BLangRestArgsExpression booksArray
         BLangInvocation bLangInvocation = new BLangInvocation();
-
-        BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
-        List<Name> resourcePath = targetResourceFunc.resourcePath;
-        List<BLangExpression> resourceAccessPathSegments = resourceAccessInvocation.resourceAccessPathSegments.exprs;
-        for (int i = 0; i < resourcePath.size(); i++) {
-            Name resourcePathName = resourcePath.get(i);
-            if (!(resourcePathName.value.equals("*") || resourcePathName.value.equals("**"))) {
-                continue;
-            }
-
-            BLangExpression requiredArg = resourceAccessPathSegments.get(i);
-            if (requiredArg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
-                BLangExpression expr = ((BLangListConstructorSpreadOpExpr) requiredArg).expr;
-                BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
-                bLangRestArgsExpression.expr = expr;
-                bLangRestArgsExpression.pos = expr.pos;
-                bLangRestArgsExpression.setBType(expr.getBType());
-                bLangRestArgsExpression.expectedType = bLangRestArgsExpression.getBType();
-                bLangInvocation.restArgs.add(bLangRestArgsExpression);
-                break;
-            }
-
-            if (resourcePathName.value.equals("*")) {
-                bLangInvocation.requiredArgs.add(resourceAccessPathSegments.get(i));
-            } else {
-                bLangInvocation.restArgs = resourceAccessPathSegments.subList(i, resourceAccessPathSegments.size());
-            }
-        }
 
         BInvokableSymbol invokableSymbol = new BInvokableSymbol(
                 resourceAccessInvocation.symbol.tag,
@@ -6452,11 +6501,53 @@ public class Desugar extends BLangNodeVisitor {
                 resourceAccessInvocation.symbol.scope.owner,
                 resourceAccessInvocation.symbol.pos, VIRTUAL);
 
-        invokableSymbol.params = targetResourceFunc.pathParams;
-        invokableSymbol.restParam = targetResourceFunc.restPathParam;
-        bLangInvocation.symbol = invokableSymbol;
+        BResourceFunction targetResourceFunc = resourceAccessInvocation.targetResourceFunc;
+        List<Name> resourcePath = targetResourceFunc.resourcePath;
+        List<BLangExpression> resourceAccessPathSegments = resourceAccessInvocation.resourceAccessPathSegments.exprs;
         
+        List<BVarSymbol> invocationParams = new ArrayList<>(resourcePath.size());
+        BTupleType resourcePathType = targetResourceFunc.resourcePathType;
+        for (BType type : resourcePathType.tupleTypes) {
+            BVarSymbol param = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID, type,
+                    this.env.scope.owner, type.tsymbol.pos, VIRTUAL);
+            invocationParams.add(param);
+        }
+        
+        invokableSymbol.params = invocationParams;
+
+        BType resourcePathRestType = resourcePathType.restType;
+        if (resourcePathRestType != null) {
+            invokableSymbol.restParam = new BVarSymbol(0, Names.EMPTY, this.env.scope.owner.pkgID,
+                    new BArrayType(resourcePathRestType), this.env.scope.owner, 
+                    resourcePathRestType.tsymbol.pos, VIRTUAL);
+        }
+
+        bLangInvocation.symbol = invokableSymbol;
+
+        for (int i = 0;  i < resourceAccessPathSegments.size() ; i++) {
+            BLangExpression resourceAccessPathSeg = resourceAccessPathSegments.get(i);
+            if (resourceAccessPathSeg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
+                bLangInvocation.restArgs.add(createRestArgsExpressionFromSpreadExpr(
+                        (BLangListConstructorSpreadOpExpr) resourceAccessPathSeg));
+            } else if (i > invocationParams.size() - 1) {
+                bLangInvocation.restArgs.add(resourceAccessPathSeg);
+            } else {
+                bLangInvocation.requiredArgs.add(resourceAccessPathSeg);
+            }
+        }
+
         return bLangInvocation;
+    }
+    
+    private BLangRestArgsExpression createRestArgsExpressionFromSpreadExpr(
+            BLangListConstructorSpreadOpExpr spreadOpExpr) {
+        BLangExpression expr = spreadOpExpr.expr;
+        BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
+        bLangRestArgsExpression.expr = expr;
+        bLangRestArgsExpression.pos = expr.pos;
+        bLangRestArgsExpression.setBType(expr.getBType());
+        bLangRestArgsExpression.expectedType = bLangRestArgsExpression.getBType();
+        return bLangRestArgsExpression;
     }
     
     private void rewriteInvocation(BLangInvocation invocation, boolean async) {
