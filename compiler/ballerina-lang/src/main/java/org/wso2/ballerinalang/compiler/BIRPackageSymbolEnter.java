@@ -239,7 +239,7 @@ public class BIRPackageSymbolEnter {
         // TODO Validate this pkdID with the requestedPackageID available in the env.
 
         // Define import packages.
-        defineSymbols(dataInStream, rethrow(dataInStream1 -> defineImportPackage(pkgNode, dataInStream1)));
+        defineSymbols(dataInStream, rethrow(dataInputStream -> defineImportPackage(pkgNode, dataInputStream)));
 
         // Define constants.
         defineSymbols(dataInStream, rethrow(this::defineConstant));
