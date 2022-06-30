@@ -64,7 +64,9 @@ public class Call {
             throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
                         BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_ARGUMENTS,
-                        new BTupleType(paramTypes, restType, 0, false), new BTupleType(argTypes)));
+                        new BTupleType(paramTypes, restType, 0, false)
+                                .toString().replace("[", "").replace("]", ""),
+                        new BTupleType(argTypes).toString().replace("[", "").replace("]", "")));
         }
 
         return func.asyncCall(argsList.toArray(), METADATA);
