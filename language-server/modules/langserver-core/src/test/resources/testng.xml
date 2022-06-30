@@ -52,6 +52,7 @@ under the License.
             <package name="org.ballerinalang.langserver.performance.*"/>
             <package name="org.ballerinalang.langserver.workspace.*"/>
             <package name="org.ballerinalang.langserver.exprscheme.*"/>
+            <package name="org.ballerinalang.langserver.eventsync.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest"/>

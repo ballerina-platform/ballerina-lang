@@ -1,9 +1,13 @@
 {
-  "line": 12,
-  "character": 14,
+  "position": {
+    "line": 12,
+    "character": 14
+  },
+  "source": "ignore_unused_var6.bal",
   "expected": [
     {
       "title": "Ignore unused variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

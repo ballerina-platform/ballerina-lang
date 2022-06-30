@@ -127,6 +127,45 @@ function testCaptureBindingPattern5() {
     assertEquals("No match", captureBindingPattern5({b: 3}));
 }
 
+function captureBindingPattern6(int|boolean a) returns string {
+    match a {
+        var x if a is int|string => {
+            return x.toString();
+        }
+        var y if a is int|int[] => {
+            return y.toString();
+        }
+        _ => {
+            return "no match";
+        }
+    }
+}
+
+function testCaptureBindingPattern6() {
+    assertEquals(captureBindingPattern6(23), "23");
+    assertEquals(captureBindingPattern6(true), "no match");
+}
+
+function captureBindingPattern7(int|float|boolean a) returns string {
+    match a {
+        var x if a is int|float|string => {
+            return x.toString();
+        }
+        var y if a is int|int[] => {
+            return y.toString();
+        }
+        _ => {
+            return "no match";
+        }
+    }    
+}
+
+function testCaptureBindingPattern7() {
+    assertEquals(captureBindingPattern7(1.2f), "1.2");
+    assertEquals(captureBindingPattern7(22), "22");
+    assertEquals(captureBindingPattern7(true), "no match");
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

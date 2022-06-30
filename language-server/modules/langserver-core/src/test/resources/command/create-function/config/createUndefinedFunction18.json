@@ -1,40 +1,41 @@
 {
-    "arguments": {
-        "node.range": {
-            "start": {
-                "line": 1,
-                "character": 14
-            },
-            "end": {
-                "line": 1,
-                "character": 24
-            }
-        }
-    },
-    "expected": {
-        "result": {
-            "edit": {
-                "documentChanges": [
-                    {
-                        "edits": [
-                            {
-                                "range": {
-                                    "start": {
-                                        "line": 2,
-                                        "character": 1
-                                    },
-                                    "end": {
-                                        "line": 2,
-                                        "character": 1
-                                    }
-                                },
-                                "newText": "\n\nfunction getValue() returns () {\n    \n}\n"
-                            }
-                        ]
-                    }
-                ]
-            }
-        },
-        "jsonrpc": "2.0"
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 1,
+        "character": 14
+      },
+      "end": {
+        "line": 1,
+        "character": 24
+      }
     }
+  },
+  "source": "createUndefinedFunction8.bal",
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 2,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 2,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction getValue() returns () {\n    return ();\n}\n"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
 }

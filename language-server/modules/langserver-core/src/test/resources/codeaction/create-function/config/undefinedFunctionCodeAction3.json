@@ -1,9 +1,13 @@
 {
-  "line": 4,
-  "character": 7,
+  "position": {
+    "line": 4,
+    "character": 7
+  },
+  "source": "createUndefinedFunction2.bal",
   "expected": [
     {
       "title": "Create function 'addTwoIntegers3(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'addTwoIntegers3(...)'",
         "command": "CREATE_FUNC",

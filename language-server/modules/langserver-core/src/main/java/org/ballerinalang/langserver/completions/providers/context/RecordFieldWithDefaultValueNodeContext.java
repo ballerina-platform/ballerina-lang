@@ -45,8 +45,7 @@ public class RecordFieldWithDefaultValueNodeContext extends
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, RecordFieldWithDefaultValueNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = 
-                this.initializerContextCompletions(ctx, node.typeName(), node.expression());
+        List<LSCompletionItem> completionItems = this.initializerContextCompletions(ctx, node.expression());
         this.sort(ctx, node, completionItems);
 
         return completionItems;

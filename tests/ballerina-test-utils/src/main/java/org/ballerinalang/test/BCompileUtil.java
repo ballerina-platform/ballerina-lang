@@ -222,6 +222,15 @@ public class BCompileUtil {
         ProjectUtils.extractBala(srcPath, targetPath);
     }
 
+    public static void copyBalaToExtractedDist(Path srcPath, String org, String pkgName, String version,
+                                               Path tempDistPath) throws IOException {
+        Path targetPath = balaCachePath(org, pkgName, version, tempDistPath).resolve("any");
+        if (Files.isDirectory(targetPath)) {
+            ProjectUtils.deleteDirectory(targetPath);
+        }
+        ProjectUtils.extractBala(srcPath, targetPath);
+    }
+
     public static ProjectEnvironmentBuilder getTestProjectEnvironmentBuilder() {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(
                 EnvironmentBuilder.buildDefault());
