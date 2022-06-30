@@ -49,6 +49,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import org.ballerinalang.langlib.value.FromJsonWithType;
@@ -292,22 +293,6 @@ public class Values {
     }
 
     public static Object validateArrayElements(Object value, BTypedesc typedesc) {
-//        Type describingType = typedesc.getDescribingType();
-//        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-//        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
-//        if (annotations.containsKey(annotKey)) {
-//            Object annotValue = annotations.get(annotKey);
-//            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
-//            for (Object element : ((BArray) value).getValues()) {
-//                if (((Long) element) >= minValue) {
-//                    return value;
-//                }
-//            }
-//        }
-//        return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
-    }
-
-    public static Object validateArrayConstraint(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
@@ -321,6 +306,39 @@ public class Values {
             }
         }
         return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+    }
+
+    public static Object validateArrayConstraint(Object value, BTypedesc typedesc) {
+        Type describingType = typedesc.getDescribingType();
+        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
+        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Array");
+        if (annotations.containsKey(annotKey)) {
+            Object annotValue = annotations.get(annotKey);
+            Long maxLength = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxLength"));
+            BArray array = (BArray) value;
+            if (maxLength < array.getLength()) {
+                return ErrorCreator.createError(
+                        StringUtils.fromString("Validation failed for 'maxLength' constraint(s)."));
+            }
+            AnnotatableType eType =
+                    (AnnotatableType) ((BArrayType) describingType.getReferredType()).getElementType()
+                            .getReferredType();
+            annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+            annotations = eType.getAnnotations();
+            if (!annotations.containsKey(annotKey)) {
+                return ErrorCreator.createError(
+                        StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+            }
+            annotValue = annotations.get(annotKey);
+            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            for (Object element : array.getValues()) {
+                if (((Long) element) < minValue) {
+                    return ErrorCreator.createError(
+                            StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+                }
+            }
+        }
+        return value;
     }
 
 }
