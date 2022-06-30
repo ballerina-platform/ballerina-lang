@@ -125,4 +125,15 @@ public class NodeParser {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parseAsTypeDescriptor().createUnlinkedFacade();
     }
+
+    /**
+     * Parses the input as a service member declaration.
+     *
+     * @param text the input
+     * @return a {@code TypeDescriptorNode}
+     */
+    public static ModuleMemberDeclarationNode parseServiceMemberDeclaration(String text) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsServiceMemberDeclaration().createUnlinkedFacade();
+    }
 }

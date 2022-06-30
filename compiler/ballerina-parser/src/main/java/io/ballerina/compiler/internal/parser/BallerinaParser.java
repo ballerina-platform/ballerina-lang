@@ -284,6 +284,19 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as a service member declaration.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsServiceMemberDeclaration() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode serviceMemberDeclaration = parseObjectMember(ParserRuleContext.OBJECT_CONSTRUCTOR_MEMBER);
+
+        serviceMemberDeclaration = invalidateRestAndAddToTrailingMinutiae(serviceMemberDeclaration);
+        return serviceMemberDeclaration;
+    }
+
+    /**
      * Start parsing the input from a given context. Supported starting points are:
      * <ul>
      * <li>Module part (a file)</li>
