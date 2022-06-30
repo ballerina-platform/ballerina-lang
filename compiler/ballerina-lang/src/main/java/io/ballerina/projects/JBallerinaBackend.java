@@ -20,7 +20,6 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
-import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
@@ -60,9 +59,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -149,7 +150,7 @@ public class JBallerinaBackend extends CompilerBackend {
         // add ballerina toml diagnostics
         diagnostics.addAll(this.packageContext.packageManifest().diagnostics().diagnostics());
         // collect compilation diagnostics
-        List<Diagnostic> moduleDiagnostics = new ArrayList<>();
+        Set<Diagnostic> moduleDiagnostics = new LinkedHashSet<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             // If modules from the current package are being processed
             // we do an overall check on the diagnostics of the package
@@ -164,10 +165,6 @@ public class JBallerinaBackend extends CompilerBackend {
             if (hasNoErrors(moduleDiagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
-            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                moduleDiagnostics.add(
-                        new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
-            }
         }
         // add compilation diagnostics
         diagnostics.addAll(moduleDiagnostics);
@@ -180,7 +177,7 @@ public class JBallerinaBackend extends CompilerBackend {
         codeGenCompleted = true;
     }
 
-    private boolean hasNoErrors(List<Diagnostic> diagnostics) {
+    private boolean hasNoErrors(Set<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                 return false;

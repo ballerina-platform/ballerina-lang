@@ -222,7 +222,8 @@ public class BIRPackageSymbolEnter {
         return definePackage(pkgNode, dataInStream, pkgCPIndex);
     }
 
-    private BPackageSymbol definePackage(BLangPackage pkgNode, DataInputStream dataInStream, int pkgCpIndex) throws IOException {
+    private BPackageSymbol definePackage(BLangPackage pkgNode, DataInputStream dataInStream,
+                                         int pkgCpIndex) throws IOException {
 
         PackageCPEntry pkgCpEntry = (PackageCPEntry) this.env.constantPool[pkgCpIndex];
 

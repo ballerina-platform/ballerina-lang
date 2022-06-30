@@ -531,6 +531,7 @@ class ModuleContext {
         moduleContext.bLangPackage = pkgNode;
         moduleContext.bPackageSymbol.exported = moduleContext.isExported();
         moduleContext.bPackageSymbol.descriptor = moduleContext.descriptor();
+        pkgNode.symbol = moduleContext.bPackageSymbol;
         packageCache.putSymbol(pkgNode.packageID, moduleContext.bPackageSymbol);
     }
 
