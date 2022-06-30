@@ -247,7 +247,7 @@ public class TypeBuildersTest {
         TypeBuilder builder = types.builder();
         TypeBuilder.TUPLE tupleType = builder.TUPLE_TYPE.withRestType(restType);
         for (TypeSymbol memberType : memberTypes) {
-            tupleType.withMemberType(memberType);
+            tupleType = tupleType.withMemberType(memberType);
         }
 
         TupleTypeSymbol tupleTypeSymbol = tupleType.build();
@@ -270,12 +270,18 @@ public class TypeBuildersTest {
     @Test(dataProvider = "arrayTypeBuilderProvider")
     public void testArrayTypeBuilder(TypeSymbol memberType, Integer size, String signature) {
         TypeBuilder builder = types.builder();
-        ArrayTypeSymbol arrayTypeSymbol = builder.ARRAY_TYPE.withType(memberType).withSize(size).build();
+        TypeBuilder.ARRAY arrayBuilder = builder.ARRAY_TYPE.withType(memberType).withSize(size);
+        if (size != null && size < 0) {
+            arrayBuilder = arrayBuilder.withInferredSize();
+        }
+
+        ArrayTypeSymbol arrayTypeSymbol = arrayBuilder.build();
         assertEquals(arrayTypeSymbol.typeKind(), ARRAY);
-        if (size != null) {
+        if (size != null && size >= 0) {
             assertTrue(arrayTypeSymbol.size().isPresent());
             assertEquals(arrayTypeSymbol.size().get(), size);
         }
+
         assertEquals(arrayTypeSymbol.signature(), signature);
     }
 
@@ -285,6 +291,7 @@ public class TypeBuildersTest {
                 {types.STRING, 5, "string[5]"},
                 {types.INT, null, "int[]"},
                 {types.BYTE, 24, "byte[24]"},
+//                {types.FLOAT, -1, "float[*]"}, // TODO: Enable after fixing #36786
         };
     }
 
@@ -293,7 +300,7 @@ public class TypeBuildersTest {
         TypeBuilder builder = types.builder();
         TypeBuilder.ERROR errorType = builder.ERROR_TYPE;
         if (line != null && column != null) {
-            errorType.withTypeParam(getTypeDefSymbol(line, column));
+            errorType = errorType.withTypeParam(getTypeDefSymbol(line, column));
         }
 
         ErrorTypeSymbol errorTypeSymbol = errorType.build();
