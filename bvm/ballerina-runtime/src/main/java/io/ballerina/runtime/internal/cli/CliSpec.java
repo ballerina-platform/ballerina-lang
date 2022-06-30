@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -81,7 +82,7 @@ public class CliSpec {
             if (typeOp.getTag() == TypeTags.ARRAY_TAG) {
                 ArrayType arrayType = (ArrayType) typeOp;
                 BArray bArray = ValueCreator.createArrayValue(arrayType, -1);
-                Type elementType = arrayType.getElementType().getReferredType();
+                Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
                 int elementCount = getElementCount(operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
                     try {
@@ -126,7 +127,7 @@ public class CliSpec {
 
     private boolean isSupportedArrayType(Type opType) {
         if (opType.getTag() == TypeTags.ARRAY_TAG) {
-            Type elementType = ((ArrayType) opType).getElementType().getReferredType();
+            Type elementType = TypeUtils.getReferredType(((ArrayType) opType).getElementType());
             return CliUtil.isSupportedType(elementType.getTag());
         }
         return false;

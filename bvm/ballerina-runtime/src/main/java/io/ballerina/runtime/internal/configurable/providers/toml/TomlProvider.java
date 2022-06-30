@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
@@ -659,7 +660,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
-        Type elementType = arrayType.getElementType().getReferredType();
+        Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
         if (isSimpleType(elementType.getTag())) {
             visitedNodes.add(tomlValue);
             tomlValue = getValueFromKeyValueNode(tomlValue);
@@ -691,9 +692,6 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
-                break;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                validateNonPrimitiveArray(tomlValue, variableName, arrayType, elementType.getReferredType());
                 break;
             default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
@@ -775,7 +773,7 @@ public class TomlProvider implements ConfigProvider {
         }
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
         validateArraySize(tomlValue, variableName, arrayType, arrayList.size());
-        validateArrayElements(variableName, arrayList, arrayType.getElementType().getReferredType());
+        validateArrayElements(variableName, arrayList, TypeUtils.getReferredType(arrayType.getElementType()));
     }
 
     private void validateArrayElements(String variableName, List<TomlValueNode> arrayList, Type elementType) {
@@ -837,7 +835,7 @@ public class TomlProvider implements ConfigProvider {
                 }
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = field.getFieldType().getReferredType();
+            Type fieldType = TypeUtils.getReferredType(field.getFieldType());
             String variableFieldName = variableName + "." + fieldName;
             visitedNodes.add(value);
             validateValue(value, variableFieldName, fieldType);

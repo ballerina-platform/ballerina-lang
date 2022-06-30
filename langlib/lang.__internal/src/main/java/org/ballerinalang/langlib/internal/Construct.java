@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.internal;
 
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BTypedesc;
@@ -33,7 +34,7 @@ public class Construct {
 
     public static BStream construct(BTypedesc constraintTd, BTypedesc completionTd, BObject iteratorObj) {
         return ValueCreator.createStreamValue(
-                TypeCreator.createStreamType(constraintTd.getDescribingType().getReferredType(),
-                        completionTd.getDescribingType().getReferredType()), iteratorObj);
+                TypeCreator.createStreamType(TypeUtils.getReferredType(constraintTd.getDescribingType()),
+                        TypeUtils.getReferredType(completionTd.getDescribingType())), iteratorObj);
     }
 }

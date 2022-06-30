@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
@@ -131,7 +132,7 @@ public class CloneWithType {
     }
 
     private static Type getTargetFromTypeDesc(Type targetType) {
-        Type referredType = targetType.getReferredType();
+        Type referredType = TypeUtils.getReferredType(targetType);
         if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {
             return ((TypedescType) referredType).getConstraint();
         }
