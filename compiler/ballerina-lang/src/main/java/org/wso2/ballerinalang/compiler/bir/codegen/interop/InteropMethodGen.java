@@ -301,7 +301,7 @@ public class InteropMethodGen {
             // process terminator
             if (!(terminator instanceof BIRTerminator.Return)) {
                 JvmCodeGenUtil.generateDiagnosticPos(terminator.pos, mv);
-                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null);
+                termGen.genTerminator(terminator, moduleClassName, func, funcName, -1, -1, null, -1, -1, null);
                 lastScope = JvmCodeGenUtil.getLastScopeFromTerminator(mv, basicBlock, funcName, labelGen,
                         lastScope, visitedScopesSet);
             }
@@ -309,7 +309,8 @@ public class InteropMethodGen {
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, -1, -1,
+                        terminator.pos, null, null, -1);
             }
         }
     }
