@@ -38,4 +38,12 @@ public class ParseServiceMemberDeclarationTest {
         Assert.assertEquals(serviceMemberDeclNode.kind(), SyntaxKind.OBJECT_METHOD_DEFINITION);
         Assert.assertFalse(serviceMemberDeclNode.hasDiagnostics());
     }
+
+    @Test
+    public void testObjectField() {
+        String objectField = "int x = 1;";
+        Node serviceMemberDeclNode = NodeParser.parseObjectMember(objectField);
+        Assert.assertEquals(serviceMemberDeclNode.kind(), SyntaxKind.OBJECT_FIELD);
+        Assert.assertFalse(serviceMemberDeclNode.hasDiagnostics());
+    }
 }
