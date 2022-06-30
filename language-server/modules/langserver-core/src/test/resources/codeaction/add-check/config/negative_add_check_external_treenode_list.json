@@ -1,9 +1,14 @@
 {
-  "line": 9,
-  "character": 19,
+  "line": 0,
+  "character": 0,
+  "position": {
+    "line": 9,
+    "character": 19
+  },
+  "source": "negative_add_check_external_treenode_list.bal",
   "expected": [
     {
-      "title": "Add 'check' error"
+      "title": "Add \u0027check\u0027 error"
     }
   ]
 }

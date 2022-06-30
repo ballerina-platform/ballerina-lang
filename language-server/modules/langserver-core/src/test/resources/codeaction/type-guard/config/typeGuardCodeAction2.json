@@ -1,37 +1,40 @@
 {
+  "position": {
     "line": 4,
-    "character": 6,
-    "expected": [
+    "character": 6
+  },
+  "source": "typeGuard.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "edits": [
         {
-            "title": "Create variable and type guard",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 4,
-                            "character": 13
-                        },
-                        "end": {
-                            "line": 4,
-                            "character": 13
-                        }
-                    },
-                    "newText": "\n    if bar is error {\n\n    }"
-                },
-                {
-                    "range": {
-                        "start": {
-                            "line": 4,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 4,
-                            "character": 4
-                        }
-                    },
-                    "newText": "error? bar \u003d "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 13
+            },
+            "end": {
+              "line": 4,
+              "character": 13
+            }
+          },
+          "newText": "\n    if bar is error {\n\n    }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 4
+            }
+          },
+          "newText": "error? bar \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

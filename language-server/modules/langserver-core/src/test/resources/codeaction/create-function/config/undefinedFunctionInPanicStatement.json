@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 13,
+  "position": {
+    "line": 1,
+    "character": 13
+  },
+  "source": "createUndefinedFunctionInPanicStatement.bal",
   "expected": [
     {
       "title": "Create function 'getErr(...)'",
+      "kind": "quickfix",
       "command": {
         "title": "Create function 'getErr(...)'",
         "command": "CREATE_FUNC",
@@ -12,7 +16,7 @@
             "key": "node.range",
             "value": {
               "start": {
-                "line":1,
+                "line": 1,
                 "character": 10
               },
               "end": {

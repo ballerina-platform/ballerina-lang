@@ -1,9 +1,13 @@
 {
-  "line": 4,
-  "character": 6,
+  "position": {
+    "line": 4,
+    "character": 6
+  },
+  "source": "createVariableWithFunctionType1.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 4
             }
           },
-          "newText": "(function () returns ())[] functionResult = "
+          "newText": "(function () returns ())[] functionResult \u003d "
         }
       ]
     }

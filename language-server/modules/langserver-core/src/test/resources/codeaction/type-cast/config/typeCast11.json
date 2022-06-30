@@ -1,9 +1,13 @@
 {
-  "line": 107,
-  "character": 26,
+  "position": {
+    "line": 107,
+    "character": 26
+  },
+  "source": "typeCast.bal",
   "expected": [
     {
       "title": "Add type cast",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 21
             }
           },
-          "newText": "<decimal>"
+          "newText": "\u003cdecimal\u003e"
         }
       ]
     }

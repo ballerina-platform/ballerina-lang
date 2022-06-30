@@ -1,6 +1,9 @@
 {
-  "line": 6,
-  "character": 4,
+  "position": {
+    "line": 6,
+    "character": 4
+  },
+  "source": "package_plugin_user_with_codeactions_1/main.bal",
   "expected": [
     {
       "title": "Introduce Variable",

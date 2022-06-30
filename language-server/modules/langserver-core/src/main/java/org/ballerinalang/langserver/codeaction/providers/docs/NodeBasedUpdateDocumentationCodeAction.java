@@ -32,6 +32,7 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 
 import java.util.ArrayList;
@@ -89,6 +90,7 @@ public class NodeBasedUpdateDocumentationCodeAction extends AbstractCodeActionPr
         Command command = new Command(CommandConstants.UPDATE_DOCUMENTATION_TITLE, UpdateDocumentationExecutor.COMMAND, 
                 args);
         action.setCommand(command);
+        action.setKind(CodeActionKind.Refactor);
         return Collections.singletonList(action);
     }
 
