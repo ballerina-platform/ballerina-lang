@@ -24,7 +24,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.runtime.internal.types.BTypeReferenceType;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
@@ -148,7 +147,7 @@ public class TypeUtils {
     public static Type getReferredType(Type type) {
         Type constraint = type;
         if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
-            constraint = getReferredType(((BTypeReferenceType) type).getReferredType());
+            constraint = getReferredType(type.getReferredType());
         }
         return constraint;
     }

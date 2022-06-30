@@ -61,7 +61,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
@@ -268,7 +267,7 @@ public class ConfigValueCreator {
             if (field == null) {
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = getReferredType(field.getFieldType());
+            Type fieldType = field.getFieldType().getReferredType();
             Object objectValue = createValue(value, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }

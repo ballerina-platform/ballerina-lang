@@ -66,7 +66,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.identifier.Utils.decodeIdentifier;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.checkEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
@@ -838,7 +837,7 @@ public class TomlProvider implements ConfigProvider {
                 }
                 field = Utils.createAdditionalField(recordType, fieldName, value);
             }
-            Type fieldType = getReferredType(field.getFieldType());
+            Type fieldType = field.getFieldType().getReferredType();
             String variableFieldName = variableName + "." + fieldName;
             visitedNodes.add(value);
             validateValue(value, variableFieldName, fieldType);
