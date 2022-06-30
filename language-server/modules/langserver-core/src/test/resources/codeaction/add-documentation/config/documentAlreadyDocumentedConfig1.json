@@ -1,9 +1,13 @@
 {
-  "line": 5,
-  "character": 19,
+  "position": {
+    "line": 5,
+    "character": 19
+  },
+  "source": "alreadyDocumentedSource.bal",
   "expected": [
     {
       "title": "Document all",
+      "kind": "source",
       "command": {
         "title": "Document all",
         "command": "ADD_ALL_DOC",

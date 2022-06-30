@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 7,
-    "character": 4,
-    "expected": [
+    "character": 4
+  },
+  "source": "createVariable3.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Create variable",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 7,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 7,
-                            "character": 4
-                        }
-                    },
-                    "newText": "function (string x, string y, int... args) returns () functionResult = "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "function (string x, string y, int... args) returns () functionResult \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }
