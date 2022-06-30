@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Tests for client resource access action.
  *
- * @since 2202.2.0
+ * @since 2201.2.0
  */
 public class ClientResourceAccessActionTest {
 
