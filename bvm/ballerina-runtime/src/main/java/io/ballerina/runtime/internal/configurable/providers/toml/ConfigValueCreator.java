@@ -185,6 +185,8 @@ public class ConfigValueCreator {
                     valueNode = ((TomlKeyValueNode) tomlValue).value();
                     return createArrayFromSimpleTomlValue((TomlArrayValueNode) valueNode, arrayType, elementType);
                 }
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getNonSimpleTypeArray(tomlValue, arrayType, elementType.getReferredType());
             default:
                 return getNonSimpleTypeArray(tomlValue, arrayType, ((IntersectionType) elementType).getEffectiveType());
         }

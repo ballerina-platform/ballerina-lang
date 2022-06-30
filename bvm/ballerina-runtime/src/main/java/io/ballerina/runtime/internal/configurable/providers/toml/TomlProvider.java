@@ -660,7 +660,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void validateArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
-        Type elementType = arrayType.getElementType();
+        Type elementType = arrayType.getElementType().getReferredType();
         if (isSimpleType(elementType.getTag())) {
             visitedNodes.add(tomlValue);
             tomlValue = getValueFromKeyValueNode(tomlValue);
@@ -692,6 +692,9 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
                 validateUnionValueArray(tomlValue, variableName, arrayType, (BUnionType) elementType);
+                break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                validateNonPrimitiveArray(tomlValue, variableName, arrayType, elementType.getReferredType());
                 break;
             default:
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
@@ -773,7 +776,7 @@ public class TomlProvider implements ConfigProvider {
         }
         List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
         validateArraySize(tomlValue, variableName, arrayType, arrayList.size());
-        validateArrayElements(variableName, arrayList, arrayType.getElementType());
+        validateArrayElements(variableName, arrayList, arrayType.getElementType().getReferredType());
     }
 
     private void validateArrayElements(String variableName, List<TomlValueNode> arrayList, Type elementType) {

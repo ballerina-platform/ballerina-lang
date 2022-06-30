@@ -399,8 +399,13 @@ type CustomInt PositiveInt;
 type CustomIntArray CustomInt[];
 
 function validateArray() {
-    CustomIntArray arr = [1,2,-5];
-    CustomIntArray|error a = validateArrayConstraint(arr);
+    CustomIntArray arr = [1, 2, -5];
+    CustomIntArray|error validation = validateArrayConstraint(arr);
+    if validation is error {
+        test:assertEquals(validation.message(), "Validation failed for 'minValue' constraint(s).");
+    } else {
+        test:assertFail("Expected error not found.");
+    }
 }
 
 # Validates the provided value against the configured annotations.
