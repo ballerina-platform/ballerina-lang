@@ -50,9 +50,9 @@ import java.util.Set;
 public class ValueUtils {
 
     /**
-     * Create a record value using the given package id and record type name.
+     * Create a record value using the given package ID and record type name.
      *
-     * @param packageId      the package id that the record type resides.
+     * @param packageId      the package ID that the record type resides.
      * @param recordTypeName name of the record type.
      * @return value of the record.
      */
@@ -71,38 +71,56 @@ public class ValueUtils {
     }
 
     /**
-     * Create a record value that populates record fields using the given package id, record type name and a map of
+     * Create a record value that populates record fields using the given package ID, record type name and a map of
      * field names and associated values for fields.
      *
-     * @param packageId      the package id that the record type resides.
+     * @param packageId      the package ID that the record type resides.
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
-        BMap<BString, Object> record = createRecordValue(packageId, recordTypeName);
+        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName);
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             Object val = fieldEntry.getValue();
             // TODO: Remove the following String to BString conversion.
             if (val instanceof String) {
                 val = StringUtils.fromString((String) val);
             }
-            record.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
+            recordValue.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }
 
-        return record;
+        return recordValue;
+    }
+
+    /**
+     * Create a record value that populates record fields using the given package ID, record type name and
+     * a {@link BMap} of field names and associated values for fields.
+     *
+     * @param packageId      the package ID that the record type resides.
+     * @param recordTypeName name of the record type.
+     * @param valueMap       {@link BMap} of fields and values to be used when creating the record.
+     * @return value of the populated record.
+     */
+    public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
+                                                          BMap<BString, Object> valueMap) {
+        BMap<BString, Object> recordValue = createRecordValue(packageId, recordTypeName);
+        for (Map.Entry<BString, Object> fieldEntry : valueMap.entrySet()) {
+            recordValue.populateInitialValue(fieldEntry.getKey(), fieldEntry.getValue());
+        }
+        return recordValue;
     }
 
     /**
      * Populate a runtime record value with given field values.
      *
-     * @param record which needs to get populated
+     * @param recordValue which needs to get populated
      * @param values field values of the record.
      * @return value of the record.
      */
-    public static BMap<BString, Object> createRecordValue(BMap<BString, Object> record, Object... values) {
-        BRecordType recordType = (BRecordType) record.getType();
+    public static BMap<BString, Object> createRecordValue(BMap<BString, Object> recordValue, Object... values) {
+        BRecordType recordType = (BRecordType) recordValue.getType();
         MapValue<BString, Object> mapValue = new MapValueImpl<>(recordType);
         int i = 0;
         for (Map.Entry<String, Field> fieldEntry : recordType.getFields().entrySet()) {
@@ -118,9 +136,9 @@ public class ValueUtils {
     }
 
     /**
-     * Create an object value using the given package id and object type name.
+     * Create an object value using the given package ID and object type name.
      *
-     * @param packageId      the package id that the object type resides.
+     * @param packageId      the package ID that the object type resides.
      * @param objectTypeName name of the object type.
      * @param fieldValues    values to be used for fields when creating the object value instance.
      * @return value of the object.
@@ -137,10 +155,10 @@ public class ValueUtils {
     }
 
     /**
-     * Create object value with strand, package id, object type name and given field values.
+     * Create object value with strand, package ID, object type name and given field values.
      *
      * @param currentStrand   current strand.
-     * @param packageId       the package id that the object type resides.
+     * @param packageId       the package ID that the object type resides.
      * @param objectTypeName  name of the object type.
      * @param fieldValues     values to be used for fields when creating the object value instance.
      * @return value of the object.
