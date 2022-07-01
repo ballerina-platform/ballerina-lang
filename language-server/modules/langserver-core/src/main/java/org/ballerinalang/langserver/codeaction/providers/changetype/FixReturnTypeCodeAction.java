@@ -106,20 +106,62 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = new ArrayList<>();
+        List<Set<String>> types = new ArrayList<>();
+        List<CodeAction> codeActions = new ArrayList<>();
         boolean returnTypeDescPresent = funcDef.get().functionSignature().returnTypeDesc().isPresent();
 
         if (checkExprDiagnostic) {
             // Add error return type for check expression
             if (returnTypeDescPresent) {
-                types.add(funcDef.get().functionSignature().returnTypeDesc().get().type().toString().trim().concat("|")
-                        .concat("error"));
+                types.add(Collections.singleton(funcDef.get().functionSignature().returnTypeDesc().get().type()
+                        .toString().trim().concat("|").concat("error")));
             } else {
-                types.add("error?");
+                types.add(Collections.singleton("error?"));
             }
         } else {
-            // Get all possible return types including ambiguous scenarios
-            types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
+            List<List<String>> combinations = new ArrayList<>();
+            ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
+            returnStatementFinder.visit(funcDef.get());
+            List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
+
+            for (ReturnStatementNode returnStatementNode : nodeList) {
+                if (returnStatementNode.expression().isEmpty() || context.currentSemanticModel().isEmpty()) {
+                    return Collections.emptyList();
+                }
+                ExpressionNode expression = returnStatementNode.expression().get();
+                SemanticModel semanticModel = context.currentSemanticModel().get();
+                Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
+                if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                    return Collections.emptyList();
+                }
+                if (typeSymbol.get().typeKind() == TypeDescKind.FUNCTION) {
+                    combinations.add(Collections.singletonList("(" + CodeActionUtil.getPossibleTypes(typeSymbol.get(),
+                            importEdits, context).get(0) + ")"));
+                } else {
+                    combinations.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
+                }
+            }
+
+            for (List<String> stringTypes : combinations) {
+                if (types.isEmpty()) {
+                    for (String type : stringTypes) {
+                        types.add(Set.of(type));
+                    }
+                    continue;
+                }
+                List<Set<String>> updatedTypes = new ArrayList<>();
+                for (String type : stringTypes) {
+                    for (Set<String> strings : types) {
+                        Set<String> combination  = new HashSet<>(strings);
+                        combination.add(type);
+                        updatedTypes.add(combination);
+                    }
+                }
+                if (updatedTypes.isEmpty()) {
+                    continue;
+                }
+                types = updatedTypes;
+            }
         }
 
         // Where to insert the edit: Depends on if a return statement already available or not
@@ -137,46 +179,6 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             Position funcBodyStart = PositionUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
             start = funcBodyStart;
             end = funcBodyStart;
-        }
-
-        List<CodeAction> codeActions = new ArrayList<>();
-        List<TextEdit> importEdits = new ArrayList<>();
-        List<List<String>> combinations = new ArrayList<>();
-
-        ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
-        returnStatementFinder.visit(funcDef.get());
-        List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
-        for (ReturnStatementNode returnStatementNode : nodeList) {
-            ExpressionNode expression = returnStatementNode.expression().get();
-            SemanticModel semanticModel = context.currentSemanticModel().get();
-            Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
-            if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
-                return Collections.emptyList();
-            }
-            typeSymbol.ifPresent(symbol -> combinations.add(CodeActionUtil
-                    .getPossibleTypes(symbol, importEdits, context)));
-        }
-
-        List<Set<String>> types = new ArrayList<>();
-        for (List<String> type : combinations) {
-            if (types.isEmpty()) {
-                for (String s : type) {
-                    types.add(Set.of(s));
-                }
-                continue;
-            }
-            List<Set<String>> updatedTypes = new ArrayList<>();
-            for (String s : type) {
-                for (Set<String> strings : types) {
-                    Set<String> combination  = new HashSet<>(strings);
-                    combination.add(s);
-                    updatedTypes.add(combination);
-                }
-            }
-            if (updatedTypes.isEmpty()) {
-                continue;
-            }
-            types = updatedTypes;
         }
 
         types.forEach(type -> {
