@@ -13,6 +13,7 @@
     },
     "var.type": "int"
   },
+  "source": "package_plugin_user_with_codeactions_1/main.bal",
   "expected": {
     "result": {
       "edit": {

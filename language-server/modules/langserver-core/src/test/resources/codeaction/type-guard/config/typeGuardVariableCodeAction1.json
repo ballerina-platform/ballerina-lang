@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 7,
-    "character": 17,
-    "expected": [
+    "character": 17
+  },
+  "source": "typeGuardVariable1.bal",
+  "expected": [
+    {
+      "title": "Type guard variable \u0027val\u0027",
+      "kind": "source",
+      "edits": [
         {
-            "title": "Type guard variable 'val'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 7,
-                            "character": 45
-                        },
-                        "end": {
-                            "line": 7,
-                            "character": 45
-                        }
-                    },
-                    "newText": "\n    if val is string {\n\n    } else if val is int {\n\n    } else {\n\n    }\n"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 45
+            },
+            "end": {
+              "line": 7,
+              "character": 45
+            }
+          },
+          "newText": "\n    if val is string {\n\n    } else if val is int {\n\n    } else {\n\n    }\n"
         }
-    ]
+      ]
+    }
+  ]
 }

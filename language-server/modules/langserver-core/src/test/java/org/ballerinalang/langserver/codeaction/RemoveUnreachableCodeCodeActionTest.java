@@ -35,19 +35,19 @@ public class RemoveUnreachableCodeCodeActionTest extends AbstractCodeActionTest 
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"remove_unreachable_code1.json", "remove_unreachable_code1.bal"},
-                {"remove_unreachable_code2.json", "remove_unreachable_code2.bal"},
-                {"remove_unreachable_code3.json", "remove_unreachable_code3.bal"},
-                {"remove_unreachable_code4.json", "remove_unreachable_code4.bal"},
-                {"remove_unreachable_code5.json", "remove_unreachable_code5.bal"},
+                {"remove_unreachable_code1.json"},
+                {"remove_unreachable_code2.json"},
+                {"remove_unreachable_code3.json"},
+                {"remove_unreachable_code4.json"},
+                {"remove_unreachable_code5.json"},
         };
     }
 }
