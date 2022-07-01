@@ -748,8 +748,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                         bLFunction.addPathParam(param);
                         bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "*"));
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment),
-                                param.typeNode.toString()));
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$*"));
                     }
 
                     tupleTypeNode.memberTypeNodes.add(param.typeNode);
@@ -761,8 +760,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                         bLFunction.setRestPathParam(restParam);
                         bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "**"));
                     } else {
-                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment),
-                                restParam.typeNode.toString()));
+                        bLFunction.resourcePath.add(createIdentifier(getPosition(pathSegment), "$**"));
                     }
                     
                     tupleTypeNode.restParamType = ((BLangArrayType) restParam.typeNode).elemtype;
