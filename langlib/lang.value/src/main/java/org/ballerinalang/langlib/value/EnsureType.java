@@ -19,11 +19,10 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
-
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * Extern function lang.values:ensureType.
@@ -35,7 +34,7 @@ public class EnsureType {
         if (TypeChecker.getType(value).getTag() == TypeTags.ERROR_TAG) {
             return value;
         }
-        return convert(getReferredType(type.getDescribingType()), value);
+        return convert(TypeUtils.getReferredType(type.getDescribingType()), value);
     }
 
     public static Object convert(Type convertType, Object inputValue) {

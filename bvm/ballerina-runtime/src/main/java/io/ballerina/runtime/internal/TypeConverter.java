@@ -62,7 +62,6 @@ import java.util.function.Supplier;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MAX_VALUE_DOUBLE_RANGE_MAX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BINT_MIN_VALUE_DOUBLE_RANGE_MIN;
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned16;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned32;
 import static io.ballerina.runtime.internal.TypeChecker.anyToSigned8;
@@ -122,8 +121,6 @@ public class TypeConverter {
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return convertValues(((BTypeReferenceType) targetType).getReferredType(), inputValue);
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
                         BLangExceptionHelper.getErrorDetails(
@@ -404,7 +401,7 @@ public class TypeConverter {
     public static List<Type> getConvertibleTypesFromJson(Object value, Type targetType, String varName,
                                                          List<TypeValuePair> unresolvedValues, List<String> errors) {
 
-        int targetTypeTag = getReferredType(targetType).getTag();
+        int targetTypeTag = TypeUtils.getReferredType(targetType).getTag();
 
         List<Type> convertibleTypes = new ArrayList<>(TypeConverter.getConvertibleTypes(value, targetType,
                 varName, true, unresolvedValues, errors, false));
@@ -615,10 +612,10 @@ public class TypeConverter {
             return false;
         }
         ArrayValue source = (ArrayValue) sourceValue;
-        Type targetTypeElementType = targetType.getElementType();
+        Type targetTypeElementType = TypeUtils.getReferredType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            Type sourceElementType = ((BArrayType) sourceType).getElementType();
+            Type sourceElementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
@@ -1239,7 +1236,7 @@ public class TypeConverter {
     }
 
     private static boolean isDeepConversionRequiredForArray(Type sourceType) {
-        Type elementType = ((BArrayType) sourceType).getElementType();
+        Type elementType = TypeUtils.getReferredType(((BArrayType) sourceType).getElementType());
 
         if (elementType != null) {
             if (TypeUtils.isValueType(elementType)) {

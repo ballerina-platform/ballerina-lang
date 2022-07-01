@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -35,8 +36,6 @@ import org.apache.axiom.om.ds.AbstractPushOMDataSource;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
-import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
 /**
  * This will provide custom OMDataSource implementation by wrapping BTable.
@@ -80,7 +79,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
             }
             for (int i = 0; i < structFields.length; i++) {
                 BField internalStructField = structFields[i];
-                int type = getReferredType(internalStructField.getFieldType()).getTag();
+                int type = TypeUtils.getReferredType(internalStructField.getFieldType()).getTag();
                 String fieldName = internalStructField.getFieldName();
 
                 writeElement(record, xmlStreamWriter, fieldName, type, i, structFields);
@@ -158,7 +157,7 @@ public class TableOmDataSource extends AbstractPushOMDataSource {
     private void processStruct(XMLStreamWriter xmlStreamWriter, BMap structData,
                                BField[] structFields, int index) throws XMLStreamException {
         boolean structError = true;
-        Type internalType = getReferredType(structFields[index].getFieldType());
+        Type internalType = TypeUtils.getReferredType(structFields[index].getFieldType());
         if (internalType.getTag() == TypeTags.OBJECT_TYPE_TAG
                 || internalType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BField[] internalStructFields = ((BStructureType) internalType).getFields()
