@@ -88,10 +88,8 @@ public class Call {
                     errored = true;
                 }
                 argsList.add(arg);
-                argsList.add(true);
             } else if (parameter.isDefault) {
                 argsList.add(0);
-                argsList.add(false);
             } else {
                 errored = true;
             }
@@ -120,7 +118,6 @@ public class Call {
             }
             if (!errored) {
                 argsList.add(new ArrayValueImpl(restType, -1L, initialValues));
-                argsList.add(true);
             }
         } else if (numOfRestArgs > 0) {
             errored = true;
