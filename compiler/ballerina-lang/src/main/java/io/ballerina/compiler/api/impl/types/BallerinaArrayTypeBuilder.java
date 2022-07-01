@@ -46,7 +46,7 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
     private TypeSymbol type;
-    private int size;
+    private int size = -1;
     private BArrayState state = BArrayState.OPEN;
 
     public BallerinaArrayTypeBuilder(CompilerContext context) {
@@ -101,10 +101,10 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
             throw new IllegalArgumentException("Array member type descriptor can not be null");
         }
 
-        if (type.typeKind() == TypeDescKind.ARRAY || !(type instanceof AbstractTypeSymbol)) {
-            throw new IllegalArgumentException("Invalid array member type descriptor provided");
+        if (type instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) type).getBType();
         }
 
-        return ((AbstractTypeSymbol) type).getBType();
+        throw new IllegalArgumentException("Invalid array member type descriptor provided");
     }
 }
