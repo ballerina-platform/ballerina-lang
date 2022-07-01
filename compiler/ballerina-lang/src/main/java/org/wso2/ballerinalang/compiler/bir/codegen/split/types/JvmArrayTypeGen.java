@@ -22,6 +22,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import static org.objectweb.asm.Opcodes.CHECKCAST;
@@ -35,7 +37,7 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ARRAY_ELEMENT;
 
 /**
  * BIR array types to JVM byte code generation class.
@@ -52,8 +54,23 @@ public class JvmArrayTypeGen {
 
     public void populateArray(MethodVisitor mv, BArrayType bType) {
         mv.visitTypeInsn(CHECKCAST, ARRAY_TYPE_IMPL);
-        jvmTypeGen.loadType(mv, bType.eType);
-        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_TYPE_IMPL, "setElementType", TYPE_PARAMETER, false);
+        jvmTypeGen.loadLocalType(mv, bType.eType);
+        loadDimension(mv, bType.eType, 1);
+        jvmTypeGen.loadReadonlyFlag(mv, bType.eType);
+        mv.visitMethodInsn(INVOKEVIRTUAL, ARRAY_TYPE_IMPL, "setElementType", SET_ARRAY_ELEMENT, false);
+    }
+
+    private void loadDimension(MethodVisitor mv, BType eType, int dimension) {
+        switch (eType.tag) {
+            case TypeTags.ARRAY:
+                loadDimension(mv, ((BArrayType) eType).eType, dimension + 1);
+                break;
+            case TypeTags.TYPEREFDESC:
+                loadDimension(mv, ((BTypeReferenceType) eType).referredType, dimension);
+                break;
+            default:
+                mv.visitLdcInsn(dimension);
+        }
     }
 
     /**
@@ -75,11 +92,12 @@ public class JvmArrayTypeGen {
             mv.visitInsn(L2I);
 
             jvmTypeGen.loadReadonlyFlag(mv, arrayType);
+            mv.visitLdcInsn(jvmTypeGen.typeFlag(arrayType.eType));
             mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, INIT_ARRAY_TYPE_IMPL, false);
             return;
         }
 
-        mv.visitLdcInsn(jvmTypeGen.typeFlag(arrayType));
+        mv.visitLdcInsn(jvmTypeGen.typeFlag(arrayType.eType));
 
         int arraySize = arrayType.size;
         mv.visitLdcInsn((long) arraySize);
