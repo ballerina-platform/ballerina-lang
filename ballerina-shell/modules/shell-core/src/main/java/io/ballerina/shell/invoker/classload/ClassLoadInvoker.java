@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ModuleId;
@@ -609,7 +610,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         List<String> varStrings = new ArrayList<>();
         List<String> variablesDeclarations = new ArrayList<>();
         List<String> finalVariablesDeclarations = new ArrayList<>();
-        List<String> constVariablesDeclarations = new ArrayList<>();
+        List<String> constDeclarations = new ArrayList<>();
         String varString;
 
         for (GlobalVariable entry : globalVars.values()) {
@@ -618,7 +619,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             String value = StringUtils.shortenedString(objStr);
             if (!entry.getQualifiersAndMetadata().isEmpty()) {
                 varString = String.format("(%s) %s %s %s = %s",
-                        entry.getVariableName(), entry.getQualifiersAndMetadata(), entry.getType(),
+                        entry.getVariableName(), entry.getQualifiersAndMetadata().strip(), entry.getType(),
                         entry.getVariableName(), value);
                 finalVariablesDeclarations.add(varString);
             } else {
@@ -635,9 +636,15 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
                 String varName = constantDeclarationNode.variableName().text();
                 String constKeyword = constantDeclarationNode.constKeyword().text();
                 String value = constantDeclarationNode.initializer().toString();
+                Optional<TypeDescriptorNode> typeDescriptorNode = constantDeclarationNode.typeDescriptor();
+                if (typeDescriptorNode.isPresent()) {
+                    varString = String.format("(%s) %s %s %s = %s", varName, constKeyword,
+                            typeDescriptorNode.get().toString().strip(), varName, value);
+                } else {
+                    varString = String.format("(%s) %s %s = %s", varName, constKeyword, varName, value);
+                }
 
-                varString = String.format("(%s) %s %s = %s", varName, constKeyword, varName, value);
-                constVariablesDeclarations.add(varString);
+                constDeclarations.add(varString);
             }
 
         }
@@ -652,9 +659,9 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             varStrings.addAll(finalVariablesDeclarations);
         }
 
-        if (constVariablesDeclarations.size() > 0) {
-            varStrings.add("Constant Variable Declarations");
-            varStrings.addAll(constVariablesDeclarations);
+        if (constDeclarations.size() > 0) {
+            varStrings.add("Constant declarations");
+            varStrings.addAll(constDeclarations);
         }
 
         return varStrings;
