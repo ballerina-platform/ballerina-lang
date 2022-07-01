@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Visit return statement nodes.
  *
- * @since 2201.1.1
+ * @since 2201.2.0
  */
 public class ReturnStatementFinder extends NodeVisitor {
     private final List<ReturnStatementNode> returnStatementNodeList;
