@@ -145,17 +145,17 @@ public class TypeBuildersTest {
     @DataProvider(name = "xmlTypeParamsFromSourceProvider")
     private Object[][] getXmlTypeParamsFromSource() {
         return new Object[][] {
-                {"XmlEle", TYPE_REFERENCE, "xml<Element>"},
-                {"XmlPi", TYPE_REFERENCE, "xml<ProcessingInstruction>"},
-                {"XmlCmnt", TYPE_REFERENCE, "xml<Comment>"},
-                {"XmlTxt", TYPE_REFERENCE, "xml<Text>"},
-                {"XmlUnionA", UNION, "xml<Element|ProcessingInstruction|Text>"},
+                {"XmlEle", TYPE_REFERENCE, "xml<xml:Element>"},
+                {"XmlPi", TYPE_REFERENCE, "xml<xml:ProcessingInstruction>"},
+                {"XmlCmnt", TYPE_REFERENCE, "xml<xml:Comment>"},
+                {"XmlTxt", TYPE_REFERENCE, "xml<xml:Text>"},
+                {"XmlUnionA", UNION, "xml<xml:Element|xml:ProcessingInstruction|xml:Text>"},
                 {"XmlUnionB", UNION, "xml<XmlEle|XmlTxt|XmlCmnt>"},
                 {"MixXmlA", UNION, "xml<XmlUnionA|XmlUnionB>"},
                 {"MixXmlB", UNION, "xml<XmlPi|MixXmlC>"},
                 {"MixXmlC", UNION, "xml<XmlUnionA|XmlTxt|MixXmlA>"},
                 {"NewEle", TYPE_REFERENCE, "xml<XmlEle>"},
-                {"EleTxtCmnt", UNION, "xml<XmlCmnt|Text|NewEle>"},
+                {"EleTxtCmnt", UNION, "xml<XmlCmnt|xml:Text|NewEle>"},
         };
     }
 
@@ -291,7 +291,7 @@ public class TypeBuildersTest {
                 {types.STRING, 5, "string[5]"},
                 {types.INT, null, "int[]"},
                 {types.BYTE, 24, "byte[24]"},
-//                {types.FLOAT, -1, "float[*]"}, // TODO: Enable after fixing #36786
+                {types.FLOAT, -1, "float[*]"},
         };
     }
 
