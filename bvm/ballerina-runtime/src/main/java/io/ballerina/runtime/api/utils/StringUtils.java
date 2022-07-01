@@ -364,11 +364,7 @@ public class StringUtils {
                 ArrayValue arrayValue = (ArrayValue) jsonValue;
                 return arrayValue.getJSONString();
             default:
-                if (type.getTag() < TypeTags.NULL_TAG) {
-                    return String.valueOf(jsonValue);
-                }
-                RefValue refValue = (RefValue) jsonValue;
-                return refValue.stringValue(null);
+                return String.valueOf(jsonValue);
         }
     }
 
