@@ -44,14 +44,16 @@ public class JvmMethodsSplitter {
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.moduleInitClass = moduleInitClass;
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor,
+                                               jvmPackageGen.symbolTable);
         this.jvmCreateTypeGen = new JvmCreateTypeGen(jvmTypeGen, jvmConstantsGen, module.packageID, typeHashVisitor);
-        this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen);
+        this.jvmAnnotationsGen = new JvmAnnotationsGen(module, jvmPackageGen, jvmTypeGen, jvmConstantsGen);
         this.jvmValueCreatorGen = new JvmValueCreatorGen(module.packageID);
         jvmConstantsGen.setJvmCreateTypeGen(jvmCreateTypeGen);
     }
 
     public void generateMethods(Map<String, byte[]> jarEntries) {
+        jvmCreateTypeGen.generateRefTypeConstants(module.typeDefs, jvmPackageGen.symbolTable);
         jvmCreateTypeGen.generateTypeClass(jvmPackageGen, module, jarEntries, moduleInitClass,
                 jvmPackageGen.symbolTable);
         jvmValueCreatorGen.generateValueCreatorClasses(jvmPackageGen, module, moduleInitClass, jarEntries,

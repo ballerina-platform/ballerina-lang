@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
@@ -49,6 +50,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.types.BRecordType;
 import org.ballerinalang.langlib.value.FromJsonWithType;
 
 import java.util.ArrayList;
@@ -80,7 +82,7 @@ public class Values {
     public static BObject getObject(BString objectName) {
         BMap<BString, Object> address = getRecord(StringUtils.fromString("Address"));
         return ValueCreator.createObjectValue(objectModule, objectName.getValue(), StringUtils.fromString("Waruna"),
-                                              14, address);
+                14, address);
     }
 
     public static BArray getParameters(BObject object, BString methodName) {
@@ -226,7 +228,7 @@ public class Values {
         ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
         Map<String, Object> map = Map.ofEntries(
                 Map.entry("arrList", arrayList)
-        );
+                                               );
         return ValueCreator.createRecordValue(recordModule, recordName.getValue(), map);
     }
 
@@ -234,7 +236,7 @@ public class Values {
         ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
         Map<String, Object> map = Map.ofEntries(
                 Map.entry("arrList", arrayList)
-        );
+                                               );
         return ValueCreator.createRecordValue(recordModule, recordName.getValue(), null);
     }
 
@@ -242,10 +244,10 @@ public class Values {
         Map<String, Integer> map = Map.ofEntries(
                 Map.entry("a", 1),
                 Map.entry("b", 2)
-        );
+                                                );
         Map<String, Object> valueMap = Map.ofEntries(
                 Map.entry("valueMap", map)
-        );
+                                                    );
         return ValueCreator.createRecordValue(recordModule, recordName.getValue(), valueMap);
     }
 
@@ -257,4 +259,52 @@ public class Values {
         values[1] = "abc";
         return ValueCreator.createRecordValue(map, values);
     }
+
+    public static Object validate(Object value, BTypedesc typedesc) {
+        Type describingType = typedesc.getDescribingType();
+        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
+        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+        if (annotations.containsKey(annotKey)) {
+            Object annotValue = annotations.get(annotKey);
+            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            if (((Long) value) >= minValue) {
+                return value;
+            }
+        }
+        return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+    }
+
+    public static Object validateRecord(Object value, BTypedesc typedesc) {
+        Type describingType = typedesc.getDescribingType();
+        Long age = ((BMap) value).getIntValue(StringUtils.fromString("age"));
+        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+        for (Field field : ((BRecordType) describingType).getFields().values()) {
+            BMap<BString, Object> annotations = ((AnnotatableType) field.getFieldType()).getAnnotations();
+            if (annotations.containsKey(annotKey)) {
+                Long minValue = (Long) ((BMap) annotations.get(annotKey)).get(StringUtils.fromString("minValue"));
+                if (age < minValue) {
+                    return ErrorCreator.createError(
+                            StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+                }
+            }
+        }
+        return value;
+    }
+
+    public static Object validateArray(Object value, BTypedesc typedesc) {
+        Type describingType = typedesc.getDescribingType();
+        BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
+        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
+        if (annotations.containsKey(annotKey)) {
+            Object annotValue = annotations.get(annotKey);
+            Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
+            for (Object element : ((BArray) value).getValues()) {
+                if (((Long) element) >= minValue) {
+                    return value;
+                }
+            }
+        }
+        return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+    }
+
 }

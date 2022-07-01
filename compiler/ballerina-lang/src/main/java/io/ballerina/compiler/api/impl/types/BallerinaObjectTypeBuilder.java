@@ -175,8 +175,11 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
     }
 
     private BInvokableType getBInvokableType(FunctionTypeSymbol type) {
-        if (type != null) {
-            return (BInvokableType) ((AbstractTypeSymbol) type).getBType();
+        if (type instanceof AbstractTypeSymbol) {
+            BType bType = ((AbstractTypeSymbol) type).getBType();
+            if (bType instanceof BInvokableType) {
+                return (BInvokableType) bType;
+            }
         }
 
         throw new IllegalArgumentException("Object method type descriptor can not be null");
@@ -237,7 +240,6 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         private List<Qualifier> qualifiers = new ArrayList<>();
         private FunctionTypeSymbol type;
         private String name;
-        private BInvokableSymbol invokableSymbol;
 
         public ObjectMethodDataHolder() {
         }
@@ -296,7 +298,6 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         private boolean isPublicField = false;
         private TypeSymbol type;
         private String name;
-        private BField bField;
         public ObjectFieldDataHolder() {
         }
 

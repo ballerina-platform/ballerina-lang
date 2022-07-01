@@ -26,14 +26,14 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -86,7 +86,7 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
 
             completionItems.addAll(this.getCompletionItemList(exprEntries, context));
         } else if (cursorAtTheEndOfExpression(context, node)) {
@@ -149,7 +149,7 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     private boolean cursorAtTheEndOfExpression(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
         int cursorPosition = context.getCursorPositionInTree();
         return node.expression().kind() != SyntaxKind.BINARY_EXPRESSION
-                && !CommonUtil.isWithInRange(node, cursorPosition)
+                && !PositionUtil.isWithInRange(node, cursorPosition)
                 && node.expression().textRange().startOffset() < cursorPosition;
     }
 }

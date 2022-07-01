@@ -54,6 +54,7 @@ import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.types.BTypeIdSet;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
@@ -117,6 +118,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED8_MIN_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
+import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
 
 /**
@@ -132,11 +134,11 @@ public class TypeChecker {
     public static Object checkCast(Object sourceVal, Type targetType) {
 
         List<String> errors = new ArrayList<>();
-        if (checkIsType(errors, sourceVal, getType(sourceVal), targetType)) {
+        Type sourceType = getType(sourceVal);
+        if (checkIsType(errors, sourceVal, sourceType, targetType)) {
             return sourceVal;
         }
 
-        Type sourceType = getType(sourceVal);
         if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && targetType.getTag() <= TypeTags.BOOLEAN_TAG) {
             return TypeConverter.castValues(targetType, sourceVal);
         }
@@ -382,6 +384,14 @@ public class TypeChecker {
             return true;
         }
 
+        if (sourceTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return isSameType(((BTypeReferenceType) sourceType).getReferredType(), targetType);
+        }
+
+        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return isSameType(sourceType, ((BTypeReferenceType) targetType).getReferredType());
+        }
+
         return false;
     }
 
@@ -625,6 +635,16 @@ public class TypeChecker {
             return checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
         }
 
+        if (sourceTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return checkIsType(((BTypeReferenceType) sourceType).getReferredType(),
+                    targetTypeTag != TypeTags.TYPE_REFERENCED_TYPE_TAG ? targetType :
+                            ((BTypeReferenceType) targetType).getReferredType(), unresolvedTypes);
+        }
+
+        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return checkIsType(sourceType, ((BTypeReferenceType) targetType).getReferredType(), unresolvedTypes);
+        }
+
         if (sourceTypeTag == TypeTags.PARAMETERIZED_TYPE_TAG) {
             if (targetTypeTag != TypeTags.PARAMETERIZED_TYPE_TAG) {
                 return checkIsType(((BParameterizedType) sourceType).getParamValueType(), targetType, unresolvedTypes);
@@ -728,6 +748,11 @@ public class TypeChecker {
         // where `Bar b = {i: 100};`, `b is Foo` should evaluate to true.
         if (sourceTypeTag != TypeTags.RECORD_TYPE_TAG && sourceTypeTag != TypeTags.OBJECT_TYPE_TAG) {
             return checkIsType(sourceType, targetType);
+        }
+
+        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            targetType = getReferredType(targetType);
+            targetTypeTag = targetType.getTag();
         }
 
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
@@ -1916,6 +1941,8 @@ public class TypeChecker {
                 return true;
             case TypeTags.XML_TAG:
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return isInherentlyImmutableType(((BTypeReferenceType) sourceType).getReferredType());
         }
         return false;
     }
@@ -2007,6 +2034,8 @@ public class TypeChecker {
                 return readonlyIntersectionExists;
             case TypeTags.INTERSECTION_TAG:
                 return isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(), unresolvedTypes);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return isSelectivelyImmutableType(((BTypeReferenceType) type).getReferredType(), unresolvedTypes);
         }
         return false;
     }
@@ -2089,6 +2118,9 @@ public class TypeChecker {
                 visitedTypeSet.add(elemType.getName());
                 return arrayType.getState() != ArrayState.OPEN &&
                         checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
+                        ((BTypeReferenceType) type).getReferredType(), visitedTypeSet);
             default:
                 return false;
         }
@@ -2147,6 +2179,19 @@ public class TypeChecker {
         if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
             return checkIsLikeOnValue(errors, sourceValue, sourceType,
                     ((BIntersectionType) targetType).getEffectiveType(), unresolvedValues, allowNumericConversion,
+                    varName);
+        }
+
+        if (sourceTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return checkIsLikeOnValue(errors, sourceValue, ((BTypeReferenceType) sourceType).getReferredType(),
+                    targetTypeTag != TypeTags.TYPE_REFERENCED_TYPE_TAG ? targetType :
+                            ((BTypeReferenceType) targetType).getReferredType(),
+                    unresolvedValues, allowNumericConversion, varName);
+        }
+
+        if (targetTypeTag == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return checkIsLikeOnValue(errors, sourceValue, sourceType,
+                    ((BTypeReferenceType) targetType).getReferredType(), unresolvedValues, allowNumericConversion,
                     varName);
         }
 
@@ -3273,6 +3318,8 @@ public class TypeChecker {
                 return checkFillerValue((BTupleType) type, unanalyzedTypes);
             case TypeTags.UNION_TAG:
                 return checkFillerValue((BUnionType) type, unanalyzedTypes);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return hasFillerValue(((BTypeReferenceType) type).getReferredType(), unanalyzedTypes);
             default:
                 return false;
         }

@@ -8,6 +8,7 @@ dist, list pull remove update use
 doc, -c -e -o --combine --exclude --output --target-dir
 encrypt, 
 format, -d --dry-run
+graph, --dump-raw-graphs --offline --sticky
 grpc, --input --mode --output
 init, -t --template
 new, -t --template

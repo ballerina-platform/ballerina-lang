@@ -147,8 +147,11 @@ public class TypeNarrower extends BLangNodeVisitor {
         } else {
             originalType = varRef.getBType();
         }
-        BType remainingType = types.getRemainingMatchExprType(originalType, typeToRemove);
-        if (remainingType == symTable.semanticError) {
+        if (originalType == symTable.semanticError) {
+            return env;
+        }
+        BType remainingType = types.getRemainingMatchExprType(originalType, typeToRemove, env);
+        if (remainingType == symTable.nullSet) {
             return env;
         }
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
@@ -189,7 +192,7 @@ public class TypeNarrower extends BLangNodeVisitor {
 
             if (isLogicalOrContext) {
                 falseType = falseType == symTable.semanticError ?
-                        types.getRemainingType(originalSym.type, trueType) : falseType;
+                        types.getRemainingType(originalSym.type, trueType, env) : falseType;
             } else {
                 falseType = falseType == symTable.nullSet ? symTable.neverType : falseType;
             }
@@ -331,7 +334,7 @@ public class TypeNarrower extends BLangNodeVisitor {
             // type for future expr evaluations.
             if (rhsTrueType.tag == TypeTags.SEMANTIC_ERROR && operator == OperatorKind.AND) {
                 rhsTrueType = rhsFalseType;
-                rhsFalseType = types.getRemainingType(symbol.type, rhsTrueType);
+                rhsFalseType = types.getRemainingType(symbol.type, rhsTrueType, env);
             }
         } else {
             rhsTrueType = rhsFalseType = getValidTypeInScope(symbol);
@@ -453,22 +456,22 @@ public class TypeNarrower extends BLangNodeVisitor {
         BType trueType;
         BType falseType;
         if (expr.getKind() == NodeKind.BINARY_EXPR && ((BLangBinaryExpr) expr).opKind == OperatorKind.NOT_EQUAL) {
-            trueType = types.getRemainingType(varSymbol.type, narrowWithType);
+            trueType = types.getRemainingType(varSymbol.type, narrowWithType, this.env);
             falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
         } else if (expr.getKind() == NodeKind.TYPE_TEST_EXPR) {
             if (((BLangTypeTestExpr) expr).isNegation) {
-                trueType = types.getRemainingType(varSymbol.type, narrowWithType);
+                trueType = types.getRemainingType(varSymbol.type, narrowWithType, this.env);
                 falseType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
             } else {
                 trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
-                falseType = types.getRemainingType(varSymbol.type, narrowWithType);
+                falseType = types.getRemainingType(varSymbol.type, narrowWithType, this.env);
             }
             if (falseType == trueType) {
                 falseType = symTable.nullSet;
             }
         } else {
             trueType = types.getTypeIntersection(nonLoggingContext, varSymbol.type, narrowWithType, this.env);
-            falseType = types.getRemainingType(varSymbol.type, narrowWithType);
+            falseType = types.getRemainingType(varSymbol.type, narrowWithType, this.env);
         }
 
         expr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol), new NarrowedTypes(trueType, falseType));

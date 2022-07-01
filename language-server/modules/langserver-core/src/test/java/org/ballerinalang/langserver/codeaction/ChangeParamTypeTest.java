@@ -37,18 +37,18 @@ public class ChangeParamTypeTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"changeParamType1.json", "changeParamType.bal"},
-                {"changeParamType2.json", "changeParamType.bal"},
-                {"changeParamType3.json", "changeParamType.bal"},
-                {"changeParamTypeInService1.json", "changeParamTypeInService.bal"},
+                {"changeParamType1.json"},
+                {"changeParamType2.json"},
+                {"changeParamType3.json"},
+                {"changeParamTypeInService1.json"},
         };
     }
 }
