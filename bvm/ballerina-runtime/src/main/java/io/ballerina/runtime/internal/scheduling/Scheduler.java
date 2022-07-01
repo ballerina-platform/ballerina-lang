@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.values.ChannelDetails;
@@ -33,7 +32,6 @@ import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
@@ -86,7 +84,7 @@ public class Scheduler {
     private static int poolSize = Runtime.getRuntime().availableProcessors() * 2;
 
     private Semaphore mainBlockSem;
-    private ListenerRegistry listenerRegistry;
+    private final RuntimeRegistry runtimeRegistry;
     private AtomicReference<ItemGroup> objectGroup = new AtomicReference<>();
 
     public Scheduler(boolean immortal) {
@@ -96,7 +94,7 @@ public class Scheduler {
     public Scheduler(int numThreads, boolean immortal) {
         this.numThreads = numThreads;
         this.immortal = immortal;
-        this.listenerRegistry = new ListenerRegistry();
+        this.runtimeRegistry = new RuntimeRegistry(this);
         this.previousStrand = numThreads == 1 ? strandHolder.get().strand : null;
         ItemGroup group = new ItemGroup();
         objectGroup.set(group);
@@ -547,8 +545,8 @@ public class Scheduler {
         return listenerDeclarationFound;
     }
 
-    public ListenerRegistry getListenerRegistry() {
-        return listenerRegistry;
+    public RuntimeRegistry getRuntimeRegistry() {
+        return runtimeRegistry;
     }
 
     private static int getPoolSize() {
@@ -562,31 +560,6 @@ public class Scheduler {
                     RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         return poolSize;
-    }
-
-    /**
-     * The registry for runtime dynamic listeners.
-     */
-    public class ListenerRegistry {
-        private final Set<BObject> listenerSet = new HashSet<>();
-
-        public synchronized void registerListener(BObject listener) {
-            listenerSet.add(listener);
-            setImmortal(true);
-        }
-
-        public synchronized void deregisterListener(BObject listener) {
-            listenerSet.remove(listener);
-            if (!isListenerDeclarationFound() && listenerSet.isEmpty()) {
-                setImmortal(false);
-            }
-        }
-
-        public synchronized void stopListeners(Strand strand) {
-            for (BObject listener : listenerSet) {
-                listener.call(strand, "gracefulStop");
-            }
-        }
     }
 }
 
