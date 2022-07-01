@@ -1,6 +1,9 @@
 {
-  "line": 9,
-  "character": 11,
+  "position": {
+    "line": 9,
+    "character": 11
+  },
+  "source": "createVarInSendAction1.bal",
   "expected": [
     {
       "title": "Create variable and type guard",
