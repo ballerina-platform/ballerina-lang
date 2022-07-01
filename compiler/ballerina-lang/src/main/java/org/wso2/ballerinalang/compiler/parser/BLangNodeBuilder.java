@@ -796,9 +796,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                 case RESOURCE_PATH_REST_PARAM:
                     sb.append("$**");
                     break;
-                case DOT_TOKEN:
-                    sb.append("$***");
-                    break;
                 default:
                     sb.append("$");
                     String value = createIdentifier((Token) token).getValue();

@@ -496,7 +496,7 @@ public class JvmCodeGenUtil {
 
     static String cleanupObjectTypeName(String typeName) {
         int index = typeName.lastIndexOf(".");
-        if (index > 0) {
+        if (index != typeName.length() - 1) { // Resource method name can contain . at the end
             return typeName.substring(index + 1);
         } else {
             return typeName;
