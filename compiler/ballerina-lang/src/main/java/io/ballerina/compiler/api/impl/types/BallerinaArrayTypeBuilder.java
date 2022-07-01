@@ -21,7 +21,6 @@ package io.ballerina.compiler.api.impl.types;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -83,11 +82,11 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
 
     @Override
     public ArrayTypeSymbol build() {
-        BTypeSymbol arraytSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
+        BTypeSymbol arrayTSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
-        BArrayType arrayType = new BArrayType(getBType(type), arraytSymbol, size, state);
-        arraytSymbol.type = arrayType;
+        BArrayType arrayType = new BArrayType(getBType(type), arrayTSymbol, size, state);
+        arrayTSymbol.type = arrayType;
         ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typesFactory.getTypeDescriptor(arrayType);
         this.size = -1;
         this.type = null;

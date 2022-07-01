@@ -54,7 +54,6 @@ checkstyleMain {
     exclude 'io/ballerina/projects/internal/model/CompilerPluginToml.java'
     exclude 'io/ballerina/compiler/api/Types.java'
     exclude 'io/ballerina/compiler/api/impl/types/TypeBuilder.java'
-    exclude 'io/ballerina/compiler/api/impl/types/BallerinaFunctionTypeBuilder.java'
 }
 
 test {

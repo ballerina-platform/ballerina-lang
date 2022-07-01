@@ -26,9 +26,15 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
 /**
  * The implementation of the methods used to build the Error type descriptor.
@@ -60,7 +66,12 @@ public class BallerinaErrorTypeBuilder implements TypeBuilder.ERROR {
      */
     @Override
     public ErrorTypeSymbol build() {
-        BErrorType errorType = new BErrorType(symTable.errorType.tsymbol, getBType(typeParam));
+        BErrorTypeSymbol errorTSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                symTable.rootPkgSymbol.pkgID, symTable.errorType, symTable.rootPkgSymbol, symTable.builtinPos,
+                COMPILED_SOURCE);
+
+        BErrorType errorType = new BErrorType(errorTSymbol, getBType(typeParam));
+        errorTSymbol.type = errorType;
         ErrorTypeSymbol errorTypeSymbol = (ErrorTypeSymbol) typesFactory.getTypeDescriptor(errorType);
         this.typeParam = null;
 

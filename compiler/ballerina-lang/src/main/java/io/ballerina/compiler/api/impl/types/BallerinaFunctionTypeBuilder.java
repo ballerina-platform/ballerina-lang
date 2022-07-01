@@ -29,11 +29,14 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
@@ -94,21 +97,15 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
     @Override
     public FunctionTypeSymbol build() {
         List<BType> paramTypes = getParamTypes(parameterSymbols);
-        BType restType = restParam != null ? getBType(restParam.typeDescriptor()) : null;
+        BType restType = getRestType(restParam);
         BType returnType = getReturnBType(returnTypeSymbol);
-        BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, 0,
-                symTable.rootPkgSymbol.pkgID, symTable.invokableType, symTable.rootPkgNode.symbol.scope.owner,
-                symTable.builtinPos, COMPILED_SOURCE);
-        tSymbol.returnType = returnType;
-        tSymbol.params = getBParamSymbols(parameterSymbols);
-        tSymbol.restParam = null;
-        if (restParam != null) {
-            BSymbol internalSymbol = ((BallerinaSymbol) restParam).getInternalSymbol();
-            if (internalSymbol instanceof BVarSymbol) {
-                tSymbol.restParam = (BVarSymbol) internalSymbol;
-            }
-        }
+        BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.PUBLIC,
+                symTable.rootPkgSymbol.pkgID, symTable.invokableType, symTable.rootPkgSymbol, symTable.builtinPos,
+                COMPILED_SOURCE);
 
+        tSymbol.returnType = returnType;
+        tSymbol.params = getParamSymbols(parameterSymbols);
+        tSymbol.restParam = getRestParamSymbol(restParam, restType);
         BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, returnType, tSymbol);
         FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) typesFactory.getTypeDescriptor(bInvokableType);
         parameterSymbols.clear();
@@ -118,7 +115,37 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
         return functionTypeSymbol;
     }
 
-    private List<BVarSymbol> getBParamSymbols(List<ParameterSymbol> parameterSymbols) {
+    private BVarSymbol getRestParamSymbol(ParameterSymbol restParam, BType restType) {
+        if (restParam == null) {
+            return null;
+        }
+
+        BSymbol internalSymbol = ((BallerinaSymbol) restParam).getInternalSymbol();
+        if (internalSymbol instanceof BVarSymbol) {
+            BVarSymbol varSymbol = (BVarSymbol) internalSymbol;
+            varSymbol.type = restType;
+            return varSymbol;
+        }
+
+        return null;
+    }
+
+    private BType getRestType(ParameterSymbol restParam) {
+        if (restParam == null) {
+            return null;
+        }
+
+        BType bType = getBType(restParam.typeDescriptor());
+        BTypeSymbol restArraySymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+
+        BArrayType restArrayType = new BArrayType(bType, restArraySymbol, -1, BArrayState.OPEN);
+        restArraySymbol.type = restArrayType;
+
+        return restArrayType;
+    }
+
+    private List<BVarSymbol> getParamSymbols(List<ParameterSymbol> parameterSymbols) {
         List<BVarSymbol> params = new ArrayList<>();
         for (ParameterSymbol parameterSymbol : parameterSymbols) {
             BSymbol internalSymbol = ((BallerinaSymbol) parameterSymbol).getInternalSymbol();
@@ -149,12 +176,10 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
 
     private BType getReturnBType(TypeSymbol returnTypeSymbol) {
         if (returnTypeSymbol == null) {
-            return null;
+            return symTable.nilType;
         }
 
-        if (returnTypeSymbol instanceof AbstractTypeSymbol
-                && (returnTypeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))
-                || returnTypeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.nilType)))) {
+        if (returnTypeSymbol instanceof AbstractTypeSymbol) {
             return ((AbstractTypeSymbol) returnTypeSymbol).getBType();
         }
 
@@ -218,11 +243,14 @@ public class BallerinaFunctionTypeBuilder implements TypeBuilder.FUNCTION {
                 }
             }
 
-            BVarSymbol bVarSymbol = new BVarSymbol(flags, Names.fromString(name),
-                    Names.fromString(name), symTable.rootPkgSymbol.pkgID, getBType(type),
-                    symTable.rootPkgSymbol.owner, symTable.builtinPos, symTable.rootPkgSymbol.origin);
+            BVarSymbol bVarSymbol = new BVarSymbol(flags, Names.fromString(name), symTable.rootPkgSymbol.pkgID,
+                    getBType(type), symTable.rootPkgSymbol, symTable.builtinPos, symTable.rootPkgSymbol.origin);
 
-            return (ParameterSymbol) symbolFactory.getBCompiledSymbol(bVarSymbol, name);
+            ParameterSymbol parameterSymbol = (ParameterSymbol) symbolFactory.getBCompiledSymbol(bVarSymbol, name);
+            this.name = null;
+            this.type = null;
+            this.kind = null;
+            return parameterSymbol;
         }
 
         private BType getBType(TypeSymbol typeSymbol) {

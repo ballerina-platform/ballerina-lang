@@ -26,14 +26,21 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 
 /**
  * The implementation of the methods used to build the XML type descriptor.
@@ -71,7 +78,11 @@ public class BallerinaXMLTypeBuilder implements TypeBuilder.XML {
      */
     @Override
     public XMLTypeSymbol build() {
-        BXMLType xmlType = new BXMLType(getBType(typeParam), symTable.xmlType.tsymbol);
+        BTypeSymbol typeSymbol = Symbols.createTypeSymbol(TypeTags.XML, Flags.PUBLIC, Names.XML, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+
+        BXMLType xmlType = new BXMLType(getBType(typeParam), typeSymbol);
+        typeSymbol.type = xmlType;
         XMLTypeSymbol xmlTypeSymbol = (XMLTypeSymbol) typesFactory.getTypeDescriptor(xmlType);
         this.typeParam = null;
 
