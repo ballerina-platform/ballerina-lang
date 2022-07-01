@@ -88,3 +88,26 @@ const t3 = "t3";
 class Cl {
 
 }
+
+public const annotation FunctionAnnot on function;
+public const annotation ReturnAnnot on return;
+
+@FunctionAnnot
+public function fn1() returns @ReturnAnnot int {
+    return 0;
+}
+
+public function fn2() {
+
+}
+
+public class Cl2 {
+    public function cfn1() returns @ReturnAnnot string {
+        return "";
+    }
+
+    @FunctionAnnot
+    public function cfn2() {
+
+    }
+}

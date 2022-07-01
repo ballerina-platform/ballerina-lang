@@ -1,0 +1,130 @@
+[
+  {
+    "source": "[int, string] tuple1 = [10, \"John\"];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["tuple1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "tuple1",
+    "result": {
+      "shellValue": {
+        "value":"[10,\"John\"]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"[int,string]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function divideBy10(int d) returns ([int, int]) { int q = d / 10; int r = d % 10; return [q, r]; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["divideBy10"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int q = 0; int r = 0",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["q", "r"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "[q, r] = divideBy10(6);",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "q",
+    "result": {
+      "shellValue": {
+        "value": "0",
+        "mimeType": "plain/text",
+        "type": "int"
+      },
+      "errors": [],
+      "diagnostics": [],
+      "metaInfo": {
+        "definedVars": [],
+        "moduleDclns": []
+      },
+      "consoleOut": ""
+    }
+  },
+  {
+    "source": "r",
+    "result": {
+      "shellValue": {
+        "value": "6",
+        "mimeType": "plain/text",
+        "type": "int"
+      },
+      "errors": [],
+      "diagnostics": [],
+      "metaInfo": {
+        "definedVars": [],
+        "moduleDclns": []
+      },
+      "consoleOut": ""
+    }
+  },
+  {
+    "source": "{q, r}",
+    "result": {
+      "shellValue": {
+        "value": "{\"q\":0, \"r\":6}",
+        "mimeType": "ballerina-notebook/json-view",
+        "type": "map\u003c(any|error)\u003e"
+      },
+      "errors": [],
+      "diagnostics": [],
+      "metaInfo": {
+        "definedVars": [],
+        "moduleDclns": []
+      },
+      "consoleOut": ""
+    }
+  },
+
+  {
+    "source": "[int, int] returnValue = divideBy10(9);",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["returnValue"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "returnValue",
+    "result": {
+      "shellValue": {
+        "value": "[0,9]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"[int,int]"
+      },
+      "errors": [],
+      "diagnostics": [],
+      "metaInfo": {
+        "definedVars": [],
+        "moduleDclns": []
+      },
+      "consoleOut": ""
+    }
+  }
+]

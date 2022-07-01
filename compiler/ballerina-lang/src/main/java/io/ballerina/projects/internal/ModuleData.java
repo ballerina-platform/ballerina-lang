@@ -34,7 +34,7 @@ public class ModuleData {
     private final List<DocumentData> testSrcDocs;
     private final DocumentData moduleMd;
     private final List<Path> resources;
-    private List<Path> testResources;
+    private final List<Path> testResources;
 
     // TODO do we need to maintain resources and test resources
 

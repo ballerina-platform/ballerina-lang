@@ -155,25 +155,29 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "cannot update 'table<Customer>' with member access expression", 434, 5);
         validateError(compileResult, index++, "incompatible types: expected '(table<Student>|int)', " +
                 "found 'table<record {| readonly int id; string firstName; string lastName; |}>'", 444, 28);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 458, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,string,string]'",
+                472, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int,int]'", 479, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found '[int,int,int]'", 488, 21);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                457, 9);
+                501, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                458, 9);
+                502, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                462, 9);
+                506, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                463, 9);
+                507, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                475, 9);
+                519, 5);
         validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
-                475, 9);
+                519, 5);
         validateError(compileResult, index++, "value expression of key specifier 'x' must be a constant expression",
-                476, 9);
+                520, 5);
         validateError(compileResult, index++, "value expression of key specifier 'y' must be a constant expression",
-                476, 9);
+                520, 5);
         validateError(compileResult, index++, "value expression of key specifier 'z' must be a constant expression",
-                476, 9);
-        Assert.assertEquals(compileResult.getErrorCount(), index);
+                520, 5);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
@@ -209,5 +213,16 @@ public class TableNegativeTest {
                 128, 9);
         validateError(compileResult, index, "duplicate key found in table row key('id') : 'ID2'",
                 136, 9);
+    }
+
+    @Test
+    public void testAnyTypedTableWithKeySpecifiers() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-value-any-negative.bal");
+        int index = 0;
+        validateError(compileResult, index++,
+                "key specifier not allowed when the target type is any", 18, 20);
+        validateError(compileResult, index++,
+                "key specifier not allowed when the target type is any", 25, 15);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

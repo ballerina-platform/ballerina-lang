@@ -59,7 +59,9 @@ public class ExpressionContextTest extends CompletionTest {
                 "conditional_expr_ctx_config12.json", //#34145
                 
                 // TODO ContextTypeResolver's context type for method call expressions should be revisited
-                "method_call_expression_ctx_config9.json"
+                "method_call_expression_ctx_config9.json",
+                // TODO Skipped due to conflict with patch branch 2201.1.x
+                "mapping_expr_ctx_config63.json"
         );
     }
 }

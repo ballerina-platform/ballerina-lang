@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
@@ -68,13 +69,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class CloneWithType {
 
     public static Object cloneWithType(Object v, BTypedesc t) {
-        Type describingType = t.getDescribingType();
-        // typedesc<json>.constructFrom like usage
-        if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return convert(((TypedescType) t.getDescribingType()).getConstraint(), v, t);
-        }
-        // json.constructFrom like usage
-        return convert(describingType, v, t);
+        return convert(t.getDescribingType(), v, t);
     }
 
     public static Object convert(Type convertType, Object inputValue) {
@@ -100,7 +95,7 @@ public class CloneWithType {
     private static Object convert(Object value, Type targetType, List<TypeValuePair> unresolvedValues,
                                   boolean allowAmbiguity, BTypedesc t) {
         if (value == null) {
-            if (targetType.isNilable()) {
+            if (getTargetFromTypeDesc(targetType).isNilable()) {
                 return null;
             }
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
@@ -134,6 +129,14 @@ public class CloneWithType {
         }
 
         return convert((BRefValue) value, matchingType, unresolvedValues, t);
+    }
+
+    private static Type getTargetFromTypeDesc(Type targetType) {
+        Type referredType = TypeUtils.getReferredType(targetType);
+        if (referredType.getTag() == TypeTags.TYPEDESC_TAG) {
+            return ((TypedescType) referredType).getConstraint();
+        }
+        return targetType;
     }
 
     private static Object convert(BRefValue value, Type targetType, List<TypeValuePair> unresolvedValues,

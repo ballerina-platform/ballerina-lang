@@ -1,0 +1,150 @@
+[
+  {
+    "source": "type Person record {| string firstname;string lastname; |};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Person"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<string> m = {};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["m"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string city = \"Colombo\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["city"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string country = \"Sri Lanka\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["country"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string codeLiteral = \"code\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["codeLiteral"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<string> addrMap = {line1: \"No. 20\", line2: \"Palm Grove\", city: \"Colombo 03\", country,  [codeLiteral]: \"00300\" };",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["addrMap"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "addrMap",
+    "result": {
+      "shellValue": {
+        "value": "{\"line1\":\"No. 20\", \"line2\":\"Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\", \"code\":\"00300\"}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"map\u003cstring\u003e"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string? countryValue = addrMap[\"country\"];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["countryValue"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "countryValue",
+    "result": {
+      "shellValue": {
+        "value":"\"Sri Lanka\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "addrMap.get(\"line2\");",
+    "result": {
+      "shellValue": {
+        "value":"\"Palm Grove\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "addrMap[\"postalCode\"] = \"00300\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "addrMap",
+    "result": {
+      "shellValue": {
+        "value": "{\"line1\":\"No. 20\", \"line2\":\"Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\", \"code\":\"00300\", \"postalCode\":\"00300\"}",
+        "mimeType": "ballerina-notebook/json-view",
+        "type": "map\u003cstring\u003e"
+      },
+      "errors": [],
+      "diagnostics": [],
+      "metaInfo": {
+        "definedVars": [],
+        "moduleDclns": []
+      },
+      "consoleOut": ""
+    }
+  },
+  {
+    "source": "addrMap.keys()",
+    "result": {
+      "shellValue": {
+        "value": "[\"line1\", \"line2\", \"city\", \"country\", \"code\", \"postalCode\"]",
+        "mimeType": "ballerina-notebook/json-view",
+        "type": "string[]"
+      },
+      "errors": [],
+      "diagnostics": [],
+      "metaInfo": {
+        "definedVars": [],
+        "moduleDclns": []
+      },
+      "consoleOut": ""
+    }
+  }
+]

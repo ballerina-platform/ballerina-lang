@@ -26,6 +26,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -115,8 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -130,7 +129,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
@@ -171,9 +169,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -820,39 +815,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch match) {
-        analyzeNode(match.expr, env);
-        if (match.onFailClause != null) {
-            analyzeNode(match.onFailClause, env);
-        }
-
-        Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
-        BranchResult lastPatternResult = null;
-        for (BLangMatch.BLangMatchBindingPatternClause patternClause : match.patternClauses) {
-            if (patternClause.isLastPattern) {
-                lastPatternResult = analyzeBranch(patternClause, env);
-            } else {
-                BranchResult result = analyzeBranch(patternClause, env);
-                // If the flow was terminated within the block, then that branch should not be considered for
-                // analyzing the data-flow for the downstream code.
-                if (result.flowTerminated) {
-                    continue;
-                }
-                uninitVars = mergeUninitializedVars(uninitVars, result.uninitializedVars);
-            }
-        }
-
-        if (lastPatternResult != null) {
-            // only if last pattern is present, uninitializedVars should be updated
-            uninitVars = mergeUninitializedVars(uninitVars, lastPatternResult.uninitializedVars);
-            this.uninitializedVars = uninitVars;
-            return;
-        }
-        uninitVars = mergeUninitializedVars(new HashMap<>(), this.uninitializedVars);
-        this.uninitializedVars = uninitVars;
-    }
-
-    @Override
     public void visit(BLangForeach foreach) {
         BLangExpression collection = foreach.collection;
 
@@ -1428,11 +1390,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        tableMultiKeyExpr.multiKeyIndexExprs.forEach(value -> analyzeNode(value, env));
-    }
-
-    @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         analyzeNode(xmlElementAccess.expr, env);
     }
@@ -1588,7 +1545,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
-        analyzeNode((BLangVariable) onFailClause.variableDefinitionNode.getVariable(), env);
+        VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
+        if (onFailVarDefNode != null) {
+            analyzeNode((BLangVariable) onFailVarDefNode.getVariable(), env);
+        }
         analyzeNode(onFailClause.body, env);
     }
 
@@ -1857,17 +1817,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-    }
-
-    @Override
-    public void visit(BLangMatchExpression matchExpression) {
-        analyzeNode(matchExpression.expr, env);
-        matchExpression.patternClauses.forEach(pattern -> analyzeNode(pattern, env));
-    }
-
-    @Override
-    public void visit(BLangMatchExprPatternClause matchExprPatternClause) {
-        analyzeNode(matchExprPatternClause.expr, env);
     }
 
     @Override
@@ -2227,16 +2176,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         analyzeNode(bLangErrorVariableDef.errorVariable, env);
-    }
-
-    @Override
-    public void visit(BLangMatchStaticBindingPatternClause bLangMatchStaticBindingPatternClause) {
-        analyzeNode(bLangMatchStaticBindingPatternClause.body, env);
-    }
-
-    @Override
-    public void visit(BLangMatchStructuredBindingPatternClause bLangMatchStructuredBindingPatternClause) {
-        analyzeNode(bLangMatchStructuredBindingPatternClause.body, env);
     }
 
     private void addUninitializedVar(BLangVariable variable) {

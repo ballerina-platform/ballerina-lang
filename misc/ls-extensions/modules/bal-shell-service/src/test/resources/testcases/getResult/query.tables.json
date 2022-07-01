@@ -1,0 +1,144 @@
+[
+  {
+    "source": "type Employee record {|readonly int id;  string firstName;  string lastName;  int salary;|};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "table<Employee> key(id) employees = table [{id: 1, firstName: \"John\", lastName: \"Smith\", salary: 100}, {id: 2, firstName: \"Jane\", lastName: \"Smith\", salary: 150}, {id: 4, firstName: \"Fred\", lastName: \"Bloggs\", salary: 200}, {id: 7, firstName: \"Bobby\", lastName: \"Clark\", salary: 300}, {id: 9, firstName: \"Cassie\", lastName: \"Smith\", salary: 250}];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["employees"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "employees",
+    "result": {
+      "shellValue": {
+        "value":"[{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Smith\",\"salary\":100},{\"id\":2,\"firstName\":\"Jane\",\"lastName\":\"Smith\",\"salary\":150},{\"id\":4,\"firstName\":\"Fred\",\"lastName\":\"Bloggs\",\"salary\":200},{\"id\":7,\"firstName\":\"Bobby\",\"lastName\":\"Clark\",\"salary\":300},{\"id\":9,\"firstName\":\"Cassie\",\"lastName\":\"Smith\",\"salary\":250}]",
+        "mimeType":"ballerina-notebook/table-view",
+        "type":"table\u003cEmployee\u003e key(id)"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int[] salaries = from var {salary} in employees select salary;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["salaries"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "salaries",
+    "result": {
+      "shellValue": {
+        "value":"[100, 150, 200, 300, 250]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"int[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "table<Employee> smiths = from Employee emp in employees where emp.lastName == \"Smith\" select emp;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["smiths"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "smiths",
+    "result": {
+      "shellValue": {
+        "value":"[{\"id\":1,\"firstName\":\"John\",\"lastName\":\"Smith\",\"salary\":100},{\"id\":2,\"firstName\":\"Jane\",\"lastName\":\"Smith\",\"salary\":150},{\"id\":9,\"firstName\":\"Cassie\",\"lastName\":\"Smith\",\"salary\":250}]",
+        "mimeType":"ballerina-notebook/table-view",
+        "type":"table\u003cEmployee\u003e"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "var highPaidEmployees = table key(id) from var e in employees where e.salary >= 200 select e;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["highPaidEmployees"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "highPaidEmployees",
+    "result": {
+      "shellValue": {
+        "value":"[{\"id\":4,\"firstName\":\"Fred\",\"lastName\":\"Bloggs\",\"salary\":200},{\"id\":7,\"firstName\":\"Bobby\",\"lastName\":\"Clark\",\"salary\":300},{\"id\":9,\"firstName\":\"Cassie\",\"lastName\":\"Smith\",\"salary\":250}]",
+        "mimeType":"ballerina-notebook/table-view",
+        "type":"table\u003cEmployee\u003e key(id)"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type User record {| readonly int id; string name; |};\n\ntype Login record {| int userId; string time;|};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["User", "Login"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "table<User> key(id) users = table [ {id: 1234, name: \"Keith\"}, {id: 6789, name: \"Anne\"} ];\n Login[] logins = [ {userId: 6789, time: \"20:10:23\"}, {userId: 1234, time: \"10:30:02\"}, {userId: 3987, time: \"12:05:00\"} ];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["users", "logins"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string[] loginLog = from var login in logins join var user in users on login.userId equals user.id select user.name + \":\" + login.time;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["loginLog"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "loginLog",
+    "result": {
+      "shellValue": {
+        "value":"[\"Anne:20:10:23\", \"Keith:10:30:02\"]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"string[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

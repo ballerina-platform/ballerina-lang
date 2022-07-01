@@ -34,10 +34,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
-import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
-import static org.objectweb.asm.Opcodes.ACC_SUPER;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -52,7 +50,6 @@ import static org.objectweb.asm.Opcodes.NEWARRAY;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.T_INT;
-import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
@@ -64,7 +61,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STRING_CONSTANT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_SURROGATES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NON_BMP_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
@@ -72,6 +68,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_NON
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TO_STRING_RETURN;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 
 /**
  * Generates Jvm class for the ballerina string constants for given module.
@@ -107,16 +105,8 @@ public class JvmBStringConstantsGen {
         }
         Map<String, Map<String, String>> stringVarMap = splitLargeStrings();
 
-        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, stringConstantsClass, null, OBJECT, null);
-
-        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, "()V", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, OBJECT, JVM_INIT_METHOD, "()V", false);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);;
+        generateConstantsClassInit(cw, stringConstantsClass);
 
         bStringVarMap.values().forEach(bStringVar -> visitBStringField(cw, bStringVar));
         stringVarMap.values().forEach(stringVar -> visitStringField(cw, stringVar));
@@ -136,14 +126,8 @@ public class JvmBStringConstantsGen {
 
     private void generateSurrogatesClass(Map<String, byte[]> jarEntries) {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_PUBLIC | ACC_SUPER, surrogatesMethodsClass, null, OBJECT, null);
-        MethodVisitor mv = cw.visitMethod(ACC_PRIVATE, JVM_INIT_METHOD, "()V", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, OBJECT, JVM_INIT_METHOD, "()V", false);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        generateConstantsClassInit(cw, surrogatesMethodsClass);
+
         // Create methods to return int array to pass when creating non-Bmp string values.
         highSurrogatesMap.forEach((key, value) -> generateGetHighSurrogateArrayMethod(cw, key, value));
 
@@ -285,16 +269,12 @@ public class JvmBStringConstantsGen {
                 bStringCount++;
             }
             if (bStringCount % MAX_STRINGS_PER_METHOD == 0) {
-                mv.visitInsn(RETURN);
-                mv.visitMaxs(0, 0);
-                mv.visitEnd();
+                genMethodReturn(mv);
             }
         }
         // Visit the previously started string init method if not ended.
         if (bStringCount % MAX_STRINGS_PER_METHOD != 0) {
-            mv.visitInsn(RETURN);
-            mv.visitMaxs(0, 0);
-            mv.visitEnd();
+            genMethodReturn(mv);
         }
     }
 
@@ -348,9 +328,7 @@ public class JvmBStringConstantsGen {
         for (int i = 0; i <= methodIndex; i++) {
             mv.visitMethodInsn(INVOKESTATIC, stringConstantsClass, B_STRING_INIT_METHOD_PREFIX + i, "()V", false);
         }
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
+        genMethodReturn(mv);
     }
 
     private void createBmpString(MethodVisitor mv, String val, String varName) {

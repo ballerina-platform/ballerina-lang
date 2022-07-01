@@ -174,11 +174,44 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract List<String> availableVariables();
 
     /**
+     * Returns available variables in the module.
+     *
+     * @return Available variables as a list of AvailableVariable objects
+     * with name, type and value.
+     */
+    public abstract List<AvailableVariable> availableVariablesAsObjects();
+
+    /**
      * Returns available declarations in the module.
      *
      * @return Available declarations as a list of string.
      */
     public abstract List<String> availableModuleDeclarations();
+
+    /**
+     * Clears out the module declarations and variables definitions
+     * from the previous execution.
+     * Whether last invocation was successful or not this method needs to be
+     * called as for a new execution because stored values for newDefinedVariableNames
+     * and newModuleDeclnNames both are for the previous execution
+     */
+    public abstract void clearPreviousVariablesAndModuleDclnsNames();
+
+    /**
+     * Returns new variables in the module.
+     *
+     * @return New variables defined by the last executed code
+     * snippet as a list of string.
+     */
+    public abstract List<String> newVariableNames();
+
+    /**
+     * Returns new declarations in the module.
+     *
+     * @return new declarations declared by the last executed code
+     * snippet as a list of string.
+     */
+    public abstract List<String> newModuleDeclarations();
 
     /* Template methods */
 
@@ -538,7 +571,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return File to use.
      * @throws IOException If file open failed.
      */
-    private File getBufferFile() throws IOException {
+    public File getBufferFile() throws IOException {
         if (this.bufferFile == null) {
             this.bufferFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
             addDebugDiagnostic("Using temp file: " + bufferFile.getAbsolutePath());

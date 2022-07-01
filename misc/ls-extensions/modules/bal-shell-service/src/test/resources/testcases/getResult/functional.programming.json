@@ -1,0 +1,89 @@
+[
+  {
+    "source": "var isOdd = function(int n) returns boolean {return n % 2 != 0;};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["isOdd"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type IntFilter function (int n) returns boolean;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["IntFilter"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function isEven(int n) returns boolean {return n % 2 == 0;}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["isEven"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "IntFilter f = isEven;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["f"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "f",
+    "result": {
+      "shellValue": {
+        "value": "function isolated function (int) returns (boolean)",
+        "mimeType":"plain/text",
+        "type":"isolated function (int) returns (boolean)"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int[] nums = [1, 2, 3];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["nums"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "nums.filter(f)",
+    "result": {
+      "shellValue": {
+        "value": "[2]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"int[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "nums.filter(n => n % 2 != 0);",
+    "result": {
+      "shellValue": {
+        "value": "[1, 3]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"int[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]
