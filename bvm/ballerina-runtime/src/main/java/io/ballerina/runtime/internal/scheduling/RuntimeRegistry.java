@@ -71,18 +71,19 @@ public class RuntimeRegistry {
         invokeListenerGracefulStop(strand, currentScheduler, iterator);
     }
 
-    private void invokeListenerGracefulStop(Strand strand, Scheduler scheduler, Iterator<BObject> iterator) {
-        if (listenerSet.isEmpty()) {
+    private synchronized void invokeListenerGracefulStop(Strand strand, Scheduler scheduler, Iterator<BObject> iterator) {
+        if (iterator.hasNext()) {
+            ListenerCallback callback = new ListenerCallback(strand, scheduler, iterator);
+            BObject listener = iterator.next();
+            Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
+            scheduler.schedule(new Object[1], func, null, callback, null, null,
+                    null, strand.getMetadata());
+        } else {
             invokeStopHandlerFunction(strand, scheduler);
         }
-        ListenerCallback callback = new ListenerCallback(strand, scheduler, iterator);
-        BObject listener = iterator.next();
-        Function<?, ?> func = o ->  listener.call((Strand) ((Object[]) o)[0], "gracefulStop");
-        scheduler.schedule(new Object[1], func, null, callback, null, null,
-                null, strand.getMetadata());
     }
 
-    private void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
+    private synchronized void invokeStopHandlerFunction(Strand strand, Scheduler scheduler) {
         if (stopHandlerStack.isEmpty()) {
             return;
         }
@@ -110,11 +111,7 @@ public class RuntimeRegistry {
 
         @Override
         public void notifySuccess(Object result) {
-            if (iterator.hasNext()) {
-                invokeListenerGracefulStop(strand, scheduler, iterator);
-            } else {
-                invokeStopHandlerFunction(strand, scheduler);
-            }
+            invokeListenerGracefulStop(strand, scheduler, iterator);
         }
 
         @Override
