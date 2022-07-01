@@ -34,95 +34,17 @@ import java.util.Map;
  * Tests for JsonToRecordDirectConverter.
  */
 public class JsonToRecordDirectConverterTests {
+
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
-
-    private final Path sample0Json = RES_DIR.resolve("json")
-            .resolve("sample_0.json");
-    private final Path sample0Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_0.bal");
-
-    private final Path sample1Json = RES_DIR.resolve("json")
-            .resolve("sample_1.json");
-    private final Path sample1Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_1.bal");
-
-    private final Path sample2Json = RES_DIR.resolve("json")
-            .resolve("sample_2.json");
-    private final Path sample2Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_2.bal");
-
-    private final Path sample3Json = RES_DIR.resolve("json")
-            .resolve("sample_3.json");
-    private final Path sample3Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_3.bal");
-
-    private final Path sample4Json = RES_DIR.resolve("json")
-            .resolve("sample_4.json");
-    private final Path sample4Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_4.bal");
-
-    private final Path sample5Json = RES_DIR.resolve("json")
-            .resolve("sample_5.json");
-    private final Path sample5Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_5.bal");
-
-    private final Path sample6Json = RES_DIR.resolve("json")
-            .resolve("sample_6.json");
-    private final Path sample6Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_6.bal");
-
-    private final Path sample7Json = RES_DIR.resolve("json")
-            .resolve("sample_7.json");
-    private final Path sample7Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_7.bal");
-
-    private final Path sample8Json = RES_DIR.resolve("json")
-            .resolve("sample_8.json");
-    private final Path sample8Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_8.bal");
-
-    private final Path sample9Json = RES_DIR.resolve("json")
-            .resolve("sample_9.json");
-    private final Path sample9Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_9.bal");
-
-    private final Path sample10Json = RES_DIR.resolve("json")
-            .resolve("sample_10.json");
-    private final Path sample10Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_10.bal");
-
-    private final Path sample11Json = RES_DIR.resolve("json")
-            .resolve("sample_11.json");
-    private final Path sample11Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_11.bal");
-
-    private final Path sample12Json = RES_DIR.resolve("json")
-            .resolve("sample_12.json");
-    private final Path sample12Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_12.bal");
-
-    private final Path sample13Json = RES_DIR.resolve("json")
-            .resolve("sample_13.json");
-    private final Path sample13Bal = RES_DIR.resolve("ballerina")
-            .resolve("sample_13.bal");
 
     @Test(description = "Test all sample JSON values")
     public void testSamples() throws IOException {
         Map<Path, Path> samples = new HashMap<>();
-        samples.put(sample0Json, sample0Bal);
-        samples.put(sample1Json, sample1Bal);
-        samples.put(sample2Json, sample2Bal);
-        samples.put(sample3Json, sample3Bal);
-        samples.put(sample4Json, sample4Bal);
-        samples.put(sample5Json, sample5Bal);
-        samples.put(sample6Json, sample6Bal);
-        samples.put(sample7Json, sample7Bal);
-        samples.put(sample8Json, sample8Bal);
-        samples.put(sample9Json, sample9Bal);
-        samples.put(sample10Json, sample10Bal);
-        samples.put(sample11Json, sample11Bal);
-        samples.put(sample12Json, sample12Bal);
-        samples.put(sample13Json, sample13Bal);
+        for (int i = 0; i <= 13; i++) {
+            Path jsonPath = RES_DIR.resolve("json").resolve(String.format("sample_%d.json", i));
+            Path balPath = RES_DIR.resolve("ballerina").resolve(String.format("sample_%d.bal", i));
+            samples.put(jsonPath, balPath);
+        }
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
@@ -158,6 +80,30 @@ public class JsonToRecordDirectConverterTests {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
                     JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false);
+            if (jsonToRecordResponse.getCodeBlock() != null) {
+                String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
+                String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
+                Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
+            }
+            List<JsonToRecordDirectConverterDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
+            for (JsonToRecordDirectConverterDiagnostic diagnostic : diagnostics) {
+                //TODO: react when there is a diagnostic message.
+            }
+        }
+    }
+
+    @Test(description = "Test all sample JSON values with TypeDesc")
+    public void testSamplesWithTypeDesc() throws IOException {
+        Map<Path, Path> samples = new HashMap<>();
+        for (int i = 0; i <= 13; i++) {
+            Path jsonPath = RES_DIR.resolve("json").resolve(String.format("sample_%d.json", i));
+            Path balPath = RES_DIR.resolve("ballerina").resolve(String.format("sample_%d_type_desc.bal", i));
+            samples.put(jsonPath, balPath);
+        }
+        for (Map.Entry<Path, Path> sample : samples.entrySet()) {
+            String jsonFileContent = Files.readString(sample.getKey());
+            JsonToRecordResponse jsonToRecordResponse =
+                    JsonToRecordDirectConverter.convert(jsonFileContent, null, true, false);
             if (jsonToRecordResponse.getCodeBlock() != null) {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
