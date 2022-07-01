@@ -527,7 +527,7 @@ public abstract class TypeBuilder {
              *
              * @return This instance of the {@link OBJECT_FIELD}
              */
-            OBJECT_FIELD build();
+            OBJECT_FIELD get();
         }
 
         /**
@@ -580,7 +580,7 @@ public abstract class TypeBuilder {
              *
              * @return This instance of the {@link OBJECT_METHOD}
              */
-            OBJECT_METHOD build();
+            OBJECT_METHOD get();
         }
     }
 
@@ -711,7 +711,7 @@ public abstract class TypeBuilder {
              *
              * @return This instance of the {@link RECORD_FIELD}
              */
-            RECORD_FIELD build();
+            RECORD_FIELD get();
         }
     }
 }

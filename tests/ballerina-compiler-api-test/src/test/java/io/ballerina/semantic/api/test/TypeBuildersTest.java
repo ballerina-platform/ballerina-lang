@@ -482,14 +482,14 @@ public class TypeBuildersTest {
     public void testObjectTypeBuilder() {
         TypeBuilder builder = types.builder();
         TypeBuilder.OBJECT objTypeBuilder = builder.OBJECT_TYPE;
-        TypeBuilder.OBJECT.OBJECT_FIELD anInt = objTypeBuilder.fields().withType(types.INT).withName("anInt").build();
-        TypeBuilder.OBJECT.OBJECT_FIELD aStr = objTypeBuilder.fields().withType(types.STRING).withName("aStr").build();
+        TypeBuilder.OBJECT.OBJECT_FIELD anInt = objTypeBuilder.fields().withType(types.INT).withName("anInt").get();
+        TypeBuilder.OBJECT.OBJECT_FIELD aStr = objTypeBuilder.fields().withType(types.STRING).withName("aStr").get();
 
         TypeBuilder.FUNCTION functionType = builder.FUNCTION_TYPE;
         ParameterSymbol floatArg = functionType.params().withType(types.FLOAT).withName("floatArg").build();
         FunctionTypeSymbol functionTypeSymbol = functionType.withParams(floatArg).withReturnType(types.JSON).build();
         TypeBuilder.OBJECT.OBJECT_METHOD floatFn =
-                objTypeBuilder.methods().withType(functionTypeSymbol).withName("floatFn").build();
+                objTypeBuilder.methods().withType(functionTypeSymbol).withName("floatFn").get();
 
         ObjectTypeSymbol objTypeWithFields = objTypeBuilder.withFields(anInt, aStr).build();
         ObjectTypeSymbol objTypeWithMethod = objTypeBuilder.withMethods(floatFn).build();
@@ -508,7 +508,7 @@ public class TypeBuildersTest {
         TypeBuilder.RECORD recordType = builder.RECORD_TYPE;
         List<TypeBuilder.RECORD.RECORD_FIELD> recordFieldList = new ArrayList<>();
         for (Pair<String, TypeSymbol> field : fields) {
-            recordFieldList.add(recordType.fields().withName(field.first()).withType(field.second()).build());
+            recordFieldList.add(recordType.fields().withName(field.first()).withType(field.second()).get());
         }
 
         RecordTypeSymbol recordTypeSymbol = recordType
