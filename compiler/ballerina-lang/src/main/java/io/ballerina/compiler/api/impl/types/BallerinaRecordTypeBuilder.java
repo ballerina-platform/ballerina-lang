@@ -189,7 +189,7 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
         }
 
         @Override
-        public RECORD_FIELD build() {
+        public RECORD_FIELD get() {
             if (name == null) {
                 throw new IllegalArgumentException("Field name can not be null");
             }

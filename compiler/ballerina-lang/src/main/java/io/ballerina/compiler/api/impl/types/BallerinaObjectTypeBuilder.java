@@ -280,7 +280,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         }
 
         @Override
-        public OBJECT_METHOD build() {
+        public OBJECT_METHOD get() {
             if (name == null) {
                 throw new IllegalArgumentException("Method name can not be null");
             }
@@ -338,7 +338,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         }
 
         @Override
-        public OBJECT_FIELD build() {
+        public OBJECT_FIELD get() {
             if (name == null) {
                 throw new IllegalArgumentException("Field name can not be null");
             }
