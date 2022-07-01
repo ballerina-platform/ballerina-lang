@@ -16,70 +16,68 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
-import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
- * The implementation of the methods used to build the Map type descriptor in Types API.
+ * The implementation of the methods used to build the Typedesc type descriptor in Types API.
  *
  * @since 2201.2.0
  */
-public class BallerinaMapTypeBuilder implements TypeBuilder.MAP {
+public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
 
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
     private TypeSymbol typeParam;
 
-    protected BallerinaMapTypeBuilder(CompilerContext context) {
+    public BallerinaTypeDescTypeBuilder(CompilerContext context) {
         typesFactory = TypesFactory.getInstance(context);
         symTable = SymbolTable.getInstance(context);
     }
 
     @Override
-    public TypeBuilder.MAP withTypeParam(TypeSymbol typeParam) {
+    public TypeBuilder.TYPEDESC withTypeParam(TypeSymbol typeParam) {
         this.typeParam = typeParam;
         return this;
     }
 
     @Override
-    public MapTypeSymbol build() {
-
-        BTypeSymbol mapTSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
+    public TypeDescTypeSymbol build() {
+        BTypeSymbol typedescSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
-                symTable.rootPkgSymbol.origin);
+                SymbolOrigin.COMPILED_SOURCE);
 
-        BMapType mapType = new BMapType(TypeTags.MAP, getBType(typeParam), mapTSymbol);
-        mapTSymbol.type = mapType;
-        MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typesFactory.getTypeDescriptor(mapType);
+        BTypedescType typedescType = new BTypedescType(getBType(typeParam), typedescSymbol);
+        typedescSymbol.type = typedescType;
+        TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) typesFactory.getTypeDescriptor(typedescType);
         this.typeParam = null;
 
-        return mapTypeSymbol;
+        return typeDescTypeSymbol;
     }
 
     private BType getBType(TypeSymbol typeSymbol) {
-        if (typeSymbol == null) {
-            return null;
+        if (typeSymbol != null) {
+            if (typeSymbol instanceof AbstractTypeSymbol) {
+                return ((AbstractTypeSymbol) typeSymbol).getBType();
+            }
+            return symTable.noType;
         }
 
-        if (typeSymbol instanceof AbstractTypeSymbol
-                && typeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))) {
-            return ((AbstractTypeSymbol) typeSymbol).getBType();
-        }
-
-        throw new IllegalArgumentException("Valid type parameter of Map type should be provided");
+        return null;
     }
 }

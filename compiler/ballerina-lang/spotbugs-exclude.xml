@@ -107,7 +107,7 @@
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
     <Match>
-        <Class name="io.ballerina.compiler.api.impl.types.TypeBuilder" />
+        <Class name="TypeBuilder" />
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD" />
     </Match>
     <Match>
