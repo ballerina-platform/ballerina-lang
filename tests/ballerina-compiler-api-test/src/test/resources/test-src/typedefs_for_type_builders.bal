@@ -93,3 +93,25 @@ type Employee record {
     readonly string name;
     int salary;
 };
+
+type Student record {|
+    int id;
+    string name;
+|};
+
+type Bar record {|
+    string b;
+|};
+
+function complexArrayTypes() {
+    int a;
+    int[] b;
+    string[1] c;
+    int[][2] d;
+    int[2][*][3] e;
+    (int|string)[1][2] f;
+    (int|string)[4][] g;
+    (Bar & readonly)[1][2][*] h;
+    (Bar & readonly)[3][4] i;
+    (Bar & readonly)[4] j;
+}
