@@ -16,8 +16,9 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
@@ -28,6 +29,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -36,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -87,8 +91,15 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     @Override
     public TableTypeSymbol build() {
-        BType rowBType = getRowBType(rowType);
-        BTableType tableType = new BTableType(TypeTags.TABLE, rowBType, symTable.tableType.tsymbol);
+        BType rowBType = getRowBType(rowType,
+                (keyTypes.isEmpty() && fieldNames.isEmpty())
+                        || (keyTypes.stream().allMatch(typeSymbol -> typeSymbol.typeKind() == TypeDescKind.NEVER)));
+        BTypeSymbol tableSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
+                symTable.rootPkgSymbol.origin);
+
+        BTableType tableType = new BTableType(TypeTags.TABLE, rowBType, tableSymbol);
+        tableSymbol.type = tableType;
         if (!keyTypes.isEmpty()) {
             tableType.keyTypeConstraint = getKeyConstraintBType(keyTypes, rowType);
         } else if (!fieldNames.isEmpty() && isValidFieldNameList(fieldNames, rowType)) {
@@ -180,19 +191,14 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
     }
 
     private BType getKeyBType(TypeSymbol typeSymbol) {
-        if (typeSymbol != null) {
-            if (typeSymbol instanceof AbstractTypeSymbol
-                    && typeSymbol.subtypeOf(typesFactory.getTypeDescriptor(symTable.anyType))) {
-                return ((AbstractTypeSymbol) typeSymbol).getBType();
-            }
-
-            throw new IllegalArgumentException("Invalid key type parameter provided");
+        if (typeSymbol instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) typeSymbol).getBType();
         }
 
-        return symTable.neverType;
+        throw new IllegalArgumentException("Invalid key type parameter provided");
     }
 
-    private BType getRowBType(TypeSymbol rowType) {
+    private BType getRowBType(TypeSymbol rowType, boolean isKeyless) {
         if (rowType == null) {
             throw new IllegalArgumentException("Row type parameter can not be null");
         }
@@ -200,7 +206,7 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
         BType rowBType = getBType(rowType);
         if (types.isAssignable(rowBType, symTable.mapType)) {
             if (rowBType instanceof BRecordType) {
-                if (isValidRowRecordType((BRecordType) rowBType)) {
+                if (isKeyless || isValidRowRecordType((BRecordType) rowBType)) {
                     return rowBType;
                 }
             } else if (rowBType instanceof BMapType) {
@@ -217,7 +223,9 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     private boolean isValidRowRecordType(BRecordType rowBType) {
         for (BField field : rowBType.getFields().values()) {
-            if (field.symbol != null && Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)
+            if (types.isAssignable(field.type, symTable.anydataType)
+                    && field.symbol != null
+                    && Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)
                     && !Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL)) {
                 return true;
             }

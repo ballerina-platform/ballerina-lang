@@ -16,12 +16,12 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -46,7 +46,7 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
     private final TypesFactory typesFactory;
     private final SymbolTable symTable;
     private TypeSymbol type;
-    private int size;
+    private int size = -1;
     private BArrayState state = BArrayState.OPEN;
 
     public BallerinaArrayTypeBuilder(CompilerContext context) {
@@ -83,11 +83,11 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
 
     @Override
     public ArrayTypeSymbol build() {
-        BTypeSymbol arraytSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
+        BTypeSymbol arrayTSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
 
-        BArrayType arrayType = new BArrayType(getBType(type), arraytSymbol, size, state);
-        arraytSymbol.type = arrayType;
+        BArrayType arrayType = new BArrayType(getBType(type), arrayTSymbol, size, state);
+        arrayTSymbol.type = arrayType;
         ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typesFactory.getTypeDescriptor(arrayType);
         this.size = -1;
         this.type = null;
@@ -101,10 +101,10 @@ public class BallerinaArrayTypeBuilder implements TypeBuilder.ARRAY {
             throw new IllegalArgumentException("Array member type descriptor can not be null");
         }
 
-        if (type.typeKind() == TypeDescKind.ARRAY || !(type instanceof AbstractTypeSymbol)) {
-            throw new IllegalArgumentException("Invalid array member type descriptor provided");
+        if (type instanceof AbstractTypeSymbol) {
+            return ((AbstractTypeSymbol) type).getBType();
         }
 
-        return ((AbstractTypeSymbol) type).getBType();
+        throw new IllegalArgumentException("Invalid array member type descriptor provided");
     }
 }

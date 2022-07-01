@@ -20,7 +20,7 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.Types;
-import io.ballerina.compiler.api.impl.types.TypeBuilder;
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -41,6 +41,7 @@ import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -49,6 +50,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.internal.collections.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -145,17 +147,17 @@ public class TypeBuildersTest {
     @DataProvider(name = "xmlTypeParamsFromSourceProvider")
     private Object[][] getXmlTypeParamsFromSource() {
         return new Object[][] {
-                {"XmlEle", TYPE_REFERENCE, "xml<Element>"},
-                {"XmlPi", TYPE_REFERENCE, "xml<ProcessingInstruction>"},
-                {"XmlCmnt", TYPE_REFERENCE, "xml<Comment>"},
-                {"XmlTxt", TYPE_REFERENCE, "xml<Text>"},
-                {"XmlUnionA", UNION, "xml<Element|ProcessingInstruction|Text>"},
+                {"XmlEle", TYPE_REFERENCE, "xml<xml:Element>"},
+                {"XmlPi", TYPE_REFERENCE, "xml<xml:ProcessingInstruction>"},
+                {"XmlCmnt", TYPE_REFERENCE, "xml<xml:Comment>"},
+                {"XmlTxt", TYPE_REFERENCE, "xml<xml:Text>"},
+                {"XmlUnionA", UNION, "xml<xml:Element|xml:ProcessingInstruction|xml:Text>"},
                 {"XmlUnionB", UNION, "xml<XmlEle|XmlTxt|XmlCmnt>"},
                 {"MixXmlA", UNION, "xml<XmlUnionA|XmlUnionB>"},
                 {"MixXmlB", UNION, "xml<XmlPi|MixXmlC>"},
                 {"MixXmlC", UNION, "xml<XmlUnionA|XmlTxt|MixXmlA>"},
                 {"NewEle", TYPE_REFERENCE, "xml<XmlEle>"},
-                {"EleTxtCmnt", UNION, "xml<XmlCmnt|Text|NewEle>"},
+                {"EleTxtCmnt", UNION, "xml<XmlCmnt|xml:Text|NewEle>"},
         };
     }
 
@@ -291,7 +293,41 @@ public class TypeBuildersTest {
                 {types.STRING, 5, "string[5]"},
                 {types.INT, null, "int[]"},
                 {types.BYTE, 24, "byte[24]"},
-//                {types.FLOAT, -1, "float[*]"}, // TODO: Enable after fixing #36786
+                {types.FLOAT, -1, "float[*]"},
+        };
+    }
+
+    @Test(dataProvider = "complexArrayTypeBuilderProvider")
+    public void testComplexArrayTypeBuilder(int line, int column, Integer size, String signature) {
+        TypeBuilder builder = types.builder();
+        TypeBuilder.ARRAY arrayTypeBuilder = builder.ARRAY_TYPE.withType(getSymbolTypeDef(line, column)).withSize(size);
+        if (size != null && size < 0) {
+            arrayTypeBuilder = arrayTypeBuilder.withInferredSize();
+        }
+
+        ArrayTypeSymbol arrayTypeSymbol = arrayTypeBuilder.build();
+        assertEquals(arrayTypeSymbol.typeKind(), ARRAY);
+        if (size != null && size >= 0) {
+            assertTrue(arrayTypeSymbol.size().isPresent());
+            assertEquals(arrayTypeSymbol.size().get(), size);
+        }
+
+        assertEquals(arrayTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "complexArrayTypeBuilderProvider")
+    private Object[][] getComplexArrayTypes() {
+        return new Object[][] {
+                {106, 8, 5, "int[5]"},
+                {107, 10, 4, "int[4][]"},
+                {108, 14, -1, "string[*][1]"},
+                {109, 13, 2, "int[2][][2]"},
+                {110, 17, null, "int[][2][*][3]"},
+                {111, 23, 6, "(int|string)[6][1][2]"},
+                {112, 22, -1, "(int|string)[*][4][]"},
+                {113, 30, null, "(Bar & readonly)[][1][2][*]"},
+                {114, 27, 7, "(Bar & readonly)[7][3][4]"},
+                {115, 24, -1, "(Bar & readonly)[*][4]"},
         };
     }
 
@@ -300,7 +336,7 @@ public class TypeBuildersTest {
         TypeBuilder builder = types.builder();
         TypeBuilder.ERROR errorType = builder.ERROR_TYPE;
         if (line != null && column != null) {
-            errorType = errorType.withTypeParam(getTypeDefSymbol(line, column));
+            errorType = errorType.withTypeParam(getSymbolTypeDef(line, column));
         }
 
         ErrorTypeSymbol errorTypeSymbol = errorType.build();
@@ -340,70 +376,120 @@ public class TypeBuildersTest {
         };
     }
 
-    @Test
-    public void testTableTypeBuilder() {
+    @Test(dataProvider = "keySpecifiedTableTypeBuilderProvider")
+    public void testKeySpecifiedTableTypeBuilder(String rowTypeDef, List<String> keys, String signature) {
         TypeBuilder builder = types.builder();
         TypeBuilder.TABLE tableTypeBuilder = builder.TABLE_TYPE;
-        Optional<Symbol> employeeRecord = types.getTypeByName(ORG, MODULE, VERSION, "Employee");
-        assertTrue(employeeRecord.isPresent());
-        assertEquals(employeeRecord.get().kind(), SymbolKind.TYPE_DEFINITION);
-        TypeSymbol empRecordType = ((TypeDefinitionSymbol) employeeRecord.get()).typeDescriptor();
+        Optional<Symbol> rowType = types.getTypeByName(ORG, MODULE, VERSION, rowTypeDef);
+        assertTrue(rowType.isPresent());
+        assertEquals(rowType.get().kind(), SymbolKind.TYPE_DEFINITION);
+        TypeSymbol rowTypeSymbol = ((TypeDefinitionSymbol) rowType.get()).typeDescriptor();
 
-        TableTypeSymbol empTableWithKeyFields =
-                tableTypeBuilder.withRowType(empRecordType).withKeySpecifiers("name").build();
+        TableTypeSymbol tableTypeSymbol =
+                tableTypeBuilder.withRowType(rowTypeSymbol).withKeySpecifiers(keys.toArray(new String[0])).build();
 
-        TableTypeSymbol empTableWithKeyType =
-                tableTypeBuilder.withRowType(empRecordType).withKeyConstraints(types.STRING).build();
-
-        assertEquals(empTableWithKeyFields.signature(), "table<Employee> key(name)");
-        assertEquals(empTableWithKeyType.signature(), "table<Employee> key<string>");
-
-        Optional<Symbol> customerRecord = types.getTypeByName(ORG, MODULE, VERSION, "Customer");
-        assertTrue(customerRecord.isPresent());
-        assertEquals(customerRecord.get().kind(), SymbolKind.TYPE_DEFINITION);
-        TypeSymbol cusRecordType = ((TypeDefinitionSymbol) customerRecord.get()).typeDescriptor();
-
-        TableTypeSymbol cusTableWithKeyFields =
-                tableTypeBuilder.withRowType(cusRecordType).withKeySpecifiers("id", "name").build();
-
-        TableTypeSymbol cusTableWithKeyType =
-                tableTypeBuilder.withRowType(cusRecordType).withKeyConstraints(types.INT, types.STRING).build();
-
-        assertEquals(cusTableWithKeyFields.signature(), "table<Customer> key(id,name)");
-        assertEquals(cusTableWithKeyType.signature(), "table<Customer> key<[int, string]>");
-
+        assertEquals(tableTypeSymbol.signature(), signature);
     }
 
-    @Test
-    public void testFunctionTypeBuilder() {
+    @DataProvider(name = "keySpecifiedTableTypeBuilderProvider")
+    private Object[][] getKeySpecifiedTableTypes() {
+        return new Object[][] {
+                {"Employee", List.of("name"), "table<Employee> key(name)"},
+                {"Customer", List.of("id", "name"), "table<Customer> key(id,name)"},
+                {"Employee", List.of(), "table<Employee>"},
+                {"Customer", List.of(), "table<Customer>"},
+                {"Student", List.of(), "table<Student>"},
+        };
+    }
+
+    @Test(dataProvider = "keyConstrainedTableTypeBuilderProvider")
+    public void testKeyConstrainedTableTypeBuilder(String rowTypeDef, List<TypeSymbol> keyTypes, String signature) {
+        TypeBuilder builder = types.builder();
+        TypeBuilder.TABLE tableTypeBuilder = builder.TABLE_TYPE;
+        Optional<Symbol> rowType = types.getTypeByName(ORG, MODULE, VERSION, rowTypeDef);
+        assertTrue(rowType.isPresent());
+        assertEquals(rowType.get().kind(), SymbolKind.TYPE_DEFINITION);
+        TypeSymbol rowTypeSymbol = ((TypeDefinitionSymbol) rowType.get()).typeDescriptor();
+
+        TableTypeSymbol tableTypeSymbol = tableTypeBuilder
+                .withRowType(rowTypeSymbol)
+                .withKeyConstraints(keyTypes.toArray(new TypeSymbol[0]))
+                .build();
+
+        assertEquals(tableTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "keyConstrainedTableTypeBuilderProvider")
+    private Object[][] getKeyConstrainedTableTypes() {
+        return new Object[][] {
+                {"Employee", List.of(types.STRING), "table<Employee> key<string>"},
+                {"Customer", List.of(types.INT, types.STRING), "table<Customer> key<[int, string]>"},
+                {"Customer", List.of(types.STRING, types.INT), "table<Customer> key<[string, int]>"},
+                {"Employee", List.of(), "table<Employee>"},
+                {"Customer", List.of(), "table<Customer>"},
+                {"Student", List.of(), "table<Student>"},
+        };
+    }
+
+    @Test(dataProvider = "functionTypeBuilderProvider")
+    public void testFunctionTypeBuilder(List<Pair<String, TypeSymbol>> params, TypeSymbol returnType,
+                                        TypeSymbol restParamType, String restParamName, String signature) {
         TypeBuilder builder = types.builder();
         TypeBuilder.FUNCTION functionTypeBuilder = builder.FUNCTION_TYPE;
-        ParameterSymbol abc = functionTypeBuilder.params().withType(types.STRING).withName("abc").build();
-        ParameterSymbol myInt = functionTypeBuilder.params().withType(types.INT).withName("myInt").build();
+        TypeBuilder.FUNCTION.PARAMETER_BUILDER parameterBuilder = functionTypeBuilder.params();
+        List<ParameterSymbol> parameterSymbols = new ArrayList<>();
+        for (Pair<String, TypeSymbol> param : params) {
+            parameterSymbols.add(parameterBuilder.withName(param.first()).withType(param.second()).build());
+        }
 
-        FunctionTypeSymbol fnTypeWithSingleArg = functionTypeBuilder.withParams(abc).build();
-        assertEquals(fnTypeWithSingleArg.signature(), "function (string abc)");
+        functionTypeBuilder = functionTypeBuilder.withParams(parameterSymbols.toArray(new ParameterSymbol[0]));
+        if (restParamType != null && restParamName != null) {
+            ParameterSymbol restParameter = parameterBuilder.withType(restParamType).withName(restParamName).build();
+            functionTypeBuilder = functionTypeBuilder.withRestParam(restParameter);
+        }
 
-        FunctionTypeSymbol fnTypeWithMultiArg = functionTypeBuilder.withParams(abc, myInt).build();
-        assertEquals(fnTypeWithMultiArg.signature(), "function (string abc, int myInt)");
+        if (returnType != null) {
+            functionTypeBuilder = functionTypeBuilder.withReturnType(returnType);
+        }
 
-        FunctionTypeSymbol fnTypeWithReturn =
-                functionTypeBuilder.withParams(abc, myInt).withReturnType(types.FLOAT).build();
-        assertEquals(fnTypeWithReturn.signature(), "function (string abc, int myInt) returns float");
+        FunctionTypeSymbol functionTypeSymbol = functionTypeBuilder.build();
+        assertEquals(functionTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "functionTypeBuilderProvider")
+    private Object[][] getFunctionTypes() {
+        return new Object[][] {
+                {List.of(), null, null, null, "function () returns ()"},
+                {List.of(), null, types.FLOAT, "rFParam", "function (float... rFParam) returns ()"},
+                {List.of(), types.FLOAT, null, null, "function () returns float"},
+                {List.of(), types.FLOAT, types.STRING, "rSParam", "function (string... rSParam) returns float"},
+                {List.of(Pair.of("myStr", types.STRING)), null, null, null, "function (string myStr) returns ()"},
+                {List.of(Pair.of("myStr", types.STRING)), null, types.BOOLEAN, "rBParam",
+                        "function (string myStr, boolean... rBParam) returns ()"},
+                {List.of(Pair.of("myStr", types.STRING)), types.INT, null, null, "function (string myStr) returns int"},
+                {List.of(Pair.of("paramA", types.STRING), Pair.of("myInt", types.INT)), null, null, null,
+                        "function (string paramA, int myInt) returns ()"},
+                {List.of(Pair.of("paramA", types.STRING), Pair.of("myInt", types.INT)), null, types.DECIMAL, "rDParam",
+                        "function (string paramA, int myInt, decimal... rDParam) returns ()"},
+                {List.of(Pair.of("paramA", types.STRING), Pair.of("myInt", types.INT)), types.BOOLEAN, null, null,
+                        "function (string paramA, int myInt) returns boolean"},
+                {List.of(Pair.of("paramA", types.STRING), Pair.of("myInt", types.INT)), types.BOOLEAN, types.FLOAT,
+                        "rFParam", "function (string paramA, int myInt, float... rFParam) returns boolean"},
+        };
     }
 
     @Test
     public void testObjectTypeBuilder() {
         TypeBuilder builder = types.builder();
         TypeBuilder.OBJECT objTypeBuilder = builder.OBJECT_TYPE;
-        TypeBuilder.OBJECT.OBJECT_FIELD anInt = objTypeBuilder.fields().withType(types.INT).withName("anInt").build();
-        TypeBuilder.OBJECT.OBJECT_FIELD aStr = objTypeBuilder.fields().withType(types.STRING).withName("aStr").build();
+        TypeBuilder.OBJECT.OBJECT_FIELD anInt = objTypeBuilder.fields().withType(types.INT).withName("anInt").get();
+        TypeBuilder.OBJECT.OBJECT_FIELD aStr = objTypeBuilder.fields().withType(types.STRING).withName("aStr").get();
 
         TypeBuilder.FUNCTION functionType = builder.FUNCTION_TYPE;
         ParameterSymbol floatArg = functionType.params().withType(types.FLOAT).withName("floatArg").build();
         FunctionTypeSymbol functionTypeSymbol = functionType.withParams(floatArg).withReturnType(types.JSON).build();
         TypeBuilder.OBJECT.OBJECT_METHOD floatFn =
-                objTypeBuilder.methods().withType(functionTypeSymbol).withName("floatFn").build();
+                objTypeBuilder.methods().withType(functionTypeSymbol).withName("floatFn").get();
 
         ObjectTypeSymbol objTypeWithFields = objTypeBuilder.withFields(anInt, aStr).build();
         ObjectTypeSymbol objTypeWithMethod = objTypeBuilder.withMethods(floatFn).build();
@@ -416,30 +502,50 @@ public class TypeBuildersTest {
                 "object {string aStr; int anInt; function floatFn(float floatArg) returns json;}");
     }
 
-    @Test
-    public void testRecordTypeBuilder() {
-
+    @Test(dataProvider = "recordTypeBuilderProvider")
+    public void testRecordTypeBuilder(List<Pair<String, TypeSymbol>> fields, TypeSymbol restField, String signature) {
         TypeBuilder builder = types.builder();
         TypeBuilder.RECORD recordType = builder.RECORD_TYPE;
-        TypeBuilder.RECORD.RECORD_FIELD abc = recordType.fields().withType(types.INT).withName("abc").build();
-        TypeBuilder.RECORD.RECORD_FIELD myStr = recordType.fields().withName("myStr").withType(types.STRING).build();
+        List<TypeBuilder.RECORD.RECORD_FIELD> recordFieldList = new ArrayList<>();
+        for (Pair<String, TypeSymbol> field : fields) {
+            recordFieldList.add(recordType.fields().withName(field.first()).withType(field.second()).get());
+        }
 
-        RecordTypeSymbol recordWithFields = recordType.withFields(abc, myStr).build();
-        RecordTypeSymbol recordWithRestField = recordType.withFields(myStr).withRestField(types.STRING).build();
+        RecordTypeSymbol recordTypeSymbol = recordType
+                .withFields(recordFieldList.toArray(new TypeBuilder.RECORD.RECORD_FIELD[0]))
+                .withRestField(restField)
+                .build();
 
-        assertEquals(recordWithFields.signature(), "record {|int abc; string myStr;|}");
-        assertEquals(recordWithRestField.signature(), "record {|string myStr; string...;|}");
+        assertEquals(recordTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "recordTypeBuilderProvider")
+    private Object[][] getRecordTypes() {
+        return new Object[][] {
+                {List.of(), null, "record {||}"},
+                {List.of(), types.FLOAT, "record {|float...;|}"},
+                {List.of(Pair.of("intFieldA", types.INT)), null, "record {|int intFieldA;|}"},
+                {List.of(Pair.of("intFieldA", types.INT)), types.DECIMAL, "record {|int intFieldA; decimal...;|}"},
+                {List.of(Pair.of("intFieldA", types.INT), Pair.of("strFieldB", types.STRING)), null,
+                        "record {|int intFieldA; string strFieldB;|}"},
+                {List.of(Pair.of("intFieldA", types.INT), Pair.of("strFieldB", types.STRING)), types.BOOLEAN,
+                        "record {|int intFieldA; string strFieldB; boolean...;|}"},
+        };
     }
 
     // utils
 
-    private TypeSymbol getTypeDefSymbol(int line, int column) {
+    private TypeSymbol getSymbolTypeDef(int line, int column) {
         Project project = BCompileUtil.loadProject("test-src/typedefs_for_type_builders.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         assertTrue(symbol.isPresent());
+        if (symbol.get().kind() == SymbolKind.VARIABLE) {
+            return ((VariableSymbol) symbol.get()).typeDescriptor();
+        }
+
         assertEquals(symbol.get().kind(), SymbolKind.TYPE_DEFINITION);
         return ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
     }

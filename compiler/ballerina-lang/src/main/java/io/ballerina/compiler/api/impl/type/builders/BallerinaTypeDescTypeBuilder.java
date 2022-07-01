@@ -16,16 +16,23 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * The implementation of the methods used to build the Typedesc type descriptor in Types API.
@@ -51,7 +58,12 @@ public class BallerinaTypeDescTypeBuilder implements TypeBuilder.TYPEDESC {
 
     @Override
     public TypeDescTypeSymbol build() {
-        BTypedescType typedescType = new BTypedescType(getBType(typeParam), symTable.typeDesc.tsymbol);
+        BTypeSymbol typedescSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
+                SymbolOrigin.COMPILED_SOURCE);
+
+        BTypedescType typedescType = new BTypedescType(getBType(typeParam), typedescSymbol);
+        typedescSymbol.type = typedescType;
         TypeDescTypeSymbol typeDescTypeSymbol = (TypeDescTypeSymbol) typesFactory.getTypeDescriptor(typedescType);
         this.typeParam = null;
 

@@ -16,16 +16,23 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +73,12 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
             memberBTypes.add(getMemberType(memberType));
         }
 
-        BTupleType tupleType = new BTupleType(symTable.tupleType.tsymbol, memberBTypes);
+        BTypeSymbol tupleSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null,
+                symTable.rootPkgSymbol, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
+
+        BTupleType tupleType = new BTupleType(tupleSymbol, memberBTypes);
+        tupleSymbol.type = tupleType;
         BType restBType = getRestType(restType);
         if (restBType != null) {
             tupleType.restType = restBType;

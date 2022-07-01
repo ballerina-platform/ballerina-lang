@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api;
 
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
@@ -527,7 +527,7 @@ public abstract class TypeBuilder {
              *
              * @return This instance of the {@link OBJECT_FIELD}
              */
-            OBJECT_FIELD build();
+            OBJECT_FIELD get();
         }
 
         /**
@@ -580,7 +580,7 @@ public abstract class TypeBuilder {
              *
              * @return This instance of the {@link OBJECT_METHOD}
              */
-            OBJECT_METHOD build();
+            OBJECT_METHOD get();
         }
     }
 
@@ -711,7 +711,7 @@ public abstract class TypeBuilder {
              *
              * @return This instance of the {@link RECORD_FIELD}
              */
-            RECORD_FIELD build();
+            RECORD_FIELD get();
         }
     }
 }

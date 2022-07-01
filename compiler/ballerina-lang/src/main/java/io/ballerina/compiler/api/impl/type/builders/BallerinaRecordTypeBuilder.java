@@ -16,8 +16,9 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -90,8 +91,9 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
     @Override
     public RecordTypeSymbol build() {
 
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, Names.EMPTY, symTable.rootPkgSymbol.pkgID,
-                null, symTable.rootPkgSymbol.owner, symTable.builtinPos, symTable.rootPkgSymbol.origin);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
+                symTable.rootPkgSymbol.origin);
 
         BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;
@@ -188,7 +190,7 @@ public class BallerinaRecordTypeBuilder implements TypeBuilder.RECORD {
         }
 
         @Override
-        public RECORD_FIELD build() {
+        public RECORD_FIELD get() {
             if (name == null) {
                 throw new IllegalArgumentException("Field name can not be null");
             }

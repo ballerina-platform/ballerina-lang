@@ -16,17 +16,23 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * The implementation of the methods used to build the Map type descriptor in Types API.
@@ -52,7 +58,13 @@ public class BallerinaMapTypeBuilder implements TypeBuilder.MAP {
 
     @Override
     public MapTypeSymbol build() {
-        BMapType mapType = new BMapType(TypeTags.MAP, getBType(typeParam), symTable.mapType.tsymbol);
+
+        BTypeSymbol mapTSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
+                symTable.rootPkgSymbol.origin);
+
+        BMapType mapType = new BMapType(TypeTags.MAP, getBType(typeParam), mapTSymbol);
+        mapTSymbol.type = mapType;
         MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typesFactory.getTypeDescriptor(mapType);
         this.typeParam = null;
 

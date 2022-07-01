@@ -16,8 +16,22 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaArrayTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaErrorTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaFunctionTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaFutureTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaMapTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaObjectTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaRecordTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaSingletonTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaStreamTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaTableTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaTupleTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaTypeDescTypeBuilder;
+import io.ballerina.compiler.api.impl.type.builders.BallerinaXMLTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 /**

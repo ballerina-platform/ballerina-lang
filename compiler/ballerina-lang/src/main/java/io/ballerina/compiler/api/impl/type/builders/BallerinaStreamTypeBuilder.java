@@ -16,17 +16,23 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * The implementation of the methods used to build the Stream type descriptor in Types API.
@@ -59,8 +65,14 @@ public class BallerinaStreamTypeBuilder implements TypeBuilder.STREAM {
 
     @Override
     public StreamTypeSymbol build() {
+        BTypeSymbol streamSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.EMPTY,
+                symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol, symTable.builtinPos,
+                symTable.rootPkgSymbol.origin);
+
         BStreamType streamType = new BStreamType(TypeTags.STREAM, getValueBType(this.valueType),
-                getCompletionBType(this.completionType), symTable.streamType.tsymbol);
+                getCompletionBType(this.completionType), streamSymbol);
+
+        streamSymbol.type = streamType;
 
         StreamTypeSymbol streamTypeSymbol = (StreamTypeSymbol) typesFactory.getTypeDescriptor(streamType);
         this.valueType = null;

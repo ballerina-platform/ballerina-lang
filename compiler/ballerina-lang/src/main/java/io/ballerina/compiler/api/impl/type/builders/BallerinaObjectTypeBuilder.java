@@ -16,8 +16,9 @@
  * under the License.
  */
 
-package io.ballerina.compiler.api.impl.types;
+package io.ballerina.compiler.api.impl.type.builders;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.impl.symbols.AbstractTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.TypesFactory;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -280,7 +281,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         }
 
         @Override
-        public OBJECT_METHOD build() {
+        public OBJECT_METHOD get() {
             if (name == null) {
                 throw new IllegalArgumentException("Method name can not be null");
             }
@@ -338,7 +339,7 @@ public class BallerinaObjectTypeBuilder implements TypeBuilder.OBJECT {
         }
 
         @Override
-        public OBJECT_FIELD build() {
+        public OBJECT_FIELD get() {
             if (name == null) {
                 throw new IllegalArgumentException("Field name can not be null");
             }
