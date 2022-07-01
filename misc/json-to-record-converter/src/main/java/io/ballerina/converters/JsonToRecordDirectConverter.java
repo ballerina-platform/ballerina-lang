@@ -33,6 +33,7 @@ import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeFactory;
 import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
@@ -40,7 +41,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.converters.diagnostic.DiagnosticMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.formatter.core.Formatter;
@@ -71,6 +71,9 @@ public class JsonToRecordDirectConverter {
 
     private JsonToRecordDirectConverter() {}
 
+    private static final String newRecordName = "NewRecord";
+    private static final String arrayRecordSuffix = "Item";
+
     /**
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
      *
@@ -90,12 +93,13 @@ public class JsonToRecordDirectConverter {
         try {
             JsonElement parsedJson = JsonParser.parseString(jsonString);
             if (parsedJson.isJsonObject()) {
-                generateRecords(parsedJson.getAsJsonObject(), recordName, isClosed, isRecordTypeDesc,
+                generateRecords(parsedJson.getAsJsonObject(), recordName, isRecordTypeDesc, isClosed,
                         recordToTypeDescNodes, jsonFieldToElements, diagnosticMessages);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
-                object.add(recordName == null ? "newRecord" : StringUtils.uncapitalize(recordName), parsedJson);
-                generateRecords(object, recordName, isClosed, isRecordTypeDesc,
+                object.add(recordName == null ? StringUtils.uncapitalize(newRecordName) :
+                        StringUtils.uncapitalize(recordName), parsedJson);
+                generateRecords(object, recordName, isRecordTypeDesc, isClosed,
                         recordToTypeDescNodes, jsonFieldToElements, diagnosticMessages);
             } else {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter101(null);
@@ -153,77 +157,104 @@ public class JsonToRecordDirectConverter {
         Token bodyStartDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.OPEN_BRACE_PIPE_TOKEN :
                 SyntaxKind.OPEN_BRACE_TOKEN);
 
-        List<Node> recordFieldList = new ArrayList<>();
+        List<Node> recordFields = new ArrayList<>();
         if (recordToTypeDescNodes.containsKey(recordName)) {
             RecordTypeDescriptorNode lastRecordTypeDescriptorNode =
                     (RecordTypeDescriptorNode) recordToTypeDescNodes.get(recordName);
-            List<RecordFieldNode> lastRecordFieldList = lastRecordTypeDescriptorNode.fields().stream()
+            List<RecordFieldNode> lastRecordFields = lastRecordTypeDescriptorNode.fields().stream()
                     .map(node -> (RecordFieldNode) node).collect(Collectors.toList());
-            Map<String, RecordFieldNode> lastRecordFieldMap = lastRecordFieldList.stream()
+            Map<String, RecordFieldNode> previousRecordFieldToNodes = lastRecordFields.stream()
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
-            Map<String, RecordFieldNode> newRecordFieldMap = jsonObject.entrySet().stream()
-                    .map(entry -> (RecordFieldNode) getRecordField(entry, isRecordTypeDesc, null,
+            Map<String, RecordFieldNode> newRecordFieldToNodes = jsonObject.entrySet().stream()
+                    .map(entry -> (RecordFieldNode) getRecordField(entry, isRecordTypeDesc, false,
                             recordToTypeDescNodes))
                     .collect(Collectors.toList()).stream()
                     .collect(Collectors.toMap(node -> node.fieldName().text(), Function.identity()));
-            Map<String, RecordFieldNode> intersectingRecordFields = intersection(lastRecordFieldMap, newRecordFieldMap);
-            Map<String, RecordFieldNode> differencingRecordFields = difference(lastRecordFieldMap, newRecordFieldMap);
-
-            for (Map.Entry<String, RecordFieldNode> entry : intersectingRecordFields.entrySet()) {
-
-                Boolean isOptional = entry.getValue().questionMarkToken().isPresent();
-                Map.Entry<String, JsonElement> jsonEntry =
-                        new AbstractMap.SimpleEntry<>(entry.getKey(), jsonNodes.get(entry.getKey()));
-                Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
-                recordFieldList.add(recordField);
-            }
-
-            for (Map.Entry<String, RecordFieldNode> entry : differencingRecordFields.entrySet()) {
-                String jsonField = entry.getKey();
-                JsonElement jsonElement = jsonNodes.get(jsonField);
-                Map.Entry<String, JsonElement> jsonEntry = jsonElement != null ?
-                        new AbstractMap.SimpleEntry<>(jsonField, jsonElement) :
-                        jsonObject.entrySet().stream().filter(elementEntry -> elementEntry.getKey() == entry.getKey())
-                                .findFirst().orElse(null);
-                if (jsonEntry != null) {
-                    Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, true, recordToTypeDescNodes);
-                    recordFieldList.add(recordField);
-                } else {
-                    DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter103(new String[]{jsonField});
-                    diagnosticMessages.add(message);
-                }
-            }
+            updateRecordFields(jsonObject, isRecordTypeDesc, recordToTypeDescNodes, jsonNodes, diagnosticMessages,
+                    recordFields, previousRecordFieldToNodes, newRecordFieldToNodes);
         } else {
             for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
                 if (entry.getValue().isJsonObject()) {
                     String elementKey = entry.getKey();
                     String type = StringUtils.capitalize(elementKey);
-                    generateRecords(entry.getValue().getAsJsonObject(), type, isClosed, isRecordTypeDesc,
+                    generateRecords(entry.getValue().getAsJsonObject(), type, isRecordTypeDesc, isClosed,
                             recordToTypeDescNodes, jsonNodes, diagnosticMessages);
                 } else if (entry.getValue().isJsonArray()) {
                     for (JsonElement element : entry.getValue().getAsJsonArray()) {
                         if (element.isJsonObject()) {
                             String elementKey = entry.getKey();
-                            String type = StringUtils.capitalize(elementKey) + "Item";
-                            generateRecords(element.getAsJsonObject(), type, isClosed, isRecordTypeDesc,
+                            String type = StringUtils.capitalize(elementKey) + arrayRecordSuffix;
+                            generateRecords(element.getAsJsonObject(), type, isRecordTypeDesc, isClosed,
                                     recordToTypeDescNodes, jsonNodes, diagnosticMessages);
                             break;
                         }
                     }
                 }
                 jsonNodes.put(entry.getKey(), entry.getValue());
-                Node recordField = getRecordField(entry, isRecordTypeDesc, null, recordToTypeDescNodes);
-                recordFieldList.add(recordField);
+                Node recordField = getRecordField(entry, isRecordTypeDesc, false, recordToTypeDescNodes);
+                recordFields.add(recordField);
             }
         }
-        NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFieldList);
+        NodeList<Node> fieldNodes = AbstractNodeFactory.createNodeList(recordFields);
         Token bodyEndDelimiter = AbstractNodeFactory.createToken(isClosed ? SyntaxKind.CLOSE_BRACE_PIPE_TOKEN :
                 SyntaxKind.CLOSE_BRACE_TOKEN);
         RecordTypeDescriptorNode recordTypeDescriptorNode =
                 NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                         fieldNodes, null, bodyEndDelimiter);
 
-        recordToTypeDescNodes.put(recordName == null ? "NewRecord" : recordName, recordTypeDescriptorNode);
+        recordToTypeDescNodes.put(recordName == null ? newRecordName : recordName, recordTypeDescriptorNode);
+    }
+
+    /**
+     * This method updates the record fields already generated, if the fields are optional.
+     *
+     * @param jsonObject JSON object node that has to be generated as Ballerina record
+     * @param isRecordTypeDesc To denote final record, a record type descriptor (In line records)
+     * @param recordToTypeDescNodes The map of recordNames and the TypeDescriptorNodes already generated
+     * @param jsonNodes The map of JSON field names and the JSON nodes for already created TypeDescriptorNodes
+     * @param diagnosticMessages The list of diagnostic messages generated by the method
+     * @param recordFields The list generated record fields
+     * @param previousRecordFieldToNodes The list of already generated field nodes
+     * @param newRecordFieldToNodes The list of newly generated field nodes for the same record
+     */
+    private static void updateRecordFields(JsonObject jsonObject, boolean isRecordTypeDesc,
+                                           Map<String, NonTerminalNode> recordToTypeDescNodes,
+                                           Map<String, JsonElement> jsonNodes,
+                                           List<DiagnosticMessage> diagnosticMessages, List<Node> recordFields,
+                                           Map<String, RecordFieldNode> previousRecordFieldToNodes,
+                                           Map<String, RecordFieldNode> newRecordFieldToNodes) {
+        Map<String, RecordFieldNode> intersectingRecordFields =
+                intersection(previousRecordFieldToNodes, newRecordFieldToNodes);
+        Map<String, RecordFieldNode> differencingRecordFields =
+                difference(previousRecordFieldToNodes, newRecordFieldToNodes);
+
+        for (Map.Entry<String, RecordFieldNode> entry : intersectingRecordFields.entrySet()) {
+            boolean isOptional = entry.getValue().questionMarkToken().isPresent();
+            Map.Entry<String, JsonElement> jsonEntry =
+                    new AbstractMap.SimpleEntry<>(entry.getKey(), jsonNodes.get(entry.getKey()));
+            Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, isOptional, recordToTypeDescNodes);
+            recordFields.add(recordField);
+        }
+
+        for (Map.Entry<String, RecordFieldNode> entry : differencingRecordFields.entrySet()) {
+            String jsonField = entry.getKey();
+            JsonElement jsonElement = jsonNodes.get(jsonField);
+            Map.Entry<String, JsonElement> jsonEntry = jsonElement != null ?
+                    new AbstractMap.SimpleEntry<>(jsonField, jsonElement) :
+                    jsonObject.entrySet().stream().filter(elementEntry -> elementEntry.getKey().equals(jsonField))
+                            .findFirst().orElse(null);
+            if (jsonEntry != null) {
+                Node recordField = getRecordField(jsonEntry, isRecordTypeDesc, true, recordToTypeDescNodes);
+                recordFields.add(recordField);
+            } else {
+                /*
+                  This else bloc is unreachable as, there is no way jsonEntry can become null. But since it is an
+                  optional field this else bloc is written to capture error and store in diagnostics.
+                 */
+                DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter103(new String[]{jsonField});
+                diagnosticMessages.add(message);
+            }
+        }
     }
 
     /**
@@ -236,12 +267,12 @@ public class JsonToRecordDirectConverter {
      * @return {@link Node} Record field node for the corresponding JSON field
      */
     private static Node getRecordField(Map.Entry<String, JsonElement> entry, boolean isRecordTypeDesc,
-                                       Boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes) {
+                                       boolean optionalField, Map<String, NonTerminalNode> recordToTypeDescNodes) {
         Token typeName = AbstractNodeFactory.createToken(SyntaxKind.ANY_KEYWORD);
         TypeDescriptorNode fieldTypeName = NodeFactory.createBuiltinSimpleNameReferenceNode(null, typeName);
         IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(escapeIdentifier(entry.getKey().trim()));
         Token questionMarkToken = AbstractNodeFactory.createToken(SyntaxKind.QUESTION_MARK_TOKEN);
-        Token optionalFieldToken = optionalField != null ? optionalField ? questionMarkToken : null : null;
+        Token optionalFieldToken = optionalField ? questionMarkToken : null;
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         RecordFieldNode recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
@@ -266,7 +297,7 @@ public class JsonToRecordDirectConverter {
             Map.Entry<String, JsonArray> jsonArrayEntry =
                     new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().getAsJsonArray());
             ArrayTypeDescriptorNode arrayTypeName =
-                    createArrayTypeDescriptorNode(jsonArrayEntry, isRecordTypeDesc, recordToTypeDescNodes);
+                    getArrayTypeDescriptorNode(jsonArrayEntry, isRecordTypeDesc, recordToTypeDescNodes);
 
             recordFieldNode = NodeFactory.createRecordFieldNode(null, null,
                     arrayTypeName, fieldName,
@@ -283,7 +314,7 @@ public class JsonToRecordDirectConverter {
      * @param recordToTypeDescNodes The map of recordNames and the TypeDescriptorNodes already generated
      * @return {@link ArrayTypeDescriptorNode} Record field node for the corresponding JSON array field
      */
-    private static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
+    private static ArrayTypeDescriptorNode getArrayTypeDescriptorNode(
             Map.Entry<String, JsonArray> entry, boolean isRecordTypeDesc,
             Map<String, NonTerminalNode> recordToTypeDescNodes) {
         Token openSBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
@@ -309,7 +340,7 @@ public class JsonToRecordDirectConverter {
                 }
             } else if (element.isJsonObject()) {
                 String elementKey = entry.getKey();
-                String type = StringUtils.capitalize(elementKey) + "Item";
+                String type = StringUtils.capitalize(elementKey) + arrayRecordSuffix;
                 Token tempTypeName = AbstractNodeFactory.createIdentifierToken(type);
 
                 TypeDescriptorNode tempTypeNode = isRecordTypeDesc ?
@@ -323,7 +354,7 @@ public class JsonToRecordDirectConverter {
                 Map.Entry<String, JsonArray> arrayEntry =
                         new AbstractMap.SimpleEntry<>(entry.getKey(), element.getAsJsonArray());
                 TypeDescriptorNode tempTypeNode =
-                        createArrayTypeDescriptorNode(arrayEntry, isRecordTypeDesc, recordToTypeDescNodes);
+                        getArrayTypeDescriptorNode(arrayEntry, isRecordTypeDesc, recordToTypeDescNodes);
                 if (!typeDescriptorNodes.stream().map(Node::toSourceCode)
                         .collect(Collectors.toList()).contains(tempTypeNode.toSourceCode())) {
                     typeDescriptorNodes.add(tempTypeNode);
@@ -355,18 +386,13 @@ public class JsonToRecordDirectConverter {
             return typeNames.get(0);
         }
         Token pipeToken = NodeFactory.createToken(SyntaxKind.PIPE_TOKEN);
-        UnionTypeDescriptorNode unionTypeDescriptorNode = null;
-        for (int i = 0; i < typeNames.size() - 1; i++) {
-            TypeDescriptorNode leftTypeDesc =
-                    unionTypeDescriptorNode == null ? typeNames.get(i) : unionTypeDescriptorNode;
-            TypeDescriptorNode rightTypeDesc = typeNames.get(i + 1);
-            unionTypeDescriptorNode =
-                    NodeFactory.createUnionTypeDescriptorNode(leftTypeDesc, pipeToken, rightTypeDesc);
-        }
+        String unionTypeDescNodeSource = typeNames.stream().map(TypeDescriptorNode::toSourceCode)
+                .collect(Collectors.joining(pipeToken.toSourceCode()));
+        TypeDescriptorNode unionTypeDescNode = NodeParser.parseTypeDescriptor(unionTypeDescNodeSource);
         Token openParenToken = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         Token closeParenToken = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
 
         return NodeFactory.createParenthesisedTypeDescriptorNode(openParenToken,
-                unionTypeDescriptorNode, closeParenToken);
+                unionTypeDescNode, closeParenToken);
     }
 }
