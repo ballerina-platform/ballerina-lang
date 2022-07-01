@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 2,
-    "character": 12,
-    "expected": [
+    "character": 12
+  },
+  "source": "typeCast.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Add type cast",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 2,
-                            "character": 12
-                        },
-                        "end": {
-                            "line": 2,
-                            "character": 12
-                        }
-                    },
-                    "newText": "\u003cint\u003e"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 12
+            },
+            "end": {
+              "line": 2,
+              "character": 12
+            }
+          },
+          "newText": "\u003cint\u003e"
         }
-    ]
+      ]
+    }
+  ]
 }

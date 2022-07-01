@@ -1,32 +1,28 @@
 {
-  "line": 1,
-  "character": 9,
+  "position": {
+    "line": 1,
+    "character": 9
+  },
+  "source": "importModule3.bal",
   "expected": [
     {
-      "title": "Import module 'test/project1'",
+      "title": "Import module \u0027test/project1\u0027",
       "kind": "quickfix",
-      "diagnostics": [],
-      "edit": {
-        "documentChanges": [
-          {
-            "edits": [
-              {
-                "range": {
-                  "start": {
-                    "line": 0,
-                    "character": 0
-                  },
-                  "end": {
-                    "line": 0,
-                    "character": 0
-                  }
-                },
-                "newText": "import test/project1;\n"
-              }
-            ]
-          }
-        ]
-      }
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import test/project1;\n"
+        }
+      ]
     }
   ]
 }
