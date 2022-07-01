@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Change the constant value",
+    "oldCode": "public const int id = 10;",
+    "newCode": "public const int id = 11;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the expression of a constant but doesn't change the value (Non affecting change)",
+    "oldCode": "public const int id = 10;",
+    "newCode": "public const int id = 5+5;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Non affecting change in expression",
+    "oldCode": "public const boolean alive = false;",
+    "newCode": "public const boolean alive = !true;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "module constant initializer is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

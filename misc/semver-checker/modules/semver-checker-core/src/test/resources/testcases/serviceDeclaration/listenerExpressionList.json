@@ -89,6 +89,11 @@
                   "message": "service listener expression is modified"
                 }
               ]
+            },
+            {
+              "kind": "module variable",
+              "type": "new",
+              "versionImpact": "minor"
             }
           ]
         }
