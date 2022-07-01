@@ -22,6 +22,8 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Objects;
@@ -36,12 +38,15 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
     private Integer size;
     private TypeSymbol memberTypeDesc;
     private String signature;
+    private final boolean isInferredArray;
 
     public BallerinaArrayTypeSymbol(CompilerContext context, BArrayType arrayType) {
         super(context, TypeDescKind.ARRAY, arrayType);
         if (arrayType.getSize() >= 0) {
             size = arrayType.getSize();
         }
+
+        isInferredArray = arrayType.state == BArrayState.INFERRED;
     }
 
     @Override
@@ -62,11 +67,19 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
         StringBuilder sigBuilder = new StringBuilder();
         TypeSymbol memberType = memberTypeDescriptor();
 
-        sigBuilder.append('[').append(size().map(Objects::toString).orElse("")).append(']');
+        sigBuilder.append('[')
+                .append(isInferredArray ? "*" : size().map(Objects::toString).orElse(""))
+                .append(']');
 
         while (memberType.typeKind() == TypeDescKind.ARRAY) {
             ArrayTypeSymbol arrType = (ArrayTypeSymbol) memberType;
-            sigBuilder.append('[').append(arrType.size().map(Objects::toString).orElse("")).append(']');
+            BType memberBType = ((AbstractTypeSymbol) memberType).getBType();
+            boolean isInferredMemberType =
+                    memberBType instanceof BArrayType && ((BArrayType) memberBType).state == BArrayState.INFERRED;
+
+            sigBuilder.append('[')
+                    .append(isInferredMemberType ? "*" : arrType.size().map(Objects::toString).orElse(""))
+                    .append(']');
             memberType = arrType.memberTypeDescriptor();
         }
 
