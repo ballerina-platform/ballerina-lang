@@ -17,6 +17,13 @@
 type CustomType1 float|int[]|client object{}|int|string;
 type CustomType2 float|int[]|(function (int a, string b) returns int|string)|int|string;
 type CustomType3 CustomType1|CustomType2;
+type CustomType4 float|int[]|client object{}|int|string;
+type CustomType5 float|int[]|client object{}|int|string;
+type CustomType6 CustomType4|CustomType5;
+type CustomType7 CustomType6;
+type CustomType8 float|int[]|CustomType9|int|string;
+type CustomType9 client object{};
+type CustomType10 CustomType9 | CustomType8;
 
 client object{} & readonly successClient = client object {
 
@@ -122,6 +129,18 @@ public function testErrorInResourceMethodReturningCustomFunctionType() {
 
         resource function get functionAndClientObjectUnionReturnPath2() returns CustomType3 {
             return testFunction;
+        }
+    };
+}
+
+public function testErrorInResourceMethodReturningNestedCustomTypes() {
+    var successClientObject = client object {
+        resource function get functionUnionClientObjectCustomTypeReturnPath() returns CustomType7 {
+            return successClient;
+        }
+
+        resource function get functionUnionClientObjectCustomTypeReturnPath2() returns CustomType10 {
+            return successClient;
         }
     };
 }
