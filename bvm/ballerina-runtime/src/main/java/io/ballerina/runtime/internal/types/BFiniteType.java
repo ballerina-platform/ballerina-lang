@@ -157,6 +157,9 @@ public class BFiniteType extends BType implements FiniteType {
                 case TypeTags.CHAR_STRING_TAG:
                     joiner.add("\"" + value + "\"");
                     break;
+                case TypeTags.NULL_TAG:
+                    joiner.add("()");
+                    break;
                 default:
                     joiner.add(value.toString());
             }
