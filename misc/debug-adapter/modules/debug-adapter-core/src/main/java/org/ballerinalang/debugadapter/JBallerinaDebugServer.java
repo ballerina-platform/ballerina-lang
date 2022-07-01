@@ -204,7 +204,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsExceptionInfoRequest(false);
 
         context.setClient(client);
-        context.setSupportsRunInTerminalRequest(args.getSupportsRunInTerminalRequest());
+        context.setSupportsRunInTerminalRequest(args.getSupportsRunInTerminalRequest() != null &&
+                args.getSupportsRunInTerminalRequest());
         eventProcessor = new JDIEventProcessor(context);
         client.initialized();
         this.outputLogger = new DebugOutputLogger(client);
