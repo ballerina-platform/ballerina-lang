@@ -90,7 +90,6 @@ public class ValueUtils {
             }
             recordValue.populateInitialValue(StringUtils.fromString(fieldEntry.getKey()), val);
         }
-
         return recordValue;
     }
 

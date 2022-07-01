@@ -192,14 +192,12 @@ public class FromJsonWithType {
     private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
                                                          BTypedesc t, RecordType recordType,
                                                          Type restFieldType, Map<String, Type> targetTypeField) {
-        BMap<BString, Object> newRecord;
         Map<String, Object> valueMap = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, t, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
         }
-        newRecord = ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
-        return newRecord;
+        return ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
     }
 
     private static BMap<?, ?> convertToRecordWithTypeDesc(BMap<?, ?> map, List<TypeValuePair> unresolvedValues,
