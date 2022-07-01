@@ -4980,7 +4980,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        if (data.nonErrorLoggingCheck) {
+        if (data.commonAnalyzerData.nonErrorLoggingCheck) {
             BLangFunction funcNode = bLangLambdaFunction.function;
             BInvokableSymbol funcSymbol = Symbols.createFunctionSymbol(Flags.asMask(funcNode.flagSet),
                                                                        names.fromIdNode(funcNode.name), Names.EMPTY,

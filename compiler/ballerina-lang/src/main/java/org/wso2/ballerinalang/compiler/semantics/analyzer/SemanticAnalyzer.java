@@ -857,7 +857,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangConstrainedType constrainedType, AnalyzerData data) {
-        analyzeDef(constrainedType.constraint, data);
+        analyzeNode(constrainedType.constraint, data);
     }
 
     @Override
