@@ -24,10 +24,10 @@ import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 import java.io.PrintStream;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
@@ -40,7 +40,7 @@ import static io.ballerina.runtime.api.values.BError.ERROR_PRINT_PREFIX;
 public class RuntimeRegistry {
 
     private final Scheduler scheduler;
-    private final Set<BObject> listenerSet = new HashSet<>();
+    private final Set<BObject> listenerSet = ConcurrentHashMap.newKeySet();
     private final Stack<BFunctionPointer<?, ?>> stopHandlerStack = new Stack<>();
 
     private static final PrintStream outStream = System.err;
