@@ -15,9 +15,13 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
@@ -26,6 +30,7 @@ import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.ReturnStatementFinder;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -39,6 +44,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -134,21 +140,61 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         List<CodeAction> codeActions = new ArrayList<>();
+        List<TextEdit> importEdits = new ArrayList<>();
+        List<List<String>> combinations = new ArrayList<>();
+
+        ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
+        returnStatementFinder.visit(funcDef.get());
+        List<ReturnStatementNode> nodeList = returnStatementFinder.getNodeList();
+        for (ReturnStatementNode returnStatementNode : nodeList) {
+            ExpressionNode expression = returnStatementNode.expression().get();
+            SemanticModel semanticModel = context.currentSemanticModel().get();
+            Optional<TypeSymbol> typeSymbol = semanticModel.typeOf(expression);
+            if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                return Collections.emptyList();
+            }
+            typeSymbol.ifPresent(symbol -> combinations.add(CodeActionUtil
+                    .getPossibleTypes(symbol, importEdits, context)));
+        }
+
+        List<Set<String>> types = new ArrayList<>();
+        for (List<String> type : combinations) {
+            if (types.isEmpty()) {
+                for (String s : type) {
+                    types.add(Set.of(s));
+                }
+                continue;
+            }
+            List<Set<String>> updatedTypes = new ArrayList<>();
+            for (String s : type) {
+                for (Set<String> strings : types) {
+                    Set<String> combination  = new HashSet<>(strings);
+                    combination.add(s);
+                    updatedTypes.add(combination);
+                }
+            }
+            if (updatedTypes.isEmpty()) {
+                continue;
+            }
+            types = updatedTypes;
+        }
+
         types.forEach(type -> {
             List<TextEdit> edits = new ArrayList<>();
 
             String editText;
             // Process function node
+            String newType = String.join("|", type);
             if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
-                editText = " returns " + type;
+                editText = " returns " + newType;
             } else {
-                editText = type;
+                editText = newType;
             }
             edits.add(new TextEdit(new Range(start, end), editText));
             edits.addAll(importEdits);
 
             // Add code action
-            String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, type);
+            String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, newType);
             codeActions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         });
 
