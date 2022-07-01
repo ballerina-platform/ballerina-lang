@@ -141,7 +141,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
      */
     protected Optional<TypeSymbol> getExpectedTypeSymbol(DiagBasedPositionDetails positionDetails) {
         Optional<Symbol> symbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
+                CodeActionUtil.getDiagPropertyFilterFunction(
+                        DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX));
         if (symbol.isEmpty()) {
             return Optional.empty();
         }
