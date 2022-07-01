@@ -131,6 +131,18 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
     }
 
+    // TODO: Might be unnecessary after fixing issue lang/#36721
+    public TableValueImpl(TableType type, ArrayValue fieldNames) {
+        this(type);
+        this.fieldNames = fieldNames.getStringArray();
+
+        if (this.fieldNames.length > 0) {
+            this.valueHolder = new KeyHashValueHolder();
+        } else {
+            this.valueHolder = new ValueHolder();
+        }
+    }
+
     private void addData(ArrayValue data) {
         BIterator itr = data.getIterator();
         while (itr.hasNext()) {

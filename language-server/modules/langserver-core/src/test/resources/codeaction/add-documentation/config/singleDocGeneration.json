@@ -1,6 +1,9 @@
 {
-  "line": 12,
-  "character": 18,
+  "position": {
+    "line": 12,
+    "character": 18
+  },
+  "source": "singleDocGeneration.bal",
   "expected": [
     {
       "title": "Document this",
@@ -26,6 +29,7 @@
     },
     {
       "title": "Document all",
+      "kind": "source",
       "command": {
         "title": "Document all",
         "command": "ADD_ALL_DOC",

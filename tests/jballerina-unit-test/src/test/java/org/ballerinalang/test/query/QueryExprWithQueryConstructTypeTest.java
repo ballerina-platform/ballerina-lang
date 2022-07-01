@@ -133,7 +133,6 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 24);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'Person[]', found 'stream<Person>'",
@@ -183,8 +182,29 @@ public class QueryExprWithQueryConstructTypeTest {
                 "incompatible type in select clause: expected [string,any|error], found 'int[2]'", 222, 29);
         validateError(negativeResult, index++,
                 "incompatible types: expected '([string,int]|[string,string])', found '(string|int)'", 227, 56);
-        validateError(negativeResult, index,
+        validateError(negativeResult, index++,
                 "incompatible types: expected 'map<string>', found '(map<(int|string)>|error)'", 229, 21);
+        validateError(negativeResult, index++, "missing non-defaultable required record field 'noOfItems'",
+                236, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Customer & readonly)', found 'Customer'", 242, 16);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'string', found '(int|string)'", 252, 63);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 255, 44);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Type1 & readonly)', found '([int,int]|string|[int,int])'", 258, 51);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) " +
+                     "& readonly)> & readonly', found '(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)'",
+                263, 41);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'int[2] & readonly', found 'int[2]'", 279, 69);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(Department & readonly)', found 'Department'", 283, 55);
+        validateError(negativeResult, index++, "incompatible types: expected '[string,string]', " +
+                "found '([string,int]|[string,int]|[string,int]|[string,int])'", 286, 48);
+        Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test(description = "Test semantic negative scenarios for query expr with query construct type")
@@ -248,48 +268,58 @@ public class QueryExprWithQueryConstructTypeTest {
     }
 
     @Test
-    public void testMapConstructingQueryExpr() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExpr");
+    public void testReadonlyTable() {
+        BRunUtil.invoke(result, "testReadonlyTable");
     }
 
     @Test
-    public void testMapConstructingQueryExprWithDuplicateKeys() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExprWithDuplicateKeys");
+    public void testReadonlyTable2() {
+        BRunUtil.invoke(result, "testReadonlyTable2");
     }
 
     @Test
-    public void testMapConstructingQueryExprWithOnConflict() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOnConflict");
+    public void testReadonlyTable3() {
+        BRunUtil.invoke(result, "testReadonlyTable3");
     }
 
     @Test
-    public void testMapConstructingQueryExprWithOtherClauses() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOtherClauses");
+    public void testConstructingListOfTablesUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfTablesUsingQueryWithReadonly");
     }
 
     @Test
-    public void testMapConstructingQueryExprWithJoinClause() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExprWithJoinClause");
+    public void testConstructingListOfXMLsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfXMLsUsingQueryWithReadonly");
     }
 
     @Test
-    public void testMapConstructingQueryExprWithLimitClause() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExprWithLimitClause");
+    public void testConstructingListOfRecordsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfRecordsUsingQueryWithReadonly");
     }
 
     @Test
-    public void testMapConstructingQueryExpr2() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExpr2");
+    public void testConstructingListOfListsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfListsUsingQueryWithReadonly");
     }
 
     @Test
-    public void testMapConstructingQueryExprWithOrderByClause() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExprWithOrderByClause");
+    public void testConstructingListOfMapsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListOfMapsUsingQueryWithReadonly");
     }
 
     @Test
-    public void testMapConstructingQueryExprWithReferenceTypes() {
-        BRunUtil.invoke(result, "testMapConstructingQueryExprWithReferenceTypes");
+    public void testConstructingListInRecordsUsingQueryWithReadonly() {
+        BRunUtil.invoke(result, "testConstructingListInRecordsUsingQueryWithReadonly");
+    }
+
+    @Test
+    public void testReadonlyMap1() {
+        BRunUtil.invoke(result, "testReadonlyMap1");
+    }
+
+    @Test
+    public void testReadonlyMap2() {
+        BRunUtil.invoke(result, "testReadonlyMap2");
     }
 
     @AfterClass

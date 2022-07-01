@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 55,
+  "position": {
+    "line": 1,
+    "character": 55
+  },
+  "source": "add_check_codeaction_source4.bal",
   "expected": [
     {
       "title": "Add 'check' error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

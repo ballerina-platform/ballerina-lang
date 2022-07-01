@@ -4899,7 +4899,7 @@ public class Types {
         return originalType;
     }
 
-    private boolean isSubTypeOfReadOnly(BType type, SymbolEnv env) {
+    public boolean isSubTypeOfReadOnly(BType type, SymbolEnv env) {
         return isInherentlyImmutableType(type) ||
                 (isSelectivelyImmutableType(type, env.enclPkg.packageID) &&
                         Symbols.isFlagOn(type.flags, Flags.READONLY));

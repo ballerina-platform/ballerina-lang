@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -184,6 +185,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -655,8 +657,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         analyzeClassDefinition(classDefinition, data);
 
-        validateInclusions(flagSet, classDefinition.typeRefs, false,
-                           Symbols.isFlagOn(classDefinition.getBType().tsymbol.flags, Flags.ANONYMOUS));
+        BType type = classDefinition.getBType();
+        List<BLangType> inclusions = classDefinition.typeRefs;
+
+        validateInclusions(flagSet, inclusions, false, Symbols.isFlagOn(type.tsymbol.flags, Flags.ANONYMOUS));
+        validateTypesOfOverriddenFields(type, classDefinition.fields, inclusions);
     }
 
     private void analyzeClassDefinition(BLangClassDefinition classDefinition, AnalyzerData data) {
@@ -770,6 +775,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         });
 
         validateInclusions(objectTypeNode.flagSet, objectTypeNode.typeRefs, true, false);
+        validateTypesOfOverriddenFields(objectTypeNode);
 
         if (objectTypeNode.initFunction == null) {
             return;
@@ -846,6 +852,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
 
         validateDefaultable(recordTypeNode);
+        validateTypesOfOverriddenFields(recordTypeNode);
         recordTypeNode.analyzed = true;
     }
 
@@ -4711,6 +4718,68 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             annotationAttachmentSymbols.add(annotationAttachmentSymbol);
         }
         return annotationAttachmentSymbols;
+    }
+
+    private void validateTypesOfOverriddenFields(BLangStructureTypeNode structureTypeNode) {
+        validateTypesOfOverriddenFields(structureTypeNode.getBType(), structureTypeNode.fields,
+                                        structureTypeNode.typeRefs);
+    }
+
+    private void validateTypesOfOverriddenFields(BType type, List<BLangSimpleVariable> fields,
+                                                 List<BLangType> includedTypeNodes) {
+        if (type == symTable.semanticError) {
+            return;
+        }
+
+        LinkedHashMap<String, BField> fieldsOfIncludingType = ((BStructureType) type).fields;
+        Map<String, Location> explicitlySpecifiedFieldLocations = getFieldLocations(fields);
+
+        for (BLangType includedTypeNode : includedTypeNodes) {
+            BType includedType = Types.getReferredType(includedTypeNode.getBType());
+
+            int includedTypeTag = includedType.tag;
+            if (includedTypeTag != TypeTags.RECORD && includedTypeTag != TypeTags.OBJECT) {
+                continue;
+            }
+
+            BStructureType includedStructureType = (BStructureType) includedType;
+
+            for (Map.Entry<String, BField> includedFieldEntry : includedStructureType.fields.entrySet()) {
+                String fieldName = includedFieldEntry.getKey();
+
+                if (!explicitlySpecifiedFieldLocations.containsKey(fieldName) ||
+                        // Happens when the type cannot be resolved.
+                        !fieldsOfIncludingType.containsKey(fieldName)) {
+                    continue;
+                }
+
+                BType fieldTypeInIncludingType = fieldsOfIncludingType.get(fieldName).type;
+                if (fieldTypeInIncludingType == symTable.semanticError) {
+                    continue;
+                }
+
+                BType fieldTypeInIncludedType = includedFieldEntry.getValue().type;
+                if (fieldTypeInIncludedType == symTable.semanticError) {
+                    continue;
+                }
+
+                if (!types.isAssignable(fieldTypeInIncludingType, fieldTypeInIncludedType)) {
+                    dlog.error(explicitlySpecifiedFieldLocations.get(fieldName),
+                               DiagnosticErrorCode.INCOMPATIBLE_SUB_TYPE_FIELD,
+                               fieldName, fieldTypeInIncludedType, fieldTypeInIncludingType);
+                }
+            }
+        }
+    }
+
+    private Map<String, Location> getFieldLocations(List<BLangSimpleVariable> fields) {
+        Map<String, Location> locations = new HashMap<>(fields.size());
+
+        for (BLangSimpleVariable field : fields) {
+            locations.put(field.name.value, field.pos);
+        }
+
+        return locations;
     }
 
     /**

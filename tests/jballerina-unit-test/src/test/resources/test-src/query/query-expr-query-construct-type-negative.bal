@@ -228,3 +228,60 @@ function testInvalidTypeInSelectWithQueryConstructingMap4() {
                 select c;
     map<string> _ = a;
 }
+
+function testWithReadonlyContextualTypeForQueryConstructingTables() {
+    Customer[] customerList1 = [];
+
+    CustomerTable & readonly|error out1 = table key(id, name) from var customer in customerList1
+        select {
+            id: customer.id,
+            name: customer.name
+        };
+
+    CustomerTable & readonly|error out2 = table key(id, name) from var customer in customerList1
+        select customer on conflict error("Error");
+}
+
+type T readonly & record {
+    string[] params;
+};
+
+type Type1 int[]|string;
+
+function testWithReadonlyContextualTypeForQueryConstructingLists() {
+    T _ = { params: from var s in [1, "b", "c", "abc"] select s };
+
+    Type1[] & readonly _ = from var user in [[1, 2], "a", "b", [-1, int:MAX_VALUE]]
+                                    select user;
+
+    map<Type1>[] & readonly _ = from var item in [[1, 2], "a", "b", [-1, int:MAX_VALUE]]
+                                    select {item: item};
+
+    xml a = xml `<id> 1 </id> <name> John </name>`;
+
+    xml[] & readonly _ = from var user in a
+                                 select user;
+}
+
+type Department record {
+    string dept;
+};
+
+type ImmutableMapOfDept map<Department> & readonly;
+
+type ImmutableMapOfInt map<int> & readonly;
+
+type ErrorOrImmutableMapOfInt ImmutableMapOfInt|error;
+
+function testConstructingInvalidReadonlyMap() {
+    int[][2] arr = [[1, 2], [3, 4], [9, 10]];
+    map<int[2]> & readonly|error mp1 = map from var item in arr
+                                        select [item[0].toString(), item];
+
+    ImmutableMapOfDept|error mp3 = map from var item in ["ABC", "DEF", "XY"]
+                                        let Department dept = {dept: item}
+                                        select [item, dept];
+
+    map<string> & readonly|error mp4 = map from var item in [["1", 1], ["2", 2], ["3", 3], ["4", 4]]
+                                        select item on conflict error("Error");
+}

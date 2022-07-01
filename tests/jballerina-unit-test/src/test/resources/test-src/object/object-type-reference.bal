@@ -286,6 +286,72 @@ function testObjectReferenceRecordUpdate() {
     assertEquality(matched.groups.get(8), 8);
 }
 
+class C1 {
+    int i = 0;
+}
+
+public type O1 readonly & C1;
+
+class C2 {
+    object {
+        int|string i;
+    } body = object {
+        int|string i = 1;
+    };
+}
+
+class C3 {
+    *C2;
+    O1 body;
+
+    function init(O1 body) {
+        self.body = body;
+    }
+}
+
+function testOverridingIncludedFieldInClassWithReadOnlyIntersection() {
+    O1 x = object {
+        byte i = 123;
+    };
+
+    C3 y = new (x);
+    assertEquality(123, y.body.i);
+}
+
+public type O2 readonly & object {
+    string a;
+    string b;
+};
+
+type O3 object {
+    object {
+        string a;
+        string b;
+    } body;
+};
+
+public type O4 object {
+    *O3;
+    O2 body;
+};
+
+function testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection() {
+    O2 x = object {
+        string a = "abc";
+        string:Char b = "b";
+    };
+
+    O4 y = object {
+        O2 body = x;
+
+        function init() {
+
+        }
+    };
+    assertEquality("abc", y.body.a);
+    assertEquality("b", y.body.b);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

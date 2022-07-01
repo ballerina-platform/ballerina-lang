@@ -37,7 +37,6 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,9 +57,8 @@ public class ResolutionEngine {
     private final ModuleResolver moduleResolver;
     private final ResolutionOptions resolutionOptions;
     private final PackageDependencyGraphBuilder graphBuilder;
-
-    private final PrintStream console = System.out;
     private final List<Diagnostic> diagnostics;
+    private String dependencyGraphDump;
     private DiagnosticResult diagnosticResult;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
@@ -76,6 +74,7 @@ public class ResolutionEngine {
 
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
         this.diagnostics = new ArrayList<>();
+        dependencyGraphDump = "";
     }
 
     public DiagnosticResult diagnosticResult() {
@@ -449,8 +448,8 @@ public class ResolutionEngine {
         }
 
         String serializedGraph = serializeRawGraph("Initial");
-        console.println("\nResolving dependencies");
-        console.println(serializedGraph);
+        dependencyGraphDump += "\n";
+        dependencyGraphDump += (serializedGraph + "\n");
     }
 
     private void dumpIntermediateGraph(int noOfUpdateAttempts) {
@@ -459,8 +458,8 @@ public class ResolutionEngine {
         }
 
         String serializedGraph = serializeRawGraph("Version update attempt " + noOfUpdateAttempts);
-        console.println();
-        console.println(serializedGraph);
+        dependencyGraphDump += "\n";
+        dependencyGraphDump += (serializedGraph + "\n");
     }
 
     private void dumpFinalGraph(DependencyGraph<DependencyNode> dependencyGraph) {
@@ -471,17 +470,20 @@ public class ResolutionEngine {
         String serializedGraph;
         if (resolutionOptions.dumpRawGraphs()) {
             serializedGraph = DotGraphs.serializeDependencyNodeGraph(dependencyGraph, "Final");
-            console.println();
         } else {
             serializedGraph = DotGraphs.serializeDependencyNodeGraph(dependencyGraph);
-            console.println("\nResolving dependencies");
         }
-        console.println(serializedGraph);
+        dependencyGraphDump += "\n";
+        dependencyGraphDump += (serializedGraph + "\n");
     }
 
     private String serializeRawGraph(String graphName) {
         DependencyGraph<DependencyNode> initialGraph = graphBuilder.rawGraph();
         return DotGraphs.serializeDependencyNodeGraph(initialGraph, graphName);
+    }
+
+    public String dumpGraphs() {
+        return dependencyGraphDump;
     }
 
     /**
@@ -568,7 +570,7 @@ public class ResolutionEngine {
 
         @Override
         public int compareTo(ResolutionEngine.DependencyNode other) {
-                return this.pkgDesc.toString().compareTo(other.pkgDesc.toString());
+            return this.pkgDesc.toString().compareTo(other.pkgDesc.toString());
         }
     }
 }

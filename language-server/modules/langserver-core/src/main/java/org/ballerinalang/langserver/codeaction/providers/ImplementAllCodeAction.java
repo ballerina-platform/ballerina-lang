@@ -67,11 +67,11 @@ public class ImplementAllCodeAction extends AbstractImplementMethodCodeAction {
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
 
-        if (posDetails.matchedTopLevelNode().kind() != SyntaxKind.CLASS_DEFINITION
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.MODULE_VAR_DECL
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.LOCAL_VAR_DECL
-                && posDetails.matchedTopLevelNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
+        if (posDetails.matchedCodeActionNode().kind() != SyntaxKind.CLASS_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.OBJECT_METHOD_DEFINITION
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.MODULE_VAR_DECL
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.LOCAL_VAR_DECL
+                && posDetails.matchedCodeActionNode().kind() != SyntaxKind.SERVICE_DECLARATION) {
             return Collections.emptyList();
         }
 

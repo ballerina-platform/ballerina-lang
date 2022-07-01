@@ -1,0 +1,6 @@
+Compiling source
+	foo/package_a:0.1.0
+
+Resolving dependencies
+
+Running executable
