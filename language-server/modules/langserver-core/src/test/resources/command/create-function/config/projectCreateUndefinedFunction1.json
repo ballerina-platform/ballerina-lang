@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "testproject/main.bal",
   "expected": {
     "result": {
       "edit": {

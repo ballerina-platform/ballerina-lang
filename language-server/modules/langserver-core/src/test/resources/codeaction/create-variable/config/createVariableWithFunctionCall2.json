@@ -1,9 +1,13 @@
 {
-  "line": 11,
-  "character": 7,
+  "position": {
+    "line": 11,
+    "character": 7
+  },
+  "source": "createVariableWithFunctionCall2.bal",
   "expected": [
     {
       "title": "Create variable with 'record {|int a;|}'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,12 +20,13 @@
               "character": 4
             }
           },
-          "newText": "record {|int a;|} rec = "
+          "newText": "record {|int a;|} rec \u003d "
         }
       ]
     },
     {
       "title": "Create variable with 'json'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -34,12 +39,13 @@
               "character": 4
             }
           },
-          "newText": "json rec = "
+          "newText": "json rec \u003d "
         }
       ]
     },
     {
       "title": "Create variable with \u0027map\u003cint\u003e\u0027",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

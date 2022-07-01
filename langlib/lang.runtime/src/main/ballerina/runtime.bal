@@ -89,8 +89,20 @@ public isolated function getStackTrace() returns StackFrame[] {
     return stackFrame;
 }
 
-
 isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
     name: "getStackTrace",
     'class: "org.ballerinalang.langlib.runtime.GetStackTrace"
+} external;
+
+# Type of the function passed to `onGracefulStop.
+public type StopHandler function() returns error?;
+
+# Registers a function that will be called during graceful shutdown.
+# A call to `onGracefulStop` will result in one call to the handler function
+# that was passed as an argument; the handler functions will be called
+# after calling `gracefulStop` on all registered listeners,
+# in reverse order of the corresponding calls to `onGracefulStop`.
+# + handler - function to be called
+public isolated function onGracefulStop(StopHandler 'handler) = @java:Method {
+    'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;

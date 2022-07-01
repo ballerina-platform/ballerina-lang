@@ -22,9 +22,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents a generic immutable dependency graph.
@@ -39,6 +41,7 @@ public class DependencyGraph<T> {
     private final Map<T, Set<T>> dependencies;
 
     private List<T> topologicallySortedNodes;
+    private Set<List<T>> cyclicDependencies;
 
     @SuppressWarnings("unchecked")
     public static <T> DependencyGraph<T> emptyGraph() {
@@ -59,7 +62,11 @@ public class DependencyGraph<T> {
         this.dependencies = Collections.unmodifiableMap(dependencies);
     }
 
-    public void findCycles() {
+    public Set<List<T>> findCycles() {
+        if (cyclicDependencies == null) {
+            toTopologicallySortedList();
+        }
+        return cyclicDependencies;
     }
 
     /**
@@ -67,7 +74,7 @@ public class DependencyGraph<T> {
      *
      * @param other other dependency graph to compare with
      * @return the set of nodes that needs to be deleted from this graph to
-     *          to get the other graph
+     * get the other graph
      */
     Set<T> difference(DependencyGraph<T> other) {
         // If the diff is empty, either this graph is equivalent to or a subset
@@ -127,14 +134,23 @@ public class DependencyGraph<T> {
     }
 
     public List<T> toTopologicallySortedList() {
-        // TODO detect whether there are cycles here, before sorting
         if (topologicallySortedNodes != null) {
             return topologicallySortedNodes;
         }
 
+        cyclicDependencies = new LinkedHashSet<>();
+        List<T> visited = new ArrayList<>();
+        List<T> ancestors = new ArrayList<>();
         List<T> sorted = new ArrayList<>();
-        sortTopologically(dependencies.keySet(), new HashSet<>(), sorted);
+
+        for (T node : new TreeSet<>(dependencies.keySet())) {
+            if (!visited.contains(node) && !ancestors.contains(node)) {
+                sortTopologically(node, visited, ancestors, sorted);
+            }
+        }
+
         topologicallySortedNodes = Collections.unmodifiableList(sorted);
+        cyclicDependencies.forEach(cycle -> cycle.add(cycle.get(0)));
         return topologicallySortedNodes;
     }
 
@@ -142,14 +158,38 @@ public class DependencyGraph<T> {
         return this == EMPTY_GRAPH;
     }
 
-    private void sortTopologically(Collection<T> nodesToSort, Set<T> visited, List<T> sorted) {
-        for (T node : nodesToSort) {
-            if (!visited.contains(node)) {
-                visited.add(node);
-                sortTopologically(dependencies.get(node), visited, sorted);
-                sorted.add(node);
+    private void sortTopologically(T vertex, List<T> visited, List<T> ancestors, List<T> sorted) {
+        ancestors.add(vertex);
+
+        for (T node : new TreeSet<>(dependencies.get(vertex))) {
+            if (ancestors.contains(node)) {
+                List<T> newCycle = new ArrayList<>(ancestors.subList(ancestors.indexOf(node), ancestors.size()));
+                if (newCycle.size() == 1) {
+                    continue;
+                }
+
+                boolean contains = false;
+                for (List<T> cycle: cyclicDependencies) {
+                    if (new HashSet<>(cycle).equals(new HashSet<>(newCycle))) {
+                        contains = true;
+                        break;
+                    }
+                }
+                if (!contains) {
+                    cyclicDependencies.add(newCycle);
+                }
+
+                topologicallySortedNodes = null;
+            } else if (!visited.contains(node) || !cyclicDependencies.isEmpty()) {
+                sortTopologically(node, visited, ancestors, sorted);
             }
         }
+
+        if (!visited.contains(vertex)) {
+            sorted.add(vertex);
+            visited.add(vertex);
+        }
+        ancestors.remove(vertex);
     }
 
     /**

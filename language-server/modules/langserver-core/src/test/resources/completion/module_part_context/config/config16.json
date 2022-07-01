@@ -688,11 +688,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "service on test:MockListener",
+      "label": "service on lang.test:MockListener",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "E",
-      "filterText": "service_test_MockListener",
+      "filterText": "service_lang_test_MockListener",
       "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -712,60 +712,12 @@
       ]
     },
     {
-      "label": "service on module3:Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "E",
-      "filterText": "service_module3_Listener",
-      "insertText": "service ${1} on new module3:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.module3;\n"
-        }
-      ]
-    },
-    {
       "label": "lsproject.module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
       "filterText": "module11",
       "insertText": "module11",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.module1 as module11;\n"
-        }
-      ]
-    },
-    {
-      "label": "service on module1:Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "E",
-      "filterText": "service_module1_Listener",
-      "insertText": "service ${1} on new module11:Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3(module11:MyType|int arg1) returns module11:MyType {\n        return ${4:{a: \"\"\\}};\n    }\n\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -886,6 +838,62 @@
       "sortText": "B",
       "filterText": "null",
       "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service on lsproject.module1:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_lsproject_module1_Listener",
+      "insertText": "service ${1} on new module11:Listener() {\n\n    remote function method1() {\n        return;\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3(module11:MyType|int arg1) returns module11:MyType {\n        return ${4:{a: \"\"\\}};\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module1 as module11;\n"
+        }
+      ]
+    },
+    {
+      "label": "service on lsproject.module3:Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "E",
+      "filterText": "service_lsproject_module3_Listener",
+      "insertText": "service ${1} on new module3:Listener() {\n\n    remote function method1() {\n        return;\n    }\n\n    function method2() returns string|error {\n        return ${3:\"\"};\n    }\n\n    function method3($CompilationError$|int arg1) returns $CompilationError$ {\n        ${4}\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.module3;\n"
+        }
+      ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

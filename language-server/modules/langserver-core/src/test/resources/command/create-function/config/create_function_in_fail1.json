@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "create_function_in_fail1.bal",
   "expected": {
     "result": {
       "edit": {
@@ -28,7 +29,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction getFailure() returns error {\n    \n}\n"
+                "newText": "\n\nfunction getFailure() returns error {\n    return error(\"\");\n}\n"
               }
             ]
           }

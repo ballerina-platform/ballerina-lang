@@ -24,12 +24,12 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
@@ -60,18 +60,14 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
     );
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
-                            CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
-    }
-
-    @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
                                                     DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
-        
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+        if (!DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())) {
+            return Collections.emptyList();
+        }
+
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         Optional<NonTerminalNode> nonTerminalNode = context.currentSyntaxTree()
                 .flatMap(syntaxTree -> Optional.ofNullable(CommonUtil.findNode(range, syntaxTree)));
 
@@ -126,13 +122,13 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
         if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN ||
                 bindingPatternNode.kind() == SyntaxKind.MAPPING_BINDING_PATTERN ||
                 bindingPatternNode.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
-            Range editRange = CommonUtil.toRange(bindingPatternNode.lineRange());
+            Range editRange = PositionUtil.toRange(bindingPatternNode.lineRange());
             textEdit = new TextEdit(editRange, "_");
         } else if (bindingPatternNode.kind() == SyntaxKind.FIELD_BINDING_PATTERN) {
             if (bindingPatternNode instanceof FieldBindingPatternVarnameNode) {
                 FieldBindingPatternVarnameNode fieldBindingPattern =
                         (FieldBindingPatternVarnameNode) bindingPatternNode;
-                Position position = CommonUtil.toPosition(fieldBindingPattern.variableName().lineRange().endLine());
+                Position position = PositionUtil.toPosition(fieldBindingPattern.variableName().lineRange().endLine());
                 Range editRange = new Range(position, position);
                 textEdit = new TextEdit(editRange, ": _");
             }

@@ -34,6 +34,7 @@ public enum CodeActionNodeType {
     RECORD,
     IMPORTS,
     ANNOTATION,
+    OBJECT_FIELD,
     NONE;
 
     /**

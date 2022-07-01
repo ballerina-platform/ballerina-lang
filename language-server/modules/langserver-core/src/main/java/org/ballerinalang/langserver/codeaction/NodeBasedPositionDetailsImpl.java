@@ -29,17 +29,20 @@ import java.util.Optional;
 public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
     private final NonTerminalNode matchedTopLevelNode;
     private final NonTerminalNode matchedStmtNode;
+    private final NonTerminalNode matchedCodeActionNode;
     private final TypeSymbol matchedTopLevelTypeSymbol;
     private final NonTerminalNode matchedDocumentableNode;
     private final NonTerminalNode enclosingDocumentableNode;
 
     private NodeBasedPositionDetailsImpl(NonTerminalNode matchedTopLevelNode,
                                          NonTerminalNode matchedStmtNode,
+                                         NonTerminalNode matchedCodeActionNode,
                                          TypeSymbol matchedTopLevelTypeSymbol,
                                          NonTerminalNode matchedDocumentableNode,
                                          NonTerminalNode enclosingDocumentableNode) {
         this.matchedTopLevelNode = matchedTopLevelNode;
         this.matchedStmtNode = matchedStmtNode;
+        this.matchedCodeActionNode = matchedCodeActionNode;
         this.matchedTopLevelTypeSymbol = matchedTopLevelTypeSymbol;
         this.matchedDocumentableNode = matchedDocumentableNode;
         this.enclosingDocumentableNode = enclosingDocumentableNode;
@@ -60,6 +63,11 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
      */
     public NonTerminalNode matchedStatementNode() {
         return matchedStmtNode;
+    }
+    
+    @Override
+    public NonTerminalNode matchedCodeActionNode() {
+        return matchedCodeActionNode;
     }
 
     /**
@@ -87,10 +95,10 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
         private NonTerminalNode enclosingDocumentableNode;
         private NonTerminalNode topLevelNode;
         private NonTerminalNode statementNode;
-        private final TypeSymbol topLevelNodeType;
+        private NonTerminalNode codeActionNode;
+        private TypeSymbol topLevelNodeType;
 
-        public PositionDetailsBuilder(TypeSymbol topLevelNodeType) {
-            this.topLevelNodeType = topLevelNodeType;
+        private PositionDetailsBuilder() {
         }
 
         public PositionDetailsBuilder setDocumentableNode(NonTerminalNode documentableNode) {
@@ -113,13 +121,28 @@ public class NodeBasedPositionDetailsImpl implements NodeBasedPositionDetails {
             return this;
         }
 
+        public PositionDetailsBuilder setCodeActionNode(NonTerminalNode codeActionNode) {
+            this.codeActionNode = codeActionNode;
+            return this;
+        }
+
+        public PositionDetailsBuilder setTopLevelNodeType(TypeSymbol topLevelNodeType) {
+            this.topLevelNodeType = topLevelNodeType;
+            return this;
+        }
+
         public NodeBasedPositionDetails build() {
             return new NodeBasedPositionDetailsImpl(
                     this.topLevelNode,
                     this.statementNode,
+                    this.codeActionNode,
                     this.topLevelNodeType,
                     this.documentableNode,
                     this.enclosingDocumentableNode);
+        }
+
+        public static PositionDetailsBuilder newBuilder() {
+            return new PositionDetailsBuilder();
         }
     }
 }

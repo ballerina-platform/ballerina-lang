@@ -1,9 +1,13 @@
 {
-  "line": 19,
-  "character": 12,
+  "position": {
+    "line": 19,
+    "character": 12
+  },
+  "source": "modVarToListenerDecl1.bal",
   "expected": [
     {
       "title": "Convert module variable 'ln' to listener declaration",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

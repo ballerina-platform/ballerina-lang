@@ -29,8 +29,8 @@ import java.io.IOException;
 public class MakeAnnotDeclarationConstantCodeActionTest extends AbstractCodeActionTest {
     @Test(dataProvider = "codeaction-data-provider")
     @Override
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MakeAnnotDeclarationConstantCodeActionTest extends AbstractCodeActi
     @Override
     public Object[][] dataProvider() {
         return new Object[][] {
-                {"annotationDeclaration.json", "annotationDeclaration.bal"}
+                {"annotationDeclaration.json"}
         };
     }
 }

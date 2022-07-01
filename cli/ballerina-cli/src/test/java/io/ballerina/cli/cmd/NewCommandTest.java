@@ -464,6 +464,37 @@ public class NewCommandTest extends BaseCommandTest {
                 "version = \"0.1.0\""));
     }
 
+    @Test(description = "Test new command by pulling a central template that has includes")
+    public void testNewCommandTemplateWithIncludes() throws IOException {
+        // Publish template to the central
+        cacheBalaToCentralRepository(testResources.resolve("balacache-dependencies").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("any"), "foo", "winery", "0.1.0", "any");
+
+        // Create a new package with the foo/winery:0.1.0 template
+        String packageName = "sample_project";
+        String[] args = {packageName, "-t", "foo/winery:0.1.0"};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        // Check if the package directory is created
+        Path packageDir = tmpDir.resolve(packageName);
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML)));
+
+        // Check if the include files are copied
+        Assert.assertTrue(Files.exists(packageDir.resolve("include-file.json")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include/file")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_text_file.txt")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("default-module-include-dir/include_image.png")));
+        Assert.assertTrue(Files.exists(packageDir.resolve("modules/services/non-default-module-include/file")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_text_file.txt")));
+        Assert.assertTrue(Files.exists(
+                packageDir.resolve("modules/services/non-default-module-include-dir/include_image.png")));
+    }
+
     @Test(description = "Test new command without arguments")
     public void testNewCommandNoArgs() throws IOException {
         // Test if no arguments was passed in
