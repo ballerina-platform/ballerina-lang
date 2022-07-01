@@ -45,7 +45,7 @@ public class BallerinaMapTypeBuilder implements TypeBuilder.MAP {
     private final SymbolTable symTable;
     private TypeSymbol typeParam;
 
-    protected BallerinaMapTypeBuilder(CompilerContext context) {
+    public BallerinaMapTypeBuilder(CompilerContext context) {
         typesFactory = TypesFactory.getInstance(context);
         symTable = SymbolTable.getInstance(context);
     }
