@@ -51,7 +51,9 @@ public class ClientResourceAccessActionTest {
                 {"testClientResourceAccessContainingComputedResourceAccessSegments"},
                 {"testConstantAndUserDefinedTypesInResourcePathWithoutVarName"},
                 {"testWithResourceAccessRestSegment"},
-                {"testResourceAccessWithArguments"}
+                {"testResourceAccessWithArguments"},
+                {"testStaticTypeOfClientResourceAccessAction"},
+                {"testResourceAccessOfAnObjectConstructedViaObjectCons"}
         };
     }
 }

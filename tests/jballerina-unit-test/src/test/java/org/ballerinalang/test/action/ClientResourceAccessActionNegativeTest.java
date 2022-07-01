@@ -842,6 +842,9 @@ public class ClientResourceAccessActionNegativeTest {
         BAssertUtil.validateError(clientTransactionalResourceNegative, index++,
                 "invoking transactional function outside transactional scope is prohibited",
                 23, 13);
+        BAssertUtil.validateError(clientTransactionalResourceNegative, index++,
+                "invoking transactional function outside transactional scope is prohibited",
+                26, 13);
         Assert.assertEquals(clientTransactionalResourceNegative.getErrorCount(), index);
     }
 }

@@ -23,7 +23,7 @@ public function testTransactionCall() {
             testFunction();
         }
     };
-    int _ = successClient->/path/["a"]; // No Error Found. Issue - #36736.
+    int _ = successClient->/path/["a"];
 }
 
 public transactional function testFunction() {

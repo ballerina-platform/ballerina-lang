@@ -348,6 +348,142 @@ function testResourceAccessWithArguments() {
     assertEquality(a11, <int[2]>[1, 5]);
 }
 
+client class MyClient6 {
+    resource function get [string... a](string... b) returns string[][] {
+        return [a, b];
+    }
+
+    resource function get1 [string](int a, int b) returns int? {
+        return a;
+    }
+
+    resource function get path/[int a]/path2/[string](string b, int... c) returns [int, string, int[]] {
+        return [a, b, c];
+    }
+
+    resource function put [int](int a, int b = 5) returns int[2] {
+        return [a, b];
+    }
+
+    resource function get path/[boolean a](string b) returns boolean|xml {
+        return a;
+    }
+
+    resource function get [float a](string b) returns float|map<int> {
+        return a;
+    }
+
+    resource function get [decimal a]/path(string b) returns decimal {
+        return a;
+    }
+}
+
+function testStaticTypeOfClientResourceAccessAction() {
+    MyClient6 myClinet = new;
+
+    var a1 = myClinet->/;
+    string[][] a01 = a1;
+    assertEquality(a01, <string[][]>[[], []]);
+
+    var a2 = myClinet->/books/books2;
+    string[][] a02 = a2;
+    assertEquality(a02, <string[][]>[["books", "books2"], []]);
+
+    var a3 = myClinet->/("books", "pen");
+    string[][] a03 = a3;
+    assertEquality(a03, <string[][]>[[], ["books", "pen"]]);
+
+    var a5 = myClinet->/a.get1(5, 6);
+    int? a05 = a5;
+    assertEquality(a05, 5);
+
+    var a7 = myClinet->/[...["car"]].get1(3, 6);
+    int? a07 = a7;
+    assertEquality(a07, 3);
+
+    var a8 = myClinet->/path/[1]/path2/path3("book", 6);
+    [int, string, int[]] a08 = a8;
+    assertEquality(a08, <[int, string, int[]]>[1, "book", [6]]);
+
+    var a10 = myClinet->/[5].put(1, 6);
+    int[2] a010 = a10;
+    assertEquality(a010, <int[2]>[1, 6]);
+
+    var a11 = myClinet->/[5].put(1);
+    int[2] a011 = a11;
+    assertEquality(a011, <int[2]>[1, 5]);
+
+    var a12 = myClinet->/path/[true]("car");
+    boolean|xml a012 = a12;
+    assertEquality(a012, true);
+
+    var a13 = myClinet->/[1.45]("car");
+    float|map<int> a013 = a13;
+    assertEquality(a013, 1.45);
+
+    var a14 = myClinet->/[1.0003]/path("car");
+    decimal a014 = a14;
+    assertEquality(a014, 1.0003d);
+}
+
+function testResourceAccessOfAnObjectConstructedViaObjectCons() {
+    var myClinet = client object {
+        resource function get [string... a](string... b) returns string[][] {
+            return [a, b];
+        }
+
+        resource function get1 [string](int a, int b) returns int {
+            return a;
+        }
+
+        resource function get path/[int a]/path2/[string](string b, int... c) returns [int, string, int[]] {
+            return [a, b, c];
+        }
+
+        resource function put [int](int a, int b = 5) returns int[2] {
+            return [a, b];
+        }
+
+        resource function put [PATH]/path(int a) returns int {
+            return a;
+        }
+    };
+
+    string[][] a1 = myClinet->/;
+    assertEquality(a1, <string[][]>[[], []]);
+
+    string[][] a2 = myClinet->/books/books2;
+    assertEquality(a2, <string[][]>[["books", "books2"], []]);
+
+    string[][] a3 = myClinet->/("books", "pen");
+    assertEquality(a3, <string[][]>[[], ["books", "pen"]]);
+
+    string[][] a41 = myClinet->/["a"]/[...["b", "c"]](...["d", "e"]);
+    assertEquality(a41, <string[][]>[["a", "b", "c"], ["d", "e"]]);
+
+    int a5 = myClinet->/a.get1(5, 6);
+    assertEquality(a5, 5);
+
+    int a7 = myClinet->/[...["car"]].get1(3, 6);
+    assertEquality(a7, 3);
+
+    [int, string, int[]] a8 = myClinet->/path/[1]/path2/path3("book", 6);
+    assertEquality(a8, <[int, string, int[]]>[1, "book", [6]]);
+
+    "path2"[2] pathArray = ["path2", "path2"];
+    [int, string, int[]] a9 = myClinet->/path/[1]/[...pathArray]("book", 6);
+    assertEquality(a9, <[int, string, int[]]>[1, "book", [6]]);
+
+    int[2] a10 = myClinet->/[5].put(1, 6);
+    assertEquality(a10, <int[2]>[1, 6]);
+
+    int[2] a11 = myClinet->/[5].put(1);
+    assertEquality(a11, <int[2]>[1, 5]);
+
+    int a12 = myClinet->/[PATH]/path.put(4);
+    assertEquality(a12, 4);
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
