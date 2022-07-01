@@ -71,7 +71,8 @@ public class RuntimeRegistry {
         invokeListenerGracefulStop(strand, currentScheduler, iterator);
     }
 
-    private synchronized void invokeListenerGracefulStop(Strand strand, Scheduler scheduler, Iterator<BObject> iterator) {
+    private synchronized void invokeListenerGracefulStop(Strand strand, Scheduler scheduler,
+                                                         Iterator<BObject> iterator) {
         if (iterator.hasNext()) {
             ListenerCallback callback = new ListenerCallback(strand, scheduler, iterator);
             BObject listener = iterator.next();
