@@ -1,6 +1,7 @@
-# Document event sync publisher subscriber Developer Guide
+# Document Event Sync Publisher Subscriber - Developer Guide
 
-Read about the implementation of document event sync publisher subscriber from 
+This documentation is intended for developers who are planning to write their own `Subscriber` implementations.
+Read about the design of document event sync publisher subscriber from 
 [here](./DocumentEventSyncPublisherSubscriberDesign.md) .
 
 ## Example
@@ -41,7 +42,10 @@ public class TriggerServiceSubscriber implements EventSubscriber {
     }
 }
 ```
-### Step 2 - Adding Dependencies to `META-INF`
+See [`CommandRegisterSubscriber`](../../language-server/modules/langserver-core/src/main/java/org/ballerinalang/langserver/eventsync/subscribers/CommandRegisterSubscriber.java) 
+for an example
+
+### Step 2 - Adding Services to `META-INF`
 
 - After creating the `TriggerServiceSubscriber` you need to create a file with the name 
 `org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber` inside `resources/META-INF/services` file inside 

@@ -1,4 +1,4 @@
-# Document event sync publisher subscriber
+# Document Event Sync Publisher Subscriber
 
 ## Overview
 
@@ -59,7 +59,9 @@ public class CommandRegisterSubscriber implements EventSubscriber {
     }
 }
 ```
-[`CommandRegisterSubscriber`](../../language-server/modules/langserver-core/src/main/java/org/ballerinalang/langserver/eventsync/subscribers/CommandRegisterSubscriber.java)
+See [`CommandRegisterSubscriber`](../../language-server/modules/langserver-core/src/main/java/org/ballerinalang/langserver/eventsync/subscribers/CommandRegisterSubscriber.java)
+for an example.
+
 ### 2. Implementing a Publisher
 
 `EventPublishers` can be implemented extending `AbstractEventPublisher`.
@@ -87,4 +89,5 @@ public class ProjectUpdateEventPublisher extends AbstractEventPublisher {
     }
 }
 ```
-[`ProjectUpdateEventPublisher`](../../language-server/modules/langserver-core/src/main/java/org/ballerinalang/langserver/eventsync/publishers/ProjectUpdateEventPublisher.java)
+See [`ProjectUpdateEventPublisher`](../../language-server/modules/langserver-core/src/main/java/org/ballerinalang/langserver/eventsync/publishers/ProjectUpdateEventPublisher.java)
+for an example.
