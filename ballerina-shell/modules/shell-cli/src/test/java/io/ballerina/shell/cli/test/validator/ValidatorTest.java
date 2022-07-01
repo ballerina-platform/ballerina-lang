@@ -34,6 +34,7 @@ public class ValidatorTest {
         InputValidator inputValidator = new InputValidator();
 
         // Variable declarations
+        Assert.assertTrue(inputValidator.isComplete("int i = 12;"));
         Assert.assertTrue(inputValidator.isComplete("int[] x = [1,2];"));
         Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2;"));
         Assert.assertTrue(inputValidator.isComplete("int n = flag ? 1 : 2"));
