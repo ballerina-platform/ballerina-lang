@@ -29,13 +29,19 @@ public enum DiffKind {
 
     FUNCTION("function"),
     SERVICE("service"),
-
     SERVICE_ANNOTATION("service annotation"),
     SERVICE_LISTENER_EXPR("service listener expression"),
     SERVICE_FIELD("service field"),
     REMOTE_FUNCTION("remote function"),
     RESOURCE_FUNCTION("resource function"),
 
+    MODULE_CONST("module constant"),
+    MODULE_CONST_ANNOTATION("module constant annotation"),
+    MODULE_CONST_INIT("module constant initializer"),
+
+    MODULE_VAR("module variable"),
+    MODULE_VAR_ANNOTATION("module variable annotation"),
+    MODULE_VAR_INIT("module variable initializer"),
     DOCUMENTATION("documentation"),
     UNKNOWN("unknown");
 
