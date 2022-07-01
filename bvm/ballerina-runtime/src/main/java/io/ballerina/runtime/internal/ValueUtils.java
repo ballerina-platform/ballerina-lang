@@ -210,7 +210,7 @@ public class ValueUtils {
      */
     public static BTypedesc createSingletonTypedesc(BValue value) {
         return io.ballerina.runtime.api.creators.ValueCreator
-                .createTypedescValue(TypeCreator.createFiniteType(value.toString(), Set.of(value), 0));
+                .createTypedescValue(TypeCreator.createFiniteType(null, Set.of(value), 0));
     }
 
     /**
