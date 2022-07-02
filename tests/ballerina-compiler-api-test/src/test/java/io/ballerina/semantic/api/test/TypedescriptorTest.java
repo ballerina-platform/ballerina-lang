@@ -242,7 +242,7 @@ public class TypedescriptorTest {
         };
     }
 
-    @Test(dataProvider = "InferredArrayVarPostProvider")
+    @Test(dataProvider = "InferredArrayVarPosProvider")
     public void testInferredArrayType(int line, int col, String expSignature) {
         Symbol symbol = getSymbol(line, col);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
@@ -250,7 +250,7 @@ public class TypedescriptorTest {
         assertEquals(type.signature(), expSignature);
     }
 
-    @DataProvider(name = "InferredArrayVarPostProvider")
+    @DataProvider(name = "InferredArrayVarPosProvider")
     public Object[][] getInferredArrayVarPos() {
         return new Object[][] {
                 {292, 11, "int[*]"},
