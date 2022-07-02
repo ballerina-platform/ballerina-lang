@@ -71,8 +71,8 @@ public class JsonToRecordDirectConverter {
 
     private JsonToRecordDirectConverter() {}
 
-    private static final String newRecordName = "NewRecord";
-    private static final String arrayRecordSuffix = "Item";
+    private static final String NEW_RECORD_NAME = "NewRecord";
+    private static final String ARRAY_RECORD_SUFFIX = "Item";
 
     /**
      * This method returns the Ballerina code for the provided JSON value or the diagnostics.
@@ -97,7 +97,7 @@ public class JsonToRecordDirectConverter {
                         recordToTypeDescNodes, jsonFieldToElements, diagnosticMessages);
             } else if (parsedJson.isJsonArray()) {
                 JsonObject object = new JsonObject();
-                object.add(recordName == null ? StringUtils.uncapitalize(newRecordName) :
+                object.add(recordName == null ? StringUtils.uncapitalize(NEW_RECORD_NAME) :
                         StringUtils.uncapitalize(recordName), parsedJson);
                 generateRecords(object, recordName, isRecordTypeDesc, isClosed,
                         recordToTypeDescNodes, jsonFieldToElements, diagnosticMessages);
@@ -183,7 +183,7 @@ public class JsonToRecordDirectConverter {
                     for (JsonElement element : entry.getValue().getAsJsonArray()) {
                         if (element.isJsonObject()) {
                             String elementKey = entry.getKey();
-                            String type = StringUtils.capitalize(elementKey) + arrayRecordSuffix;
+                            String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
                             generateRecords(element.getAsJsonObject(), type, isRecordTypeDesc, isClosed,
                                     recordToTypeDescNodes, jsonNodes, diagnosticMessages);
                             break;
@@ -202,7 +202,7 @@ public class JsonToRecordDirectConverter {
                 NodeFactory.createRecordTypeDescriptorNode(recordKeyWord, bodyStartDelimiter,
                         fieldNodes, null, bodyEndDelimiter);
 
-        recordToTypeDescNodes.put(recordName == null ? newRecordName : recordName, recordTypeDescriptorNode);
+        recordToTypeDescNodes.put(recordName == null ? NEW_RECORD_NAME : recordName, recordTypeDescriptorNode);
     }
 
     /**
@@ -340,7 +340,7 @@ public class JsonToRecordDirectConverter {
                 }
             } else if (element.isJsonObject()) {
                 String elementKey = entry.getKey();
-                String type = StringUtils.capitalize(elementKey) + arrayRecordSuffix;
+                String type = StringUtils.capitalize(elementKey) + ARRAY_RECORD_SUFFIX;
                 Token tempTypeName = AbstractNodeFactory.createIdentifierToken(type);
 
                 TypeDescriptorNode tempTypeNode = isRecordTypeDesc ?
