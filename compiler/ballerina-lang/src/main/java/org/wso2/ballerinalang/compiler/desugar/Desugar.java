@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -9357,8 +9356,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // Create a statement-expression including the match statement
         BLangMatchStatement matchStmt = this.matchStmtStack.firstElement();
-        BLangBlockStmt blockStmt =
-                ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(tempResultVarDef, matchStmt));
+        blockStmt.stmts.add(matchStmt);
         BLangStatementExpression stmtExpression = createStatementExpression(blockStmt, tempResultVarRef);
         stmtExpression.setBType(originalExprType);
         // Reset the variables
@@ -9409,9 +9407,14 @@ public class Desugar extends BLangNodeVisitor {
          */
 
         BLangExpression matchExpr = accessExpr.expr;
-        BType matchExprType = accessExpr.expr.getBType();
+        BLangSimpleVariableDef variableDef =
+                                         createVarDef("$varDef$", matchExpr.getBType(), matchExpr, matchExpr.pos);
+        BLangSimpleVarRef simpleVarRef = ASTBuilderUtil.createVariableRef(variableDef.pos, variableDef.var.symbol);
+        accessExpr.expr = simpleVarRef;
+        blockStmt.stmts.add(variableDef);
         Location pos = accessExpr.pos;
-        BLangMatchStatement matchStmt = ASTBuilderUtil.createMatchStatement(matchExpr, pos);
+        BLangMatchStatement matchStmt = ASTBuilderUtil.createMatchStatement(simpleVarRef, pos);
+        BType matchExprType = accessExpr.expr.getBType();
 
         boolean isAllTypesRecords = false;
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
