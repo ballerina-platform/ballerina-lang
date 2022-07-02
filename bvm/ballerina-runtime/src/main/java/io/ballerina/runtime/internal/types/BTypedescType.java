@@ -71,6 +71,9 @@ public class BTypedescType extends BType implements TypedescType {
     }
 
     public Type getConstraint() {
+        if (constraint.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return ((BTypeReferenceType) constraint).getReferredType();
+        }
         return constraint;
     }
 

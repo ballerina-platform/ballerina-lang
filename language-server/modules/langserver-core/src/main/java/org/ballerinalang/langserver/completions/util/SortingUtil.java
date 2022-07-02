@@ -37,8 +37,8 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.FunctionPointerCompletionItem;
@@ -401,14 +401,14 @@ public class SortingUtil {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         if (typeDesc.get().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDesc.get();
-            String alias = QNameReferenceUtil.getAlias(qNameRef);
-            Optional<ModuleSymbol> moduleSymbol = CommonUtil.searchModuleForAlias(context, alias);
+            String alias = QNameRefCompletionUtil.getAlias(qNameRef);
+            Optional<ModuleSymbol> moduleSymbol = ModuleUtil.searchModuleForAlias(context, alias);
 
             if (moduleSymbol.isEmpty()) {
                 return Optional.empty();
             }
             String identifier = qNameRef.identifier().text();
-            return CommonUtil.getTypeFromModule(context, alias, identifier);
+            return ModuleUtil.getTypeFromModule(context, alias, identifier);
         }
         if (typeDesc.get().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             String nameRef = ((SimpleNameReferenceNode) typeDesc.get()).name().text();
@@ -457,7 +457,7 @@ public class SortingUtil {
      * @return Rank
      */
     public static int toRank(BallerinaCompletionContext context, LSCompletionItem completionItem, int rankOffset) {
-        boolean onQnameRef = QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor());
+        boolean onQnameRef = QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor());
         int rank = -1;
         CompletionItemKind completionItemKind = completionItem.getCompletionItem().getKind();
         switch (completionItem.getType()) {

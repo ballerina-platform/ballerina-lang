@@ -7,8 +7,10 @@ module io.ballerina.language.server.core {
     uses org.ballerinalang.langserver.commons.registration.BallerinaServerCapability;
     uses org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter;
     uses org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter;
+    uses org.ballerinalang.langserver.commons.eventsync.spi.EventSubscriber;
+    uses org.ballerinalang.langserver.eventsync.EventPublisher;
     exports org.ballerinalang.langserver;
-    exports org.ballerinalang.langserver.util.references;
+    exports org.ballerinalang.langserver.references;
     exports org.ballerinalang.langserver.common.utils;
     exports org.ballerinalang.langserver.common.constants;
     exports org.ballerinalang.langserver.codeaction.providers;

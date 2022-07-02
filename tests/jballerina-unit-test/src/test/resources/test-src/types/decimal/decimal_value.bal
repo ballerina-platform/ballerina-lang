@@ -262,6 +262,13 @@ function testDecimalZeroOperations() {
     assertEquality("decimal operation resulting in unsupported decimal value 'NaN'", messageString);
 }
 
+function testDecimalValueWithExponent() {
+    decimal a1 = 9.99E+6111;
+    decimal a2 = <decimal>9.99E+6111;
+
+    assertEquality(true, a1 == a2);
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

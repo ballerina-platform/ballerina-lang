@@ -1,0 +1,148 @@
+[
+  {
+    "source": "const RED = \"RED\";const GREEN = \"GREEN\";const BLUE = \"BLUE\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["RED","BLUE","GREEN"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type Color RED|GREEN|BLUE;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Color"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "enum Language {EN=\"english\", TA=\"tamil\", SI=\"sinhala\"}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Language"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string skyColor = BLUE;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["skyColor"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "skyColor",
+    "result": {
+      "shellValue": {
+        "value":"\"BLUE\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "enum Bands { QUEEN, PF = \"Pink \" + \"Floyd\"}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Bands"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function concat(string str1, string str2) returns string {return str1 + \" and \" + str2; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["concat"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string concatenated = concat(QUEEN, PF);",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["concatenated"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "concatenated",
+    "result": {
+      "shellValue": {
+        "value":"\"QUEEN and Pink Floyd\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "function getLanguage(string symbol) returns Language { match symbol { \"e\" => { return EN; } \"t\" => { return TA; } } return SI; }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["getLanguage"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Language language = getLanguage(\"e\");",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["language"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "language",
+    "result": {
+      "shellValue": {
+        "value":"\"english\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Language sinhala = \"sinhala\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["sinhala"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "sinhala",
+    "result": {
+      "shellValue": {
+        "value":"\"sinhala\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

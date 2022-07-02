@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        branch: ["master", "2201.0.x", "2201.1.x", "2201.1.0-stage"]
+        branch: ["master", "2201.0.x", "2201.1.x", "2201.1.1-stage"]
 
     steps:
       - name: Checkout Repository

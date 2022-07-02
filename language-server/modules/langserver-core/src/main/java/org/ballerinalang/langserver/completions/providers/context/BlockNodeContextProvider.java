@@ -31,12 +31,12 @@ import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.ReturnTypeFinder;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -65,7 +65,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
             Ex: function test() {
@@ -75,7 +75,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             Predicate<Symbol> filter = symbol -> symbol.kind() != SymbolKind.SERVICE_DECLARATION;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {

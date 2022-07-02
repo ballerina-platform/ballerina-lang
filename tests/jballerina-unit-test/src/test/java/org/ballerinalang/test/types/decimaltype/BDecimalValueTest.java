@@ -281,7 +281,12 @@ public class BDecimalValueTest {
         BRunUtil.invoke(result, "testDecimalFillerValue");
     }
 
-    @Test()
+    @Test
+    public void testDecimalValueWithExponent() {
+        BRunUtil.invoke(result, "testDecimalValueWithExponent");
+    }
+
+    @Test
     public void testDecimalZeroOperations() {
         BRunUtil.invoke(result, "testDecimalZeroOperations");
     }

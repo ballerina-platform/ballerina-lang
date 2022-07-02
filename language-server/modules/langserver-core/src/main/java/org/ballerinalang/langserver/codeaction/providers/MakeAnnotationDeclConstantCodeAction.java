@@ -24,6 +24,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
@@ -65,14 +66,14 @@ public class MakeAnnotationDeclConstantCodeAction extends AbstractCodeActionProv
             return Collections.emptyList();
         }
 
-        Range diagnosticRange = CommonUtil.toRange(diagnostic.location().lineRange());
+        Range diagnosticRange = PositionUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode node = CommonUtil.findNode(diagnosticRange, context.currentSyntaxTree().get());
         if (node.kind() != SyntaxKind.ANNOTATION_DECLARATION) {
             return Collections.emptyList();
         }
 
         AnnotationDeclarationNode annotationDeclarationNode = (AnnotationDeclarationNode) node;
-        Position position = CommonUtil.toPosition(annotationDeclarationNode.annotationKeyword().lineRange()
+        Position position = PositionUtil.toPosition(annotationDeclarationNode.annotationKeyword().lineRange()
                 .startLine());
         
         TextEdit textEdit = new TextEdit(new Range(position, position), SyntaxKind.CONST_KEYWORD.stringValue() 

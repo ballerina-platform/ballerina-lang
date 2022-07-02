@@ -4,6 +4,7 @@
     - <a href="#ServiceImplementation">Service Implementation</a>
     - <a href="#ServerCapability">Server Capability Registration</a>
     - <a href="#ClientCapability">Client Capability Registration</a>
+- <a href="#Checklist">Developer Checklist</a>
 
 <a name="WhatIsAService"></a>
 ## What is a Service?
@@ -158,3 +159,15 @@ public class CustomServiceClientCapabilitySetter
 
 __Note:__
 > It is important to note that the `nameOfService` which has been used in four places above, should be the same string value since the particular string value is used to correlate the capabilites with the services.
+
+<a name="Checklist"></a>
+# Developer Checklist
+
+When developing extended language services, please make sure the following points are checked by the end.
+
+- [ ] Add the full qualified class names of the implementations of `org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter`
+  into a file named `src/main/resources/META-INF/services/org.ballerinalang.langserver.commons.registration.BallerinaServerCapabilitySetter`
+- [ ] Add the full qualified class names of the implementations of `org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter`
+  into a file named `src/main/resources/META-INF/services/org.ballerinalang.langserver.commons.registration.BallerinaClientCapabilitySetter`
+
+> **_NOTE:_**  The above steps are to ensure that your SPI services are detected and loaded during the runtime by the language server

@@ -3117,9 +3117,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token failKeyword =
                 modifyToken(onFailClauseNode.failKeyword());
         TypeDescriptorNode typeDescriptor =
-                modifyNode(onFailClauseNode.typeDescriptor());
+                modifyNode(onFailClauseNode.typeDescriptor().orElse(null));
         IdentifierToken failErrorName =
-                modifyNode(onFailClauseNode.failErrorName());
+                modifyNode(onFailClauseNode.failErrorName().orElse(null));
         BlockStatementNode blockStatement =
                 modifyNode(onFailClauseNode.blockStatement());
         return onFailClauseNode.modify(

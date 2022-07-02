@@ -1,24 +1,27 @@
 {
+  "position": {
     "line": 24,
-    "character": 47,
-    "expected": [
+    "character": 47
+  },
+  "source": "createVariable2.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "edits": [
         {
-            "title": "Create variable",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 24,
-                            "character": 4
-                        },
-                        "end": {
-                            "line": 24,
-                            "character": 4
-                        }
-                    },
-                    "newText": "int length = "
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 24,
+              "character": 4
+            },
+            "end": {
+              "line": 24,
+              "character": 4
+            }
+          },
+          "newText": "int length \u003d "
         }
-    ]
+      ]
+    }
+  ]
 }

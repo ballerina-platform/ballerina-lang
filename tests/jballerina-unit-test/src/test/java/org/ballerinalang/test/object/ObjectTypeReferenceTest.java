@@ -48,8 +48,8 @@ public class ObjectTypeReferenceTest {
 
     @Test
     public void testSimpleObjectTypeReferenceSemanticsNegative_1() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-1-semantics" +
-                "-negative.bal");
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/object/object-type-reference-1-semantics-negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an object", 32,
                 6);
@@ -85,6 +85,12 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 123, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 144, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'O2'", 171, 5);
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { byte[] a; }' cannot " +
+                "be overridden by a field of type 'O5': expected a subtype of 'object { byte[] a; }'", 186, 5);
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { int:Unsigned8 i; }' " +
+                "cannot be overridden by a field of type 'O8': expected a subtype of 'object { int:Unsigned8 i; }'",
+                                  205, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -403,5 +409,20 @@ public class ObjectTypeReferenceTest {
     @Test
     public void testCreatingObjectWithOverriddenMethods() {
         BRunUtil.invoke(compileResult, "testCreatingObjectWithOverriddenMethods");
+    }
+
+    @Test
+    public void testObjectReferenceRecordUpdate() {
+        BRunUtil.invoke(compileResult, "testObjectReferenceRecordUpdate");
+    }
+
+    @Test
+    public void testOverridingIncludedFieldInClassWithReadOnlyIntersection() {
+        BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInClassWithReadOnlyIntersection");
+    }
+
+    @Test
+    public void testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection() {
+        BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInObjectTypeDescWithReadOnlyIntersection");
     }
 }

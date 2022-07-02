@@ -23,11 +23,11 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -51,9 +51,9 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode refNode = ((QualifiedNameReferenceNode) nodeAtCursor);
-            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, refNode);
+            List<Symbol> typesInModule = QNameRefCompletionUtil.getTypesInModule(context, refNode);
             completionItems.addAll(this.getCompletionItemList(typesInModule, context));
         } else {
             completionItems.addAll(this.getTypeDescContextItems(context));
@@ -77,7 +77,7 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         Token pipeToken = node.pipeToken();
         int cursor = context.getCursorPositionInTree();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Handle the following. When the cursor is at this position we should not consider the context
             as the union type descriptor context

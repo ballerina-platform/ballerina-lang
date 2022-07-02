@@ -680,11 +680,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "service on test:MockListener",
+      "label": "service on lang.test:MockListener",
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "E",
-      "filterText": "service_test_MockListener",
+      "filterText": "service_lang_test_MockListener",
       "insertText": "service ${1} on new test:MockListener(${2:0}) {\n    ${3}\n}\n",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -806,6 +806,14 @@
       "sortText": "B",
       "filterText": "null",
       "insertText": "null",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "E",
+      "insertText": "function",
       "insertTextFormat": "Snippet"
     }
   ]

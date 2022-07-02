@@ -19,11 +19,14 @@
 package io.ballerina.semantic.api.test.langlib;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.impl.symbols.BallerinaObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -75,6 +78,26 @@ public class TypeParamBoundMapFunctionsTest {
 
         assertEquals(params.size(), 1);
         assertParam(params.get(0));
+
+        assertTrue(iteratorFnType.returnTypeDescriptor().isPresent());
+        Map<String, MethodSymbol> methods =
+                ((BallerinaObjectTypeSymbol) iteratorFnType.returnTypeDescriptor().get()).methods();
+        assertEquals(methods.size(), 1);
+        MethodSymbol methodSymbol = methods.get("next");
+        assertEquals(methodSymbol.typeDescriptor().typeKind(), TypeDescKind.FUNCTION);
+
+        FunctionTypeSymbol functionTypeSymbol = methodSymbol.typeDescriptor();
+        assertTrue(functionTypeSymbol.returnTypeDescriptor().isPresent());
+        assertEquals(functionTypeSymbol.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
+        UnionTypeSymbol returnTypeDesc = (UnionTypeSymbol) functionTypeSymbol.returnTypeDescriptor().get();
+        List<TypeSymbol> unionTypeSymbols = returnTypeDesc.memberTypeDescriptors();
+        TypeSymbol firstReturnTypeSym = unionTypeSymbols.get(0);
+        TypeSymbol secondReturnTypeSym = unionTypeSymbols.get(1);
+        assertEquals(firstReturnTypeSym.typeKind(), TypeDescKind.RECORD);
+        assertEquals(secondReturnTypeSym.typeKind(), TypeDescKind.NIL);
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) firstReturnTypeSym;
+        TypeSymbol valueRecFieldType = recordTypeSymbol.fieldDescriptors().get("value").typeDescriptor();
+        assertEquals(valueRecFieldType.typeKind(), TypeDescKind.FLOAT);
     }
 
     @Test

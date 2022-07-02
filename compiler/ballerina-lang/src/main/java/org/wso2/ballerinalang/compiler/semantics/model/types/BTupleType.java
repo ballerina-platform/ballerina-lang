@@ -41,8 +41,6 @@ public class BTupleType extends BType implements TupleType {
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 
-    public BIntersectionType immutableType;
-
     private BIntersectionType intersectionType = null;
 
     public BTupleType(List<BType> tupleTypes) {
@@ -126,16 +124,6 @@ public class BTupleType extends BType implements TupleType {
 
         this.resolvingToString = false;
         return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void unsetImmutableType() {
-        this.immutableType = null;
     }
 
     @Override

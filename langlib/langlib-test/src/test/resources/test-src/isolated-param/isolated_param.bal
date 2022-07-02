@@ -59,6 +59,20 @@ isolated function arrForEachFunc(int i) {
 
 isolated function mapFilterFunc(boolean val) returns boolean => !val;
 
+type FuncTuple [isolated function (string)];
+
+isolated int i = 0;
+
+function testIsolatedParamWithTypeRefTypedRestArg() {
+    FuncTuple f = [isolated function (string s) { lock { i += s.length(); } }];
+
+    string[] arr = ["Hello", "Ballerina"];
+    arr.forEach(...f);
+    lock {
+        assertEquality(14, i);
+    }
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -20,7 +20,7 @@ import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -53,7 +53,7 @@ public class RemoveUnreachableCodeCodeAction extends AbstractCodeActionProvider 
                                                     CodeActionContext context) {
 
         LineRange lineRange = diagnostic.location().lineRange();
-        TextEdit edit = new TextEdit(CommonUtil.toRange(lineRange), "");
+        TextEdit edit = new TextEdit(PositionUtil.toRange(lineRange), "");
         return List.of(createCodeAction(CommandConstants.REMOVE_UNREACHABLE_CODE_TITLE, List.of(edit),
                 context.fileUri(), CodeActionKind.QuickFix));
     }

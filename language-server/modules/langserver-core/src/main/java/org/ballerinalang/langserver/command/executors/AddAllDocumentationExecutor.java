@@ -20,7 +20,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.ExecuteCommandContext;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
@@ -68,7 +68,7 @@ public class AddAllDocumentationExecutor implements LSCommandExecutor {
             }
         }
 
-        Optional<Path> filePath = CommonUtil.getPathFromURI(documentUri);
+        Optional<Path> filePath = PathUtil.getPathFromURI(documentUri);
         if (filePath.isEmpty()) {
             return Collections.emptyList();
         }

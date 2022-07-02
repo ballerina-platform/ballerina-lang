@@ -72,3 +72,27 @@ function xmlTypeParamUnionIter() {
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal2 = el2.iterator().next();
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal3 = el3.iterator().next();
 }
+
+function xmlElementTypeArrayIter() {
+    xml<xml:Element[]> elements = xml ``;
+
+    foreach var element in elements {
+        concatString(element.toString());
+    }
+}
+
+function xmlElementArrayIntersectionWithReadonlyTypeIter() {
+    xml<xml:Element[] & readonly> elements = xml ``;
+
+    foreach var element in elements {
+        concatString(element.toString());
+    }
+}
+
+public function xmlTupleTypeIter() {
+    xml<[int, string]> elements = xml ``;
+
+    foreach var element in elements {
+        concatString(element.toString());
+    }
+}

@@ -453,7 +453,7 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 "Failed to evaluate." + System.lineSeparator() +
                         "Reason: compilation error(s) found while creating executables for evaluation: " +
                         System.lineSeparator() +
-                        "on conflict can only be used with queries which produce tables with key specifiers");
+                        "on conflict can only be used with queries which produce maps or tables with key specifiers");
     }
 
     @Override

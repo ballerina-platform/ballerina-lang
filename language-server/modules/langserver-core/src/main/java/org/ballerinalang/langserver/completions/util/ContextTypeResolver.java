@@ -82,7 +82,7 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.ArrayList;
@@ -198,7 +198,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
                 && (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
                 && symbol.getName().get().equals(node.identifier().text());
-        List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
+        List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, node, predicate);
         if (moduleContent.size() != 1) {
             // At the moment we do not handle the ambiguity. Hence, consider only single item
             return Optional.empty();
@@ -361,13 +361,13 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        if (!CommonUtil.isInFunctionCallParameterContext(context, node)
+        if (!TypeResolverUtil.isInFunctionCallParameterContext(context, node)
                 || !(funcSymbol.get() instanceof FunctionSymbol)) {
             return SymbolUtil.getTypeDescriptor(funcSymbol.get());
         }
 
-        return CommonUtil.resolveParameterTypeSymbol(((FunctionSymbol) funcSymbol.get()).typeDescriptor(), context,
-                node.arguments());
+        return TypeResolverUtil.resolveParameterTypeSymbol(((FunctionSymbol) funcSymbol.get()).typeDescriptor(), 
+                context, node.arguments());
     }
 
     @Override
@@ -379,7 +379,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!CommonUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)) {
+        if (!TypeResolverUtil.isInNewExpressionParameterContext(context, implicitNewExpressionNode)) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
         }
         if (classSymbol.get().typeKind() == TypeDescKind.UNION) {
@@ -403,7 +403,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (methodSymbol.isEmpty() || implicitNewExpressionNode.parenthesizedArgList().isEmpty()) {
             return Optional.empty();
         }
-        return CommonUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(),
+        return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(),
                 context, implicitNewExpressionNode.parenthesizedArgList().get().arguments());
     }
 
@@ -415,7 +415,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (classSymbol.isEmpty()) {
             return Optional.empty();
         }
-        if (!CommonUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)) {
+        if (!TypeResolverUtil.isInNewExpressionParameterContext(context, explicitNewExpressionNode)) {
             return SymbolUtil.getTypeDescriptor(classSymbol.get());
         }
         if (classSymbol.get().typeKind() == TypeDescKind.UNION) {
@@ -434,7 +434,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (methodSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return CommonUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(),
+        return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(),
                 context, explicitNewExpressionNode.parenthesizedArgList().arguments());
     }
 
@@ -455,7 +455,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 && methodSymbol.get().kind() != SymbolKind.FUNCTION)) {
             return Optional.empty();
         }
-        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
+        if (!TypeResolverUtil.isInMethodCallParameterContext(context, node)) {
             return SymbolUtil.getTypeDescriptor(methodSymbol.get());
         }
 
@@ -469,12 +469,12 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (methodSymbol.isEmpty() || methodSymbol.get().kind() != SymbolKind.METHOD) {
             return Optional.empty();
         }
-        if (!CommonUtil.isInMethodCallParameterContext(context, node)) {
+        if (!TypeResolverUtil.isInMethodCallParameterContext(context, node)) {
             // Here, we want the type of the context, not the type of the method itself
             return node.parent().apply(this);
         }
 
-        return CommonUtil.resolveParameterTypeSymbol(
+        return TypeResolverUtil.resolveParameterTypeSymbol(
                 ((MethodSymbol) methodSymbol.get()).typeDescriptor(), context, node.arguments());
     }
 
@@ -708,7 +708,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     }
 
     private Optional<Symbol> getTypeFromQNameReference(QualifiedNameReferenceNode node, Predicate<Symbol> predicate) {
-        List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
+        List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, node, predicate);
         if (moduleContent.size() != 1) {
             // At the moment we do not handle the ambiguity. Hence, consider only single item
             return Optional.empty();
@@ -771,7 +771,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         //Look for function symbol in lang lib functions
         boolean isLangLibMethod = false;
         if (functionOrMethodCallExpr.kind() == SyntaxKind.METHOD_CALL) {
-            Optional<FunctionTypeSymbol> langLibMethod = CommonUtil.findMethodInLangLibFunctions(
+            Optional<FunctionTypeSymbol> langLibMethod = TypeResolverUtil.findMethodInLangLibFunctions(
                     (MethodCallExpressionNode) functionOrMethodCallExpr, context);
             if (langLibMethod.isPresent()) {
                 functionTypeSymbol = langLibMethod.get();
@@ -793,7 +793,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (functionTypeSymbol == null) {
             return Optional.empty();
         }
-        return CommonUtil.resolveParameterTypeSymbol(functionTypeSymbol, context,
+        return TypeResolverUtil.resolveParameterTypeSymbol(functionTypeSymbol, context,
                 argumentNodes, isLangLibMethod);
     }
 
@@ -817,6 +817,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (methodSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return CommonUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), context, argumentNodes);
+        return TypeResolverUtil.resolveParameterTypeSymbol(methodSymbol.get().typeDescriptor(), context, 
+                argumentNodes);
     }
 }
