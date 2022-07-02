@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line":22,
+    "character": 21
+  },
+  "source": {
+    "file": "hover_for_api_docs.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "Description for module variable with init  \n  \n---  \n  \n`int` modVar1"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}
