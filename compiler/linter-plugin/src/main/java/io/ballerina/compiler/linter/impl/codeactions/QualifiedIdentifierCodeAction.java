@@ -66,12 +66,12 @@ public class QualifiedIdentifierCodeAction extends LinterCodeAction {
         SyntaxKind kind = node.kind();
         if (kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             final QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
-            updatedText = qualifiedNameReferenceNode.modulePrefix().toSourceCode().strip()
+            updatedText = qualifiedNameReferenceNode.modulePrefix().text()
                     + qualifiedNameReferenceNode.colon().toSourceCode().strip()
                     + qualifiedNameReferenceNode.identifier().toSourceCode().strip();
         } else if (kind == SyntaxKind.XML_QUALIFIED_NAME) {
             final XMLQualifiedNameNode xmlQualifiedNameNode = (XMLQualifiedNameNode) node;
-            updatedText = xmlQualifiedNameNode.prefix().toSourceCode().strip()
+            updatedText = xmlQualifiedNameNode.prefix().name().text()
                     + xmlQualifiedNameNode.colon().toSourceCode().strip()
                     + xmlQualifiedNameNode.name().toSourceCode().strip();
         } else {
