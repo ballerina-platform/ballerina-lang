@@ -17,8 +17,8 @@
  */
 package io.ballerina.compiler.api.impl;
 
-import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.TypeBuilder;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.Symbol;
 import org.ballerinalang.model.elements.PackageID;
