@@ -1452,10 +1452,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     // ---- Visitor methods to replace frame access and mark closure variables ---- //
     @Override
     public void visit(BLangLambdaFunction lambda) {
-        if (!lambda.function.flagSet.contains(Flag.QUERY_LAMBDA) && lambda.capturedClosureEnv.enclInvokable != null) {
-            lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
-        }
         lambda.function.accept(this);
+        lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
     }
 
     @Override
@@ -1663,24 +1661,33 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (withinLambdaFunc && symbol.closure) {
-                        // When there's a closure in a lambda inside a query lambda the symbol.closure is
-                        // true for all its usages. Therefore mark symbol.closure = false for the existing
-                        // symbol and create a new symbol with the same properties.
-                        symbol.closure = false;
-                        symbol = new BVarSymbol(0, symbol.name, env.scope.owner.pkgID, symbol.type, env.scope.owner,
-                                pos, VIRTUAL);
-                        symbol.closure = true;
-                        bLangSimpleVarRef.symbol = symbol;
-                        bLangSimpleVarRef.varSymbol = symbol;
+                    if (withinLambdaFunc) {
+                        if (symbol.closure) {
+                            // When there's a closure in a lambda inside a query lambda the symbol.closure is
+                            // true for all its usages. Therefore mark symbol.closure = false for the existing
+                            // symbol and create a new symbol with the same properties.
+                            symbol.closure = false;
+                            symbol = new BVarSymbol(0, symbol.name, env.scope.owner.pkgID, symbol.type,
+                                                    env.scope.owner, pos, VIRTUAL);
+                            symbol.closure = true;
+                            bLangSimpleVarRef.symbol = symbol;
+                            bLangSimpleVarRef.varSymbol = symbol;
+                            BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
+                                                           desugar.addConversionExprIfRequired(frameAccessExpr,
+                                                                   symbol.type), (BVarSymbol) symbol);
+                            BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
+                            currentQueryLambdaBody.stmts.add(0, variableDef);
+                            SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                            queryLambdaEnv.scope.define(symbol.name, symbol);
+                        }
+                    } else {
+                        BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
+                                desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
+                        BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
+                        currentQueryLambdaBody.stmts.add(0, variableDef);
+                        SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
+                        queryLambdaEnv.scope.define(symbol.name, symbol);
                     }
-
-                    BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
-                            desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
-                    BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-                    currentQueryLambdaBody.stmts.add(0, variableDef);
-                    SymbolEnv queryLambdaEnv = SymbolEnv.createFuncBodyEnv(currentQueryLambdaBody, env);
-                    queryLambdaEnv.scope.define(symbol.name, symbol);
                 }
                 identifiers.put(identifier, symbol);
             } else if (identifiers.containsKey(identifier) && withinLambdaFunc) {
