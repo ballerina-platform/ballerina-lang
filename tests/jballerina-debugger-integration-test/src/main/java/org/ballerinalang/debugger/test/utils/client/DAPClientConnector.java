@@ -96,6 +96,10 @@ public class DAPClientConnector {
         return projectPath;
     }
 
+    public Path getEntryFilePath() {
+        return entryFilePath;
+    }
+
     public int getPort() {
         return port;
     }

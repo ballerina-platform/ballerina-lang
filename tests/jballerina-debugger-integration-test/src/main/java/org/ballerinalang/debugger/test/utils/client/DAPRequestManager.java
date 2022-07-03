@@ -34,6 +34,9 @@ import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.PauseArguments;
 import org.eclipse.lsp4j.debug.ProcessEventArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalRequestArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalRequestArgumentsKind;
+import org.eclipse.lsp4j.debug.RunInTerminalResponse;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
@@ -51,6 +54,7 @@ import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -61,6 +65,8 @@ public class DAPRequestManager {
 
     private final DAPClientConnector clientConnector;
     private final IDebugProtocolServer server;
+    private boolean didRunInIntegratedTerminal;
+    private boolean isProjectBasedTest;
 
     public DAPRequestManager(DAPClientConnector clientConnector, DAPClient client, IDebugProtocolServer server,
                              Capabilities serverCapabilities) {
@@ -334,6 +340,32 @@ public class DAPRequestManager {
 
     private boolean checkStatus() {
         return clientConnector != null && clientConnector.isConnected();
+    }
+
+    public CompletableFuture<RunInTerminalResponse> runInTerminal(RunInTerminalRequestArguments args) throws Exception {
+        RunInTerminalResponse response = new RunInTerminalResponse();
+        if (checkStatus()) {
+            // check whether it is a project based test or single file test, and get the cwd respectively
+            String cwd = isProjectBasedTest ? clientConnector.getProjectPath().toString() :
+                    clientConnector.getEntryFilePath().toString();
+
+            if (args.getKind() == RunInTerminalRequestArgumentsKind.INTEGRATED && Objects.equals(args.getCwd(), cwd)) {
+                this.didRunInIntegratedTerminal = true;
+                return CompletableFuture.completedFuture(response);
+            } else {
+                throw new Exception("RunInTerminal request failed");
+            }
+        } else {
+            throw new IllegalStateException("DAP request manager is not active");
+        }
+    }
+
+    public void setIsProjectBasedTest(Boolean isProjectBasedTest) {
+        this.isProjectBasedTest = isProjectBasedTest;
+    }
+
+    public Boolean getDidRunInIntegratedTerminal() {
+        return didRunInIntegratedTerminal;
     }
 
     private enum DefaultTimeouts {

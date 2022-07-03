@@ -88,6 +88,7 @@ public class DebugTestRunner {
     private DebugHitListener hitListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
+    private final boolean isProjectBasedTest;
 
     private static final int SCHEDULER_INTERVAL_MS = 1000;
     private static final Logger LOGGER = LoggerFactory.getLogger(DebugTestRunner.class);
@@ -101,6 +102,7 @@ public class DebugTestRunner {
             testEntryFilePath = testSingleFileBaseDir.resolve(testModuleFileName);
         }
 
+        this.isProjectBasedTest = isProjectBasedTest;
         // Hard assertions will be used by default.
         assertionMode = AssertionMode.HARD_ASSERT;
     }
@@ -148,6 +150,27 @@ public class DebugTestRunner {
         launchConfigs.put("capabilities", extendedCapabilities);
         initDebugSession(executionKind, launchConfigs);
     }
+
+
+    /**
+     * Initialize test debug session.
+     *
+     * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
+     *                      will try to attach to the debuggee, instead of launching)
+     * @throws BallerinaTestException if any exception is occurred during initialization.
+     */
+    public Boolean initDebugSessionInTerminal(DebugUtils.DebuggeeExecutionKind executionKind, String terminalKind)
+            throws BallerinaTestException {
+        HashMap<String, Object> launchConfigs = new HashMap<>();
+        HashMap<String, Object> extendedCapabilities = new HashMap<>();
+        extendedCapabilities.put("supportsReadOnlyEditors", true);
+        launchConfigs.put("capabilities", extendedCapabilities);
+        launchConfigs.put("terminal", terminalKind);
+        initDebugSession(executionKind, launchConfigs);
+
+        return debugClientConnector.getRequestManager().getDidRunInIntegratedTerminal();
+    }
+
 
     /**
      * Initialize test debug session.
@@ -204,6 +227,7 @@ public class DebugTestRunner {
         if (executionKind == DebugUtils.DebuggeeExecutionKind.BUILD) {
             attachToDebuggee();
         } else {
+            debugClientConnector.getRequestManager().setIsProjectBasedTest(isProjectBasedTest);
             launchDebuggee(executionKind, launchArgs);
         }
     }
