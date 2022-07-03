@@ -28,7 +28,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
-import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -6560,7 +6559,7 @@ public class Desugar extends BLangNodeVisitor {
 
         bLangInvocation.symbol = invokableSymbol;
 
-        for (int i = 0;  i < resourceAccessPathSegments.size() ; i++) {
+        for (int i = 0;  i < resourceAccessPathSegments.size(); i++) {
             BLangExpression resourceAccessPathSeg = resourceAccessPathSegments.get(i);
             if (resourceAccessPathSeg.getKind() == NodeKind.LIST_CONSTRUCTOR_SPREAD_OP) {
                 bLangInvocation.restArgs.add(createRestArgsExpressionFromSpreadExpr(
