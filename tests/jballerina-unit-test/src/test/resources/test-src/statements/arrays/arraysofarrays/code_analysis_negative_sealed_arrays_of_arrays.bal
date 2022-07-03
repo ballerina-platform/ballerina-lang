@@ -32,9 +32,12 @@ function invalidSealedLiteralUsage() {
     (float[*][*]) & readonly _ = [[3, 4], [3, 4]];
 }
 
+function value1(int[*][*] a = [[1]]) returns int[*] {
+    return [10];
+}
+
 public function invalidInferredArrays() {
     function (int[*][*] a = [[1]]) returns int[] _ = value1;
-    function (int[1][1] a = [[1]]) returns int[*] _ = value2;
     var _ = function(int b) returns int {[int[*]] _ = [[1]]; int[*] _ = [32]; return b;};
     var _ = function(int[3] b) returns int[*] {return [2, 3];};
 
@@ -42,14 +45,6 @@ public function invalidInferredArrays() {
     if (b3) {
         int[*] _ = [12,12];
     }
-}
-
-function value1(int[*][*] a = [[1]]) returns int[*] {
-    return [10];
-}
-
-function value2(int[1][1] a = [[1]]) returns int[*] {
-    return [10];
 }
 
 function fn1() returns int[*][*] & readonly {
@@ -74,5 +69,4 @@ function fn4(int[*][] x = [[1]]) {
 map<int[*][]> a5 = {"1" : [[3]]};
 map<float|int[*][*]> a6 = {"1" : [[3]]};
 map<int[*][]> a7 = {};
-function (int[*][] a = [[1]]) returns int[][] _ = function(int[*][] b = [[1]]) returns int[*][] {return [[2, 3]];};
 var _ = function(int[3] b) returns int[*][] {return [[2, 3]];};

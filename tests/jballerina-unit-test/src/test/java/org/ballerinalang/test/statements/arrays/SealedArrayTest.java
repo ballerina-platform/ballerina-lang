@@ -300,13 +300,13 @@ public class SealedArrayTest {
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 18, 4);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                22, 15);
+                21, 16);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                23, 43);
+                26, 15);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                24, 40);
+                27, 43);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                32, 16);
+                28, 40);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 36, 24);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
