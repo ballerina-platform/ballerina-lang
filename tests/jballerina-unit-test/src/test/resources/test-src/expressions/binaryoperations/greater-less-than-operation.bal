@@ -1375,3 +1375,53 @@ function testUnorderedTypeComparison29() {
     test:assertFalse(x6);
     test:assertFalse(x7);
 }
+
+function testTypeComparison10() {
+    Type1 a = [true, 3];
+    Type2 b = [true, 4];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertFalse(x0);
+    test:assertTrue(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertFalse(x2);
+    test:assertTrue(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertTrue(x4);
+    test:assertFalse(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertTrue(x6);
+    test:assertFalse(x7);
+}
+
+function testTypeComparison11() {
+    Type1 a = [true, 3];
+    Type2 b = [true, 3];
+
+    boolean x0 = a > b;
+    boolean x1 = b > a;
+    test:assertTrue(x0);
+    test:assertFalse(x1);
+
+    boolean x2 = a >= b;
+    boolean x3 = b >= a;
+    test:assertTrue(x2);
+    test:assertFalse(x3);
+
+    boolean x4 = a < b;
+    boolean x5 = b < a;
+    test:assertFalse(x4);
+    test:assertTrue(x5);
+
+    boolean x6 = a <= b;
+    boolean x7 = b <= a;
+    test:assertFalse(x6);
+    test:assertTrue(x7);
+}

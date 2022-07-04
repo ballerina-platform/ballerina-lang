@@ -305,3 +305,17 @@ function checkComparisonWithUnorderedTypes19() {
     boolean _ = b > a;
     boolean _ = b >= a;
 }
+
+function checkComparisonWithTupleTypes() {
+    [int, int, string...] a = [1, 2];
+    int[] b = [2, 1];
+
+    boolean _ = a < b;
+    boolean _ = a <= b;
+    boolean _ = a > b;
+    boolean _ = a >= b;
+    boolean _ = b < a;
+    boolean _ = b <= a;
+    boolean _ = b > a;
+    boolean _ = b >= a;
+}
