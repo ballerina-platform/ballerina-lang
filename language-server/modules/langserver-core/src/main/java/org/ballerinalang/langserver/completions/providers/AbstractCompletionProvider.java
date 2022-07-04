@@ -40,13 +40,16 @@ import io.ballerina.compiler.api.symbols.XMLNamespaceSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
+import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -277,6 +280,28 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.KW_NIL.get())
         ));
 
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (nodeAtCursor.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return completionItems;
+        }
+        String prefix = ((SimpleNameReferenceNode) nodeAtCursor).name().text();
+        context.currentDocImportsMap().forEach((importDeclarationNode, moduleSymbol) -> {
+            List<Symbol> symbols = moduleSymbol.allSymbols();
+            CodeActionModuleId moduleId = CodeActionModuleId.from(importDeclarationNode);
+            List<Symbol> filteredList = SymbolUtil.filterSymbolsByPrefix(symbols, context, prefix, moduleId);
+            List<LSCompletionItem> completionItemList = getCompletionItemList(filteredList, context);
+
+            for (LSCompletionItem lsCompletionItem : completionItemList) {
+                CompletionItem completionItem = lsCompletionItem.getCompletionItem();
+                String insertText = completionItem.getInsertText();
+                String label = completionItem.getLabel();
+                String moduleName = importDeclarationNode.prefix().isEmpty() ? moduleSymbol.id().moduleName()
+                        : importDeclarationNode.prefix().get().prefix().text();
+                completionItem.setInsertText(moduleName + ":" + insertText);
+                completionItem.setLabel(moduleName + ":" + label);
+                completionItems.add(lsCompletionItem);
+            }
+        });
         return completionItems;
     }
 

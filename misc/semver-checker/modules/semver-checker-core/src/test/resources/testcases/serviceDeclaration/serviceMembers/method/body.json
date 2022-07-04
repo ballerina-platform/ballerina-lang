@@ -1,0 +1,119 @@
+[
+  {
+    "description": "Modify a body of the method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string name) returns string{\n\t\treturn \"Hello\";} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string name) returns string{\n\t\treturn \"Hi\";} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "function body is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add body of the method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string name) returns string{} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string name) returns string{\n\t\treturn \"Hello\" ; \n} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "function body is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "remove body of the method definition in a service declaration",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string name) returns string{\n\t\treturn \"Hello\" ; \n} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string name) returns string{} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "function body is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

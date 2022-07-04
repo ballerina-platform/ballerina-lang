@@ -20,6 +20,7 @@ package io.ballerina.semver.checker.comparator;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.semver.checker.diff.Diff;
+import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.NodeDiffBuilder;
 import io.ballerina.semver.checker.diff.NodeDiffImpl;
 import io.ballerina.semver.checker.diff.SemverImpact;
@@ -42,11 +43,13 @@ public class DocumentationComparator extends NodeComparator<Node> {
         NodeDiffBuilder documentationDiffBuilder = new NodeDiffImpl.Builder<>(newNode, oldNode);
         if (newNode != null && oldNode == null) {
             return documentationDiffBuilder
+                    .withKind(DiffKind.DOCUMENTATION)
                     .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("documentation is added")
                     .build();
         } else if (newNode == null && oldNode != null) {
             return documentationDiffBuilder
+                    .withKind(DiffKind.DOCUMENTATION)
                     .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("documentation is removed")
                     .build();
@@ -56,6 +59,7 @@ public class DocumentationComparator extends NodeComparator<Node> {
             return Optional.empty();
         } else {
             return documentationDiffBuilder
+                    .withKind(DiffKind.DOCUMENTATION)
                     .withVersionImpact(SemverImpact.PATCH)
                     .withMessage("documentation is modified")
                     .build();

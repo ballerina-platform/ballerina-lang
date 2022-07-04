@@ -230,7 +230,9 @@ public class ImmutableTypeCloner {
                                                                           pkgId, owner, symTable, anonymousModelHelper,
                                                                           names, unresolvedTypes),
                                                 immutableXmlTSymbol, origXmlType.flags | Flags.READONLY);
-                immutableXmlTSymbol.type = immutableXmlType;
+                if (immutableXmlTSymbol != null) {
+                    immutableXmlTSymbol.type = immutableXmlType;
+                }
 
                 BIntersectionType immutableXmlIntersectionType = createImmutableIntersectionType(pkgId, owner,
                                                                                                  originalType,

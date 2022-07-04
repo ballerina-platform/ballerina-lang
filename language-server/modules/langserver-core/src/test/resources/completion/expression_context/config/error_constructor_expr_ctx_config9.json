@@ -695,6 +695,14 @@
           "newText": "import test/local_project1;\n"
         }
       ]
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "BR",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

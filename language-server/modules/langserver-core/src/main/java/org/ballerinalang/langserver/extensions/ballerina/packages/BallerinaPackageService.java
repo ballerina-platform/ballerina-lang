@@ -124,9 +124,12 @@ public class BallerinaPackageService implements ExtendedLanguageServerService {
                 if (project.isEmpty()) {
                     throw new UserErrorException("Project not found.");
                 }
-                Package currentPackage = project.get().currentPackage();
-                response.setConfigSchema(new ConfigSchemaBuilder().getConfigSchemaContent(
-                        ConfigReader.getConfigVariables(currentPackage)));
+                this.workspaceManager.waitAndGetPackageCompilation(filePath.get())
+                        .ifPresent(compilation -> {
+                            Package currentPackage = project.get().currentPackage();
+                            response.setConfigSchema(new ConfigSchemaBuilder().getConfigSchemaContent(
+                                    ConfigReader.getConfigVariables(currentPackage)));
+                        });
             } catch (Exception e) {
                 String msg = "Operation 'ballerinaPackage/configSchema' failed!";
                 this.clientLogger.logError(PackageContext.PACKAGE_CONFIG_SCHEMA, msg, e,

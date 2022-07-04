@@ -120,7 +120,19 @@ public class LSPackageLoader {
         Map<String, PackageInfo> packagesList = new HashMap<>();
         this.getDistributionRepoPackages().forEach(packageInfo ->
                 packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+        List<PackageInfo> repoPackages = this.getPackagesFromBallerinaUserHome(ctx);
+        repoPackages.stream().filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
+                .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
+        return new ArrayList<>(packagesList.values());
+    }
 
+    /**
+     * Returns the list of packages that reside in the BallerinaUserHome (.ballerina) directory.
+     * @param ctx Document service context.
+     * @return {@link List<PackageInfo>} List of package info.
+     */
+    public List<PackageInfo> getPackagesFromBallerinaUserHome(DocumentServiceContext ctx) {
+        List<PackageInfo> packagesList = new ArrayList<>();
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
         if (project.isEmpty()) {
             return Collections.emptyList();
@@ -129,13 +141,9 @@ public class LSPackageLoader {
                 .from(project.get().projectEnvironmentContext().environment());
         PackageRepository localRepository = ballerinaUserHome.localPackageRepository();
         PackageRepository remoteRepository = ballerinaUserHome.remotePackageRepository();
-        this.getRemoteRepoPackages(remoteRepository).stream()
-                .filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
-                .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
-        this.getLocalRepoPackages(localRepository).stream()
-                .filter(packageInfo -> !packagesList.containsKey(packageInfo.packageIdentifier()))
-                .forEach(packageInfo -> packagesList.put(packageInfo.packageIdentifier(), packageInfo));
-        return new ArrayList<>(packagesList.values());
+        packagesList.addAll(this.getRemoteRepoPackages(remoteRepository));
+        packagesList.addAll(this.getLocalRepoPackages(localRepository));
+        return packagesList;
     }
 
     private List<PackageInfo> getPackagesFromRepository(PackageRepository repository, List<String> skipList) {

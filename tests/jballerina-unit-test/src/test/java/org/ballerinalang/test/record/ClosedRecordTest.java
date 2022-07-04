@@ -328,6 +328,11 @@ public class ClosedRecordTest {
         BRunUtil.invoke(cyclicBal, "testCyclicRecordResolution");
     }
 
+    @Test
+    public void testOverridingIncludedFieldInRecordWithReadOnlyIntersection() {
+        BRunUtil.invoke(compileResult, "testOverridingIncludedFieldInRecordWithReadOnlyIntersection");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

@@ -157,6 +157,8 @@ public class IntersectionTypeTest {
                         "error detail type 'record {| string x; string...; |}' contains individual field descriptors",
                 56, 63);
         validateError(result, index++,
+                "incompatible types: expected 'string', found 'int'", 56, 67);
+        validateError(result, index++,
                       "incompatible types: expected 'DistinctErrorIntersection', found 'IntersectionErrorFour'", 57,
                       38);
         validateError(result, index++,
@@ -193,7 +195,7 @@ public class IntersectionTypeTest {
         validateError(result, index++, "error constructor does not accept additional detail args 'oth' when error " +
                 "detail type 'record {| boolean fatal?; int code; int...; |}' contains individual field descriptors",
                 96, 59);
-
+        validateError(result, index++, "incompatible types: expected 'int', found 'boolean'", 96, 65);
         assertEquals(result.getErrorCount(), index);
     }
 

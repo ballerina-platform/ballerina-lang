@@ -240,6 +240,8 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "error constructor does not accept additional detail args 'one' when error detail type 'Foo' " +
                         "contains individual field descriptors", 45, 58);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'int', found 'float'",
+                45, 64);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of " +
                         "'map<ballerina/lang.value:0.0.0:Cloneable>'", 48, 11);

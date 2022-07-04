@@ -269,7 +269,7 @@ public class SymbolBIRTest {
                 new Object[][]{
                         {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
                         {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
-                        {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
+                        {"function", MODULE}, {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
                         {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
                 });
     }

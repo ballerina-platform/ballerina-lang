@@ -111,6 +111,15 @@ public class XMLIterationTest {
         BAssertUtil.validateError(negative, index++,
                 "xml langlib functions does not support union types as their arguments",
                 73, 68);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with 'xml:Element[]'",
+                77, 5);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with '(xml:Element[] & readonly)'",
+                85, 5);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: 'xml' cannot be constrained with '[int,string]'",
+                93, 5);
     }
 
     @Test
@@ -140,7 +149,10 @@ public class XMLIterationTest {
             "xmlTypeParamCommentIter",
             "xmlTypeParamElementIter",
             "xmlTypeParamPIIter",
-            "testSequenceOfSequenceOfXmlElementIteration"
+            "testSequenceOfSequenceOfXmlElementIteration",
+            "testSequenceOfSequenceOfReadonlyXmlElementIteration",
+            "testSequenceOfReadOnlyXmlSubTypeUnionIteration",
+            "testSequenceOfReadOnlyXmlSubTypeUnionIteration2"
         };
     }
 

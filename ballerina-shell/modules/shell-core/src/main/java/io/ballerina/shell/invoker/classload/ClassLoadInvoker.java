@@ -336,7 +336,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         // If there are no declarations/variables, we can simply execute.
         if (noModuleDeclarations && noVariableDeclarations) {
             ClassLoadContext execContext = createVariablesExecutionContext(List.of(), executableSnippets, Map.of());
-            executeProject(execContext, EXECUTION_TEMPLATE_FILE);
+            executeProject(execContext, EXECUTION_TEMPLATE_FILE, newImports);
             return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
         }
 
@@ -371,7 +371,7 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
         try {
             ClassLoadContext execContext = createVariablesExecutionContext(
                     variableDeclarations.keySet(), executableSnippets, allNewVariables);
-            executeProject(execContext, EXECUTION_TEMPLATE_FILE);
+            executeProject(execContext, EXECUTION_TEMPLATE_FILE, newImports);
             return Optional.ofNullable(InvokerMemory.recall(contextId, CONTEXT_EXPR_VAR_NAME));
         } catch (InvokerException e) {
             // Execution failed... Reverse all by deleting declarations.

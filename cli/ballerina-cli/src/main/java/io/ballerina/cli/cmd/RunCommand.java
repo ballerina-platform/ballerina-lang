@@ -84,10 +84,11 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
-    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)

@@ -278,19 +278,30 @@ public class CommandUtil {
             List<Path> icon = pathStream
                     .filter(FileSystems.getDefault().getPathMatcher("glob:**.png")::matches)
                     .collect(Collectors.toList());
-            if (icon.isEmpty()) {
-                return;
+            if (!icon.isEmpty()) {
+                Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
+                Files.createDirectory(projectDocsDir);
+                Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
+                Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
             }
-            Path projectDocsDir = projectPath.resolve(ProjectConstants.BALA_DOCS_DIR);
-            Files.createDirectory(projectDocsDir);
-            Path projectIconPath = projectDocsDir.resolve(Optional.of(icon.get(0).getFileName()).get());
-            Files.copy(icon.get(0), projectIconPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             printError(errStream,
                     "Error while retrieving the icon: " + e.getMessage(),
                     null,
                     false);
             getRuntime().exit(1);
+        }
+
+        // Copy include files
+        if (templatePackageJson.getInclude() != null) {
+            for (String includeFileString : templatePackageJson.getInclude()) {
+                Path fromIncludeFilePath = balaPath.resolve(includeFileString);
+                Path toIncludeFilePath = projectPath.resolve(includeFileString);
+                if (Files.notExists(toIncludeFilePath)) {
+                    Files.createDirectories(toIncludeFilePath);
+                    Files.walkFileTree(fromIncludeFilePath, new FileUtils.Copy(fromIncludeFilePath, toIncludeFilePath));
+                }
+            }
         }
     }
 
