@@ -19,6 +19,7 @@
 package io.ballerina.semver.checker.util;
 
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.semver.checker.diff.ClassDiff;
 import io.ballerina.semver.checker.diff.Diff;
 import io.ballerina.semver.checker.diff.DiffKind;
 import io.ballerina.semver.checker.diff.FunctionDiff;
@@ -249,6 +250,8 @@ public class DiffUtils {
             return getModuleVariableName((ModuleVarDiff) diff);
         } else if (diff instanceof ModuleConstantDiff) {
             return getModuleConstantName((ModuleConstantDiff) diff);
+        } else if (diff instanceof ClassDiff) {
+            return getModuleClassName((ClassDiff) diff);
         } else {
             return "unknown";
         }
@@ -266,6 +269,8 @@ public class DiffUtils {
             return "module variable";
         } else if (diff instanceof ModuleConstantDiff) {
             return "module constant";
+        } else if (diff instanceof ClassDiff) {
+            return "class";
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
             if (functionDiff.isResource()) {
@@ -290,6 +295,8 @@ public class DiffUtils {
         } else if (diff instanceof ModuleVarDiff) {
             return " ".repeat(4);
         } else if (diff instanceof ModuleConstantDiff) {
+            return " ".repeat(4);
+        } else if (diff instanceof ClassDiff) {
             return " ".repeat(4);
         } else if (diff instanceof FunctionDiff) {
             FunctionDiff functionDiff = (FunctionDiff) diff;
@@ -336,7 +343,7 @@ public class DiffUtils {
     }
 
     /**
-     * Retrieves function name of the given {@link FunctionDiff} instance.
+     * Retrieves name of the given {@link ModuleVarDiff} instance.
      *
      * @param moduleVarDiff FunctionDiff instance
      */
@@ -351,7 +358,7 @@ public class DiffUtils {
     }
 
     /**
-     * Retrieves function name of the given {@link FunctionDiff} instance.
+     * Retrieves name of the given {@link ModuleConstantDiff} instance.
      *
      * @param moduleConstantDiff FunctionDiff instance
      */
@@ -360,6 +367,21 @@ public class DiffUtils {
             return SyntaxTreeUtils.getConstIdentifier(moduleConstantDiff.getNewNode().get());
         } else if (moduleConstantDiff.getOldNode().isPresent()) {
             return SyntaxTreeUtils.getConstIdentifier(moduleConstantDiff.getOldNode().get());
+        } else {
+            return "unknown";
+        }
+    }
+
+    /**
+     * Retrieves name of the given {@link ClassDiff} instance.
+     *
+     * @param classDiff class diff instance
+     */
+    private static String getModuleClassName(ClassDiff classDiff) {
+        if (classDiff.getNewNode().isPresent()) {
+            return SyntaxTreeUtils.getClassIdentifier(classDiff.getNewNode().get());
+        } else if (classDiff.getOldNode().isPresent()) {
+            return SyntaxTreeUtils.getClassIdentifier(classDiff.getOldNode().get());
         } else {
             return "unknown";
         }

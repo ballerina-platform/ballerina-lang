@@ -17,6 +17,7 @@
  */
 package io.ballerina.semver.checker.util;
 
+import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -103,6 +104,16 @@ public class SyntaxTreeUtils {
                 .map(node -> capitalize(node.toSourceCode().trim()))
                 .collect(Collectors.joining());
         return functionName + resourcePaths;
+    }
+
+    /**
+     * Returns the identifier for a given class definition node.
+     *
+     * @param classNode constant declaration syntax node
+     * @return the service identifier
+     */
+    public static String getClassIdentifier(ClassDefinitionNode classNode) {
+        return classNode.className().text().trim();
     }
 
     /**
