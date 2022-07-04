@@ -144,11 +144,7 @@ public class DebugTestRunner {
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
     public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind) throws BallerinaTestException {
-        HashMap<String, Object> launchConfigs = new HashMap<>();
-        HashMap<String, Object> extendedCapabilities = new HashMap<>();
-        extendedCapabilities.put("supportsReadOnlyEditors", true);
-        launchConfigs.put("capabilities", extendedCapabilities);
-        initDebugSession(executionKind, launchConfigs);
+        initDebugSession(executionKind, "");
     }
 
 
@@ -157,17 +153,19 @@ public class DebugTestRunner {
      *
      * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
      *                      will try to attach to the debuggee, instead of launching)
+     * @param terminalKind The terminal type, if the debug session should be launched in a separate terminal
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
-    public Boolean initDebugSessionInTerminal(DebugUtils.DebuggeeExecutionKind executionKind, String terminalKind)
+    public boolean initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, String terminalKind)
             throws BallerinaTestException {
         HashMap<String, Object> launchConfigs = new HashMap<>();
         HashMap<String, Object> extendedCapabilities = new HashMap<>();
         extendedCapabilities.put("supportsReadOnlyEditors", true);
         launchConfigs.put("capabilities", extendedCapabilities);
-        launchConfigs.put("terminal", terminalKind);
+        if (!terminalKind.isEmpty()) {
+            launchConfigs.put("terminal", terminalKind);
+        }
         initDebugSession(executionKind, launchConfigs);
-
         return debugClientConnector.getRequestManager().getDidRunInIntegratedTerminal();
     }
 

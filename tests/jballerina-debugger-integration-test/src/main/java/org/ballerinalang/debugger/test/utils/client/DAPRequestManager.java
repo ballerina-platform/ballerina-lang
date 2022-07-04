@@ -364,8 +364,8 @@ public class DAPRequestManager {
         this.isProjectBasedTest = isProjectBasedTest;
     }
 
-    public Boolean getDidRunInIntegratedTerminal() {
-        return didRunInIntegratedTerminal;
+    public boolean getDidRunInIntegratedTerminal() {
+        return this.didRunInIntegratedTerminal;
     }
 
     private enum DefaultTimeouts {
