@@ -64,9 +64,8 @@ public class Call {
             throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
                         BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_ARGUMENTS,
-                        new BTupleType(paramTypes, restType, 0, false)
-                                .toString().replace("[", "").replace("]", ""),
-                        new BTupleType(argTypes).toString().replace("[", "").replace("]", "")));
+                        removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, restType, 0, false)),
+                        removeBracketsFromStringFormatOfTuple(new BTupleType(argTypes))));
         }
 
         return func.asyncCall(argsList.toArray(), METADATA);
@@ -131,5 +130,10 @@ public class Call {
             }
         }
         return errored;
+    }
+
+    private static String removeBracketsFromStringFormatOfTuple(BTupleType tupleType) {
+        String stringValue = tupleType.toString();
+        return stringValue.substring(1, stringValue.length() - 1);
     }
 }
