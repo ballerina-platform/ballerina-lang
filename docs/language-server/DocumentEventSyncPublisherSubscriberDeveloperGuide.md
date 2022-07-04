@@ -70,4 +70,4 @@ Trigger service subscriber subscribed to Project update event publisher
 
 #### 2. Unit Testing
 
-- Unit tests are written inside `EventSyncPubSubTest`. 
+- See `EventSyncPubSubTest` for an example of writing unit tests for subscribers. 
