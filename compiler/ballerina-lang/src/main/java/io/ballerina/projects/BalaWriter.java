@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,6 +53,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -270,12 +273,13 @@ public abstract class BalaWriter {
 
     private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
         // adds all the includes to the root dir
-        List<String> includes = this.packageContext.packageManifest().includes();
-        for (String include : includes) {
-            Path includePath = Path.of(include);
-            if (!includePath.isAbsolute()) {
-                includePath = this.packageContext.project().sourceRoot().resolve(include);
-            }
+        List<String> includePatterns = this.packageContext.packageManifest().includes();
+        List<Path> includePaths = new ArrayList<>();
+        for (String includePattern : includePatterns) {
+            includePaths.addAll(getPathsMatchingIncludePattern(includePattern));
+        }
+        for (Path includePath: includePaths) {
+            includePath = includePath.toAbsolutePath();
             Path includeInBala = getPathRelativeToPackageRoot(includePath);
             if (includePath.toFile().isDirectory()) {
                 putDirectoryToZipFile(includePath, includeInBala, balaOutputStream);
@@ -301,6 +305,13 @@ public abstract class BalaWriter {
                         new ByteArrayInputStream(gson.toJson(depGraphJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
+        }
+    }
+
+    private List<Path> getPathsMatchingIncludePattern(String pattern) throws IOException {
+        try (Stream<Path> pathStream = Files.walk(this.packageContext.project().sourceRoot())) {
+            return pathStream.filter(
+                    FileSystems.getDefault().getPathMatcher("glob:" + pattern)::matches).collect(Collectors.toList());
         }
     }
 

@@ -264,15 +264,12 @@ public class CommandUtil {
             Files.walkFileTree(moduleRoot, new FileUtils.Copy(moduleRoot, destDir));
         }
 
-        // Copy platform libraries
-        Path platformLibPath = balaPath.resolve("platform").resolve(platform);
-        if (Files.exists(platformLibPath)) {
-            Path libs = projectPath.resolve("libs");
-            Files.createDirectories(libs);
-            Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, libs));
-        }
+        copyIcon(balaPath, projectPath);
+        copyPlatformLibraries(balaPath, projectPath, platform);
+        copyIncludeFiles(balaPath, projectPath, templatePackageJson);
+    }
 
-        // Copy icon
+    private static void copyIcon(Path balaPath, Path projectPath) {
         Path docsPath = balaPath.resolve(ProjectConstants.BALA_DOCS_DIR);
         try (Stream<Path> pathStream = Files.walk(docsPath, 1)) {
             List<Path> icon = pathStream
@@ -291,8 +288,21 @@ public class CommandUtil {
                     false);
             getRuntime().exit(1);
         }
+    }
 
-        // Copy include files
+    private static void copyPlatformLibraries(Path balaPath, Path projectPath, String platform) throws IOException {
+        Path platformLibPath = balaPath.resolve("platform").resolve(platform);
+        if (Files.exists(platformLibPath)) {
+            Path libs = projectPath.resolve("libs");
+            Files.createDirectories(libs);
+            Files.walkFileTree(platformLibPath, new FileUtils.Copy(platformLibPath, libs));
+        }
+    }
+
+    private static void copyIncludeFiles(Path balaPath, Path projectPath, PackageJson templatePackageJson)
+            throws IOException {
+        // TODO: fix to match the patterns
+        // TODO: update the tests to match
         if (templatePackageJson.getInclude() != null) {
             for (String includeFileString : templatePackageJson.getInclude()) {
                 Path fromIncludeFilePath = balaPath.resolve(includeFileString);

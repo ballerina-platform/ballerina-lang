@@ -141,11 +141,9 @@ public class TestBalaWriter {
             Assert.assertEquals(packageJson.getExport().get(1), "winery.services");
 
             Assert.assertFalse(packageJson.getInclude().isEmpty());
-            Assert.assertEquals(packageJson.getInclude().get(0), "include-file.json");
-            Assert.assertEquals(packageJson.getInclude().get(1), "default-module-include/file");
-            Assert.assertEquals(packageJson.getInclude().get(2), "default-module-include-dir");
-            Assert.assertEquals(packageJson.getInclude().get(3), "modules/services/non-default-module-include/file");
-            Assert.assertEquals(packageJson.getInclude().get(4), "modules/services/non-default-module-include-dir");
+            Assert.assertEquals(packageJson.getInclude().get(0), "**/include-file.*");
+            Assert.assertEquals(packageJson.getInclude().get(1), "**/file");
+            Assert.assertEquals(packageJson.getInclude().get(2), "**/*-module-include-*");
 
             Assert.assertEquals(packageJson.getVisibility(), "private");
 
@@ -470,21 +468,6 @@ public class TestBalaWriter {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
         Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
                 "invalid 'icon' under [package]: 'icon' can only have 'png' images");
-    }
-
-    @Test(description = "tests build project with non existing includes")
-    public void testBuildProjectWithNonExistingIncludes(ITestContext ctx) {
-        Path packagePath = BALA_WRITER_RESOURCES.resolve("projectWithNonExistingIncludes");
-        ctx.getCurrentXmlTest().addParameter(PACKAGE_PATH, String.valueOf(packagePath));
-
-        BuildProject buildProject = BuildProject.load(packagePath);
-        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().iterator().next().message(),
-                "could not locate include path 'include-dir'");
     }
 
     @AfterMethod(alwaysRun = true)
