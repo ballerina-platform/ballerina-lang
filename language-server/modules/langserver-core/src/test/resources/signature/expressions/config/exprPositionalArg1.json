@@ -3,6 +3,7 @@
     "line": 429,
     "character": 55
   },
+  "source": "expressions/expressions.bal",
   "expected": {
     "result": {
       "signatures": [],
