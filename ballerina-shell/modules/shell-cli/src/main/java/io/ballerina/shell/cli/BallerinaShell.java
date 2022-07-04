@@ -33,6 +33,8 @@ import io.ballerina.shell.cli.handlers.StringListCommand;
 import io.ballerina.shell.cli.handlers.ToggleDebugCommand;
 import io.ballerina.shell.cli.utils.FileUtils;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.exceptions.SnippetException;
+import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.utils.ModuleImporter;
 
 import java.io.PrintWriter;
@@ -117,26 +119,24 @@ public class BallerinaShell {
                 start = Instant.now();
                 if (!commandHandler.handle(source)) {
                     Optional<ShellReturnValue> shellReturnValue = evaluator.execute(source);
-                    if (shellReturnValue.isPresent() && ExceptionStatus.SUCCESS ==
-                            shellReturnValue.get().getExceptionStatus()) {
-                        result = shellReturnValue.get().getResult();
-                        terminal.result(result);
-                    } else if (shellReturnValue.isPresent() && shellReturnValue.get().getExceptionStatus() ==
-                                ExceptionStatus.INVOKER_FAILED) {
+                    if (shellReturnValue.isPresent()) {
+                        ShellReturnValue shellValue = shellReturnValue.get();
+                        if (ExceptionStatus.SUCCESS == shellValue.getExceptionStatus()) {
+                            result = shellValue.getResult();
+                            terminal.result(result);
+                        } else if (shellValue.getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
                             if (isContainsUndefinedModules(evaluator.diagnostics())) {
                                 currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
                                 evaluator.resetDiagnostics();
                                 executeChanges(source, currentStateDiagnostics);
                             }
-                    } else if (shellReturnValue.get().getExceptionStatus() == ExceptionStatus.INVOKER_FAILED) {
-                        if (isContainsUndefinedModules(evaluator.diagnostics())) {
-                            currentStateDiagnostics = List.copyOf(evaluator.diagnostics());
-                            evaluator.resetDiagnostics();
-                            executeChanges(source, currentStateDiagnostics);
+                        } else if (shellValue.getExceptionStatus() == ExceptionStatus.TREE_PARSER_FAILED) {
+                            throw new TreeParserException();
+                        } else if (shellValue.getExceptionStatus() == ExceptionStatus.SNIPPET_FAILED) {
+                            throw new SnippetException();
                         }
                     }
                 }
-
             } catch (ShellExitException e) {
                 terminal.info("Bye!!!");
                 isRunning = false;

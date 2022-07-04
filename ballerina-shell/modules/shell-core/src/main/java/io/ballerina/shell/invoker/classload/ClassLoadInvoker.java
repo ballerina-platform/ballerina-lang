@@ -282,12 +282,10 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
 
         if (newSnippet instanceof ImportDeclarationSnippet) {
             processImport((ImportDeclarationSnippet) newSnippet);
-
         } else if (newSnippet instanceof VariableDeclarationSnippet) {
             VariableDeclarationSnippet varDclnSnippet = (VariableDeclarationSnippet) newSnippet;
             variableNames.addAll(varDclnSnippet.names());
             variableDeclarations.put(varDclnSnippet, varDclnSnippet.names());
-
         } else if (newSnippet instanceof ModuleMemberDeclarationSnippet) {
             ModuleMemberDeclarationSnippet moduleDclnSnippet = (ModuleMemberDeclarationSnippet) newSnippet;
             Identifier moduleDeclarationName = moduleDclnSnippet.name();
@@ -295,10 +293,8 @@ public class ClassLoadInvoker extends ShellSnippetsInvoker {
             Set<Identifier> usedPrefixes = newSnippet.usedImports().stream()
                     .map(Identifier::new).collect(Collectors.toSet());
             newImports.put(moduleDeclarationName, usedPrefixes);
-
         } else if (newSnippet instanceof ExecutableSnippet) {
             executableSnippets.add((ExecutableSnippet) newSnippet);
-
         } else {
             throw new UnsupportedOperationException("Unimplemented snippet category.");
         }
