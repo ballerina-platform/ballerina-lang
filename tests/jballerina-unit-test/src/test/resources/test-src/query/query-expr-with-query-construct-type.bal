@@ -1250,7 +1250,7 @@ function testReadonlyMap2() {
 class EvenNumberGenerator {
     int i = 0;
     public isolated function next() returns record {| int value; |}|error {
-        return error("Gtreater than 20!");
+        return error("Greater than 20!");
     }
 }
 
@@ -1269,34 +1269,34 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
 
     map<int>|error map1 = map from var item in evenNumberStream
                         select [item.toBalString(), item];
-    assertEqual(map1, error("Gtreater than 20!"));
+    assertEqual(map1, error("Greater than 20!"));
 
     table<ResultValue>|error table1 = table key() from var item in evenNumberStream
                                     select {value: item};
-    assertEqual(table1, error("Gtreater than 20!"));
+    assertEqual(table1, error("Greater than 20!"));
 
     table<NumberRecord> key(id)|error table2 = table key(id) from var item in evenNumberStream
                                             select {id: item, value: item.toBalString()};
-    assertEqual(table2, error("Gtreater than 20!"));
+    assertEqual(table2, error("Greater than 20!"));
 
     // Enable following tests after fixing issue - lang/#36746
     // map<int>|error map2 = map from var firstNo in [1, 4, 9, 10]
     //                         join var secondNo in evenNumberStream
     //                         on firstNo equals secondNo
     //                         select [secondNo.toBalString(), secondNo];
-    // assertEqual(map2, error("Gtreater than 20!"));
+    // assertEqual(map2, error("Greater than 20!"));
 
     // table<NumberRecord> key()|error table3 = table key() from var firstNo in [1, 4, 9, 10]
     //                         join var secondNo in evenNumberStream
     //                         on firstNo equals secondNo
     //                         select {id: secondNo, value: secondNo.toBalString()};
-    // assertEqual(table3, error("Gtreater than 20!"));
+    // assertEqual(table3, error("Greater than 20!"));
 
     // table<NumberRecord> key(id)|error table4 = table key(id) from var firstNo in [1, 4, 9, 10]
     //                         join var secondNo in evenNumberStream
     //                         on firstNo equals secondNo
     //                         select {id: secondNo, value: secondNo.toBalString()};
-    // assertEqual(table4, error("Gtreater than 20!"));
+    // assertEqual(table4, error("Greater than 20!"));
 
     map<int>|error map3 = map from var firstNo in [1, 4, 4, 10]
                             select [firstNo.toBalString(), firstNo] on conflict error("Error");
@@ -1313,15 +1313,15 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
 
     map<int>|error map1 = map from var item in (from var integer in evenNumberStream select integer)
                             select [item.toBalString(), item];
-    assertEqual(map1, error("Gtreater than 20!"));
+    assertEqual(map1, error("Greater than 20!"));
 
     table<ResultValue>|error table1 = table key() from var item in (from var integer in evenNumberStream select integer)
                                         select {value: item};
-    assertEqual(table1, error("Gtreater than 20!"));
+    assertEqual(table1, error("Greater than 20!"));
 
     table<NumberRecord> key(id)|error table2 = table key(id) from var item in (from var integer in evenNumberStream select integer)
                                                 select {id: item, value: item.toBalString()};
-    assertEqual(table2, error("Gtreater than 20!"));
+    assertEqual(table2, error("Greater than 20!"));
 
     map<int>|error map2 = map from var item in check (map from var firstNo in [1, 4, 4, 10]
                             select [firstNo.toBalString(), firstNo] on conflict error("Error"))
@@ -1336,12 +1336,12 @@ function testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError
 
     map<int>|error map3 = map from var item in (from var integer in (from var integer in evenNumberStream select integer) select integer)
                             select [item.toBalString(), item];
-    assertEqual(map3, error("Gtreater than 20!"));
+    assertEqual(map3, error("Greater than 20!"));
 
     table<ResultValue>|error table4 = table key() from var item in
                                         (from var integer in (from var integer in evenNumberStream select integer) select integer)
                                             select {value: item};
-    assertEqual(table4, error("Gtreater than 20!"));
+    assertEqual(table4, error("Greater than 20!"));
 }
 
 function assertEqual(anydata|error actual, anydata|error expected) {
