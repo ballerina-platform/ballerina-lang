@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.converters.util;
+package io.ballerina.jsonmapper.util;
 
 import com.google.gson.JsonPrimitive;
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;

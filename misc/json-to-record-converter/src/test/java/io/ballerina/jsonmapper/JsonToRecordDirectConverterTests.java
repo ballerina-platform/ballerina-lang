@@ -16,9 +16,10 @@
  *  under the License.
  */
 
-package io.ballerina.converters;
+package io.ballerina.jsonmapper;
 
-import io.ballerina.converters.diagnostic.JsonToRecordDirectConverterDiagnostic;
+
+import io.ballerina.jsonmapper.diagnostic.JsonToRecordDirectConverterDiagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

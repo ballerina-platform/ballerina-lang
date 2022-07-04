@@ -44,7 +44,7 @@ test {
 
 description = 'Module for converting JSON to Ballerina Records Directly'
 
-ext.moduleName = 'json-to-record-converter'
+ext.moduleName = 'io.ballerina.jsonmapper'
 
 compileJava {
     inputs.property("moduleName", moduleName)
@@ -53,14 +53,5 @@ compileJava {
                 '--module-path', classpath.asPath,
         ]
         classpath = files()
-    }
-}
-
-jar {
-    manifest {
-        attributes "Main-Class": "io.ballerina.converters.JsonToRecordDirectConverterService"
-    }
-    from {
-        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }

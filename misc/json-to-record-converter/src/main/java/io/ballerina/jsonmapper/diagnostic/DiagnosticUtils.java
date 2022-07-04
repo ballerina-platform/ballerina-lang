@@ -16,9 +16,9 @@
  *  under the License.
  */
 
-package io.ballerina.converters.diagnostic;
+package io.ballerina.jsonmapper.diagnostic;
 
-import io.ballerina.converters.JsonToRecordResponse;
+import io.ballerina.jsonmapper.JsonToRecordResponse;
 
 import java.util.List;
 
