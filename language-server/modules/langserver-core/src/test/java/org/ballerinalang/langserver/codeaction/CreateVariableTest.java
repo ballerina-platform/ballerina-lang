@@ -114,7 +114,10 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"createVariableWithFunctionCall1.json"},
                 {"createVariableWithFunctionCall2.json"},
                 {"createVariableNegative1.json"},
-                {"createVariableWithRemoteMethodInvocation.json"}
+                {"createVariableWithRemoteMethodInvocation.json"},
+
+                // Async send action
+                {"createVarInSendAction1.json"}
         };
     }
 }
