@@ -230,6 +230,17 @@ public class QueryExprWithQueryConstructTypeTest {
                 371, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
                 "found '(table<NumberRecord> key(id)|error)'", 374, 42);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'map<int>', found '(map<int>|error)'", 382, 21);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'table<ResultValue>', found '(table<ResultValue>|error)'", 385, 33);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<NumberRecord> key(id)', " +
+                        "found '(table<NumberRecord> key(id)|error)'", 388, 42);
+        validateError(negativeResult, index++,
+                "incompatible types: '(map<int>|error)' is not an iterable collection", 391, 48);
+        validateError(negativeResult, index++,
+                "incompatible types: '(table<record {| readonly int id; string value; |}> key(id)|error)' " +
+                        "is not an iterable collection", 395, 100);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
@@ -351,6 +362,11 @@ public class QueryExprWithQueryConstructTypeTest {
     @Test
     public void testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError() {
         BRunUtil.invoke(result, "testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError");
+    }
+
+    @Test
+    public void testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2() {
+        BRunUtil.invoke(result, "testQueryConstructingMapsAndTablesWithClausesMayCompleteSEarlyWithError2");
     }
 
     @AfterClass
