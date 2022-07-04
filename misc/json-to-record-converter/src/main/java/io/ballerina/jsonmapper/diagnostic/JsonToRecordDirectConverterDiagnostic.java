@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.converters.diagnostic;
+package io.ballerina.jsonmapper.diagnostic;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;

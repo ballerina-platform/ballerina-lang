@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.converters.util;
+package io.ballerina.jsonmapper.util;
 
 /**
  * Contains keywords and other constants.
