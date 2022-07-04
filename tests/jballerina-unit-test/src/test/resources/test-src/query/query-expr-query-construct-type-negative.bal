@@ -362,7 +362,7 @@ class EvenNumberGenerator {
     public isolated function next() returns record {| int value; |}|error {
         self.i += 2;
         if self.i > 20 {
-            return error("Gtreater than 20!");
+            return error("Greater than 20!");
         }
         return { value: self.i };
     }
