@@ -33,15 +33,15 @@ import java.util.List;
  *
  * @since 2201.2.0
  */
-public class JsonToRecordDirectConverterDiagnostic extends Diagnostic {
+public class JsonToRecordMapperDiagnostic extends Diagnostic {
 
     private final DiagnosticInfo diagnosticInfo;
     private final Location location;
     private final List<DiagnosticProperty<?>> properties;
     private final String message;
 
-    public JsonToRecordDirectConverterDiagnostic(String code, String message, DiagnosticSeverity severity,
-                                                 Location location, Object[] args) {
+    public JsonToRecordMapperDiagnostic(String code, String message, DiagnosticSeverity severity,
+                                        Location location, Object[] args) {
         this.diagnosticInfo = new DiagnosticInfo(code, message, severity);
         this.location = location;
         this.properties = Collections.emptyList();

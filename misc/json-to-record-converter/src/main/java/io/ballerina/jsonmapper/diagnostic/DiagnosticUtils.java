@@ -33,9 +33,9 @@ public final class DiagnosticUtils {
 
     public static JsonToRecordResponse getDiagnosticResponse(List<DiagnosticMessage> diagnosticMessages,
                                                              JsonToRecordResponse response) {
-        List<JsonToRecordDirectConverterDiagnostic> diagnostics = response.getDiagnostics();
+        List<JsonToRecordMapperDiagnostic> diagnostics = response.getDiagnostics();
         for (DiagnosticMessage message : diagnosticMessages) {
-            JsonToRecordDirectConverterDiagnostic diagnostic = new JsonToRecordDirectConverterDiagnostic(
+            JsonToRecordMapperDiagnostic diagnostic = new JsonToRecordMapperDiagnostic(
                     message.getCode(), message.getDescription(), message.getSeverity(), null, message.getArgs());
             diagnostics.add(diagnostic);
         }

@@ -18,7 +18,7 @@
 
 package io.ballerina.jsonmapper;
 
-import io.ballerina.jsonmapper.diagnostic.JsonToRecordDirectConverterDiagnostic;
+import io.ballerina.jsonmapper.diagnostic.JsonToRecordMapperDiagnostic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.List;
 public class JsonToRecordResponse {
 
     private String codeBlock;
-    private List<JsonToRecordDirectConverterDiagnostic> diagnostics = new ArrayList<>();
+    private List<JsonToRecordMapperDiagnostic> diagnostics = new ArrayList<>();
 
     public String getCodeBlock() {
         return codeBlock;
@@ -41,11 +41,11 @@ public class JsonToRecordResponse {
         this.codeBlock = codeBlock;
     }
 
-    public List<JsonToRecordDirectConverterDiagnostic> getDiagnostics() {
+    public List<JsonToRecordMapperDiagnostic> getDiagnostics() {
         return diagnostics;
     }
 
-    public void setDiagnostics(List<JsonToRecordDirectConverterDiagnostic> diagnostic) {
+    public void setDiagnostics(List<JsonToRecordMapperDiagnostic> diagnostic) {
         this.diagnostics = diagnostic;
     }
 }

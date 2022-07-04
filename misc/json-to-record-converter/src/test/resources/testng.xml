@@ -22,7 +22,7 @@ under the License.
 <suite name="json-to-record-direct-converter-test-suite">
     <test name="json-to-record-direct-converter-test" parallel="false">
         <classes>
-            <class name="io.ballerina.jsonmapper.JsonToRecordDirectConverterTests"/>
+            <class name="io.ballerina.jsonmapper.JsonToRecordMapperTests"/>
         </classes>
     </test>
 </suite>
