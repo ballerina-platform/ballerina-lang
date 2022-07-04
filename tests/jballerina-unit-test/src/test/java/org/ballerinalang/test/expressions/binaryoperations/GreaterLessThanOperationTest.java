@@ -95,7 +95,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 105);
+        Assert.assertEquals(resultNegative.getErrorCount(), 113);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -297,8 +297,24 @@ public class GreaterLessThanOperationTest {
                 "operator '<=' not defined for 'X2' and 'Y2'", 304, 17);
         BAssertUtil.validateError(resultNegative, index++,
                 "operator '>' not defined for 'X2' and 'Y2'", 305, 17);
-        BAssertUtil.validateError(resultNegative, index,
+        BAssertUtil.validateError(resultNegative, index++,
                 "operator '>=' not defined for 'X2' and 'Y2'", 306, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for '[int,int,string...]' and 'int[]'", 313, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for '[int,int,string...]' and 'int[]'", 314, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for '[int,int,string...]' and 'int[]'", 315, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>=' not defined for '[int,int,string...]' and 'int[]'", 316, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<' not defined for 'int[]' and '[int,int,string...]'", 317, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '<=' not defined for 'int[]' and '[int,int,string...]'", 318, 17);
+        BAssertUtil.validateError(resultNegative, index++,
+                "operator '>' not defined for 'int[]' and '[int,int,string...]'", 319, 17);
+        BAssertUtil.validateError(resultNegative, index,
+                "operator '>=' not defined for 'int[]' and '[int,int,string...]'", 320, 17);
     }
 
     @Test(description = "Test byte greater than, less than expression")
@@ -337,6 +353,8 @@ public class GreaterLessThanOperationTest {
                 "testTypeComparison7",
                 "testTypeComparison8",
                 "testTypeComparison9",
+                "testTypeComparison10",
+                "testTypeComparison11",
                 "testUnionComparison1",
                 "testUnionComparison2",
                 "testUnionComparison3",
