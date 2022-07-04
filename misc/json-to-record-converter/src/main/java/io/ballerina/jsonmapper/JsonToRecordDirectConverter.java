@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.converters;
+package io.ballerina.jsonmapper;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -41,7 +41,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.converters.diagnostic.DiagnosticMessage;
+import io.ballerina.jsonmapper.diagnostic.DiagnosticMessage;
+import io.ballerina.jsonmapper.diagnostic.DiagnosticUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
@@ -55,12 +56,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static io.ballerina.converters.diagnostic.DiagnosticUtils.getDiagnosticResponse;
-import static io.ballerina.converters.util.ConverterUtils.escapeIdentifier;
-import static io.ballerina.converters.util.ConverterUtils.getPrimitiveTypeName;
-import static io.ballerina.converters.util.ConverterUtils.sortTypeDescriptorNodes;
-import static io.ballerina.converters.util.ListOperationUtils.difference;
-import static io.ballerina.converters.util.ListOperationUtils.intersection;
+import static io.ballerina.jsonmapper.util.ConverterUtils.escapeIdentifier;
+import static io.ballerina.jsonmapper.util.ConverterUtils.getPrimitiveTypeName;
+import static io.ballerina.jsonmapper.util.ConverterUtils.sortTypeDescriptorNodes;
+import static io.ballerina.jsonmapper.util.ListOperationUtils.difference;
+import static io.ballerina.jsonmapper.util.ListOperationUtils.intersection;
 
 /**
  * API for converting JSON string to Ballerina Records directly.
@@ -104,12 +104,12 @@ public class JsonToRecordDirectConverter {
             } else {
                 DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter101(null);
                 diagnosticMessages.add(message);
-                return getDiagnosticResponse(diagnosticMessages, response);
+                return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
             }
         } catch (JsonSyntaxException e) {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter100(new String[]{e.getMessage()});
             diagnosticMessages.add(message);
-            return getDiagnosticResponse(diagnosticMessages, response);
+            return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
         }
 
         NodeList<ImportDeclarationNode> imports = AbstractNodeFactory.createEmptyNodeList();
@@ -135,7 +135,7 @@ public class JsonToRecordDirectConverter {
             DiagnosticMessage message = DiagnosticMessage.jsonToRecordConverter102(null);
             diagnosticMessages.add(message);
         }
-        return getDiagnosticResponse(diagnosticMessages, response);
+        return DiagnosticUtils.getDiagnosticResponse(diagnosticMessages, response);
     }
 
     /**

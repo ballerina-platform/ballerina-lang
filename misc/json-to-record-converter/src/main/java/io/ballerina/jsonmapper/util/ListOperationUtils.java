@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package io.ballerina.converters.util;
+package io.ballerina.jsonmapper.util;
 
 import java.util.HashMap;
 import java.util.Map;
