@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
@@ -59,11 +60,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
@@ -150,27 +150,33 @@ public class JBallerinaBackend extends CompilerBackend {
         // add ballerina toml diagnostics
         diagnostics.addAll(this.packageContext.packageManifest().diagnostics().diagnostics());
         // collect compilation diagnostics
-        Set<Diagnostic> moduleDiagnostics = new LinkedHashSet<>();
+        Map<Diagnostic, Diagnostic> moduleDiagnostics = new LinkedHashMap<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
             // If modules from the current package are being processed
             // we do an overall check on the diagnostics of the package
             if (moduleContext.moduleId().packageId().equals(packageContext.packageId())) {
                 Collection<Diagnostic> pkgDiagnostics = packageCompilation.diagnosticResult().diagnostics();
-                if (!pkgDiagnostics.isEmpty()) {
-                    moduleDiagnostics.addAll(pkgDiagnostics);
-                    if (packageCompilation.diagnosticResult().hasErrors()) {
-                        break;
-                    }
+                if (packageCompilation.diagnosticResult().hasErrors()) {
+                    pkgDiagnostics.stream()
+                            .filter(diagnostic -> !moduleDiagnostics.containsKey(diagnostic))
+                            .forEach(diagnostic -> moduleDiagnostics.put(diagnostic, diagnostic));
+                    break;
                 }
             }
 
             // We can't generate backend code when one of its dependencies have errors.
-            if (hasNoErrors(moduleDiagnostics)) {
+            if (hasNoErrors(moduleDiagnostics.keySet())) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
+            }
+            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                if (!moduleDiagnostics.containsKey(diagnostic)) {
+                    moduleDiagnostics.put(diagnostic,
+                            new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+                }
             }
         }
         // add compilation diagnostics
-        diagnostics.addAll(moduleDiagnostics);
+        diagnostics.addAll(moduleDiagnostics.values());
         // add plugin diagnostics
         diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
 
@@ -180,7 +186,7 @@ public class JBallerinaBackend extends CompilerBackend {
         codeGenCompleted = true;
     }
 
-    private boolean hasNoErrors(Set<Diagnostic> diagnostics) {
+    private boolean hasNoErrors(Collection<Diagnostic> diagnostics) {
         for (Diagnostic diagnostic : diagnostics) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                 return false;
