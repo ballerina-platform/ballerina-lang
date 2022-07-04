@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -26,12 +27,21 @@ import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
+import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
+import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
+import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
+import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
+import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -77,7 +87,9 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol != null && functionSymbol.getName().isPresent()) {
             // Override function signature
             String funcName = functionSymbol.getName().get();
-            Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
+            Pair<String, String> functionSignature = functionSymbol.kind() == SymbolKind.RESOURCE_METHOD ?
+                    getResourceAccessSignature((ResourceMethodSymbol) functionSymbol, funcName, context) :
+                    getFunctionInvocationSignature(functionSymbol, funcName, context);
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
             item.setFilterText(funcName);
@@ -203,6 +215,38 @@ public final class FunctionCompletionItemBuilder {
 
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
 
+        //handle path parameters
+        if (functionSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
+            ResourcePath resourcePath = ((ResourceMethodSymbol) functionSymbol).resourcePath();
+            List<PathParameterSymbol> pathParameterSymbols = new ArrayList<>();
+            switch (resourcePath.kind()) {
+                case PATH_SEGMENT_LIST:
+                    PathSegmentList pathSegmentList = (PathSegmentList) resourcePath;
+                    pathParameterSymbols.addAll(pathSegmentList.pathParameters());
+                    if (pathSegmentList.pathRestParameter().isPresent()) {
+                        pathParameterSymbols.add(pathSegmentList.pathRestParameter().get());
+                    }
+                    break;
+                case PATH_REST_PARAM:
+                    pathParameterSymbols.add(((PathRestParam) resourcePath).parameter());
+                    break;
+                default:
+                    //ignore
+            }
+            for (PathParameterSymbol pathParameterSymbol : pathParameterSymbols) {
+                String paramType = NameUtil.getModifiedTypeName(ctx, pathParameterSymbol.typeDescriptor());
+                StringBuilder paramDescription = new StringBuilder("- " + "`" + paramType + "`");
+                pathParameterSymbol.getName().ifPresent(name -> {
+                    paramDescription.append(" ").append(name);
+                    if (docParamsMap.containsKey(name)) {
+                        paramDescription.append(": ").append(docParamsMap.get(name));
+                    }
+                });
+                joiner.add(paramDescription);
+            }
+        }
+
+        //handle function parameters
         if (functionTypeDesc.restParam().isPresent()) {
             functionParameters.add(functionTypeDesc.restParam().get());
         }
@@ -231,9 +275,11 @@ public final class FunctionCompletionItemBuilder {
             }
         }
         String paramsStr = joiner.toString();
+
         if (!paramsStr.isEmpty()) {
             documentation.append("**Params**").append(CommonUtil.MD_LINE_SEPARATOR).append(paramsStr);
         }
+
         if (functionTypeDesc.returnTypeDescriptor().isPresent()
                 && functionTypeDesc.returnTypeDescriptor().get().typeKind() != TypeDescKind.NIL) {
             // Sets the return type description only if the return type descriptor is not NIL type
@@ -280,6 +326,104 @@ public final class FunctionCompletionItemBuilder {
         insertText.append(")");
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
+    }
+
+    /**
+     * Get the resource access action signature.
+     *
+     * @param resourceMethodSymbol ballerina resource method symbol instance
+     * @param functionName         function name
+     * @param ctx                  Language Server Operation context
+     * @return {@link Pair} of insert text(left-side) and signature label(right-side)
+     */
+    private static Pair<String, String> getResourceAccessSignature(ResourceMethodSymbol resourceMethodSymbol,
+                                                                   String functionName,
+                                                                   BallerinaCompletionContext ctx) {
+        String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);
+        if (resourceMethodSymbol == null) {
+            return ImmutablePair.of(escapedFunctionName + "()", functionName + "()");
+        }
+        ResourcePath resourcePath = resourceMethodSymbol.resourcePath();
+        StringBuilder signature = new StringBuilder();
+        StringBuilder insertText = new StringBuilder();
+        int placeHolderIndex = 1;
+        if (resourcePath.kind() == ResourcePath.Kind.PATH_SEGMENT_LIST) {
+            PathSegmentList pathSegmentList = (PathSegmentList) resourcePath;
+            List<PathSegment> pathSegments = pathSegmentList.list();
+            for (PathSegment pathSegment : pathSegments) {
+                Pair<String, String> resourceAccessPart =
+                        getResourceAccessPartForSegment(pathSegment, placeHolderIndex, ctx);
+                signature.append("/").append(resourceAccessPart.getLeft());
+                insertText.append("/").append(resourceAccessPart.getRight());
+                placeHolderIndex += 1;
+            }
+        } else if (resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
+            PathRestParam pathRestParam = (PathRestParam) resourcePath;
+            Pair<String, String> resourceAccessPart =
+                    getResourceAccessPartForSegment(pathRestParam.parameter(), placeHolderIndex, ctx);
+            signature.append("/").append(resourceAccessPart.getLeft());
+            insertText.append("/").append(resourceAccessPart.getRight());
+        }
+        //DOT_RESOURCE_PATH(".") is ignored.
+
+        //functionName considered the resource accessor.
+        if (!escapedFunctionName.equals("get")) {
+            signature.append(signature.toString().isEmpty() ? "/" : "").append(".").append(escapedFunctionName);
+            insertText.append(insertText.toString().isEmpty() ? "/" : "").append(".").append(escapedFunctionName);
+        }
+
+        List<String> funcArguments = CommonUtil.getFuncArguments(resourceMethodSymbol, ctx);
+        if (!funcArguments.isEmpty()) {
+            signature.append("(").append(String.join(", ", funcArguments)).append(")");
+            insertText.append("(${1})");
+        }
+        return new ImmutablePair<>(insertText.toString(), signature.toString());
+    }
+
+    private static Pair<String, String> getResourceAccessPartForSegment(PathSegment segment, int placeHolderIndex,
+                                                                        BallerinaCompletionContext context) {
+        switch (segment.pathSegmentKind()) {
+            case NAMED_SEGMENT:
+                String name = ((NamedPathSegment) segment).name();
+                return Pair.of(name, name);
+            case PATH_PARAMETER:
+                PathParameterSymbol pathParameterSymbol = (PathParameterSymbol) segment;
+                Optional<String> defaultValue = DefaultValueGenerationUtil
+                        .getDefaultValueForType(pathParameterSymbol.typeDescriptor());
+                String paramType = getFunctionParameterSyntax(pathParameterSymbol, context).orElse("");
+                return Pair.of("[" + paramType + "]", "[${" + placeHolderIndex + ":"
+                        + defaultValue.orElse("") + "}]");
+            case PATH_REST_PARAMETER:
+                PathParameterSymbol pathRestParam = (PathParameterSymbol) segment;
+                ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) pathRestParam.typeDescriptor();
+                Optional<String> defaultVal = DefaultValueGenerationUtil
+                        .getDefaultValueForType(typeSymbol.memberTypeDescriptor());
+                String param = getFunctionParameterSyntax(pathRestParam, context).orElse("");
+                return Pair.of("[" + param + "]",
+                        "[${" + placeHolderIndex + ":" + defaultVal.orElse("\"\"") + "}]");
+            default:
+                //ignore
+        }
+        return Pair.of("", "");
+    }
+
+    private static Optional<String> getFunctionParameterSyntax(PathParameterSymbol param,
+                                                               BallerinaCompletionContext ctx) {
+
+        if (param.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+            ArrayTypeSymbol typeSymbol = (ArrayTypeSymbol) param.typeDescriptor();
+            return Optional.of(NameUtil.getModifiedTypeName(ctx, typeSymbol.memberTypeDescriptor())
+                    + (param.getName().isEmpty() ? "" : "... "
+                    + param.getName().get()));
+        }
+
+        if (param.typeDescriptor().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            // Invalid parameters are ignored, but empty string is used to indicate there's a parameter
+            return Optional.empty();
+        } else {
+            return Optional.of(NameUtil.getModifiedTypeName(ctx, param.typeDescriptor()) +
+                    (param.getName().isEmpty() ? "" : " " + param.getName().get()));
+        }
     }
 
     private static String getQualifiedFunctionName(String functionName, BallerinaCompletionContext ctx,

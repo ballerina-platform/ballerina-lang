@@ -108,6 +108,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PATH_PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
@@ -181,8 +182,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             if (processedSymbols.contains(symbol)) {
                 return;
             }
-            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD) {
-                completionItems.addAll(populateBallerinaFunctionCompletionItems(symbol, ctx));
+            if (symbol.kind() == FUNCTION || symbol.kind() == METHOD || symbol.kind() == RESOURCE_METHOD) {
+                completionItems.addAll(populateBallerinaFunctionCompletionItems((FunctionSymbol) symbol, ctx));
             } else if (symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER) {
                 CompletionItem constantCItem = ConstantCompletionItemBuilder.build((ConstantSymbol) symbol, ctx);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, constantCItem));
@@ -489,19 +490,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @param symbol symbol Entry
      * @return completion item
      */
-    private List<LSCompletionItem> populateBallerinaFunctionCompletionItems(Symbol symbol,
+    private List<LSCompletionItem> populateBallerinaFunctionCompletionItems(FunctionSymbol symbol,
                                                                             BallerinaCompletionContext context) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (symbol.kind() != SymbolKind.FUNCTION && symbol.kind() != SymbolKind.METHOD) {
-            return completionItems;
-        }
         Optional<TypeSymbol> contextType = context.getContextType();
-        if (contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUNCTION) {
+        if (contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUNCTION
+                && symbol.kind() != RESOURCE_METHOD) {
             CompletionItem pointerCompletionItem =
-                    FunctionCompletionItemBuilder.buildFunctionPointer((FunctionSymbol) symbol, context);
+                    FunctionCompletionItemBuilder.buildFunctionPointer(symbol, context);
             completionItems.add(new FunctionPointerCompletionItem(context, symbol, pointerCompletionItem));
         }
-        CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
+        CompletionItem completionItem = FunctionCompletionItemBuilder.build(symbol, context);
         completionItems.add(new SymbolCompletionItem(context, symbol, completionItem));
         return completionItems;
     }
