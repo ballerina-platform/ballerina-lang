@@ -589,6 +589,14 @@
       "sortText": "BK",
       "insertText": "module1:Response",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "G",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

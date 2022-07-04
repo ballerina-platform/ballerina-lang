@@ -1,6 +1,5 @@
 {
   "kind": "FUNCTION_DEFINITION",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -56,7 +55,6 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -69,15 +67,12 @@
         },
         {
           "kind": "LIST",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "CALL_STATEMENT",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "CHECK_EXPRESSION",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "CHECK_KEYWORD",
@@ -96,7 +91,6 @@
                     },
                     {
                       "kind": "CHECK_EXPRESSION",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "CHECK_KEYWORD",
@@ -109,58 +103,22 @@
                         },
                         {
                           "kind": "CHECK_EXPRESSION",
-                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "CHECKPANIC_KEYWORD",
-                              "hasDiagnostics": true,
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
                                   "value": " "
-                                },
-                                {
-                                  "kind": "INVALID_NODE_MINUTIAE",
-                                  "invalidNode": {
-                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                    "hasDiagnostics": true,
-                                    "children": [
-                                      {
-                                        "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                        "hasDiagnostics": true,
-                                        "diagnostics": [
-                                          "ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION"
-                                        ],
-                                        "value": "4"
-                                      }
-                                    ]
-                                  }
                                 }
                               ]
                             },
                             {
-                              "kind": "FUNCTION_CALL",
+                              "kind": "NUMERIC_LITERAL",
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "OPEN_PAREN_TOKEN",
-                                  "isMissing": true
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "CLOSE_PAREN_TOKEN",
-                                  "isMissing": true
+                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                  "value": "4"
                                 }
                               ]
                             }

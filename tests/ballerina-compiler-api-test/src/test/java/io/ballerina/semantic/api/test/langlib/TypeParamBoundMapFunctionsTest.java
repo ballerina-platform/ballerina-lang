@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -88,6 +89,15 @@ public class TypeParamBoundMapFunctionsTest {
         FunctionTypeSymbol functionTypeSymbol = methodSymbol.typeDescriptor();
         assertTrue(functionTypeSymbol.returnTypeDescriptor().isPresent());
         assertEquals(functionTypeSymbol.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
+        UnionTypeSymbol returnTypeDesc = (UnionTypeSymbol) functionTypeSymbol.returnTypeDescriptor().get();
+        List<TypeSymbol> unionTypeSymbols = returnTypeDesc.memberTypeDescriptors();
+        TypeSymbol firstReturnTypeSym = unionTypeSymbols.get(0);
+        TypeSymbol secondReturnTypeSym = unionTypeSymbols.get(1);
+        assertEquals(firstReturnTypeSym.typeKind(), TypeDescKind.RECORD);
+        assertEquals(secondReturnTypeSym.typeKind(), TypeDescKind.NIL);
+        RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) firstReturnTypeSym;
+        TypeSymbol valueRecFieldType = recordTypeSymbol.fieldDescriptors().get("value").typeDescriptor();
+        assertEquals(valueRecFieldType.typeKind(), TypeDescKind.FLOAT);
     }
 
     @Test

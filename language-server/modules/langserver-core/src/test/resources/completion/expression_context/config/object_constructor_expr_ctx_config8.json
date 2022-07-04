@@ -8,7 +8,7 @@
     {
       "label": "ENUM1_FIELD1",
       "kind": "EnumMember",
-      "detail": "ENUM1_FIELD1",
+      "detail": "\"ENUM1_FIELD1\"",
       "documentation": {
         "right": {
           "kind": "markdown",
@@ -36,7 +36,7 @@
     {
       "label": "TEST_STRING_CONST1",
       "kind": "Variable",
-      "detail": "HELLO WORLD",
+      "detail": "\"HELLO WORLD\"",
       "documentation": {
         "right": {
           "kind": "markdown",

@@ -1,9 +1,13 @@
 {
-  "line": 4,
-  "character": 13,
+  "position": {
+    "line": 4,
+    "character": 13
+  },
+  "source": "remove_unreachable_code3.bal",
   "expected": [
     {
       "title": "Remove unreachable code",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

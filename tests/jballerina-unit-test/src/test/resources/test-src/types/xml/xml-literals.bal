@@ -363,3 +363,42 @@ function testXMLReturnUnion() returns error? {
     test:assertTrue(xmlSequence is xml);
     test:assertEquals((check xmlSequence).toString(), "<grand_total>2</grand_total>");
 }
+
+type T xml;
+
+function testXMLInterpolationExprWithUserDefinedType() {
+    T x1 = xml `<foo></foo>`;
+    xml x2 = xml `<doc>${x1}</doc>`;
+    test:assertEquals(x2.toString(), "<doc><foo></foo></doc>");
+}
+
+function testQueryInXMLTemplateExpr() {
+    int[] a = [1, 2, 3];
+
+    var x1 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+    xml x2 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+    xml:Element x3 = xml `<doc>${from int i in a select xml `<num>${i}</num>`}</doc>`;
+
+    string str1 = "<doc><num>1</num><num>2</num><num>3</num></doc>";
+    test:assertEquals(x1.toString(), str1);
+    test:assertEquals(x2.toString(), str1);
+    test:assertEquals(x3.toString(), str1);
+
+    int[] b = [1, 2];
+    var x4 = xml `<doc>${from int i in b select xml `<row>${from int j in a select xml `<num>${j}</num>`}</row>`}</doc>`;
+
+    string str2 = "<doc><row><num>1</num><num>2</num><num>3</num></row><row><num>1</num><num>2</num><num>3</num></row></doc>";
+    test:assertEquals(x4.toString(), str2);
+
+    xml<xml:Element> x5 = xml `<doc><num>1</num><num>2</num><num>3</num></doc>`;
+    xml x6 = xml `<doc>${from xml:Element i in x5 select i}</doc>`;
+
+    string str3 = "<doc><doc><num>1</num><num>2</num><num>3</num></doc></doc>";
+    test:assertEquals(x6.toString(), str3);
+
+    var x7 = xml `<doc>${(from string s in ["a", "b", "c"] select xml `${s}z`)}</doc>`;
+    test:assertEquals(x7.toString(), "<doc>azbzcz</doc>");
+
+    // var x8 = xml `<doc>${xml `foo` + (from string s in ["a", "b"] select xml `${s}z`)}</doc>`; // issue #36541
+    // test:assertEquals(x8.toString(), "<doc>fooazbz</doc>")
+}

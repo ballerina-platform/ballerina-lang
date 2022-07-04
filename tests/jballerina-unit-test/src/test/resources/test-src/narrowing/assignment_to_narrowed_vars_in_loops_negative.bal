@@ -685,7 +685,7 @@ function testInLoopAssignmentsWithQueryAction() returns error? {
     int|string? p = 10;
 
     if p is int|string {
-        check from var a in x
+            from var a in x
             where p is int
             do {
                 p = 12;
@@ -693,7 +693,7 @@ function testInLoopAssignmentsWithQueryAction() returns error? {
     }
 
     if p is int|string {
-        check from var a in x
+            from var a in x
             where p is int && a is int
             do {
                 p = 12;
@@ -702,7 +702,7 @@ function testInLoopAssignmentsWithQueryAction() returns error? {
     }
 
     while p is int|string {
-        check from var a in x
+            from var a in x
             where p is int
             do {
                 p = 12;
@@ -710,7 +710,7 @@ function testInLoopAssignmentsWithQueryAction() returns error? {
     }
 
     while p is int|string {
-        check from var a in x
+            from var a in x
             where p is int && a is int
             do {
                 p = 12;

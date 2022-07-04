@@ -52,7 +52,7 @@ public class RemoteParticipantTransactionTest extends BaseTest {
         int[] requiredPorts = new int[]{initiatorServicePort, participant1ServicePort};
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" +
                 File.separator + "transaction").getAbsolutePath();
-        String[] buildArgs = new String[] { "--experimental" };
+        String[] buildArgs = new String[] { };
         String[] runtimeArgs = new String[] { "--", "http.coordinator.host=127.0.0.1" };
 
         serverInstance = new BServerInstance(balServer);

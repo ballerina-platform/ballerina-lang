@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "create_function_with_strands1.bal",
   "expected": {
     "result": {
       "edit": {
@@ -28,7 +29,7 @@
                     "character": 1
                   }
                 },
-                "newText": "\n\nfunction createAnotherVal(Foo & readonly r) returns Foo & readonly {\n    return {};\n}\n"
+                "newText": "\n\nfunction createAnotherVal(Foo \u0026 readonly r) returns Foo \u0026 readonly {\n    return {};\n}\n"
               }
             ]
           }

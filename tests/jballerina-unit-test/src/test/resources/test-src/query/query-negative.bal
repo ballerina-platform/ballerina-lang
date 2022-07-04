@@ -506,3 +506,45 @@ public function testVariableOfUndefinedTypeUsedInJoin() {
         on 1 equals 1
         select 1;
 }
+
+function testInvalidTypeInOnConflictClauseWithQueryConstructingTable() {
+    User[] users = [];
+    error|int msg = error("Error");
+
+    var result1 = table key(id) from var user in users
+                    where user.age > 21 && user.age < 60
+                    select {user} on conflict 1;
+
+    var result2 = table key(id) from var user in users
+                    where user.age > 21 && user.age < 60
+                    select {user} on conflict msg;
+}
+type CustomError1 distinct error;
+
+type CustomError2 distinct error;
+
+function getCustomErrorOrInt() returns CustomError1|int {
+    return error CustomError1("Custom error");
+}
+
+function getCustomErrorOrIntArray() returns CustomError1|int[] {
+    return error CustomError1("Custom error");
+}
+
+function testDistinctErrorThrownFromQueryAction1() {
+    //expected 'CustomError2?', found 'CustomError1?'
+    CustomError2? res = from int i in 1 ... 3
+        do {
+            _ = check getCustomErrorOrInt();
+        };
+}
+
+function testDistinctErrorThrownFromQueryAction2() {
+    //expected 'CustomError2?', found 'CustomError1?'
+    CustomError2? res = from int i in 1 ... 3
+        do {
+            check from int j in check getCustomErrorOrIntArray()
+                do {
+                };
+        };
+}

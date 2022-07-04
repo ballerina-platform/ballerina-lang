@@ -17,7 +17,11 @@ import ballerina/jballerina.java;
 
 function testOnFailEdgeTestcases() {
     testUnreachableCodeWithIf();
+    testSimpleOnFailWithoutVariable();
     testMultiLevelOnFail();
+    testMultiLevelOnFailWithoutVariableVariationOne();
+    testMultiLevelOnFailWithoutVariableVariationTwo();
+    testMultiLevelOnFailWithoutVariableVariationThree();
     testRetryOnFailWithinWhile();
     testOnFailWithinAnonFunc();
     testRetryOnFailWithinObjectFunc();
@@ -72,6 +76,63 @@ function testMultiLevelOnFail() {
     }
 
     assertEquality(" -> Before error thrown,  -> Error caught at level #1 -> Before error thrown,  -> Error caught at level #1", str);
+}
+
+function testMultiLevelOnFailWithoutVariableVariationOne() {
+    int i = 1;
+    string str = "";
+
+    while i <= 2 {
+        do {
+            str += " -> Iteration " + i.toString() + ", ";
+            fail getError();
+        } on fail {
+            str += " -> On Fail #" + i.toString();
+        }
+        i = i + 1;
+    } on fail error e {
+        str += " -> On Fail Final";
+    }
+
+    assertEquality(" -> Iteration 1,  -> On Fail #1 -> Iteration 2,  -> On Fail #2", str);
+}
+
+function testMultiLevelOnFailWithoutVariableVariationTwo() {
+    int i = 1;
+    string str = "";
+
+    while i <= 2 {
+        do {
+            str += " -> Iteration " + i.toString() + ", ";
+            fail getError();
+        } on fail error e {
+            str += " -> On Fail #" + i.toString();
+        }
+        i = i + 1;
+    } on fail {
+        str += " -> On Fail Final";
+    }
+
+    assertEquality(" -> Iteration 1,  -> On Fail #1 -> Iteration 2,  -> On Fail #2", str);
+}
+
+function testMultiLevelOnFailWithoutVariableVariationThree() {
+    int i = 1;
+    string str = "";
+
+    while i <= 2 {
+        do {
+            str += " -> Iteration " + i.toString() + ", ";
+            fail getError();
+        } on fail {
+            str += " -> On Fail #" + i.toString();
+        }
+        i = i + 1;
+    } on fail {
+        str += " -> On Fail Final";
+    }
+
+    assertEquality(" -> Iteration 1,  -> On Fail #1 -> Iteration 2,  -> On Fail #2", str);
 }
 
 public class MyRetryManager {
@@ -340,6 +401,17 @@ function testLambdaFunctionWithOnFail() returns int {
           return a;
     };
     return lambdaFunc();
+}
+
+function testSimpleOnFailWithoutVariable() {
+    string str = "";
+    do {
+        error err = error("Custom error thrown explicitly.");
+        fail err;
+    } on fail {
+        str += "On Fail Executed";
+    }
+     assertEquality("On Fail Executed", str);
 }
 
 function getCheckError()  returns int|error {

@@ -77,9 +77,6 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
 
-    @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
-    private boolean experimentalFlag;
-
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
@@ -87,10 +84,11 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--sticky", description = "stick to exact versions locked (if exists)")
     private Boolean sticky;
 
-    @CommandLine.Option(names = "--dump-graph", hidden = true)
+    @CommandLine.Option(names = "--dump-graph", description = "Print the dependency graph.", hidden = true)
     private boolean dumpGraph;
 
-    @CommandLine.Option(names = "--dump-raw-graphs", hidden = true)
+    @CommandLine.Option(names = "--dump-raw-graphs", description = "Print all intermediate graphs created in the " +
+            "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
@@ -101,7 +99,7 @@ public class RunCommand implements BLauncherCmd {
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
-            "    bal run [--experimental] [--offline]\n" +
+            "    bal run [--offline]\n" +
             "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
     public RunCommand() {
@@ -238,7 +236,6 @@ public class RunCommand implements BLauncherCmd {
 
         buildOptionsBuilder
                 .setCodeCoverage(false)
-                .setExperimental(experimentalFlag)
                 .setOffline(offline)
                 .setSkipTests(true)
                 .setTestReport(false)

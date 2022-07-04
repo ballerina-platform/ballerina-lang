@@ -43,6 +43,7 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
         pluginContext.addCodeAnalyzer(new FunctionNodeAnalyzer());
         pluginContext.addCodeGenerator(new InitFunctionCodeGenerator());
         pluginContext.addCodeGenerator(new OpenApiSpecGenerator());
+        pluginContext.addCodeGenerator(new SampleJsonGenerator());
     }
 
     /**
@@ -55,6 +56,20 @@ public class CodegenFunctionPlugin extends CompilerPlugin {
         public void init(CodeGeneratorContext generatorContext) {
             generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
                 sourceGeneratorContext.addResourceFile("".getBytes(Charset.defaultCharset()), "openapi-spec.yaml");
+            });
+        }
+    }
+
+    /**
+     * A sample {@code CodeGenerator} that creates a test resource file.
+     *
+     * @since 2201.1.0
+     */
+    public static class SampleJsonGenerator extends CodeGenerator {
+        @Override
+        public void init(CodeGeneratorContext generatorContext) {
+            generatorContext.addSourceGeneratorTask(sourceGeneratorContext -> {
+                sourceGeneratorContext.addTestResourceFile("".getBytes(Charset.defaultCharset()), "sample.json");
             });
         }
     }

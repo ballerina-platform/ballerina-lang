@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmArrayTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmErrorTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmObjectTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRecordTypeGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmRefTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmTupleTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.types.JvmUnionTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -129,6 +130,7 @@ public class JvmCreateTypeGen {
     private final JvmUnionTypeGen jvmUnionTypeGen;
     private final JvmTupleTypeGen jvmTupleTypeGen;
     private final JvmArrayTypeGen jvmArrayTypeGen;
+    private final JvmRefTypeGen jvmRefTypeGen;
     private final TypeHashVisitor typeHashVisitor;
     public final TypeDefHashComparator typeDefHashComparator;
     private final String typesClass;
@@ -147,6 +149,7 @@ public class JvmCreateTypeGen {
         this.jvmUnionTypeGen = new JvmUnionTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmTupleTypeGen = new JvmTupleTypeGen(this, jvmTypeGen, jvmConstantsGen, packageID);
         this.jvmArrayTypeGen = new JvmArrayTypeGen(jvmTypeGen);
+        this.jvmRefTypeGen = new JvmRefTypeGen(jvmTypeGen, jvmConstantsGen);
         this.typesCw = new BallerinaClassWriter(COMPUTE_FRAMES);
         this.typeHashVisitor =  typeHashVisitor;
         this.typeDefHashComparator = new TypeDefHashComparator(typeHashVisitor);
@@ -573,6 +576,14 @@ public class JvmCreateTypeGen {
         return new AnonTypeHashInfo(hashes, labels, labelFieldMapping);
     }
 
+    public void generateRefTypeConstants(List<BIRTypeDefinition> typeDefs, SymbolTable symbolTable) {
+        for (BIRTypeDefinition typeDef : typeDefs) {
+            if (typeDef.referenceType != null) {
+                jvmConstantsGen.getTypeConstantsVar(typeDef.referenceType, symbolTable);
+            }
+        }
+    }
+
     static class AnonTypeHashInfo {
 
         int[] hashes;
@@ -642,7 +653,7 @@ public class JvmCreateTypeGen {
         mv.visitInsn(DUP);
 
         // Load the field type
-        jvmTypeGen.loadType(mv, field.type);
+        jvmTypeGen.loadLocalType(mv, field.symbol.type);
 
         // Load field name
         mv.visitLdcInsn(decodeIdentifier(field.name.value));
@@ -663,6 +674,10 @@ public class JvmCreateTypeGen {
 
     public JvmArrayTypeGen getJvmArrayTypeGen() {
         return jvmArrayTypeGen;
+    }
+
+    public JvmRefTypeGen getJvmRefTypeGen() {
+        return jvmRefTypeGen;
     }
 
 }

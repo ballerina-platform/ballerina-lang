@@ -1,0 +1,218 @@
+[
+  {
+    "source": "int total = 99;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["total"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string s = \"Hello world\"",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["s"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "total",
+    "result": {
+      "shellValue": {
+        "value":"99",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "total*2",
+    "result": {
+      "shellValue": {
+        "value":"198",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "s",
+    "result": {
+      "shellValue": {
+        "value":"\"Hello world\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "total = 3",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "total",
+    "result": {
+      "shellValue": {
+        "value":"3",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int|string x1 = 100;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["x1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "x1 is int",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string? y = ();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["y"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "y",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "const float g = 9.81;final int v = 12;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["v"],"moduleDclns":["g"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "g",
+    "result": {
+      "shellValue": {
+        "value":"9.81",
+        "mimeType":"plain/text",
+        "type":"float"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "v",
+    "result": {
+      "shellValue": {
+        "value":"12",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "v = 12",
+    "result": {
+      "errors":["Invocation of the snippet failed."],
+      "diagnostics":["error: cannot assign a value to final \u0027v\u0027\n\tv \u003d 12;\n\t^","Compilation aborted due to errors."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "anydata data = 20; data = (); data = false; data = s;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["data"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "data",
+    "result": {
+      "shellValue": {
+        "value":"\"Hello world\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "var k = 15",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["k"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "k",
+    "result": {
+      "shellValue": {
+        "value":"15",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]
