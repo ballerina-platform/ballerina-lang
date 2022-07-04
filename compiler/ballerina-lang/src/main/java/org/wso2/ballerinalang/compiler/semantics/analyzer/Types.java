@@ -335,6 +335,12 @@ public class Types {
     }
 
     private boolean isSameOrderedType(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        if (isNil(source) || isNil(target)) {
+            // If type T is ordered, then type T? Is also ordered.
+            // Both source and target are ordered types since they were checked in previous stage.
+            // Ex. Let take target -> T, source -> (). T? is ordered type where the static type of both operands belong.
+            return true;
+        }
         if (!unresolvedTypes.add(new TypePair(source, target))) {
             return true;
         }
@@ -3078,6 +3084,7 @@ public class Types {
                 targetTag = getEffectiveTypeForIntersection(targetType).tag;
             }
             if (isSimpleBasicType(sourceTag) && isSimpleBasicType(targetTag)) {
+                // If type T is ordered, then type T? Is also ordered.
                 return (source == target) || sourceTag == TypeTags.NIL || targetTag == TypeTags.NIL ||
                         isIntOrStringType(sourceTag, targetTag);
             }
@@ -3099,13 +3106,7 @@ public class Types {
                 }
                 return false;
             }
-
-            BArrayType rhsArrayType = (BArrayType) source;
-            boolean hasSameOrderedTypeElements = isSameOrderedType(target.eType, rhsArrayType.eType, unresolvedTypes);
-            if (target.state == BArrayState.OPEN) {
-                return (rhsArrayType.state == BArrayState.OPEN) && hasSameOrderedTypeElements;
-            }
-            return hasSameOrderedTypeElements;
+            return isSameOrderedType(target.eType, ((BArrayType) source).eType, unresolvedTypes);
         }
 
         @Override
@@ -3120,56 +3121,58 @@ public class Types {
             if (source.tag != TypeTags.TUPLE && source.tag != TypeTags.ARRAY) {
                 return false;
             }
+            List<BType> targetTupleTypes = target.tupleTypes;
+            BType targetRestType = target.restType;
 
             if (source.tag == TypeTags.ARRAY) {
+                // Check whether the element type of the source array has same ordered type with each member type in
+                // target tuple type.
                 BType eType = ((BArrayType) source).eType;
-                for (int i = 0; i < target.tupleTypes.size(); i++) {
-                    if (!isSameOrderedType(eType, target.tupleTypes.get(i), this.unresolvedTypes)) {
+                for (BType memberType : targetTupleTypes) {
+                    if (!isSameOrderedType(eType, memberType, this.unresolvedTypes)) {
                         return false;
                     }
                 }
-                return true;
+                if (targetRestType == null) {
+                    return true;
+                }
+                return isSameOrderedType(targetRestType, eType, this.unresolvedTypes);
             }
 
             BTupleType sourceT = (BTupleType) source;
+            List<BType> sourceTupleTypes = sourceT.tupleTypes;
 
             BType sourceRestType = sourceT.restType;
-            BType targetRestType = target.restType;
 
-            int sourceTupleCount = sourceT.tupleTypes.size();
-            int targetTupleCount = target.tupleTypes.size();
+            int sourceTupleCount = sourceTupleTypes.size();
+            int targetTupleCount = targetTupleTypes.size();
 
             int len = Math.min(sourceTupleCount, targetTupleCount);
             for (int i = 0; i < len; i++) {
-                if (!isSameOrderedType(sourceT.getTupleTypes().get(i), target.tupleTypes.get(i),
-                        this.unresolvedTypes)) {
+                // Check whether the corresponding member types are same ordered type.
+                if (!isSameOrderedType(sourceTupleTypes.get(i), targetTupleTypes.get(i), this.unresolvedTypes)) {
                     return false;
                 }
             }
 
             if (sourceTupleCount > targetTupleCount) {
-                BType baseType = sourceT.getTupleTypes().get(targetTupleCount);
-                for (int i = targetTupleCount + 1; i < sourceTupleCount; i++) {
-                    if (isNil(baseType)) {
-                        baseType = sourceT.getTupleTypes().get(i);
-                        continue;
-                    }
-                    if (!isSameOrderedType(baseType, sourceT.getTupleTypes().get(i),
-                            this.unresolvedTypes)) {
-                        return false;
-                    }
+                // Source tuple has higher number of member types.
+                // Check whether the excess member types can be narrowed to an ordered rest type in source tuple.
+                // Ex. source tuple -> [string, (), float, int, byte]
+                //     target tuple -> [string, (), float]
+                //     here, source tuple can be represented as [string, (), float, int...]
+                //     since [string, (), float] & [string, (), float, int...] are individually order types and
+                //     [string, (), float, int...] can be taken as the ordered type which the static type of both
+                //     operands belong.
+                BType baseType = sourceTupleTypes.get(targetTupleCount);
+                if (!hasCommonOrderedTypeForTuples(baseType, sourceTupleTypes, targetTupleCount + 1)) {
+                    return false;
                 }
             } else if (sourceTupleCount < targetTupleCount) {
-                BType baseType = target.getTupleTypes().get(sourceTupleCount);
-                for (int i = sourceTupleCount + 1; i < targetTupleCount; i++) {
-                    if (isNil(baseType)) {
-                        baseType = target.getTupleTypes().get(i);
-                        continue;
-                    }
-                    if (!isSameOrderedType(baseType, target.getTupleTypes().get(i),
-                            this.unresolvedTypes)) {
-                        return false;
-                    }
+                // Target tuple has higher number of member types.
+                BType baseType = targetTupleTypes.get(sourceTupleCount);
+                if (!hasCommonOrderedTypeForTuples(baseType, targetTupleTypes, sourceTupleCount + 1)) {
+                    return false;
                 }
             }
 
@@ -3185,6 +3188,19 @@ public class Types {
             }
             return checkSameOrderedTypeInTuples(target, targetTupleCount, sourceTupleCount, targetRestType,
                     sourceRestType);
+        }
+
+        private boolean hasCommonOrderedTypeForTuples(BType baseType, List<BType> typeList, int startIndex) {
+            for (int i = startIndex; i < typeList.size(); i++) {
+                if (isNil(baseType)) {
+                    baseType = typeList.get(i);
+                    continue;
+                }
+                if (!isSameOrderedType(baseType, typeList.get(i), this.unresolvedTypes)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private boolean checkSameOrderedTypeInTuples(BTupleType source, int sourceTupleCount,
@@ -3346,11 +3362,14 @@ public class Types {
     }
 
     private boolean isNil(BType type) {
+        // Currently, type reference for `null` literal is taken as Finite type and type reference for `()` literal
+        // taken as Nil type.
         BType referredType = getReferredType(type);
-        if (referredType.getKind() == TypeKind.NIL) {
+        TypeKind referredTypeKind = referredType.getKind();
+        if (referredTypeKind == TypeKind.NIL) {
             return true;
-        } else if (referredType.getKind() == TypeKind.FINITE) {
-            Set<BLangExpression>  valueSpace = ((BFiniteType) referredType).getValueSpace();
+        } else if (referredTypeKind == TypeKind.FINITE) {
+            Set<BLangExpression> valueSpace = ((BFiniteType) referredType).getValueSpace();
             return valueSpace.size() == 1 && valueSpace.iterator().next().getBType().getKind() == TypeKind.NIL;
         }
         return false;
@@ -3358,42 +3377,39 @@ public class Types {
 
     private boolean checkUnionHasSameType(BUnionType unionType, BType baseType) {
         LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
-        boolean isSameType = false;
+        boolean hasSameOrderedType = false;
         for (BType type : memberTypes) {
             type = getReferredType(type);
             if (type.tag == TypeTags.FINITE) {
                 for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
-                    isSameType = isSameOrderedType(expr.getBType(), baseType) || isNil(type);
-                    if (!isSameType) {
+                    hasSameOrderedType = isSameOrderedType(expr.getBType(), baseType);
+                    if (!hasSameOrderedType) {
                         return false;
                     }
                 }
             } else if (type.tag == TypeTags.UNION) {
-                if (checkUnionHasSameType((BUnionType) type, baseType)) {
-                    isSameType = true;
-                    continue;
+                if (!checkUnionHasSameType((BUnionType) type, baseType)) {
+                    return false;
                 }
-                return false;
+                hasSameOrderedType = true;
             } else if (type.tag == TypeTags.TUPLE || type.tag == TypeTags.ARRAY) {
-                if (isSameOrderedType(type, baseType)) {
-                    isSameType = true;
-                    continue;
+                if (!isSameOrderedType(type, baseType)) {
+                    return false;
                 }
-                return false;
+                hasSameOrderedType = true;
             } else if (type.tag == TypeTags.INTERSECTION) {
-                if (isSameOrderedType(getEffectiveTypeForIntersection(type), baseType)) {
-                    isSameType = true;
-                    continue;
+                if (!isSameOrderedType(getEffectiveTypeForIntersection(type), baseType)) {
+                    return false;
                 }
-                return false;
+                hasSameOrderedType = true;
             } else if (isSimpleBasicType(type.tag)) {
-                isSameType = isSameOrderedType(type, baseType) || isNil(type);
-                if (!isSameType) {
+                hasSameOrderedType = isSameOrderedType(type, baseType) || isNil(type);
+                if (!hasSameOrderedType) {
                     return false;
                 }
             }
         }
-        return isSameType;
+        return hasSameOrderedType;
     }
 
     private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType type) {
@@ -6210,12 +6226,12 @@ public class Types {
                 }
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 boolean allMembersOrdered = false;
-                BType firstTypeInUnion =
-                        getTypeWithEffectiveIntersectionTypes(getReferredType(memberTypes.iterator().next()));
+                BType firstTypeInUnion = getTypeWithEffectiveIntersectionTypes(getReferredType(
+                        memberTypes.stream().filter(m -> !isNil(m)).findFirst().orElse(memberTypes.iterator().next())));
+                boolean isFirstTypeInUnionFinite = firstTypeInUnion.tag == TypeTags.FINITE;
                 for (BType memType : memberTypes) {
                     memType = getEffectiveTypeForIntersection(getReferredType(memType));
-                    if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE &&
-                            (!isNil(firstTypeInUnion) && !isNil(memType))) {
+                    if (isFirstTypeInUnionFinite && memType.tag == TypeTags.FINITE && !isNil(memType)) {
                         Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                         BType baseExprType = valSpace.iterator().next().getBType();
                         if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
@@ -6228,8 +6244,7 @@ public class Types {
                             continue;
                         }
                         return false;
-                    } else if (memType.tag != firstTypeInUnion.tag &&
-                            (!isNil(firstTypeInUnion) && !isNil(memType)) &&
+                    } else if (memType.tag != firstTypeInUnion.tag && !isNil(firstTypeInUnion) && !isNil(memType) &&
                             !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {
                         return false;
                     }

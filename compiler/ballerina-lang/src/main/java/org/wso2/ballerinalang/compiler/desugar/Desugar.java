@@ -7250,7 +7250,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
-                                                                int rhsExprTypeTag) {
+                                                     int rhsExprTypeTag) {
         boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
         boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
         BType lhsExprType = binaryExpr.lhsExpr.getBType();
@@ -7262,56 +7262,32 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (lhsExprTypeTag == TypeTags.DECIMAL) {
-            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
-                binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
-                return;
-            }
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
+            addTypeCastForBinaryExpr(binaryExpr, lhsExprType, rhsExprType, true);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.DECIMAL) {
-            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
-                binaryExpr.rhsExpr = addNilType(lhsExprType, binaryExpr.rhsExpr);
-                return;
-            }
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.rhsExpr.getBType());
+            addTypeCastForBinaryExpr(binaryExpr, rhsExprType, lhsExprType, false);
             return;
         }
 
         if (lhsExprTypeTag == TypeTags.FLOAT) {
-            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
-                binaryExpr.lhsExpr = addNilType(lhsExprType, binaryExpr.lhsExpr);
-                return;
-            }
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.getBType());
+            addTypeCastForBinaryExpr(binaryExpr, lhsExprType, rhsExprType, true);
             return;
         }
 
         if (rhsExprTypeTag == TypeTags.FLOAT) {
-            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
-                binaryExpr.rhsExpr = addNilType(lhsExprType, binaryExpr.rhsExpr);
-                return;
-            }
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.rhsExpr.getBType());
+            addTypeCastForBinaryExpr(binaryExpr, rhsExprType, lhsExprType, false);
             return;
         }
 
         if (isLhsIntegerType && !isRhsIntegerType) {
-            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
-                binaryExpr.lhsExpr = addNilType(symTable.intType, binaryExpr.lhsExpr);
-                return;
-            }
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            addTypeCastForBinaryExpr(binaryExpr, symTable.intType, rhsExprType, true);
             return;
         }
 
         if (!isLhsIntegerType && isRhsIntegerType) {
-            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
-                binaryExpr.rhsExpr = addNilType(symTable.intType, binaryExpr.rhsExpr);
-                return;
-            }
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            addTypeCastForBinaryExpr(binaryExpr, symTable.intType, lhsExprType, false);
             return;
         }
 
@@ -7335,20 +7311,29 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (isLhsStringType && !isRhsStringType) {
-            if (rhsExprTypeTag == TypeTags.UNION && rhsExprType.isNullable()) {
-                binaryExpr.lhsExpr = addNilType(symTable.stringType, binaryExpr.lhsExpr);
-                return;
-            }
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
+            addTypeCastForBinaryExpr(binaryExpr, symTable.stringType, rhsExprType, true);
             return;
         }
 
         if (!isLhsStringType && isRhsStringType) {
-            if (lhsExprTypeTag == TypeTags.UNION && lhsExprType.isNullable()) {
-                binaryExpr.rhsExpr = addNilType(symTable.stringType, binaryExpr.rhsExpr);
-                return;
+            addTypeCastForBinaryExpr(binaryExpr, symTable.stringType, lhsExprType, false);
+        }
+    }
+
+    private void addTypeCastForBinaryExpr(BLangBinaryExpr binaryExpr, BType targetType, BType sourceType,
+                                          boolean isRhsExpr) {
+        if (sourceType.tag == TypeTags.UNION && sourceType.isNullable()) {
+            if (isRhsExpr) {
+                binaryExpr.lhsExpr = addNilType(targetType, binaryExpr.lhsExpr);
+            } else {
+                binaryExpr.rhsExpr = addNilType(targetType, binaryExpr.rhsExpr);
             }
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
+            return;
+        }
+        if (isRhsExpr) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, targetType);
+        } else {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, targetType);
         }
     }
 
