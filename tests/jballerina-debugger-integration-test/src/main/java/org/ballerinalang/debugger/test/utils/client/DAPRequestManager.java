@@ -343,7 +343,6 @@ public class DAPRequestManager {
     }
 
     public CompletableFuture<RunInTerminalResponse> runInTerminal(RunInTerminalRequestArguments args) throws Exception {
-        RunInTerminalResponse response = new RunInTerminalResponse();
         if (checkStatus()) {
             // check whether it is a project based test or single file test, and get the cwd respectively
             String cwd = isProjectBasedTest ? clientConnector.getProjectPath().toString() :
@@ -351,7 +350,7 @@ public class DAPRequestManager {
 
             if (args.getKind() == RunInTerminalRequestArgumentsKind.INTEGRATED && Objects.equals(args.getCwd(), cwd)) {
                 this.didRunInIntegratedTerminal = true;
-                return CompletableFuture.completedFuture(response);
+                return CompletableFuture.completedFuture(null);
             } else {
                 throw new Exception("RunInTerminal request failed");
             }
