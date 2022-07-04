@@ -67,9 +67,9 @@ import static io.ballerina.jsonmapper.util.ListOperationUtils.intersection;
  *
  * @since 2201.2.0
  */
-public class JsonToRecordDirectConverter {
+public class JsonToRecordMapper {
 
-    private JsonToRecordDirectConverter() {}
+    private JsonToRecordMapper() {}
 
     private static final String NEW_RECORD_NAME = "NewRecord";
     private static final String ARRAY_RECORD_SUFFIX = "Item";

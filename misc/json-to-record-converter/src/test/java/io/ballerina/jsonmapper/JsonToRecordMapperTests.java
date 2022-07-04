@@ -19,7 +19,7 @@
 package io.ballerina.jsonmapper;
 
 
-import io.ballerina.jsonmapper.diagnostic.JsonToRecordDirectConverterDiagnostic;
+import io.ballerina.jsonmapper.diagnostic.JsonToRecordMapperDiagnostic;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * Tests for JsonToRecordDirectConverter.
  */
-public class JsonToRecordDirectConverterTests {
+public class JsonToRecordMapperTests {
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
@@ -49,14 +49,14 @@ public class JsonToRecordDirectConverterTests {
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
-                    JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false);
+                    JsonToRecordMapper.convert(jsonFileContent, null, false, false);
             if (jsonToRecordResponse.getCodeBlock() != null) {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
                 Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
             }
-            List<JsonToRecordDirectConverterDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
-            for (JsonToRecordDirectConverterDiagnostic diagnostic : diagnostics) {
+            List<JsonToRecordMapperDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
+            for (JsonToRecordMapperDiagnostic diagnostic : diagnostics) {
                 //TODO: react when there is a diagnostic message.
             }
         }
@@ -80,14 +80,14 @@ public class JsonToRecordDirectConverterTests {
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
-                    JsonToRecordDirectConverter.convert(jsonFileContent, null, false, false);
+                    JsonToRecordMapper.convert(jsonFileContent, null, false, false);
             if (jsonToRecordResponse.getCodeBlock() != null) {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
                 Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
             }
-            List<JsonToRecordDirectConverterDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
-            for (JsonToRecordDirectConverterDiagnostic diagnostic : diagnostics) {
+            List<JsonToRecordMapperDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
+            for (JsonToRecordMapperDiagnostic diagnostic : diagnostics) {
                 //TODO: react when there is a diagnostic message.
             }
         }
@@ -104,14 +104,14 @@ public class JsonToRecordDirectConverterTests {
         for (Map.Entry<Path, Path> sample : samples.entrySet()) {
             String jsonFileContent = Files.readString(sample.getKey());
             JsonToRecordResponse jsonToRecordResponse =
-                    JsonToRecordDirectConverter.convert(jsonFileContent, null, true, false);
+                    JsonToRecordMapper.convert(jsonFileContent, null, true, false);
             if (jsonToRecordResponse.getCodeBlock() != null) {
                 String generatedCodeBlock = jsonToRecordResponse.getCodeBlock().replaceAll("\\s+", "");
                 String expectedCodeBlock = Files.readString(sample.getValue()).replaceAll("\\s+", "");
                 Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
             }
-            List<JsonToRecordDirectConverterDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
-            for (JsonToRecordDirectConverterDiagnostic diagnostic : diagnostics) {
+            List<JsonToRecordMapperDiagnostic> diagnostics = jsonToRecordResponse.getDiagnostics();
+            for (JsonToRecordMapperDiagnostic diagnostic : diagnostics) {
                 //TODO: react when there is a diagnostic message.
             }
         }
