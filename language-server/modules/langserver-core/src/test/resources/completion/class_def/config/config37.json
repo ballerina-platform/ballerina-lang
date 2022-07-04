@@ -1,26 +1,17 @@
 {
   "position": {
-    "line": 2,
-    "character": 8
+    "line": 4,
+    "character": 16
   },
-  "source": "class_def/source/source15.bal",
+  "source": "class_def/source/source36.bal",
   "items": [
     {
-      "label": "isolated",
+      "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "isolated",
-      "insertText": "isolated ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "client",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "filterText": "client",
-      "insertText": "client ",
+      "filterText": "readonly",
+      "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -33,12 +24,12 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "readonly",
+      "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "Q",
-      "filterText": "readonly",
-      "insertText": "readonly ",
+      "filterText": "client",
+      "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
     {
