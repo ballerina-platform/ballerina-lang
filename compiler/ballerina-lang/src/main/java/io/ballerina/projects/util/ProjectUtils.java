@@ -95,6 +95,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_JAR_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIFF_UTILS_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_CORE_JAR;
 import static io.ballerina.projects.util.ProjectConstants.JACOCO_REPORT_JAR;
@@ -947,6 +948,12 @@ public class ProjectUtils {
      * @return is project files are updated
      */
     public static boolean isProjectUpdated(Project project) {
+        // If observability included and Syntax Tree Json not in the caches, return true
+        if (project.buildOptions().observabilityIncluded() &&
+                !project.targetDir().resolve(CACHES_DIR_NAME).resolve("syntax-tree.json").toFile().exists()) {
+            return true;
+        }
+
         Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
         if (buildFile.toFile().exists()) {
             try {

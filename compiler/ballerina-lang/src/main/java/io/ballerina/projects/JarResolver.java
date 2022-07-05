@@ -104,7 +104,7 @@ public class JarResolver {
                         .getService(CompilerContext.class);
                 ObservabilitySymbolCollector observabilitySymbolCollector
                         = ObservabilitySymbolCollectorRunner.getInstance(compilerContext);
-                observabilitySymbolCollector.writeToExecutable(observabilityJarPath);
+                observabilitySymbolCollector.writeToExecutable(observabilityJarPath, rootPackageContext.project());
 
                 jarFiles.add(new JarLibrary(observabilityJarPath, PlatformLibraryScope.DEFAULT,
                         getPackageName(rootPackageContext)));

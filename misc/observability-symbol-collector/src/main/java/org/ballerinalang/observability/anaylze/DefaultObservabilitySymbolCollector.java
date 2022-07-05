@@ -26,6 +26,8 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.observability.anaylze.model.DocumentHolder;
 import org.ballerinalang.observability.anaylze.model.ModuleHolder;
@@ -89,19 +91,23 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         packageHolder.setOrg(currentPackage.packageOrg().toString());
         packageHolder.setName(currentPackage.packageName().toString());
         packageHolder.setVersion(currentPackage.packageVersion().toString());
-        for (ModuleId moduleId : currentPackage.moduleIds()) {
-            SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
-            Module module = currentPackage.module(moduleId);
-            for (DocumentId documentId : module.documentIds()) {
-                Document document = module.document(documentId);
-                JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
-                packageHolder.addSyntaxTree(module.descriptor(), document.name(), syntaxTreeJSON);
+
+        // Skip this part if project has not updated
+        if (ProjectUtils.isProjectUpdated(project)) {
+            for (ModuleId moduleId : currentPackage.moduleIds()) {
+                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
+                Module module = currentPackage.module(moduleId);
+                for (DocumentId documentId : module.documentIds()) {
+                    Document document = module.document(documentId);
+                    JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(document, semanticModel);
+                    packageHolder.addSyntaxTree(module.descriptor(), document.name(), syntaxTreeJSON);
+                }
             }
         }
     }
 
     @Override
-    public void writeToExecutable(Path executableFile) throws IOException {
+    public void writeToExecutable(Path executableFile, Project project) throws IOException {
         if (!isObservabilityIncluded) {
             return;
         }
@@ -111,7 +117,23 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             Files.createDirectories(syntaxTreeDirPath);
 
             // Writing Syntax Tree Json
-            String syntaxTreeDataString = generateCanonicalJsonString(packageHolder);
+            String syntaxTreeDataString;
+            Path syntaxTreeJsonCachePath = project.targetDir()
+                    .resolve(ProjectConstants.CACHES_DIR_NAME).resolve(SYNTAX_TREE_FILE_NAME);
+            if (ProjectUtils.isProjectUpdated(project)) {
+                syntaxTreeDataString = generateCanonicalJsonString(packageHolder);
+                // Cache Syntax Tree Json to use when project has not updated
+                try {
+                    if (!syntaxTreeJsonCachePath.toFile().exists()) {
+                        Files.createFile(syntaxTreeJsonCachePath);
+                    }
+                    Files.write(syntaxTreeJsonCachePath, syntaxTreeDataString.getBytes(StandardCharsets.UTF_8));
+                } catch (IOException e) {
+                    out.println("error: failed to write '" + SYNTAX_TREE_FILE_NAME + "' to " + syntaxTreeJsonCachePath);
+                }
+            } else {
+                syntaxTreeDataString = new String(Files.readAllBytes(syntaxTreeJsonCachePath));
+            }
             Files.write(syntaxTreeDirPath.resolve(SYNTAX_TREE_FILE_NAME),
                     syntaxTreeDataString.getBytes(StandardCharsets.UTF_8));
 

@@ -198,7 +198,7 @@ public class FileUtils {
                             || file.toPath().equals(projectRoot.resolve(COMPILER_PLUGIN_TOML))) {
                         // Ballerina.toml and CompilerPlugin.toml
                         fileModifiedDate = file.lastModified();
-                    } else if (filename.endsWith(BLANG_SOURCE_EXT)
+                    } else if (filename.toString().endsWith(BLANG_SOURCE_EXT)
                             && file.toPath().equals(projectRoot.resolve(filename))) {
                         // default module ballerina source files
                         fileModifiedDate = file.lastModified();
